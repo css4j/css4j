@@ -740,6 +740,7 @@ public class ComputedStyleAttrTest {
 
 		elm.setAttribute("data-line", "b b b");
 		style = elm.getComputedStyle(null);
+		assertEquals("\"a a a\" \"b b b\"", style.getPropertyValue("grid"));
 		assertEquals("\"a a a\" \"b b b\"", style.getPropertyValue("grid-template-areas"));
 		assertEquals("auto", style.getPropertyValue("grid-template-rows"));
 		assertEquals("none", style.getPropertyValue("grid-template-columns"));
@@ -769,12 +770,65 @@ public class ComputedStyleAttrTest {
 
 		elm.setAttribute("data-flex", "1.2fr");
 		style = elm.getComputedStyle(null);
+		assertEquals("auto-flow 1fr 1fr/1.2fr", style.getPropertyValue("grid"));
 		assertEquals("none", style.getPropertyValue("grid-template-areas"));
 		assertEquals("none", style.getPropertyValue("grid-template-rows"));
 		assertEquals("1.2fr", style.getPropertyValue("grid-template-columns"));
 		assertEquals("1fr 1fr", style.getPropertyValue("grid-auto-rows"));
 		assertEquals("auto", style.getPropertyValue("grid-auto-columns"));
 		assertEquals("row", style.getPropertyValue("grid-auto-flow"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void testBorderRadiusShorthandAttrListFallback() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		assertNotNull(elm);
+		//
+		elm.getOverrideStyle(null)
+				.setCssText("border-radius: 20% attr(data-radius %, / 40%)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("20%/40%", style.getPropertyValue("border-radius"));
+		assertEquals("20% 40%", style.getPropertyValue("border-top-left-radius"));
+		assertEquals("20% 40%", style.getPropertyValue("border-top-right-radius"));
+		assertEquals("20% 40%", style.getPropertyValue("border-bottom-right-radius"));
+		assertEquals("20% 40%", style.getPropertyValue("border-bottom-left-radius"));
+
+		elm.setAttribute("data-radius", "30");
+		style = elm.getComputedStyle(null);
+		assertEquals("20% 30%", style.getPropertyValue("border-radius"));
+		assertEquals("20%", style.getPropertyValue("border-top-left-radius"));
+		assertEquals("30%", style.getPropertyValue("border-top-right-radius"));
+		assertEquals("20%", style.getPropertyValue("border-bottom-right-radius"));
+		assertEquals("30%", style.getPropertyValue("border-bottom-left-radius"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void testBorderRadiusShorthandAttrLengthListFallback() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		assertNotNull(elm);
+		//
+		elm.getOverrideStyle(null)
+				.setCssText("border-radius: 20% attr(data-radius rlh, / 40%)");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		assertEquals("20%/40%", style.getPropertyValue("border-radius"));
+		assertEquals("20% 40%", style.getPropertyValue("border-top-left-radius"));
+		assertEquals("20% 40%", style.getPropertyValue("border-top-right-radius"));
+		assertEquals("20% 40%", style.getPropertyValue("border-bottom-right-radius"));
+		assertEquals("20% 40%", style.getPropertyValue("border-bottom-left-radius"));
+
+		elm.setAttribute("data-radius", "3");
+		style = elm.getComputedStyle(null);
+		assertEquals("20% 41.76pt", style.getPropertyValue("border-radius"));
+		assertEquals("20%", style.getPropertyValue("border-top-left-radius"));
+		assertEquals("41.76pt", style.getPropertyValue("border-top-right-radius"));
+		assertEquals("20%", style.getPropertyValue("border-bottom-right-radius"));
+		assertEquals("41.76pt", style.getPropertyValue("border-bottom-left-radius"));
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());

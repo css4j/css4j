@@ -1822,6 +1822,10 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			attrtype = "custom-ident";
 		}
 		syn = SyntaxParser.createSimpleSyntax(attrtype);
+		if (syn == null) {
+			// Could be a 3-4 letter unit suffix, or an error
+			return attrtype.equalsIgnoreCase(lunit.getDimensionUnitText());
+		}
 		return lunit.matches(syn) == Match.TRUE
 				|| (lunit.getLexicalUnitType() == LexicalType.STRING && attrtype.equals("url"));
 	}

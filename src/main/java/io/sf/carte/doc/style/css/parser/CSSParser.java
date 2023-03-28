@@ -6330,7 +6330,7 @@ public class CSSParser implements Parser, Cloneable {
 					unexpectedCharError(index, ')');
 				}
 				return;
-			} else if (!lastParamIsOperand()) {
+			} else if (!isVarOrLastParamIsOperand()) {
 				unexpectedCharError(index, ')');
 				return;
 			}
@@ -6393,7 +6393,10 @@ public class CSSParser implements Parser, Cloneable {
 			handleError(index, ParseHelper.ERR_WRONG_VALUE, s);
 		}
 
-		private boolean lastParamIsOperand() {
+		private boolean isVarOrLastParamIsOperand() {
+			if (currentlu.getLexicalUnitType() == LexicalType.VAR) {
+				return true;
+			}
 			LexicalType type = findLastValue(currentlu.parameters).getLexicalUnitType();
 			return type != LexicalType.OPERATOR_COMMA && !typeIsAlgebraicOperator(type);
 		}
@@ -7584,7 +7587,9 @@ public class CSSParser implements Parser, Cloneable {
 							}
 						} else if (codepoint == 47) { // '/'
 							processBuffer(index);
-							if (!functionToken || (currentlu.parameters != null && lastParamIsOperand())) {
+							if (!functionToken || (currentlu.parameters != null
+									&& (isVarOrLastParamIsOperand() || currentlu
+											.getLexicalUnitType() == LexicalType.ATTR))) {
 								newLexicalUnit(LexicalType.OPERATOR_SLASH, false);
 							} else {
 								unexpectedCharError(index, codepoint);
@@ -7592,7 +7597,7 @@ public class CSSParser implements Parser, Cloneable {
 						} else if (functionToken) {
 							if (codepoint == TokenProducer.CHAR_ASTERISK) { // '*'
 								processBuffer(index);
-								if (currentlu.parameters != null && lastParamIsOperand()) {
+								if (currentlu.parameters != null && isVarOrLastParamIsOperand()) {
 									newLexicalUnit(LexicalType.OPERATOR_MULTIPLY, false);
 								} else {
 									unexpectedCharError(index, codepoint);
@@ -8142,7 +8147,7 @@ public class CSSParser implements Parser, Cloneable {
 					return;
 				}
 			} else if (currentlu.parameters != null) {
-				if (lastParamIsOperand()) {
+				if (isVarOrLastParamIsOperand()) {
 					newLexicalUnit(operator, false);
 					return;
 				}

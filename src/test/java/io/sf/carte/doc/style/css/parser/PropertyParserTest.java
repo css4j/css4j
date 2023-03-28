@@ -4274,6 +4274,45 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueAttrListFallback() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("attr(data-radius %, / 10%)");
+		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
+		assertEquals("attr", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("data-radius", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MOD, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(10f, param.getFloatValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("attr(data-radius %,/10%)", lu.toString());
+
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>#");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
 	public void testParsePropertyValueAttrPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-count percentage)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
@@ -5149,6 +5188,150 @@ public class PropertyParserTest {
 		syn = syntaxParser.parseSyntax("<image>+");
 		assertEquals(Match.PENDING, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueVarSlashFallback() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("var(--data-radius, / 10%)");
+		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
+		assertEquals("var", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--data-radius", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(10f, param.getFloatValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("var(--data-radius,/10%)", lu.toString());
+
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>#");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueVarAsteriskFallback() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("var(--data-factor, * 10)");
+		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
+		assertEquals("var", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--data-factor", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(10, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("var(--data-factor,*10)", lu.toString());
+
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>#");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueVarPlusFallback() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("var(--data-add, + 10)");
+		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
+		assertEquals("var", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--data-add", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(10, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("var(--data-add, + 10)", lu.toString());
+
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>#");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueVarMinusFallback() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("var(--data-subtract, - 10)");
+		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
+		assertEquals("var", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--data-subtract", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(10, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("var(--data-subtract, - 10)", lu.toString());
+
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>#");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
 		assertEquals(Match.PENDING, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, lu.matches(syn));

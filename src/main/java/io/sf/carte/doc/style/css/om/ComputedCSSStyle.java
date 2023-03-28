@@ -1788,7 +1788,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (isSafeAttrName(propertyName, owner, attrname)) {
 				Parser parser = getStyleSheetFactory().createSACParser();
 				if (attrtype == null || "string".equals(attrtype)) {
-					String s = '"' + attrvalue + '"';
+					String s = ParseHelper.quote(attrvalue, '"');
 					LexicalUnit substValue;
 					try {
 						substValue = parser.parsePropertyValue(new StringReader(s));
@@ -1809,7 +1809,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 				attrvalue = attrvalue.trim();
 				if ("url".equals(attrtype)) {
-					String s = "url(\"" + attrvalue + "\")";
+					String s = "url(" + ParseHelper.quote(attrvalue, '"') + ')';
 					LexicalUnit substValue;
 					try {
 						substValue = parser.parsePropertyValue(new StringReader(s));
@@ -1827,6 +1827,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					}
 					return substValue;
 				} else {
+					// Let's see if the type is an actual type or an unit suffix
+					if (attrtype.length() <= 2 || ParseHelper
+							.unitFromString(attrtype = attrtype.intern()) != CSSUnit.CSS_OTHER) {
+						attrvalue += attrtype;
+					}
 					LexicalUnit substValue;
 					try {
 						substValue = parser.parsePropertyValue(new StringReader(attrvalue));
@@ -1854,8 +1859,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					if (substValue != null) {
 						substValue = replaceLexicalProxy(propertyName, substValue, counter);
 						removeAttrNameGuard(attrname);
-						// Value must now be typed
-						if (!unitMatchesAttrType(substValue, attrtype)) {
+						// Now check that the value is of the correct type.
+						//
+						// If the attribute type length is 1 or 2, type can only be a unit suffix
+						// and there is no need to check.
+						if (attrtype.length() > 2 && !unitMatchesAttrType(substValue, attrtype)) {
 							substValue = null;
 							computedStyleError(propertyName, attr.getCssText(),
 									"Attribute value does not match type (" + attrtype + ").");
