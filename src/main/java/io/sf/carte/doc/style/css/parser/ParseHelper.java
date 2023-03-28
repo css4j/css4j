@@ -1023,12 +1023,18 @@ public class ParseHelper {
 			return CSSUnit.CSS_CAP;
 		} else if (unit == "ch") {
 			return CSSUnit.CSS_CH;
+		} else if (unit == "lh") {
+			return CSSUnit.CSS_LH;
 		} else if (unit == "ic") {
 			return CSSUnit.CSS_IC;
 		} else if (unit == "rem") {
 			return CSSUnit.CSS_REM;
-		} else if (unit == "lh") {
-			return CSSUnit.CSS_LH;
+		} else if (unit == "rex") {
+			return CSSUnit.CSS_REX;
+		} else if (unit == "rch") {
+			return CSSUnit.CSS_RCH;
+		} else if (unit == "ric") {
+			return CSSUnit.CSS_RIC;
 		} else if (unit == "rlh") {
 			return CSSUnit.CSS_RLH;
 		} else if (unit == "vw") {

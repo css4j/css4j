@@ -746,33 +746,17 @@ public class NumberValue extends TypedValue {
 
 	}
 
-	private static int fractionDigits(short primitiveType) {
-		switch (primitiveType) {
-		case CSSUnit.CSS_EM:
-		case CSSUnit.CSS_EX:
-		case CSSUnit.CSS_IN:
-		case CSSUnit.CSS_MM:
-		case CSSUnit.CSS_PC:
-		case CSSUnit.CSS_PX:
-		case CSSUnit.CSS_PT:
-		case CSSUnit.CSS_CAP:
-		case CSSUnit.CSS_CH:
-		case CSSUnit.CSS_IC:
-		case CSSUnit.CSS_LH:
-		case CSSUnit.CSS_QUARTER_MM:
-		case CSSUnit.CSS_REM:
-		case CSSUnit.CSS_RLH:
-		case CSSUnit.CSS_MS:
-		case CSSUnit.CSS_DEG:
-		case CSSUnit.CSS_GRAD:
-		case CSSUnit.CSS_PERCENTAGE:
-			return 2;
+	private static int fractionDigits(short unit) {
+		switch (unit) {
+		case CSSUnit.CSS_NUMBER:
+		case CSSUnit.CSS_RAD:
+			return 3;
 		case CSSUnit.CSS_KHZ:
 		case CSSUnit.CSS_CM:
 		case CSSUnit.CSS_TURN:
 			return 4;
 		}
-		return 3;
+		return 2;
 	}
 
 	public static NumberValue createCSSNumberValue(short unit, float floatValue) {

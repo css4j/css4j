@@ -486,10 +486,15 @@ abstract class SimpleBoxModel {
 			float contBlockWidth;
 			ComputedCSSStyle contblockStyledecl = findContainingBlockStyle(styledecl);
 			if (contblockStyledecl == null) {
-				contBlockWidth = deviceDocumentWidth(
-					"width is auto, and cannot find top block width.", "auto", box.unitType);
+				if (isRootBox()) {
+					contBlockWidth = box.width;
+				} else {
+					contBlockWidth = deviceDocumentWidth(
+							"width is auto, and cannot find top block width.", "auto",
+							box.unitType);
+				}
 			} else {
-				contBlockWidth = computeWidth(styledecl, box.unitType);
+				contBlockWidth = computeWidth(contblockStyledecl, box.unitType);
 			}
 			float remMargin = contBlockWidth - box.width;
 			remMargin -= box.borderLeftWidth + box.borderRightWidth + box.paddingLeft
@@ -949,6 +954,10 @@ abstract class SimpleBoxModel {
 					&& !"table".equals(display) && !display.startsWith("table-"));
 		}
 		return styledecl;
+	}
+
+	private boolean isRootBox() {
+		return getComputedStyle().getOwnerNode().getParentNode().getNodeType() != Node.ELEMENT_NODE;
 	}
 
 	private float calcValue(ComputedCSSStyle styledecl, String propertyName, ExpressionValue cssCalc, short unitType,

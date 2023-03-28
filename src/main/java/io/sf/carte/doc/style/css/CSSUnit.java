@@ -109,6 +109,21 @@ public interface CSSUnit {
 	short CSS_RLH = 27;
 
 	/**
+	 * Font-relative length ({@code rex}).
+	 */
+	short CSS_REX = 28;
+
+	/**
+	 * Font-relative length ({@code rch}).
+	 */
+	short CSS_RCH = 29;
+
+	/**
+	 * Font-relative length ({@code ric}).
+	 */
+	short CSS_RIC = 30;
+
+	/**
 	 * Viewport-percentage length ({@code vb}).
 	 */
 	short CSS_VB = 40;
@@ -314,6 +329,12 @@ public interface CSSUnit {
 			return "rem";
 		case CSS_RLH:
 			return "rlh";
+		case CSS_REX:
+			return "rex";
+		case CSS_RCH:
+			return "rch";
+		case CSS_RIC:
+			return "ric";
 		case CSS_VB:
 			return "vb";
 		case CSS_VH:

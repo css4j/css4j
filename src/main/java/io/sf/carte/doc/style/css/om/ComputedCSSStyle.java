@@ -28,6 +28,7 @@ import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorMixFunction;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
+import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
@@ -722,10 +723,26 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 		} else if (unit == CSSUnit.CSS_REM) {
 			CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
+			CSSComputedProperties style;
 			if (root != getOwnerNode()) {
-				fv *= root.getComputedStyle(null).getComputedFontSize();
+				style = root.getComputedStyle(null);
 			} else {
-				fv *= getInitialFontSize();
+				style = this;
+			}
+			fv *= style.getComputedFontSize();
+		} else if (unit == CSSUnit.CSS_REX) {
+			CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
+			CSSComputedProperties style;
+			if (root != getOwnerNode()) {
+				style = root.getComputedStyle(null);
+			} else {
+				style = this;
+			}
+			if (getStyleDatabase() != null) {
+				fv *= getStyleDatabase().getExSizeInPt(style.getUsedFontFamily(),
+						style.getComputedFontSize());
+			} else {
+				fv *= style.getComputedFontSize() * 0.5f;
 			}
 		} else if (unit == CSSUnit.CSS_LH) {
 			if (useParentStyle) {
@@ -735,11 +752,13 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 		} else if (unit == CSSUnit.CSS_RLH) {
 			CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
+			CSSComputedProperties style;
 			if (root != getOwnerNode()) {
-				fv *= root.getComputedStyle(null).getComputedLineHeight();
+				style = root.getComputedStyle(null);
 			} else {
-				fv *= getInitialFontSize();
+				style = this;
 			}
+			fv *= style.getComputedLineHeight();
 		} else {
 			CSSCanvas canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			if (unit == CSSUnit.CSS_CAP) {
@@ -752,13 +771,43 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				if (canvas != null) {
 					fv *= canvas.stringWidth("0", this);
 				} else {
+					// rough approximation
 					fv *= getComputedFontSize() * 0.25f;
+				}
+			} else if (unit == CSSUnit.CSS_RCH) {
+				CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
+				CSSComputedProperties style;
+				if (root != getOwnerNode()) {
+					style = root.getComputedStyle(null);
+				} else {
+					style = this;
+				}
+				if (canvas != null) {
+					fv *= canvas.stringWidth("0", style);
+				} else {
+					// rough approximation
+					fv *= style.getComputedFontSize() * 0.25f;
 				}
 			} else if (unit == CSSUnit.CSS_IC) {
 				if (canvas != null) {
 					fv *= canvas.stringWidth("\u6C34", this);
 				} else {
+					// rough approximation
 					fv *= getComputedFontSize();
+				}
+			} else if (unit == CSSUnit.CSS_RIC) {
+				CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
+				CSSComputedProperties style;
+				if (root != getOwnerNode()) {
+					style = root.getComputedStyle(null);
+				} else {
+					style = this;
+				}
+				if (canvas != null) {
+					fv *= canvas.stringWidth("\u6C34", style);
+				} else {
+					// rough approximation
+					fv *= style.getComputedFontSize();
 				}
 			} else if (unit == CSSUnit.CSS_VW) {
 				fv *= getInitialContainingBlockWidthPt(canvas, true) * 0.01f;
@@ -2063,8 +2112,21 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (root != getOwnerNode()) {
 				sz = root.getComputedStyle(null).getComputedFontSize();
 			} else if (force) {
-				reportFontSizeError(cssSize, "Inaccurate conversion from 'rem'.");
+				reportFontSizeWarning(cssSize, "Inaccurate use of 'rem'.");
 				sz = getInitialFontSize();
+			} else {
+				return cssSize;
+			}
+			sz *= factor;
+			break;
+		case CSSUnit.CSS_REX:
+			factor = cssSize.getFloatValue(CSSUnit.CSS_REX);
+			root = getOwnerNode().getOwnerDocument().getDocumentElement();
+			if (root != getOwnerNode()) {
+				sz = root.getComputedStyle(null).getComputedFontSize() * 0.5f;
+			} else if (force) {
+				reportFontSizeWarning(cssSize, "Inaccurate use of 'rex'.");
+				sz = getInitialFontSize() * 0.5f;
 			} else {
 				return cssSize;
 			}
@@ -2101,12 +2163,16 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				parentStyle = getParentComputedStyle();
 				if (parentStyle != null) {
 					sz = canvas.getCapHeight(parentStyle) * factor;
-					break;
+				} else {
+					// Approximation
+					sz = getInitialFontSize() * factor;
+					reportFontSizeWarning(cssSize, "Inaccurate use of 'cap'.");
 				}
+				break;
 			}
 			if (force) {
 				sz = getInitialFontSize() * factor;
-				reportFontSizeError(cssSize, "Inaccurate conversion from 'cap'.");
+				reportFontSizeWarning(cssSize, "Inaccurate conversion from 'cap'.");
 			} else {
 				return cssSize;
 			}
@@ -2118,8 +2184,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				parentStyle = getParentComputedStyle();
 				if (parentStyle != null) {
 					sz = canvas.stringWidth("0", parentStyle) * factor;
-					break;
+				} else {
+					// Approximation
+					sz = getInitialFontSize() * 0.25f * factor;
+					reportFontSizeWarning(cssSize, "Inaccurate use of 'ch'.");
 				}
+				break;
 			}
 			if (force) {
 				sz = getParentElementFontSize() * 0.25f * factor;
@@ -2128,6 +2198,34 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				return cssSize;
 			}
 			break;
+		case CSSUnit.CSS_RCH:
+			factor = cssSize.getFloatValue(CSSUnit.CSS_RCH);
+			CSSDocument doc = getOwnerNode().getOwnerDocument();
+			canvas = doc.getCanvas();
+			root = doc.getDocumentElement();
+			if (canvas != null) {
+				if (root != getOwnerNode()) {
+					sz = canvas.stringWidth("0", root.getComputedStyle(null)) * factor;
+				} else {
+					// We are at root
+					sz = getInitialFontSize() * 0.25f * factor;
+					reportFontSizeWarning(cssSize, "Inaccurate use of 'rch'.");
+				}
+				break;
+			}
+			if (force) {
+				if (root != getOwnerNode()) {
+					sz = root.getComputedStyle(null).getComputedFontSize() * 0.25f;
+				} else {
+					// We are at root
+					sz = getInitialFontSize() * 0.25f;
+				}
+				reportFontSizeWarning(cssSize, "Inaccurate conversion from 'rch'.");
+			} else {
+				return cssSize;
+			}
+			sz *= factor;
+			break;
 		case CSSUnit.CSS_IC:
 			factor = cssSize.getFloatValue(CSSUnit.CSS_IC);
 			canvas = getOwnerNode().getOwnerDocument().getCanvas();
@@ -2135,8 +2233,12 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				parentStyle = getParentComputedStyle();
 				if (parentStyle != null) {
 					sz = canvas.stringWidth("\u6C34", parentStyle) * factor;
-					break;
+				} else {
+					// We are at root
+					sz = getInitialFontSize() * factor;
+					reportFontSizeWarning(cssSize, "Inaccurate use of 'ic'.");
 				}
+				break;
 			}
 			if (force) {
 				sz = getParentElementFontSize() * factor;
@@ -2144,6 +2246,34 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			} else {
 				return cssSize;
 			}
+			break;
+		case CSSUnit.CSS_RIC:
+			factor = cssSize.getFloatValue(CSSUnit.CSS_RIC);
+			doc = getOwnerNode().getOwnerDocument();
+			canvas = doc.getCanvas();
+			root = doc.getDocumentElement();
+			if (canvas != null) {
+				if (root != getOwnerNode()) {
+					sz = canvas.stringWidth("\u6C34", root.getComputedStyle(null)) * factor;
+				} else {
+					// We are at root
+					sz = getInitialFontSize() * factor;
+					reportFontSizeWarning(cssSize, "Inaccurate use of 'ric'.");
+				}
+				break;
+			}
+			if (force) {
+				if (root != getOwnerNode()) {
+					sz = root.getComputedStyle(null).getComputedFontSize();
+				} else {
+					// We are at root
+					sz = getInitialFontSize();
+				}
+				reportFontSizeWarning(cssSize, "Inaccurate conversion from 'ric'.");
+			} else {
+				return cssSize;
+			}
+			sz *= factor;
 			break;
 		case CSSUnit.CSS_PERCENTAGE:
 			float pcnt = cssSize.getFloatValue(CSSUnit.CSS_PERCENTAGE);
@@ -2559,26 +2689,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	private boolean isRelativeUnit(CSSTypedValue pri) {
-		if (pri.getPrimitiveType() == Type.NUMERIC) {
-			switch (pri.getUnitType()) {
-			case CSSUnit.CSS_EM:
-			case CSSUnit.CSS_EX:
-			case CSSUnit.CSS_CAP:
-			case CSSUnit.CSS_CH:
-			case CSSUnit.CSS_IC:
-			case CSSUnit.CSS_LH:
-			case CSSUnit.CSS_REM:
-			case CSSUnit.CSS_RLH:
-			case CSSUnit.CSS_VW:
-			case CSSUnit.CSS_VH:
-			case CSSUnit.CSS_VI:
-			case CSSUnit.CSS_VB:
-			case CSSUnit.CSS_VMIN:
-			case CSSUnit.CSS_VMAX:
-				return true;
-			}
-		}
-		return false;
+		return pri.getPrimitiveType() == Type.NUMERIC
+				&& CSSUnit.isRelativeLengthUnitType(pri.getUnitType());
 	}
 
 	private TypedValue colorValue(String propertyName, TypedValue primi) {
