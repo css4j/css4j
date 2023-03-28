@@ -25,8 +25,7 @@ import io.sf.carte.doc.style.css.property.BaseColor.Space;
 /**
  * RGB color value.
  */
-@SuppressWarnings("removal")
-public class RGBColorValue extends ColorValue implements io.sf.carte.doc.style.css.RGBColorValue {
+public class RGBColorValue extends ColorValue {
 
 	private static final long serialVersionUID = 1L;
 
