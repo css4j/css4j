@@ -730,9 +730,45 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public String toString() {
-			return getName() + "=\"" + getValue() + '"';
+			return getName() + "=\"" + escapeAttributeEntities(getValue()) + '"';
 		}
 
+	}
+
+	private static String escapeAttributeEntities(String text) {
+		StringBuilder buf = null;
+		int len = text.length();
+		for (int i = 0; i < len; i++) {
+			char c = text.charAt(i);
+			// Check whether c is '<', '>', '&', '"' or 'U+00A0'
+			if (c == '<') {
+				buf = appendEntityToBuffer(buf, "lt", text, i, len);
+			} else if (c == '>') {
+				buf = appendEntityToBuffer(buf, "gt", text, i, len);
+			} else if (c == '&') {
+				buf = appendEntityToBuffer(buf, "amp", text, i, len);
+			} else if (c == '"') {
+				buf = appendEntityToBuffer(buf, "quot", text, i, len);
+			} else if (c == '\u00a0') {
+				buf = appendEntityToBuffer(buf, "nbsp", text, i, len);
+			} else if (buf != null) {
+				buf.append(c);
+			}
+		}
+		if (buf != null) {
+			text = buf.toString();
+		}
+		return text;
+	}
+
+	private static StringBuilder appendEntityToBuffer(StringBuilder buf, String string, String text,
+			int index, int inilen) {
+		if (buf == null) {
+			buf = new StringBuilder(inilen + string.length() + 2);
+			buf.append(text.subSequence(0, index));
+		}
+		buf.append('&').append(string).append(';');
+		return buf;
 	}
 
 	class StyleAttr extends MyAttr {

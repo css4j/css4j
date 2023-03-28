@@ -176,7 +176,8 @@ public class StylableDocumentWrapperTest2 {
 		Document document = docbuilder.newDocument();
 		Element element = document.createElement("foo");
 		document.appendChild(element);
-		element.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", "http://www.example.com/");
+		element.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base",
+				"http://www.example.com/base?p=a&q=b");
 		// Wrap
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(false);
@@ -184,8 +185,10 @@ public class StylableDocumentWrapperTest2 {
 		CSSElement docElm = wrapped.getDocumentElement();
 		assertNotNull(docElm);
 		assertEquals("foo", docElm.getTagName());
-		assertEquals("http://www.example.com/", docElm.getAttribute("xml:base"));
-		assertNotNull(docElm.getAttributeNode("xml:base"));
+		assertEquals("http://www.example.com/base?p=a&q=b", docElm.getAttribute("xml:base"));
+		Attr baseAttr = docElm.getAttributeNode("xml:base");
+		assertNotNull(baseAttr);
+		assertEquals("xml:base=\"http://www.example.com/base?p=a&amp;q=b\"", baseAttr.toString());
 	}
 
 	@SuppressWarnings("unchecked")
