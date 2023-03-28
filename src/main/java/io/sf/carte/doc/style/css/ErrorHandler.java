@@ -160,21 +160,6 @@ public interface ErrorHandler {
 	void linkedSheetError(Exception exception, CSSStyleSheet<? extends CSSRule> sheet);
 
 	/**
-	 * A I/O error was produced when retrieving a resource while processing a rule,
-	 * generally an {@literal @}import or {@literal @}font-face rule.
-	 * 
-	 * @param uri
-	 *            the uri for the resource.
-	 * @param exception the exception describing the problem.
-	 * @deprecated
-	 * @see #ioError(String, IOException)
-	 */
-	@Deprecated(forRemoval=true)
-	default void ruleIOError(String uri, IOException exception) {
-		ioError(uri, exception);
-	}
-
-	/**
 	 * A I/O error was found when retrieving a resource while processing an
 	 * attribute (usually {@code href}) or a rule, generally an {@literal @}import
 	 * or {@literal @}font-face rule.

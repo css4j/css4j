@@ -6,6 +6,10 @@ Upgrading to 4.0 from 3.9.1
 - NSAC: ATTR values no longer return a string serialization of the arguments in
   getStringValue(). Use getParameters() to retrieve the arguments.
 
+- CSSOM: the `RGBColorValue` interface was removed.
+
+- CSSOM: the `ruleIOError` method was removed from the `ErrorHandler` interface.
+
 - CSSOM: now CSSRule.setCssText() does not accept errors anymore, only warnings.
 
 - CSSOM: mathematical functions (like sin(), abs(), pow(), etc.) now belong to
