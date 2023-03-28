@@ -149,44 +149,9 @@ the new version number and the new download URLs, Release Notes included.
 If the changes to the `css4j.github.io` repo look correct, commit them with an
 appropriate description but do not push yet.
 
-17) For legacy URL compatibility, produce a non-modular Javadoc and put it into
-the relevant subdirectory of `css4j.github.io/api`. To generate the javadocs,
-apply the following patch to the `build.gradle` file in your copy of the
-release code:
-
-```patch
-@@ -180,11 +180,14 @@ tasks.withType(JavaCompile) {
- tasks.withType(Javadoc) {
-    options.addStringOption('Xdoclint:none', '-quiet')
-    options.addStringOption('encoding', 'UTF-8')
-    options.addStringOption('charset', 'UTF-8')
-    options.overview = 'src/overview.html'
--   options.links 'https://docs.oracle.com/en/java/javase/11/docs/api/'
-+   options.links 'https://docs.oracle.com/javase/8/docs/api/'
-+   options.source = '8'
-+   excludes += '**/module-info.java'
-+   modularity.inferModulePath = false
- }
- 
- tasks.withType(AbstractArchiveTask).configureEach {
- 	// Reproducible build
- 	preserveFileTimestamps = false
-```
-
-Once the new javadocs are generated, move them to the website repo. For example:
-
-```shell
-rm -fr /path/to/css4j.github.io/api/3
-mkdir /path/to/css4j.github.io/api/3
-mv /path/to/css4j-3.9.1/build/docs/javadoc/* /path/to/css4j.github.io/api/3
-```
-
-If the changes to the `css4j.github.io` repo look correct, commit them with a
-description like "Non-modular Javadocs for 3.9.1" but do not push yet.
-
 Now you can remove your local copy of the release code if you want.
 
-18) If this css4j release is coming from the `master` branch and is therefore
+17) If this css4j release is coming from the `master` branch and is therefore
 the most current one, clone the [css4j-dist](https://github.com/css4j/css4j-dist)
 repository and execute `./gradlew mergedJavadoc`. Move the javadocs from
 `build/docs/javadoc` to `/path/to/css4j.github.io/api/latest`.
@@ -194,16 +159,16 @@ repository and execute `./gradlew mergedJavadoc`. Move the javadocs from
 If the changes to the `css4j.github.io` repo look correct, commit them with a
 description like "Latest modular Javadocs after css4j 3.9.1".
 
-19) Push the commits to the `css4j.github.io` repository, and check whether the
+18) Push the commits to the `css4j.github.io` repository, and check whether the
 subsequent ["Examples" CI](https://github.com/css4j/css4j.github.io/actions/workflows/examples.yml)
 completed successfully. A failure could mean that the artifacts are not usable
 with Java 8, for example.
 
-20) If this css4j release is coming from the `master` branch and is therefore
+19) If this css4j release is coming from the `master` branch and is therefore
 the latest one, in your local copy of the [css4j-dist](https://github.com/css4j/css4j-dist)
 repository update the css4j version number in the
 [maven/install-css4j.sh](https://github.com/css4j/css4j-dist/blob/master/maven/install-css4j.sh)
 script. Commit the change and look for the completion of that project's CI.
 
-21) If there is a [Github milestone](https://github.com/css4j/css4j/milestones)
+20) If there is a [Github milestone](https://github.com/css4j/css4j/milestones)
 about this release, close it.

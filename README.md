@@ -119,23 +119,22 @@ where `css4jVersion` would be defined in a `gradle.properties` file.
 
 ## Usage from a Maven build
 If you build your project (that depends on css4j) with Maven, please note that
-some of the css4j dependencies are not in Maven Central:
+neither css4j nor some of its dependencies are in Maven Central.
 
-- [JCLF](https://sourceforge.net/projects/jclf/).
+The easiest path is to add the css4j Maven repository to your project's POM:
 
-- [XMLPull-XPP3](https://github.com/xmlpull-xpp3/xmlpull-xpp3) (v1.2, dependency of the DOM4J module only).
-
-You may want to install them manually into your local Maven repository, which can be done easily with the:
-
-- [`install-jclf.sh`](https://raw.githubusercontent.com/css4j/css4j-dist/master/maven/install-jclf.sh)
-- [`install-xpp3.sh`](https://raw.githubusercontent.com/css4j/css4j-dist/master/maven/install-xpp3.sh)
-
-scripts.
-
-You can also directly install the CSS4J artifacts into your local Maven repository, with the similar
-[`install-css4j.sh`](https://raw.githubusercontent.com/css4j/css4j-dist/master/maven/install-css4j.sh).
+```xml
+<repositories>
+    <repository>
+        <id>css4j</id>
+        <name>CSS4J repository</name>
+        <url>https://css4j.github.io/maven/</url>
+    </repository>
+</repositories>
+```
 
 And then, add the following to the `<dependencies>` section of your `pom.xml`:
+
 ```xml
 <!-- This artifact is not in Maven Central -->
 <dependency>
