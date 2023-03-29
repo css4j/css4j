@@ -210,16 +210,7 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 	 * detected by the library (like modifying a value).
 	 * </p>
 	 */
-	default void rebuildCascade() {
-		String medium = getTargetMedium();
-		if (medium == null) {
-			medium = "all";
-		}
-		try {
-			setTargetMedium(medium);
-		} catch (CSSMediaException e) {
-		}
-	}
+	void rebuildCascade();
 
 	/**
 	 * Get the referrer policy obtained through the 'Referrer-Policy' header or a meta
