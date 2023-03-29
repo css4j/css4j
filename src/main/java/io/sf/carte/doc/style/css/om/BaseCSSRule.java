@@ -88,7 +88,8 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 	 */
 	@Override
 	public AbstractCSSStyleSheet getParentStyleSheet() {
-		return parentSheet;
+		return parentSheet != null ? parentSheet
+				: (parentRule != null) ? parentRule.getParentStyleSheet() : null;
 	}
 
 	@Override
