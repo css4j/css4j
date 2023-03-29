@@ -178,11 +178,7 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			break;
 		default:
 			RGBAColor rgb = color.toRGBColor(false);
-			RGBColorValue rgbValue = new RGBColorValue();
-			rgbValue.setComponent(0, (StyleValue) rgb.getAlpha());
-			rgbValue.setComponent(1, (StyleValue) rgb.getRed());
-			rgbValue.setComponent(2, (StyleValue) rgb.getGreen());
-			rgbValue.setComponent(3, (StyleValue) rgb.getBlue());
+			CSSColorValue rgbValue = rgb.packInValue();
 			lch = rgbValue.toLABColorValue().toLCHColorValue().getColor();
 		}
 		return ColorUtil.deltaE2000LCh(
