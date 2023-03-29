@@ -46,6 +46,9 @@ public interface CSSValue extends Cloneable {
 		 * <i>(note that </i>{@code attr()}<i> has two components, a main one whose type
 		 * could be anticipated, and a fallback that could be of a different type)</i>.
 		 * </p>
+		 * <p>
+		 * {@code PROXY} values can be cast to a {@link CSSPrimitiveValue}.
+		 * </p>
 		 */
 		PROXY,
 
