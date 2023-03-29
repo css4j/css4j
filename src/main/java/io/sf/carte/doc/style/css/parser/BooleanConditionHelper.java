@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.parser;
 
 import java.util.Iterator;
+import java.util.List;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
 
@@ -26,11 +27,14 @@ public class BooleanConditionHelper {
 		if (hasparent) {
 			buf.append('(');
 		}
-		Iterator<BooleanCondition> it = condition.getSubConditions().iterator();
-		it.next().appendMinifiedText(buf);
-		while (it.hasNext()) {
-			buf.append(" and ");
+		List<BooleanCondition> subcond = condition.getSubConditions();
+		if (subcond != null) {
+			Iterator<BooleanCondition> it = subcond.iterator();
 			it.next().appendMinifiedText(buf);
+			while (it.hasNext()) {
+				buf.append(" and ");
+				it.next().appendMinifiedText(buf);
+			}
 		}
 		if (hasparent) {
 			buf.append(')');
@@ -42,11 +46,14 @@ public class BooleanConditionHelper {
 		if (hasparent) {
 			buf.append('(');
 		}
-		Iterator<BooleanCondition> it = condition.getSubConditions().iterator();
-		it.next().appendText(buf);
-		while (it.hasNext()) {
-			buf.append(" and ");
+		List<BooleanCondition> subcond = condition.getSubConditions();
+		if (subcond != null) {
+			Iterator<BooleanCondition> it = subcond.iterator();
 			it.next().appendText(buf);
+			while (it.hasNext()) {
+				buf.append(" and ");
+				it.next().appendText(buf);
+			}
 		}
 		if (hasparent) {
 			buf.append(')');
@@ -58,11 +65,14 @@ public class BooleanConditionHelper {
 		if (hasparent) {
 			buf.append('(');
 		}
-		Iterator<BooleanCondition> it = condition.getSubConditions().iterator();
-		it.next().appendMinifiedText(buf);
-		while (it.hasNext()) {
-			buf.append(" or ");
+		List<BooleanCondition> subcond = condition.getSubConditions();
+		if (subcond != null) {
+			Iterator<BooleanCondition> it = subcond.iterator();
 			it.next().appendMinifiedText(buf);
+			while (it.hasNext()) {
+				buf.append(" or ");
+				it.next().appendMinifiedText(buf);
+			}
 		}
 		if (hasparent) {
 			buf.append(')');
@@ -74,11 +84,14 @@ public class BooleanConditionHelper {
 		if (hasparent) {
 			buf.append('(');
 		}
-		Iterator<BooleanCondition> it = condition.getSubConditions().iterator();
-		it.next().appendText(buf);
-		while (it.hasNext()) {
-			buf.append(" or ");
+		List<BooleanCondition> subcond = condition.getSubConditions();
+		if (subcond != null) {
+			Iterator<BooleanCondition> it = subcond.iterator();
 			it.next().appendText(buf);
+			while (it.hasNext()) {
+				buf.append(" or ");
+				it.next().appendText(buf);
+			}
 		}
 		if (hasparent) {
 			buf.append(')');
@@ -97,7 +110,10 @@ public class BooleanConditionHelper {
 				buf.append("not ");
 			}
 		}
-		condition.getNestedCondition().appendMinifiedText(buf);
+		BooleanCondition nested = condition.getNestedCondition();
+		if (nested != null) {
+			nested.appendMinifiedText(buf);
+		}
 		if (hasparent) {
 			buf.append(')');
 		}
@@ -115,7 +131,10 @@ public class BooleanConditionHelper {
 				buf.append("not ");
 			}
 		}
-		condition.getNestedCondition().appendText(buf);
+		BooleanCondition nested = condition.getNestedCondition();
+		if (nested != null) {
+			nested.appendText(buf);
+		}
 		if (hasparent) {
 			buf.append(')');
 		}

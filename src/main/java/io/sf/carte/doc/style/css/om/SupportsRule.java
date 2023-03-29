@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 
 import org.w3c.dom.DOMException;
 
@@ -96,9 +97,19 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 		switch (condition.getType()) {
 		case PREDICATE:
 			DeclarationCondition declCond = (DeclarationCondition) condition;
-			return declCond.isParsable() && styleDatabase.supports(declCond.getName(), declCond.getValue());
+			return declCond.isParsable()
+					&& styleDatabase.supports(declCond.getName(), declCond.getValue());
 		case AND:
-			Iterator<BooleanCondition> it = condition.getSubConditions().iterator();
+			List<BooleanCondition> subcond = condition.getSubConditions();
+			if (subcond == null) {
+				AbstractCSSStyleSheet sheet = getParentStyleSheet();
+				if (sheet != null) {
+					sheet.getErrorHandler().conditionalRuleError(this.condition,
+							"No conditions inside and(): " + this.condition.toString());
+				}
+				return false;
+			}
+			Iterator<BooleanCondition> it = subcond.iterator();
 			while (it.hasNext()) {
 				if (!supports(it.next(), styleDatabase)) {
 					return false;
@@ -106,9 +117,27 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			}
 			return true;
 		case NOT:
-			return supports(condition.getNestedCondition(), styleDatabase);
+			BooleanCondition nested = condition.getNestedCondition();
+			if (nested == null) {
+				AbstractCSSStyleSheet sheet = getParentStyleSheet();
+				if (sheet != null) {
+					sheet.getErrorHandler().conditionalRuleError(this.condition,
+							"No conditions inside not(): " + this.condition.toString());
+				}
+				return false;
+			}
+			return supports(nested, styleDatabase);
 		case OR:
-			it = condition.getSubConditions().iterator();
+			subcond = condition.getSubConditions();
+			if (subcond == null) {
+				AbstractCSSStyleSheet sheet = getParentStyleSheet();
+				if (sheet != null) {
+					sheet.getErrorHandler().conditionalRuleError(this.condition,
+							"No conditions inside or(): " + this.condition.toString());
+				}
+				return false;
+			}
+			it = subcond.iterator();
 			while (it.hasNext()) {
 				if (supports(it.next(), styleDatabase)) {
 					return true;

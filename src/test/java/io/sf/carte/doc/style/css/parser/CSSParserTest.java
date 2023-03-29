@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -303,6 +304,22 @@ public class CSSParserTest {
 		} catch (CSSParseException e) {
 			assertEquals(14, e.getColumnNumber());
 		}
+	}
+
+	@Test
+	public void testParseSupportsConditionErrorEmptyPredicate() {
+		CSSParser parser = new CSSParser();
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parser.parseSupportsCondition("not()", null));
+		assertEquals(5, ex.getColumnNumber());
+
+		ex = assertThrows(CSSParseException.class,
+				() -> parser.parseSupportsCondition("(display:block) and ()", null));
+		assertEquals(22, ex.getColumnNumber());
+
+		ex = assertThrows(CSSParseException.class,
+				() -> parser.parseSupportsCondition("(display:block) or ()", null));
+		assertEquals(21, ex.getColumnNumber());
 	}
 
 	@Test

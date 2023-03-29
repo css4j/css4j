@@ -112,7 +112,7 @@ abstract class BooleanConditionImpl implements BooleanCondition, java.io.Seriali
 
 	@Override
 	public String toString() {
-		StringBuilder buf = new StringBuilder();
+		StringBuilder buf = new StringBuilder(64);
 		appendText(buf);
 		return buf.toString();
 	}
