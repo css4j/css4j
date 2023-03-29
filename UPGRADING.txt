@@ -34,6 +34,8 @@ Upgrading to 4.0 from 3.9.1
   but this is very unlikely and does not justify the annoyance of carrying the
   calc().
 
+- CSSOM: the default line-height was changed to 1.2.
+
 
 Upgrading to 3.9.1 from 3.9.0
 -----------------------------

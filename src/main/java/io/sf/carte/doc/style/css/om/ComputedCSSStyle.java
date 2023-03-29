@@ -706,79 +706,108 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		float fv = value.getFloatValue(unit);
 		if (unit == CSSUnit.CSS_EM) {
 			if (useParentStyle) {
-				fv *= getParentComputedStyle().getComputedFontSize();
+				ComputedCSSStyle parentStyle = getParentComputedStyle();
+				if (parentStyle != null) {
+					fv *= parentStyle.getComputedFontSize();
+				} else {
+					fv *= getInitialFontSize();
+				}
 			} else {
 				fv *= getComputedFontSize();
 			}
 		} else if (unit == CSSUnit.CSS_EX) {
-			if (getStyleDatabase() != null) {
-				fv *= getStyleDatabase().getExSizeInPt(getUsedFontFamily(), getComputedFontSize());
-			} else {
-				if (useParentStyle) {
-					fv *= getParentComputedStyle().getComputedFontSize();
+			CSSComputedProperties style;
+			float fontSize;
+			if (useParentStyle) {
+				style = getParentComputedStyle();
+				if (style != null) {
+					fontSize = style.getComputedFontSize();
 				} else {
-					fv *= getComputedFontSize();
+					style = this;
+					fontSize = getInitialFontSize();
 				}
-				fv *= 0.5f;
+			} else {
+				style = this;
+				fontSize = getComputedFontSize();
+			}
+			if (getStyleDatabase() != null) {
+				fv *= getStyleDatabase().getExSizeInPt(style.getUsedFontFamily(), fontSize);
+			} else {
+				fv *= fontSize * 0.5f;
 			}
 		} else if (unit == CSSUnit.CSS_REM) {
 			CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
-			CSSComputedProperties style;
 			if (root != getOwnerNode()) {
-				style = root.getComputedStyle(null);
+				fv *= root.getComputedStyle(null).getComputedFontSize();
+			} else if (!useParentStyle) {
+				fv *= getComputedFontSize();
 			} else {
-				style = this;
+				fv *= getInitialFontSize();
 			}
-			fv *= style.getComputedFontSize();
 		} else if (unit == CSSUnit.CSS_REX) {
 			CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
-			CSSComputedProperties style;
+			CSSComputedProperties style = this;
+			float fontSize;
 			if (root != getOwnerNode()) {
 				style = root.getComputedStyle(null);
+				fontSize = style.getComputedFontSize();
+			} else if (!useParentStyle) {
+				fontSize = getComputedFontSize();
 			} else {
-				style = this;
+				fontSize = getInitialFontSize();
 			}
 			if (getStyleDatabase() != null) {
 				fv *= getStyleDatabase().getExSizeInPt(style.getUsedFontFamily(),
-						style.getComputedFontSize());
+						fontSize);
 			} else {
-				fv *= style.getComputedFontSize() * 0.5f;
+				fv *= fontSize * 0.5f;
 			}
 		} else if (unit == CSSUnit.CSS_LH) {
 			if (useParentStyle) {
-				fv *= getParentComputedStyle().getComputedLineHeight();
+				ComputedCSSStyle parentStyle = getParentComputedStyle();
+				if (parentStyle != null) {
+					fv *= parentStyle.getComputedLineHeight();
+				} else {
+					fv *= getInitialFontSize() * 1.2f;
+				}
 			} else {
 				fv *= getComputedLineHeight();
 			}
 		} else if (unit == CSSUnit.CSS_RLH) {
 			CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
-			CSSComputedProperties style;
 			if (root != getOwnerNode()) {
-				style = root.getComputedStyle(null);
+				fv *= root.getComputedStyle(null).getComputedLineHeight();
+			} else if (!useParentStyle) {
+				fv *= getComputedLineHeight();
 			} else {
-				style = this;
+				fv *= getInitialFontSize() * 1.2f;
 			}
-			fv *= style.getComputedLineHeight();
 		} else {
 			CSSCanvas canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			if (unit == CSSUnit.CSS_CAP) {
 				if (canvas != null) {
-					fv *= canvas.getCapHeight(this);
+					ComputedCSSStyle style;
+					if (useParentStyle) {
+						style = getParentComputedStyle();
+						if (style == null) {
+							throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+									"Cannot use parent style at root element.");
+						}
+					} else {
+						style = this;
+					}
+					fv *= canvas.getCapHeight(style);
 				} else {
 					throw new IllegalStateException("cap unit requires canvas");
 				}
 			} else if (unit == CSSUnit.CSS_CH) {
-				if (canvas != null) {
-					fv *= canvas.stringWidth("0", this);
-				} else {
-					// rough approximation
-					fv *= getComputedFontSize() * 0.25f;
-				}
-			} else if (unit == CSSUnit.CSS_RCH) {
-				CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
-				CSSComputedProperties style;
-				if (root != getOwnerNode()) {
-					style = root.getComputedStyle(null);
+				ComputedCSSStyle style;
+				if (useParentStyle) {
+					style = getParentComputedStyle();
+					if (style == null) {
+						fv *= getInitialFontSize() * 0.25f;
+						return asNumericValuePt(fv);
+					}
 				} else {
 					style = this;
 				}
@@ -788,9 +817,37 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					// rough approximation
 					fv *= style.getComputedFontSize() * 0.25f;
 				}
-			} else if (unit == CSSUnit.CSS_IC) {
+			} else if (unit == CSSUnit.CSS_RCH) {
+				CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
+				CSSComputedProperties style;
+				if (root != getOwnerNode()) {
+					style = root.getComputedStyle(null);
+				} else if (!useParentStyle) {
+					style = this;
+				} else {
+					// rough approximation
+					fv *= getInitialFontSize() * 0.25f;
+					return asNumericValuePt(fv);
+				}
 				if (canvas != null) {
-					fv *= canvas.stringWidth("\u6C34", this);
+					fv *= canvas.stringWidth("0", style);
+				} else {
+					// rough approximation
+					fv *= style.getComputedFontSize() * 0.25f;
+				}
+			} else if (unit == CSSUnit.CSS_IC) {
+				ComputedCSSStyle style;
+				if (useParentStyle) {
+					style = getParentComputedStyle();
+					if (style == null) {
+						fv *= getInitialFontSize();
+						return asNumericValuePt(fv);
+					}
+				} else {
+					style = this;
+				}
+				if (canvas != null) {
+					fv *= canvas.stringWidth("\u6C34", style);
 				} else {
 					// rough approximation
 					fv *= getComputedFontSize();
@@ -800,8 +857,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				CSSComputedProperties style;
 				if (root != getOwnerNode()) {
 					style = root.getComputedStyle(null);
-				} else {
+				} else if (!useParentStyle) {
 					style = this;
+				} else {
+					fv *= getInitialFontSize();
+					return asNumericValuePt(fv);
 				}
 				if (canvas != null) {
 					fv *= canvas.stringWidth("\u6C34", style);
@@ -841,10 +901,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				fv = NumberValue.floatValueConversion(fv, unit, CSSUnit.CSS_PT);
 			}
 		}
-		value = new NumberValue();
-		value.setFloatValuePt(fv);
-		value.setAbsolutizedUnit();
-		return value;
+		return asNumericValuePt(fv);
 	}
 
 	private float getInitialContainingBlockWidthPt(CSSCanvas canvas, boolean force)
@@ -1154,7 +1211,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			CSSOperandExpression operand = (CSSOperandExpression) expr;
 			StyleValue value = (StyleValue) operand.getOperand();
 			if (value.getCssValueType() == CssType.PROXY) {
-				value = replaceProxyValues(propertyName, value);
+				value = replaceProxyValue(propertyName, value);
 			}
 			CSSPrimitiveValue primi;
 			if (value.getCssValueType() == CssType.TYPED) {
@@ -1991,7 +2048,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	private TypedValue absoluteFontSizeValue(StyleValue value, boolean force) {
 		CssType type = value.getCssValueType();
 		if (type == CssType.TYPED) {
-			TypedValue primi = absoluteFontSizePrimitive((TypedValue) value, force);
+			TypedValue primi = absoluteFontSizeTyped((TypedValue) value, force);
 			if (primi != null) {
 				return primi;
 			}
@@ -2022,7 +2079,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return new IdentifierValue("medium");
 	}
 
-	private TypedValue absoluteFontSizePrimitive(TypedValue cssSize, boolean force) {
+	private TypedValue absoluteFontSizeTyped(TypedValue cssSize, boolean force) {
 		switch (cssSize.getPrimitiveType()) {
 		case IDENT:
 			String sizeIdentifier = cssSize.getStringValue();
@@ -2042,7 +2099,9 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			try {
 				cssSize = ev.evaluateExpression(exprval);
 			} catch (DOMException e) {
-				computedStyleError("font-size", exprval.getCssText(), "Could not evaluate expression value.", e);
+				computedStyleError("font-size", exprval.getCssText(),
+						"Could not evaluate expression value.", e);
+				break;
 			}
 			return cssSize;
 		case MATH_FUNCTION:
@@ -2057,22 +2116,24 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			try {
 				cssSize = ev.evaluateFunction(function);
 			} catch (DOMException e) {
-				computedStyleError("font-size", function.getCssText(), "Could not evaluate function value.", e);
+				computedStyleError("font-size", function.getCssText(),
+						"Could not evaluate function value.", e);
+				break;
 			}
 			return cssSize;
 		case NUMERIC:
 			return absoluteFontSizeNumeric(cssSize, force);
 		default:
 			String cssText = cssSize.getCssText();
-			computedStyleError("font-size", cssText, "Unable to convert to pt.");
-			float sz = getInitialFontSize();
-			sz = Math.round(sz * 100f) * 0.01f;
-			NumberValue number = new NumberValue();
-			number.setFloatValuePt(sz);
-			number.setSubproperty(cssSize.isSubproperty());
-			number.setAbsolutizedUnit();
-			return number;
+			computedStyleError("font-size", cssText, "Unable to convert to absolute length.");
 		}
+		float sz = getInitialFontSize();
+		sz = Math.round(sz * 100f) * 0.01f;
+		NumberValue number = new NumberValue();
+		number.setFloatValuePt(sz);
+		number.setSubproperty(cssSize.isSubproperty());
+		number.setAbsolutizedUnit();
+		return number;
 	}
 
 	/*
@@ -2138,7 +2199,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (parentStyle != null) {
 				sz = parentStyle.getComputedLineHeight();
 			} else if (force) {
-				sz = getInitialFontSize();
+				sz = getInitialFontSize() * 1.2f;
 			} else {
 				return cssSize;
 			}
@@ -2150,7 +2211,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (root != getOwnerNode()) {
 				sz = root.getComputedStyle(null).getComputedLineHeight();
 			} else if (force) {
-				sz = getInitialFontSize();
+				sz = getInitialFontSize() * 1.2f;
 			} else {
 				return cssSize;
 			}

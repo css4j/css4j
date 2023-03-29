@@ -80,6 +80,7 @@ as well as other issues.
 - CSSOM: for better reproducibility of minified font serialization, only consider font family as initial if it was not specified, when serializing minified computed styles.
 - CSSOM: a few newer types weren't added to the `LexicalValue.getFinalType()` logic.
 - CSSOM: throw a `DOMException.TYPE_MISMATCH_ERR` if the `counter()` or `counters()` name is of the wrong type.
+- CSSOM: the default `line-height` was changed to 1.2.
 - CSSOM: remove an unnecessary cast in `ComputedCSSStyle`.
 - DOM: add a `clone()` method to `StringList`.
 - DOM: slightly speed up the import of elements without attributes.

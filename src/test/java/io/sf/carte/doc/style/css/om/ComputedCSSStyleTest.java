@@ -834,7 +834,7 @@ public class ComputedCSSStyleTest {
 		style = elm.getComputedStyle(null);
 		assertNotNull(style);
 
-		assertEquals(10.8f, style.getComputedFontSize(), 0.01f);
+		assertEquals(12.96f, style.getComputedFontSize(), 0.01f);
 		box = style.getBoxValues(CSSUnit.CSS_PT);
 		assertEquals(0f, box.getPaddingTop(), 0.01f);
 		assertEquals(0f, box.getPaddingRight(), 0.01f);
@@ -843,11 +843,11 @@ public class ComputedCSSStyleTest {
 		assertEquals(0f, box.getMarginTop(), 0.01f);
 		assertEquals(0f, box.getMarginRight(), 0.01f);
 		assertEquals(0f, box.getMarginBottom(), 0.01f);
-		assertEquals(12.528f, box.getMarginLeft(), 0.01f);
+		assertEquals(15.0336f, box.getMarginLeft(), 0.01f);
 		assertEquals(675f, box.getWidth(), 0.01f);
 
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(12.528f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15.0336f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
