@@ -16,9 +16,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSFontFaceRule;
 import io.sf.carte.doc.style.css.CSSRule;
@@ -40,7 +40,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 
 	private LinkedList<MediaQueryList> badMediaLists = null;
 	private LinkedList<String> badAtRules = null;
-	private LinkedList<String> badInlineStyles = null;
+	private LinkedList<String> badConditions = null;
 	private List<CSSRule> ruleList = null;
 
 	private List<CSSParseException> sacWarnings = null;
@@ -105,7 +105,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	@Override
 	public boolean hasOMErrors() {
 		return omErrorMergedState || unknownRules != null || ignoredImports != null || ruleParseErrors != null
-				|| badMediaLists != null || badAtRules != null || badInlineStyles != null;
+				|| badMediaLists != null || badAtRules != null || badConditions != null;
 	}
 
 	@Override
@@ -132,14 +132,6 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	}
 
 	@Override
-	public void inlineStyleError(DOMException e, Element elm, String attr) {
-		if (badInlineStyles == null) {
-			badInlineStyles = new LinkedList<String>();
-		}
-		badInlineStyles.add(attr);
-	}
-
-	@Override
 	public void ruleParseError(CSSRule rule, CSSParseException ex) {
 		if (ruleParseErrors == null) {
 			ruleParseErrors = new LinkedList<RuleParseException>();
@@ -150,6 +142,14 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 
 	@Override
 	public void ruleParseWarning(CSSRule rule, CSSParseException ex) {
+	}
+
+	@Override
+	public void conditionalRuleError(BooleanCondition condition, String message) {
+		if (badConditions == null) {
+			badConditions = new LinkedList<>();
+		}
+		badConditions.add(message);
 	}
 
 	@Override
@@ -178,8 +178,13 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 		return badAtRules;
 	}
 
+	@Deprecated
 	public LinkedList<String> getBadInlineStyles() {
-		return badInlineStyles;
+		return null;
+	}
+
+	public LinkedList<String> getConditionErrors() {
+		return badConditions;
 	}
 
 	public LinkedList<MediaQueryList> getBadMediaLists() {
@@ -246,7 +251,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 		emptyRules = null;
 		badMediaLists = null;
 		badAtRules = null;
-		badInlineStyles = null;
+		badConditions = null;
 	}
 
 	@Override

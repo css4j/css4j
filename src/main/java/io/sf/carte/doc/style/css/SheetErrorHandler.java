@@ -59,9 +59,17 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	void ignoredImport(String uri);
 
 	/**
+	 * Report an error with the condition, in a conditional rule.
+	 * 
+	 * @param condition the condition.
+	 * @param message a message describing the issue.
+	 */
+	void conditionalRuleError(BooleanCondition condition, String message);
+
+	/**
 	 * Report an error processing an inline style.
 	 * <p>
-	 * In HTML, it means that the style declration within the <code>style</code> attribute
+	 * In HTML, it means that the style declaration within the <code>style</code> attribute
 	 * could not be parsed.
 	 * 
 	 * @param e
@@ -72,7 +80,9 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	 *            the contents of the attribute containing the inline style (generally
 	 *            <code>style</code>).
 	 */
-	void inlineStyleError(DOMException e, Element elm, String attr);
+	@Deprecated(forRemoval=true)
+	default void inlineStyleError(DOMException e, Element elm, String attr) {
+	}
 
 	/**
 	 * An error was found when parsing a rule.
