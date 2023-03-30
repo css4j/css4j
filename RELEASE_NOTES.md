@@ -1,6 +1,6 @@
 # css4j version 4.0 Release Notes
 
-### March ??, 2023
+### March 30, 2023
 
 <br/>
 
@@ -42,6 +42,8 @@ value in almost all contexts. If you deal directly with CSSOM values, please loo
 
 Again catching up with Chrome 111, css4j 4.0 introduces full support for these units, even in computed styles.
 
+<br/>
+
 ### Bug fixes
 
 A few crashes found with the [Jazzer](https://github.com/CodeIntelligenceTesting/jazzer) fuzzer were corrected,
@@ -75,12 +77,16 @@ as well as other issues.
 - CSSOM: add method `packInValue()` to `CSSColor`.
 - CSSOM: add method `computeUnitType()` to `CSSExpressionValue`.
 - CSSOM: improve the accuracy of math function and expression type matching.
+- CSSOM: add method `conditionalRuleError` to `SheetErrorHandler`, deprecate for removal `inlineStyleError` which is never called.
+- CSSOM: remove the default implementation for `rebuildCascade()` from `CSSDocument`.
 - CSSOM: `var()` inside `counter()` and `counters()` wasn't processed correctly (bug).
 - CSSOM: do not use a `LenientSystemDefaultValue` for colors in LENIENT mode (prevents a class cast exception).
 - CSSOM: for better reproducibility of minified font serialization, only consider font family as initial if it was not specified, when serializing minified computed styles.
 - CSSOM: a few newer types weren't added to the `LexicalValue.getFinalType()` logic.
 - CSSOM: throw a `DOMException.TYPE_MISMATCH_ERR` if the `counter()` or `counters()` name is of the wrong type.
 - CSSOM: the default `line-height` was changed to 1.2.
+- CSSOM: avoid NPEs when checking invalid `@supports` conditions.
+- CSSOM: use parent rule to retrieve the parent sheet when necessary in `getParentStyleSheet()`.
 - CSSOM: remove an unnecessary cast in `ComputedCSSStyle`.
 - DOM: add a `clone()` method to `StringList`.
 - DOM: slightly speed up the import of elements without attributes.
