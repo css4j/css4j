@@ -52,13 +52,13 @@ dependencies {
 	// ShorthandSetterTest requires JUnit 4
 	testImplementation 'org.junit.vintage:junit-vintage-engine:5.9.2'
 	// Jazzzer
-	testImplementation 'com.code-intelligence:jazzer-junit:0.16.0'
+	testImplementation 'com.code-intelligence:jazzer-junit:0.16.1'
 
 	// Testing with Java 8
 	test8Implementation 'org.junit.jupiter:junit-jupiter:5.9.2'
 	// ShorthandSetterTest requires JUnit 4
 	test8Implementation 'org.junit.vintage:junit-vintage-engine:5.9.2'
-	test8Implementation 'com.code-intelligence:jazzer-junit:0.16.0'
+	test8Implementation 'com.code-intelligence:jazzer-junit:0.16.1'
 	test8Implementation 'org.slf4j:slf4j-simple:[1.7.28,)'
 	test8Implementation 'nu.validator:htmlparser:1.4.16'
 	test8Implementation 'io.sf.carte:xml-dtd:4.1.1'
