@@ -193,9 +193,9 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 	public static String serializeMinifiedSequence(LexicalUnit lexicalUnit) {
 		if (lexicalUnit.getNextLexicalUnit() == null) {
 			// Save a buffer creation
-			return serializeMinified(lexicalUnit);
+			return serializeMinified(lexicalUnit).toString();
 		}
-		StringBuilder buf = new StringBuilder();
+		StringBuilder buf = new StringBuilder(32);
 		LexicalUnit lu = lexicalUnit;
 		boolean needSpaces = false;
 		while (lu != null) {
@@ -229,7 +229,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		return buf.toString();
 	}
 
-	private static String serializeMinified(LexicalUnit lexicalUnit) {
+	private static CharSequence serializeMinified(LexicalUnit lexicalUnit) {
 		StringBuilder buf;
 		switch (lexicalUnit.getLexicalUnitType()) {
 		case RGBCOLOR:
@@ -262,7 +262,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 				buf.append(serializeMinifiedSequence(lu));
 			}
 			buf.append(')');
-			return buf.toString();
+			return buf;
 		case SUB_EXPRESSION:
 			buf = new StringBuilder();
 			buf.append('(');
@@ -271,11 +271,16 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 				buf.append(serializeMinifiedSequence(lu));
 			}
 			buf.append(')');
-			return buf.toString();
+			return buf;
 		case URI:
 			LexicalUnit param = lexicalUnit.getParameters();
 			if (param != null) {
-				return "url(" + serializeMinified(param) + ")";
+				CharSequence pserial = serializeMinified(param);
+				buf = new StringBuilder(pserial.length() + 5);
+				buf.append("url(");
+				buf.append(pserial);
+				buf.append(')');
+				return buf;
 			}
 		default:
 		}
