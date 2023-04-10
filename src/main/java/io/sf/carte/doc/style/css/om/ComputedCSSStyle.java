@@ -41,6 +41,8 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -55,6 +57,7 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.AttrValue;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
@@ -2004,6 +2007,33 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 		removeAttrNameGuard(attrname);
 		return lu;
+	}
+
+	/**
+	 * Determine whether the lexical unit is of the type given by the lower case
+	 * attrtype.
+	 * 
+	 * @param lunit    the lexical unit to test.
+	 * @param attrtype the attribute type (in lower case letters).
+	 * @return true if the lexical unit is of the same type.
+	 */
+	private static boolean unitMatchesAttrType(LexicalUnit lunit, String attrtype) {
+		int len = attrtype.length();
+		if (len == 1) {
+			return "%".equals(attrtype) && lunit.getCssUnit() == CSSUnit.CSS_PERCENTAGE;
+		} else if (len == 2) {
+			return attrtype.equalsIgnoreCase(lunit.getDimensionUnitText());
+		}
+		if ("ident".equalsIgnoreCase(attrtype)) {
+			attrtype = "custom-ident";
+		}
+		CSSValueSyntax syn = SyntaxParser.createSimpleSyntax(attrtype);
+		if (syn == null) {
+			// Could be a 3-4 letter unit suffix, or an error
+			return attrtype.equalsIgnoreCase(lunit.getDimensionUnitText());
+		}
+		return lunit.matches(syn) == Match.TRUE
+				|| (lunit.getLexicalUnitType() == LexicalType.STRING && attrtype.equals("url"));
 	}
 
 	private StyleValue computeEnv(String propertyName, EnvVariableValue env) {
