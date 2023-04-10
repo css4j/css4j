@@ -104,9 +104,6 @@ public class LexicalValueTest {
 		value.setCssText("url(var(--myURI))");
 		assertEquals(Type.URI, value.getFinalType());
 		//
-		value.setCssText("attr(var(--title))");
-		assertEquals(Type.ATTR, value.getFinalType());
-		//
 		value.setCssText("rect(2px 12em 3em var(--foo))");
 		assertEquals(Type.RECT, value.getFinalType());
 		//
@@ -136,6 +133,101 @@ public class LexicalValueTest {
 		//
 		value.setCssText("env(var(--safe-area))");
 		assertEquals(Type.ENV, value.getFinalType());
+	}
+
+	@Test
+	public void testGetFinalTypeAttrFunction() {
+		LexicalValue value = new LexicalValue();
+		//
+		value.setCssText("attr(var(--title))");
+		assertEquals(Type.UNKNOWN, value.getFinalType());
+
+		value.setCssText("attr(data-title)");
+		assertEquals(Type.STRING, value.getFinalType());
+
+		value.setCssText("attr(data-title, 'title')");
+		assertEquals(Type.STRING, value.getFinalType());
+
+		value.setCssText("attr(data-ident ident)");
+		assertEquals(Type.IDENT, value.getFinalType());
+
+		value.setCssText("attr(data-ident ident,foo)");
+		assertEquals(Type.IDENT, value.getFinalType());
+
+		value.setCssText("attr(data-url url)");
+		assertEquals(Type.URI, value.getFinalType());
+
+		value.setCssText("attr(data-url url, url('foo.png'))");
+		assertEquals(Type.URI, value.getFinalType());
+
+		value.setCssText("attr(data-color color)");
+		assertEquals(Type.COLOR, value.getFinalType());
+
+		value.setCssText("attr(data-color color,#f00)");
+		assertEquals(Type.COLOR, value.getFinalType());
+
+		value.setCssText("attr(data-num number)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num percentage)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num percentage,3%)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num length)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num length,1ex)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num angle)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num angle,1rad)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num Time)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num Time,1s)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num frequency)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num frequency,50Hz)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num Flex)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-num Flex,1fr)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-pcnt %)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-pcnt %,10%)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-sz em)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-sz em,10pt)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-sz Fr)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-sz Fr,2fr)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-sz px,1%)");
+		assertEquals(Type.NUMERIC, value.getFinalType());
+
+		value.setCssText("attr(data-sz px,#fff)");
+		assertEquals(Type.UNKNOWN, value.getFinalType());
 	}
 
 	@Test

@@ -18,12 +18,15 @@ import java.util.Locale;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSLexicalValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.impl.AttrUtil;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
+import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -72,7 +75,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			type = Type.IDENT;
 			break;
 		case ATTR:
-			type = Type.ATTR;
+			type = finalAttrType(lexicalUnit);
 			break;
 		case STRING:
 			type = Type.STRING;
@@ -149,6 +152,97 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 	private boolean isRatioCompUnit(LexicalType lutype) {
 		return lutype == LexicalType.INTEGER || lutype == LexicalType.REAL || lutype == LexicalType.CALC
 				|| lutype == LexicalType.FUNCTION;
+	}
+
+	private static Type finalAttrType(LexicalUnit lunit) {
+		LexicalUnit nextParam = lunit.getParameters();
+		if (nextParam == null || nextParam.getLexicalUnitType() != LexicalType.IDENT) {
+			return Type.UNKNOWN;
+		}
+		nextParam = nextParam.getNextLexicalUnit();
+		if (nextParam == null) {
+			// No attribute type, no fallback
+			return Type.STRING;
+		}
+
+		String attrType;
+		LexicalType type = nextParam.getLexicalUnitType();
+		if (type == LexicalType.OPERATOR_COMMA) {
+			attrType = "string";
+		} else {
+			// Obtain a string with the attribute type
+			if (type == LexicalType.IDENT) {
+				attrType = nextParam.getStringValue().toLowerCase(Locale.ROOT);
+			} else if (type == LexicalType.OPERATOR_MOD) {
+				attrType = "percentage";
+			} else {
+				// Probably error
+				return Type.UNKNOWN;
+			}
+
+			nextParam = nextParam.getNextLexicalUnit();
+			if (nextParam == null) {
+				// No fallback
+				return attrTypeToCSSOMType(attrType);
+			}
+			if (nextParam.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
+				// Syntax error
+				return Type.UNKNOWN;
+			}
+		}
+
+		LexicalUnit fallback = nextParam.getNextLexicalUnit();
+		if (fallback == null) {
+			if (nextParam.getNextRawLexicalUnit() == null) {
+				// There are no fallback nor EMPTY/comments after the comma.
+				// In principle the parser prevents these cases, but anyway...
+				return attrTypeToCSSOMType(attrType);
+			}
+			// We got comments that could enable a lexical substitution
+			return Type.UNKNOWN;
+		}
+
+		// We got the fallback in nextParam
+		if (!AttrUtil.unitFitsAttrType(fallback, attrType)) {
+			return Type.UNKNOWN;
+		}
+
+		return attrTypeToCSSOMType(attrType);
+	}
+
+	private static Type attrTypeToCSSOMType(String attrType) {
+		Type finalType;
+		switch (attrType) {
+		case "string":
+			finalType = Type.STRING;
+			break;
+		case "url":
+			finalType = Type.URI;
+			break;
+		case "ident":
+			finalType = Type.IDENT;
+			break;
+		case "color":
+			finalType = Type.COLOR;
+			break;
+		case "number":
+		case "percentage":
+		case "length":
+		case "angle":
+		case "time":
+		case "frequency":
+		case "flex":
+			finalType = Type.NUMERIC;
+			break;
+		default:
+			if (ParseHelper.unitFromString(attrType.intern()) != CSSUnit.CSS_OTHER) {
+				finalType = Type.NUMERIC;
+			} else {
+				finalType = Type.UNKNOWN;
+			}
+		}
+
+		return finalType;
 	}
 
 	@Override
