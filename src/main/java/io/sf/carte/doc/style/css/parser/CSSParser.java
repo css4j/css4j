@@ -6381,6 +6381,13 @@ public class CSSParser implements Parser, Cloneable {
 					return;
 				}
 				break;
+			case VAR:
+				LexicalType lastType = findLastValue(currentlu.parameters).getLexicalUnitType();
+				if (lastType == LexicalType.OPERATOR_COMMA) {
+					LexicalUnitImpl empty = newLexicalUnit(LexicalType.EMPTY, false);
+					empty.value = "";
+				}
+				return;
 			default:
 				return;
 			}
