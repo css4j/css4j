@@ -376,7 +376,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			if (dimensionUnitText != null) {
 				buf.append(dimensionUnitText);
 			}
-			return buf.toString();
+			return buf;
 		case RGBCOLOR:
 			if (identCssText != null) {
 				return identCssText;
@@ -408,7 +408,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 				buf.append(lu.toString());
 			}
 			buf.append(')');
-			return buf.toString();
+			return buf;
 		case IDENT:
 			return identCssText != null ? identCssText : value;
 		case STRING:
@@ -444,7 +444,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			int len = value.length();
 			buf = new StringBuilder(len + 10);
 			buf.append("element(#").append(value).append(')');
-			return buf.toString();
+			return buf;
 		case UNICODE_RANGE:
 			buf = new StringBuilder();
 			lu = this.parameters;
@@ -464,7 +464,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 					}
 				}
 			}
-			return buf.toString();
+			return buf;
 		case UNICODE_WILDCARD:
 			return getStringValue();
 		case OPERATOR_COMMA:
@@ -513,7 +513,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			buf.append(lu.toString());
 		}
 		buf.append(')');
-		return buf.toString();
+		return buf;
 	}
 
 	@Override
