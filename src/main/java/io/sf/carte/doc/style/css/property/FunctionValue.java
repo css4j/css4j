@@ -128,6 +128,7 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 			ValueFactory factory = new ValueFactory();
 			boolean commaSep = false;
 			ValueList list = null;
+
 			while (lu != null) {
 				ValueItem item;
 				StyleValue newval;
@@ -141,7 +142,7 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 					if (item != null) {
 						newval = item.getCSSValue();
 					} else {
-						lu = nlu.getNextLexicalUnit();
+						lu = nlu.getNextRawLexicalUnit();
 						continue;
 					}
 				} else if (type == LexicalType.OPERATOR_SLASH) {
@@ -152,7 +153,7 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 					} else {
 						// Do not handle the slash through ValueFactory
 						ValueFactory.BasicValueItem vbi = new ValueFactory.BasicValueItem();
-						vbi.nextLexicalUnit = lu.getNextLexicalUnit();
+						vbi.nextLexicalUnit = lu.getNextRawLexicalUnit();
 						item = vbi;
 						newval = new UnknownValue();
 						((UnknownValue) newval).setPlainCssText("/");
@@ -164,6 +165,16 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 					list = null;
 					item = expressionItem(lu);
 					newval = item.getCSSValue();
+				} else if (type == LexicalType.EMPTY) {
+					// EMPTY values (comments) may end into functions
+					// via lexical substitutions. Try keeping them.
+					item = processEmptyLexicalUnit(factory, lu);
+					if (item != null) {
+						newval = item.getCSSValue();
+					} else {
+						lu = lu.getNextLexicalUnit();
+						continue;
+					}
 				} else {
 					item = factory.createCSSPrimitiveValueItem(lu, false, true);
 					newval = item.getCSSValue();
@@ -171,7 +182,7 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 				lu = item.getNextLexicalUnit();
 				if (lu != null) {
 					if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
-						lu = lu.getNextLexicalUnit();
+						lu = lu.getNextRawLexicalUnit();
 						if (!commaSep && !arguments.isEmpty()) {
 							list = ValueList.createWSValueList();
 							Iterator<StyleValue> it = arguments.iterator();
@@ -202,6 +213,7 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 					list.add(newval);
 				}
 			}
+
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
 
@@ -270,6 +282,10 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 			}
 		}
 
+	}
+
+	ValueItem processEmptyLexicalUnit(ValueFactory factory, LexicalUnit lu) {
+		return factory.createCSSPrimitiveValueItem(lu, false, true);
 	}
 
 	@Override

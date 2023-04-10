@@ -320,6 +320,34 @@ public class LexicalValueTest {
 	}
 
 	@Test
+	public void testAttrComments() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("--foo:attr(data-bar,/*¡*//*!*/);");
+		StyleValue cssval = style.getPropertyCSSValue("--foo");
+		assertEquals("attr(data-bar, /*¡*//*!*/)", cssval.getCssText());
+		assertEquals("attr(data-bar,/*¡*//*!*/)", cssval.getMinifiedCssText(""));
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+		assertEquals(Type.UNKNOWN, ((LexicalValue) cssval).getFinalType());
+		assertEquals("--foo: attr(data-bar, /*¡*//*!*/);\n", style.getCssText());
+		assertEquals("--foo:attr(data-bar,/*¡*//*!*/)", style.getMinifiedCssText());
+	}
+
+	@Test
+	public void testVarComments() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("--foo:var(--bar,/*¡*//*!*/);");
+		StyleValue cssval = style.getPropertyCSSValue("--foo");
+		assertEquals("var(--bar, /*¡*//*!*/)", cssval.getCssText());
+		assertEquals("var(--bar,/*¡*//*!*/)", cssval.getMinifiedCssText(""));
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+		assertEquals(Type.UNKNOWN, ((LexicalValue) cssval).getFinalType());
+		assertEquals("--foo: var(--bar, /*¡*//*!*/);\n", style.getCssText());
+		assertEquals("--foo:var(--bar,/*¡*//*!*/)", style.getMinifiedCssText());
+	}
+
+	@Test
 	public void testURI_Var() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("background-image:url(var(--myURI));");

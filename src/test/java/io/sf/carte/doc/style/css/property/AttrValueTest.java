@@ -487,6 +487,17 @@ public class AttrValueTest {
 	}
 
 	@Test
+	public void testParseAttrCommentFallback() {
+		BaseCSSStyleDeclaration style = createStyleDeclaration();
+		style.setCssText("margin-left:attr(leftmargin percentage,/*!*/)");
+		StyleValue marginLeft = style.getPropertyCSSValue("margin-left");
+		assertNotNull(marginLeft);
+		assertEquals("attr(leftmargin percentage)", marginLeft.getCssText());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
 	public void testParseFallbackCustomPropertyRecursiveAttr() {
 		BaseCSSStyleDeclaration style = createStyleDeclaration();
 		style.setCssText("margin-left:attr(noattr length,var(--foo,attr(noattr)))");

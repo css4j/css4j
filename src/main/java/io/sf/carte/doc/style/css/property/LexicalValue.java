@@ -299,6 +299,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			case LEFT_BRACKET:
 			case OPERATOR_COMMA:
 			case OPERATOR_SEMICOLON:
+			case EMPTY:
 				needSpaces = false;
 				break;
 			case RIGHT_BRACKET:
@@ -312,7 +313,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 				}
 			}
 			buf.append(serializeMinified(lu));
-			lu = lu.getNextLexicalUnit();
+			lu = lu.getNextRawLexicalUnit();
 		}
 		return buf.toString();
 	}

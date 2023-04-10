@@ -458,25 +458,56 @@ public interface LexicalUnit {
 	short getCssUnit();
 
 	/**
-	 * The next lexical unit.
+	 * The next non-{@code EMPTY} lexical unit.
 	 * <p>
 	 * Lexical units can form chains of units which can be traversed with
-	 * {@code getNextLexicalUnit()} and {@link #getPreviousLexicalUnit()}.
+	 * {@code getNextLexicalUnit()}, {@link #getPreviousLexicalUnit()} and their raw
+	 * counterparts (which return all units including {@code EMPTY} units).
+	 * </p>
+	 * <p>
+	 * If the next unit is {@code EMPTY} the next non-{@code EMPTY} unit will be
+	 * returned, or {@code null} if none.
 	 * </p>
 	 * 
-	 * @return the next lexical unit, or <code>null</code> if none.
+	 * @return the next non-{@code EMPTY} lexical unit, or <code>null</code> if
+	 *         none.
 	 */
 	LexicalUnit getNextLexicalUnit();
 
 	/**
-	 * The previous lexical unit.
+	 * The next lexical unit.
+	 * <p>
+	 * Lexical units can form chains of units which can be traversed with
+	 * {@code getNextRawLexicalUnit()}, {@link #getPreviousRawLexicalUnit()} and
+	 * their non-raw counterparts (which skip {@code EMPTY} units).
+	 * </p>
+	 * 
+	 * @return the next lexical unit (could be an {@code EMPTY} unit), or
+	 *         <code>null</code> if none.
+	 */
+	LexicalUnit getNextRawLexicalUnit();
+
+	/**
+	 * The previous non-{@code EMPTY} lexical unit.
 	 * <p>
 	 * See also {@link #getNextLexicalUnit}.
 	 * </p>
 	 * 
-	 * @return the previous lexical unit, or <code>null</code> if none.
+	 * @return the previous non-{@code EMPTY} lexical unit, or <code>null</code> if
+	 *         none.
 	 */
 	LexicalUnit getPreviousLexicalUnit();
+
+	/**
+	 * The previous lexical unit.
+	 * <p>
+	 * See also {@link #getNextRawLexicalUnit}.
+	 * </p>
+	 * 
+	 * @return the previous lexical unit (could be an {@code EMPTY} unit), or
+	 *         <code>null</code> if none.
+	 */
+	LexicalUnit getPreviousRawLexicalUnit();
 
 	/**
 	 * Insert the given unit as the next lexical unit.

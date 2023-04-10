@@ -8603,15 +8603,30 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void commented(int index, int commentType, String comment) {
-			if (!parseError && buffer.length() == 0 && propertyName == null && curlyBracketDepth == 1 && parendepth == 0
-					&& squareBracketDepth == 0) {
-				super.commented(index, commentType, comment);
-				prevcp = 12;
+			if (!parseError && buffer.length() == 0) {
+				if (propertyName != null) {
+					// Allow comments in proxy value fallbacks
+					if (functionToken && isProxyValueFallback() && commentType == 0) {
+						LexicalUnitImpl empty = newLexicalUnit(LexicalType.EMPTY, false);
+						empty.identCssText = "/*" + comment + "*/";
+						empty.value = "";
+					}
+				} else if (curlyBracketDepth == 1 && parendepth == 0 && squareBracketDepth == 0) {
+					// Handle possible rule-level comment
+					super.commented(index, commentType, comment);
+					prevcp = 12;
+				}
 			} else {
 				separator(index, 32);
 				// The above call may have left prevcp as 10
 				prevcp = 32;
 			}
+		}
+
+		private boolean isProxyValueFallback() {
+			LexicalType type = currentlu.getLexicalUnitType();
+			return (type == LexicalType.VAR || type == LexicalType.ATTR)
+					&& currentlu.parameters != null && currentlu.parameters.nextLexicalUnit != null;
 		}
 
 		@Override

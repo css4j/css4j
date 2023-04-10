@@ -244,6 +244,10 @@ public class AttrValue extends ProxyValue implements CSSAttrValue {
 
 			LexicalUnit lu = lunit.getParameters();
 
+			if (lu == null) {
+				throw new DOMException(DOMException.SYNTAX_ERR, "Invalid attr() name.");
+			}
+
 			LexicalType type = lu.getLexicalUnitType();
 			if (type == LexicalType.IDENT) {
 				attrname = lu.getStringValue();
@@ -290,19 +294,18 @@ public class AttrValue extends ProxyValue implements CSSAttrValue {
 				}
 				// Move past comma
 				lu = lu.getNextLexicalUnit();
-				if (lu == null) {
-					wrongSyntax(lunit);
-				}
-				// Check the fallback
-				type = lu.getLexicalUnitType();
-				ValueFactory factory = new ValueFactory(flags);
-				try {
-					fallback = factory.createCSSValue(lu.clone(), null, false);
-				} catch (RuntimeException e) {
-					DOMException ex = new DOMException(DOMException.TYPE_MISMATCH_ERR,
-							"Invalid fallback: " + fallback.toString());
-					ex.initCause(e);
-					throw ex;
+				if (lu != null) {
+					// Check the fallback
+					type = lu.getLexicalUnitType();
+					ValueFactory factory = new ValueFactory(flags);
+					try {
+						fallback = factory.createCSSValue(lu.clone(), null, false);
+					} catch (RuntimeException e) {
+						DOMException ex = new DOMException(DOMException.TYPE_MISMATCH_ERR,
+								"Invalid fallback: " + fallback.toString());
+						ex.initCause(e);
+						throw ex;
+					}
 				}
 			}
 

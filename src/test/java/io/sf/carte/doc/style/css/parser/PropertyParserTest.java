@@ -4313,6 +4313,70 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueAttrCommentName() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("attr(/*!*/data-count)");
+		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
+		assertEquals("attr", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("data-count", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("attr(data-count)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueAttrNameComment() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("attr(data-count/*!*/)");
+		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
+		assertEquals("attr", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("data-count", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("attr(data-count)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueAttrCommentFallback() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("attr(data-count, /*!*/)");
+		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
+		assertEquals("attr", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("data-count", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextRawLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.EMPTY, param.getLexicalUnitType());
+		assertEquals("/*!*/", param.getCssText());
+		assertSame(param.getPreviousLexicalUnit(), param.getPreviousRawLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("attr(data-count, /*!*/)", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<string>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string>#");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<string>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <string>#");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <string>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <string>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
 	public void testParsePropertyValueAttrPcnt() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-count percentage)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
@@ -5349,7 +5413,7 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
+		param = param.getNextRawLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.EMPTY, param.getLexicalUnitType());
 		assertEquals("", param.getCssText());
@@ -5368,6 +5432,68 @@ public class PropertyParserTest {
 		assertEquals(Match.PENDING, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueVarCommentFallback() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("var(--data-radius, /*¡*//*!*/)");
+		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
+		assertEquals("var", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--data-radius", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextRawLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.EMPTY, param.getLexicalUnitType());
+		assertEquals("/*¡*/", param.getCssText());
+		param = param.getNextRawLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.EMPTY, param.getLexicalUnitType());
+		assertNull(param.getNextRawLexicalUnit());
+		assertEquals("var(--data-radius, /*¡*//*!*/)", lu.toString());
+
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>#");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueVarCommentName() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("var(/*!*/--data-radius)");
+		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
+		assertEquals("var", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--data-radius", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("var(--data-radius)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueVarNameComment() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("var(--data-radius/*!*/)");
+		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
+		assertEquals("var", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--data-radius", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("var(--data-radius)", lu.toString());
 	}
 
 	@Test
