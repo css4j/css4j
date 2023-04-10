@@ -193,12 +193,6 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 
 		LexicalUnit fallback = nextParam.getNextLexicalUnit();
 		if (fallback == null) {
-			if (nextParam.getNextRawLexicalUnit() == null) {
-				// There are no fallback nor EMPTY/comments after the comma.
-				// In principle the parser prevents these cases, but anyway...
-				return attrTypeToCSSOMType(attrType);
-			}
-			// We got comments that could enable a lexical substitution
 			return Type.UNKNOWN;
 		}
 

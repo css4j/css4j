@@ -607,7 +607,7 @@ public class ValueFactory {
 					return value;
 				}
 			} catch (CSSLexicalProcessingException e) {
-				// Contains a var() that should be processed as a lexical value.
+				// Contains a proxy that should be processed as a lexical value.
 				LexicalSetter item = new LexicalValue().newLexicalSetter();
 				item.setLexicalUnit(lunit);
 				return item.getCSSValue();

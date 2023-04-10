@@ -5349,11 +5349,11 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextRawLexicalUnit();
+		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.EMPTY, param.getLexicalUnitType());
 		assertEquals("", param.getCssText());
-		assertNull(param.getNextRawLexicalUnit());
+		assertNull(param.getNextLexicalUnit());
 		assertEquals("var(--data-radius,)", lu.toString());
 
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");

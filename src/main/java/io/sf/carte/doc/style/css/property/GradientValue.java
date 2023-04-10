@@ -207,8 +207,8 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		}
 
 		/*
-		 * Returns null if there are no appropriate angle/to arguments,
-		 * or the next unit is null (should not be).
+		 * Returns null if there are no appropriate angle/to arguments, or the next unit
+		 * is null (should not be).
 		 */
 		private LexicalUnit setAngleArguments(LexicalUnit lu, ValueFactory factory) {
 			LexicalUnit finalLU = null;
@@ -221,7 +221,8 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				} else if (!isSideValue(ident)) {
 					return null;
 				} else {
-					reportSyntaxWarning("Missing 'to' in side/corner specification in gradient: " + lu.toString());
+					reportSyntaxWarning("Missing 'to' in side/corner specification in gradient: "
+							+ lu.toString());
 				}
 				if (lu.getLexicalUnitType() == LexicalType.IDENT) {
 					ident = lu.getStringValue().toLowerCase(Locale.ROOT);

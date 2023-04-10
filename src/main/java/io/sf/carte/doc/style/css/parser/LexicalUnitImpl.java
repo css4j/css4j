@@ -340,6 +340,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			case OPERATOR_SLASH:
 			case OPERATOR_TILDE:
 			case LEFT_BRACKET:
+			case EMPTY:
 				needSpaces = false;
 			case OPERATOR_COMMA:
 			case OPERATOR_SEMICOLON:
