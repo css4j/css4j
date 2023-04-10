@@ -12,11 +12,14 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
+import java.io.StringReader;
 
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSVarValue;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -139,14 +142,25 @@ public class VarValue extends ProxyValue implements CSSVarValue {
 	@Override
 	public void setCssText(String cssText) throws DOMException {
 		checkModifiableProperty();
-		ValueFactory factory = new ValueFactory();
-		StyleValue cssval = factory.parseProperty(cssText);
-		if (cssval == null || cssval.getPrimitiveType() != Type.VAR) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a custom property value.");
+
+		CSSParser parser = new CSSParser();
+		LexicalUnit lunit;
+		try {
+			lunit = parser.parsePropertyValue(new StringReader(cssText));
+		} catch (CSSParseException e) {
+			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		} catch (IOException e) {
+			// Cannot happen
+			return;
 		}
-		VarValue customp = (VarValue) cssval;
-		this.name = customp.getName();
-		this.fallback = customp.fallback;
+		if (lunit == null || lunit.getLexicalUnitType() != LexicalUnit.LexicalType.VAR) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a var() function.");
+		}
+
+		LexicalSetter setter = newLexicalSetter();
+		setter.setLexicalUnit(lunit);
 	}
 
 	@Override
@@ -197,18 +211,20 @@ public class VarValue extends ProxyValue implements CSSVarValue {
 			if (lu == null || lu.getLexicalUnitType() != LexicalUnit.LexicalType.IDENT) {
 				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Variable name must be an identifier");
 			}
-			name = lu.getStringValue();
+			String name = lu.getStringValue();
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
 				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_COMMA) {
 					throw new DOMException(DOMException.SYNTAX_ERR, "Fallback must be separated by comma");
 				}
 				lu = lu.getNextLexicalUnit();
-				if (lu == null) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "No fallback found after comma");
+				if (lu != null) {
+					fallback = lu.clone();
+				} else {
+					fallback = null;
 				}
-				fallback = lu.clone();
 			}
+			VarValue.this.name = name;
 			this.nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
 	}
