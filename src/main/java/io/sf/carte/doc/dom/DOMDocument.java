@@ -1582,10 +1582,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 				oldOwner.classList.clear();
 			}
 			super.setAttributeOwner(newOwner);
-			if (newOwner != null && isSameNamespace(newOwner.getNamespaceURI())) {
-				if (newOwner.classList != null) {
-					newOwner.classList.setValue(this.value);
-				}
+			if (newOwner != null && isSameNamespace(newOwner.getNamespaceURI())
+					&& newOwner.classList != null) {
+				newOwner.classList.setValue(this.value);
 			}
 		}
 

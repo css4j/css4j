@@ -164,11 +164,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				while (it.hasNext()) {
 					String sh = it.next();
 					ShorthandValue shval = (ShorthandValue) propValue.get(sh);
-					if (shval.isSetSubproperty(ptyname)) {
-						if (important == shval.isImportant()) {
-							it.remove();
-							appendShorthandMinifiedCssText(sb, sh, shval);
-						}
+					if (shval.isSetSubproperty(ptyname) && important == shval.isImportant()) {
+						it.remove();
+						appendShorthandMinifiedCssText(sb, sh, shval);
 					}
 				}
 				continue;
@@ -247,11 +245,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				while (it.hasNext()) {
 					String sh = it.next();
 					ShorthandValue shval = (ShorthandValue) propValue.get(sh);
-					if (shval.isSetSubproperty(ptyname)) {
-						if (important == shval.isImportant()) {
-							it.remove();
-							writeShorthandCssText(wri, context, sh, shval);
-						}
+					if (shval.isSetSubproperty(ptyname) && important == shval.isImportant()) {
+						it.remove();
+						writeShorthandCssText(wri, context, sh, shval);
 					}
 				}
 				continue;
@@ -1000,12 +996,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				int sz = list.getLength();
 				for (int i = 0; i < sz; i++) {
 					StyleValue item = list.item(i);
-					if (item.getCssValueType() == CssType.LIST) {
-						if (!checkBackgroundPosition((ValueList) item)) {
-							list.remove(i--);
-							// Report error
-							wrongBackgroundPositionError(item.getCssText());
-						}
+					if (item.getCssValueType() == CssType.LIST
+							&& !checkBackgroundPosition((ValueList) item)) {
+						list.remove(i--);
+						// Report error
+						wrongBackgroundPositionError(item.getCssText());
 					}
 				}
 				if (list.getLength() == 0) {

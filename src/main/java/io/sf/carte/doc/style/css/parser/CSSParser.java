@@ -1341,16 +1341,14 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			private boolean appendWord(int index, CharSequence word, int quote) {
-				if (buffer.length() != 0 && escapedTokenIndex == -1) {
-					if (isPrevCpWhitespace()) {
-						if (stage == 1) {
-							handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-									"Found white space between media");
-							return false;
-						}
-						spaceFound = true;
-						buffer.append(' ');
+				if (buffer.length() != 0 && escapedTokenIndex == -1 && isPrevCpWhitespace()) {
+					if (stage == 1) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								"Found white space between media");
+						return false;
 					}
+					spaceFound = true;
+					buffer.append(' ');
 				}
 				if (quote == WORD_UNQUOTED) {
 					buffer.append(word);

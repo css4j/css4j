@@ -969,7 +969,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 		int len = color.getColor().getLength();
 		for (int i = 0; i < len; i++) {
-			PrimitiveValue comp = (PrimitiveValue) color.getComponent(i);
+			PrimitiveValue comp = color.getComponent(i);
 			if (comp != null) {
 				TypedValue typed = primitiveToTypedValue(propertyName, comp);
 				if (comp != typed) {
