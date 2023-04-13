@@ -74,7 +74,7 @@ import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.uparser.TokenControl;
-import io.sf.carte.uparser.TokenHandler;
+import io.sf.carte.uparser.TokenHandler2;
 import io.sf.carte.uparser.TokenProducer;
 import io.sf.carte.util.agent.AgentUtil;
 
@@ -636,7 +636,7 @@ public class CSSParser implements Parser, Cloneable {
 		return mqhandler.getMediaQueryList();
 	}
 
-	abstract private static class DelegateHandler implements TokenHandler {
+	abstract private static class DelegateHandler implements TokenHandler2 {
 
 		public void preBooleanHandling(int index, Type type) {
 		}
@@ -812,13 +812,25 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		public void openGroup(int index, int codepoint) {
-			if (codepoint == 40) {
-				opParenDepth[opDepthIndex]++;
-			}
-			predicateHandler.openGroup(index, codepoint);
+		public void leftParenthesis(int index) {
+			opParenDepth[opDepthIndex]++;
+			predicateHandler.leftParenthesis(index);
 			readingPredicate = true;
-			prevcp = codepoint;
+			prevcp = TokenProducer.CHAR_LEFT_PAREN;
+		}
+
+		@Override
+		public void leftSquareBracket(int index) {
+			predicateHandler.leftSquareBracket(index);
+			readingPredicate = true;
+			prevcp = TokenProducer.CHAR_LEFT_SQ_BRACKET;
+		}
+
+		@Override
+		public void leftCurlyBracket(int index) {
+			predicateHandler.leftCurlyBracket(index);
+			readingPredicate = true;
+			prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
 		}
 
 		void handleLeftCurlyBracket(int index) {
@@ -826,28 +838,41 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		public void closeGroup(int index, int codepoint) {
-			if (codepoint == 41) {
-				opParenDepth[opDepthIndex]--;
-				if (opParenDepth[opDepthIndex] < 0) {
-					unexpectedCharError(index, codepoint);
-				} else if (readingPredicate) {
-					predicateHandler.closeGroup(index, codepoint);
-				} else if (buffer.length() != 0) {
-					unexpectedCharError(index, codepoint);
-				}
-				if (opParenDepth[opDepthIndex] == 0 && currentCond != null && opDepthIndex != 0) {
-					opDepthIndex--;
-					if (currentCond.getParentCondition() != null) {
-						currentCond = currentCond.getParentCondition();
-					}
-				}
-				prevcp = codepoint;
+		public void rightParenthesis(int index) {
+			opParenDepth[opDepthIndex]--;
+			if (opParenDepth[opDepthIndex] < 0) {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
 			} else if (readingPredicate) {
-				predicateHandler.closeGroup(index, codepoint);
-				prevcp = codepoint;
+				predicateHandler.rightParenthesis(index);
+			} else if (buffer.length() != 0) {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
+			}
+			if (opParenDepth[opDepthIndex] == 0 && currentCond != null && opDepthIndex != 0) {
+				opDepthIndex--;
+				if (currentCond.getParentCondition() != null) {
+					currentCond = currentCond.getParentCondition();
+				}
+			}
+			prevcp = TokenProducer.CHAR_RIGHT_PAREN;
+		}
+
+		@Override
+		public void rightSquareBracket(int index) {
+			if (readingPredicate) {
+				predicateHandler.rightSquareBracket(index);
+				prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
 			} else {
-				unexpectedCharError(index, codepoint);
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+			}
+		}
+
+		@Override
+		public void rightCurlyBracket(int index) {
+			if (readingPredicate) {
+				predicateHandler.rightCurlyBracket(index);
+				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
+			} else {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
 			}
 		}
 
@@ -1056,48 +1081,70 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			public void openGroup(int index, int codepoint) {
-				if (codepoint == TokenProducer.CHAR_LEFT_CURLY_BRACKET) {
-					handleLeftCurlyBracket(index);
-				} else if (readingValue) {
-					bufferAppend(codepoint);
-				} else if (codepoint != 40) {
-					unexpectedCharError(index, codepoint);
+			public void leftParenthesis(int index) {
+				if (readingValue) {
+					buffer.append('(');
 				} else if (buffer.length() != 0) {
-					unexpectedCharError(index, codepoint);
+					unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
 				} else {
-					prevcp = codepoint;
+					prevcp = TokenProducer.CHAR_LEFT_PAREN;
 				}
 			}
 
 			@Override
-			public void closeGroup(int index, int codepoint) {
-				if (codepoint == 41) {
-					if (readingValue) {
-						if (valueParendepth == getCurrentParenDepth()) {
-							String svalue = buffer.toString();
-							ValueFactory factory = new ValueFactory();
-							try {
-								StyleValue value = factory.parseProperty(svalue);
-								((DeclarationCondition) currentCond).setValue(value);
-							} catch (DOMException e) {
-								handleError(index, ParseHelper.ERR_WRONG_VALUE,
-									"Bad @supports condition value.", e);
-							}
-							buffer.setLength(0);
-							readingValue = false;
-							readingPredicate = false;
-							escapedTokenIndex = -1;
-						} else {
-							bufferAppend(codepoint);
-						}
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
-				} else if (readingValue) {
-					bufferAppend(codepoint);
+			public void leftSquareBracket(int index) {
+				if (readingValue) {
+					buffer.append('[');
 				} else {
-					unexpectedCharError(index, codepoint);
+					unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+				}
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				handleLeftCurlyBracket(index);
+			}
+
+			@Override
+			public void rightParenthesis(int index) {
+				if (readingValue) {
+					if (valueParendepth == getCurrentParenDepth()) {
+						String svalue = buffer.toString();
+						ValueFactory factory = new ValueFactory();
+						try {
+							StyleValue value = factory.parseProperty(svalue);
+							((DeclarationCondition) currentCond).setValue(value);
+						} catch (DOMException e) {
+							handleError(index, ParseHelper.ERR_WRONG_VALUE,
+								"Bad @supports condition value.", e);
+						}
+						buffer.setLength(0);
+						readingValue = false;
+						readingPredicate = false;
+						escapedTokenIndex = -1;
+					} else {
+						buffer.append(')');
+					}
+				} else {
+					unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
+				}
+			}
+
+			@Override
+			public void rightSquareBracket(int index) {
+				if (readingValue) {
+					buffer.append(']');
+				} else {
+					unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+				}
+			}
+
+			@Override
+			public void rightCurlyBracket(int index) {
+				if (readingValue) {
+					buffer.append('}');
+				} else {
+					unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
 				}
 			}
 
@@ -1417,122 +1464,126 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			public void openGroup(int index, int codepoint) {
-				if (codepoint == 40) { // '('
-					if (!isPrevCpWhitespace()) {
-						// Function token
-						functionToken = true;
-						buffer.append('(');
-					} else if (functionToken) {
-						buffer.append('(');
-					} else if (buffer.length() != 0) {
-						unexpectedCharError(index, codepoint);
-					} else {
-						if (stage == 2 || stage == 0) {
-							stage = 3;
-						}
-					}
-					parendepth++;
-				} else if (codepoint == TokenProducer.CHAR_LEFT_CURLY_BRACKET) {
-					handleLeftCurlyBracket(index);
+			public void leftParenthesis(int index) {
+				if (!isPrevCpWhitespace()) {
+					// Function token
+					functionToken = true;
+					buffer.append('(');
+				} else if (functionToken) {
+					buffer.append('(');
+				} else if (buffer.length() != 0) {
+					unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
 				} else {
-					unexpectedCharError(index, codepoint);
+					if (stage == 2 || stage == 0) {
+						stage = 3;
+					}
 				}
-				prevcp = codepoint;
+				parendepth++;
+				prevcp = TokenProducer.CHAR_LEFT_PAREN;
 			}
 
 			@Override
-			public void closeGroup(int index, int codepoint) {
-				if (codepoint == 41) { // ')'
-					decrParenDepth(index);
-					if (functionToken) {
-						buffer.append(')');
-						functionToken = false;
-					} else {
-						if (stage == 6) {
-							processBuffer(index);
-							// Need to determine whether we have "value <|>|= feature"
-							// or "feature <|>|= value"
-							if (firstValue != null && isKnownFeature(firstValue)) {
+			public void leftCurlyBracket(int index) {
+				handleLeftCurlyBracket(index);
+				prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
+			}
+
+			@Override
+			public void leftSquareBracket(int index) {
+				prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
+				unexpectedCharError(index, prevcp);
+			}
+
+			@Override
+			public void rightParenthesis(int index) {
+				decrParenDepth(index);
+				if (functionToken) {
+					buffer.append(')');
+					functionToken = false;
+				} else {
+					if (stage == 6) {
+						processBuffer(index);
+						// Need to determine whether we have "value <|>|= feature"
+						// or "feature <|>|= value"
+						if (firstValue != null && isKnownFeature(firstValue)) {
+							String tempstr = firstValue;
+							firstValue = featureName;
+							featureName = tempstr;
+						} else if (!isKnownFeature(featureName)) {
+							if (isValidFeatureSyntax(firstValue)) {
 								String tempstr = firstValue;
 								firstValue = featureName;
 								featureName = tempstr;
-							} else if (!isKnownFeature(featureName)) {
-								if (isValidFeatureSyntax(firstValue)) {
-									String tempstr = firstValue;
-									firstValue = featureName;
-									featureName = tempstr;
-								} else if (!isValidFeatureSyntax(featureName)) {
-									handleError(index, ParseHelper.ERR_RULE_SYNTAX, 
-											"Wrong feature expression near " + featureName + " " + firstValue + ")");
-									prevcp = codepoint;
-									return;
-								} else {
-									reverseRangetype();
-								}
+							} else if (!isValidFeatureSyntax(featureName)) {
+								handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+										"Wrong feature expression near " + featureName + " "
+												+ firstValue + ")");
+								prevcp = TokenProducer.CHAR_RIGHT_PAREN;
+								return;
 							} else {
 								reverseRangetype();
 							}
-							LexicalUnit value1 = parseMediaFeature(index, firstValue);
-							if (value1 == null) {
-								handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
+						} else {
+							reverseRangetype();
+						}
+						LexicalUnit value1 = parseMediaFeature(index, firstValue);
+						if (value1 == null) {
+							handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
+						} else {
+							handlePredicate(index, featureName, rangeType, value1);
+							if (value1.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
+								handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
+										"Probable hack in media feature.");
+							}
+						}
+					} else if (buffer.length() != 0) {
+						if (stage == 4) {
+							LexicalUnit value = parseMediaFeature(index, buffer.toString());
+							if (value == null) {
+								handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
 							} else {
-								handlePredicate(index, featureName, rangeType, value1);
-								if (value1.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
+								handlePredicate(index, featureName, (byte) 0, value);
+								if (value.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
 									handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
 											"Probable hack in media feature.");
 								}
 							}
-						} else if (buffer.length() != 0) {
-							if (stage == 4) {
-								LexicalUnit value = parseMediaFeature(index, buffer.toString());
-								if (value == null) {
-									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
-								} else {
-									handlePredicate(index, featureName, (byte) 0, value);
-									if (value.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
-										handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
-												"Probable hack in media feature.");
-									}
-								}
-							} else if (stage == 7) {
-								LexicalUnit value1 = parseMediaFeature(index, firstValue);
-								LexicalUnit value2 = parseMediaFeature(index, buffer.toString());
-								if (value1 == null) {
-									handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
-								} else if (value2 == null) {
-									handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
-								} else {
-									handlePredicate(index, featureName, rangeType, value1, value2);
-									if (value1.getLexicalUnitType() == LexicalType.COMPAT_IDENT
-											|| value2.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
-										handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
-												"Probable hack in media feature.");
-									}
-								}
-							} else if (stage == 3 && !spaceFound) {
-								handlePredicate(index, buffer.toString(), (byte) 0, null);
+						} else if (stage == 7) {
+							LexicalUnit value1 = parseMediaFeature(index, firstValue);
+							LexicalUnit value2 = parseMediaFeature(index, buffer.toString());
+							if (value1 == null) {
+								handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
+							} else if (value2 == null) {
+								handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
 							} else {
-								handleError(index, ParseHelper.ERR_EXPR_SYNTAX, buffer.toString());
+								handlePredicate(index, featureName, rangeType, value1, value2);
+								if (value1.getLexicalUnitType() == LexicalType.COMPAT_IDENT
+										|| value2
+												.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
+									handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
+											"Probable hack in media feature.");
+								}
 							}
-							buffer.setLength(0);
-							spaceFound = false;
-							escapedTokenIndex = -1;
+						} else if (stage == 3 && !spaceFound) {
+							handlePredicate(index, buffer.toString(), (byte) 0, null);
 						} else {
-							unexpectedCharError(index, codepoint);
+							handleError(index, ParseHelper.ERR_EXPR_SYNTAX, buffer.toString());
 						}
-						if (stage == 5) {
-							unexpectedCharError(index, codepoint);
-						} else {
-							rangeType = 0;
-							stage = 1;
-						}
-						readingPredicate = false;
+						buffer.setLength(0);
+						spaceFound = false;
+						escapedTokenIndex = -1;
+					} else {
+						unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
 					}
-				} else {
-					unexpectedCharError(index, codepoint);
+					if (stage == 5) {
+						unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
+					} else {
+						rangeType = 0;
+						stage = 1;
+					}
+					readingPredicate = false;
 				}
-				prevcp = codepoint;
+				prevcp = TokenProducer.CHAR_RIGHT_PAREN;
 			}
 
 			private LexicalUnit parseMediaFeature(int index, String feature) {
@@ -1612,6 +1663,18 @@ public class CSSParser implements Parser, Cloneable {
 					rangeType ^= 4;
 					rangeType = (byte) (rangeType | 2);
 				}
+			}
+
+			@Override
+			public void rightSquareBracket(int index) {
+				prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
+				unexpectedCharError(index, prevcp);
+			}
+
+			@Override
+			public void rightCurlyBracket(int index) {
+				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
+				unexpectedCharError(index, prevcp);
 			}
 
 			@Override
@@ -2273,36 +2336,51 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		public void openGroup(int index, int codePoint) {
+		public void leftCurlyBracket(int index) {
 			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.openGroup(index, codePoint);
+				declarationHandler.leftCurlyBracket(index);
 			} else {
-				if (codePoint == TokenProducer.CHAR_LEFT_CURLY_BRACKET) { // '{'
-					curlyBracketDepth++;
-					if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_WAIT_BLOCK_LIST) {
-						if (buffer.length() != 0) {
-							processSelector(index, unescapeBuffer(index).trim());
-							if (!parseError) {
-								prevcp = codePoint;
-								startBlockList(index);
-							}
-						} else {
-							emptySelector(index);
+				curlyBracketDepth++;
+				if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_WAIT_BLOCK_LIST) {
+					if (buffer.length() != 0) {
+						processSelector(index, unescapeBuffer(index).trim());
+						if (!parseError) {
+							prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
+							startBlockList(index);
 						}
-						return;
-					} else if (stage == STAGE_FOUND_NESTED_SELECTOR) {
-						if (processNestedSelector(index)) {
-							prevcp = codePoint;
-							stage = STAGE_DECLARATION_LIST;
-							declarationHandler.curlyBracketDepth = 1;
-						}
-						return;
-					} else if (!parseError) {
-						unexpectedCharError(index, codePoint, STAGE_SELECTOR_ERROR);
+					} else {
+						emptySelector(index);
 					}
-					return;
+				} else if (stage == STAGE_FOUND_NESTED_SELECTOR) {
+					if (processNestedSelector(index)) {
+						prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
+						stage = STAGE_DECLARATION_LIST;
+						declarationHandler.curlyBracketDepth = 1;
+					}
+				} else if (!parseError) {
+					unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET,
+							STAGE_SELECTOR_ERROR);
 				}
-				unexpectedCharError(index, codePoint, STAGE_NESTED_SELECTOR_ERROR);
+			}
+		}
+
+		@Override
+		public void leftParenthesis(int index) {
+			if (stage == STAGE_DECLARATION_LIST) {
+				declarationHandler.leftParenthesis(index);
+			} else {
+				unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN,
+						STAGE_NESTED_SELECTOR_ERROR);
+			}
+		}
+
+		@Override
+		public void leftSquareBracket(int index) {
+			if (stage == STAGE_DECLARATION_LIST) {
+				declarationHandler.leftSquareBracket(index);
+			} else {
+				unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET,
+						STAGE_NESTED_SELECTOR_ERROR);
 			}
 		}
 
@@ -2326,29 +2404,19 @@ public class CSSParser implements Parser, Cloneable {
 		abstract void endBlockList();
 
 		@Override
-		public void closeGroup(int index, int codePoint) {
+		public void rightCurlyBracket(int index) {
 			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.closeGroup(index, codePoint);
-				if (codePoint == TokenProducer.CHAR_RIGHT_CURLY_BRACKET) {
-					if (curlyBracketDepth == 1) {
-						endBlock();
-					} else if (curlyBracketDepth == 0) {
-						endBlockList();
-						stage = STAGE_END_BLOCK_LIST;
-					}
+				declarationHandler.rightCurlyBracket(index);
+				if (curlyBracketDepth == 1) {
+					endBlock();
+				} else if (curlyBracketDepth == 0) {
+					endBlockList();
+					stage = STAGE_END_BLOCK_LIST;
 				}
-				prevcp = codePoint;
+				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
 			} else {
-				if (codePoint == TokenProducer.CHAR_RIGHT_CURLY_BRACKET) { // }
-					curlyBracketDepth--;
-					handleRightCurlyBracket(index);
-					return;
-				}
-				if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_WAIT_BLOCK_LIST) {
-					unexpectedCharError(index, codePoint, STAGE_SELECTOR_ERROR);
-				} else {
-					unexpectedCharError(index, codePoint, STAGE_NESTED_SELECTOR_ERROR);
-				}
+				curlyBracketDepth--;
+				handleRightCurlyBracket(index);
 			}
 		}
 
@@ -2362,6 +2430,33 @@ public class CSSParser implements Parser, Cloneable {
 				stage = STAGE_WAIT_NESTED_SELECTOR;
 				parseError = false;
 			}
+		}
+
+		@Override
+		public void rightParenthesis(int index) {
+			if (stage == STAGE_DECLARATION_LIST) {
+				declarationHandler.rightParenthesis(index);
+			} else if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_WAIT_BLOCK_LIST) {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN, STAGE_SELECTOR_ERROR);
+			} else {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN,
+						STAGE_NESTED_SELECTOR_ERROR);
+			}
+			prevcp = TokenProducer.CHAR_RIGHT_PAREN;
+		}
+
+		@Override
+		public void rightSquareBracket(int index) {
+			if (stage == STAGE_DECLARATION_LIST) {
+				declarationHandler.rightSquareBracket(index);
+			} else if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_WAIT_BLOCK_LIST) {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET,
+						STAGE_SELECTOR_ERROR);
+			} else {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET,
+						STAGE_NESTED_SELECTOR_ERROR);
+			}
+			prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
 		}
 
 		protected void endBlock() {
@@ -2841,12 +2936,32 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			public void openGroup(int index, int codePoint) {
+			public void leftParenthesis(int index) {
 				reportError(index);
 			}
 
 			@Override
-			public void closeGroup(int index, int codePoint) {
+			public void leftSquareBracket(int index) {
+				reportError(index);
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				reportError(index);
+			}
+
+			@Override
+			public void rightParenthesis(int index) {
+				reportError(index);
+			}
+
+			@Override
+			public void rightSquareBracket(int index) {
+				reportError(index);
+			}
+
+			@Override
+			public void rightCurlyBracket(int index) {
 				reportError(index);
 			}
 
@@ -3081,59 +3196,74 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		public void openGroup(int index, int codepoint) {
+		public void leftCurlyBracket(int index) {
 			if (contextHandler != null) {
-				contextHandler.openGroup(index, codepoint);
+				contextHandler.leftCurlyBracket(index);
 			} else {
-				prevcp = codepoint;
-				if (codepoint == 123) { // '{'
-					curlyBracketDepth++;
-					if (stage == STAGE_GROUPING_OR_FONTFACE_RULE) {
-						if (curlyBracketDepth == 1) {
-							if (ruleType == FONT_FACE_RULE) {
-								startFontFaceRule(index);
-							}
-							buffer.setLength(0);
+				prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
+				curlyBracketDepth++;
+				if (stage == STAGE_GROUPING_OR_FONTFACE_RULE) {
+					if (curlyBracketDepth == 1) {
+						if (ruleType == FONT_FACE_RULE) {
+							startFontFaceRule(index);
 						}
-					} else if (stage == STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING && curlyBracketDepth >= 2) {
-						startFontFaceRule(index);
-					} else {
-						buffer.append('{');
+						buffer.setLength(0);
 					}
-				} else if (codepoint == TokenProducer.CHAR_LEFT_PAREN) {
-					parendepth++;
-					if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
-						if (bufferEquals("url")) { // "url("
-							stage = STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL;
-						} else {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-								"Unexpected '(' after " + buffer);
-						}
-					} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-							"Unexpected '(' after " + buffer);
-					} else if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN) {
-						if (bufferEquals("url")) { // "url("
-							stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
-						} else {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-								"Unexpected '(' after " + buffer);
-						}
-					} else if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
-						if (bufferEquals("url")) { // "url("
-							// Default namespace
-							ruleFirstPart = "";
-							stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
-						} else {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-								"Unexpected '(' after " + buffer);
-						}
+				} else if (stage == STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING
+						&& curlyBracketDepth >= 2) {
+					startFontFaceRule(index);
+				} else {
+					buffer.append('{');
+				}
+			}
+		}
+
+		@Override
+		public void leftParenthesis(int index) {
+			if (contextHandler != null) {
+				contextHandler.leftParenthesis(index);
+			} else {
+				prevcp = TokenProducer.CHAR_LEFT_PAREN;
+				parendepth++;
+				if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
+					if (bufferEquals("url")) { // "url("
+						stage = STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL;
 					} else {
-						buffer.append('(');
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+								"Unexpected '(' after " + buffer);
+					}
+				} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
+					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+							"Unexpected '(' after " + buffer);
+				} else if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN) {
+					if (bufferEquals("url")) { // "url("
+						stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
+					} else {
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+								"Unexpected '(' after " + buffer);
+					}
+				} else if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
+					if (bufferEquals("url")) { // "url("
+						// Default namespace
+						ruleFirstPart = "";
+						stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
+					} else {
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+								"Unexpected '(' after " + buffer);
 					}
 				} else {
-					bufferAppend(codepoint);
+					buffer.append('(');
 				}
+			}
+		}
+
+		@Override
+		public void leftSquareBracket(int index) {
+			if (contextHandler != null) {
+				contextHandler.leftSquareBracket(index);
+			} else {
+				buffer.append('[');
+				prevcp = TokenProducer.CHAR_LEFT_SQ_BRACKET;
 			}
 		}
 
@@ -3150,49 +3280,63 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		public void closeGroup(int index, int codepoint) {
+		public void rightParenthesis(int index) {
 			if (contextHandler != null) {
-				contextHandler.closeGroup(index, codepoint);
+				contextHandler.rightParenthesis(index);
 			} else {
-				if (codepoint == 125) { // }
-					curlyBracketDepth--;
-					buffer.append('}');
-					if (curlyBracketDepth == 0) {
-						// Body of rule ends
-						if (!parseError) {
-							handler.ignorableAtRule(buffer.toString());
-							stage = STAGE_INITIAL;
-						}
-						buffer.setLength(0);
-						endRuleBody();
-					} else if (!parseError && curlyBracketDepth == 1
-							&& stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
-						handler.ignorableAtRule(buffer.toString());
-						buffer.setLength(0);
-						stage = STAGE_GROUPING_OR_FONTFACE_RULE;
-						switchContextToStage2();
-					}
-				} else if (codepoint == TokenProducer.CHAR_RIGHT_PAREN) {
-					decrParenDepth(index);
-					if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL) { // Ignore final ')' for URI
-						processBuffer(index);
-						if (ruleSecondPart != null) {
-							stage = STAGE_NS_RULE_RCVD_SECOND_TOKEN_AS_URL;
-						} else {
-							handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-									"Empty URI in namespace rule");
-						}
-					} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL
-							|| stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN) {
-						processFirstPart(index);
-						stage = STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL;
+				decrParenDepth(index);
+				if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL) { // Ignore final ')' for URI
+					processBuffer(index);
+					if (ruleSecondPart != null) {
+						stage = STAGE_NS_RULE_RCVD_SECOND_TOKEN_AS_URL;
 					} else {
-						buffer.append(')');
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								"Empty URI in namespace rule");
 					}
+				} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL
+						|| stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN) {
+					processFirstPart(index);
+					stage = STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL;
 				} else {
-					bufferAppend(codepoint);
+					buffer.append(')');
 				}
-				prevcp = codepoint;
+				prevcp = TokenProducer.CHAR_RIGHT_PAREN;
+			}
+		}
+
+		@Override
+		public void rightSquareBracket(int index) {
+			if (contextHandler != null) {
+				contextHandler.rightSquareBracket(index);
+			} else {
+				buffer.append(']');
+				prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
+			}
+		}
+
+		@Override
+		public void rightCurlyBracket(int index) {
+			if (contextHandler != null) {
+				contextHandler.rightCurlyBracket(index);
+			} else {
+				curlyBracketDepth--;
+				buffer.append('}');
+				if (curlyBracketDepth == 0) {
+					// Body of rule ends
+					if (!parseError) {
+						handler.ignorableAtRule(buffer.toString());
+						stage = STAGE_INITIAL;
+					}
+					buffer.setLength(0);
+					endRuleBody();
+				} else if (!parseError && curlyBracketDepth == 1
+						&& stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
+					handler.ignorableAtRule(buffer.toString());
+					buffer.setLength(0);
+					stage = STAGE_GROUPING_OR_FONTFACE_RULE;
+					switchContextToStage2();
+				}
+				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
 			}
 		}
 
@@ -3529,22 +3673,43 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			public void openGroup(int index, int codePoint) {
-				if (codePoint != TokenProducer.CHAR_LEFT_SQ_BRACKET) {
-					startNewRule(index);
-					if (contextHandler != null) {
-						contextHandler.openGroup(index, codePoint);
-					} else {
-						SheetTokenHandler.this.openGroup(index, codePoint);
-					}
+			public void leftParenthesis(int index) {
+				startNewRule(index);
+				if (contextHandler != null) {
+					contextHandler.leftParenthesis(index);
 				} else {
-					unexpectedCharError(index, codePoint);
+					SheetTokenHandler.this.leftParenthesis(index);
 				}
 			}
 
 			@Override
-			public void closeGroup(int index, int codePoint) {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+			public void leftSquareBracket(int index) {
+				unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				startNewRule(index);
+				if (contextHandler != null) {
+					contextHandler.leftCurlyBracket(index);
+				} else {
+					SheetTokenHandler.this.leftCurlyBracket(index);
+				}
+			}
+
+			@Override
+			public void rightParenthesis(int index) {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
+			}
+
+			@Override
+			public void rightSquareBracket(int index) {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+			}
+
+			@Override
+			public void rightCurlyBracket(int index) {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
 			}
 
 			@Override
@@ -4189,7 +4354,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void handleLeftCurlyBracket(int index) {
+			public void leftCurlyBracket(int index) {
 				declarationHandler.curlyBracketDepth = 1;
 				contextHandler = declarationHandler;
 				if (!parseError) {
@@ -4217,7 +4382,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void handleRightCurlyBracket(int index) {
+			public void rightCurlyBracket(int index) {
 				if (SheetTokenHandler.this.stage == STAGE_GROUPING_OR_FONTFACE_RULE) {
 					final byte ruleType = SheetTokenHandler.this.ruleType;
 					if (ruleType == MEDIA_RULE) {
@@ -4598,7 +4763,9 @@ public class CSSParser implements Parser, Cloneable {
 					buffer.append(' ');
 					return;
 				}
-				if (prevcp == ':' || prevcp == '.' || prevcp == '#' || (prevcp == TokenProducer.CHAR_VERTICAL_LINE && getActiveSelector() == null)) {
+				if (prevcp == ':' || prevcp == '.' || prevcp == '#'
+						|| (prevcp == TokenProducer.CHAR_VERTICAL_LINE
+								&& getActiveSelector() == null)) {
 					unexpectedCharError(index, codepoint);
 					return;
 				}
@@ -4607,7 +4774,8 @@ public class CSSParser implements Parser, Cloneable {
 						setAttributeSelectorValue(index, unescapeBuffer(index));
 						stage = STAGE_ATTR_POST_SYMBOL;
 					}
-				} else if (stage == 1 || stage == STAGE_EXPECT_ID_OR_CLASSNAME || stage == STAGE_EXPECT_PSEUDOELEM_NAME
+				} else if (stage == 1 || stage == STAGE_EXPECT_ID_OR_CLASSNAME
+						|| stage == STAGE_EXPECT_PSEUDOELEM_NAME
 						|| stage == STAGE_EXPECT_PSEUDOCLASS_NAME) {
 					processBuffer(index, codepoint, false);
 					if (prevcp == 65 || prevcp == 42 || prevcp == 41 || prevcp == 93) {
@@ -4627,269 +4795,6 @@ public class CSSParser implements Parser, Cloneable {
 					setWhitespacePrevCp();
 				}
 			}
-		}
-
-		@Override
-		public void quoted(int index, CharSequence quoted, int quoteChar) {
-			if (stage == STAGE_ATTR_SYMBOL && currentsel != null) { // Attribute selector
-				setAttributeSelectorValue(index, quoted);
-				stage = STAGE_ATTR_POST_SYMBOL;
-			} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) { // Pseudo-class argument
-				if (buffer.length() != 0 && isPrevCpWhitespace()) {
-					buffer.append(' ');
-				}
-				char c = (char) quoteChar;
-				buffer.append(c).append(quoted).append(c);
-			} else {
-				char c = (char) quoteChar;
-				StringBuilder buf = new StringBuilder(quoted.length() + 2);
-				buf.append(c).append(quoted).append(c);
-				unexpectedTokenError(index, buf.toString());
-			}
-			prevcp = 65;
-		}
-
-		@Override
-		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-			if (stage == STAGE_ATTR_SYMBOL && currentsel != null) { // Attribute selector
-				setAttributeSelectorValue(index, quoted);
-				stage = STAGE_ATTR_POST_SYMBOL;
-			} else {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-						"Quoted string contained unexpected control character: \"" + quoted + '"');
-			}
-			prevcp = 65;
-		}
-
-		private void setAttributeSelectorValue(int index, CharSequence value) {
-			Condition cond = null;
-			if (currentsel instanceof CombinatorSelectorImpl) {
-				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
-				if (!(simple instanceof ConditionalSelectorImpl)) {
-					throw new IllegalStateException("Descendant selector has no conditional simple selector");
-				}
-				cond = ((ConditionalSelectorImpl) simple).condition;
-			} else if (currentsel instanceof ConditionalSelectorImpl) {
-				cond = ((ConditionalSelectorImpl) currentsel).condition;
-			}
-			if (cond instanceof CombinatorConditionImpl) {
-				cond = ((CombinatorConditionImpl) cond).getSecondCondition();
-			}
-			if (cond instanceof AttributeConditionImpl) {
-				AttributeConditionImpl attrcond = (AttributeConditionImpl) cond;
-				if (attrcond != null) {
-					String oldValue = attrcond.getValue();
-					if (oldValue == null) {
-						attrcond.setValue(value.toString());
-					} else {
-						StringBuilder buf = new StringBuilder(oldValue.length() + value.length() + 1);
-						buf.append(oldValue);
-						if (isPrevCpWhitespace()) {
-							buf.append(' ');
-						}
-						attrcond.setValue(buf.append(value).toString());
-					}
-					return;
-				}
-			}
-			handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token in selector: <" + value + ">");
-		}
-
-		private void setAttributeConditionFlag(AttributeCondition.Flag flag) {
-			Selector simple = getActiveSelector();
-			if (simple == null || simple.getSelectorType() != SelectorType.CONDITIONAL) {
-				throw new IllegalStateException(
-						"Processing attribute modifier of non-conditional selector");
-			}
-			Condition cond = ((ConditionalSelectorImpl) simple).getCondition();
-			if (cond.getConditionType() == ConditionType.AND) {
-				// If it wasn't the second condition, we would not be here
-				cond = ((CombinatorCondition) cond).getSecondCondition();
-			}
-			((AttributeConditionImpl) cond).setFlag(flag);
-		}
-
-		@Override
-		public void openGroup(int index, int codepoint) {
-			if (codepoint == 123) { // '{'
-				handleLeftCurlyBracket(index);
-			} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
-				bufferAppend(codepoint);
-				prevcp = codepoint;
-				if (codepoint == 40) { // '('
-					parendepth++;
-				}
-				return;
-			} else {
-				if (codepoint == 40) { // '('
-					parendepth++;
-					if (!parseError) {
-						if (prevcp != 65 || buffer.length() == 0
-							|| stage != STAGE_EXPECT_PSEUDOCLASS_NAME) {
-							unexpectedCharError(index, codepoint);
-						} else {
-							newConditionalSelector(index, codepoint, ConditionType.PSEUDO_CLASS);
-							if (!parseError) {
-								stage = STAGE_EXPECT_PSEUDOCLASS_ARGUMENT;
-								functionToken = true;
-							}
-						}
-					}
-				} else if (!parseError) { // '['
-					assert codepoint == 91;
-					if (prevcp != 65 && isNotSeparator(prevcp) && prevcp != 42 && prevcp != 44 && prevcp != 93
-							&& prevcp != 41 && prevcp != 43 && prevcp != 62 && prevcp != 125 && prevcp != 126
-							&& prevcp != 124) {
-						// Not letter-or-digit nor *,ws)]+}~|>
-						unexpectedCharError(index, codepoint);
-					} else {
-						processBuffer(index, codepoint, false);
-						stage = STAGE_ATTR_START;
-						prevcp = 65;
-						return;
-					}
-				}
-			}
-			prevcp = codepoint;
-		}
-
-		protected void handleLeftCurlyBracket(int index) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '{'");
-		}
-
-		protected void handleRightCurlyBracket(int index) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '}'");
-		}
-
-		@Override
-		public void closeGroup(int index, int codepoint) {
-			if (codepoint == 41) { // ')'
-				decrParenDepth(index);
-				if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
-					if (parendepth == 0) {
-						Selector sel = getActiveSelector();
-						if (sel.getSelectorType() == SelectorType.CONDITIONAL) {
-							Condition cond = ((ConditionalSelectorImpl) sel).condition;
-							cond = getActiveCondition(cond);
-							ConditionType condtype = cond.getConditionType();
-							if (buffer.length() != 0) {
-								if (condtype == ConditionType.SELECTOR_ARGUMENT) {
-									try {
-										((SelectorArgumentConditionImpl) cond).arguments = parseSelectorArgument(
-												rawBuffer(), factory);
-									} catch (CSSParseException e) {
-										byte errCode;
-										if (e.getClass() == CSSNamespaceParseException.class) {
-											errCode = ParseHelper.ERR_UNKNOWN_NAMESPACE;
-										} else {
-											errCode = ParseHelper.ERR_EXPR_SYNTAX;
-										}
-										CSSParseException ex = createException(index, errCode, e.getMessage());
-										handleError(ex);
-										stage = 127;
-									}
-								} else if (condtype == ConditionType.POSITIONAL) {
-									if (((PositionalConditionImpl) cond).hasArgument()) {
-										String arg = rawBuffer();
-										if (!parsePositionalArgument((PositionalConditionImpl) cond, arg)) {
-											handleError(index, ParseHelper.ERR_EXPR_SYNTAX,
-													"Wrong subexpression: " + arg);
-										}
-									}
-								} else if (condtype == ConditionType.LANG) {
-									String s = unescapeBuffer(index);
-									int len = s.length();
-									if (s.charAt(len - 1) == ',') {
-										handleError(index - 2, ParseHelper.ERR_UNEXPECTED_TOKEN,
-												"Unexpected functional argument: " + s);
-										return;
-									}
-									((LangConditionImpl) cond).lang = s;
-								} else if (condtype == ConditionType.PSEUDO_CLASS) {
-									String s = unescapeBuffer(index);
-									char c;
-									if ((c = s.charAt(0)) != '"' && c != '\'' && !isValidPseudoName(s)) {
-										handleError(index - s.length() - 1, ParseHelper.ERR_UNEXPECTED_TOKEN,
-												"Unexpected functional argument: " + s);
-										return;
-									}
-									((PseudoConditionImpl) cond).argument = s;
-								}
-								buffer.setLength(0);
-								stage = 1;
-							} else {
-								if (condtype == ConditionType.LANG
-										|| condtype == ConditionType.SELECTOR_ARGUMENT
-										|| condtype == ConditionType.POSITIONAL) {
-									unexpectedCharError(index, codepoint);
-								} else {
-									unexpectedCharError(index - 1, codepoint);
-								}
-							}
-						} else {
-							unexpectedCharError(index, codepoint);
-						}
-					} else {
-						bufferAppend(codepoint);
-						prevcp = codepoint;
-						return;
-					}
-				} else {
-					unexpectedCharError(index, codepoint);
-				}
-				if (functionToken) {
-					functionToken = false;
-				}
-			} else if (codepoint == 125) { // }
-				handleRightCurlyBracket(index);
-			} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
-				bufferAppend(codepoint);
-				prevcp = codepoint;
-				return;
-			} else if (codepoint == 93) { // ]
-				if (stage == STAGE_ATTR_POST_SYMBOL) {
-					if (buffer.length() != 0) {
-						setAttributeSelectorValue(index, unescapeBuffer(index));
-					}
-					stage = 1;
-				} else if (stage == STAGE_ATTR_START || stage == STAGE_ATTR_EXPECT_SYMBOL_OR_CLOSE) {
-					if (buffer.length() != 0) {
-						newConditionalSelector(index, codepoint, ConditionType.ATTRIBUTE);
-						stage = 1;
-					} else {
-						// Error
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ']', expected attribute name");
-					}
-				} else if (stage == STAGE_ATTR_SYMBOL) {
-					if (buffer.length() != 0) {
-						setAttributeSelectorValue(index, unescapeBuffer(index));
-						stage = 1;
-					} else {
-						// Error
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ']', expected attribute value");
-					}
-				} else {
-					unexpectedCharError(index, codepoint);
-				}
-			}
-			prevcp = codepoint;
-		}
-
-		private Selector getActiveSelector() {
-			Selector sel;
-			if (currentsel instanceof CombinatorSelectorImpl) {
-				sel = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
-			} else {
-				sel = currentsel;
-			}
-			return sel;
-		}
-
-		private Condition getActiveCondition(Condition cond) {
-			while (cond.getConditionType() == ConditionType.AND) {
-				cond = ((CombinatorConditionImpl) cond).getSecondCondition();
-			}
-			return cond;
 		}
 
 		@Override
@@ -4981,6 +4886,273 @@ public class CSSParser implements Parser, Cloneable {
 			} else if (stage > 1 && stage != 11) {
 				unexpectedCharError(index, triggerCp);
 			}
+		}
+
+		@Override
+		public void quoted(int index, CharSequence quoted, int quoteChar) {
+			if (stage == STAGE_ATTR_SYMBOL && currentsel != null) { // Attribute selector
+				setAttributeSelectorValue(index, quoted);
+				stage = STAGE_ATTR_POST_SYMBOL;
+			} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) { // Pseudo-class argument
+				if (buffer.length() != 0 && isPrevCpWhitespace()) {
+					buffer.append(' ');
+				}
+				char c = (char) quoteChar;
+				buffer.append(c).append(quoted).append(c);
+			} else {
+				char c = (char) quoteChar;
+				StringBuilder buf = new StringBuilder(quoted.length() + 2);
+				buf.append(c).append(quoted).append(c);
+				unexpectedTokenError(index, buf.toString());
+			}
+			prevcp = 65;
+		}
+
+		@Override
+		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+			if (stage == STAGE_ATTR_SYMBOL && currentsel != null) { // Attribute selector
+				setAttributeSelectorValue(index, quoted);
+				stage = STAGE_ATTR_POST_SYMBOL;
+			} else {
+				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+						"Quoted string contained unexpected control character: \"" + quoted + '"');
+			}
+			prevcp = 65;
+		}
+
+		private void setAttributeSelectorValue(int index, CharSequence value) {
+			Condition cond = null;
+			if (currentsel instanceof CombinatorSelectorImpl) {
+				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
+				if (!(simple instanceof ConditionalSelectorImpl)) {
+					throw new IllegalStateException("Descendant selector has no conditional simple selector");
+				}
+				cond = ((ConditionalSelectorImpl) simple).condition;
+			} else if (currentsel instanceof ConditionalSelectorImpl) {
+				cond = ((ConditionalSelectorImpl) currentsel).condition;
+			}
+			if (cond instanceof CombinatorConditionImpl) {
+				cond = ((CombinatorConditionImpl) cond).getSecondCondition();
+			}
+			if (cond instanceof AttributeConditionImpl) {
+				AttributeConditionImpl attrcond = (AttributeConditionImpl) cond;
+				if (attrcond != null) {
+					String oldValue = attrcond.getValue();
+					if (oldValue == null) {
+						attrcond.setValue(value.toString());
+					} else {
+						StringBuilder buf = new StringBuilder(oldValue.length() + value.length() + 1);
+						buf.append(oldValue);
+						if (isPrevCpWhitespace()) {
+							buf.append(' ');
+						}
+						attrcond.setValue(buf.append(value).toString());
+					}
+					return;
+				}
+			}
+			handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token in selector: <" + value + ">");
+		}
+
+		private void setAttributeConditionFlag(AttributeCondition.Flag flag) {
+			Selector simple = getActiveSelector();
+			if (simple == null || simple.getSelectorType() != SelectorType.CONDITIONAL) {
+				throw new IllegalStateException(
+						"Processing attribute modifier of non-conditional selector");
+			}
+			Condition cond = ((ConditionalSelectorImpl) simple).getCondition();
+			if (cond.getConditionType() == ConditionType.AND) {
+				// If it wasn't the second condition, we would not be here
+				cond = ((CombinatorCondition) cond).getSecondCondition();
+			}
+			((AttributeConditionImpl) cond).setFlag(flag);
+		}
+
+		private Selector getActiveSelector() {
+			Selector sel;
+			if (currentsel instanceof CombinatorSelectorImpl) {
+				sel = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
+			} else {
+				sel = currentsel;
+			}
+			return sel;
+		}
+
+		private Condition getActiveCondition(Condition cond) {
+			while (cond.getConditionType() == ConditionType.AND) {
+				cond = ((CombinatorConditionImpl) cond).getSecondCondition();
+			}
+			return cond;
+		}
+
+		@Override
+		public void leftParenthesis(int index) {
+			parendepth++;
+			if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+				buffer.append('(');
+				prevcp = TokenProducer.CHAR_LEFT_PAREN;
+			} else if (!parseError) {
+				if (prevcp != 65 || buffer.length() == 0
+						|| stage != STAGE_EXPECT_PSEUDOCLASS_NAME) {
+					unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+				} else {
+					newConditionalSelector(index, TokenProducer.CHAR_LEFT_PAREN,
+							ConditionType.PSEUDO_CLASS);
+					if (!parseError) {
+						stage = STAGE_EXPECT_PSEUDOCLASS_ARGUMENT;
+						functionToken = true;
+					}
+				}
+			}
+			prevcp = TokenProducer.CHAR_LEFT_PAREN;
+		}
+
+		@Override
+		public void leftSquareBracket(int index) {
+			if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+				buffer.append('[');
+				prevcp = TokenProducer.CHAR_LEFT_SQ_BRACKET;
+			} else if (!parseError) {
+				if (prevcp != 65 && isNotSeparator(prevcp) && prevcp != 42 && prevcp != 44
+						&& prevcp != 93 && prevcp != 41 && prevcp != 43 && prevcp != 62
+						&& prevcp != 125 && prevcp != 126 && prevcp != 124) {
+					// Not letter-or-digit nor *,ws)]+}~|>
+					unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+				} else {
+					processBuffer(index, TokenProducer.CHAR_LEFT_SQ_BRACKET, false);
+					stage = STAGE_ATTR_START;
+					prevcp = 65;
+				}
+			}
+		}
+
+		@Override
+		public void leftCurlyBracket(int index) {
+			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '{'");
+		}
+
+		@Override
+		public void rightParenthesis(int index) {
+			decrParenDepth(index);
+			if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+				if (parendepth == 0) {
+					Selector sel = getActiveSelector();
+					if (sel.getSelectorType() == SelectorType.CONDITIONAL) {
+						Condition cond = ((ConditionalSelectorImpl) sel).condition;
+						cond = getActiveCondition(cond);
+						ConditionType condtype = cond.getConditionType();
+						if (buffer.length() != 0) {
+							if (condtype == ConditionType.SELECTOR_ARGUMENT) {
+								try {
+									((SelectorArgumentConditionImpl) cond).arguments = parseSelectorArgument(
+											rawBuffer(), factory);
+								} catch (CSSParseException e) {
+									byte errCode;
+									if (e.getClass() == CSSNamespaceParseException.class) {
+										errCode = ParseHelper.ERR_UNKNOWN_NAMESPACE;
+									} else {
+										errCode = ParseHelper.ERR_EXPR_SYNTAX;
+									}
+									CSSParseException ex = createException(index, errCode,
+											e.getMessage());
+									handleError(ex);
+									stage = 127;
+								}
+							} else if (condtype == ConditionType.POSITIONAL) {
+								if (((PositionalConditionImpl) cond).hasArgument()) {
+									String arg = rawBuffer();
+									if (!parsePositionalArgument((PositionalConditionImpl) cond,
+											arg)) {
+										handleError(index, ParseHelper.ERR_EXPR_SYNTAX,
+												"Wrong subexpression: " + arg);
+									}
+								}
+							} else if (condtype == ConditionType.LANG) {
+								String s = unescapeBuffer(index);
+								int len = s.length();
+								if (s.charAt(len - 1) == ',') {
+									handleError(index - 2, ParseHelper.ERR_UNEXPECTED_TOKEN,
+											"Unexpected functional argument: " + s);
+									return;
+								}
+								((LangConditionImpl) cond).lang = s;
+							} else if (condtype == ConditionType.PSEUDO_CLASS) {
+								String s = unescapeBuffer(index);
+								char c;
+								if ((c = s.charAt(0)) != '"' && c != '\''
+										&& !isValidPseudoName(s)) {
+									handleError(index - s.length() - 1,
+											ParseHelper.ERR_UNEXPECTED_TOKEN,
+											"Unexpected functional argument: " + s);
+									return;
+								}
+								((PseudoConditionImpl) cond).argument = s;
+							}
+							buffer.setLength(0);
+							stage = 1;
+						} else {
+							if (condtype == ConditionType.LANG
+									|| condtype == ConditionType.SELECTOR_ARGUMENT
+									|| condtype == ConditionType.POSITIONAL) {
+								unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
+							} else {
+								unexpectedCharError(index - 1, TokenProducer.CHAR_RIGHT_PAREN);
+							}
+						}
+					} else {
+						unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
+					}
+				} else {
+					buffer.append(')');
+					prevcp = TokenProducer.CHAR_RIGHT_PAREN;
+					return;
+				}
+			} else {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
+			}
+			if (functionToken) {
+				functionToken = false;
+			}
+			prevcp = TokenProducer.CHAR_RIGHT_PAREN;
+		}
+
+		@Override
+		public void rightSquareBracket(int index) {
+			if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+				buffer.append(']');
+			} else if (stage == STAGE_ATTR_POST_SYMBOL) {
+				if (buffer.length() != 0) {
+					setAttributeSelectorValue(index, unescapeBuffer(index));
+				}
+				stage = 1;
+			} else if (stage == STAGE_ATTR_START || stage == STAGE_ATTR_EXPECT_SYMBOL_OR_CLOSE) {
+				if (buffer.length() != 0) {
+					newConditionalSelector(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET,
+							ConditionType.ATTRIBUTE);
+					stage = 1;
+				} else {
+					// Error
+					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+							"Unexpected ']', expected attribute name");
+				}
+			} else if (stage == STAGE_ATTR_SYMBOL) {
+				if (buffer.length() != 0) {
+					setAttributeSelectorValue(index, unescapeBuffer(index));
+					stage = 1;
+				} else {
+					// Error
+					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+							"Unexpected ']', expected attribute value");
+				}
+			} else {
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+			}
+			prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
+		}
+
+		@Override
+		public void rightCurlyBracket(int index) {
+			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '}'");
 		}
 
 		@Override
@@ -5303,7 +5475,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		private void handleCDO() {
-			TokenHandler cdoCdcTH = new CDOTokenHandler(getTokenControl());
+			TokenHandler2 cdoCdcTH = new CDOTokenHandler(getTokenControl());
 			getTokenControl().setTokenHandler(cdoCdcTH);
 		}
 
@@ -5799,14 +5971,38 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		public void openGroup(int index, int codePoint) {
-			parent.unexpectedCharError(index, codePoint);
+		public void leftParenthesis(int index) {
+			parent.unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
 			yieldHandling();
 		}
 
 		@Override
-		public void closeGroup(int index, int codePoint) {
-			parent.unexpectedCharError(index, codePoint);
+		public void leftSquareBracket(int index) {
+			parent.unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+			yieldHandling();
+		}
+
+		@Override
+		public void leftCurlyBracket(int index) {
+			parent.unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+			yieldHandling();
+		}
+
+		@Override
+		public void rightParenthesis(int index) {
+			parent.unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
+			yieldHandling();
+		}
+
+		@Override
+		public void rightSquareBracket(int index) {
+			parent.unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+			yieldHandling();
+		}
+
+		@Override
+		public void rightCurlyBracket(int index) {
+			parent.unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
 			yieldHandling();
 		}
 
@@ -6131,51 +6327,31 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		public void openGroup(int index, int codepoint) {
+		public void leftParenthesis(int index) {
+			parendepth++;
 			// If we reach here expecting hexColor or unicodeRange, we are in error
 			if (hexColor || unicodeRange) {
-				unexpectedCharError(index, codepoint);
-			}
-			if (codepoint == 40) { // '('
-				parendepth++;
-				if (!parseError) {
-					if (prevcp != 65) {
-						if (!functionToken) {
-							// Not a function token
-							unexpectedCharError(index, codepoint);
-							prevcp = codepoint;
-						} else if (buffer.length() == 0) {
-							// Sub-values
-							newLexicalUnit(LexicalType.SUB_EXPRESSION, true);
-						} else {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-									"Unexpected token: " + buffer.toString());
-							buffer.setLength(0);
-						}
+				unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+			} else if (!parseError) {
+				if (prevcp != 65) {
+					if (!functionToken) {
+						// Not a function token
+						unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+						prevcp = TokenProducer.CHAR_LEFT_PAREN;
+					} else if (buffer.length() == 0) {
+						// Sub-values
+						newLexicalUnit(LexicalType.SUB_EXPRESSION, true);
 					} else {
-						newFunction(index);
-						codepoint = 32;
+						handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+								"Unexpected token: " + buffer.toString());
+						buffer.setLength(0);
 					}
-				}
-			} else if (codepoint == 123) { // '{'
-				if (!parseError) {
-					handleLeftCurlyBracket(index);
+					prevcp = TokenProducer.CHAR_LEFT_PAREN;
 				} else {
-					skipDeclaration(index);
-				}
-			} else if (codepoint == 91) { // '['
-				squareBracketDepth++;
-				if (!parseError) {
-					if (propertyName != null) {
-						processBuffer(index);
-						newLexicalUnit(LexicalType.LEFT_BRACKET, false);
-						codepoint = 32;
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
+					newFunction(index);
+					prevcp = 32;
 				}
 			}
-			prevcp = codepoint;
 		}
 
 		private void newFunction(int index) {
@@ -6235,14 +6411,44 @@ public class CSSParser implements Parser, Cloneable {
 			functionToken = true;
 		}
 
+		@Override
+		public void leftCurlyBracket(int index) {
+			// If we reach here expecting hexColor or unicodeRange, we are in error
+			if (hexColor || unicodeRange) {
+				unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+			} else if (!parseError) {
+				handleLeftCurlyBracket(index);
+			} else {
+				skipDeclaration(index);
+			}
+			prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
+		}
+
 		protected void handleLeftCurlyBracket(int index) {
 			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '{'");
 			skipDeclaration(index);
 		}
 
 		protected void skipDeclaration(int index) {
-			TokenHandler ignoreth = new CallbackIgnoredDeclarationTH(getTokenControl());
+			TokenHandler2 ignoreth = new CallbackIgnoredDeclarationTH(getTokenControl());
 			getTokenControl().setTokenHandler(ignoreth);
+		}
+
+		@Override
+		public void leftSquareBracket(int index) {
+			squareBracketDepth++;
+			// If we reach here expecting hexColor or unicodeRange, we are in error
+			if (hexColor || unicodeRange) {
+				unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+			} else if (!parseError) {
+				if (propertyName != null) {
+					processBuffer(index);
+					newLexicalUnit(LexicalType.LEFT_BRACKET, false);
+					prevcp = 32;
+				} else {
+					unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+				}
+			}
 		}
 
 		private LexicalUnitImpl newLexicalUnit(LexicalType unitType, boolean functionOrSubexpression) {
@@ -6274,49 +6480,18 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		public void closeGroup(int index, int codepoint) {
-			if (codepoint == 41) { // ')'
-				processBuffer(index);
-				decrParenDepth(index);
-				if (functionToken) {
-					checkFunction(index);
-					if (currentlu.ownerLexicalUnit != null) {
-						currentlu = currentlu.ownerLexicalUnit;
-					} else {
-						functionToken = false;
-					}
-				}
-			} else if (codepoint == 125) { // }
-				if (parendepth != 0 || squareBracketDepth != 0) {
-					parseError = true;
-					parendepth = 0;
-					squareBracketDepth = 0;
-				}
-				if (curlyBracketDepth == 1) {
-					endOfPropertyDeclaration(index);
-					handleRightCurlyBracket(index);
-				} else if (curlyBracketDepth == 2) {
-					int len = buffer.length();
-					if (len != 0) {
-						unexpectedTokenError(index - len, buffer);
-						buffer.setLength(0);
-					}
+		public void rightParenthesis(int index) {
+			processBuffer(index);
+			decrParenDepth(index);
+			if (functionToken) {
+				checkFunction(index);
+				if (currentlu.ownerLexicalUnit != null) {
+					currentlu = currentlu.ownerLexicalUnit;
 				} else {
-					parseError = true;
-				}
-				curlyBracketDepth--;
-			} else if (codepoint == 93) { // ]
-				squareBracketDepth--;
-				if (!parseError) {
-					if (propertyName != null) {
-						processBuffer(index);
-						newLexicalUnit(LexicalType.RIGHT_BRACKET, false);
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
+					functionToken = false;
 				}
 			}
-			prevcp = codepoint;
+			prevcp = TokenProducer.CHAR_RIGHT_PAREN;
 		}
 
 		private void checkFunction(int index) {
@@ -7453,8 +7628,45 @@ public class CSSParser implements Parser, Cloneable {
 			return lunit.matches(syn) == Match.FALSE;
 		}
 
+		@Override
+		public void rightCurlyBracket(int index) {
+			if (parendepth != 0 || squareBracketDepth != 0) {
+				parseError = true;
+				parendepth = 0;
+				squareBracketDepth = 0;
+			}
+			if (curlyBracketDepth == 1) {
+				endOfPropertyDeclaration(index);
+				handleRightCurlyBracket(index);
+			} else if (curlyBracketDepth == 2) {
+				int len = buffer.length();
+				if (len != 0) {
+					unexpectedTokenError(index - len, buffer);
+					buffer.setLength(0);
+				}
+			} else {
+				parseError = true;
+			}
+			curlyBracketDepth--;
+			prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
+		}
+
 		protected void handleRightCurlyBracket(int index) {
 			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '}'");
+		}
+
+		@Override
+		public void rightSquareBracket(int index) {
+			squareBracketDepth--;
+			if (!parseError) {
+				if (propertyName != null) {
+					processBuffer(index);
+					newLexicalUnit(LexicalType.RIGHT_BRACKET, false);
+				} else {
+					unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+				}
+				prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
+			}
 		}
 
 		@Override
@@ -8662,19 +8874,31 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		public void openGroup(int index, int codePoint) {
-			if (codePoint == 123) { // '{'
-				curlyBracketDepth++;
-			}
+		public void leftParenthesis(int index) {
 		}
 
 		@Override
-		public void closeGroup(int index, int codePoint) {
-			if (codePoint == 125) { // }
-				curlyBracketDepth--;
-				if (curlyBracketDepth == 0) {
-					endDeclarationBlock();
-				}
+		public void leftSquareBracket(int index) {
+		}
+
+		@Override
+		public void rightParenthesis(int index) {
+		}
+
+		@Override
+		public void rightSquareBracket(int index) {
+		}
+
+		@Override
+		public void leftCurlyBracket(int index) {
+			curlyBracketDepth++;
+		}
+
+		@Override
+		public void rightCurlyBracket(int index) {
+			curlyBracketDepth--;
+			if (curlyBracketDepth == 0) {
+				endDeclarationBlock();
 			}
 		}
 
@@ -8693,7 +8917,7 @@ public class CSSParser implements Parser, Cloneable {
 	private class CallbackIgnoredDeclarationTH extends IgnoredDeclarationTokenHandler {
 
 		private final TokenControl parserctl;
-		private final TokenHandler parent;
+		private final TokenHandler2 parent;
 
 		CallbackIgnoredDeclarationTH(TokenControl parserctl) {
 			super();
@@ -8741,7 +8965,10 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	abstract class CSSTokenHandler implements TokenHandler, ParserControl {
+	/**
+	 * The abstract base class for CSS token handlers.
+	 */
+	abstract class CSSTokenHandler implements TokenHandler2, ParserControl {
 
 		private int line;
 		private int prevlinelength;
