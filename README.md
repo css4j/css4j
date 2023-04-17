@@ -187,10 +187,10 @@ and optional library packages are the following:
   or higher.
 
 - The [tokenproducer](https://github.com/css4j/tokenproducer) library; version
-  1.2 or higher is recommended.
+  2.0.1 or higher is required.
 
-- The [xml-dtd](https://github.com/css4j/xml-dtd) library; version 4.1.1 or
-  higher is recommended.
+- The [xml-dtd](https://github.com/css4j/xml-dtd) library; version 4.2 or
+  higher is required.
   **It is optional at runtime.**
 
 - [SLF4J](http://www.slf4j.org/), which is a logging package.

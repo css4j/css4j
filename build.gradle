@@ -16,7 +16,7 @@ plugins {
 }
 
 group = 'io.sf.carte'
-version = '4.1-SNAPSHOT'
+version = '4.0.1'
 description = 'css4j'
 
 java {
@@ -38,7 +38,7 @@ configurations {
 
 dependencies {
 	api 'io.sf.carte:carte-util:[3.6.0,)'
-	implementation 'io.sf.carte:tokenproducer:2.0.1'
+	implementation 'io.sf.carte:tokenproducer:[2.0.1,)'
 	implementation 'io.sf.jclf:jclf-text:[5.0.0,)'
 	implementation 'io.sf.jclf:jclf-linear3:[1.0.0,)'
 	xmldtdImplementation 'io.sf.carte:xml-dtd:[4.2,)'
