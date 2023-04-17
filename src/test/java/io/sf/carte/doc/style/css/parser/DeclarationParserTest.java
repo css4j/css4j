@@ -1520,6 +1520,20 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationNL() throws CSSException {
+		parseStyleDeclaration("font-size : larger\n;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("font-size", handler.propertyNames.getFirst());
+		assertEquals(1, handler.lexicalValues.size());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("larger", lu.getStringValue());
+		assertEquals("larger", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseStyleDeclarationTab() throws CSSException {
 		parseStyleDeclaration("font-size : larger\t;");
 		assertEquals(1, handler.propertyNames.size());

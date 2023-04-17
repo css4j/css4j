@@ -119,12 +119,12 @@ public class SheetParserTest {
 	@Test
 	public void testParseSheetTwoRules() throws CSSException, IOException {
 		Reader re = new StringReader(
-			".fooclass{zoom:expression(function(ele){ele.style.zoom = \"1\"; document.execCommand(\"BackgroundImageCache\", false, true); skip-me:skip-value}(this))}#fooid .fooclass{margin-right:auto;}");
+			".fooclass{zoom:expression(function(ele){ele.style.zoom = \"1\"; document.execCommand(\"BackgroundImageCache\", false, true); skip-me:skip-value}(this))}#fooid .barclass{margin-right:auto;}");
 		parser.parseStyleSheet(re);
 		//
 		assertEquals(2, handler.selectors.size());
 		assertEquals(".fooclass", handler.selectors.getFirst().toString());
-		assertEquals("#fooid .fooclass", handler.selectors.get(1).toString());
+		assertEquals("#fooid .barclass", handler.selectors.get(1).toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-right", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();

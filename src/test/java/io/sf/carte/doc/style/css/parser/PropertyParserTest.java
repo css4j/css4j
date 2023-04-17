@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -973,7 +974,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueEmptyError() throws CSSException {
 		try {
 			parsePropertyValue("");
-			fail("Must throw an excption");
+			fail("Must throw an exception");
 		} catch (CSSParseException e) {
 			assertEquals(1, e.getColumnNumber());
 		}
@@ -981,12 +982,9 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueEofError() throws CSSException {
-		try {
-			parsePropertyValue("yellow;");
-			fail("Must throw an excption");
-		} catch (CSSParseException e) {
-			assertEquals(7, e.getColumnNumber());
-		}
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("yellow;"));
+		assertEquals(7, ex.getColumnNumber());
 	}
 
 	@Test
