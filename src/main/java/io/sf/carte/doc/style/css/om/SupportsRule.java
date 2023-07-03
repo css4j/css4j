@@ -66,11 +66,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 	/**
 	 * Parse the condition text.
 	 * 
-	 * @param conditionText
-	 *            the condition text.
-	 * @param rule
-	 *            the rule that would process the error. if null, a problem while parsing
-	 *            shall result in an exception.
+	 * @param conditionText the condition text.
 	 */
 	private void parseConditionText(String conditionText) throws DOMException {
 		CSSParser parser = (CSSParser) createSACParser();

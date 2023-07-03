@@ -578,6 +578,13 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
+	public SupportsRule createSupportsRule(String conditionText) throws DOMException {
+		SupportsRule cond = new SupportsRule(this, getOrigin());
+		cond.setConditionText(conditionText);
+		return cond;
+	}
+
+	@Override
 	@Deprecated
 	public SupportsRule createSupportsRule() {
 		return new SupportsRule(this, getOrigin());

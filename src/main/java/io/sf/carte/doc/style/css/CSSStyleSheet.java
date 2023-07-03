@@ -199,10 +199,20 @@ public interface CSSStyleSheet<R extends CSSRule> extends org.w3c.dom.css.CSSSty
 	 * Create a CSSSupportsRule compatible with this implementation.
 	 *
 	 * @return a CSSSupportsRule object.
-	 * @deprecated use {@link #createSupportsRule(BooleanCondition)}
+	 * @deprecated use {@link #createSupportsRule(String)} or
+	 *             {@link #createSupportsRule(BooleanCondition)}
 	 */
 	@Deprecated
 	CSSSupportsRule createSupportsRule();
+
+	/**
+	 * Create a CSSSupportsRule compatible with this implementation.
+	 * 
+	 * @param conditionText a serialization of the {@code @supports} condition.
+	 * @return a CSSSupportsRule object.
+	 * @throws DOMException if the condition text could not be parsed.
+	 */
+	CSSSupportsRule createSupportsRule(String conditionText) throws DOMException;
 
 	/**
 	 * Create a CSSSupportsRule compatible with this implementation.

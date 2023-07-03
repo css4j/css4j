@@ -172,6 +172,9 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	abstract public StyleRule createStyleRule();
 
 	@Override
+	abstract public SupportsRule createSupportsRule(String conditionText) throws DOMException;
+
+	@Override
 	abstract public SupportsRule createSupportsRule(BooleanCondition condition);
 
 	@Override
