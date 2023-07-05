@@ -311,7 +311,7 @@ abstract class ShorthandBuilder {
 	}
 
 	boolean isExcludedType(Type type) {
-		return type == Type.VAR;
+		return type == Type.VAR || type == Type.ATTR;
 	}
 
 	boolean processPriorities(StringBuilder buf) {

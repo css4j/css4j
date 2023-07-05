@@ -85,7 +85,8 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testAnimation() {
-		emptyStyleDecl.setCssText("animation: ease-in ease-out");
+		emptyStyleDecl.setCssText(
+				"animation-timeline:view();animation-range-start:10%;animation: ease-in ease-out");
 		assertEquals("ease-in", emptyStyleDecl.getPropertyValue("animation-timing-function"));
 		assertEquals("ease-out", emptyStyleDecl.getPropertyValue("animation-name"));
 		assertEquals("0s", emptyStyleDecl.getPropertyValue("animation-duration"));
@@ -93,36 +94,115 @@ public class ShorthandSetterTest {
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-direction"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
 		assertEquals("running", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("none", emptyStyleDecl.getPropertyValue("animation-fill-mode"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("animation-timeline"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-range-start"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-range-end"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-range-start").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-range-end").isSubproperty());
 		assertEquals("animation: ease-in ease-out; ", emptyStyleDecl.getCssText());
 		assertEquals("animation:ease-in ease-out;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testAnimationExample6() {
 		// CSS Animation example 6
 		emptyStyleDecl.setCssText("animation: 3s none backwards");
 		assertEquals("3s", emptyStyleDecl.getPropertyValue("animation-duration"));
-		assertEquals("none", emptyStyleDecl.getPropertyValue("animation-fill-mode"));
-		assertEquals("backwards", emptyStyleDecl.getPropertyValue("animation-name"));
-		//
+		assertEquals("backwards", emptyStyleDecl.getPropertyValue("animation-fill-mode"));
+		assertEquals("none", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-range-start"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-range-end"));
+	}
+
+	@Test
+	public void testAnimationDurationDelay() {
 		emptyStyleDecl.setCssText("animation: 3500ms 5s none backwards");
 		assertEquals("3500ms", emptyStyleDecl.getPropertyValue("animation-duration"));
 		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-delay"));
-		assertEquals("none", emptyStyleDecl.getPropertyValue("animation-fill-mode"));
-		assertEquals("backwards", emptyStyleDecl.getPropertyValue("animation-name"));
-		//
+		assertEquals("backwards", emptyStyleDecl.getPropertyValue("animation-fill-mode"));
+		assertEquals("none", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("animation-timeline"));
+	}
+
+	@Test
+	public void testAnimationDurationDelayName() {
 		emptyStyleDecl.setCssText("animation: 3500ms 5s reverse 'my anim'");
 		assertEquals("3500ms", emptyStyleDecl.getPropertyValue("animation-duration"));
 		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-delay"));
 		assertEquals("reverse", emptyStyleDecl.getPropertyValue("animation-direction"));
 		assertEquals("my anim", emptyStyleDecl.getPropertyValue("animation-name"));
 		assertEquals("animation:3500ms 5s reverse 'my anim';", emptyStyleDecl.getMinifiedCssText());
-		//
+	}
+
+	@Test
+	public void testAnimationNone() {
+		emptyStyleDecl.setCssText("animation: 3500ms 5s reverse none --my-anim");
+		assertEquals("3500ms", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("ease", emptyStyleDecl.getPropertyValue("animation-timing-function"));
+		assertEquals("reverse", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("1", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
+		assertEquals("running", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("none", emptyStyleDecl.getPropertyValue("animation-fill-mode"));
+		assertEquals("--my-anim", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("animation-timeline"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-range-start"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-range-end"));
+		assertEquals("animation:3500ms 5s reverse --my-anim;",
+				emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testAnimationTimelineView() {
+		emptyStyleDecl.setCssText("animation: 3500ms 5s reverse view() --my-anim");
+		assertEquals("3500ms", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("reverse", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("--my-anim", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("view()", emptyStyleDecl.getPropertyValue("animation-timeline"));
+		assertEquals("animation:3500ms 5s reverse view() --my-anim;",
+				emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testAnimationTimelineScroll() {
+		emptyStyleDecl.setCssText("animation: 3500ms 5s reverse scroll() --my-anim");
+		assertEquals("3500ms", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("reverse", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("--my-anim", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("scroll()", emptyStyleDecl.getPropertyValue("animation-timeline"));
+		assertEquals("animation:3500ms 5s reverse scroll() --my-anim;",
+				emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testAnimationTimelineIdent() {
+		emptyStyleDecl.setCssText("animation: 3500ms 5s reverse --my-anim --my-timeline");
+		assertEquals("3500ms", emptyStyleDecl.getPropertyValue("animation-duration"));
+		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("reverse", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("--my-anim", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("--my-timeline", emptyStyleDecl.getPropertyValue("animation-timeline"));
+		assertEquals("animation:3500ms 5s reverse --my-anim --my-timeline;",
+				emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testAnimationBezier() {
 		emptyStyleDecl.setCssText("animation: 3500ms 5s cubic-bezier(0.1, -0.6, 0.2, 0) reverse 'my anim'");
 		assertEquals("3500ms", emptyStyleDecl.getPropertyValue("animation-duration"));
 		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-delay"));
 		assertEquals("cubic-bezier(0.1, -0.6, 0.2, 0)", emptyStyleDecl.getPropertyValue("animation-timing-function"));
 		assertEquals("reverse", emptyStyleDecl.getPropertyValue("animation-direction"));
 		assertEquals("my anim", emptyStyleDecl.getPropertyValue("animation-name"));
-		//
+	}
+
+	@Test
+	public void testAnimationSteps() {
 		emptyStyleDecl.setCssText("animation: 0 5s steps(2, start) reverse 'my anim'");
 		assertEquals("0", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
 		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-duration"));
@@ -131,7 +211,10 @@ public class ShorthandSetterTest {
 		assertEquals("my anim", emptyStyleDecl.getPropertyValue("animation-name"));
 		assertEquals("animation: 0 5s steps(2, start) reverse 'my anim'; ", emptyStyleDecl.getCssText());
 		assertEquals("animation:0 5s steps(2,start) reverse 'my anim';", emptyStyleDecl.getMinifiedCssText());
-		//
+	}
+
+	@Test
+	public void testAnimationList() {
 		emptyStyleDecl
 				.setCssText("animation: 3500ms 5s reverse '1st anim', 0 3s steps(2, start) alternate \"2nd anim\"");
 		assertEquals("1, 0", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
@@ -150,7 +233,7 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testAnimationKeyword() {
-		emptyStyleDecl.setCssText("animation: initial");
+		emptyStyleDecl.setCssText("animation-range-start:10%;animation: initial");
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-timing-function"));
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-name"));
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-duration"));
@@ -158,9 +241,12 @@ public class ShorthandSetterTest {
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-direction"));
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-range-start"));
+		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-range-end"));
 		assertEquals("", emptyStyleDecl.getPropertyPriority("animation-name"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-range-end").isSubproperty());
 		assertEquals("animation: initial; ", emptyStyleDecl.getCssText());
 		assertEquals("animation:initial;", emptyStyleDecl.getMinifiedCssText());
 		//
@@ -173,12 +259,14 @@ public class ShorthandSetterTest {
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
 		assertEquals("initial", emptyStyleDecl.getPropertyValue("animation-play-state"));
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-name"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-range-start"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-range-end"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
 		assertEquals("animation: initial ! important; ", emptyStyleDecl.getCssText());
 		assertEquals("animation:initial!important;", emptyStyleDecl.getMinifiedCssText());
 		//
-		emptyStyleDecl.setCssText("animation: inherit");
+		emptyStyleDecl.setCssText("animation-range-start:10%;animation: inherit");
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-timing-function"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-name"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-duration"));
@@ -186,9 +274,14 @@ public class ShorthandSetterTest {
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-direction"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-range-start"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-range-end"));
 		assertEquals("", emptyStyleDecl.getPropertyPriority("animation-name"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("animation-range-start"));
+		assertEquals("", emptyStyleDecl.getPropertyPriority("animation-range-end"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-range-end").isSubproperty());
 		assertEquals("animation: inherit; ", emptyStyleDecl.getCssText());
 		assertEquals("animation:inherit;", emptyStyleDecl.getMinifiedCssText());
 		//
@@ -200,7 +293,11 @@ public class ShorthandSetterTest {
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-direction"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-range-start"));
+		assertEquals("inherit", emptyStyleDecl.getPropertyValue("animation-range-end"));
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-name"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-range-start"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-range-end"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
 		assertEquals("animation: inherit ! important; ", emptyStyleDecl.getCssText());
@@ -214,6 +311,8 @@ public class ShorthandSetterTest {
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-direction"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-range-start"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-range-end"));
 		assertEquals("", emptyStyleDecl.getPropertyPriority("animation-name"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
@@ -229,6 +328,8 @@ public class ShorthandSetterTest {
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("animation-play-state"));
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-name"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-range-start"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-range-end"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
 		assertEquals("animation: unset ! important; ", emptyStyleDecl.getCssText());
@@ -242,6 +343,8 @@ public class ShorthandSetterTest {
 		assertEquals("revert", emptyStyleDecl.getPropertyValue("animation-direction"));
 		assertEquals("revert", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
 		assertEquals("revert", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("animation-range-start"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("animation-range-end"));
 		assertEquals("", emptyStyleDecl.getPropertyPriority("animation-name"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
@@ -257,6 +360,8 @@ public class ShorthandSetterTest {
 		assertEquals("revert", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
 		assertEquals("revert", emptyStyleDecl.getPropertyValue("animation-play-state"));
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-name"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-range-start"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("animation-range-end"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-timing-function").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("animation-name").isSubproperty());
 		assertEquals("animation: revert ! important; ", emptyStyleDecl.getCssText());

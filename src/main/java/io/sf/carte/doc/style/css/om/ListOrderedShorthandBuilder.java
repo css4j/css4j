@@ -54,6 +54,9 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		Iterator<String> it = declaredSet.iterator();
 		while (it.hasNext()) {
 			String property = it.next();
+			if (isResetProperty(property)) {
+				continue;
+			}
 			StyleValue value = getCSSValue(property);
 			CssType type = value.getCssValueType();
 			if (type == CssType.LIST) {
@@ -161,8 +164,6 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 	}
 
 	boolean isConflictingIdentifier(String property, CSSTypedValue freePrimi) {
-		// Make sure that 'none' is in animation-fill-mode list in
-		// 'identifier.properties'
 		return freePrimi.getPrimitiveType() == CSSValue.Type.IDENT
 				&& getShorthandDatabase().isIdentifierValue(property, freePrimi.getStringValue());
 	}

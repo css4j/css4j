@@ -20,6 +20,7 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
 
@@ -38,6 +39,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 	private final ValueList lstDirection= ValueList.createCSValueList();
 	private final ValueList lstFillMode = ValueList.createCSValueList();
 	private final ValueList lstPlayState = ValueList.createCSValueList();
+	private final ValueList lstTimeline = ValueList.createCSValueList();
 	private final ValueList lstName = ValueList.createCSValueList();
 
 	AnimationShorthandSetter(BaseCSSStyleDeclaration style) {
@@ -82,6 +84,9 @@ class AnimationShorthandSetter extends ShorthandSetter {
 
 	@Override
 	public boolean assignSubproperties() {
+		IdentifierValue normalIdent = new IdentifierValue("normal");
+		normalIdent.setSubproperty(true);
+		StyleValue rangeValue = normalIdent;
 		//
 		layerBuffer = new StringBuilder(64);
 		miniLayerBuffer = new StringBuilder(64);
@@ -114,35 +119,24 @@ class AnimationShorthandSetter extends ShorthandSetter {
 				if (lutype == LexicalType.INHERIT || lutype == LexicalType.INITIAL || lutype == LexicalType.UNSET
 						|| lutype == LexicalType.REVERT) {
 					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
-					// Full layer is 'keyword'
-					while (currentValue != null) {
-						boolean commaFound = currentValue.getLexicalUnitType() == LexicalType.OPERATOR_COMMA;
-						currentValue = currentValue.getNextLexicalUnit();
-						if (commaFound) {
-							break;
+					// Full property is 'keyword'
+					if (layerCount != 1 || currentValue.getPreviousLexicalUnit() != null || currentValue.getNextLexicalUnit() != null) {
+						BaseCSSDeclarationRule prule = styleDeclaration.getParentRule();
+						if (prule != null) {
+							StyleDeclarationErrorHandler eh = prule
+									.getStyleDeclarationErrorHandler();
+							eh.shorthandSyntaxError(getShorthandName(),
+									"Keyword found mixed with other values.");
 						}
+						return false;
 					}
-					i++;
-					// First, clear any values set at this layer
-					clearLayer(subp, i);
+					// Add a single keyword value
 					addSingleValueLayer(keyword);
-					// Reset layer buffer to initial state, eventually with comma
-					layerBuffer.setLength(0);
-					miniLayerBuffer.setLength(0);
-					if (i != 1) {
-						layerBuffer.append(',');
-						miniLayerBuffer.append(',');
-					}
+					// Serialization
 					appendValueItemString(keyword);
-					appendToValueBuffer(layerBuffer, miniLayerBuffer);
-					// Done with the layer
-					layerBuffer.setLength(0);
-					miniLayerBuffer.setLength(0);
-					if (i != layerCount) {
-						layerBuffer.append(',');
-						miniLayerBuffer.append(',');
-					}
-					continue topLoop;
+					// Reset animation range
+					rangeValue = keyword;
+					break topLoop;
 				}
 				// try to assign the current lexical value to an individual
 				// property ...and see the result
@@ -171,6 +165,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 			}
 		}
 		appendToValueBuffer(layerBuffer, miniLayerBuffer);
+
 		// Assign subproperties
 		setListSubpropertyValue("animation-duration", lstDuration);
 		setListSubpropertyValue("animation-timing-function", lstTimingFunction);
@@ -179,37 +174,16 @@ class AnimationShorthandSetter extends ShorthandSetter {
 		setListSubpropertyValue("animation-direction", lstDirection);
 		setListSubpropertyValue("animation-fill-mode", lstFillMode);
 		setListSubpropertyValue("animation-play-state", lstPlayState);
+		setListSubpropertyValue("animation-timeline", lstTimeline);
 		setListSubpropertyValue("animation-name", lstName);
+		// Reset animation range
+		setSubpropertyValue("animation-range-start", rangeValue);
+		setSubpropertyValue("animation-range-end", rangeValue);
+
 		// flush the properties
 		flush();
-		return true;
-	}
 
-	private void clearLayer(Set<String> subp, int i) {
-		if (!subp.contains("animation-duration") && lstDuration.getLength() == i) {
-			lstDuration.remove(i - 1);
-		}
-		if (!subp.contains("animation-timing-function") && lstTimingFunction.getLength() == i) {
-			lstTimingFunction.remove(i - 1);
-		}
-		if (!subp.contains("animation-delay") && lstDelay.getLength() == i) {
-			lstDelay.remove(i - 1);
-		}
-		if (!subp.contains("animation-iteration-count") && lstIterationCount.getLength() == i) {
-			lstIterationCount.remove(i - 1);
-		}
-		if (!subp.contains("animation-direction") && lstDirection.getLength() == i) {
-			lstDirection.remove(i - 1);
-		}
-		if (!subp.contains("animation-fill-mode") && lstFillMode.getLength() == i) {
-			lstFillMode.remove(i - 1);
-		}
-		if (!subp.contains("animation-play-state") && lstPlayState.getLength() == i) {
-			lstPlayState.remove(i - 1);
-		}
-		if (!subp.contains("animation-name") && lstName.getLength() == i) {
-			lstName.remove(i - 1);
-		}
+		return true;
 	}
 
 	private void addSingleValueLayer(StyleValue keyword) {
@@ -220,6 +194,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 		lstDirection.add(keyword);
 		lstFillMode.add(keyword);
 		lstPlayState.add(keyword);
+		lstTimeline.add(keyword);
 		lstName.add(keyword);
 	}
 
@@ -260,38 +235,60 @@ class AnimationShorthandSetter extends ShorthandSetter {
 				return false;
 			}
 			return setIterationCountValue(subp);
-		} else if (type == LexicalType.CUBIC_BEZIER_FUNCTION || type == LexicalType.STEPS_FUNCTION) {
+		} else if (type == LexicalType.CUBIC_BEZIER_FUNCTION
+				|| type == LexicalType.STEPS_FUNCTION) {
 			if (!subp.contains("animation-timing-function")) {
 				return false;
 			}
 			lstTimingFunction.add(createCSSValue("animation-timing-function", currentValue));
 			subp.remove("animation-timing-function");
 			nextCurrentValue();
+		} else if (type == LexicalType.FUNCTION) {
+			if (!subp.contains("animation-timeline")
+					|| (!"scroll".equalsIgnoreCase(currentValue.getFunctionName())
+							&& !"view".equalsIgnoreCase(currentValue.getFunctionName()))) {
+				return false;
+			}
+			lstTimeline.add(createCSSValue("animation-timeline", currentValue));
+			subp.remove("animation-timeline");
+			nextCurrentValue();
 		} else if (type == LexicalType.IDENT) {
-			if (subp.contains("animation-timing-function") && testIdentifiers("transition-timing-function")) {
+			if (subp.contains("animation-timing-function")
+					&& testIdentifiers("transition-timing-function")) {
 				lstTimingFunction.add(createCSSValue("animation-timing-function", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-timing-function");
-			} else if (subp.contains("animation-iteration-count") && testIdentifiers("animation-iteration-count")) {
+			} else if (subp.contains("animation-iteration-count")
+					&& testIdentifiers("animation-iteration-count")) {
 				lstIterationCount.add(createCSSValue("animation-iteration-count", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-iteration-count");
-			} else if (subp.contains("animation-direction") && testIdentifiers("animation-direction")) {
+			} else if (subp.contains("animation-direction")
+					&& testIdentifiers("animation-direction")) {
 				lstDirection.add(createCSSValue("animation-direction", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-direction");
-			} else if (subp.contains("animation-fill-mode") && testIdentifiers("animation-fill-mode")) {
+			} else if (subp.contains("animation-fill-mode")
+					&& testIdentifiers("animation-fill-mode")) {
 				lstFillMode.add(createCSSValue("animation-fill-mode", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-fill-mode");
-			} else if (subp.contains("animation-play-state") && testIdentifiers("animation-play-state")) {
+			} else if (subp.contains("animation-play-state")
+					&& testIdentifiers("animation-play-state")) {
 				lstPlayState.add(createCSSValue("animation-play-state", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-play-state");
-			} else if (subp.contains("animation-name")) {
+			} else if ("none".equalsIgnoreCase(currentValue.getStringValue())) {
+				// Skip 'none'
+				currentValue = currentValue.getNextLexicalUnit();
+			} else if (subp.contains("animation-name") && !testIdentifiers("animation-timeline")) {
 				lstName.add(createCSSValue("animation-name", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-name");
+			} else if (subp.contains("animation-timeline")) {
+				lstTimeline.add(createCSSValue("animation-timeline", currentValue));
+				nextCurrentValue();
+				subp.remove("animation-timeline");
 			} else {
 				return false;
 			}
@@ -350,6 +347,8 @@ class AnimationShorthandSetter extends ShorthandSetter {
 				lstFillMode.add(cssVal);
 			} else if ("animation-play-state".equals(pname)) {
 				lstPlayState.add(cssVal);
+			} else if ("animation-timeline".equals(pname)) {
+				lstTimeline.add(cssVal);
 			} else if ("animation-name".equals(pname)) {
 				lstName.add(cssVal);
 			}

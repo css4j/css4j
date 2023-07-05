@@ -87,7 +87,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 		String[] subp = getLonghandProperties();
 		for (int i = 0; i < subp.length; i++) {
 			String property = subp[i];
-			if (declaredSet.contains(property)) {
+			if (declaredSet.contains(property) && !isResetProperty(property)) {
 				// First, make sure that it is not a layered property
 				StyleValue cssVal = getCSSValue(property);
 				if ((cssVal.getCssValueType() == CssType.LIST &&
@@ -101,8 +101,22 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 		if (!appended) {
 			buf.append(initialvalue);
 		}
+
 		appendPriority(buf, important);
+
+		endShorthandSerialization(wri, context, important);
+
 		return true;
+	}
+
+	/**
+	 * Check if the property is reset but not serialized.
+	 * 
+	 * @param property the property name.
+	 * @return true if the property is not serialized but only reset.
+	 */
+	boolean isResetProperty(String property) {
+		return false;
 	}
 
 	/**
@@ -170,6 +184,10 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 	boolean isInheritedProperty() {
 		String ptyname = getLonghandProperties()[0];
 		return PropertyDatabase.getInstance().isInherited(ptyname);
+	}
+
+	void endShorthandSerialization(BufferSimpleWriter wri, DeclarationFormattingContext context,
+			boolean importantShorthand) {
 	}
 
 }
