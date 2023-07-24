@@ -4,14 +4,6 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "saturday"
-    assignees:
-      - "carlosame"
-
-  - package-ecosystem: "gradle"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
+      day: "wednesday"
     assignees:
       - "carlosame"
