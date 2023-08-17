@@ -198,19 +198,49 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 		}
 	}
 
+	static DOMElement querySelector(String selectors, Node firstChild) {
+		SelectorList selist = parseSelectors(selectors);
+		return matchQuerySelector(selist, firstChild);
+	}
+
+	private static DOMElement matchQuerySelector(SelectorList selist, Node firstChild) {
+		Node node = firstChild;
+		while (node != null) {
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				DOMElement element = (DOMElement) node;
+				if (element.matches(selist, null)) {
+					return element;
+				}
+				DOMElement elt = matchQuerySelector(selist, element.getFirstChild());
+				if (elt != null) {
+					return elt;
+				}
+			}
+			node = node.getNextSibling();
+		}
+		return null;
+	}
+
 	static ElementList querySelectorAll(String selectors, Node firstChild) {
+		SelectorList selist = parseSelectors(selectors);
+		DOMElementLinkedList list = new DOMElementLinkedList();
+		list.fillQuerySelectorList(selist, firstChild);
+		return list;
+	}
+
+	private static SelectorList parseSelectors(String selectors) throws DOMException {
 		Parser parser = new CSSParser();
 		SelectorList selist;
 		try {
 			selist = parser.parseSelectors(new StringReader(selectors));
 		} catch (CSSNamespaceParseException e) {
-			throw createDOMException(DOMException.NAMESPACE_ERR, "Namespaces inside the selectors are not supported: " + selectors, e);
+			throw createDOMException(DOMException.NAMESPACE_ERR,
+					"Namespaces inside the selectors are not supported: " + selectors, e);
 		} catch (Exception e) {
-			throw createDOMException(DOMException.SYNTAX_ERR, "Unable to parse selector in: " + selectors, e);
+			throw createDOMException(DOMException.SYNTAX_ERR,
+					"Unable to parse selector in: " + selectors, e);
 		}
-		DOMElementLinkedList list = new DOMElementLinkedList();
-		list.fillQuerySelectorList(selist, firstChild);
-		return list;
+		return selist;
 	}
 
 	private static DOMException createDOMException(short type, String message, Exception cause) {

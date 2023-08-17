@@ -581,11 +581,32 @@ public class XMLDocumentTest {
 	}
 
 	@Test
+	public void testQuerySelector() {
+		DOMElement elm = xmlDoc.getElementById("ul1");
+		DOMElement qelm = xmlDoc.querySelector("#ul1");
+		assertSame(elm, qelm);
+		DOMElement li = elm.querySelector(".liclass");
+		assertNotNull(li);
+		assertEquals("ul1li1", li.getId());
+
+		DOMElement span = elm.querySelector("#entiacute");
+		assertNotNull(span);
+		assertEquals("entiacute", span.getId());
+
+		assertNull(elm.querySelector("#nosuchId"));
+	}
+
+	@Test
 	public void testQuerySelectorAll() {
 		DOMElement elm = xmlDoc.getElementById("ul1");
 		ElementList qlist = xmlDoc.querySelectorAll("#ul1");
 		assertEquals(1, qlist.getLength());
-		assertTrue(elm == qlist.item(0));
+		assertSame(elm, qlist.item(0));
+
+		qlist = elm.querySelectorAll("[href=\"li6dir\"]");
+		assertEquals(1, qlist.getLength());
+		assertEquals("a", qlist.item(0).getTagName());
+
 		qlist = xmlDoc.querySelectorAll("#xxxxxx");
 		assertEquals(0, qlist.getLength());
 	}

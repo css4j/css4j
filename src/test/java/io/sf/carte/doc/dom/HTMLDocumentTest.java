@@ -812,6 +812,7 @@ public class HTMLDocumentTest {
 		assertTrue(elm == qlist.item(0));
 		qlist = xhtmlDoc.querySelectorAll("#xxxxxx");
 		assertEquals(0, qlist.getLength());
+		assertNull(xhtmlDoc.querySelector("#xxxxxx"));
 	}
 
 	@Test

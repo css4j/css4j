@@ -431,6 +431,17 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	 */
 
 	/**
+	 * Returns the first element that is a descendant of this node and matches the
+	 * given selector list.
+	 * 
+	 * @param selectors a comma-separated list of selectors.
+	 * @return the first element matching the selectors.
+	 */
+	public DOMElement querySelector(String selectors) {
+		return querySelector(selectors, getFirstChild());
+	}
+
+	/**
 	 * Gets a static list of the descendant elements that match any of the specified group of
 	 * selectors.
 	 * <p>

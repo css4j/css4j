@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -680,17 +681,27 @@ public class DOMElementTest {
 		assertTrue(div2.matches("div:last-child", null));
 		assertFalse(div1.matches("div:last-child", null));
 		assertFalse(body.matches("div:last-child", null));
+
 		ElementList elements = xhtmlDoc.querySelectorAll("div:last-child");
 		assertNotNull(elements);
 		assertEquals(1, elements.getLength());
-		assertTrue(div2 == elements.item(0));
+		assertSame(div2, elements.item(0));
+		assertSame(div2, xhtmlDoc.querySelector("div:last-child"));
+
 		elements = xhtmlDoc.querySelectorAll("div:first-child");
 		assertNotNull(elements);
 		assertEquals(1, elements.getLength());
-		assertTrue(div1 == elements.item(0));
+		assertSame(div1, elements.item(0));
+		assertSame(div1, xhtmlDoc.querySelector("div:first-child"));
+
 		elements = xhtmlDoc.querySelectorAll("#nosuchID");
 		assertNotNull(elements);
 		assertEquals(0, elements.getLength());
+		assertNull(xhtmlDoc.querySelector("#nosuchID"));
+
+		// Bad selector
+		DOMException ex = assertThrows(DOMException.class, () -> xhtmlDoc.querySelector("["));
+		assertEquals(DOMException.SYNTAX_ERR, ex.code);
 	}
 
 	@Test
