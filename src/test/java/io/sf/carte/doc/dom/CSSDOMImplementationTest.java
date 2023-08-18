@@ -45,6 +45,20 @@ public class CSSDOMImplementationTest {
 	}
 
 	@Test
+	public void testNewDocument() {
+		DOMDocument document = domImpl.newDocument();
+		assertFalse(document instanceof HTMLDocument);
+	}
+
+	@Test
+	public void testNewHTMLDocument() {
+		DOMDocument document = domImpl.newHTMLDocument();
+		assertTrue(document instanceof HTMLDocument);
+		assertNotNull(document.getDocumentElement());
+		assertNotNull(document.getDoctype());
+	}
+
+	@Test
 	public void testCreateDocument() {
 		DOMDocument document = domImpl.createDocument(null, null, null);
 		assertEquals(CSSDocument.ComplianceMode.QUIRKS, document.getComplianceMode());

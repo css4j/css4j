@@ -87,11 +87,32 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 	}
 
 	/**
+	 * Creates an empty, plain XML document with no HTML capabilities.
+	 * 
+	 * @return the XML document.
+	 */
+	public DOMDocument newDocument() {
+		MyXMLDocument doc = new MyXMLDocument(null);
+		doc.setStrictErrorChecking(strictErrorChecking);
+		return doc;
+	}
+
+	/**
+	 * Creates an HTML-specific DOM Document with an html element and DOCTYPE.
+	 * 
+	 * @return the HTML document.
+	 */
+	public HTMLDocument newHTMLDocument() {
+		DocumentType doctype = createDocumentType("html", null, null);
+		return (HTMLDocument) createDocument(HTMLDocument.HTML_NAMESPACE_URI, "html", doctype);
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DOMDocument createDocument(String namespaceURI, String qualifiedName, DocumentType doctype)
-			throws DOMException {
+	public DOMDocument createDocument(String namespaceURI, String qualifiedName,
+			DocumentType doctype) throws DOMException {
 		if (doctype != null && doctype.getParentNode() != null) {
 			throw new DOMException(DOMException.WRONG_DOCUMENT_ERR, "Doctype already in use");
 		}
@@ -101,14 +122,13 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 		} else {
 			document = createXMLDocument(doctype);
 		}
-		if (!strictErrorChecking) {
-			document.setStrictErrorChecking(false);
-		}
+		document.setStrictErrorChecking(strictErrorChecking);
 		// Create and append a document element, if provided
 		if (qualifiedName != null && qualifiedName.length() != 0) {
 			DOMElement docElm = document.createElementNS(namespaceURI, qualifiedName);
 			if (docElm.getPrefix() != null && namespaceURI != null) {
-				Attr attr = document.createAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns:" + docElm.getPrefix());
+				Attr attr = document.createAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI,
+						"xmlns:" + docElm.getPrefix());
 				attr.setValue(namespaceURI);
 				docElm.setAttributeNodeNS(attr);
 			}
