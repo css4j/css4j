@@ -1,41 +1,38 @@
-# css4j version 4.0.1 Release Notes
+# css4j version 4.1 Release Notes
 
-### April 17, 2023
+### August 18, 2023
 
 <br/>
 
 ## Highlights
 
-### Produce an `EMPTY` value for empty `var()` fallbacks
+### Native DOM improvements
 
-Until now, in a value like `var(--customProperty,)`, the fallback was ignored
-(like no fallback). Now it produces a `VAR` function with an `EMPTY` fallback,
-which mimics what conforming web browsers should do.
+- Elements and documents now have `querySelector` in addition to the already present `querySelectorAll`.
+
+- `CSSDOMImplementation` gains the `newDocument()` and `newHTMLDocument()` convenience methods.
+
+- `XMLDocumentBuilder.newDocument()` now creates a plain XML document instead of HTML, as it should have ever been.
 
 <br/>
 
-### Upgrade to Tokenproducer 2.0.1
+### CSSOM
 
-Tokenproducer 2.0.1 introduces a new base interface but otherwise is the same as 1.2
-(and is source-level compatible with it). Unfortunately the software compiled with 1.2
-cannot figure out that the old `TokenHandler` interface inherits from the new `TokenHandler2`,
-so anything compiled with 1.x is incompatible at runtime with 2.x.
+- Added `createSupportsRule(String)` to `CSSStyleSheet`.
 
-If you upgrade to `xml-dtd` 4.2, make sure to upgrade to this css4j 4.0.1 as well.
+- The `animation` shorthand was updated to latest Chrome behaviour.
 
 <br/>
 
 ## Detail of changes
 
-- NSAC: produce an `EMPTY` value for empty `var()` fallbacks.
-- NSAC: do not convert unnecessarily to a string when serializing lexical units.
-- CSSOM: do not convert unnecessarily to a string when serializing lexical values.
-- CSSOM: (refactor) avoid overhead in `setCssText(String)`.
-- CSSOM: make less strict the proxy check for `attr()` values.
-- CSSOM: more accurate handling of advanced `attr()` in `LexicalValue.getFinalType()`.
-- Small cosmetic changes to `ExpressionValue` and `GradientValue`.
-- A few small simplifications of code.
-- Tests: additional test.
-- Upgrade to tokenproducer 2.0.1.
-- Bump com.code-intelligence:jazzer-junit from 0.16.0 to 0.16.1.
-- Upgrade Gradle wrapper to 8.1.
+- DOM: implement `querySelector`.
+- DOM: `XMLDocumentBuilder.newDocument()` should create a plain XML document.
+- DOM: add convenience methods `newDocument()` and `newHTMLDocument()` to `CSSDOMImplementation`.
+- CSSOM: add method `createSupportsRule(String)` to `CSSStyleSheet`.
+- CSSOM: support the `animation-timeline`, `animation-range-start` and `animation-range-end` properties.
+- Bump com.code-intelligence:jazzer-junit to 0.19.0.
+- Bump org.junit.vintage:junit-vintage-engine from to 5.10.0.
+- Bump org.junit.jupiter:junit-jupiter to 5.10.0.
+- Upgrade Gradle wrapper to 8.3.
+- changes.sh: add a dot at the end of each item.
