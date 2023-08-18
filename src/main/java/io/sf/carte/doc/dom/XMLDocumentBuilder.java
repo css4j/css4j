@@ -221,7 +221,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	 */
 	@Override
 	public Document newDocument() {
-		return createDocument(null, null, null, null);
+		return createDocument("", null, null, null);
 	}
 
 	private Document createDocument(String namespaceURI, String qualifiedName, DocumentType doctype,
@@ -233,9 +233,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		}
 		Document document = domImpl.createDocument(namespaceURI, qualifiedName, doctype);
 
-		if (!strictErrorChecking) {
-			document.setStrictErrorChecking(false);
-		}
+		document.setStrictErrorChecking(strictErrorChecking);
 
 		document.setDocumentURI(systemId);
 

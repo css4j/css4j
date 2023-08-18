@@ -36,6 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
+import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 import org.w3c.dom.ProcessingInstruction;
@@ -58,6 +59,12 @@ public class XMLDocumentBuilderTest {
 		builder = new XMLDocumentBuilder(domImpl);
 		builder.setIgnoreElementContentWhitespace(true);
 		builder.setEntityResolver(new DefaultEntityResolver());
+	}
+
+	@Test
+	public void testNewDocument() {
+		Document document = builder.newDocument();
+		assertFalse(document instanceof HTMLDocument);
 	}
 
 	@Test
