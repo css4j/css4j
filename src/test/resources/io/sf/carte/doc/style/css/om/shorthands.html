@@ -49,13 +49,30 @@ td {padding: 6pt 12pt;}
 ul, ol {margin: 1em 2em 2em 3em; padding: 0.5em 0.8em; }
 #ul1 {border: 2pt solid blue; }
 li {margin: 1.2em 2.4em; padding: 3pt 5pt;}
-div.test1 {margin-top: 2em; margin-bottom: 3em; background-position: 20% 0%}
+div.test1 {margin-top: 2em; margin-bottom: 3em; background-position: 20% 0%; animation: 3s none backwards}
 .impossible {font-variant: normal}
 .impossible-grid {grid: "a a a" "b b b" max-content; flex: 2 2 0}
 .impossible-grid-template {grid-template: "a a a" "b b b" / 50% auto; }
 </style>
 <script>
 //<![CDATA[
+function animationTest(selector, style){
+	var shvalue = style.getPropertyValue("animation");
+	var buffer = '// Animation (' + selector + ')\n';
+	buffer += 'emptyStyleDecl.setCssText("' + 'animation: ' + shvalue + '");\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("animation-duration") + '", emptyStyleDecl.getPropertyValue("animation-duration"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("animation-timing-function") + '", emptyStyleDecl.getPropertyValue("animation-timing-function"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("animation-delay") + '", emptyStyleDecl.getPropertyValue("animation-delay"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("animation-iteration-count") + '", emptyStyleDecl.getPropertyValue("animation-iteration-count"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("animation-direction") + '", emptyStyleDecl.getPropertyValue("animation-direction"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("animation-fill-mode") + '", emptyStyleDecl.getPropertyValue("animation-fill-mode"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("animation-play-state") + '", emptyStyleDecl.getPropertyValue("animation-play-state"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("animation-name") + '", emptyStyleDecl.getPropertyValue("animation-name"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("animation-timeline") + '", emptyStyleDecl.getPropertyValue("animation-timeline"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("animation-range-start") + '", emptyStyleDecl.getPropertyValue("animation-range-start"));\n';
+	buffer += 'assertEquals("' + style.getPropertyValue("animation-range-end") + '", emptyStyleDecl.getPropertyValue("animation-range-end"));\n';
+	return buffer;
+}
 function backgroundTest(selector, style){
 	var shvalue = style.getPropertyValue("background");
 	var buffer = '// Background (' + selector + ')\n';
@@ -178,6 +195,7 @@ function generateTest(){
 	var sheet = document.styleSheets[0];
 	var style0 = sheet.cssRules[0].style;
 	var buffer = '// This test is automatically generated\n'
+	buffer += animationTest(sheet.cssRules[16].selectorText, sheet.cssRules[16].style);
 	buffer += backgroundTest(sheet.cssRules[0].selectorText, style0);
 	buffer += backgroundTest(sheet.cssRules[8].selectorText, sheet.cssRules[8].style);
 	buffer += borderColorTest(sheet.cssRules[3].selectorText, sheet.cssRules[3].style);

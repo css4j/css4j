@@ -116,6 +116,7 @@ class AnimationShorthandBuilder extends ListOrderedShorthandBuilder {
 		if ("animation-timing-function".equals(property)) {
 			chkProperty = "transition-timing-function";
 		}
+		// Make sure that 'none' is in animation-fill-mode list in 'identifier.properties'
 
 		boolean retval = super.validValueClash(chkProperty);
 		if (!retval && property.equals("animation-duration")) {

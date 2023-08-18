@@ -111,8 +111,14 @@ public class ShorthandSetterTest {
 		// CSS Animation example 6
 		emptyStyleDecl.setCssText("animation: 3s none backwards");
 		assertEquals("3s", emptyStyleDecl.getPropertyValue("animation-duration"));
-		assertEquals("backwards", emptyStyleDecl.getPropertyValue("animation-fill-mode"));
-		assertEquals("none", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("ease", emptyStyleDecl.getPropertyValue("animation-timing-function"));
+		assertEquals("0s", emptyStyleDecl.getPropertyValue("animation-delay"));
+		assertEquals("1", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
+		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("none", emptyStyleDecl.getPropertyValue("animation-fill-mode"));
+		assertEquals("running", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("backwards", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("animation-timeline"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-range-start"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-range-end"));
 	}
@@ -122,8 +128,8 @@ public class ShorthandSetterTest {
 		emptyStyleDecl.setCssText("animation: 3500ms 5s none backwards");
 		assertEquals("3500ms", emptyStyleDecl.getPropertyValue("animation-duration"));
 		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-delay"));
-		assertEquals("backwards", emptyStyleDecl.getPropertyValue("animation-fill-mode"));
-		assertEquals("none", emptyStyleDecl.getPropertyValue("animation-name"));
+		assertEquals("none", emptyStyleDecl.getPropertyValue("animation-fill-mode"));
+		assertEquals("backwards", emptyStyleDecl.getPropertyValue("animation-name"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("animation-timeline"));
 	}
 
@@ -141,17 +147,17 @@ public class ShorthandSetterTest {
 	public void testAnimationNone() {
 		emptyStyleDecl.setCssText("animation: 3500ms 5s reverse none --my-anim");
 		assertEquals("3500ms", emptyStyleDecl.getPropertyValue("animation-duration"));
-		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-delay"));
 		assertEquals("ease", emptyStyleDecl.getPropertyValue("animation-timing-function"));
-		assertEquals("reverse", emptyStyleDecl.getPropertyValue("animation-direction"));
+		assertEquals("5s", emptyStyleDecl.getPropertyValue("animation-delay"));
 		assertEquals("1", emptyStyleDecl.getPropertyValue("animation-iteration-count"));
-		assertEquals("running", emptyStyleDecl.getPropertyValue("animation-play-state"));
+		assertEquals("reverse", emptyStyleDecl.getPropertyValue("animation-direction"));
 		assertEquals("none", emptyStyleDecl.getPropertyValue("animation-fill-mode"));
+		assertEquals("running", emptyStyleDecl.getPropertyValue("animation-play-state"));
 		assertEquals("--my-anim", emptyStyleDecl.getPropertyValue("animation-name"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("animation-timeline"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-range-start"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("animation-range-end"));
-		assertEquals("animation:3500ms 5s reverse --my-anim;",
+		assertEquals("animation:3500ms 5s reverse none --my-anim;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 

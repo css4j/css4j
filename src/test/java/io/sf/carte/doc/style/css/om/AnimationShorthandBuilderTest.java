@@ -40,7 +40,7 @@ public class AnimationShorthandBuilderTest {
 		assertShorthandText("animation:none;", "animation: initial");
 		assertShorthandText("animation:2s cubic-bezier(.1,.7,1,.1);",
 				"animation: 2s cubic-bezier(0.1, 0.7, 1.0, 0.1);");
-		assertShorthandText("animation:3500ms 5s backwards;",
+		assertShorthandText("animation:3500ms 5s none backwards;",
 				"animation: 3500ms 5s none backwards");
 		assertShorthandText("animation:3500ms 5s reverse 'my anim';",
 				"animation: 3500ms 5s reverse 'my anim';");
@@ -54,7 +54,8 @@ public class AnimationShorthandBuilderTest {
 				"animation: 3500ms 5s steps(5, end) reverse 'my anim'");
 		assertShorthandText("animation:ease-in ease-out;", "animation: ease-in ease-out;");
 		assertShorthandText("animation:linear ease;", "animation: linear ease;");
-		assertShorthandText("animation:3s backwards;", "animation: 3s none backwards;");
+		assertShorthandText("animation:3s backwards;", "animation: 3s backwards;");
+		assertShorthandText("animation:3s none backwards;", "animation: 3s none backwards;");
 		assertShorthandText("animation:3s ease-in 1s 2 reverse both paused slidein;",
 				"animation: 3s ease-in 1s 2 reverse both paused slidein;");
 		assertShorthandText("animation:2s steps(3,end);", "animation: 2s steps(3, end)");
