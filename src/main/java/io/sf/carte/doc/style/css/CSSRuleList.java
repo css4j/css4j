@@ -40,8 +40,21 @@ public interface CSSRuleList<T extends CSSRule> extends org.w3c.dom.css.CSSRuleL
 	@Override
 	Iterator<T> iterator();
 
+	/**
+	 * Gives a minified parsable representation of this rule list.
+	 * 
+	 * @return the minified rule list.
+	 */
 	String toMinifiedString();
 
+	/**
+	 * Write a serialization of this rule list to the given simple writer, according
+	 * to the given context.
+	 *
+	 * @param wri     the simple writer object.
+	 * @param context the formatting context.
+	 * @throws IOException if an error happened while writing.
+	 */
 	void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException;
 
 }
