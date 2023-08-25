@@ -56,7 +56,7 @@ class MinifyTest {
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		Minify.Main(args, System.out, ps);
 		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
-		result = result.replaceAll("\n", "");
+		result = result.replaceAll("\r", "");
 		assertEquals(63, result.length());
 	}
 
