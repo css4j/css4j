@@ -18,7 +18,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,8 +32,20 @@ class MinifyTest {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(FINAL_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		Minify.Main(args, ps, System.err);
-		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
-		assertEquals(FINAL_LENGTH, result.length());
+		assertEquals(FINAL_LENGTH, out.size());
+	}
+
+	@Test
+	void testMain_Invalid() throws URISyntaxException, IOException {
+		// Parsing HTML as CSS is going to fail
+		String[] args = new String[1];
+		args[0] = MinifyTest.class.getResource("/io/sf/carte/doc/agent/meta-default-style.html")
+				.toExternalForm();
+		final int FINAL_LENGTH = 1120;
+		ByteArrayOutputStream out = new ByteArrayOutputStream(FINAL_LENGTH);
+		PrintStream ps = new PrintStream(out, false, "utf-8");
+		Minify.Main(args, ps, System.err);
+		assertEquals(FINAL_LENGTH, out.size());
 	}
 
 	@Test
@@ -75,6 +86,12 @@ class MinifyTest {
 	void testMinifyCSS_Calc() {
 		assertEquals("p{margin-left:calc(2px + .3em)}",
 				Minify.minifyCSS("p { margin-left: calc(2px + 0.3em)}"));
+	}
+
+	@Test
+	void testMinifyCSS_Invalid() {
+		assertEquals("p { margin-left: calc(2px+)}",
+				Minify.minifyCSS("p { margin-left: calc(2px+)}"));
 	}
 
 }
