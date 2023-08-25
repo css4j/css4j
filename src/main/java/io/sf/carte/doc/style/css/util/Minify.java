@@ -76,7 +76,7 @@ public class Minify {
 		URI uri = new URI(args[0]);
 		Path filePath = Paths.get(uri);
 
-		out.println(minifyCSS(filePath));
+		out.print(minifyCSS(filePath));
 	}
 
 	/**
@@ -132,7 +132,7 @@ public class Minify {
 		StringBuilder builder = new StringBuilder(256);
 
 		try (Stream<String> stream = Files.lines(cssPath, StandardCharsets.UTF_8)) {
-			stream.forEach(s -> builder.append(s).append("\n"));
+			stream.forEach(s -> builder.append(s).append(' '));
 		}
 		return builder.toString();
 	}

@@ -18,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +29,7 @@ class MinifyTest {
 		String[] args = new String[1];
 		args[0] = MinifyTest.class.getResource("/io/sf/carte/doc/style/css/html.css")
 				.toExternalForm();
-		final int FINAL_LENGTH = 6196;
+		final int FINAL_LENGTH = 6194;
 		ByteArrayOutputStream out = new ByteArrayOutputStream(FINAL_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		Minify.Main(args, ps, System.err);
@@ -41,7 +42,7 @@ class MinifyTest {
 		String[] args = new String[1];
 		args[0] = MinifyTest.class.getResource("/io/sf/carte/doc/agent/meta-default-style.html")
 				.toExternalForm();
-		final int FINAL_LENGTH = 1120;
+		final int FINAL_LENGTH = 1118;
 		ByteArrayOutputStream out = new ByteArrayOutputStream(FINAL_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		Minify.Main(args, ps, System.err);
@@ -54,7 +55,9 @@ class MinifyTest {
 		ByteArrayOutputStream out = new ByteArrayOutputStream(64);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		Minify.Main(args, System.out, ps);
-		assertEquals(64, out.size());
+		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
+		result = result.replaceAll("\n", "");
+		assertEquals(63, result.length());
 	}
 
 	@Test
