@@ -1252,7 +1252,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 *                    preceding and trailing a rule (auto mode).
 	 * @return <code>true</code> if the SAC parser reported no errors or fatal
 	 *         errors, false otherwise.
-	 * @throws DOMException if a problem is found parsing the sheet.
+	 * @throws DOMException if raised by the error handler.
 	 * @throws IOException  if a problem is found reading the sheet.
 	 */
 	@Override

@@ -68,26 +68,24 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 * Parses a style sheet.
 	 * <p>
 	 * If the style sheet is not empty, the rules from the parsed source will be
-	 * added at the end of the rule list, with the same origin as the rule with
-	 * a highest precedence origin.
+	 * added at the end of the rule list, with the same origin as the rule with a
+	 * highest precedence origin.
 	 * <p>
 	 * Even if a specific media is set at the <code>InputSource</code>, this method
 	 * does not alter the sheet's current media attribute.
 	 * <p>
-	 * The comments shall be processed according to {@link CSSStyleSheet#COMMENTS_AUTO}.
+	 * The comments shall be processed according to
+	 * {@link CSSStyleSheet#COMMENTS_AUTO}.
 	 * <p>
 	 * To create a sheet, see
 	 * {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#createStyleSheet(String title, io.sf.carte.doc.style.css.MediaQueryList media)
 	 * CSSStyleSheetFactory.createStyleSheet(String,MediaQueryList)}
 	 * 
-	 * @param reader
-	 *            the character stream containing the CSS sheet.
-	 * @return <code>true</code> if the NSAC parser reported no errors or fatal errors, false
-	 *         otherwise.
-	 * @throws DOMException
-	 *             if a problem is found parsing the sheet.
-	 * @throws IOException
-	 *             if a problem is found reading the sheet.
+	 * @param reader the character stream containing the CSS sheet.
+	 * @return <code>true</code> if the NSAC parser reported no errors or fatal
+	 *         errors, false otherwise.
+	 * @throws DOMException if raised by the error handler.
+	 * @throws IOException  if a problem is found reading the sheet.
 	 */
 	@Override
 	abstract public boolean parseStyleSheet(Reader reader) throws DOMException, IOException;
@@ -121,7 +119,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 *                    preceding and trailing a rule (auto mode).
 	 * @return <code>true</code> if the NSAC parser reported no errors or fatal
 	 *         errors, false otherwise.
-	 * @throws DOMException if a problem is found parsing the sheet.
+	 * @throws DOMException if raised by the error handler.
 	 * @throws IOException  if a problem is found reading the sheet.
 	 */
 	@Override

@@ -310,11 +310,11 @@ public interface CSSStyleSheet<R extends CSSRule> extends org.w3c.dom.css.CSSSty
 	 *            the character stream containing the CSS sheet.
 	 * @return <code>true</code> if the NSAC parser reported no errors or fatal errors, <code>false</code> otherwise.
 	 * @throws DOMException
-	 *             if a DOM problem is found parsing the sheet.
+	 *             if a DOM problem was found parsing the sheet, and raised by the error handler.
 	 * @throws CSSException
-	 *             if a non-DOM problem is found parsing the sheet.
+	 *             if a non-DOM problem was found parsing the sheet, and raised by the error handler.
 	 * @throws IOException
-	 *             if a problem is found reading the sheet.
+	 *             if a I/O problem was found reading the sheet.
 	 */
 	boolean parseStyleSheet(Reader reader) throws DOMException, IOException;
 
@@ -342,8 +342,12 @@ public interface CSSStyleSheet<R extends CSSRule> extends org.w3c.dom.css.CSSSty
 	 *                    preceding and trailing a rule (auto mode).
 	 * @return <code>true</code> if the NSAC parser reported no errors or fatal
 	 *         errors, <code>false</code> otherwise.
-	 * @throws DOMException if a problem is found parsing the sheet.
-	 * @throws IOException  if a problem is found reading the sheet.
+	 * @throws DOMException
+	 *             if a DOM problem was found parsing the sheet, and raised by the error handler.
+	 * @throws CSSException
+	 *             if a non-DOM problem was found parsing the sheet, and raised by the error handler.
+	 * @throws IOException
+	 *             if a I/O problem was found reading the sheet.
 	 */
 	boolean parseStyleSheet(Reader reader, short commentMode) throws DOMException, IOException;
 
