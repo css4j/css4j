@@ -39,33 +39,6 @@ In separate modules you can find:
 
 <br/>
 
-## CSS3 Support
-
-CSS3 is partially supported. The following table summarizes the basic support
-for setting/retrieving the main CSS level 3/4 features (other specifications are
-also supported):
-
- | CSS Spec Name | Support |
- |---|---|
- | [Background / Border](https://www.w3.org/TR/css-backgrounds-3/) | Yes |
- | [Color](https://www.w3.org/TR/css-color-4/) | Partial (1) |
- | [Media Queries](https://www.w3.org/TR/mediaqueries-4/) | Partial (2) |
- | [Selectors](https://www.w3.org/TR/selectors-4/) | Yes |
- | [Transitions](https://www.w3.org/TR/css-transitions-1/) | Yes |
- | [Values](https://www.w3.org/TR/css-values-4/) | Yes |
- | [Properties and Values API](https://www.w3.org/TR/css-properties-values-api-1/) | Yes |
- | [Grid / Template / Alignment](https://www.w3.org/TR/css-grid-2/) | Partial (3) |
-
-Notes:
- 1) Level 3 is supported, level 4 partially.
- 2) Event handling with `addListener`/`removeListener` is not supported, given that
-the library's user is supposed to be in control of the `CSSCanvas` instances where
-the information about such events should be available.
- 3) Legacy gap properties (`grid-row-gap`, `grid-column-gap`, and `grid-gap`) are not
-supported, although the longhands can be used if declared explicitly).
-
-<br/>
-
 ## Java™ Runtime Environment requirements
 All the classes in the binary package have been compiled with a [Java compiler](https://adoptium.net/)
 set to 1.8 compiler compliance level, except the `module-info.java` file.
@@ -79,7 +52,7 @@ To build css4j from the code that is currently at the Git repository, JDK 11 or 
 You can run a variety of Gradle tasks with the Gradle wrapper (on Windows shells you can omit the `./`):
 
 - `./gradlew build` (normal build)
-- `./gradlew build publishToMavenLocal` (to install in local Maven repository)
+- `./gradlew publishToMavenLocal` (to install in local Maven repository)
 - `./gradlew copyJars` (to copy jar files into a top-level _jar_ directory)
 - `./gradlew testOn8` (run tests with Java 8)
 - `./gradlew jacocoTestReport` (produces a test coverage report in the `build/reports/jacoco/test/html` directory)
