@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 import java.util.Locale;
 
@@ -43,6 +46,7 @@ import io.sf.carte.doc.style.css.property.ColorValue;
 import io.sf.carte.doc.style.css.property.SystemDefaultValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
+import io.sf.carte.util.agent.AgentUtil;
 
 /**
  * Base class for CSS style sheet factories.
@@ -186,29 +190,67 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	}
 
 	/**
-	 * Sets the CSS style sheet defined by the end-user.
+	 * Sets the CSS style sheet defined by the end user.
 	 * <p>
 	 * The sheet in the supplied reader should contain user preferences, and will be
 	 * appropriately merged with the other style sheets.
 	 * </p>
-	 * 
-	 * @param re the reader with the user style sheet.
+	 *
+	 * @param url the URL of the style sheet. If {@code null}, the call is
+	 *            equivalent to {@link #setUserStyleSheet(Reader)}.
+	 * @param re  the reader with the user style sheet. If {@code null}, a
+	 *            connection to the URL shall be opened. If both arguments are
+	 *            {@code null}, the user style sheet shall be cleared.
+	 * @throws DOMException if a problem is found parsing the sheet.
+	 * @throws IOException  if there is a problem opening the URL or reading the
+	 *                      reader.
+	 */
+	@Override
+	public void setUserStyleSheet(String url, Reader re) throws DOMException, IOException {
+		if (re != null) {
+			loadUserStyleSheet(url, re);
+		} else if (url != null) {
+			URL href = new URL(url);
+			URLConnection uconn = href.openConnection();
+			String conType = uconn.getContentType();
+			String contentEncoding = uconn.getContentEncoding();
+			try (InputStream is = uconn.getInputStream();
+					Reader reader = AgentUtil.inputStreamToReader(is, conType, contentEncoding,
+							StandardCharsets.UTF_8)) {
+				loadUserStyleSheet(href.toExternalForm(), reader);
+			}
+		} else {
+			this.userImportantSheet = null;
+			this.userNormalSheet = null;
+		}
+	}
+
+	private void loadUserStyleSheet(String url, Reader re) throws DOMException, IOException {
+		AbstractCSSStyleSheet cssSheet = createDocumentStyleSheet(ORIGIN_USER);
+		cssSheet.parseStyleSheet(re);
+		this.userImportantSheet = createDocumentStyleSheet(ORIGIN_USER_IMPORTANT);
+		this.userNormalSheet = createDocumentStyleSheet(ORIGIN_USER);
+		this.userImportantSheet.setHref(url);
+		this.userNormalSheet.setHref(url);
+		userNormalSheet.getCssRules().ensureCapacity(cssSheet.getCssRules().getLength());
+		prioritySplit(cssSheet, userImportantSheet, userNormalSheet);
+	}
+
+	/**
+	 * Sets the CSS style sheet defined by the end user.
+	 * <p>
+	 * The sheet in the supplied reader should contain user preferences, and will be
+	 * appropriately merged with the other style sheets.
+	 * </p>
+	 *
+	 * @param re the reader with the user style sheet. If {@code null}, the user
+	 *           style sheet shall be cleared.
 	 * @throws DOMException if a problem is found parsing the sheet.
 	 * @throws IOException  if there is a problem retrieving the reader.
 	 */
 	@Override
 	public void setUserStyleSheet(Reader re) throws DOMException, IOException {
-		if (re != null) {
-			AbstractCSSStyleSheet cssSheet = createDocumentStyleSheet(ORIGIN_USER);
-			cssSheet.parseStyleSheet(re);
-			this.userImportantSheet = createDocumentStyleSheet(ORIGIN_USER_IMPORTANT);
-			this.userNormalSheet = createDocumentStyleSheet(ORIGIN_USER);
-			userNormalSheet.getCssRules().ensureCapacity(cssSheet.getCssRules().getLength());
-			prioritySplit(cssSheet, userImportantSheet, userNormalSheet);
-		} else {
-			this.userImportantSheet = null;
-			this.userNormalSheet = null;
-		}
+		setUserStyleSheet(null, re);
 	}
 
 	@Override

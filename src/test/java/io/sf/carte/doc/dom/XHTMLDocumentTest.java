@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.net.URL;
 import java.util.Iterator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -971,9 +971,11 @@ public class XHTMLDocumentTest {
 
 	@Test
 	public void testCascade() throws IOException {
-		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader();
-		xmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
-		re.close();
+		URL url = DOMCSSStyleSheetFactoryTest.class
+				.getResource("/io/sf/carte/doc/style/css/om/user.css");
+		assertNotNull(url);
+		xmlDoc.getStyleSheetFactory().setUserStyleSheet(url.toExternalForm(), null);
+
 		DOMElement elm = xmlDoc.getElementById("para1");
 		assertNotNull(elm);
 		CSSStyleDeclaration style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
@@ -983,5 +985,9 @@ public class XHTMLDocumentTest {
 		style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
+
+		// Clear the user sheet
+		xmlDoc.getStyleSheetFactory().setUserStyleSheet(null, null);
 	}
+
 }

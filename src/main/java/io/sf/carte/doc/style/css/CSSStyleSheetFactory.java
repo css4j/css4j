@@ -69,13 +69,32 @@ public interface CSSStyleSheetFactory {
 	void setDefaultHTMLUserAgentSheet();
 
 	/**
-	 * Sets the CSS style sheet defined by the end-user.
+	 * Sets the CSS style sheet defined by the end user.
 	 * <p>
 	 * The sheet in the supplied reader should contain user preferences, and will be
 	 * appropriately merged with the other style sheets.
 	 * </p>
 	 *
-	 * @param re the reader with the user style sheet.
+	 * @param url the URL of the style sheet. If {@code null}, the call is
+	 *            equivalent to {@link #setUserStyleSheet(Reader)}.
+	 * @param re  the reader with the user style sheet. If {@code null}, a
+	 *            connection to the URL shall be opened. If both arguments are
+	 *            {@code null}, the user style sheet shall be cleared.
+	 * @throws DOMException if a problem is found parsing the sheet.
+	 * @throws IOException  if there is a problem opening the URL or reading the
+	 *                      reader.
+	 */
+	void setUserStyleSheet(String url, Reader re) throws DOMException, IOException;
+
+	/**
+	 * Sets the CSS style sheet defined by the end user.
+	 * <p>
+	 * The sheet in the supplied reader should contain user preferences, and will be
+	 * appropriately merged with the other style sheets.
+	 * </p>
+	 *
+	 * @param re the reader with the user style sheet. If {@code null}, the user
+	 *           style sheet shall be cleared.
 	 * @throws DOMException if a problem is found parsing the sheet.
 	 * @throws IOException  if there is a problem retrieving the reader.
 	 */

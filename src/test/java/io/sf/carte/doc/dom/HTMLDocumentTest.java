@@ -2390,9 +2390,9 @@ public class HTMLDocumentTest {
 
 	@Test
 	public void testCascade() throws IOException {
-		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader();
-		xhtmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
-		re.close();
+		try (Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader()) {
+			xhtmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
+		}
 		DOMElement elm = xhtmlDoc.getElementById("para1");
 		assertNotNull(elm);
 		CSSStyleDeclaration style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
@@ -2402,6 +2402,12 @@ public class HTMLDocumentTest {
 		style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
+
+		// Clear the user sheet
+		xhtmlDoc.getStyleSheetFactory().setUserStyleSheet(null);
+		style = elm.getComputedStyle(null);
+		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#8b008b", style.getPropertyValue("color"));
 	}
 
 	@Test

@@ -39,7 +39,8 @@ import io.sf.carte.doc.style.css.om.StyleRule.RuleSpecificity;
 /**
  * Base implementation for <code>DocumentCSSStyleSheet</code>.
  */
-abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implements DocumentCSSStyleSheet, Cloneable {
+abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
+		implements DocumentCSSStyleSheet, Cloneable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -59,12 +60,16 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet implem
 
 	@Override
 	public void setHref(String href) {
-		throw new IllegalStateException("Document sheet's href is parent document href");
+		if (getOrigin() != CSSStyleSheetFactory.ORIGIN_USER
+				&& getOrigin() != CSSStyleSheetFactory.ORIGIN_USER_IMPORTANT) {
+			throw new IllegalStateException("Document sheet's href is parent document href");
+		}
+		super.setHref(href);
 	}
 
 	@Override
 	public String getHref() {
-		return getOwnerNode() != null ? getOwnerNode().getBaseURI() : null;
+		return getOwnerNode() != null ? getOwnerNode().getBaseURI() : super.getHref();
 	}
 
 	@Override

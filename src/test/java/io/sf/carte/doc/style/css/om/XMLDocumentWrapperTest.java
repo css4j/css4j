@@ -468,9 +468,9 @@ public class XMLDocumentWrapperTest {
 
 	@Test
 	public void testCascade() throws IOException {
-		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader();
-		xmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
-		re.close();
+		try (Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader()) {
+			xmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
+		}
 		CSSElement elm = xmlDoc.getElementById("para1");
 		assertNotNull(elm);
 		CSSStyleDeclaration style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
@@ -480,6 +480,12 @@ public class XMLDocumentWrapperTest {
 		style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(style);
 		assertEquals("#8a2be2", style.getPropertyValue("color"));
+
+		// Clear the user sheet
+		xmlDoc.getStyleSheetFactory().setUserStyleSheet(null);
+		style = elm.getComputedStyle(null);
+		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#8b008b", style.getPropertyValue("color"));
 	}
 
 	@Test
