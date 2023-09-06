@@ -1792,7 +1792,9 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		if (sheets.needsUpdate()) {
 			sheets.update();
 		}
+
 		String selectedSetName = "";
+
 		Iterator<LinkStyleDefiner> links = linkedStyle.iterator();
 		while (links.hasNext()) {
 			CSSStyleSheet sheet = links.next().getSheet();
@@ -1808,6 +1810,23 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 				}
 			}
 		}
+
+		Iterator<LinkStyleDefiner> style = linkedStyle.iterator();
+		while (links.hasNext()) {
+			CSSStyleSheet sheet = style.next().getSheet();
+			String title;
+			if (sheet != null && (title = sheet.getTitle()) != null && title.length() > 0
+					&& !sheet.getDisabled()) {
+				if (selectedSetName.length() > 0) {
+					if (!selectedSetName.equalsIgnoreCase(title)) {
+						return null;
+					}
+				} else {
+					selectedSetName = title;
+				}
+			}
+		}
+
 		return selectedSetName;
 	}
 
@@ -1825,7 +1844,13 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		if (name == null || (name.length() > 0 && !getStyleSheetSets().contains(name))) {
 			return;
 		}
-		Iterator<LinkStyleDefiner> links = linkedStyle.iterator();
+
+		selectSheetSet(name, linkedStyle);
+		selectSheetSet(name, embeddedStyle);
+	}
+
+	private void selectSheetSet(String name, Set<LinkStyleDefiner> styleDefinerSet) {
+		Iterator<LinkStyleDefiner> links = styleDefinerSet.iterator();
 		while (links.hasNext()) {
 			String title;
 			CSSStyleSheet sheet = links.next().getSheet();
@@ -1862,7 +1887,12 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		if (name == null || name.length() == 0) {
 			return;
 		}
-		Iterator<LinkStyleDefiner> links = linkedStyle.iterator();
+		enableStyleSheetSet(name, linkedStyle);
+		enableStyleSheetSet(name, embeddedStyle);
+	}
+
+	private static void enableStyleSheetSet(String name, Set<LinkStyleDefiner> styleDefinerSet) {
+		Iterator<LinkStyleDefiner> links = styleDefinerSet.iterator();
 		while (links.hasNext()) {
 			CSSStyleSheet sheet = links.next().getSheet();
 			String title;
