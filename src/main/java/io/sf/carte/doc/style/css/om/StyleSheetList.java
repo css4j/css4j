@@ -145,8 +145,8 @@ abstract public class StyleSheetList implements CSSStyleSheetList<AbstractCSSRul
 		Iterator<AbstractCSSStyleSheet> it = list.iterator();
 		while (it.hasNext()) {
 			CSSStyleSheet sheet = it.next();
-			if (title.equals(sheet.getTitle())) {
-				list.remove(sheet);
+			if (title.equalsIgnoreCase(sheet.getTitle())) {
+				it.remove();
 			}
 		}
 	}

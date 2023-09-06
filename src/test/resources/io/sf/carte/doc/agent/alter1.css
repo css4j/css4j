@@ -1,7 +1,7 @@
 body {
-	background-color: yellow;
+	background-color: yellow ! important;
 	color: navy;
 }
 p {
-	color: black;
+	color: black ! important;
 }

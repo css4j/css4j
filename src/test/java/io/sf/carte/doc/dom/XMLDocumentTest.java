@@ -55,6 +55,7 @@ import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
+import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.FontFeatureValuesRule;
 import io.sf.carte.doc.style.css.om.StyleRule;
@@ -830,20 +831,42 @@ public class XMLDocumentTest {
 		assertTrue(list.contains("Alter 1"));
 		assertTrue(list.contains("Alter 2"));
 		assertEquals("Default", xmlDoc.getSelectedStyleSheetSet());
+
 		xmlDoc.setSelectedStyleSheetSet("foo");
 		assertEquals("Default", xmlDoc.getSelectedStyleSheetSet());
+
 		xmlDoc.setSelectedStyleSheetSet("Alter 1");
 		assertEquals("Alter 1", xmlDoc.getSelectedStyleSheetSet());
+
 		xmlDoc.enableStyleSheetsForSet("Alter 1");
 		assertEquals("Alter 1", xmlDoc.getSelectedStyleSheetSet());
+
 		xmlDoc.setSelectedStyleSheetSet("foo");
 		assertEquals("Alter 1", xmlDoc.getSelectedStyleSheetSet());
+
 		xmlDoc.setSelectedStyleSheetSet("Alter 2");
 		assertEquals("Alter 2", xmlDoc.getSelectedStyleSheetSet());
+
 		xmlDoc.enableStyleSheetsForSet("Alter 1");
 		assertNull(xmlDoc.getSelectedStyleSheetSet());
+
 		xmlDoc.setSelectedStyleSheetSet("Default");
 		assertEquals("Default", xmlDoc.getSelectedStyleSheetSet());
+
+		StyleSheetList sheets = xmlDoc.getStyleSheets();
+		assertEquals(6, sheets.getLength());
+		sheets.remove("Alter 2");
+		assertEquals(5, sheets.getLength());
+		assertEquals("Default", xmlDoc.getSelectedStyleSheetSet());
+	}
+
+	@Test
+	public void testAlternateStyle() {
+		xmlDoc.setSelectedStyleSheetSet("Alter 1");
+		DOMElement body = xmlDoc.getElementsByTagName("body").item(0);
+		ComputedCSSStyle style = body.getComputedStyle(null);
+		assertEquals("#000080", style.getPropertyValue("color"));
+		assertEquals("#ff0", style.getPropertyValue("background-color"));
 	}
 
 	@Test
