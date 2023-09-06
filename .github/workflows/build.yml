@@ -20,7 +20,7 @@ jobs:
     name: Validate Gradle wrapper
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: gradle/wrapper-validation-action@v1
 
   build:
@@ -34,7 +34,7 @@ jobs:
 
     steps:
       # Checks-out the repository under $GITHUB_WORKSPACE
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Set JDK
       - name: Set up JDK
