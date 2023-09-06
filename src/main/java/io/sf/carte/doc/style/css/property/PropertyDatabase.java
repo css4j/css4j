@@ -84,19 +84,21 @@ public final class PropertyDatabase {
 		/**
 		 * List of properties that inherit by default.
 		 */
-		String[] inherit = { "azimuth", "border-collapse", "border-spacing", "caption-side", "color",
-				"cursor", "direction", "elevation", "empty-cells", "font-family", "font-feature-settings",
-				"font-kerning", "font-language-override", "font-max-size", "font-min-size",
-				"font-optical-sizing", "font-size", "font-size-adjust", "font-style", "font-stretch",
-				"font-synthesis", "font-variant", "font-variant-alternates", "font-variant-caps",
-				"font-variant-east-asian", "font-variant-numeric", "font-variant-position",
-				"font-variation-settings", "font-weight", "letter-spacing", "line-height",
-				"list-style-image", "list-style-position", "list-style-type", "list-style", "orphans",
-				"page-break-inside", "pitch-range", "pitch", "quotes", "richness", "speak-header",
-				"speak-numeral", "speak-punctuation", "speak", "speak-as", "speech-rate", "stress",
-				"text-align", "text-emphasis-color", "text-emphasis-position", "text-emphasis-style",
-				"text-indent", "text-shadow", "text-transform", "text-underline-position", "visibility",
-				"voice-balance", "voice-family", "voice-pitch", "voice-range", "voice-rate", "voice-stress",
+		String[] inherit = { "azimuth", "border-collapse", "border-spacing", "caption-side",
+				"color", "cursor", "direction", "elevation", "empty-cells", "font-family",
+				"font-feature-settings", "font-kerning", "font-language-override", "font-max-size",
+				"font-min-size", "font-optical-sizing", "font-size", "font-size-adjust",
+				"font-style", "font-stretch", "font-synthesis", "font-variant",
+				"font-variant-alternates", "font-variant-caps", "font-variant-east-asian",
+				"font-variant-numeric", "font-variant-position", "font-variation-settings",
+				"font-weight", "letter-spacing", "line-height", "list-style-image",
+				"list-style-position", "list-style-type", "list-style", "math-depth", "math-style",
+				"orphans", "page-break-inside", "pitch-range", "pitch", "quotes", "richness",
+				"speak-header", "speak-numeral", "speak-punctuation", "speak", "speak-as",
+				"speech-rate", "stress", "text-align", "text-emphasis-color",
+				"text-emphasis-position", "text-emphasis-style", "text-indent", "text-shadow",
+				"text-transform", "text-underline-position", "visibility", "voice-balance",
+				"voice-family", "voice-pitch", "voice-range", "voice-rate", "voice-stress",
 				"voice-volume", "volume", "white-space", "widows", "word-spacing", "writing-mode" };
 		HashSet<String> inheritSet = new HashSet<String>(inherit.length);
 		Collections.addAll(inheritSet, inherit);
@@ -265,6 +267,8 @@ public final class PropertyDatabase {
 			{"mask-border-slice", "0"},
 			{"mask-border-source", "none"},
 			{"mask-border-width", "auto"},
+			{"math-style", "normal"},
+			{"math-depth", "0"},
 			{"max-height", "none"},
 			{"max-width", "none"},
 			{"min-height", "0"},
