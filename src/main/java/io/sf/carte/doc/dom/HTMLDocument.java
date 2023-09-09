@@ -226,10 +226,13 @@ abstract public class HTMLDocument extends DOMDocument {
 		void setParentNode(AbstractDOMNode parentNode) throws DOMException {
 			if (parentNode != null) {
 				short type = parentNode.getNodeType();
-				if (type != Node.DOCUMENT_FRAGMENT_NODE && (type != Node.ELEMENT_NODE
-						|| (!"head".equals(parentNode.getNodeName()) && !"noscript".equals(parentNode.getNodeName())))) {
-					String msg = "A <" + getNodeName() + "> tag can occur only in a head or noscript element, not in "
-							+ parentNode.toString();
+				if (getStrictErrorChecking() && type != Node.DOCUMENT_FRAGMENT_NODE
+						&& (type != Node.ELEMENT_NODE || (!"head".equals(parentNode.getNodeName())
+								&& !"noscript".equals(parentNode.getNodeName())))) {
+					String msg = "A <" + getNodeName()
+							+ "> tag can occur only in a head or noscript element, not in "
+							+ parentNode.toString()
+							+ ".\nDisable strict error checking to avoid this error.";
 					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, msg);
 				}
 			}
@@ -255,13 +258,14 @@ abstract public class HTMLDocument extends DOMDocument {
 		void setParentNode(AbstractDOMNode parentNode) throws DOMException {
 			if (parentNode != null) {
 				super.setParentNode(parentNode);
-				if (parentNode.getNodeType() == Node.ELEMENT_NODE) {
+				if (getStrictErrorChecking() && parentNode.getNodeType() == Node.ELEMENT_NODE) {
 					Node node = parentNode.getFirstChild();
 					while (node != null) {
-						if (node.getNodeType() == Node.ELEMENT_NODE && "base".equals(node.getNodeName())
-								&& node != this) {
+						if (node.getNodeType() == Node.ELEMENT_NODE
+								&& "base".equals(node.getNodeName()) && node != this) {
 							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
-									"A document can have only one base element.");
+									"A document can have only one base element.\n"
+											+ "Disable strict error checking to avoid this error.");
 						}
 						node = node.getNextSibling();
 					}
@@ -464,7 +468,8 @@ abstract public class HTMLDocument extends DOMDocument {
 				if (getStrictErrorChecking() && type != Node.DOCUMENT_FRAGMENT_NODE
 						&& (type != Node.ELEMENT_NODE || !isValidContext(parentNode))) {
 					String msg = "A <meta> tag without the proper attributes can occur only in the head or noscript element, not in "
-							+ parentNode.getNodeName();
+							+ parentNode.getNodeName()
+							+ ".\nDisable strict error checking to avoid this error.";
 					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, msg);
 				}
 				super.setParentNode(parentNode);

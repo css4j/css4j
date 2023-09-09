@@ -51,6 +51,7 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 	private static final long serialVersionUID = 1L;
 
 	private boolean strictErrorChecking = true;
+
 	private BaseDocumentCSSStyleSheet defStyleSheet = null;
 	private BaseDocumentCSSStyleSheet defQStyleSheet = null;
 
@@ -204,7 +205,7 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 	/**
 	 * Set the <code>strictErrorChecking</code> flag on the documents created by this
-	 * implementation.
+	 * implementation. Default is {@code true}.
 	 * 
 	 * @param strictErrorChecking
 	 *            the value of the <code>strictErrorChecking</code> flag.

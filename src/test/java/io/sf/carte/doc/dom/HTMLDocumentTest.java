@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -2152,41 +2153,67 @@ public class HTMLDocumentTest {
 		base.setAttribute("href", "http://www.example.com/newbase/");
 		assertEquals("http://www.example.com/newbase/", xhtmlDoc.getBaseURI());
 		assertEquals("http://www.example.com/newbase/", base.getBaseURI());
+
 		// Changing an unrelated href attribute does nothing to base uri.
 		DOMElement anchor = xhtmlDoc.getElementsByTagName("a").item(0);
 		anchor.setAttribute("href", "http://www.example.com/foo/");
 		assertEquals("http://www.example.com/foo/", anchor.getAttribute("href"));
 		assertEquals("http://www.example.com/newbase/", xhtmlDoc.getBaseURI());
+
 		// Setting href as attribute node.
 		Attr attr = xhtmlDoc.createAttribute("href");
 		attr.setValue("http://www.example.com/other/base/");
 		base.setAttributeNode(attr);
 		assertEquals("http://www.example.com/other/base/", xhtmlDoc.getBaseURI());
+
 		// Disconnect base
 		DOMNode parent = base.getParentNode();
 		parent.removeChild(base);
 		attr.setValue("http://www.example.com/yet/another/base/");
 		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
+
 		// Re-connect base
 		parent.appendChild(base);
 		assertEquals("http://www.example.com/yet/another/base/", xhtmlDoc.getBaseURI());
+
 		// Disconnect attribute
 		base.removeAttributeNode(attr);
 		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
+
 		// Double remove to check for potential NPEs instead of DOMException
-		try {
-			base.removeAttributeNode(attr);
-			fail("Must throw exception.");
-		} catch (DOMException e) {}
+		DOMException ex = assertThrows(DOMException.class, () -> base.removeAttributeNode(attr));
+		assertEquals(DOMException.NOT_FOUND_ERR, ex.code);
+
 		// Re-connect attribute
 		base.setAttributeNode(attr);
 		assertEquals("http://www.example.com/yet/another/base/", xhtmlDoc.getBaseURI());
 		//
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+
 		attr.setValue("foo://");
 		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
+	}
+
+	@Test
+	public void testBaseElementErrorChecking() {
+		DOMElement head = xhtmlDoc.getElementsByTagName("head").item(0);
+		DOMElement base = xhtmlDoc.createElement("base");
+
+		// There is already a BASE element
+		DOMException ex = assertThrows(DOMException.class, () -> head.appendChild(base));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
+		// Append to document root (illegal)
+		HTMLElement docElm = xhtmlDoc.getDocumentElement();
+		ex = assertThrows(DOMException.class, () -> docElm.appendChild(base));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
+		// Disable strict error checking
+		xhtmlDoc.setStrictErrorChecking(false);
+		docElm.appendChild(base);
+		head.appendChild(base);
 	}
 
 	@Test
@@ -2221,14 +2248,28 @@ public class HTMLDocumentTest {
 		meta.setAttribute("http-equiv", "Content-Type");
 		meta.setAttribute("content", "text/html; charset=utf-8");
 		assertTrue(meta.isNonHTMLOrVoid());
-		try {
-			xhtmlDoc.getDocumentElement().appendChild(meta);
-			fail("Should throw an exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
-		}
+
+		HTMLElement docElm = xhtmlDoc.getDocumentElement();
+
+		DOMException ex = assertThrows(DOMException.class, () -> docElm.appendChild(meta));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
 		DOMElement head = xhtmlDoc.getElementsByTagName("head").item(0);
 		head.appendChild(meta);
+
+		DOMElement body = xhtmlDoc.getElementsByTagName("body").item(0);
+		ex = assertThrows(DOMException.class, () -> body.appendChild(meta));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
+		// It is allowed if we set the itemprop attribute
+		DOMElement meta2 = xhtmlDoc.createElement("meta");
+		meta2.setAttribute("itemprop", "a");
+		body.appendChild(meta2);
+
+		// Disable strict error checking
+		xhtmlDoc.setStrictErrorChecking(false);
+		// Now we can add to document root
+		docElm.appendChild(meta);
 	}
 
 	@Test
