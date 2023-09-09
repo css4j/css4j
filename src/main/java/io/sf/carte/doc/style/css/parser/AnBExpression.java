@@ -128,7 +128,7 @@ abstract public class AnBExpression implements java.io.Serializable {
 						step = 1;
 					} else if (c == '-') {
 						step = -1;
-					} else if (Character.isDigit(c)) {
+					} else if (isDigit(c)) {
 						step = Integer.parseInt(s.substring(0, nidx));
 					} else {
 						reportError(expression);
@@ -189,6 +189,10 @@ abstract public class AnBExpression implements java.io.Serializable {
 			}
 		}
 		return null;
+	}
+
+	private static boolean isDigit(char c) {
+		return c >= 0x30 && c <= 0x39;
 	}
 
 	void reportError(String expression) {

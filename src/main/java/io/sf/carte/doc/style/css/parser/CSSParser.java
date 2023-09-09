@@ -2093,6 +2093,10 @@ public class CSSParser implements Parser, Cloneable {
 		return false;
 	}
 
+	private static boolean isDigit(char c) {
+		return c >= 0x30 && c <= 0x39;
+	}
+
 	private static boolean isNotSeparator(int cp) {
 		return cp != 32 && cp != 9 && cp != 10 && cp != 12 && cp != 13;
 	}
@@ -7750,7 +7754,7 @@ public class CSSParser implements Parser, Cloneable {
 						} else if (codepoint == 46) { // .
 							handleFullStop(index);
 						} else if (codepoint == 37) { // %
-							if (prevcp == 65 && Character.isDigit(buffer.charAt(buffer.length() - 1))) {
+							if (prevcp == 65 && isDigit(buffer.charAt(buffer.length() - 1))) {
 								buffer.append('%');
 							} else {
 								processBuffer(index);
@@ -9198,9 +9202,9 @@ public class CSSParser implements Parser, Cloneable {
 		boolean isNotForbiddenIdentStart(String s) {
 			char c = s.charAt(0);
 			if (c != '-') {
-				return !Character.isDigit(c) && c != '+';
+				return !isDigit(c) && c != '+';
 			}
-			return (s.length() > 1 && !Character.isDigit(c = s.charAt(1))) || c == '\\';
+			return (s.length() > 1 && !isDigit(c = s.charAt(1))) || c == '\\';
 		}
 
 		boolean isValidPseudoName(String s) {
