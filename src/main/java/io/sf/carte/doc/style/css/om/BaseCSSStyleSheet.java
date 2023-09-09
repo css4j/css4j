@@ -813,7 +813,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			}
 			return !"text/css".equalsIgnoreCase(conType);
 		}
-		return !url.getPath().toLowerCase(Locale.ROOT).endsWith(".css");
+		return !"file".equals(url.getProtocol())
+				&& !url.getPath().toLowerCase(Locale.ROOT).endsWith(".css");
 	}
 
 	private boolean isRedirect(URLConnection ucon) {
