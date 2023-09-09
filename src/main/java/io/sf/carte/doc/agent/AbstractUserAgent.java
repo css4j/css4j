@@ -66,7 +66,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	private String userAgentId = System.getProperty("http.agent", "Mozilla/4.0 (compatible; CSS4J)");
 
-	private int timeout = 100000; // Connection timeout
+	private int timeout = 15000; // Connection timeout
 
 	protected AbstractUserAgent(EnumSet<Parser.Flag> parserFlags) {
 		super();
