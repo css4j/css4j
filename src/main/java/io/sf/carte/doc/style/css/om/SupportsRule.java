@@ -50,6 +50,9 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 
 	protected SupportsRule(AbstractCSSStyleSheet parentSheet, BooleanCondition condition, byte origin) {
 		super(parentSheet, SUPPORTS_RULE, origin);
+		if (condition == null) {
+			throw new NullPointerException("Null @supports condition.");
+		}
 		this.condition = condition;
 	}
 
@@ -86,7 +89,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 
 	@Override
 	public boolean supports(StyleDatabase styleDatabase) {
-		return supports(condition, styleDatabase);
+		return condition != null && supports(condition, styleDatabase);
 	}
 
 	private boolean supports(BooleanCondition condition, StyleDatabase styleDatabase) {
