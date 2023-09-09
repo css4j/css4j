@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -211,13 +212,36 @@ public class CSSParser implements Parser, Cloneable {
 		}
 		URL url = new URL(uri);
 		URLConnection ucon = url.openConnection();
-		ucon.setConnectTimeout(30000);
+		ucon.setConnectTimeout(15000);
 		ucon.connect();
 		InputStream is = ucon.getInputStream();
 		is = new BufferedInputStream(is);
 		String contentEncoding = ucon.getContentEncoding();
 		String conType = ucon.getContentType();
+
+		// Check that the content type is correct
+		if (isInvalidContentType(url, conType) && !isRedirect(ucon)) {
+			// Report security error
+			String msg;
+			if (conType != null) {
+				// Sanitize untrusted content-type by removing control characters
+				// ('Other, Control' unicode category).
+				conType = conType.replaceAll("\\p{Cc}", "*CTRL*");
+				msg = "Style sheet at " + url.toExternalForm() + " served with invalid type ("
+						+ conType + ").";
+			} else {
+				msg = "Style sheet at " + url.toExternalForm()
+						+ " has no content type nor ends with '.css' extension.";
+			}
+			try {
+				is.close();
+			} catch (IOException e) {
+			}
+			throw new IOException(msg);
+		}
+
 		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8);
+
 		SheetTokenHandler handler = new SheetTokenHandler(null, false);
 		int[] allowInWords = { 45, 95 }; // -_
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
@@ -234,6 +258,30 @@ public class CSSParser implements Parser, Cloneable {
 			throw e;
 		}
 		re.close();
+	}
+
+	private boolean isInvalidContentType(URL url, String conType) {
+		if (conType != null) {
+			int sepidx = conType.indexOf(';');
+			if (sepidx != -1) {
+				conType = conType.substring(0, sepidx);
+			}
+			return !"text/css".equalsIgnoreCase(conType);
+		}
+		return !"file".equals(url.getProtocol())
+				&& !url.getPath().toLowerCase(Locale.ROOT).endsWith(".css");
+	}
+
+	private boolean isRedirect(URLConnection ucon) {
+		if (ucon instanceof HttpURLConnection) {
+			int code;
+			try {
+				code = ((HttpURLConnection) ucon).getResponseCode();
+				return code > 300 && code < 400 && code != 304;
+			} catch (IOException e) {
+			}
+		}
+		return false;
 	}
 
 	@Override
