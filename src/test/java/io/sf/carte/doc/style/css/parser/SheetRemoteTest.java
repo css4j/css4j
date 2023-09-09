@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,9 +32,8 @@ public class SheetRemoteTest {
 			parser.setDocumentHandler(handler);
 			TestErrorHandler errorHandler = new TestErrorHandler();
 			parser.setErrorHandler(errorHandler);
-			parser.parseStyleSheet(
-				"https://raw.githubusercontent.com/necolas/normalize.css/master/normalize.css");
-			assertTrue(handler.comments.size() != 0);
+			parser.parseStyleSheet("https://css4j.github.io/usage-e.css");
+			assertEquals(0, handler.comments.size());
 			assertTrue(handler.selectors.size() != 0);
 			assertTrue(handler.propertyNames.size() != 0);
 			assertFalse(errorHandler.hasError());
