@@ -60,7 +60,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 	private ErrorHandler errorHandler = null;
 
-	private boolean strictErrorChecking = true;
+	private boolean strictErrorChecking = false;
 
 	private boolean htmlProcessing = false;
 
@@ -97,6 +97,10 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		super();
 		this.domImpl = domImpl;
 		this.parserFactory = parserFactory;
+
+		if (domImpl instanceof CSSDOMImplementation) {
+			this.strictErrorChecking = ((CSSDOMImplementation) domImpl).getStrictErrorChecking();
+		}
 	}
 
 	/**
@@ -309,7 +313,8 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	 * Set the <code>strictErrorChecking</code> flag on the documents created by the
 	 * DOM implementation.
 	 * <p>
-	 * Default is <code>true</code>.
+	 * Default value is obtained from the DOM implementation if possible,
+	 * <code>false</code> otherwise.
 	 * </p>
 	 * 
 	 * @param strictErrorChecking the value of the <code>strictErrorChecking</code>
@@ -337,7 +342,11 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	 */
 	@Override
 	public void reset() {
-		strictErrorChecking = true;
+		if (domImpl instanceof CSSDOMImplementation) {
+			strictErrorChecking = ((CSSDOMImplementation) domImpl).getStrictErrorChecking();
+		} else {
+			strictErrorChecking = false;
+		}
 		ignoreElementContentWhitespace = false;
 		resolver = null;
 		errorHandler = null;
