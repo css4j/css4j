@@ -463,7 +463,7 @@ abstract public class HTMLDocument extends DOMDocument {
 				short type = parentNode.getNodeType();
 				if (getStrictErrorChecking() && type != Node.DOCUMENT_FRAGMENT_NODE
 						&& (type != Node.ELEMENT_NODE || !isValidContext(parentNode))) {
-					String msg = "A <meta> tag can occur only in the head or noscript element, not in "
+					String msg = "A <meta> tag without the proper attributes can occur only in the head or noscript element, not in "
 							+ parentNode.getNodeName();
 					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, msg);
 				}
@@ -478,7 +478,8 @@ abstract public class HTMLDocument extends DOMDocument {
 
 		private boolean isValidContext(Node parentNode) {
 			String parentTag = parentNode.getNodeName();
-			return "head".equals(parentTag) || "noscript".equals(parentTag) || hasAttribute("itemprop");
+			return "head".equals(parentTag) || "noscript".equals(parentTag)
+					|| hasAttribute("itemprop") || hasAttribute("name");
 		}
 	}
 

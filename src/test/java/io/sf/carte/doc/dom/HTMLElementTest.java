@@ -178,17 +178,20 @@ public class HTMLElementTest {
 
 	@Test
 	public void setAttribute() {
-		CSSElement html = xhtmlDoc.getDocumentElement();
+		HTMLElement html = xhtmlDoc.getDocumentElement();
 		DOMElement body = xhtmlDoc.createElement("body");
 		html.appendChild(body);
 		assertFalse(body.hasAttributes());
 		body.setAttribute("foo", "bar");
 		assertTrue(body.hasAttributes());
+		assertTrue(body.hasAttribute("foo"));
+		assertTrue(body.hasAttribute("Foo"));
 		assertEquals("bar", body.getAttribute("foo"));
 		Attr attr = body.getAttributeNode("foo");
 		assertFalse(attr.isId());
 		assertNull(attr.getSchemaTypeInfo().getTypeName());
 		assertEquals("https://www.w3.org/TR/xml/", attr.getSchemaTypeInfo().getTypeNamespace());
+
 		body.setAttribute("id", "bodyId");
 		assertTrue(body.hasAttributes());
 		assertEquals(2, body.getAttributes().getLength());
