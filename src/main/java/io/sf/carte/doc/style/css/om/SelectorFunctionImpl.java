@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.util.Objects;
+
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
@@ -65,6 +67,26 @@ class SelectorFunctionImpl extends BooleanConditionImpl implements BooleanCondit
 		buf.append("selector(");
 		serializer.selectorListText(buf, selectors, false, false);
 		buf.append(')');
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(selectors);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		SelectorFunctionImpl other = (SelectorFunctionImpl) obj;
+		return Objects.equals(selectors, other.selectors);
 	}
 
 }

@@ -391,6 +391,42 @@ public class SupportsConditionTest {
 		assertFalse(cond.equals(other));
 	}
 
+	@Test
+	public void testEqualsSelector() {
+		BooleanCondition cond = parseSupportsCondition("not selector(:has(*),col||td)");
+		BooleanCondition other = parseSupportsCondition("not selector(:has(*), col||td)");
+		assertTrue(cond.equals(other));
+		assertEquals(cond.hashCode(), other.hashCode());
+		other = parseSupportsCondition("selector(:has(*))");
+		assertFalse(cond.equals(other));
+		other = parseSupportsCondition("not selector(:not(*))");
+		assertFalse(cond.equals(other));
+	}
+
+	@Test
+	public void testEqualsUnknownSelector() {
+		BooleanCondition cond = parseSupportsCondition("not selector([p#q])");
+		BooleanCondition other = parseSupportsCondition("not selector([p#q])");
+		assertTrue(cond.equals(other));
+		assertEquals(cond.hashCode(), other.hashCode());
+		other = parseSupportsCondition("selector([p#m])");
+		assertFalse(cond.equals(other));
+		other = parseSupportsCondition("not selector(:not(*))");
+		assertFalse(cond.equals(other));
+	}
+
+	@Test
+	public void testEqualsUnknownValue() {
+		BooleanCondition cond = parseSupportsCondition("(width: foo(a&b)) or (width: bar(a))");
+		BooleanCondition other = parseSupportsCondition("(width: foo(a&b)) or (width: bar(a))");
+		assertTrue(cond.equals(other));
+		assertEquals(cond.hashCode(), other.hashCode());
+		other = parseSupportsCondition("selector([p#m])");
+		assertFalse(cond.equals(other));
+		other = parseSupportsCondition("not selector(:not(*))");
+		assertFalse(cond.equals(other));
+	}
+
 	private BooleanCondition parseSupportsCondition(String condition) {
 		return parser.parseSupportsCondition(condition, null);
 	}
