@@ -181,12 +181,35 @@ public class GridTemplateShorthandBuilderTest {
 
 	@Test
 	public void testGridTemplateFromLonghands() {
-		emptyStyleDecl.setCssText(
+		assertShorthandText("grid-template:\"media-text-media media-text-content\"/50% auto;",
 				"grid-template-rows: auto; grid-template-areas: \"media-text-media media-text-content\"; grid-template-columns: 50% auto;");
-		String expected = "grid-template:\"media-text-media media-text-content\"/50% auto;";
-		assertEquals(expected, emptyStyleDecl.getOptimizedCssText());
-		emptyStyleDecl.setCssText(expected);
-		assertEquals(expected, emptyStyleDecl.getOptimizedCssText());
+	}
+
+	@Test
+	public void testGridTemplateFromLonghandsWithLeftoverAutoRows() {
+		assertShorthandText(
+				"grid-template:\"a b c d\" min-content/min-content 1fr minmax(0,auto) min-content;grid-auto-rows:30px;",
+				"grid-auto-rows: 30px;grid-template-areas: \"a b c d\";"
+						+ "grid-template-columns: min-content 1fr minmax(0, auto) min-content;"
+						+ "grid-template-rows: min-content;");
+	}
+
+	@Test
+	public void testGridTemplateFromLonghandsWithLeftoverAutoColumns() {
+		assertShorthandText(
+				"grid-template:\"a b c d\" min-content/min-content 1fr minmax(0,auto) min-content;grid-auto-columns:15%;",
+				"grid-auto-columns: 15%;grid-template-areas: \"a b c d\";"
+						+ "grid-template-columns: min-content 1fr minmax(0, auto) min-content;"
+						+ "grid-template-rows: min-content;");
+	}
+
+	@Test
+	public void testGridTemplateFromLonghandsWithLeftoverAutoFlow() {
+		assertShorthandText(
+				"grid-template:\"a b c d\" min-content/min-content 1fr minmax(0,auto) min-content;grid-auto-flow:column;",
+				"grid-auto-flow: column;grid-template-areas: \"a b c d\";"
+						+ "grid-template-columns: min-content 1fr minmax(0, auto) min-content;"
+						+ "grid-template-rows: min-content;");
 	}
 
 	@Test

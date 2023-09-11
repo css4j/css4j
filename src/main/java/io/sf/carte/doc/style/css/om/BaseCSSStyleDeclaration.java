@@ -473,7 +473,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			return new GridPlacementShorthandBuilder(shorthand, this);
 		} else if ("grid-area".equals(shorthand)) {
 			return new GridAreaShorthandBuilder(this);
-		} else if ("grid".equals(shorthand)) {
+		} else if ("grid".equals(shorthand) || "grid-template".equals(shorthand)) {
 			return new GridShorthandBuilder(this);
 		} else if ("animation".equals(shorthand)) {
 			return new AnimationShorthandBuilder(this);

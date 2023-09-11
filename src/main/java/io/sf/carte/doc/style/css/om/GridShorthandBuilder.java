@@ -17,8 +17,10 @@ import java.util.Set;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
+import io.sf.carte.util.BufferSimpleWriter;
 
 /**
  * Build a grid shorthand from individual properties.
@@ -130,11 +132,37 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			if (!values.defaultGridTAreas && values.lacksRepeatInGridTRows
 					&& values.gridAreasSyntax(buf, declaredSet)) {
 				appendPriority(buf, important);
+				appendLeftoverProperties(buf, declaredSet, important);
 				return true;
 			}
 			//
 			values.gridRowsColumnsSyntax(buf, declaredSet, important);
+			appendLeftoverProperties(buf, declaredSet, important);
 			return true;
+		}
+
+		private void appendLeftoverProperties(StringBuilder buf, Set<String> declaredSet,
+				boolean important) {
+			if (declaredSet.contains("grid-auto-rows")) {
+				appendIndividualProperty(buf, "grid-auto-rows", important);
+			}
+			if (declaredSet.contains("grid-auto-columns")) {
+				appendIndividualProperty(buf, "grid-auto-columns", important);
+			}
+			if (declaredSet.contains("grid-auto-flow")) {
+				appendIndividualProperty(buf, "grid-auto-flow", important);
+			}
+		}
+
+		private void appendIndividualProperty(StringBuilder buf, String property,
+				boolean important) {
+			BufferSimpleWriter wri = new BufferSimpleWriter(buf);
+			DeclarationFormattingContext context = getParentStyle().getFormattingContext();
+
+			StyleValue value = getCSSValue(property);
+			buf.append(property).append(':');
+			BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context, value, property);
+			appendPriority(buf, important);
 		}
 
 		@Override
