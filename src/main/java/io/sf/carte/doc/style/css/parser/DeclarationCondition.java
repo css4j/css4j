@@ -29,8 +29,18 @@ public interface DeclarationCondition extends BooleanCondition {
 	 */
 	String getName();
 
+	/**
+	 * Get the value.
+	 * 
+	 * @return the value.
+	 */
 	CSSValue getValue();
 
+	/**
+	 * This method should be deprecated, currently always returns true.
+	 * 
+	 * @return true if the value could be parsed and is set.
+	 */
 	boolean isParsable();
 
 	/**
@@ -52,7 +62,12 @@ public interface DeclarationCondition extends BooleanCondition {
 	 * to match, although the serialized value shall be used for serializations.
 	 * 
 	 * @param cssText the serialized value.
+	 * @deprecated False conditions can handle both values and selectors that are
+	 *             unsupported, and are preferred to this method which isn't used
+	 *             anymore.
 	 */
-	void setValue(String cssText);
+	@Deprecated
+	default void setValue(String cssText) {
+	}
 
 }

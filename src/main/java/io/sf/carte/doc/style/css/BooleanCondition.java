@@ -35,6 +35,11 @@ public interface BooleanCondition {
 		PREDICATE,
 
 		/**
+		 * A supported selector function predicate.
+		 */
+		SELECTOR_FUNCTION,
+
+		/**
 		 * An {@code OR} condition.
 		 * <p>
 		 * Use {@link BooleanCondition#getSubConditions()}.
@@ -56,7 +61,12 @@ public interface BooleanCondition {
 		 * Use {@link BooleanCondition#getNestedCondition()}.
 		 * </p>
 		 */
-		NOT
+		NOT,
+
+		/**
+		 * Other, unknown or unsupported condition types.
+		 */
+		OTHER
 	}
 
 	/**
@@ -138,6 +148,8 @@ public interface BooleanCondition {
 	 * 
 	 * @param buf the buffer to append to.
 	 */
-	void appendMinifiedText(StringBuilder buf);
+	default void appendMinifiedText(StringBuilder buf) {
+		appendText(buf);
+	}
 
 }

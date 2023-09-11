@@ -102,14 +102,6 @@ abstract class BooleanConditionImpl implements BooleanCondition, java.io.Seriali
 	@Override
 	abstract public void appendText(StringBuilder buf);
 
-	/**
-	 * Append a minified serialization of the condition.
-	 * 
-	 * @param buf the buffer to append to.
-	 */
-	@Override
-	abstract public void appendMinifiedText(StringBuilder buf);
-
 	@Override
 	public String toString() {
 		StringBuilder buf = new StringBuilder(64);

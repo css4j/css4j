@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.Node;
 
-import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.MediaQueryHandler;
@@ -23,38 +22,7 @@ import io.sf.carte.doc.style.css.MediaQueryPredicate;
 /**
  * Contains methods related to media query conditions.
  */
-class NSACMediaQueryFactory implements MediaQueryFactory {
-
-	/**
-	 * Create a boolean condition of the <code>and</code> type.
-	 * 
-	 * @return the condition.
-	 */
-	@Override
-	public BooleanCondition createAndCondition() {
-		return new BooleanConditionUnit.AndCondition();
-	}
-
-	/**
-	 * Create a boolean condition of the given type (<code>and</code>, <code>or</code>,
-	 * <code>not</code>).
-	 * 
-	 * @return the condition.
-	 */
-	@Override
-	public BooleanCondition createOrCondition() {
-		return new BooleanConditionUnit.OrCondition();
-	}
-
-	/**
-	 * Create a boolean condition of the <code>not</code> type.
-	 * 
-	 * @return the condition.
-	 */
-	@Override
-	public BooleanCondition createNotCondition() {
-		return new BooleanConditionUnit.NotCondition();
-	}
+class NSACMediaQueryFactory extends ConditionFactoryImpl implements MediaQueryFactory {
 
 	/**
 	 * Create a media-feature operand condition.

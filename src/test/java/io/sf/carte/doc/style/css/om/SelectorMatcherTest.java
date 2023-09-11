@@ -21,6 +21,7 @@ import java.io.StringReader;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DocumentType;
@@ -41,15 +42,23 @@ import io.sf.carte.doc.style.css.om.DummyDeviceFactory.DummyCanvas;
 
 public class SelectorMatcherTest {
 
+	static TestCSSStyleSheetFactory factory;
+
 	private Parser cssParser;
 
 	private DOMDocument doc;
 
-	private TestDOMImplementation domImpl = new TestDOMImplementation(false);
+	private TestDOMImplementation domImpl;
+
+	@BeforeAll
+	static void setUpBeforeClass() throws Exception {
+		factory = new TestCSSStyleSheetFactory();
+	}
 
 	@BeforeEach
 	public void setUp() {
 		this.cssParser = new io.sf.carte.doc.style.css.parser.CSSParser();
+		domImpl = new TestDOMImplementation(false);
 		setUpWithMode(CSSDocument.ComplianceMode.QUIRKS);
 	}
 
@@ -2205,7 +2214,6 @@ public class SelectorMatcherTest {
 	}
 
 	public BaseCSSStyleSheet parseStyle(String style) throws CSSParseException, IOException {
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		StringReader re = new StringReader(style);
 		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_IGNORE));
@@ -2217,11 +2225,13 @@ public class SelectorMatcherTest {
 		if (selist == null) {
 			return null;
 		}
+
+		SelectorSerializer serializer = new SelectorSerializer(rule.getParentStyleSheet());
 		StringBuilder buf = new StringBuilder();
-		buf.append(rule.selectorText(selist.item(0), false));
+		buf.append(serializer.selectorText(selist.item(0), false));
 		int sz = selist.getLength();
 		for (int i = 1; i < sz; i++) {
-			buf.append(' ').append(rule.selectorText(selist.item(i), false));
+			buf.append(' ').append(serializer.selectorText(selist.item(i), false));
 		}
 		return buf.toString();
 	}

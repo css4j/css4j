@@ -117,9 +117,7 @@ public class MediaQueryTest {
 
 	@Test
 	public void testMediaQueries() {
-		MediaQueryList mql;
-		//
-		mql = createMediaQueryList("all and (min-color: 4)");
+		MediaQueryList mql = createMediaQueryList("all and (min-color: 4)");
 		assertFalse(mql.hasErrors());
 		assertEquals("all and (min-color: 4)", mql.getMedia());
 		assertEquals("all and (min-color:4)", mql.getMinifiedMedia());
@@ -150,57 +148,92 @@ public class MediaQueryTest {
 		assertEquals(Type.NUMERIC, value.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_NUMBER, value.getUnitType());
 		assertEquals(4, value.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+	}
 
-		//
-		mql = createMediaQueryList("all and (min-color: calc(2*2))");
+	@Test
+	public void testMediaQueriesAll() {
+		MediaQueryList mql = createMediaQueryList("all and (min-color: calc(2*2))");
 		assertFalse(mql.hasErrors());
 		assertEquals("all and (min-color: calc(2*2))", mql.getMedia());
 		assertEquals("all and (min-color:calc(2*2))", mql.getMinifiedMedia());
-		//
-		mql = createMediaQueryList("all and (color-index)");
+	}
+
+	@Test
+	public void testMediaQueriesAll2() {
+		MediaQueryList mql = createMediaQueryList("all and (color-index)");
 		assertFalse(mql.hasErrors());
 		assertEquals("all and (color-index)", mql.getMedia());
 		assertEquals("all and (color-index)", mql.getMinifiedMedia());
-		//
-		mql = createMediaQueryList("all and (max-width:47.9375em)");
+	}
+
+	@Test
+	public void testMediaQueriesAll3() {
+		MediaQueryList mql = createMediaQueryList("all and (max-width:47.9375em)");
 		assertFalse(mql.hasErrors());
 		assertEquals("all and (max-width: 47.9375em)", mql.getMedia());
 		assertEquals("all and (max-width:47.9375em)", mql.getMinifiedMedia());
-		//
+	}
+
+	@Test
+	public void testMediaQueriesAnd() {
+		MediaQueryList mql;
 		mql = createMediaQueryList("tv and (min-width: 700px) and (orientation: landscape)");
 		assertFalse(mql.hasErrors());
 		assertEquals("tv and (min-width: 700px) and (orientation: landscape)", mql.getMedia());
-		assertEquals("tv and (min-width:700px) and (orientation:landscape)", mql.getMinifiedMedia());
-		//
-		mql = createMediaQueryList("(min-width: 700px) and (orientation: landscape)");
+		assertEquals("tv and (min-width:700px) and (orientation:landscape)",
+				mql.getMinifiedMedia());
+	}
+
+	@Test
+	public void testMediaQueriesMultipleParensAnd() {
+		MediaQueryList mql;
+		mql = createMediaQueryList("(((min-width: 700px))) and ((orientation: landscape))");
 		assertFalse(mql.hasErrors());
 		assertEquals("(min-width: 700px) and (orientation: landscape)", mql.getMedia());
 		assertEquals("(min-width:700px) and (orientation:landscape)", mql.getMinifiedMedia());
-		//
-		mql = createMediaQueryList("only screen and (color: rgb(255, 4, 165))");
+	}
+
+	@Test
+	public void testMediaQueriesOnlyAnd() {
+		MediaQueryList mql = createMediaQueryList("only screen and (color: rgb(255, 4, 165))");
 		assertFalse(mql.hasErrors());
 		assertEquals("only screen and (color: #ff04a5)", mql.getMedia());
 		assertEquals("only screen and (color:#ff04a5)", mql.getMinifiedMedia());
-		//
-		mql = createMediaQueryList("only screen and (min-width:690px) and (max-width:780px)");
+	}
+
+	@Test
+	public void testMediaQueriesOnlyAnd2() {
+		MediaQueryList mql = createMediaQueryList(
+				"only screen and (min-width:690px) and (max-width:780px)");
 		assertFalse(mql.hasErrors());
 		assertEquals("only screen and (min-width: 690px) and (max-width: 780px)", mql.getMedia());
-		assertEquals("only screen and (min-width:690px) and (max-width:780px)", mql.getMinifiedMedia());
-		//
-		mql = createMediaQueryList("(not (max-width:500px))");
+		assertEquals("only screen and (min-width:690px) and (max-width:780px)",
+				mql.getMinifiedMedia());
+	}
+
+	@Test
+	public void testMediaQueriesOnlyOnly() {
+		MediaQueryList mql = createMediaQueryList("only screen and (min-width: 48rem),only print");
+		assertFalse(mql.hasErrors());
+		assertEquals("only screen and (min-width: 48rem),only print", mql.getMedia());
+		assertEquals("only screen and (min-width:48rem),only print", mql.getMinifiedMedia());
+	}
+
+	@Test
+	public void testMediaQueriesNot() {
+		MediaQueryList mql = createMediaQueryList("(not (max-width:500px))");
 		assertFalse(mql.hasErrors());
 		assertEquals("not (max-width: 500px)", mql.getMedia());
 		assertEquals("not (max-width:500px)", mql.getMinifiedMedia());
-		//
+	}
+
+	@Test
+	public void testMqMediaInParens() {
+		MediaQueryList mql;
 		mql = createMediaQueryList("(print),(prefers-reduced-motion: reduce)");
 		assertFalse(mql.hasErrors());
 		assertEquals("print,(prefers-reduced-motion: reduce)", mql.getMedia());
 		assertEquals("print,(prefers-reduced-motion:reduce)", mql.getMinifiedMedia());
-		//
-		mql = createMediaQueryList("only screen and (min-width: 48rem),only print");
-		assertFalse(mql.hasErrors());
-		assertEquals("only screen and (min-width: 48rem),only print", mql.getMedia());
-		assertEquals("only screen and (min-width:48rem),only print", mql.getMinifiedMedia());
 	}
 
 	@Test
@@ -235,7 +268,8 @@ public class MediaQueryTest {
 		MediaQueryList mql = createMediaQueryList("screen\\0 ");
 		assertEquals("screen\\0", mql.getMedia());
 		assertFalse(mql.hasErrors());
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(
+				EnumSet.of(Parser.Flag.IEVALUES));
 		mql = factory.createMediaQueryList("screen\\0 ", null);
 		assertEquals("screen\\0", mql.getMedia());
 		assertFalse(mql.hasErrors());
@@ -243,7 +277,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMediaRatio() {
-		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/100) and (min-width:300px)");
+		MediaQueryList mql = createMediaQueryList(
+				"(max-aspect-ratio:160/100) and (min-width:300px)");
 		assertFalse(mql.hasErrors());
 		assertEquals("(max-aspect-ratio: 160/100) and (min-width: 300px)", mql.getMedia());
 		assertEquals("(max-aspect-ratio:160/100) and (min-width:300px)", mql.getMinifiedMedia());
@@ -262,7 +297,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMediaRatioError2() {
-		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/) and (min-width:300px),screen and (color>5)");
+		MediaQueryList mql = createMediaQueryList(
+				"(max-aspect-ratio:160/) and (min-width:300px),screen and (color>5)");
 		assertTrue(mql.hasErrors());
 		assertFalse(mql.isNotAllMedia());
 		assertEquals("screen and (color > 5)", mql.getMedia());
@@ -272,7 +308,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMediaRatioError3() {
-		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/ and (min-width:300px),print),screen and (color>5)");
+		MediaQueryList mql = createMediaQueryList(
+				"(max-aspect-ratio:160/ and (min-width:300px),print),screen and (color>5)");
 		assertTrue(mql.hasErrors());
 		assertFalse(mql.isNotAllMedia());
 		assertEquals("screen and (color > 5)", mql.getMedia());
@@ -282,7 +319,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMediaRatioError4() {
-		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/) and (min-width:300px,print),screen and (color>5)");
+		MediaQueryList mql = createMediaQueryList(
+				"(max-aspect-ratio:160/) and (min-width:300px,print),screen and (color>5)");
 		assertTrue(mql.hasErrors());
 		assertFalse(mql.isNotAllMedia());
 		assertEquals("screen and (color > 5)", mql.getMedia());
@@ -292,7 +330,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMediaRatioError5() {
-		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/foo) and (min-width:300px),screen and (color>5)");
+		MediaQueryList mql = createMediaQueryList(
+				"(max-aspect-ratio:160/foo) and (min-width:300px),screen and (color>5)");
 		assertTrue(mql.hasErrors());
 		assertFalse(mql.isNotAllMedia());
 		assertEquals("screen and (color > 5)", mql.getMedia());
@@ -302,7 +341,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMediaRatioError6() {
-		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/3px) and (min-width:300px),screen and (color>5)");
+		MediaQueryList mql = createMediaQueryList(
+				"(max-aspect-ratio:160/3px) and (min-width:300px),screen and (color>5)");
 		assertTrue(mql.hasErrors());
 		assertFalse(mql.isNotAllMedia());
 		assertEquals("screen and (color > 5)", mql.getMedia());
@@ -312,7 +352,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMediaRatioErrorNegComponent() {
-		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/-100) and (min-width:300px)");
+		MediaQueryList mql = createMediaQueryList(
+				"(max-aspect-ratio:160/-100) and (min-width:300px)");
 		assertTrue(mql.hasErrors());
 		assertTrue(mql.isNotAllMedia());
 		assertEquals("not all", mql.getMedia());
@@ -321,7 +362,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMediaRatioErrorNegComponent2() {
-		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/-100) and (min-width:300px),screen and (color>5)");
+		MediaQueryList mql = createMediaQueryList(
+				"(max-aspect-ratio:160/-100) and (min-width:300px),screen and (color>5)");
 		assertTrue(mql.hasErrors());
 		assertFalse(mql.isNotAllMedia());
 		assertEquals("screen and (color > 5)", mql.getMedia());
@@ -331,7 +373,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMediaRatioErrorNegComponent3() {
-		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/-100,print),screen and (color>5)");
+		MediaQueryList mql = createMediaQueryList(
+				"(max-aspect-ratio:160/-100,print),screen and (color>5)");
 		assertTrue(mql.hasErrors());
 		assertFalse(mql.isNotAllMedia());
 		assertEquals("screen and (color > 5)", mql.getMedia());
@@ -341,7 +384,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMediaRatioErrorNegComponent4() {
-		MediaQueryList mql = createMediaQueryList("(max-aspect-ratio:160/-100) and (min-width:300px,print),screen and (color>5)");
+		MediaQueryList mql = createMediaQueryList(
+				"(max-aspect-ratio:160/-100) and (min-width:300px,print),screen and (color>5)");
 		assertTrue(mql.hasErrors());
 		assertFalse(mql.isNotAllMedia());
 		assertEquals("screen and (color > 5)", mql.getMedia());
@@ -351,7 +395,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testGetMediaRatioErrorNegComponent5() {
-		MediaQueryList mql = createMediaQueryList("(device-aspect-ratio:-16/-9) and (min-width:300px),screen and (color>5)");
+		MediaQueryList mql = createMediaQueryList(
+				"(device-aspect-ratio:-16/-9) and (min-width:300px),screen and (color>5)");
 		assertTrue(mql.hasErrors());
 		assertFalse(mql.isNotAllMedia());
 		assertEquals("screen and (color > 5)", mql.getMedia());
@@ -380,13 +425,13 @@ public class MediaQueryTest {
 		assertEquals(BooleanCondition.Type.PREDICATE, cond1.getType());
 		assertEquals("all", ((MediaQueryPredicate) cond1).getName());
 		assertEquals(MediaQueryPredicate.MEDIA_TYPE,
-			((MediaQueryPredicate) cond1).getPredicateType());
+				((MediaQueryPredicate) cond1).getPredicateType());
 
 		BooleanCondition cond2 = andConds.get(1);
 		assertEquals(BooleanCondition.Type.PREDICATE, cond2.getType());
 		assertEquals("color", ((MediaQueryPredicate) cond2).getName());
 		assertEquals(MediaQueryPredicate.MEDIA_FEATURE,
-			((MediaQueryPredicate) cond2).getPredicateType());
+				((MediaQueryPredicate) cond2).getPredicateType());
 
 		MediaFeature feature = (MediaFeature) cond2;
 		assertEquals(MediaFeaturePredicate.FEATURE_LE_AND_LT, feature.getRangeType());
@@ -398,9 +443,11 @@ public class MediaQueryTest {
 		assertEquals(Type.NUMERIC, value2.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_NUMBER, value2.getUnitType());
 		assertEquals(5, value2.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5);
+	}
 
-		//
-		mql = createMediaQueryList("all and (2 < color <= 5)");
+	@Test
+	public void testMQLevel4() {
+		MediaQueryList mql = createMediaQueryList("all and (2 < color <= 5)");
 		assertNotNull(mql);
 		assertFalse(mql.hasErrors());
 		assertEquals("all and (2 < color <= 5)", mql.getMedia());
@@ -472,16 +519,21 @@ public class MediaQueryTest {
 		assertEquals("all and (4/3 <= aspect-ratio <= 16/9)", mql.getMedia());
 		assertEquals("all and (4/3<=aspect-ratio<=16/9)", mql.getMinifiedMedia());
 		//
-		mql = createMediaQueryList("all and (calc(2*2)/calc(9/3) < aspect-ratio < calc(4*4)/calc(3*3))");
+		mql = createMediaQueryList(
+				"all and (calc(2*2)/calc(9/3) < aspect-ratio < calc(4*4)/calc(3*3))");
 		assertNotNull(mql);
 		assertFalse(mql.hasErrors());
-		assertEquals("all and (calc(2*2)/calc(9/3) < aspect-ratio < calc(4*4)/calc(3*3))", mql.getMedia());
-		assertEquals("all and (calc(2*2)/calc(9/3)<aspect-ratio<calc(4*4)/calc(3*3))", mql.getMinifiedMedia());
+		assertEquals("all and (calc(2*2)/calc(9/3) < aspect-ratio < calc(4*4)/calc(3*3))",
+				mql.getMedia());
+		assertEquals("all and (calc(2*2)/calc(9/3)<aspect-ratio<calc(4*4)/calc(3*3))",
+				mql.getMinifiedMedia());
 		//
-		mql = createMediaQueryList("all and (calc(6 - 2)/calc(5 - 2) < aspect-ratio < calc(20 - 4)/calc(10 - 1))");
+		mql = createMediaQueryList(
+				"all and (calc(6 - 2)/calc(5 - 2) < aspect-ratio < calc(20 - 4)/calc(10 - 1))");
 		assertNotNull(mql);
 		assertFalse(mql.hasErrors());
-		assertEquals("all and (calc(6 - 2)/calc(5 - 2) < aspect-ratio < calc(20 - 4)/calc(10 - 1))", mql.getMedia());
+		assertEquals("all and (calc(6 - 2)/calc(5 - 2) < aspect-ratio < calc(20 - 4)/calc(10 - 1))",
+				mql.getMedia());
 		assertEquals("all and (calc(6 - 2)/calc(5 - 2)<aspect-ratio<calc(20 - 4)/calc(10 - 1))",
 				mql.getMinifiedMedia());
 		//
@@ -499,7 +551,7 @@ public class MediaQueryTest {
 	}
 
 	@Test
-	public void testGetMediaLevel4_2() {
+	public void testMQLevel4_2() {
 		MediaQueryList mql = createMediaQueryList("all and (color >= 2) and (resolution >= 96dpi)");
 		assertNotNull(mql);
 		assertFalse(mql.hasErrors());
@@ -644,9 +696,11 @@ public class MediaQueryTest {
 	}
 
 	@Test
-	public void testGetCssMediaInvalidCompat() throws DOMException, ParserConfigurationException, CSSMediaException {
+	public void testGetCssMediaInvalidCompat()
+			throws DOMException, ParserConfigurationException, CSSMediaException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
-		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
+		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null,
+				"html", null);
 		Element head = doc.createElement("head");
 		Element style = doc.createElement("style");
 		style.setAttribute("id", "styleId");
@@ -655,7 +709,8 @@ public class MediaQueryTest {
 		style.setAttribute("media", "screen");
 		doc.getDocumentElement().appendChild(head);
 		head.appendChild(style);
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(
+				EnumSet.of(Parser.Flag.IEVALUES));
 		CSSDocument cssdoc = factory.createCSSDocument(doc);
 		CSSElement cssStyle = cssdoc.getElementById("styleId");
 		MediaQueryList mql = factory.parseMediaQueryList("screen and (min-width:0\\0)", cssStyle);
@@ -678,9 +733,12 @@ public class MediaQueryTest {
 		//
 		mql2.setMediaText("screen,tv");
 		assertFalse(mql.equals(mql2));
-		//
-		mql = createMediaQueryList("all and (2 <= color < 5)");
-		mql2 = createMediaQueryList("all and (2 <= color < 5)");
+	}
+
+	@Test
+	public void testEquals2() {
+		MediaQueryList mql = createMediaQueryList("all and (2 <= color < 5)");
+		MediaQueryList mql2 = createMediaQueryList("all and (2 <= color < 5)");
 		assertTrue(mql.equals(mql2));
 		assertTrue(mql.hashCode() == mql2.hashCode());
 		//
@@ -710,7 +768,7 @@ public class MediaQueryTest {
 	}
 
 	@Test
-	public void testEquals2() {
+	public void testEquals3() {
 		MediaQueryList mql = createMediaQueryList("screen and (min-width:0)");
 		assertFalse(mql.equals(null));
 		MediaQueryList mql2 = createMediaQueryList("screen and (min-width:0)");
@@ -914,7 +972,8 @@ public class MediaQueryTest {
 
 	@Test
 	public void testMatchAndNot() {
-		MediaQueryList mql = createMediaQueryList("(color) and (min-width:500px) and (orientation:landscape)");
+		MediaQueryList mql = createMediaQueryList(
+				"(color) and (min-width:500px) and (orientation:landscape)");
 		MediaQueryList mql2 = createMediaQueryList("(color) and (not (max-width:500px))");
 		assertFalse(mql.equals(mql2));
 		assertFalse(mql.matches(mql2));
@@ -3306,31 +3365,38 @@ public class MediaQueryTest {
 		 * aspect-ratio + Calc + level 4 syntax
 		 */
 		//
-		mql = createMediaQueryList("screen and (calc(2*2)/calc(9/3) < aspect-ratio < calc(4*4)/calc(3*3))");
+		mql = createMediaQueryList(
+				"screen and (calc(2*2)/calc(9/3) < aspect-ratio < calc(4*4)/calc(3*3))");
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = createMediaQueryList("screen and (calc(2*2)/calc(9/3) < aspect-ratio <= calc(4*4)/calc(3*3))");
+		mql = createMediaQueryList(
+				"screen and (calc(2*2)/calc(9/3) < aspect-ratio <= calc(4*4)/calc(3*3))");
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = createMediaQueryList("screen and (calc(2*2)/calc(9/3) <= aspect-ratio <= calc(4*4)/calc(3*3))");
+		mql = createMediaQueryList(
+				"screen and (calc(2*2)/calc(9/3) <= aspect-ratio <= calc(4*4)/calc(3*3))");
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = createMediaQueryList("screen and (calc(8 - 1)/calc(2*3) <= aspect-ratio <= calc(2*2)/calc(9/3))");
+		mql = createMediaQueryList(
+				"screen and (calc(8 - 1)/calc(2*3) <= aspect-ratio <= calc(2*2)/calc(9/3))");
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = createMediaQueryList("screen and (calc(8 - 1)/calc(2*3) < aspect-ratio < calc(2*2)/calc(9/3))");
+		mql = createMediaQueryList(
+				"screen and (calc(8 - 1)/calc(2*3) < aspect-ratio < calc(2*2)/calc(9/3))");
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 		//
-		mql = createMediaQueryList("screen and (calc(2*2)/calc(9/3) >= aspect-ratio >= calc(8 - 1)/calc(2*3))");
+		mql = createMediaQueryList(
+				"screen and (calc(2*2)/calc(9/3) >= aspect-ratio >= calc(8 - 1)/calc(2*3))");
 		assertFalse(mql.hasErrors());
 		assertTrue(mql.matches("screen", canvas));
 		//
-		mql = createMediaQueryList("screen and (calc(2*2)/calc(9/3) > aspect-ratio >= calc(8 - 1)/calc(2*3))");
+		mql = createMediaQueryList(
+				"screen and (calc(2*2)/calc(9/3) > aspect-ratio >= calc(8 - 1)/calc(2*3))");
 		assertFalse(mql.hasErrors());
 		assertFalse(mql.matches("screen", canvas));
 	}

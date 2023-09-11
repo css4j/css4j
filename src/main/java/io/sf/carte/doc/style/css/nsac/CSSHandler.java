@@ -14,6 +14,7 @@
 package io.sf.carte.doc.style.css.nsac;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 
 /**
@@ -298,5 +299,15 @@ public interface CSSHandler {
 	 * @param important is this property important ?
 	 */
 	void lexicalProperty(String name, LexicalUnit value, boolean important);
+
+	/**
+	 * Obtain the style sheet.
+	 * 
+	 * @return a reference to the style sheet, or {@code null} if it couldn't be
+	 *         obtained.
+	 */
+	default CSSStyleSheet<?> getStyleSheet() {
+		return null;
+	}
 
 }

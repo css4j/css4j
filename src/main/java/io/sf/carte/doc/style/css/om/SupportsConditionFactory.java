@@ -12,14 +12,28 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
-import io.sf.carte.doc.style.css.BooleanConditionFactory;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.parser.DeclarationCondition;
 
 /**
  * Contains factory methods related to <code>{@literal @}supports</code>
  * conditions.
  */
-public class SupportsConditionFactory implements BooleanConditionFactory {
+public class SupportsConditionFactory
+		implements io.sf.carte.doc.style.css.SupportsConditionFactory {
+
+	private final AbstractCSSStyleSheet parentStyleSheet;
+
+	/**
+	 * Construct a new condition factory for rules belonging to the given style
+	 * sheet.
+	 * 
+	 * @param parentStyleSheet the style sheet.
+	 */
+	public SupportsConditionFactory(AbstractCSSStyleSheet parentStyleSheet) {
+		super();
+		this.parentStyleSheet = parentStyleSheet;
+	}
 
 	/**
 	 * Create a boolean condition of the <code>and</code> type.
@@ -32,8 +46,8 @@ public class SupportsConditionFactory implements BooleanConditionFactory {
 	}
 
 	/**
-	 * Create a boolean condition of the given type (<code>and</code>, <code>or</code>,
-	 * <code>not</code>).
+	 * Create a boolean condition of the given type (<code>and</code>,
+	 * <code>or</code>, <code>not</code>).
 	 * 
 	 * @return the condition.
 	 */
@@ -59,14 +73,29 @@ public class SupportsConditionFactory implements BooleanConditionFactory {
 	 * {@link DeclarationCondition#setValue(io.sf.carte.doc.style.css.CSSValue)
 	 * DeclarationCondition.setValue(CSSValue)}.
 	 * 
-	 * @param featureName
-	 *            the name of the declared feature.
+	 * @param featureName the name of the declared feature.
 	 * 
 	 * @return the condition.
 	 */
 	@Override
 	public BooleanCondition createPredicate(String featureName) {
 		return new DeclarationConditionImpl(featureName);
+	}
+
+	/**
+	 * Create a selector function.
+	 * 
+	 * @param selectors the selectors.
+	 * @return the condition.
+	 */
+	@Override
+	public BooleanCondition createSelectorFunction(SelectorList selectors) {
+		return new SelectorFunctionImpl(parentStyleSheet, selectors);
+	}
+
+	@Override
+	public BooleanCondition createFalseCondition(String condition) {
+		return new FalseConditionImpl(condition);
 	}
 
 }

@@ -347,6 +347,10 @@ class MediaQueryImpl extends AbstractMediaQuery {
 					negatedQuery = 1;
 				}
 				return matches(condition, otherCondition.getNestedCondition(), negatedQuery);
+			case SELECTOR_FUNCTION:
+				return 1;
+			case OTHER:
+				return 0;
 			}
 			break;
 		case NOT:
@@ -360,6 +364,10 @@ class MediaQueryImpl extends AbstractMediaQuery {
 				negatedQuery = 2;
 			}
 			return matches(condition.getNestedCondition(), otherCondition, negatedQuery);
+		case SELECTOR_FUNCTION:
+			return 1;
+		case OTHER:
+			break;
 		}
 		return 0;
 	}

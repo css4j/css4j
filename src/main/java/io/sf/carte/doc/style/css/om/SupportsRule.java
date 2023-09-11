@@ -21,6 +21,7 @@ import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSSupportsRule;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.DeclarationCondition;
@@ -74,9 +75,13 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 	private void parseConditionText(String conditionText) throws DOMException {
 		CSSParser parser = (CSSParser) createSACParser();
 		try {
-			condition = parser.parseSupportsCondition(conditionText, null);
+			condition = parser.parseSupportsCondition(conditionText, null, getParentStyleSheet());
+		} catch (CSSBudgetException e) {
+			throw new CSSResourceLimitException(
+					"Limit found while parsing condition " + conditionText, e);
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
+			DOMException ex = new DOMException(DOMException.SYNTAX_ERR,
+					"Error parsing condition: " + conditionText);
 			ex.initCause(e);
 			throw ex;
 		}
@@ -142,6 +147,10 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 					return true;
 				}
 			}
+		case SELECTOR_FUNCTION:
+			return true;
+		case OTHER:
+			break;
 		}
 		return false;
 	}

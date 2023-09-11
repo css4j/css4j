@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 
@@ -32,9 +32,15 @@ import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 
 public class CSSParserTest {
 
+	static CSSParser parser;
+
+	@BeforeAll
+	public static void setUpBeforeClass() {
+		parser = new CSSParser();
+	}
+
 	@Test
 	public void testParsePageSelectorList() {
-		CSSParser parser = new CSSParser();
 		PageSelectorList pagesel = parser.parsePageSelectorList("foo");
 		assertNotNull(pagesel);
 		assertEquals(1, pagesel.getLength());
@@ -159,24 +165,15 @@ public class CSSParserTest {
 
 	@Test
 	public void testParsePageSelectorListError() {
-		CSSParser parser = new CSSParser();
-		try {
-			parser.parsePageSelectorList(null);
-			fail("Must throw exception.");
-		} catch (NullPointerException e) {
-		}
-		//
-		try {
-			parser.parsePageSelectorList("::first");
-			fail("Must throw exception.");
-		} catch (DOMException e) {
-			assertEquals(DOMException.SYNTAX_ERR, e.code);
-		}
+		assertThrows(NullPointerException.class, () -> parser.parsePageSelectorList(null));
+
+		DOMException ex = assertThrows(DOMException.class,
+				() -> parser.parsePageSelectorList("::first"));
+		assertEquals(DOMException.SYNTAX_ERR, ex.code);
 	}
 
 	@Test
 	public void testParseMediaList() {
-		CSSParser parser = new CSSParser();
 		NSACMediaQueryList list = new NSACMediaQueryList();
 		list.parse(parser, "tv", null);
 		assertNotNull(list);
@@ -191,7 +188,6 @@ public class CSSParserTest {
 
 	@Test
 	public void testParseMediaQueryListAll() {
-		CSSParser parser = new CSSParser();
 		MediaQueryList mql = parser.parseMediaQueryList("all", null);
 		assertNotNull(mql);
 		assertTrue(mql.isAllMedia());
@@ -202,7 +198,6 @@ public class CSSParserTest {
 
 	@Test
 	public void testParseMediaQueryListEmpty() {
-		CSSParser parser = new CSSParser();
 		MediaQueryList mql = parser.parseMediaQueryList("", null);
 		assertNotNull(mql);
 		assertTrue(mql.isAllMedia());
@@ -213,14 +208,13 @@ public class CSSParserTest {
 
 	@Test
 	public void testParseMediaQueryListScreen() {
-		CSSParser parser = new CSSParser();
 		MediaQueryList mql = parser.parseMediaQueryList("screen", null);
 		assertNotNull(mql);
 		assertFalse(mql.isAllMedia());
 		assertFalse(mql.isNotAllMedia());
 		assertFalse(mql.hasErrors());
 		assertEquals("screen", mql.getMediaText());
-		//
+
 		MediaQueryList mqlAll = parser.parseMediaQueryList("all", null);
 		assertFalse(mql.matches(mqlAll));
 		assertTrue(mqlAll.matches(mql));
@@ -228,14 +222,13 @@ public class CSSParserTest {
 
 	@Test
 	public void testParseMediaQueryListError() {
-		CSSParser parser = new CSSParser();
 		MediaQueryList mql = parser.parseMediaQueryList("4/", null);
 		assertNotNull(mql);
 		assertFalse(mql.isAllMedia());
 		assertTrue(mql.isNotAllMedia());
 		assertTrue(mql.hasErrors());
 		assertEquals("not all", mql.getMediaText());
-		//
+
 		MediaQueryList mqlAll = parser.parseMediaQueryList("all", null);
 		assertFalse(mql.matches(mqlAll));
 		assertFalse(mqlAll.matches(mql));
@@ -243,7 +236,6 @@ public class CSSParserTest {
 
 	@Test
 	public void testParseSupportsCondition() {
-		CSSParser parser = new CSSParser();
 		BooleanCondition cond = parser.parseSupportsCondition("(display: flex)", null);
 		assertNotNull(cond);
 		assertEquals(BooleanCondition.Type.PREDICATE, cond.getType());
@@ -254,61 +246,64 @@ public class CSSParserTest {
 	}
 
 	@Test
-	public void testParseSupportsConditionError() {
-		CSSParser parser = new CSSParser();
-		try {
-			parser.parseSupportsCondition("", null);
-			fail("Must throw exception.");
-		} catch (CSSParseException e) {
-			assertEquals(1, e.getColumnNumber());
-		}
-		//
-		try {
-			parser.parseSupportsCondition("   ", null);
-			fail("Must throw exception.");
-		} catch (CSSParseException e) {
-			assertEquals(4, e.getColumnNumber());
-		}
-		try {
-			parser.parseSupportsCondition("()", null);
-			fail("Must throw exception.");
-		} catch (CSSParseException e) {
-			assertEquals(2, e.getColumnNumber());
-		}
-		//
-		//
-		try {
-			parser.parseSupportsCondition("(display: flex", null);
-			fail("Must throw exception.");
-		} catch (CSSParseException e) {
-			assertEquals(15, e.getColumnNumber());
-		}
-		//
-		try {
-			parser.parseSupportsCondition("display: flex", null);
-			fail("Must throw exception.");
-		} catch (CSSParseException e) {
-			assertEquals(14, e.getColumnNumber());
-		}
-		//
-		try {
-			parser.parseSupportsCondition("(display:)", null);
-			fail("Must throw exception.");
-		} catch (CSSParseException e) {
-			assertEquals(10, e.getColumnNumber());
-		}
-		//
-		try {
-			parser.parseSupportsCondition("(display:9pt0)", null);
-			fail("Must throw exception.");
-		} catch (CSSParseException e) {
-			assertEquals(14, e.getColumnNumber());
-		}
+	public void testParseSupportsConditionUnrecognizedValue() {
+		BooleanCondition cond = parser.parseSupportsCondition("(display:9pt0)", null);
+		assertNotNull(cond);
+		assertEquals(BooleanCondition.Type.OTHER, cond.getType());
+		assertEquals("(display:9pt0)", cond.toString());
+	}
+
+	@Test
+	public void testParseSupportsConditionErrorEmpty() {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parser.parseSupportsCondition("", null));
+		assertEquals(1, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParseSupportsConditionErrorWhitespace() {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parser.parseSupportsCondition("   ", null));
+		assertEquals(4, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParseSupportsConditionErrorEmptyParens() {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parser.parseSupportsCondition("()", null));
+		assertEquals(2, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParseSupportsConditionLeftMissingParenError() {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parser.parseSupportsCondition("display: flex)", null));
+		assertEquals(8, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParseSupportsConditionRightMissingParenError() {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parser.parseSupportsCondition("(display: flex", null));
+		assertEquals(15, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParseSupportsConditionNoParensError() {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parser.parseSupportsCondition("display: flex", null));
+		assertEquals(8, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParseSupportsConditionErrorNoValue() {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parser.parseSupportsCondition("(display:)", null));
+		assertEquals(10, ex.getColumnNumber());
 	}
 
 	@Test
 	public void testParseSupportsConditionErrorEmptyPredicate() {
-		CSSParser parser = new CSSParser();
 		CSSParseException ex = assertThrows(CSSParseException.class,
 				() -> parser.parseSupportsCondition("not()", null));
 		assertEquals(5, ex.getColumnNumber());

@@ -107,14 +107,6 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 	@Override
 	abstract public void appendText(StringBuilder buf);
 
-	/**
-	 * Append a minified serialization of the condition.
-	 * 
-	 * @param buf the buffer to append to.
-	 */
-	@Override
-	abstract public void appendMinifiedText(StringBuilder buf);
-
 	@Override
 	String currentToString() {
 		return getCssText();
@@ -372,11 +364,6 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 		}
 
 		@Override
-		public void appendMinifiedText(StringBuilder buf) {
-			buf.append(name);
-		}
-
-		@Override
 		public String getCssText() {
 			return name;
 		}
@@ -402,6 +389,69 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 			}
 			Predicate other = (Predicate) obj;
 			return Objects.equals(name, other.name);
+		}
+
+	}
+
+	/**
+	 * A condition that never matches.
+	 */
+	static class FalseCondition extends BooleanConditionUnit {
+
+		private static final long serialVersionUID = 1L;
+
+		private final String condition;
+
+		/**
+		 * Constructs a new false condition.
+		 * 
+		 * @param condition the condition text.
+		 */
+		public FalseCondition(LexicalType unitType, String condition) {
+			super(unitType);
+			this.condition = condition;
+		}
+
+		@Override
+		public Type getType() {
+			return Type.OTHER;
+		}
+
+		@Override
+		public void addCondition(BooleanCondition nestedCondition) {
+		}
+
+		@Override
+		public BooleanCondition replaceLast(BooleanCondition newCondition) {
+			return this;
+		}
+
+		@Override
+		public void appendText(StringBuilder buf) {
+			buf.append(condition);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + Objects.hash(condition);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!super.equals(obj)) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			FalseCondition other = (FalseCondition) obj;
+			return Objects.equals(condition, other.condition);
 		}
 
 	}

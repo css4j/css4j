@@ -67,6 +67,7 @@ import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.Selector.SelectorType;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
+import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.SupportsConditionFactory;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.AttributeConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorSelectorImpl;
@@ -175,7 +176,12 @@ public class CSSParser implements Parser, Cloneable {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		SheetTokenHandler handler = new SheetTokenHandler(null, true);
+
+		NamespaceMap nsMap = null;
+		if (handler instanceof NamespaceMap) {
+			nsMap = (NamespaceMap) handler;
+		}
+		SheetTokenHandler handler = new SheetTokenHandler(nsMap, true);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
 		this.handler.parseStart(handler);
@@ -242,7 +248,11 @@ public class CSSParser implements Parser, Cloneable {
 
 		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8);
 
-		SheetTokenHandler handler = new SheetTokenHandler(null, false);
+		NamespaceMap nsMap = null;
+		if (handler instanceof NamespaceMap) {
+			nsMap = (NamespaceMap) handler;
+		}
+		SheetTokenHandler handler = new SheetTokenHandler(nsMap, false);
 		int[] allowInWords = { 45, 95 }; // -_
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
@@ -312,7 +322,11 @@ public class CSSParser implements Parser, Cloneable {
 			throw new IllegalStateException("No document handler was set.");
 		}
 		final int[] allowInWords = { 45, 95 }; // -_
-		SheetTokenHandler handler = new SheetTokenHandler(null, true);
+		NamespaceMap nsMap = null;
+		if (handler instanceof NamespaceMap) {
+			nsMap = (NamespaceMap) handler;
+		}
+		SheetTokenHandler handler = new SheetTokenHandler(nsMap, true);
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
 		this.handler.parseStart(handler);
@@ -570,23 +584,60 @@ public class CSSParser implements Parser, Cloneable {
 	/**
 	 * Parse the condition text of a <code>{@literal @}supports</code> rule.
 	 * 
-	 * @param conditionText
-	 *            the condition text.
-	 * @param rule
-	 *            the rule that would process the error. if <code>null</code>, a problem while
-	 *            parsing shall result in an exception. Note that
-	 *            <code>NOT_SUPPORTED_ERR</code> exceptions are always thrown instead of
-	 *            being processed by the rule.
-	 * @return the <code>{@literal @}supports</code> condition, or <code>null</code> if a rule
-	 *         was specified to handle the errors, and an error was produced.
-	 * @throws CSSParseException
-	 *             if there is a syntax problem and there is no error handler.
-	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was reached.
+	 * @param conditionText the condition text.
+	 * @param rule          the rule that would process the error. If
+	 *                      <code>null</code>, a problem while parsing shall result
+	 *                      in an exception. Note that
+	 *                      <code>NOT_SUPPORTED_ERR</code> exceptions are always
+	 *                      thrown instead of being processed by the rule. Please
+	 *                      use
+	 *                      {@link #parseSupportsCondition(String, CSSRule, AbstractCSSStyleSheet)}
+	 *                      with a style sheet argument if you do not want to supply
+	 *                      a rule, otherwise namespace-related errors may be
+	 *                      produced.
+	 * @return the <code>{@literal @}supports</code> condition, or <code>null</code>
+	 *         if a rule was specified to handle the errors, and an error was
+	 *         produced.
+	 * @throws CSSParseException  if there is a syntax problem and there is no error
+	 *                            handler.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was
+	 *                            reached.
+	 * @see #parseSupportsCondition(String, CSSRule, AbstractCSSStyleSheet)
 	 */
 	public BooleanCondition parseSupportsCondition(String conditionText, CSSRule rule)
 			throws CSSParseException, CSSBudgetException {
+		AbstractCSSStyleSheet parentStyleSheet = null;
+		if (rule != null) {
+			parentStyleSheet = (AbstractCSSStyleSheet) rule.getParentStyleSheet();
+		}
+		return parseSupportsCondition(conditionText, rule, parentStyleSheet);
+	}
+
+	/**
+	 * Parse the condition text of a <code>{@literal @}supports</code> rule.
+	 * 
+	 * @param conditionText    the condition text.
+	 * @param rule             the rule that would process the error. if
+	 *                         <code>null</code>, a problem while parsing shall
+	 *                         result in an exception. Note that
+	 *                         <code>NOT_SUPPORTED_ERR</code> exceptions are always
+	 *                         thrown instead of being processed by the rule.
+	 * @param parentStyleSheet the parent style sheet. It is necessary to provide
+	 *                         information related to namespaces, as well as
+	 *                         customizing the serialization.
+	 * @return the <code>{@literal @}supports</code> condition, or <code>null</code>
+	 *         if a rule was specified to handle the errors, and an error was
+	 *         produced.
+	 * @throws CSSParseException  if there is a syntax problem and there is no error
+	 *                            handler.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was
+	 *                            reached.
+	 */
+	public BooleanCondition parseSupportsCondition(String conditionText, CSSRule rule,
+			AbstractCSSStyleSheet parentStyleSheet)
+			throws CSSParseException, CSSBudgetException {
 		int[] allowInWords = { 45, 46 }; // -.
-		SupportsTokenHandler handler = new SupportsTokenHandler(rule);
+		SupportsTokenHandler handler = new SupportsTokenHandler(rule, parentStyleSheet);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		try {
 			tp.parse(conditionText, "/*", "*/");
@@ -615,7 +666,7 @@ public class CSSParser implements Parser, Cloneable {
 	public void parseMediaQueryList(String media, MediaQueryFactory queryFactory, MediaQueryHandler mqhandler)
 			throws CSSBudgetException {
 		int[] allowInWords = { 45, 46 }; // -.
-		ConditionTokenHandler handler = new MediaQueryTokenHandler(queryFactory, mqhandler);
+		MediaQueryTokenHandler handler = new MediaQueryTokenHandler(queryFactory, mqhandler);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		mqhandler.startQuery();
 		try {
@@ -644,7 +695,7 @@ public class CSSParser implements Parser, Cloneable {
 		int[] allowInWords = { 45, 46 }; // -.
 		MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
 		MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(owner);
-		ConditionTokenHandler handler = new MediaQueryTokenHandler(mediaQueryFactory, mqhandler);
+		MediaQueryTokenHandler handler = new MediaQueryTokenHandler(mediaQueryFactory, mqhandler);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		mqhandler.startQuery();
 		try {
@@ -668,7 +719,7 @@ public class CSSParser implements Parser, Cloneable {
 		int[] allowInWords = { 45, 46 }; // -.
 		MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
 		MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(null);
-		ConditionTokenHandler handler = new MediaQueryTokenHandler(mediaQueryFactory, mqhandler);
+		MediaQueryTokenHandler handler = new MediaQueryTokenHandler(mediaQueryFactory, mqhandler);
 		TokenProducer tp = new TokenProducer(handler, allowInWords);
 		mqhandler.startQuery();
 		try {
@@ -719,11 +770,15 @@ public class CSSParser implements Parser, Cloneable {
 			// Not called
 		}
 
+		boolean isAllowedTopLevel() {
+			return false;
+		}
+
 	}
 
-	private class ConditionTokenHandler extends CSSTokenHandler {
+	private class ConditionTokenHandler<F extends BooleanConditionFactory> extends CSSTokenHandler {
 
-		final BooleanConditionFactory conditionFactory;
+		final F conditionFactory;
 
 		/**
 		 * The condition that we are currently working at in this handler.
@@ -740,6 +795,8 @@ public class CSSParser implements Parser, Cloneable {
 		 */
 		private final short[] opParenDepth = new short[32]; // Limited to 32 nested expressions
 
+		private boolean topLevel = true;
+
 		private DelegateHandler predicateHandler;
 
 		/**
@@ -747,7 +804,7 @@ public class CSSParser implements Parser, Cloneable {
 		 */
 		boolean readingPredicate = false;
 
-		ConditionTokenHandler(BooleanConditionFactory conditionFactory) {
+		ConditionTokenHandler(F conditionFactory) {
 			super();
 			this.conditionFactory = conditionFactory;
 			buffer = new StringBuilder(64);
@@ -770,7 +827,7 @@ public class CSSParser implements Parser, Cloneable {
 					} else {
 						unexpectedTokenError(index, word);
 					}
-				} else if (getCurrentParenDepth() > 1) {
+				} else if (getCurrentParenDepth() > 1 || predicateHandler.isAllowedTopLevel()) {
 					predicateHandler.word(index, word);
 				} else {
 					processWord(index, word.toString());
@@ -811,7 +868,8 @@ public class CSSParser implements Parser, Cloneable {
 		void processOperation(int index, BooleanCondition.Type opType, String opname) {
 			BooleanCondition operation = currentCond.getParentCondition();
 			BooleanCondition.Type curType = currentCond.getType();
-			if (curType == BooleanCondition.Type.PREDICATE) {
+			if (curType == BooleanCondition.Type.PREDICATE
+					|| curType == BooleanCondition.Type.SELECTOR_FUNCTION) {
 				if (operation == null) {
 					BooleanCondition newCond = createOperation(index, opType);
 					newCond.addCondition(currentCond);
@@ -820,7 +878,7 @@ public class CSSParser implements Parser, Cloneable {
 					currentCond = operation;
 				} else {
 					BooleanCondition newCond = createOperation(index, opType);
-					if (opParenDepth[opDepthIndex] != 0) {
+					if (getCurrentParenDepth() != 0) {
 						BooleanCondition oldCond = operation.replaceLast(newCond);
 						newCond.addCondition(oldCond);
 					} else {
@@ -838,7 +896,13 @@ public class CSSParser implements Parser, Cloneable {
 					unexpectedTokenError(index, opname);
 				}
 			} else if (curType != opType) {
-				unexpectedTokenError(index, opname);
+				if (getCurrentParenDepth() != 0 || !topLevel) {
+					unexpectedTokenError(index, opname);
+				} else {
+					BooleanCondition newCond = createOperation(index, opType);
+					newCond.addCondition(currentCond);
+					setNestedCondition(newCond);
+				}
 			}
 		}
 
@@ -895,10 +959,12 @@ public class CSSParser implements Parser, Cloneable {
 			} else if (buffer.length() != 0) {
 				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
 			}
+			topLevel = true;
 			if (opParenDepth[opDepthIndex] == 0 && currentCond != null && opDepthIndex != 0) {
 				opDepthIndex--;
 				if (currentCond.getParentCondition() != null) {
 					currentCond = currentCond.getParentCondition();
+					topLevel = false;
 				}
 			}
 			prevcp = TokenProducer.CHAR_RIGHT_PAREN;
@@ -1033,7 +1099,7 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	private class SupportsTokenHandler extends ConditionTokenHandler {
+	private class SupportsTokenHandler extends ConditionTokenHandler<SupportsConditionFactory> {
 
 		/*
 		 * Error-related fields.
@@ -1042,8 +1108,8 @@ public class CSSParser implements Parser, Cloneable {
 		private CSSParseException errorException = null;
 		private final CSSRule rule;
 
-		SupportsTokenHandler(CSSRule rule) {
-			super(new SupportsConditionFactory());
+		SupportsTokenHandler(CSSRule rule, AbstractCSSStyleSheet parentStyleSheet) {
+			super(new SupportsConditionFactory(parentStyleSheet));
 			this.rule = rule;
 			setPredicateHandler(new SupportsDelegateHandler());
 		}
@@ -1107,18 +1173,29 @@ public class CSSParser implements Parser, Cloneable {
 			private boolean readingValue = false;
 
 			/**
-			 * Number of unclosed left parentheses while reading a value.
+			 * Are we in a function token?
 			 */
-			private short valueParendepth = 0;
+			private boolean functionToken = false;
+
+			/**
+			 * Number of unclosed left parentheses when starting to read a predicate value
+			 * or function.
+			 */
+			private short valueParendepth;
 
 			SupportsDelegateHandler() {
 				super();
 			}
 
 			@Override
+			boolean isAllowedTopLevel() {
+				return functionToken;
+			}
+
+			@Override
 			public void word(int index, CharSequence word) {
 				if (buffer.length() != 0) {
-					if (!readingValue) {
+					if (!readingValue && !functionToken) {
 						unexpectedTokenError(index, word);
 						return;
 					} else if (isPrevCpWhitespace()) {
@@ -1130,18 +1207,30 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			public void leftParenthesis(int index) {
-				if (readingValue) {
+				if (readingValue || functionToken) {
 					buffer.append('(');
 				} else if (buffer.length() != 0) {
-					unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
-				} else {
-					prevcp = TokenProducer.CHAR_LEFT_PAREN;
+					if (!isPrevCpWhitespace()) {
+						// Function token
+						String fname = buffer.toString();
+						buffer.setLength(0);
+						if (!"selector".equalsIgnoreCase(fname)) {
+							unexpectedTokenError(index, "Unknown function: " + fname);
+							return;
+						}
+						functionToken = true;
+						valueParendepth = getCurrentParenDepth();
+						valueParendepth--;
+					} else {
+						unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+					}
 				}
+				prevcp = TokenProducer.CHAR_LEFT_PAREN;
 			}
 
 			@Override
 			public void leftSquareBracket(int index) {
-				if (readingValue) {
+				if (readingValue || functionToken) {
 					buffer.append('[');
 				} else {
 					unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
@@ -1158,18 +1247,66 @@ public class CSSParser implements Parser, Cloneable {
 				if (readingValue) {
 					if (valueParendepth == getCurrentParenDepth()) {
 						String svalue = buffer.toString();
-						ValueFactory factory = new ValueFactory();
-						try {
-							StyleValue value = factory.parseProperty(svalue);
-							((DeclarationCondition) currentCond).setValue(value);
-						} catch (DOMException e) {
-							handleError(index, ParseHelper.ERR_WRONG_VALUE,
-								"Bad @supports condition value.", e);
+						if (!svalue.isEmpty()) {
+							ValueFactory factory = new ValueFactory();
+							try {
+								StyleValue value = factory.parseProperty(svalue);
+								((DeclarationCondition) currentCond).setValue(value);
+							} catch (DOMException e) {
+								handleWarning(index, ParseHelper.WARN_VALUE,
+										"Bad @supports condition value.", e);
+								// Replace the failed condition, maybe it's valid CSS
+								String name = ((DeclarationCondition) currentCond).getName();
+								StringBuilder buf = new StringBuilder(32);
+								buf.append('(').append(name).append(':').append(svalue).append(')');
+								BooleanCondition newCond = conditionFactory
+										.createFalseCondition(buf.toString());
+								newCond.setParentCondition(currentCond.getParentCondition());
+								currentCond = newCond;
+							}
+							buffer.setLength(0);
+						} else {
+							unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
 						}
-						buffer.setLength(0);
 						readingValue = false;
 						readingPredicate = false;
 						escapedTokenIndex = -1;
+					} else {
+						buffer.append(')');
+					}
+				} else if (functionToken) {
+					if (valueParendepth == getCurrentParenDepth()) {
+						functionToken = false;
+						readingPredicate = false;
+						escapedTokenIndex = -1;
+						prevcp = TokenProducer.CHAR_RIGHT_PAREN;
+
+						BooleanCondition newCond;
+						SelectorList list;
+						String s = buffer.toString();
+						buffer.setLength(0);
+						try {
+							list = parseSelectors(s);
+							if (!parseError) {
+								newCond = conditionFactory.createSelectorFunction(list);
+							} else {
+								// The library does not support such selector
+								newCond = conditionFactory.createFalseCondition("selector(" + s + ')');
+								parseError = false;
+							}
+						} catch (CSSBudgetException e) {
+							handleError(index, ParseHelper.ERR_UNSUPPORTED,
+									"Hit a limit while parsing @supports condition selector.", e);
+							newCond = conditionFactory.createFalseCondition("selector(" + s + ')');
+						} catch (CSSException e) {
+							handleWarning(index, ParseHelper.ERR_UNSUPPORTED,
+									"Unkown selector in @supports condition.", e);
+							newCond = conditionFactory.createFalseCondition("selector(" + s + ')');
+						}
+						if (currentCond != null) {
+							currentCond.addCondition(newCond);
+						}
+						currentCond = newCond;
 					} else {
 						buffer.append(')');
 					}
@@ -1180,7 +1317,7 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			public void rightSquareBracket(int index) {
-				if (readingValue) {
+				if (readingValue || functionToken) {
 					buffer.append(']');
 				} else {
 					unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
@@ -1201,8 +1338,16 @@ public class CSSParser implements Parser, Cloneable {
 				// ! 33
 				// : 58
 				// ; 59
-				if (!readingValue) {
-					if (codepoint == 58) {
+				if (readingValue) {
+					if (codepoint == 59) {
+						unexpectedCharError(index, codepoint);
+					} else {
+						bufferAppend(codepoint);
+					}
+				} else if (functionToken) {
+					bufferAppend(codepoint);
+				} else {
+					if (codepoint == 58 && getCurrentParenDepth() > 0) {
 						BooleanCondition newCond = conditionFactory.createPredicate(buffer.toString());
 						if (currentCond != null) {
 							currentCond.addCondition(newCond);
@@ -1216,19 +1361,13 @@ public class CSSParser implements Parser, Cloneable {
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
-				} else {
-					if (codepoint == 59) {
-						unexpectedCharError(index, codepoint);
-					} else {
-						bufferAppend(codepoint);
-					}
 				}
 				prevcp = codepoint;
 			}
 
 			@Override
 			public void quoted(int index, CharSequence quoted, int quoteCp) {
-				if (readingValue) {
+				if (readingValue || functionToken) {
 					if (buffer.length() != 0) {
 						buffer.append(' ');
 					}
@@ -1271,7 +1410,7 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	private class MediaQueryTokenHandler extends ConditionTokenHandler {
+	private class MediaQueryTokenHandler extends ConditionTokenHandler<MediaQueryFactory> {
 
 		private final HashSet<String> mediaTypes = new HashSet<String>(10);
 
@@ -1352,12 +1491,17 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		void handleWarning(int index, byte errCode, String message) {
+		void handleWarning(int index, byte errCode, String message, Throwable cause) {
 			if (!parseError) {
 				MediaQueryDelegateHandler mqhelper = getPredicateHandler();
 				CSSParseException ex = createException(index, errCode, message);
+				if (cause != null) {
+					ex.initCause(cause);
+				}
 				mqhelper.handler.compatQuery(ex);
-				super.handleWarning(index, errCode, message);
+				if (errorHandler != null) {
+					errorHandler.warning(ex);
+				}
 			}
 		}
 
@@ -1507,26 +1651,27 @@ public class CSSParser implements Parser, Cloneable {
 			 *         <code>NOT</code> condition.
 			 */
 			private boolean isEmptyNotCondition() {
-				return currentCond.getType() == Type.NOT
-						&& currentCond.getParentCondition() == null && currentCond.getNestedCondition() == null;
+				return currentCond.getType() == Type.NOT && currentCond.getParentCondition() == null
+						&& currentCond.getNestedCondition() == null;
 			}
 
 			@Override
 			public void leftParenthesis(int index) {
-				if (!isPrevCpWhitespace()) {
-					// Function token
-					functionToken = true;
-					buffer.append('(');
-				} else if (functionToken) {
+				if (functionToken) {
 					buffer.append('(');
 				} else if (buffer.length() != 0) {
-					unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+					if (!isPrevCpWhitespace()) {
+						// Function token
+						functionToken = true;
+						buffer.append('(');
+					} else {
+						unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+					}
 				} else {
 					if (stage == 2 || stage == 0) {
 						stage = 3;
 					}
 				}
-				parendepth++;
 				prevcp = TokenProducer.CHAR_LEFT_PAREN;
 			}
 
@@ -1544,7 +1689,6 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			public void rightParenthesis(int index) {
-				decrParenDepth(index);
 				if (functionToken) {
 					buffer.append(')');
 					functionToken = false;
@@ -1575,45 +1719,18 @@ public class CSSParser implements Parser, Cloneable {
 							reverseRangetype();
 						}
 						LexicalUnit value1 = parseMediaFeature(index, firstValue);
-						if (value1 == null) {
-							handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
-						} else {
-							handlePredicate(index, featureName, rangeType, value1);
-							if (value1.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
-								handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
-										"Probable hack in media feature.");
-							}
-						}
+						handlePredicate(index, featureName, rangeType, value1, firstValue);
 					} else if (buffer.length() != 0) {
 						if (stage == 4) {
-							LexicalUnit value = parseMediaFeature(index, buffer.toString());
-							if (value == null) {
-								handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
-							} else {
-								handlePredicate(index, featureName, (byte) 0, value);
-								if (value.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
-									handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
-											"Probable hack in media feature.");
-								}
-							}
+							String valueSer = buffer.toString();
+							LexicalUnit value = parseMediaFeature(index, valueSer);
+							handlePredicate(index, featureName, (byte) 0, value, valueSer);
 						} else if (stage == 7) {
 							LexicalUnit value1 = parseMediaFeature(index, firstValue);
 							LexicalUnit value2 = parseMediaFeature(index, buffer.toString());
-							if (value1 == null) {
-								handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
-							} else if (value2 == null) {
-								handleError(index, ParseHelper.ERR_WRONG_VALUE, buffer.toString());
-							} else {
-								handlePredicate(index, featureName, rangeType, value1, value2);
-								if (value1.getLexicalUnitType() == LexicalType.COMPAT_IDENT
-										|| value2
-												.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
-									handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
-											"Probable hack in media feature.");
-								}
-							}
+							handlePredicate(index, featureName, rangeType, value1, value2);
 						} else if (stage == 3 && !spaceFound) {
-							handlePredicate(index, buffer.toString(), (byte) 0, null);
+							handleMediaPredicate(index, buffer.toString());
 						} else {
 							handleError(index, ParseHelper.ERR_EXPR_SYNTAX, buffer.toString());
 						}
@@ -1645,30 +1762,23 @@ public class CSSParser implements Parser, Cloneable {
 				LexicalUnit nlu = lunit.getNextLexicalUnit();
 				if (nlu != null && (nlu.getLexicalUnitType() != LexicalType.OPERATOR_SLASH
 						|| nlu.getNextLexicalUnit() == null)) {
-					handleError(index, ParseHelper.ERR_EXPR_SYNTAX, "Invalid feature value: " + feature);
+					handleError(index, ParseHelper.ERR_EXPR_SYNTAX,
+							"Invalid feature value: " + feature);
 					lunit = null;
 				}
 				return lunit;
 			}
 
-			private void handlePredicate(int index, String featureName, byte rangeType, LexicalUnit value) {
+			private void handleMediaPredicate(int index, String featureName) {
 				String lcFeatureName;
-				if (value == null && currentCond == null && mediaType == null
+				if (currentCond == null && mediaType == null
 						&& isValidMediaType(lcFeatureName = featureName.toLowerCase(Locale.ROOT))) {
 					mediaType = lcFeatureName;
 					handler.mediaType(lcFeatureName);
 				} else {
 					MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory
 							.createPredicate(featureName);
-					predicate.setRangeType(rangeType);
-					try {
-						predicate.setValue(value);
-					} catch (DOMException e) {
-						handleError(index, ParseHelper.ERR_WRONG_VALUE,
-							e.getMessage() + ": " + value.toString(), e);
-						clearPredicate();
-						return;
-					}
+					predicate.setRangeType((byte) 0);
 					if (currentCond == null) {
 						currentCond = predicate;
 					} else {
@@ -1678,22 +1788,76 @@ public class CSSParser implements Parser, Cloneable {
 				clearPredicate();
 			}
 
-			private void handlePredicate(int index, String featureName, byte rangeType, LexicalUnit value1,
-					LexicalUnit value2) {
-				MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory.createPredicate(featureName);
-				predicate.setRangeType(rangeType);
-				try {
-					predicate.setValueRange(value1, value2);
-				} catch (DOMException e) {
-					handleError(index, ParseHelper.ERR_WRONG_VALUE,
-						"Invalid value(s) in range media feature.", e);
+			private void handlePredicate(int index, String featureName, byte rangeType,
+					LexicalUnit value, String valueSerialization) {
+				BooleanCondition condition;
+				if (value == null) {
+					handleError(index, ParseHelper.ERR_WRONG_VALUE, valueSerialization);
 					clearPredicate();
 					return;
+				} else {
+					if (value.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
+						handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
+								"Probable hack in media feature.");
+					}
+
+					MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory
+							.createPredicate(featureName);
+					predicate.setRangeType(rangeType);
+					try {
+						predicate.setValue(value);
+					} catch (DOMException e) {
+						handleError(index, ParseHelper.ERR_WRONG_VALUE,
+								e.getMessage() + ": " + valueSerialization, e);
+						clearPredicate();
+						return;
+					}
+					condition = predicate;
 				}
 				if (currentCond == null) {
-					currentCond = predicate;
+					currentCond = condition;
 				} else {
-					currentCond.addCondition(predicate);
+					currentCond.addCondition(condition);
+				}
+				clearPredicate();
+			}
+
+			private void handlePredicate(int index, String featureName, byte rangeType,
+					LexicalUnit value1, LexicalUnit value2) {
+				BooleanCondition condition;
+				if (value1 == null) {
+					handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
+					clearPredicate();
+					return;
+				} else if (value2 == null) {
+					String s = buffer.toString();
+					handleError(index, ParseHelper.ERR_WRONG_VALUE, s);
+					clearPredicate();
+					return;
+				} else {
+					if (value1.getLexicalUnitType() == LexicalType.COMPAT_IDENT
+							|| value2.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
+						handleWarning(index, ParseHelper.WARN_IDENT_COMPAT,
+								"Probable hack in media feature.");
+					}
+
+					MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory
+							.createPredicate(featureName);
+					predicate.setRangeType(rangeType);
+					try {
+						predicate.setValueRange(value1, value2);
+					} catch (DOMException e) {
+						handleError(index, ParseHelper.ERR_WRONG_VALUE,
+								"Invalid value(s) in range media feature.", e);
+						clearPredicate();
+						return;
+					}
+					condition = predicate;
+				}
+				if (currentCond == null) {
+					currentCond = condition;
+				} else {
+					currentCond.addCondition(condition);
 				}
 				clearPredicate();
 			}
@@ -1745,7 +1909,7 @@ public class CSSParser implements Parser, Cloneable {
 						}
 					} else if (codepoint == 44) { // ,
 						if (!parseError) {
-							if (parendepth != 0) {
+							if (getCurrentParenDepth() != 0) {
 								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Unmatched parenthesis");
 								return;
 							} else if (stage == 0) {
@@ -1753,7 +1917,7 @@ public class CSSParser implements Parser, Cloneable {
 							}
 							processBuffer(index);
 							endQuery(index);
-						} else if (parendepth == 0) {
+						} else if (getCurrentParenDepth() == 0) {
 							handler.endQuery();
 							clearQuery();
 						}
@@ -4310,7 +4474,7 @@ public class CSSParser implements Parser, Cloneable {
 		private class MySupportsTokenHandler extends SupportsTokenHandler {
 
 			MySupportsTokenHandler() {
-				super(null);
+				super(null, (AbstractCSSStyleSheet) handler.getStyleSheet());
 			}
 
 			@Override
@@ -4401,7 +4565,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		private class MySelectorTokenHandler extends SelectorTokenHandler {
 
-			MySelectorTokenHandler( NamespaceMap nsMap) {
+			MySelectorTokenHandler(NamespaceMap nsMap) {
 				super(nsMap);
 			}
 
@@ -9332,9 +9496,19 @@ public class CSSParser implements Parser, Cloneable {
 			handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected: " + token);
 		}
 
-		void handleWarning(int index, byte errCode, String message) {
+		final void handleWarning(int index, byte errCode, String message) {
+			handleWarning(index, errCode, message, null);
+		}
+
+		void handleWarning(int index, byte errCode, String message, Throwable cause) {
 			if (!parseError && errorHandler != null) {
-				errorHandler.warning(createException(index, errCode, message));
+				CSSParseException ex = createException(index, errCode, message);
+				if (cause != null) {
+					ex.initCause(cause);
+				}
+				if (errorHandler != null) {
+					errorHandler.warning(ex);
+				}
 			}
 		}
 

@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.StringReader;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMImplementation;
@@ -37,11 +38,18 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 public class WrapperSelectorMatcherTest {
 
+	static TestCSSStyleSheetFactory factory;
+
 	private Parser cssParser;
 
 	private StylableDocumentWrapper cssdoc;
 
 	private Document plaindoc;
+
+	@BeforeAll
+	static void setUpBeforeClass() throws Exception {
+		factory = new TestCSSStyleSheetFactory();
+	}
 
 	@BeforeEach
 	public void setUp() throws Exception {
@@ -714,7 +722,6 @@ public class WrapperSelectorMatcherTest {
 	}
 
 	public BaseCSSStyleSheet parseStyle(String style) throws CSSException, IOException {
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		StringReader re = new StringReader(style);
 		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_IGNORE));
@@ -726,11 +733,13 @@ public class WrapperSelectorMatcherTest {
 		if (selist == null) {
 			return null;
 		}
+
+		SelectorSerializer serializer = new SelectorSerializer(rule.getParentStyleSheet());
 		StringBuilder buf = new StringBuilder();
-		buf.append(rule.selectorText(selist.item(0), false));
+		buf.append(serializer.selectorText(selist.item(0), false));
 		int sz = selist.getLength();
 		for (int i = 1; i < sz; i++) {
-			buf.append(' ').append(rule.selectorText(selist.item(i), false));
+			buf.append(' ').append(serializer.selectorText(selist.item(i), false));
 		}
 		return buf.toString();
 	}

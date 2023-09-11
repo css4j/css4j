@@ -648,6 +648,11 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	}
 
 	@Override
+	public BaseCSSStyleSheet getStyleSheet() {
+		return parentSheet;
+	}
+
+	@Override
 	public void warning(CSSParseException exception) throws CSSParseException {
 		if (currentRule instanceof BaseCSSDeclarationRule
 			&& ((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null) {

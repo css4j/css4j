@@ -18,10 +18,15 @@ import org.w3c.dom.DOMException;
  */
 class CSSResourceLimitException extends DOMException {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	CSSResourceLimitException(String message) {
 		super(DOMException.INVALID_ACCESS_ERR, message);
+	}
+
+	CSSResourceLimitException(String message, Throwable cause) {
+		super(DOMException.INVALID_ACCESS_ERR, message);
+		initCause(cause);
 	}
 
 }

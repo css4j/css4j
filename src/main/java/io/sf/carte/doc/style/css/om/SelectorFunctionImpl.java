@@ -1,0 +1,70 @@
+/*
+
+ Copyright (c) 2005-2023, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://css4j.github.io/LICENSE.txt
+
+ */
+
+package io.sf.carte.doc.style.css.om;
+
+import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+
+/**
+ * A selector function condition.
+ * <p>
+ * See CSS Conditional Rules Module Level 4 for details.
+ * </p>
+ * <p>
+ * This implementation supports a list of selectors as an argument to the
+ * function, something that the specification currently does not have but is a
+ * predictable future extension.
+ * </p>
+ */
+class SelectorFunctionImpl extends BooleanConditionImpl implements BooleanCondition {
+
+	private static final long serialVersionUID = 1L;
+
+	private final AbstractCSSStyleSheet parentSheet;
+
+	private final SelectorList selectors;
+
+	/**
+	 * Construct a new selector function condition.
+	 * 
+	 * @param parentSheet the parent style sheet.
+	 * @param selectors   the selectors.
+	 */
+	public SelectorFunctionImpl(AbstractCSSStyleSheet parentSheet, SelectorList selectors) {
+		super();
+		this.parentSheet = parentSheet;
+		this.selectors = selectors;
+	}
+
+	@Override
+	public Type getType() {
+		return Type.SELECTOR_FUNCTION;
+	}
+
+	@Override
+	public void addCondition(BooleanCondition subCondition) {
+	}
+
+	@Override
+	public BooleanCondition replaceLast(BooleanCondition newCondition) {
+		return this;
+	}
+
+	@Override
+	public void appendText(StringBuilder buf) {
+		SelectorSerializer serializer = new SelectorSerializer(parentSheet);
+		buf.append("selector(");
+		serializer.selectorListText(buf, selectors, false, false);
+		buf.append(')');
+	}
+
+}

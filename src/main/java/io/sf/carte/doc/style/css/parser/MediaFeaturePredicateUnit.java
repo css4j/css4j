@@ -25,7 +25,7 @@ class MediaFeaturePredicateUnit extends BooleanConditionUnit.Predicate
 
 	private static final long serialVersionUID = 2L;
 
-	private LexicalUnit value1;
+	private LexicalUnit value1 = null;
 	private LexicalUnit value2 = null;
 	private byte rangeType;
 
