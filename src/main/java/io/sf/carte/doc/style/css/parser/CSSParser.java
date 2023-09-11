@@ -278,8 +278,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 			return !"text/css".equalsIgnoreCase(conType);
 		}
-		return !"file".equals(url.getProtocol())
-				&& !url.getPath().toLowerCase(Locale.ROOT).endsWith(".css");
+		return false;
 	}
 
 	private boolean isRedirect(URLConnection ucon) {
