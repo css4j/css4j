@@ -5351,7 +5351,17 @@ public class ShorthandSetterTest {
 		assertEquals("nowrap", emptyStyleDecl.getPropertyValue("flex-wrap"));
 		assertEquals("flex-flow: column; ", emptyStyleDecl.getCssText());
 		assertEquals("flex-flow:column;", emptyStyleDecl.getMinifiedCssText());
-		//
+	}
+
+	@Test
+	public void testFlexFlowBad() {
+		emptyStyleDecl.setCssText("flex-flow:5%");
+		assertEquals("", emptyStyleDecl.getPropertyValue("flex-direction"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("flex-wrap"));
+	}
+
+	@Test
+	public void testFlexFlowKeyword() {
 		emptyStyleDecl.setCssText("flex-flow: unset; ");
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("flex-direction"));
 		assertEquals("unset", emptyStyleDecl.getPropertyValue("flex-wrap"));
@@ -5375,7 +5385,10 @@ public class ShorthandSetterTest {
 		assertEquals("", emptyStyleDecl.getCssText());
 		assertEquals("", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
-		//
+	}
+
+	@Test
+	public void testFlexFlowKeywordBad() {
 		emptyStyleDecl.setCssText("flex-flow: 1.2em foo; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-direction"));
 		assertEquals("", emptyStyleDecl.getPropertyValue("flex-wrap"));
