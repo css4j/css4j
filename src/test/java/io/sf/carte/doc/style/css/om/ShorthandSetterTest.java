@@ -7402,7 +7402,10 @@ public class ShorthandSetterTest {
 		assertEquals("center", emptyStyleDecl.getPropertyValue("align-self"));
 		assertEquals("start", emptyStyleDecl.getPropertyValue("justify-self"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("align-self").isSubproperty());
-		//
+	}
+
+	@Test
+	public void testPlaceSelf2() {
 		emptyStyleDecl.setCssText("place-self: stretch unsafe end; ");
 		assertEquals("stretch", emptyStyleDecl.getPropertyValue("align-self"));
 		assertEquals("unsafe end", emptyStyleDecl.getPropertyValue("justify-self"));
@@ -7416,7 +7419,10 @@ public class ShorthandSetterTest {
 		emptyStyleDecl.setCssText("place-self: self-start auto; ");
 		assertEquals("self-start", emptyStyleDecl.getPropertyValue("align-self"));
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("justify-self"));
-		//
+	}
+
+	@Test
+	public void testPlaceSelf3() {
 		emptyStyleDecl.setCssText("place-self: first baseline safe start; ");
 		assertEquals("first baseline", emptyStyleDecl.getPropertyValue("align-self"));
 		assertEquals("safe start", emptyStyleDecl.getPropertyValue("justify-self"));
@@ -7426,20 +7432,25 @@ public class ShorthandSetterTest {
 		emptyStyleDecl.setCssText("place-self: first baseline center; ");
 		assertEquals("first baseline", emptyStyleDecl.getPropertyValue("align-self"));
 		assertEquals("center", emptyStyleDecl.getPropertyValue("justify-self"));
-		//
+	}
+
+	@Test
+	public void testPlaceSelf4() {
+		emptyStyleDecl.setCssText("place-self: start left; ");
+		assertEquals("start", emptyStyleDecl.getPropertyValue("align-self"));
+		assertEquals("left", emptyStyleDecl.getPropertyValue("justify-self"));
+		assertEquals("place-self: start left; ", emptyStyleDecl.getCssText());
+		assertEquals("place-self:start left;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testPlaceSelfInherit() {
 		emptyStyleDecl.setCssText("place-self: inherit; ");
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("align-self"));
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("justify-self"));
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("align-self").isSubproperty());
 		assertEquals("place-self: inherit; ", emptyStyleDecl.getCssText());
 		assertEquals("place-self:inherit;", emptyStyleDecl.getMinifiedCssText());
-		//
-		emptyStyleDecl.setCssText("place-self: unset; ");
-		assertEquals("unset", emptyStyleDecl.getPropertyValue("align-self"));
-		assertEquals("unset", emptyStyleDecl.getPropertyValue("justify-self"));
-		assertTrue(emptyStyleDecl.getPropertyCSSValue("align-self").isSubproperty());
-		assertEquals("place-self: unset; ", emptyStyleDecl.getCssText());
-		assertEquals("place-self:unset;", emptyStyleDecl.getMinifiedCssText());
 		//
 		emptyStyleDecl.setCssText("place-self: inherit ! important; ");
 		assertEquals("inherit", emptyStyleDecl.getPropertyValue("align-self"));
@@ -7448,6 +7459,26 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("align-self").isSubproperty());
 		assertEquals("place-self: inherit ! important; ", emptyStyleDecl.getCssText());
 		assertEquals("place-self:inherit!important;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testPlaceSelfUnset() {
+		emptyStyleDecl.setCssText("place-self: unset; ");
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("align-self"));
+		assertEquals("unset", emptyStyleDecl.getPropertyValue("justify-self"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("align-self").isSubproperty());
+		assertEquals("place-self: unset; ", emptyStyleDecl.getCssText());
+		assertEquals("place-self:unset;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testPlaceSelfRevert() {
+		emptyStyleDecl.setCssText("place-self: revert; ");
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("align-self"));
+		assertEquals("revert", emptyStyleDecl.getPropertyValue("justify-self"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("align-self").isSubproperty());
+		assertEquals("place-self: revert; ", emptyStyleDecl.getCssText());
+		assertEquals("place-self:revert;", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
