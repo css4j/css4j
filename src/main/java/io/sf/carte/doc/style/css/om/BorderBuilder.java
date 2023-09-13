@@ -123,7 +123,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return 2;
+			return 1;
 		}
 
 		// pending value check

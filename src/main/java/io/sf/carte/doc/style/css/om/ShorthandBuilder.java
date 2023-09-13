@@ -822,7 +822,8 @@ abstract class ShorthandBuilder {
 	 * @return <code>0</code> if the shorthand was appended successfully,
 	 *         <code>1</code> if could not serialize, <code>2</code> if execution
 	 *         should proceed like the serialization did not succeed, but the buffer
-	 *         should not be reset.
+	 *         must not be reset and normal-priority properties should not be
+	 *         appended.
 	 */
 	abstract int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important);
 

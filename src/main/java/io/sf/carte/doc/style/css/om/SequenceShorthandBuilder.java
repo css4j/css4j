@@ -30,7 +30,7 @@ class SequenceShorthandBuilder extends ShorthandBuilder {
 	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return 2;
+			return 1;
 		}
 
 		// Append property name
