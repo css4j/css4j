@@ -56,7 +56,7 @@ class MaskBuilder extends ShorthandBuilder {
 	}
 
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Append property name
 		buf.append(getShorthandName()).append(':');
 		// Compute property layout
@@ -74,7 +74,7 @@ class MaskBuilder extends ShorthandBuilder {
 		if (type == CssType.LIST && ((ValueList) mskimage).isCommaSeparated()) {
 			// Layered
 			if (!appendLayered(buf, declaredSet, ((ValueList) mskimage).getLength())) {
-				return false;
+				return 1;
 			}
 		} else {
 			byte inheritcheck = checkForCssKeyword(Type.INHERIT);
@@ -85,10 +85,10 @@ class MaskBuilder extends ShorthandBuilder {
 				BufferSimpleWriter wri = new BufferSimpleWriter(buf);
 				DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 				serializeMaskBorderIfNot(Type.INHERIT, wri, context, important);
-				return true;
+				return 0;
 			} else if (inheritcheck == 2) {
 				// Only some values are inherit, no shorthand possible
-				return false;
+				return 1;
 			}
 			byte check = checkForCssKeyword(Type.REVERT);
 			if (check == 1) {
@@ -98,15 +98,15 @@ class MaskBuilder extends ShorthandBuilder {
 				BufferSimpleWriter wri = new BufferSimpleWriter(buf);
 				DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 				serializeMaskBorderIfNot(Type.REVERT, wri, context, important);
-				return true;
+				return 0;
 			} else if (check == 2) {
-				return false;
+				return 1;
 			}
 			if (!appendImage(buf, mskimage)) {
-				return false;
+				return 1;
 			}
 			if (!appendSingleLayer(buf, declaredSet)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append("none");
@@ -119,7 +119,7 @@ class MaskBuilder extends ShorthandBuilder {
 		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		serializeMaskBorderIfNotInitial(wri, context, important);
 
-		return true;
+		return 0;
 	}
 
 	private StyleValue computeMultipleSubproperty(String masterProperty, String propertyName) {

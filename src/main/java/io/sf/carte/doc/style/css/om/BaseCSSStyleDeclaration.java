@@ -73,7 +73,7 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration implements CSS2Properties, Cloneable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	/**
 	 * The rule that contains this declaration block, if any.
@@ -86,7 +86,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	private ArrayList<String> priorities;
 
-	private LinkedList<String> shorthandSet;
+	private ArrayList<String> shorthandSet;
 
 	/**
 	 * Constructor with parent CSS rule argument.
@@ -100,7 +100,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		propValue = new HashMap<String, StyleValue>();
 		propertyList = new ArrayList<String>();
 		priorities = new ArrayList<String>();
-		shorthandSet = new LinkedList<String>();
+		shorthandSet = new ArrayList<String>(6);
 	}
 
 	public BaseCSSStyleDeclaration() {
@@ -109,7 +109,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		propValue = new HashMap<String, StyleValue>();
 		propertyList = new ArrayList<String>();
 		priorities = new ArrayList<String>();
-		shorthandSet = new LinkedList<String>();
+		shorthandSet = new ArrayList<String>(6);
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		priorities = (ArrayList<String>) other.priorities.clone();
 		propertyList = (ArrayList<String>) other.propertyList.clone();
 		propValue = deepClone(other.propValue);
-		shorthandSet = (LinkedList<String>) other.shorthandSet.clone();
+		shorthandSet = (ArrayList<String>) other.shorthandSet.clone();
 	}
 
 	private HashMap<String, StyleValue> deepClone(HashMap<String, StyleValue> cloneFrom) {
@@ -1621,7 +1621,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return color;
 	}
 
-	LinkedList<String> getShorthandSet() {
+	ArrayList<String> getShorthandSet() {
 		return shorthandSet;
 	}
 

@@ -182,8 +182,26 @@ public class GridShorthandBuilderTest {
 	}
 
 	@Test
-	public void testGridImportant() {
+	public void testGridNoneImportant() {
 		assertShorthandText("grid:none!important;", "grid: none !important");
+	}
+
+	@Test
+	public void testGridImportant() {
+		assertShorthandText("grid:1fr repeat(2,[foo] minmax(2%,1fr))/fit-content(40%)!important;",
+				"grid: 1fr repeat(2,[foo] minmax(2%,1fr))/fit-content(40%)!important");
+	}
+
+	@Test
+	public void testGridNoneImportantMix() {
+		assertShorthandText("grid:none;grid-auto-rows:10%!important;",
+				"grid: none;grid-auto-rows:10%!important");
+	}
+
+	@Test
+	public void testGridImportantMix() {
+		assertShorthandText("grid:1fr repeat(2,[foo] minmax(2%,1fr))/fit-content(40%);grid-auto-rows:10%!important;",
+				"grid: 1fr repeat(2,[foo] minmax(2%,1fr))/fit-content(40%);grid-auto-rows:10%!important");
 	}
 
 	@Test

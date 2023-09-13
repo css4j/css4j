@@ -41,13 +41,15 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderNoImportantShorthand() {
-		assertShorthandText("border:3px;border-bottom-style:solid!important;border-top-style:solid!important;",
+		assertShorthandText(
+				"border:3px;border-bottom-style:solid!important;border-top-style:solid!important;",
 				"border: 3px; border-top-style: solid !important; border-bottom-style: solid !important;");
 	}
 
 	@Test
 	public void testBorderNoImportantShorthand2() {
-		assertShorthandText("border-width:3px;border-bottom-style:solid!important;border-top-style:solid!important;",
+		assertShorthandText(
+				"border-width:3px;border-bottom-style:solid!important;border-top-style:solid!important;",
 				"border-width: 3px; border-top-style: solid !important; border-bottom-style: solid !important;");
 		assertShorthandText(
 				"border-width:3px;border-left-color:yellow!important;border-bottom-style:solid!important;border-top-style:solid!important;",
@@ -57,7 +59,8 @@ public class BorderBuilderTest {
 	@Test
 	public void testBorder() {
 		assertShorthandText("border:1px dashed blue;", "border: 1px dashed blue; ");
-		assertShorthandText("border:1px solid white;color:white;", "border: white solid 1px; color: white; ");
+		assertShorthandText("border:1px solid white;color:white;",
+				"border: white solid 1px; color: white; ");
 		assertShorthandText("color:white;border:1px solid;", "color: white; border: solid 1px; ");
 		assertShorthandText("border-top-color:blue;", "border-top-color: blue; ");
 		assertShorthandText("border-top-color:blue;border-image-source:url('foo.png');",
@@ -79,19 +82,58 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderBorderImageImportantLonghand() {
-		assertShorthandText("border:solid rgb(0 0 0/0);border-image:none;border-image-source:url('foo.png')!important;",
+		assertShorthandText(
+				"border:solid rgb(0 0 0/0);border-image:none;border-image-source:url('foo.png')!important;",
 				"border: solid rgb(0 0 0 / 0); border-image:none; border-image-source:url('foo.png')!important;");
 	}
 
 	@Test
 	public void testBorderVar() {
-		assertShorthandText("border:1px solid var(--foo,#abcde4);", "border:1px solid var(--foo, #abcde4);");
+		assertShorthandText("border:1px solid var(--foo,#abcde4);",
+				"border:1px solid var(--foo, #abcde4);");
+	}
+
+	@Test
+	public void testBorderVarMixVar() {
+		assertShorthandText("border:var(--my-border);border-color:var(--my-border-color);"
+				+ "border-style:var(--my-border-style);border-width:var(--my-border-size);"
+				+ "border-left-color:#d22;border-image-width:1px;border-radius:var(--my-border-radius);",
+				"border:var(--my-border);border-image-width:1px;border-color:var(--my-border-color);"
+						+ "border-left-color:#d22;border-radius: var(--my-border-radius);"
+						+ "border-style: var(--my-border-style);"
+						+ "border-width: var(--my-border-size);");
+	}
+
+	@Test
+	public void testBorderVarMixVarImportant() {
+		assertShorthandText(
+				"border:1px solid;border-left-width:2px;border-color:var(--my-color)!important;border-left-color:#d22!important;",
+				"border:1px solid;border-color:var(--my-color)!important;border-left-color:#d22!important;border-left-width:2px;");
+	}
+
+	@Test
+	public void testBorderMultiVar() {
+		assertShorthandText(
+				"border-color:var(--my-border-color);border-right-style:solid;"
+						+ "border-top-width:1px;border-left-style:solid;border-right-width:1px;"
+						+ "border-bottom-width:1px;border-left-color:#d22;border-bottom-style:solid;"
+						+ "border-left-width:1px;border-top-style:solid;border-image:100%/1px;"
+						+ "border-radius:var(--my-border-radius);",
+				"border:1px solid;border-image-width:1px;border-color:var(--my-border-color);"
+						+ "border-left-color:#d22;border-radius: var(--my-border-radius);");
 	}
 
 	@Test
 	public void testBorderVarImportant() {
 		assertShorthandText("border:1px solid var(--foo,#abcde4)!important;",
 				"border:1px solid var(--foo, #abcde4)!important;");
+	}
+
+	@Test
+	public void testBorderVarImportantMix() {
+		assertShorthandText(
+				"border:1px solid var(--foo);border-color:var(--my-color)!important;border-left-color:#d22!important;border-left-width:2px;",
+				"border:1px solid var(--foo);border-color:var(--my-color)!important;border-left-color:#d22!important;border-left-width:2px;");
 	}
 
 	@Test
@@ -104,16 +146,17 @@ public class BorderBuilderTest {
 	@Test
 	public void testBorderMixVarImportant() {
 		assertShorthandText(
-				"border-style:var(--my--border-style,solid)!important;border-bottom-width:0!important;border-bottom-style:none!important;border-bottom-color:currentcolor!important;border-left-width:0;border-right-width:2px;border-top-width:2px;",
-				"border-style: var(--my--border-style, solid)!important; border-width: 2px 2px 1px 0; border-bottom: 0!important;");
+				"border-width:2px 2px 0 0;border-style:var(--my-style,solid)!important;border-bottom-width:0!important;border-bottom-style:none!important;border-bottom-color:currentcolor!important;",
+				"border-style: var(--my-style, solid)!important; border-width: 2px 2px 1px 0; border-bottom: 0!important;");
 		assertShorthandText(
-				"border-style:var(--my--border-style,solid)!important;border-bottom-width:0!important;border-bottom-style:none!important;border-bottom-color:currentcolor!important;border-left-width:0!important;border-top-width:2px!important;border-right-width:2px!important;",
-				"border-style: var(--my--border-style, solid)!important; border-width: 2px 2px 0 0!important; border-bottom: 0!important;");
+				"border-style:var(--my-style,solid)!important;border-bottom-width:0!important;border-bottom-style:none!important;border-bottom-color:currentcolor!important;border-left-width:0!important;border-top-width:2px!important;border-right-width:2px!important;",
+				"border-style: var(--my-style, solid)!important; border-width: 2px 2px 0 0!important; border-bottom: 0!important;");
 	}
 
 	@Test
 	public void testBorderWTrailingSubproperty() {
-		assertShorthandText("border:none;border-top-width:2px;", "border: none; border-top-width: 2px; ");
+		assertShorthandText("border:none;border-top-width:2px;",
+				"border: none; border-top-width: 2px; ");
 		assertShorthandText("border:1px dashed blue;border-top-width:2px;",
 				"border: 1px dashed blue; border-top-width: 2px; ");
 		assertShorthandText("border:1px dashed blue;border-top-style:outset;",
@@ -142,7 +185,8 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderImportant() {
-		assertShorthandText("border:1px dashed blue!important;", "border: 1px dashed blue ! important; ");
+		assertShorthandText("border:1px dashed blue!important;",
+				"border: 1px dashed blue ! important; ");
 	}
 
 	@Test
@@ -157,39 +201,48 @@ public class BorderBuilderTest {
 				"border: 1px dashed blue; border-bottom: 4px dotted green;");
 		assertShorthandText("border:1px dashed blue;border-left:4px dotted green;",
 				"border: 1px dashed blue; border-left: 4px dotted green;");
-		assertShorthandText("border:2px solid yellow!important;border-top:4px dotted green!important;",
+		assertShorthandText(
+				"border:2px solid yellow!important;border-top:4px dotted green!important;",
 				"border: 2px solid yellow ! important; border-top: 4px dotted green ! important; ");
-		assertShorthandText("border:2px solid yellow!important;border-right:4px dotted green!important;",
+		assertShorthandText(
+				"border:2px solid yellow!important;border-right:4px dotted green!important;",
 				"border: 2px solid yellow ! important; border-right: 4px dotted green ! important; ");
-		assertShorthandText("border:2px solid yellow!important;border-bottom:4px dotted green!important;",
+		assertShorthandText(
+				"border:2px solid yellow!important;border-bottom:4px dotted green!important;",
 				"border: 2px solid yellow ! important; border-bottom: 4px dotted green ! important; ");
-		assertShorthandText("border:2px solid yellow!important;border-left:4px dotted green!important;",
+		assertShorthandText(
+				"border:2px solid yellow!important;border-left:4px dotted green!important;",
 				"border: 2px solid yellow ! important; border-left: 4px dotted green ! important; ");
 	}
 
 	@Test
 	public void testBorderPlusBorderSide2() {
-		assertShorthandText("border:1px dashed blue;border-top:4px dotted green;border-right:3px solid yellow;",
+		assertShorthandText(
+				"border:1px dashed blue;border-top:4px dotted green;border-right:3px solid yellow;",
 				"border: 1px dashed blue; border-right: 3px solid yellow; border-top: 4px dotted green;");
 		assertShorthandText(
 				"border:1px dashed blue;border-top:4px dotted green;border-right:3px solid yellow;border-image:url('foo.png');",
 				"border: 1px dashed blue; border-right: 3px solid yellow; border-top: 4px dotted green;border-image-source:url('foo.png');");
-		assertShorthandText("border:1px dashed blue;border-top:4px dotted green;border-bottom:3px solid yellow;",
+		assertShorthandText(
+				"border:1px dashed blue;border-top:4px dotted green;border-bottom:3px solid yellow;",
 				"border: 1px dashed blue; border-bottom: 3px solid yellow; border-top: 4px dotted green;");
 		assertShorthandText(
 				"border:1px dashed blue;border-top:4px dotted green;border-bottom:3px solid yellow;border-image:url('foo.png');",
 				"border: 1px dashed blue; border-bottom: 3px solid yellow; border-top: 4px dotted green;border-image:url('foo.png');");
-		assertShorthandText("border:1px dashed blue;border-right:4px dotted green;border-left:3px solid yellow;",
+		assertShorthandText(
+				"border:1px dashed blue;border-right:4px dotted green;border-left:3px solid yellow;",
 				"border: 1px dashed blue; border-left: 3px solid yellow; border-right: 4px dotted green;");
 		assertShorthandText(
 				"border:1px dashed blue;border-right:4px dotted green;border-left:3px solid yellow;border-image:url('foo.png');",
 				"border: 1px dashed blue; border-left: 3px solid yellow; border-right: 4px dotted green;border-image:url('foo.png');");
-		assertShorthandText("border:1px dashed blue;border-right:4px dotted green;border-bottom:3px solid yellow;",
+		assertShorthandText(
+				"border:1px dashed blue;border-right:4px dotted green;border-bottom:3px solid yellow;",
 				"border: 1px dashed blue; border-bottom: 3px solid yellow; border-right: 4px dotted green;");
 		assertShorthandText(
 				"border:1px dashed blue;border-right:4px dotted green;border-bottom:3px solid yellow;border-image:url('foo.png');",
 				"border: 1px dashed blue; border-bottom: 3px solid yellow; border-right: 4px dotted green;border-image:url('foo.png');");
-		assertShorthandText("border:1px dashed blue;border-bottom:3px solid yellow;border-left:4px dotted green;",
+		assertShorthandText(
+				"border:1px dashed blue;border-bottom:3px solid yellow;border-left:4px dotted green;",
 				"border: 1px dashed blue; border-bottom: 3px solid yellow; border-left: 4px dotted green;");
 		assertShorthandText(
 				"border:1px dashed blue;border-bottom:3px solid yellow;border-left:4px dotted green;border-image:url('foo.png');",
@@ -241,19 +294,22 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorder5() {
-		assertShorthandText("border:solid;border-width:1px 2px 3px 4px;border-color:blue navy yellow;",
+		assertShorthandText(
+				"border:solid;border-width:1px 2px 3px 4px;border-color:blue navy yellow;",
 				"border: solid; border-color: blue navy yellow; border-width: 1px 2px 3px 4px;");
 	}
 
 	@Test
 	public void testBorder6() {
-		assertShorthandText("border:solid;border-width:1px 2px 3px 4px;border-color:blue navy yellow red;",
+		assertShorthandText(
+				"border:solid;border-width:1px 2px 3px 4px;border-color:blue navy yellow red;",
 				"border: solid; border-color: blue navy yellow red; border-width: 1px 2px 3px 4px;");
 	}
 
 	@Test
 	public void testBorder7() {
-		assertShorthandText("border:0;border-bottom-width:4px;border-top-style:solid;border-left-color:blue;",
+		assertShorthandText(
+				"border:0;border-bottom-width:4px;border-top-style:solid;border-left-color:blue;",
 				"border: 0;border-top-style: solid; border-left-color:blue;border-bottom-width:4px;");
 	}
 
@@ -266,8 +322,7 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderMixed() {
-		assertShorthandText("border:1px;border-style:revert;",
-				"border:1px;border-style:revert");
+		assertShorthandText("border:1px;border-style:revert;", "border:1px;border-style:revert");
 		assertShorthandText("border:1px;border-color:inherit;",
 				"border: 1px; border-color: inherit; border-style: unset;");
 		assertShorthandText("border:1px;border-style:revert;border-color:inherit;",
@@ -306,7 +361,8 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderMixedWithImportant2() {
-		assertShorthandText("border:solid;border-color:blue navy;border-image:url('foo.png')!important;border-width:medium!important;",
+		assertShorthandText(
+				"border:solid;border-color:blue navy;border-image:url('foo.png')!important;border-width:medium!important;",
 				"border: solid; border-color: blue navy; border-width: unset!important;border-image:url('foo.png')!important;");
 	}
 
@@ -328,7 +384,8 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderInherit2() {
-		assertShorthandText("border:inherit;border-color:yellow;", "border: inherit; border-color:yellow;");
+		assertShorthandText("border:inherit;border-color:yellow;",
+				"border: inherit; border-color:yellow;");
 	}
 
 	@Test
@@ -389,25 +446,29 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderInheritPlusBorderImageImportantPlusBorderTopColor() {
-		assertShorthandText("border:inherit;border-image:url('foo.png')!important;border-top-color:inherit!important;",
+		assertShorthandText(
+				"border:inherit;border-image:url('foo.png')!important;border-top-color:inherit!important;",
 				"border: inherit; border-top-color:inherit!important; border-image:url('foo.png')!important;");
 	}
 
 	@Test
 	public void testBorderInheritPlusBorderImagePlusBorderTopColor() {
-		assertShorthandText("border:inherit;border-image:url('foo.png');border-top-color:inherit!important;",
+		assertShorthandText(
+				"border:inherit;border-image:url('foo.png');border-top-color:inherit!important;",
 				"border: inherit; border-top-color:inherit!important; border-image:url('foo.png');");
 	}
 
 	@Test
 	public void testBorderInheritPlusBorderImageSourceInheritImportant() {
-		assertShorthandText("border:inherit;border-image:none;border-image-source:inherit!important;",
+		assertShorthandText(
+				"border:inherit;border-image:none;border-image-source:inherit!important;",
 				"border: inherit; border-image-source:inherit!important; border-image:url('foo.png');");
 	}
 
 	@Test
 	public void testBorderInheritPlusBorderTopColorImportant() {
-		assertShorthandText("border:inherit;border-image:url('foo.png');border-top-color:blue!important;",
+		assertShorthandText(
+				"border:inherit;border-image:url('foo.png');border-top-color:blue!important;",
 				"border: inherit; border-top-color:blue!important; border-image:url('foo.png');");
 	}
 
@@ -458,10 +519,12 @@ public class BorderBuilderTest {
 		assertShorthandText("border-top:1px;", "border-top-style: inset; border-top: 1px; ");
 		assertShorthandText("border-top:1px dashed;", "border-top: 1px dashed;");
 		assertShorthandText("border-top:1px dashed yellow;", "border-top: 1px dashed yellow; ");
-		assertShorthandText("border-top:0;border-left-width:2px;", "border-left-width: 2px; border-top: 0");
+		assertShorthandText("border-top:0;border-left-width:2px;",
+				"border-left-width: 2px; border-top: 0");
 		assertShorthandText("border-top:0;border-left-color:blue;border-left-width:2px;",
 				"border-left-width: 2px; border-top: 0;border-left-color:blue;");
-		assertShorthandText("border-top:0;border-bottom-width:4px;border-left-color:blue;border-left-width:2px;",
+		assertShorthandText(
+				"border-top:0;border-bottom-width:4px;border-left-color:blue;border-left-width:2px;",
 				"border-left-width: 2px; border-top: 0;border-left-color:blue;border-bottom-width:4px;");
 	}
 
@@ -487,17 +550,24 @@ public class BorderBuilderTest {
 	@Test
 	public void testBorderStyle() {
 		assertShorthandText("border-style:none;", "border-style: none; ");
-		assertShorthandText("border-style:inset;", "border-top-style: dotted; border-style: inset; ");
+		assertShorthandText("border-style:inset;",
+				"border-top-style: dotted; border-style: inset; ");
 		assertShorthandText("border-style:inset solid;", "border-style: inset solid; ");
-		assertShorthandText("border-style:inset solid dotted;", "border-style: inset solid dotted; ");
+		assertShorthandText("border-style:inset solid dotted;",
+				"border-style: inset solid dotted; ");
 		assertShorthandText("border-style:none solid dotted;", "border-style: none solid dotted; ");
 		assertShorthandText("border-style:inset none dotted;", "border-style: inset none dotted; ");
 		assertShorthandText("border-style:inset solid none;", "border-style: inset solid none; ");
-		assertShorthandText("border-style:inset solid dotted outset;", "border-style: inset solid dotted outset; ");
-		assertShorthandText("border-style:none solid dotted outset;", "border-style: none solid dotted outset; ");
-		assertShorthandText("border-style:inset none dotted outset;", "border-style: inset none dotted outset; ");
-		assertShorthandText("border-style:inset solid none outset;", "border-style: inset solid none outset; ");
-		assertShorthandText("border-style:inset solid dotted none;", "border-style: inset solid dotted none; ");
+		assertShorthandText("border-style:inset solid dotted outset;",
+				"border-style: inset solid dotted outset; ");
+		assertShorthandText("border-style:none solid dotted outset;",
+				"border-style: none solid dotted outset; ");
+		assertShorthandText("border-style:inset none dotted outset;",
+				"border-style: inset none dotted outset; ");
+		assertShorthandText("border-style:inset solid none outset;",
+				"border-style: inset solid none outset; ");
+		assertShorthandText("border-style:inset solid dotted none;",
+				"border-style: inset solid dotted none; ");
 	}
 
 	@Test
@@ -506,15 +576,19 @@ public class BorderBuilderTest {
 		assertShorthandText("border-color:blue navy;", "border-color: blue navy; ");
 		assertShorthandText("border-color:blue navy green;", "border-color: blue navy green; ");
 		assertShorthandText("border-color:navy navy green;", "border-color: navy navy green; ");
-		assertShorthandText("border-color:blue navy green yellow;", "border-color: blue navy green yellow; ");
+		assertShorthandText("border-color:blue navy green yellow;",
+				"border-color: blue navy green yellow; ");
 		assertShorthandText("border-color:currentcolor;", "border-color: currentcolor; ");
 	}
 
 	@Test
 	public void testBorderColor2() {
-		assertShorthandText("border-color:blue navy green transparent;", "border-color: blue navy green transparent; ");
-		assertShorthandText("border-color:blue #11bbfc green;", "border-color: blue #11bbfc green; ");
-		assertShorthandText("border-color:blue navy green transparent;", "border-color: blue navy green transparent; ");
+		assertShorthandText("border-color:blue navy green transparent;",
+				"border-color: blue navy green transparent; ");
+		assertShorthandText("border-color:blue #11bbfc green;",
+				"border-color: blue #11bbfc green; ");
+		assertShorthandText("border-color:blue navy green transparent;",
+				"border-color: blue navy green transparent; ");
 	}
 
 	@Test
@@ -548,7 +622,8 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderColorInherit2() {
-		assertShorthandText("border-color:inherit;", "border-top-color: blue; border-color: inherit; ");
+		assertShorthandText("border-color:inherit;",
+				"border-top-color: blue; border-color: inherit; ");
 		assertShorthandText("border-color:red blue;border-style:inherit;",
 				"border-color: red blue; border-style: inherit; ");
 	}
@@ -556,17 +631,23 @@ public class BorderBuilderTest {
 	@Test
 	public void testBorderColorPlusSide() {
 		// 1:t
-		assertShorthandText("border-color:navy;border-top:0;", "border-color: navy; border-top: 0; ");
+		assertShorthandText("border-color:navy;border-top:0;",
+				"border-color: navy; border-top: 0; ");
 		// 1:r
-		assertShorthandText("border-color:navy;border-right:0;", "border-color: navy; border-right: 0; ");
+		assertShorthandText("border-color:navy;border-right:0;",
+				"border-color: navy; border-right: 0; ");
 		// 1:b
-		assertShorthandText("border-color:navy;border-bottom:0;", "border-color: navy; border-bottom: 0; ");
+		assertShorthandText("border-color:navy;border-bottom:0;",
+				"border-color: navy; border-bottom: 0; ");
 		// 1:l
-		assertShorthandText("border-color:navy;border-left:0;", "border-color: navy; border-left: 0; ");
+		assertShorthandText("border-color:navy;border-left:0;",
+				"border-color: navy; border-left: 0; ");
 		// 1:l
-		assertShorthandText("border-color:navy;border-left:blue;", "border-color: navy; border-left: blue; ");
+		assertShorthandText("border-color:navy;border-left:blue;",
+				"border-color: navy; border-left: blue; ");
 		// 1:l
-		assertShorthandText("border-color:navy;border-left:0 yellow;", "border-color: navy; border-left: 0 yellow;");
+		assertShorthandText("border-color:navy;border-left:0 yellow;",
+				"border-color: navy; border-left: 0 yellow;");
 		// 1:tb
 		assertShorthandText("border-color:navy;border-top:0;border-bottom:0;",
 				"border-color: navy; border-top: 0; border-bottom: 0;");
@@ -592,9 +673,11 @@ public class BorderBuilderTest {
 		assertShorthandText("border-color:green;border-top:0;border-bottom:0;",
 				"border-color: navy green; border-bottom: 0; border-top: 0;");
 		// 2:r
-		assertShorthandText("border-color:navy yellow;border-right:0;", "border-color: navy yellow; border-right: 0;");
+		assertShorthandText("border-color:navy yellow;border-right:0;",
+				"border-color: navy yellow; border-right: 0;");
 		// 2:l
-		assertShorthandText("border-color:navy yellow;border-left:0;", "border-color: navy yellow; border-left: 0;");
+		assertShorthandText("border-color:navy yellow;border-left:0;",
+				"border-color: navy yellow; border-left: 0;");
 		// 2:l
 		assertShorthandText("border-color:yellow navy;border-left:0 yellow;",
 				"border-color: yellow navy; border-left: 0 yellow;");
@@ -632,9 +715,11 @@ public class BorderBuilderTest {
 		assertShorthandText("border-color:blue green green;border-right:0 navy;",
 				"border-color: blue green green; border-right: 0 navy;");
 		// 3(t=r=l):b
-		assertShorthandText("border-color:navy;border-bottom:0;", "border-color: navy navy yellow; border-bottom: 0;");
+		assertShorthandText("border-color:navy;border-bottom:0;",
+				"border-color: navy navy yellow; border-bottom: 0;");
 		// 3(r=b=l):t
-		assertShorthandText("border-color:green;border-top:0;", "border-color: navy green green; border-top: 0;");
+		assertShorthandText("border-color:green;border-top:0;",
+				"border-color: navy green green; border-top: 0;");
 		// 4:bl
 		assertShorthandText("border-color:navy green;border-bottom:0;border-left:0;",
 				"border-color: navy green yellow black; border-bottom: 0; border-left: 0;");
@@ -730,7 +815,8 @@ public class BorderBuilderTest {
 		assertShorthandText("border-color:navy;border-right:0!important;border-left:0!important;",
 				"border-color: navy; border-left: 0!important; border-right: 0!important;");
 		// 2:tr
-		assertShorthandText("border-color:navy green;border-top:0!important;border-right:0!important;",
+		assertShorthandText(
+				"border-color:navy green;border-top:0!important;border-right:0!important;",
 				"border-color: navy green; border-top: 0!important; border-right: 0!important;");
 		// 2:tb
 		assertShorthandText("border-color:green;border-top:0!important;border-bottom:0!important;",
@@ -748,7 +834,8 @@ public class BorderBuilderTest {
 		assertShorthandText("border-color:green;border-top:0!important;border-bottom:0!important;",
 				"border-color: navy green yellow; border-bottom: 0!important; border-top: 0!important;");
 		// 3:t b
-		assertShorthandText("border-color:green;border-top:0!important;border-bottom:0 black!important;",
+		assertShorthandText(
+				"border-color:green;border-top:0!important;border-bottom:0 black!important;",
 				"border-color: navy green yellow; border-bottom: 0 black!important; border-top: 0!important;");
 		// 3:t
 		assertShorthandText("border-color:yellow green;border-top:0!important;",
@@ -763,7 +850,8 @@ public class BorderBuilderTest {
 		assertShorthandText("border-color:green;border-top:0!important;",
 				"border-color: navy green green; border-top: 0!important;");
 		// 4:bl
-		assertShorthandText("border-color:navy green;border-bottom:0!important;border-left:0!important;",
+		assertShorthandText(
+				"border-color:navy green;border-bottom:0!important;border-left:0!important;",
 				"border-color: navy green yellow black; border-bottom: 0!important; border-left: 0!important;");
 		// 4(t=r):bl
 		assertShorthandText("border-color:navy;border-bottom:0!important;border-left:0!important;",
@@ -781,7 +869,8 @@ public class BorderBuilderTest {
 		assertShorthandText("border-color:navy;border-right:0!important;border-left:0!important;",
 				"border-color: navy yellow navy black; border-right: 0!important; border-left: 0!important;");
 		// 4(t=b):l r
-		assertShorthandText("border-color:navy;border-right:0 blue!important;border-left:0!important;",
+		assertShorthandText(
+				"border-color:navy;border-right:0 blue!important;border-left:0!important;",
 				"border-color: navy yellow navy black; border-right: 0 blue!important; border-left: 0!important;");
 		// 4(t=b):l
 		assertShorthandText("border-color:navy yellow;border-left:0!important;",
@@ -796,25 +885,31 @@ public class BorderBuilderTest {
 		assertShorthandText("border-color:navy navy black;border-right:0!important;",
 				"border-color: navy yellow black navy; border-right: 0!important;");
 		// 4(t=l):rl
-		assertShorthandText("border-color:navy currentcolor black;border-right:0!important;border-left:0!important;",
+		assertShorthandText(
+				"border-color:navy currentcolor black;border-right:0!important;border-left:0!important;",
 				"border-color: navy yellow black navy; border-right: 0!important; border-left: 0!important;");
 		// 4:l
 		assertShorthandText("border-color:navy yellow black;border-left:0!important;",
 				"border-color: navy yellow black blue; border-left: 0!important;");
 		// 4:tr
-		assertShorthandText("border-color:black blue;border-top:0!important;border-right:0!important;",
+		assertShorthandText(
+				"border-color:black blue;border-top:0!important;border-right:0!important;",
 				"border-color: navy yellow black blue; border-top: 0!important; border-right: 0!important;");
 		// 4:r t
-		assertShorthandText("border-color:black blue;border-top:0 green!important;border-right:0!important;",
+		assertShorthandText(
+				"border-color:black blue;border-top:0 green!important;border-right:0!important;",
 				"border-color: navy yellow black blue; border-top: 0 green!important; border-right: 0!important;");
 		// 1(d):tr
-		assertShorthandText("border-color:currentcolor;border-top:0!important;border-right:0!important;",
+		assertShorthandText(
+				"border-color:currentcolor;border-top:0!important;border-right:0!important;",
 				"border-color: currentcolor; border-top: 0!important; border-right: 0!important;");
 		// 2( d):t r
-		assertShorthandText("border-color:navy currentcolor;border-top:0!important;border-right:0 black!important;",
+		assertShorthandText(
+				"border-color:navy currentcolor;border-top:0!important;border-right:0 black!important;",
 				"border-color: navy currentcolor; border-top: 0!important; border-right: 0 black!important;");
 		// 2(d ):r t
-		assertShorthandText("border-color:currentcolor navy;border-top:0 black!important;border-right:0!important;",
+		assertShorthandText(
+				"border-color:currentcolor navy;border-top:0 black!important;border-right:0!important;",
 				"border-color: currentcolor navy; border-top: 0 black!important; border-right: 0!important;");
 		// 2( d): r
 		assertShorthandText("border-color:navy currentcolor;border-right:0 black!important;",
@@ -823,34 +918,39 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderWidthCombined() {
-		assertShorthandText("border:inset;border-width:2px 3px;", "border: inset; border-width: 2px 3px; ");
+		assertShorthandText("border:inset;border-width:2px 3px;",
+				"border: inset; border-width: 2px 3px; ");
 		assertShorthandText("border:inset;border-width:2px 3px!important;",
 				"border: inset; border-width: 2px 3px ! important; ");
 	}
 
 	@Test
 	public void testBorderStyleCombined() {
-		assertShorthandText("border:1px;border-style:inset solid;", "border: 1px; border-style: inset solid; ");
+		assertShorthandText("border:1px;border-style:inset solid;",
+				"border: 1px; border-style: inset solid; ");
 		assertShorthandText("border:1px;border-style:inset solid!important;",
 				"border: 1px; border-style: inset solid ! important; ");
 	}
 
 	@Test
 	public void testBorderColorCombined() {
-		assertShorthandText("border:1px;border-color:yellow blue;", "border: 1px; border-color: yellow blue; ");
+		assertShorthandText("border:1px;border-color:yellow blue;",
+				"border: 1px; border-color: yellow blue; ");
 		assertShorthandText("border:1px;border-color:yellow blue!important;",
 				"border: 1px; border-color: yellow blue ! important; ");
 	}
 
 	@Test
 	public void testBorderColorWidthCombined() {
-		assertShorthandText("border:3px solid;border-bottom-width:0;border-color:black transparent;",
+		assertShorthandText(
+				"border:3px solid;border-bottom-width:0;border-color:black transparent;",
 				"border: solid; border-color: black transparent; border-width: 3px 3px 0 3px; ");
 	}
 
 	@Test
 	public void testBorderColorWidthCombinedImportantMix() {
-		assertShorthandText("border:solid;border-color:black transparent;border-width:3px 3px 0!important;",
+		assertShorthandText(
+				"border:solid;border-color:black transparent;border-width:3px 3px 0!important;",
 				"border: solid; border-color: black transparent; border-width: 3px 3px 0 3px!important; ");
 	}
 
@@ -887,13 +987,15 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderColorCombinedWithSideMixed2() {
-		assertShorthandText("border-color:yellow;border-top-width:inherit;border-top-style:inherit;",
+		assertShorthandText(
+				"border-color:yellow;border-top-width:inherit;border-top-style:inherit;",
 				"border-top: inherit; border-color: yellow; ");
 	}
 
 	@Test
 	public void testBorderWidthCombined2() {
-		assertShorthandText("border:inset;border-width:1px 2px 3px;", "border: inset; border-width: 1px 2px 3px; ");
+		assertShorthandText("border:inset;border-width:1px 2px 3px;",
+				"border: inset; border-width: 1px 2px 3px; ");
 		assertShorthandText("border:inset;border-width:1px 2px 3px!important;",
 				"border: inset; border-width: 1px 2px 3px ! important; ");
 	}
@@ -912,7 +1014,8 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderColorCombined2() {
-		assertShorthandText("border:1px;border-color:yellow blue red;", "border: 1px; border-color: yellow blue red; ");
+		assertShorthandText("border:1px;border-color:yellow blue red;",
+				"border: 1px; border-color: yellow blue red; ");
 	}
 
 	@Test

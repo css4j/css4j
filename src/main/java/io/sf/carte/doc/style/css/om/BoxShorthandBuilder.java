@@ -79,6 +79,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 		StyleValue bottomv = getCSSValue(bottomProperty);
 		StyleValue leftv = getCSSValue(leftProperty);
 		StyleValue rightv = getCSSValue(rightProperty);
+
 		int score = 0;
 		if (!declaredSet.contains(leftProperty) || keyword_state_left != live_state) {
 			leftv = null;
@@ -107,19 +108,22 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 		if (topv == null || leftv == null || valueEquals(topv, leftv)) {
 			score++;
 		}
+
 		return score;
 	}
 
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return false;
+			return 1;
 		}
+
 		// pending value check
 		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
-			return false;
+			return 1;
 		}
+
 		// Compute keyword state
 		keyword_state_top = keywordState(getCSSValue(topProperty));
 		keyword_state_bottom = keywordState(getCSSValue(bottomProperty));
@@ -136,8 +140,8 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 		if (keyword_state == 0 || keyword_state == 4 || keyword_state == 20) {
 			return appendPropertyBoxText(buf, declaredSet, important, best_state);
 		}
-		if (!appendPropertyBoxText(buf, declaredSet, important, best_state)) {
-			return false;
+		if (appendPropertyBoxText(buf, declaredSet, important, best_state) != 0) {
+			return 1;
 		}
 
 		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
@@ -155,7 +159,8 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 		if (declaredSet.contains(topProperty) && keyword_state_top != best_state) {
 			appendIndividualProperty(wri, context, topProperty, important);
 		}
-		return true;
+
+		return 0;
 	}
 
 	private void appendIndividualProperty(BufferSimpleWriter wri,
@@ -167,7 +172,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 		appendPriority(buf, important);
 	}
 
-	private boolean appendPropertyBoxText(StringBuilder buf, Set<String> declaredSet, boolean important,
+	private int appendPropertyBoxText(StringBuilder buf, Set<String> declaredSet, boolean important,
 			byte live_state) {
 		// Append property name
 		buf.append(getShorthandName()).append(':');
@@ -190,7 +195,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 				}
 			}
 			if (!appendValueIfSaneAndNotInitial(buf, property)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -206,7 +211,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 				}
 			}
 			if (!appended && !appendValueIfSaneAndNotInitial(buf, property)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -223,7 +228,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 				}
 			}
 			if (!appended && !appendValueIfSaneAndNotInitial(buf, property)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -233,7 +238,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 		case 17:
 			if (declaredSet.contains(topProperty) && keyword_state_top == live_state
 					&& !appendValueIfSaneAndNotInitial(buf, topProperty)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -250,7 +255,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 				}
 			}
 			if (!appended && !appendValueIfSaneAndNotInitial(buf, property)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -260,7 +265,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 			buf.append(' ');
 			if (declaredSet.contains(bottomProperty) && keyword_state_bottom == live_state
 					&& !appendValueIfSaneAndNotInitial(buf, bottomProperty)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -269,7 +274,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 		default:
 			if (declaredSet.contains(topProperty) && keyword_state_top == live_state
 					&& !appendValueIfSaneAndNotInitial(buf, topProperty)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -279,7 +284,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 			buf.append(' ');
 			if (declaredSet.contains(rightProperty) && keyword_state_right == live_state
 					&& !appendValueIfSaneAndNotInitial(buf, rightProperty)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -289,7 +294,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 			buf.append(' ');
 			if (declaredSet.contains(bottomProperty) && keyword_state_bottom == live_state
 					&& !appendValueIfSaneAndNotInitial(buf, bottomProperty)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append('0');
@@ -299,14 +304,14 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 			buf.append(' ');
 			if (declaredSet.contains(leftProperty) && keyword_state_left == live_state
 					&& !appendValueIfSaneAndNotInitial(buf, leftProperty)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append('0');
 			}
 		}
 		appendPriority(buf, important);
-		return true;
+		return 0;
 	}
 
 	private boolean appendValueIfSaneAndNotInitial(StringBuilder buf, String propertyName) {

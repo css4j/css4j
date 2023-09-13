@@ -29,18 +29,21 @@ class TransitionShorthandBuilder extends ListOrderedShorthandBuilder {
 	boolean valueClash(int index, String property) {
 		StyleValue freePropertyValue = getCSSListItemValue(freeProperty, index);
 		CssType freeType = freePropertyValue.getCssValueType();
+
 		boolean retval = false;
 		if (freeType == CssType.TYPED) {
 			retval = isConflictingIdentifier(property, (CSSTypedValue) freePropertyValue);
 		} else if (freeType == CssType.LIST) {
 			retval = listHasConflictingIdentifiers(property, (ValueList) freePropertyValue);
 		}
+
 		if (!retval && property.equals("transition-duration")) {
 			StyleValue delay = getCSSListItemValue("transition-delay", index);
 			if (isNotInitialValue(delay, "transition-delay")) {
 				retval = true;
 			}
 		}
+
 		return retval;
 	}
 

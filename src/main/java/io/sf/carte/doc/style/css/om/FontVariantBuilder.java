@@ -37,10 +37,10 @@ class FontVariantBuilder extends ShorthandBuilder {
 	}
 
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return false;
+			return 1;
 		}
 		// Append property name
 		buf.append(getShorthandName()).append(':');
@@ -50,9 +50,9 @@ class FontVariantBuilder extends ShorthandBuilder {
 			// All values are inherit
 			buf.append("inherit");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (check == 2) {
-			return false;
+			return 1;
 		}
 		// Check for 'unset'
 		check = checkValuesForType(CSSValue.Type.UNSET, declaredSet);
@@ -60,9 +60,9 @@ class FontVariantBuilder extends ShorthandBuilder {
 			// All values are unset
 			buf.append("unset");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (check == 2) {
-			return false;
+			return 1;
 		}
 		// Check for 'revert'
 		check = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
@@ -70,13 +70,13 @@ class FontVariantBuilder extends ShorthandBuilder {
 			// All values are revert
 			buf.append("revert");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (check == 2) {
-			return false;
+			return 1;
 		}
 		// pending value check
 		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
-			return false;
+			return 1;
 		}
 
 		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
@@ -104,7 +104,7 @@ class FontVariantBuilder extends ShorthandBuilder {
 			buf.append("normal");
 		}
 		appendPriority(buf, important);
-		return true;
+		return 0;
 	}
 
 }

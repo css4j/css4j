@@ -28,28 +28,32 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 	}
 
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return false;
+			return 1;
 		}
+
 		StyleValue masterValue = getCSSValue(freeProperty);
 		ValueList masterList;
 		if (masterValue.getCssValueType() != CssType.LIST
 				|| !(masterList = (ValueList) masterValue).isCommaSeparated()) {
 			return super.appendShorthandSet(buf, declaredSet, important);
 		}
+
 		int listLen = masterList.getLength();
+
 		// Check for CSS-wide keywords
 		if (checkDeclaredValueListForInherit(declaredSet, listLen)) {
-			return false;
+			return 1;
 		}
 		if (checkDeclaredValueListForKeyword(CSSValue.Type.REVERT, declaredSet, listLen)) {
-			return false;
+			return 1;
 		}
 		if (isInheritedProperty() && checkDeclaredValueListForKeyword(CSSValue.Type.UNSET, declaredSet, listLen)) {
-			return false;
+			return 1;
 		}
+
 		// Value sanity check
 		Iterator<String> it = declaredSet.iterator();
 		while (it.hasNext()) {
@@ -61,12 +65,13 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 			CssType type = value.getCssValueType();
 			if (type == CssType.LIST) {
 				if (invalidListValueClash(declaredSet, property, (ValueList) value)) {
-					return false;
+					return 1;
 				}
 			} else if (invalidValueClash(declaredSet, property, value)) {
-				return false;
+				return 1;
 			}
 		}
+
 		// Append property name
 		buf.append(getShorthandName()).append(':');
 		for (int index = 0; index < listLen; index++) {
@@ -85,8 +90,10 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 				buf.append(initialvalue);
 			}
 		}
+
 		appendPriority(buf, important);
-		return true;
+
+		return 0;
 	}
 
 	private boolean checkDeclaredValueListForInherit(Set<String> declaredSet, int listLen) {

@@ -37,21 +37,24 @@ class GridShorthandBuilder extends ShorthandBuilder {
 	}
 
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return false;
+			return 1;
 		}
+
 		BaseCSSStyleDeclaration style = getParentStyle();
 		if (!style.isPropertySet("grid-template-rows") || !style.isPropertySet("grid-template-columns")
 				 || !style.isPropertySet("grid-template-areas")) {
-			return false;
+			return 1;
 		}
+
 		// Now we have, at least 'grid-template'. Check for full 'grid'.
 		if (style.isPropertySet("grid-auto-rows") && style.isPropertySet("grid-auto-columns")
 				 && style.isPropertySet("grid-auto-flow")) {
 			return new FullGridShorthandBuilder(style).appendShorthandSet(buf, declaredSet, important);
 		}
+
 		return new GridTemplateShorthandBuilder(style).appendShorthandSet(buf, declaredSet, important);
 	}
 
@@ -83,62 +86,79 @@ class GridShorthandBuilder extends ShorthandBuilder {
 		}
 
 		@Override
-		boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+		int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+			if (!declaredSet.contains("grid-template-areas")
+					&& !declaredSet.contains("grid-template-rows")
+					&& !declaredSet.contains("grid-template-columns")) {
+				// No grid-template properties in set, only leftover
+				appendLeftoverProperties(buf, declaredSet, important);
+				return 0;
+			}
+
 			// Append property name
 			buf.append(getShorthandName()).append(':');
+
 			// Check for CSS-wide keywords
 			byte check = checkValuesForInherit(declaredSet);
 			if (check == 1) {
 				// All values are inherit
 				buf.append("inherit");
 				appendPriority(buf, important);
-				return true;
+				appendLeftoverProperties(buf, declaredSet, important);
+				return 0;
 			} else if (check == 2) {
-				return false;
+				return 1;
 			}
-			//
+
+			// Revert
 			check = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
 			if (check == 1) {
 				// All values are revert
 				buf.append("revert");
 				appendPriority(buf, important);
-				return true;
+				appendLeftoverProperties(buf, declaredSet, important);
+				return 0;
 			} else if (check == 2) {
-				return false;
+				return 1;
 			}
+
 			// pending value check
 			if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
-				return false;
+				return 1;
 			}
+
 			// Make sure that it is not a layered property
 			String[] subp = getLonghandProperties();
 			for (String property : subp) {
 				StyleValue cssVal = getCSSValue(property);
-				if (cssVal.getCssValueType() == CssType.LIST &&
-						((ValueList) cssVal).isCommaSeparated()) {
-					return false;
+				if (cssVal.getCssValueType() == CssType.LIST
+						&& ((ValueList) cssVal).isCommaSeparated()) {
+					return 1;
 				}
 			}
+
 			GridTemplateValues values = new GridTemplateValues(declaredSet);
+
 			/*
 			 * check for grid-template: none
 			 */
 			if (values.isNoneValue()) {
 				buf.append("none");
 				appendPriority(buf, important);
-				return true;
+				appendLeftoverProperties(buf, declaredSet, important);
+				return 0;
 			}
-			//
+
 			if (!values.defaultGridTAreas && values.lacksRepeatInGridTRows
 					&& values.gridAreasSyntax(buf, declaredSet)) {
 				appendPriority(buf, important);
 				appendLeftoverProperties(buf, declaredSet, important);
-				return true;
+				return 0;
 			}
-			//
+
 			values.gridRowsColumnsSyntax(buf, declaredSet, important);
 			appendLeftoverProperties(buf, declaredSet, important);
-			return true;
+			return 0;
 		}
 
 		private void appendLeftoverProperties(StringBuilder buf, Set<String> declaredSet,
@@ -184,73 +204,80 @@ class GridShorthandBuilder extends ShorthandBuilder {
 		}
 
 		@Override
-		boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+		int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 			// Append property name
 			buf.append(getShorthandName()).append(':');
+
 			// Check for CSS-wide keywords
 			byte check = checkValuesForInherit(declaredSet);
 			if (check == 1) {
 				// All values are inherit
 				buf.append("inherit");
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			} else if (check == 2) {
-				return false;
+				return 1;
 			}
-			//
+
+			// Revert
 			check = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
 			if (check == 1) {
 				// All values are revert
 				buf.append("revert");
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			} else if (check == 2) {
-				return false;
+				return 1;
 			}
+
 			// pending value check
 			if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
-				return false;
+				return 1;
 			}
+
 			// Make sure that it is not a layered property
 			String[] subp = getLonghandProperties();
 			for (String property : subp) {
 				StyleValue cssVal = getCSSValue(property);
 				if (cssVal.getCssValueType() == CssType.LIST &&
 						((ValueList) cssVal).isCommaSeparated()) {
-					return false;
+					return 1;
 				}
 			}
+
 			GridValues values = new GridValues(declaredSet);
+
 			/*
 			 * check for grid-template: none
 			 */
 			if (values.isNoneValue()) {
 				buf.append("none");
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			}
-			//
+
 			if (values.defaultGridTAreas) {
 				if (!values.rowAFlow && values.defaultGridARows && values.defaultGridTColumns) {
 					if (values.gridColumnAutoFlowSyntax(buf, declaredSet)) {
 						appendPriority(buf, important);
-						return true;
+						return 0;
 					}
 				} else if (values.rowAFlow && values.defaultGridAColumns && values.defaultGridTRows
 						&& (!values.defaultGridARows || values.isAutoflowDense())) {
 					if (values.gridRowAutoFlowSyntax(buf, declaredSet)) {
 						appendPriority(buf, important);
-						return true;
+						return 0;
 					}
 				}
 			} else if (!values.defaultGridTAreas && values.lacksRepeatInGridTRows
 					&& values.gridAreasSyntax(buf, declaredSet)) {
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			}
-			//
+
 			values.gridRowsColumnsSyntax(buf, declaredSet, important);
-			return true;
+
+			return 0;
 		}
 
 	}
@@ -260,9 +287,11 @@ class GridShorthandBuilder extends ShorthandBuilder {
 		final StyleValue cssGridTAreas;
 		final StyleValue cssGridTRows;
 		final StyleValue cssGridTColumns;
+
 		final boolean defaultGridTAreas;
 		final boolean defaultGridTRows;
 		final boolean defaultGridTColumns;
+
 		boolean lacksRepeatInGridTRows;
 
 		GridTemplateValues(Set<String> declaredSet) {
@@ -273,12 +302,17 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			cssGridTAreas = getCSSValue("grid-template-areas");
 			cssGridTRows = getCSSValue("grid-template-rows");
 			cssGridTColumns = getCSSValue("grid-template-columns");
-			defaultGridTAreas = isIdentifier(cssGridTAreas, "none") || !declaredSet.contains("grid-template-areas")
+
+			defaultGridTAreas = isIdentifier(cssGridTAreas, "none")
+					|| !declaredSet.contains("grid-template-areas")
 					|| isEffectiveInitialKeyword(cssGridTAreas);
-			defaultGridTRows = isIdentifier(cssGridTRows, "none") || !declaredSet.contains("grid-template-rows")
+			defaultGridTRows = isIdentifier(cssGridTRows, "none")
+					|| !declaredSet.contains("grid-template-rows")
 					|| isEffectiveInitialKeyword(cssGridTRows);
-			defaultGridTColumns = isIdentifier(cssGridTColumns, "none") || !declaredSet.contains("grid-template-columns")
+			defaultGridTColumns = isIdentifier(cssGridTColumns, "none")
+					|| !declaredSet.contains("grid-template-columns")
 					|| isEffectiveInitialKeyword(cssGridTColumns);
+
 			lacksRepeatInGridTRows = lacksRepeatFunction(cssGridTRows);
 		}
 
@@ -399,17 +433,18 @@ class GridShorthandBuilder extends ShorthandBuilder {
 					idx++;
 				}
 			}
-			//
+
 			int lm1 = buf.length() - 1;
 			if (buf.charAt(lm1) == ' ') {
 				// trim trailing space
 				buf.setLength(lm1);
 			}
-			//
+
 			if (!defaultGridTColumns) {
 				buf.append('/');
 				appendValueText(buf, cssGridTColumns);
 			}
+
 			return true;
 		}
 
@@ -420,6 +455,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 				appendValueText(buf, cssGridTColumns);
 			}
 			appendPriority(buf, important);
+
 			if (!defaultGridTAreas) {
 				buf.append("grid-template-areas:");
 				appendValueText(buf, cssGridTAreas);
@@ -499,11 +535,14 @@ class GridShorthandBuilder extends ShorthandBuilder {
 			} else {
 				buf.append("auto-flow dense ");
 			}
+
 			appendValueText(buf, cssGridARows);
+
 			if (!defaultGridTColumns) {
 				buf.append('/');
 				appendValueText(buf, cssGridTColumns);
 			}
+
 			return true;
 		}
 
@@ -512,6 +551,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 		 */
 		private boolean gridColumnAutoFlowSyntax(StringBuilder buf, Set<String> declaredSet) {
 			appendValueText(buf, cssGridTRows);
+
 			if (!defaultGridAColumns) {
 				buf.append('/');
 				if (!isAutoflowDense()) {
@@ -521,6 +561,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 				}
 				appendValueText(buf, cssGridAColumns);
 			}
+
 			return true;
 		}
 

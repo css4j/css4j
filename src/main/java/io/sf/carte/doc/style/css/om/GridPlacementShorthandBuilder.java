@@ -42,53 +42,61 @@ class GridPlacementShorthandBuilder extends ShorthandBuilder {
 	 * is set to auto.
 	 */
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return false;
+			return 2;
 		}
+
 		// Append property name
 		buf.append(getShorthandName()).append(':');
+
 		// Check for CSS-wide keywords
 		byte check = checkValuesForInherit(declaredSet);
 		if (check == 1) {
 			// All values are inherit
 			buf.append("inherit");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (check == 2) {
-			return false;
+			return 1;
 		}
+
 		// Unset
 		check = checkValuesForType(CSSValue.Type.UNSET, declaredSet);
 		if (check == 1) {
 			// All values are unset
 			buf.append("unset");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		}
+
 		// Revert
 		check = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
 		if (check == 1) {
 			// All values are revert
 			buf.append("revert");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (check == 2) {
-			return false;
+			return 1;
 		}
+
 		// pending value check
 		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
-			return false;
+			return 1;
 		}
+
 		//
 		String[] subp = getSubproperties();
+
 		// Make sure that it is not a layered property
 		StyleValue cssVal0 = getCSSValue(subp[0]);
 		if (cssVal0.getCssValueType() == CssType.LIST && ((ValueList) cssVal0).isCommaSeparated()) {
-			return false;
+			return 1;
 		}
 		appendValueText(buf, cssVal0);
+
 		if (subp.length == 2) {
 			StyleValue cssVal = getCSSValue(subp[1]);
 			if (isPrintValue(subp[1], cssVal, cssVal0)) {
@@ -116,8 +124,10 @@ class GridPlacementShorthandBuilder extends ShorthandBuilder {
 				}
 			}
 		}
+
 		appendPriority(buf, important);
-		return true;
+
+		return 0;
 	}
 
 	private boolean isPrintValue(String propertyName, StyleValue cssValue, StyleValue cssVal0) {

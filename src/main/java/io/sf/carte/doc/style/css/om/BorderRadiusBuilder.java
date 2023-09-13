@@ -33,13 +33,15 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 	}
 
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return false;
+			return 2;
 		}
+
 		// Append property name
 		buf.append(getShorthandName()).append(':');
+
 		// Check for CSS-wide keywords
 		// First, check for inherit
 		byte inheritcheck = checkDeclaredValuesForInherit(declaredSet);
@@ -47,28 +49,32 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 			// All values are 'inherit'
 			buf.append("inherit");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (inheritcheck == 2) {
-			return false;
+			return 1;
 		}
+
 		// now revert
 		byte revertcheck = checkDeclaredValuesForKeyword(CSSValue.Type.REVERT, declaredSet);
 		if (revertcheck == 1) {
 			// All values are 'revert'
 			buf.append("revert");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (revertcheck == 2) {
-			return false;
+			return 1;
 		}
+
 		// pending value check
 		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
-			return false;
+			return 1;
 		}
+
 		StyleValue topLeftValue = getCSSValue("border-top-left-radius");
 		StyleValue topRightValue = getCSSValue("border-top-right-radius");
 		StyleValue bottomRightValue = getCSSValue("border-bottom-right-radius");
 		StyleValue bottomLeftValue = getCSSValue("border-bottom-left-radius");
+
 		// Check for list values
 		boolean slash = false;
 		StyleValue topLeftValue0, topLeftValue1;
@@ -107,15 +113,19 @@ class BorderRadiusBuilder extends ShorthandBuilder {
 			bottomLeftValue0 = bottomLeftValue;
 			bottomLeftValue1 = null;
 		}
+
 		appendBorderRadiusSide(buf, declaredSet, topLeftValue0, topRightValue0, bottomRightValue0, bottomLeftValue0,
 				important);
+
 		if (slash) {
 			buf.append('/');
 			appendBorderRadiusSide(buf, declaredSet, topLeftValue1, topRightValue1, bottomRightValue1, bottomLeftValue1,
 					important);
 		}
+
 		appendPriority(buf, important);
-		return true;
+
+		return 0;
 	}
 
 	void appendBorderRadiusSide(StringBuilder buf, Set<String> declaredSet, StyleValue topLeftValue,

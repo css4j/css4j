@@ -59,14 +59,15 @@ class GridAreaShorthandBuilder extends GridPlacementShorthandBuilder {
 	 *  @formatter:on
 	 */
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return false;
+			return 1;
 		}
 
 		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
 		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
+
 		if (declaredSet.contains("grid-row-start") && declaredSet.contains("grid-row-end")) {
 			if (declaredSet.contains("grid-column-start")
 				&& declaredSet.contains("grid-column-end")) {
@@ -106,7 +107,8 @@ class GridAreaShorthandBuilder extends GridPlacementShorthandBuilder {
 			return new GridPlacementShorthandBuilder("grid-column", getParentStyle())
 				.appendShorthandSet(buf, declaredSet, important);
 		}
-		return false;
+
+		return 1;
 	}
 
 }

@@ -44,18 +44,21 @@ class BorderImageBuilder extends ShorthandBuilder {
 	}
 
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return false;
+			return 2;
 		}
+
 		// Append property name
 		buf.append(getShorthandName()).append(':');
+
 		StyleValue biSource = getCSSValue("border-image-source");
 		StyleValue biSlice = getCSSValue("border-image-slice");
 		StyleValue biWidth = getCSSValue("border-image-width");
 		StyleValue biOutset = getCSSValue("border-image-outset");
 		StyleValue biRepeat = getCSSValue("border-image-repeat");
+
 		// Check for CSS-wide keywords
 		// First, check for inherit
 		byte inheritcheck = checkValuesForInherit(declaredSet, biSource, biSlice, biWidth, biOutset, biRepeat);
@@ -63,57 +66,65 @@ class BorderImageBuilder extends ShorthandBuilder {
 			// All values are 'inherit'
 			buf.append("inherit");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (inheritcheck == 2) {
-			return false;
+			return 1;
 		}
+
 		// Check for 'initial' & initial values
 		if (allValuesAreInitial(declaredSet, biSource, biSlice, biWidth, biOutset, biRepeat)) {
 			// All values are initial
 			buf.append("none");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		}
+
 		// 'revert'
 		byte revertcheck = checkValuesForRevert(declaredSet, biSource, biSlice, biWidth, biOutset, biRepeat);
 		if (revertcheck == 1) {
 			// All values are 'revert'
 			buf.append("revert");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (revertcheck == 2) {
-			return false;
+			return 1;
 		}
+
 		// pending value check
 		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
-			return false;
+			return 1;
 		}
+
 		// Now append the values as appropriate
 		if (declaredSet.contains("border-image-source")) {
 			appendBorderImageSource(biSource);
 		}
 		if (declaredSet.contains("border-image-slice") && !appendBorderImageSlice(biSlice)) {
-			return false;
+			return 1;
 		}
 		if (declaredSet.contains("border-image-width") && !appendBorderImageWidth(biWidth)) {
-			return false;
+			return 1;
 		}
 		if (declaredSet.contains("border-image-outset") && !appendBorderImageOutset(biOutset)) {
-			return false;
+			return 1;
 		}
 		if (declaredSet.contains("border-image-repeat") && !appendBorderImageRepeat(biRepeat)) {
-			return false;
+			return 1;
 		}
+
 		// We already checked for all values being initial, but only for a full declaredSet
 		if (bibuf.length() == 0) {
 			bibuf.append("none");
 		}
+
 		// Priority
 		if (important) {
 			bibuf.append("!important");
 		}
+
 		buf.append(bibuf).append(';');
-		return true;
+
+		return 0;
 	}
 
 	private byte checkValuesForInherit(Set<String> declaredSet, StyleValue biSource, StyleValue biSlice, StyleValue biWidth,

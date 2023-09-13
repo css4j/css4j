@@ -48,6 +48,10 @@ public class GridTemplateShorthandBuilderTest {
 	@Test
 	public void testGridTemplateNone() {
 		assertShorthandText("grid-template:none;", "grid-template: none");
+		assertShorthandText("grid-template:none;grid-auto-rows:10%;",
+				"grid-auto-rows:10%;grid-template: none");
+		assertShorthandText("grid-template:none;grid-auto-rows:10%!important;",
+				"grid-auto-rows:10%!important;grid-template: none");
 	}
 
 	@Test
@@ -218,18 +222,43 @@ public class GridTemplateShorthandBuilderTest {
 	}
 
 	@Test
-	public void testGridTemplateImportant() {
+	public void testGridTemplateNoneImportant() {
 		assertShorthandText("grid-template:none!important;", "grid-template: none !important");
+	}
+
+	@Test
+	public void testGridTemplateNoneImportantMix() {
+		assertShorthandText("grid-auto-rows:10%;grid-template:none!important;",
+				"grid-auto-rows:10%;grid-template: none!important");
+	}
+
+	@Test
+	public void testGridTemplateImportant() {
+		assertShorthandText("grid-template:repeat(1,10px)/auto!important;",
+				"grid-template: repeat(1,10px)/auto!important");
+	}
+
+	@Test
+	public void testGridTemplateImportantMix() {
+		assertShorthandText("grid-auto-rows:10%;grid-template:repeat(1,10px)/auto!important;",
+				"grid-auto-rows:10%;grid-template: repeat(1,10px)/auto!important");
 	}
 
 	@Test
 	public void testBuilderInherit() {
 		assertShorthandText("grid-template:inherit;", "grid-template: inherit;");
+		assertShorthandText("grid-template:inherit;grid-auto-rows:10%;",
+				"grid-template: inherit;grid-auto-rows:10%;");
 	}
 
 	@Test
 	public void testBuilderInheritImportant() {
-		assertShorthandText("grid-template:inherit!important;", "grid-template: inherit!important;");
+		assertShorthandText("grid-template:inherit!important;",
+				"grid-template: inherit!important;");
+		assertShorthandText("grid-auto-rows:10%;grid-template:inherit!important;",
+				"grid-template: inherit!important;grid-auto-rows:10%;");
+		assertShorthandText("grid-template:inherit!important;grid-auto-rows:10%!important;",
+				"grid-template: inherit!important;grid-auto-rows:10%!important;");
 	}
 
 	@Test
@@ -250,6 +279,15 @@ public class GridTemplateShorthandBuilderTest {
 	@Test
 	public void testBuilderUnsetImportant() {
 		assertShorthandText("grid-template:none!important;", "grid-template: unset!important;");
+	}
+
+	@Test
+	public void testBuilderRevert() {
+		assertShorthandText("grid-template:revert;", "grid-template: revert;");
+		assertShorthandText("grid-template:revert;grid-auto-rows:10%;",
+				"grid-template: revert;grid-auto-rows:10%;");
+		assertShorthandText("grid-template:revert;grid-auto-rows:10%!important;",
+				"grid-template: revert;grid-auto-rows:10%!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

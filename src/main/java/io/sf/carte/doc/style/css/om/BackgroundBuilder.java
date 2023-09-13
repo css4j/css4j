@@ -59,9 +59,10 @@ class BackgroundBuilder extends ShorthandBuilder {
 	}
 
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Append property name
 		buf.append(getShorthandName()).append(':');
+
 		// Compute property layout
 		bgimage = getCSSValue("background-image"); // master property
 		bgposition = computeMultipleSubproperty("background-image", "background-position");
@@ -76,7 +77,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		if (type == CssType.LIST && ((ValueList) bgimage).isCommaSeparated()) {
 			// Layered
 			if (!appendLayeredBackground(buf, declaredSet, ((ValueList) bgimage).getLength())) {
-				return false;
+				return 1;
 			}
 		} else {
 			byte inheritcheck = checkForInherit();
@@ -84,32 +85,34 @@ class BackgroundBuilder extends ShorthandBuilder {
 				// All values are inherit
 				buf.append("inherit");
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			} else if (inheritcheck == 2) {
 				// Only some values are inherit, no shorthand possible
-				return false;
+				return 1;
 			}
 			byte check = checkForRevert();
 			if (check == 1) {
 				// All values are revert
 				buf.append("revert");
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			} else if (check == 2) {
-				return false;
+				return 1;
 			}
 			if (!appendBackgroundImage(buf, bgimage)) {
-				return false;
+				return 1;
 			}
 			if (!appendSingleLayer(buf, declaredSet)) {
-				return false;
+				return 1;
 			}
 			if (!appended) {
 				buf.append("none");
 			}
 		}
+
 		appendPriority(buf, important);
-		return true;
+
+		return 0;
 	}
 
 	private StyleValue computeMultipleSubproperty(String masterProperty, String propertyName) {
@@ -480,6 +483,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 				}
 			}
 		}
+
 		// Background-size
 		if (sizevalue != null) {
 			// Sanity check
@@ -501,9 +505,11 @@ class BackgroundBuilder extends ShorthandBuilder {
 				appended = true;
 			}
 		}
+
 		if (appended) {
 			this.appended = true;
 		}
+
 		return true;
 	}
 
@@ -575,6 +581,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 				clipIsInitial = false;
 			}
 		}
+
 		boolean originIsInitial;
 		String originText = "";
 		if (origin == null) {
@@ -588,6 +595,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 				originIsInitial = false;
 			}
 		}
+
 		if (isIdentOrKeyword(origin) && !isRevertValue(origin)
 			&& !isUnknownIdentifier("background-origin", origin) && isIdentOrKeyword(clip)
 			&& !isRevertValue(clip) && !isUnknownIdentifier("background-clip", clip)) {
@@ -600,6 +608,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		} else {
 			return false;
 		}
+
 		return true;
 	}
 

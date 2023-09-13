@@ -38,32 +38,36 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 	}
 
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return false;
+			return 2;
 		}
+
 		// Append property name
 		buf.append(getShorthandName()).append(':');
+
 		// Check for CSS-wide keywords
 		byte check = checkValuesForInherit(declaredSet);
 		if (check == 1) {
 			// All values are inherit
 			buf.append("inherit");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (check == 2) {
-			return false;
+			return 1;
 		}
+
 		check = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
 		if (check == 1) {
 			// All values are revert
 			buf.append("revert");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (check == 2) {
-			return false;
+			return 1;
 		}
+
 		// Build the shorthand from values
 		StyleValue cssFlexGrow = null;
 		if (declaredSet.contains(FLEX_GROW) || declaredSet.contains(FLEX_SHRINK)) {
@@ -71,39 +75,42 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 			// Make sure that it is not a (wrong) list property
 			if (cssFlexGrow.getCssValueType() == CssType.TYPED) {
 				if (invalidFlexGrowShrink((CSSTypedValue) cssFlexGrow)) {
-					return false;
+					return 1;
 				}
 			} else if (cssFlexGrow.getCssValueType() != CssType.KEYWORD) {
 				// not initial or unset
-				return false;
+				return 1;
 			}
 		}
+
 		StyleValue cssFlexShrink = null;
 		if (declaredSet.contains(FLEX_SHRINK)) {
 			cssFlexShrink = getCSSValue(FLEX_SHRINK);
 			// Make sure that it is not a (wrong) list property
 			if (cssFlexShrink.getCssValueType() == CssType.TYPED) {
 				if (invalidFlexGrowShrink((CSSTypedValue) cssFlexShrink)) {
-					return false;
+					return 1;
 				}
 			} else if (cssFlexGrow.getCssValueType() != CssType.KEYWORD) {
 				// not initial or unset
-				return false;
+				return 1;
 			}
 		}
+
 		StyleValue cssFlexBasis = null;
 		if (declaredSet.contains(FLEX_BASIS)) {
 			cssFlexBasis = getCSSValue(FLEX_BASIS);
 			// Make sure that it is not a (wrong) list property
 			if (cssFlexBasis.getCssValueType() == CssType.TYPED) {
 				if (invalidFlexBasis((CSSTypedValue) cssFlexBasis)) {
-					return false;
+					return 1;
 				}
 			} else if (cssFlexGrow.getCssValueType() != CssType.KEYWORD) {
 				// not initial or unset
-				return false;
+				return 1;
 			}
 		}
+
 		// Special cases
 		TypedValue primiBasis;
 		if (cssFlexBasis != null && cssFlexBasis.getPrimitiveType() == Type.IDENT
@@ -130,15 +137,15 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 			if (grow == 1f && shrink == 1f) {
 				buf.append("auto");
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			} else if (grow == 0f && shrink == 0f) {
 				buf.append("none");
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			} else if (grow == 0f && shrink == 1f) {
 				buf.append("0");
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			}
 		}
 
@@ -146,6 +153,7 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		boolean appended = false;
 		boolean shrinkNotInitial = isNotInitialValue(cssFlexShrink, FLEX_SHRINK);
+
 		if (shrinkNotInitial || isNotInitialValue(cssFlexGrow, FLEX_GROW)) {
 			appendValueText(wri, context, cssFlexGrow, false);
 			appended = true;
@@ -166,11 +174,14 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 			}
 			appended = true;
 		}
+
 		if (!appended) {
 			buf.append("0");
 		}
+
 		appendPriority(buf, important);
-		return true;
+
+		return 0;
 	}
 
 	private boolean invalidFlexGrowShrink(CSSTypedValue primi) {

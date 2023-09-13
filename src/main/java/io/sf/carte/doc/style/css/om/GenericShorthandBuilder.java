@@ -37,23 +37,26 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 	}
 
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		// Check for excluded values
 		if (hasPropertiesToExclude(declaredSet)) {
-			return false;
+			return 1;
 		}
+
 		// Append property name
 		buf.append(getShorthandName()).append(':');
+
 		// Check for CSS-wide keywords
 		byte check = checkValuesForInherit(declaredSet);
 		if (check == 1) {
 			// All values are inherit
 			buf.append("inherit");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (check == 2) {
-			return false;
+			return 1;
 		}
+
 		// Unset
 		if (isInheritedProperty()) {
 			check = checkValuesForType(CSSValue.Type.UNSET, declaredSet);
@@ -61,24 +64,26 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 				// All values are unset
 				buf.append("unset");
 				appendPriority(buf, important);
-				return true;
+				return 0;
 			} else if (check == 2) {
-				return false;
+				return 1;
 			}
 		}
+
 		// Revert
 		check = checkValuesForType(CSSValue.Type.REVERT, declaredSet);
 		if (check == 1) {
 			// All values are revert
 			buf.append("revert");
 			appendPriority(buf, important);
-			return true;
+			return 0;
 		} else if (check == 2) {
-			return false;
+			return 1;
 		}
+
 		// pending value check
 		if (checkValuesForType(CSSValue.Type.INTERNAL, declaredSet) != 0) {
-			return false;
+			return 1;
 		}
 
 		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
@@ -93,11 +98,12 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 				if ((cssVal.getCssValueType() == CssType.LIST &&
 						((ValueList) cssVal).isCommaSeparated()) || 
 						invalidValueClash(declaredSet, property, cssVal)) {
-					return false;
+					return 1;
 				}
 				appended = appendValueText(wri, context, property, appended);
 			}
 		}
+
 		if (!appended) {
 			buf.append(initialvalue);
 		}
@@ -106,7 +112,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 
 		endShorthandSerialization(wri, context, important);
 
-		return true;
+		return 0;
 	}
 
 	/**

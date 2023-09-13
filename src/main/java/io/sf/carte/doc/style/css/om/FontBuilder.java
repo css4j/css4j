@@ -62,10 +62,10 @@ class FontBuilder extends ShorthandBuilder {
 	}
 
 	@Override
-	boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
+	int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		int result = appendFontShorthandSet(buf, declaredSet, important);
 		if (result == -1) {
-			return false;
+			return 1;
 		}
 		// Other subproperties
 		if (result == 0) {
@@ -73,7 +73,7 @@ class FontBuilder extends ShorthandBuilder {
 				// Create font-variant builder
 				FontVariantBuilder builder = createFontVariantBuilder();
 				if (builder.checkValuesForType(CSSValue.Type.INTERNAL, important) != 0) {
-					return false;
+					return 1;
 				}
 				if (!isFontVariantSetToInitialOrCss21(declaredSet)) {
 					builder.appendMinifiedCssText(buf);
@@ -122,11 +122,11 @@ class FontBuilder extends ShorthandBuilder {
 			FontVariantBuilder builder = createFontVariantBuilder();
 			builder.preprocessSet();
 			if (builder.checkValuesForType(Type.INTERNAL, important) != 0) {
-				return false;
+				return 1;
 			}
 			byte fvTypes = builder.checkValuesForType(keyword, important);
 			if (fvTypes == 2) {
-				return false;
+				return 1;
 			}
 			if (fvTypes == 0 && !fontVariantDone
 					&& !isFontVariantSetToInitialOrCss21(declaredSet)) {
@@ -134,7 +134,7 @@ class FontBuilder extends ShorthandBuilder {
 				setFontVariantDone();
 			}
 		}
-		return true;
+		return 0;
 	}
 
 	/**

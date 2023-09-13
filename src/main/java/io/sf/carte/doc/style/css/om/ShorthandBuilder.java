@@ -150,45 +150,49 @@ abstract class ShorthandBuilder {
 
 	public void appendMinifiedCssText(StringBuilder buf) {
 		int len = buf.length();
-		if (!appendShorthandText(buf)) {
+		switch (appendShorthandText(buf)) {
+		case 1:
 			buf.setLength(len);
+		case 2:
 			appendMinifiedIndividualProperties(buf);
 		}
 	}
 
 	protected void appendMinifiedIndividualProperties(StringBuilder buf) {
-		appendImportantProperties(buf);
-		appendNonImportantProperties(buf);
+		appendPropertiesInSet(buf, impPtySet, true);
+		appendPropertiesInSet(buf, ptySet, false);
 	}
 
-	void appendImportantProperties(StringBuilder buf) {
+	void appendPropertiesInSet(StringBuilder buf, Set<String> declaredSet, boolean important) {
 		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
 		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 
 		int iniLen = buf.length();
-		for (String property : impPtySet) {
+		for (String property : declaredSet) {
 			StyleValue value = getCSSValue(property);
 			if (value.getPrimitiveType() != Type.INTERNAL) {
 				buf.append(property).append(':');
 				BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context, value, property);
-				buf.append("!important;");
+				appendPriority(buf, important);
 			} else {
 				buf.setLength(iniLen);
-				appendImportantPropertiesWithInternal(buf);
+				appendPropertiesWithInternal(wri, context, declaredSet, important);
 				break;
 			}
 		}
 	}
 
-	private void appendImportantPropertiesWithInternal(StringBuilder buf) {
-		HashSet<String> pendingSet = new HashSet<String>();
-		HashSet<String> nonPendingSet = new HashSet<String>(impPtySet.size() - 1);
-		for (String property : impPtySet) {
+	private void appendPropertiesWithInternal(BufferSimpleWriter wri,
+			DeclarationFormattingContext context, Set<String> declaredSet, boolean important) {
+		StringBuilder buf = wri.getBuffer();
+		HashSet<String> pendingSet = new HashSet<>();
+		HashSet<String> nonPendingSet = new HashSet<>(declaredSet.size() - 1);
+		for (String property : declaredSet) {
 			StyleValue value = getCSSValue(property);
 			if (value.getPrimitiveType() == Type.INTERNAL) {
 				String shname = ((PendingValue) value).getShorthandName();
-				if (pendingSet.add(shname) && (shname.equals(getShorthandName())
-						|| isResponsibleShorthand(shname))) {
+				if (pendingSet.add(shname)
+						&& (shname.equals(getShorthandName()) || isResponsibleShorthand(shname))) {
 					ShorthandValue shval = (ShorthandValue) getCSSValue(shname);
 					parentStyle.appendShorthandMinifiedCssText(buf, shname, shval);
 				}
@@ -197,13 +201,11 @@ abstract class ShorthandBuilder {
 			}
 		}
 
-		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
-		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		for (String property : nonPendingSet) {
+			StyleValue value = getCSSValue(property);
 			buf.append(property).append(':');
-			BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context, getCSSValue(property),
-				property);
-			buf.append("!important;");
+			BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context, value, property);
+			appendPriority(buf, important);
 		}
 	}
 
@@ -211,57 +213,11 @@ abstract class ShorthandBuilder {
 		return true;
 	}
 
-	void appendNonImportantProperties(StringBuilder buf) {
-		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
-		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
-
-		int iniLen = buf.length();
-		for (String property : ptySet) {
-			StyleValue value = getCSSValue(property);
-			if (value.getPrimitiveType() != Type.INTERNAL) {
-				buf.append(property).append(':');
-				BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context, value, property);
-				buf.append(';');
-			} else {
-				buf.setLength(iniLen);
-				appendNonImportantPropertiesWithInternal(buf);
-				break;
-			}
-		}
-	}
-
-	private void appendNonImportantPropertiesWithInternal(StringBuilder buf) {
-		HashSet<String> pendingSet = new HashSet<String>();
-		HashSet<String> nonPendingSet = new HashSet<String>(ptySet.size() - 1);
-		for (String property : ptySet) {
-			StyleValue value = getCSSValue(property);
-			if (value.getPrimitiveType() == Type.INTERNAL) {
-				String shname = ((PendingValue) value).getShorthandName();
-				if (pendingSet.add(shname) && (shname.equals(getShorthandName())
-						|| isResponsibleShorthand(shname))) {
-					ShorthandValue shval = (ShorthandValue) getCSSValue(shname);
-					parentStyle.appendShorthandMinifiedCssText(buf, shname, shval);
-				}
-			} else {
-				nonPendingSet.add(property);
-			}
-		}
-
-		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
-		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
-		for (String property : nonPendingSet) {
-			buf.append(property).append(':');
-			BaseCSSStyleDeclaration.appendMinifiedCssText(wri, context, getCSSValue(property),
-				property);
-			buf.append(';');
-		}
-	}
-
-	boolean appendShorthandText(StringBuilder buf) {
+	int appendShorthandText(StringBuilder buf) {
 		preprocessSet();
 		int sz = getMinimumSetSize();
 		if (getTotalSetSize() < sz) {
-			return false;
+			return 1;
 		}
 		return processPriorities(buf);
 	}
@@ -314,32 +270,37 @@ abstract class ShorthandBuilder {
 		return type == Type.VAR || type == Type.ATTR;
 	}
 
-	boolean processPriorities(StringBuilder buf) {
+	int processPriorities(StringBuilder buf) {
 		int sz = getMinimumSetSize();
 		int impsz = impPtySet.size();
 		if (impsz < sz) {
 			// Declarations to be handled as non-important shorthand
 			// with important individual properties.
-			if (!appendShorthandSet(buf, ptySet, false)) {
-				return false;
+			int ret = appendShorthandSet(buf, ptySet, false);
+			if (ret != 0) {
+				return ret;
 			}
 			if (impsz != 0) {
-				appendImportantProperties(buf);
+				appendPropertiesInSet(buf, impPtySet, true);
 			}
 		} else {
 			// Declarations to be handled as important shorthand (if there are enough values)
 			// or longhands plus non-important shorthand.
 			if (ptySet.size() != 0) {
 				int len = buf.length();
-				if (!appendShorthandSet(buf, ptySet, false)) {
-					// Append individual non-important properties
+				int ret = appendShorthandSet(buf, ptySet, false);
+				switch (ret) {
+				case 0:
+					ptySet.clear();
+					break;
+				case 1:
 					buf.setLength(len);
-					appendNonImportantProperties(buf);
+					appendPropertiesInSet(buf, ptySet, false);
 				}
 			}
 			return appendShorthandSet(buf, impPtySet, true);
 		}
-		return true;
+		return 0;
 	}
 
 	/**
@@ -851,18 +812,18 @@ abstract class ShorthandBuilder {
 	}
 
 	/**
-	 * Use the given set of properties to append a shorthand serialization to the given
-	 * buffer.
+	 * Use the given set of properties to append a shorthand serialization to the
+	 * given buffer.
 	 * 
-	 * @param buf
-	 *            the buffer.
-	 * @param declaredSet
-	 *            the set of declared properties relevant to build the shorthand. Other
-	 *            properties could be ignored.
-	 * @param important
-	 *            true if the shorthand to build is of important priority.
-	 * @return <code>true</code> if the shorthand was appended successfully.
+	 * @param buf         the buffer.
+	 * @param declaredSet the set of declared properties relevant to build the
+	 *                    shorthand. Other properties could be ignored.
+	 * @param important   true if the shorthand to build is of important priority.
+	 * @return <code>0</code> if the shorthand was appended successfully,
+	 *         <code>1</code> if could not serialize, <code>2</code> if execution
+	 *         should proceed like the serialization did not succeed, but the buffer
+	 *         should not be reset.
 	 */
-	abstract boolean appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important);
+	abstract int appendShorthandSet(StringBuilder buf, Set<String> declaredSet, boolean important);
 
 }
