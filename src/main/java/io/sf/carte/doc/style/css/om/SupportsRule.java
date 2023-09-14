@@ -101,8 +101,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 		switch (condition.getType()) {
 		case PREDICATE:
 			DeclarationCondition declCond = (DeclarationCondition) condition;
-			return declCond.isParsable()
-					&& styleDatabase.supports(declCond.getName(), declCond.getValue());
+			return styleDatabase.supports(declCond.getName(), declCond.getValue());
 		case AND:
 			List<BooleanCondition> subcond = condition.getSubConditions();
 			if (subcond == null) {

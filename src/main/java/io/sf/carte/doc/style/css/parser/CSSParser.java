@@ -56,6 +56,7 @@ import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
+import io.sf.carte.doc.style.css.nsac.DeclarationPredicate;
 import io.sf.carte.doc.style.css.nsac.InputSource;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
@@ -73,8 +74,6 @@ import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.AttributeConditionIm
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorSelectorImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.ElementSelectorImpl;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
-import io.sf.carte.doc.style.css.property.StyleValue;
-import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.uparser.TokenControl;
 import io.sf.carte.uparser.TokenHandler2;
 import io.sf.carte.uparser.TokenProducer;
@@ -1256,24 +1255,9 @@ public class CSSParser implements Parser, Cloneable {
 				if (readingValue) {
 					if (valueParendepth == getCurrentParenDepth()) {
 						String svalue = buffer.toString();
+						buffer.setLength(0);
 						if (!svalue.isEmpty()) {
-							ValueFactory factory = new ValueFactory();
-							try {
-								StyleValue value = factory.parseProperty(svalue);
-								((DeclarationCondition) currentCond).setValue(value);
-							} catch (DOMException e) {
-								handleWarning(index, ParseHelper.WARN_VALUE,
-										"Bad @supports condition value.", e);
-								// Replace the failed condition, maybe it's valid CSS
-								String name = ((DeclarationCondition) currentCond).getName();
-								StringBuilder buf = new StringBuilder(32);
-								buf.append('(').append(name).append(':').append(svalue).append(')');
-								BooleanCondition newCond = conditionFactory
-										.createFalseCondition(buf.toString());
-								newCond.setParentCondition(currentCond.getParentCondition());
-								currentCond = newCond;
-							}
-							buffer.setLength(0);
+							setDeclarationPredicate(index, svalue);
 						} else {
 							unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
 						}
@@ -1322,6 +1306,35 @@ public class CSSParser implements Parser, Cloneable {
 				} else {
 					unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
 				}
+			}
+
+			private void setDeclarationPredicate(int index, String value) {
+				String propertyName = ((DeclarationPredicate) currentCond).getName();
+				CSSParser parser = new CSSParser(CSSParser.this.parserFlags);
+				Reader re = new StringReader(value);
+				LexicalUnit lunit;
+				try {
+					lunit = parser.parsePropertyValue(propertyName, re);
+				} catch (Exception e) {
+					warnAndSetFalseCondition(index, propertyName, value, e);
+					return;
+				}
+				try {
+					((DeclarationPredicate) currentCond).setValue(lunit);
+				} catch (Exception e) {
+					warnAndSetFalseCondition(index, propertyName, value, e);
+				}
+			}
+
+			private void warnAndSetFalseCondition(int index, String propertyName, String svalue,
+					Exception e) {
+				handleWarning(index, ParseHelper.WARN_VALUE, "Bad @supports condition value.", e);
+				// Replace the failed condition, maybe it's valid CSS
+				StringBuilder buf = new StringBuilder(32);
+				buf.append('(').append(propertyName).append(':').append(svalue).append(')');
+				BooleanCondition newCond = conditionFactory.createFalseCondition(buf.toString());
+				newCond.setParentCondition(currentCond.getParentCondition());
+				currentCond = newCond;
 			}
 
 			@Override
@@ -1453,7 +1466,7 @@ public class CSSParser implements Parser, Cloneable {
 					return;
 				}
 			}
-			currentCond = ((MediaQueryFactory) conditionFactory).createMediaTypePredicate(medium);
+			currentCond = conditionFactory.createMediaTypePredicate(medium);
 			processOperation(index, BooleanCondition.Type.AND, "and");
 		}
 
@@ -1785,8 +1798,7 @@ public class CSSParser implements Parser, Cloneable {
 					mediaType = lcFeatureName;
 					handler.mediaType(lcFeatureName);
 				} else {
-					MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory
-							.createPredicate(featureName);
+					MediaFeaturePredicate predicate = conditionFactory.createPredicate(featureName);
 					predicate.setRangeType((byte) 0);
 					if (currentCond == null) {
 						currentCond = predicate;
@@ -1810,8 +1822,7 @@ public class CSSParser implements Parser, Cloneable {
 								"Probable hack in media feature.");
 					}
 
-					MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory
-							.createPredicate(featureName);
+					MediaFeaturePredicate predicate = conditionFactory.createPredicate(featureName);
 					predicate.setRangeType(rangeType);
 					try {
 						predicate.setValue(value);
@@ -1850,8 +1861,7 @@ public class CSSParser implements Parser, Cloneable {
 								"Probable hack in media feature.");
 					}
 
-					MediaFeaturePredicate predicate = (MediaFeaturePredicate) conditionFactory
-							.createPredicate(featureName);
+					MediaFeaturePredicate predicate = conditionFactory.createPredicate(featureName);
 					predicate.setRangeType(rangeType);
 					try {
 						predicate.setValueRange(value1, value2);

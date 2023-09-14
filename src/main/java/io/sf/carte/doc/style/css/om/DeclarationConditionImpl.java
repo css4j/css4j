@@ -1,16 +1,28 @@
+/*
+
+ Copyright (c) 2005-2023, Carlos Amengual.
+
+ SPDX-License-Identifier: BSD-3-Clause
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://css4j.github.io/LICENSE.txt
+
+ */
+
 package io.sf.carte.doc.style.css.om;
 
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.DeclarationCondition;
+import io.sf.carte.doc.style.css.property.ValueFactory;
 
 class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements DeclarationCondition {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private CSSValue value = null;
-	private String cssText = null;
 
 	public DeclarationConditionImpl(String propertyName) {
 		super(propertyName);
@@ -22,44 +34,24 @@ class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements
 	}
 
 	/**
-	 * Set the condition feature value.
+	 * Set the {@code @supports} condition property value.
 	 * 
 	 * @param value the value.
-	 * @throws DOMException if the value is incompatible with the feature being
-	 *                      tested with the condition.
+	 * @return {@code null} if the value was set correctly, or an exception if the
+	 *         value is incompatible with the feature being tested with the
+	 *         condition.
 	 */
 	@Override
-	public void setValue(CSSValue value) throws DOMException {
-		this.value = value;
-	}
-
-	/**
-	 * Set a serialized value for the property.
-	 * <p>
-	 * This should be done only when a proper value could not be parsed.
-	 * <p>
-	 * A condition which has a serialized value but not a real value is never going
-	 * to match, although the serialized value shall be used for serializations.
-	 * 
-	 * @param cssText the serialized value.
-	 */
-	@Override
-	public void setValue(String cssText) {
-		this.cssText  = cssText;
-	}
-
-	@Override
-	public boolean isParsable() {
-		return this.cssText == null;
+	public void setValue(LexicalUnit value) throws DOMException {
+		ValueFactory factory = new ValueFactory();
+		this.value = factory.createCSSValue(value);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + getName().hashCode();
-		result = prime * result
-				+ ((value == null) ? ((cssText == null) ? 0 : cssText.hashCode()) : value.hashCode());
+		int result = getName().hashCode();
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
 
@@ -81,12 +73,6 @@ class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements
 		if (value == null) {
 			if (other.value != null) {
 				return false;
-			} else if (cssText == null) {
-				if (other.cssText != null) {
-					return false;
-				}
-			} else if (!cssText.equals(other.cssText)) {
-				return false;
 			}
 		} else if (!value.equals(other.value)) {
 			return false;
@@ -99,8 +85,6 @@ class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements
 		buf.append('(').append(getName()).append(": ");
 		if (value != null) {
 			buf.append(value.getCssText());
-		} else if (cssText != null) {
-			buf.append(cssText);
 		}
 		buf.append(')');
 	}
@@ -110,8 +94,6 @@ class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements
 		buf.append('(').append(getName()).append(':');
 		if (value != null) {
 			buf.append(value.getMinifiedCssText(getName()));
-		} else if (cssText != null) {
-			buf.append(cssText);
 		}
 		buf.append(')');
 	}

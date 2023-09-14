@@ -13,21 +13,13 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.nsac.DeclarationPredicate;
 
 /**
- * A condition that declares a property name and a value.
- *
+ * A condition that declares a property name with an object model value.
  */
-public interface DeclarationCondition extends BooleanCondition {
-
-	/**
-	 * The property name.
-	 * 
-	 * @return the property name.
-	 */
-	String getName();
+public interface DeclarationCondition extends DeclarationPredicate {
 
 	/**
 	 * Get the value.
@@ -37,11 +29,14 @@ public interface DeclarationCondition extends BooleanCondition {
 	CSSValue getValue();
 
 	/**
-	 * This method should be deprecated, currently always returns true.
+	 * Always returns true.
 	 * 
 	 * @return true if the value could be parsed and is set.
 	 */
-	boolean isParsable();
+	@Deprecated(forRemoval = true)
+	default boolean isParsable() {
+		return true;
+	}
 
 	/**
 	 * Set the condition feature value.
@@ -50,7 +45,9 @@ public interface DeclarationCondition extends BooleanCondition {
 	 * @throws DOMException if the value is incompatible with the feature being
 	 *                      tested with the condition.
 	 */
-	void setValue(CSSValue value) throws DOMException;
+	@Deprecated(forRemoval = true)
+	default void setValue(CSSValue value) throws DOMException {
+	}
 
 	/**
 	 * Set a serialized value for the property, setting the <code>parsable</code>
@@ -66,7 +63,7 @@ public interface DeclarationCondition extends BooleanCondition {
 	 *             unsupported, and are preferred to this method which isn't used
 	 *             anymore.
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true)
 	default void setValue(String cssText) {
 	}
 
