@@ -660,6 +660,17 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	/**
+	 * Create a new factory for {@code @supports} conditions.
+	 * 
+	 * @param parentSheet the {@code @supports} rule's parent style sheet.
+	 * @return the factory.
+	 */
+	protected io.sf.carte.doc.style.css.SupportsConditionFactory createSupportsConditionFactory(
+			AbstractCSSStyleSheet parentSheet) {
+		return new SupportsConditionFactory(parentSheet);
+	}
+
+	/**
 	 * Parse a media query string into the given handler.
 	 * 
 	 * @param media
@@ -1107,7 +1118,8 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	private class SupportsTokenHandler extends ConditionTokenHandler<SupportsConditionFactory> {
+	private class SupportsTokenHandler
+			extends ConditionTokenHandler<io.sf.carte.doc.style.css.SupportsConditionFactory> {
 
 		/*
 		 * Error-related fields.
@@ -1117,7 +1129,7 @@ public class CSSParser implements Parser, Cloneable {
 		private final CSSRule rule;
 
 		SupportsTokenHandler(CSSRule rule, AbstractCSSStyleSheet parentStyleSheet) {
-			super(new SupportsConditionFactory(parentStyleSheet));
+			super(createSupportsConditionFactory(parentStyleSheet));
 			this.rule = rule;
 			setPredicateHandler(new SupportsDelegateHandler());
 		}
