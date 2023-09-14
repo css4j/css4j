@@ -111,6 +111,16 @@ public class CSSParser implements Parser, Cloneable {
 		errorHandler = null;
 	}
 
+	/**
+	 * Instantiate a parser instance with the given flags.
+	 * 
+	 * @param parserFlags the flags.
+	 */
+	public CSSParser(EnumSet<Flag> parserFlags) {
+		super();
+		this.parserFlags = parserFlags;
+	}
+
 	protected CSSParser(CSSParser copyMe) {
 		super();
 		parserFlags = copyMe.parserFlags;
