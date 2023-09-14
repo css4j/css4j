@@ -44,7 +44,9 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
+
 		setSubpropertiesToDefault();
+
 		// Do syntax detection first
 		// Other syntaxes. We first test for 'none'
 		if (isNoneDeclaration()) {
@@ -57,6 +59,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -75,6 +78,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 		ValueList gridTemplateRows = ValueList.createWSValueList();
 		ValueList gridTemplateAreas = ValueList.createWSValueList();
 		ValueList lineNames = null;
+
 		byte ret = isAutoflowOrDenseKeyword();
 		if (ret == -1) {
 			return false;
@@ -88,6 +92,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 				setGridAutoFlow("row", false);
 			}
 		}
+
 		boolean missSlash = true;
 		LexicalType lasttype = LexicalType.UNKNOWN;
 		topLoop: do {
@@ -202,6 +207,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 				break;
 			}
 		} while (currentValue != null);
+
 		// Check for possible error
 		if (!setTemplateAreas && missSlash) {
 			String message = "Not a correct rows / columns syntax: "
@@ -209,6 +215,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 			syntaxError(message);
 			return false;
 		}
+
 		if (gridTemplateRows.getLength() != 0) {
 			// Is it different than a set of 'auto' ?
 			if (!isAutoOnly(gridTemplateRows)) {
@@ -242,6 +249,7 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 			}
 			setSubpropertyValue("grid-template-areas", value);
 		}
+
 		return true;
 	}
 

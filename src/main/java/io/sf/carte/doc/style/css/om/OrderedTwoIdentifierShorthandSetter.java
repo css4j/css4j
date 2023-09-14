@@ -32,8 +32,10 @@ class OrderedTwoIdentifierShorthandSetter extends ShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
+
 		setPropertyToDefault(subparray[0]);
 		setPropertyToDefault(subparray[1]);
+
 		boolean firstPropertyUnset = true;
 		while (currentValue != null) {
 			if (isValidType(currentValue)) {
@@ -50,7 +52,9 @@ class OrderedTwoIdentifierShorthandSetter extends ShorthandSetter {
 			}
 			nextCurrentValue();
 		}
+
 		flush();
+
 		return true;
 	}
 

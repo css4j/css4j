@@ -90,10 +90,10 @@ class MaskShorthandSetter extends ShorthandSetter {
 	public boolean assignSubproperties() {
 		layerBuffer = new StringBuilder(64);
 		miniLayerBuffer = new StringBuilder(64);
-		//
+
 		String[] subparray = getShorthandSubproperties();
 		Set<String> subp = new HashSet<String>(subparray.length);
-		//
+
 		int i = 0;
 		while (i < layerCount && currentValue != null) {
 			boolean validLayer = false;
@@ -161,7 +161,9 @@ class MaskShorthandSetter extends ShorthandSetter {
 				resetUnsetProperties(subp);
 			}
 		}
+
 		appendToValueBuffer(layerBuffer, miniLayerBuffer);
+
 		// Assign subproperties
 		setListSubpropertyValue("mask-image", lstImage);
 		setListSubpropertyValue("mask-position", lstPosition);
@@ -171,10 +173,13 @@ class MaskShorthandSetter extends ShorthandSetter {
 		setListSubpropertyValue("mask-repeat", lstRepeat);
 		setListSubpropertyValue("mask-composite", lstComposite);
 		setListSubpropertyValue("mask-mode", lstMode);
+
 		// Reset mask-border
 		resetMaskBorderProperties();
+
 		// flush the properties
 		flush();
+
 		return true;
 	}
 

@@ -58,11 +58,14 @@ class BoxShorthandSetter extends ShorthandSetter {
 		if (scanForInherited(currentValue)) {
 			return true;
 		}
+
 		// Get the array of shorthand sub-properties (longhands)
 		// Needs to be top/right/bottom/left
 		String[] subparray = getShorthandSubproperties();
+
 		// Count valid values
 		short vcount = boxValueCount(currentValue);
+
 		// Exit if result of value count is invalid
 		if (vcount == 0 || vcount > 4) {
 			StyleDeclarationErrorHandler errHandler = styleDeclaration
@@ -72,6 +75,7 @@ class BoxShorthandSetter extends ShorthandSetter {
 			}
 			return false;
 		}
+
 		// Set values according to value count
 		switch (vcount) {
 		case 1:
@@ -121,10 +125,12 @@ class BoxShorthandSetter extends ShorthandSetter {
 			}
 			break;
 		}
+
 		if (!nonmixed) {
 			// The mixture of keywords/values is not supported by browsers
 			initValueString();
 		}
+
 		return true;
 	}
 

@@ -29,10 +29,12 @@ class GridAreaShorthandSetter extends GridPlacementShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
+
 		setPropertyToDefault(subparray[0]);
 		setPropertyToDefault(subparray[1]);
 		setPropertyToDefault(subparray[2]);
 		setPropertyToDefault(subparray[3]);
+
 		// Build a list with the grid-lines found.
 		ValueList gridLines = ValueList.createWSValueList();
 		while (true) {
@@ -85,7 +87,9 @@ class GridAreaShorthandSetter extends GridPlacementShorthandSetter {
 		default:
 			return false;
 		}
+
 		flush();
+
 		return true;
 	}
 

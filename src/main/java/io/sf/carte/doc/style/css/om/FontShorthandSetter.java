@@ -70,6 +70,7 @@ class FontShorthandSetter extends ShorthandSetter {
 			getValueItemBufferMini().append("normal");
 			return true;
 		}
+
 		if (draftSubproperties()) {
 			if (getUnassignedProperties().contains("font-family")) {
 				// No font family
@@ -88,6 +89,7 @@ class FontShorthandSetter extends ShorthandSetter {
 			flush();
 			return true;
 		}
+
 		return false;
 	}
 
@@ -132,6 +134,7 @@ class FontShorthandSetter extends ShorthandSetter {
 			}
 			return true;
 		}
+
 		// Rest of properties
 		switch (currentValue.getLexicalUnitType()) {
 		case IDENT:
@@ -201,6 +204,7 @@ class FontShorthandSetter extends ShorthandSetter {
 			}
 		default:
 		}
+
 		return false;
 	}
 
@@ -214,6 +218,7 @@ class FontShorthandSetter extends ShorthandSetter {
 			stringType = Type.STRING;
 			super.nextCurrentValue();
 		}
+
 		TypedValue value;
 		if (stringType == Type.STRING) {
 			value = new StringValue();
@@ -222,6 +227,7 @@ class FontShorthandSetter extends ShorthandSetter {
 		}
 		value.setStringValue(stringType, str);
 		value.setSubproperty(true);
+
 		addSubpropertyValue("font-family", value, true);
 	}
 

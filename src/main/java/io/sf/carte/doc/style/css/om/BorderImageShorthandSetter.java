@@ -36,6 +36,7 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
+
 		boolean errorFound = false;
 		boolean bisourceUnset = true;
 		boolean bisliceUnset = true;
@@ -207,9 +208,11 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 				break;
 			}
 		}
+
 		if (errorFound) {
 			return false;
 		}
+
 		// Unset properties set to defaults
 		if (bisourceUnset) {
 			setSubpropertyValue("border-image-source", defaultPropertyValue("border-image-source"));
@@ -226,7 +229,9 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 		if (birepeatUnset) {
 			setSubpropertyValue("border-image-repeat", defaultPropertyValue("border-image-repeat"));
 		}
+
 		flush();
+
 		return true;
 	}
 }

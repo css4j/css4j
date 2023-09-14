@@ -95,10 +95,10 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	@Override
 	public boolean assignSubproperties() {
 		List<LexicalUnit> unknownValues = null;
-		//
+
 		layerBuffer = new StringBuilder(64);
 		miniLayerBuffer = new StringBuilder(64);
-		//
+
 		String[] subparray = getShorthandSubproperties();
 		int i = 0;
 		topLoop: while (i < layerCount && currentValue != null) {
@@ -207,7 +207,9 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 				resetUnsetProperties(subp);
 			}
 		}
+
 		appendToValueBuffer(layerBuffer, miniLayerBuffer);
+
 		// Assign subproperties
 		setListSubpropertyValue("background-image", lstImage);
 		setListSubpropertyValue("background-position", lstPosition);
@@ -216,13 +218,16 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		setListSubpropertyValue("background-clip", lstClip);
 		setListSubpropertyValue("background-repeat", lstRepeat);
 		setListSubpropertyValue("background-attachment", lstAttachment);
+
 		// color
 		if (!isPropertySet("background-color")) {
 			StyleValue iniVal = defaultPropertyValue("background-color");
 			setSubpropertyValue("background-color", iniVal);
 		}
+
 		// flush the properties
 		flush();
+
 		return true;
 	}
 
@@ -258,6 +263,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		lstOrigin.add(keyword);
 		lstClip.add(keyword);
 		lstAttachment.add(keyword);
+
 		if (currentValue == null) {
 			// Final layer
 			setSubpropertyValue("background-color", keyword);

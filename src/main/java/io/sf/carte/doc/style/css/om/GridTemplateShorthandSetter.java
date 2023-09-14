@@ -26,10 +26,12 @@ class GridTemplateShorthandSetter extends BaseGridShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
+
 		String[] subparray = getShorthandDatabase().getShorthandSubproperties(getShorthandName());
 		setPropertyToDefault(subparray[0]);
 		setPropertyToDefault(subparray[1]);
 		setPropertyToDefault(subparray[2]);
+
 		// Determine if it is the syntax with grid-template-areas
 		if (isTemplateAreasSyntax()) {
 			if (templateSyntax(true)) {
@@ -39,12 +41,14 @@ class GridTemplateShorthandSetter extends BaseGridShorthandSetter {
 				return false;
 			}
 		}
+
 		// Other syntaxes. We first test for 'none'
 		if (isNoneDeclaration()) {
 			appendValueItemString("none");
 			flush();
 			return true;
 		}
+
 		// Syntax must be <‘grid-template-rows’> / <‘grid-template-columns’>
 		if (templateSyntax(false)) {
 			flush();

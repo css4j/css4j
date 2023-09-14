@@ -33,9 +33,11 @@ class FlexShorthandSetter extends ShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
+
 		setPropertyToDefault("flex-grow");
 		setPropertyToDefault("flex-shrink");
 		setPropertyToDefault("flex-basis");
+
 		boolean flexGrowUnset = true;
 		boolean flexBasisUnset = true;
 		int count = 0;
@@ -118,7 +120,9 @@ class FlexShorthandSetter extends ShorthandSetter {
 			}
 			nextCurrentValue();
 		}
+
 		flush();
+
 		return true;
 	}
 

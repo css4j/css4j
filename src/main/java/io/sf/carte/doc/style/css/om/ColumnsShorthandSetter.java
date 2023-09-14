@@ -29,8 +29,10 @@ class ColumnsShorthandSetter extends ShorthandSetter {
 			} else if (kwscan == 2) {
 				return false;
 			}
+
 			setPropertyToDefault("column-width");
 			setPropertyToDefault("column-count");
+
 			boolean columnWidthUnset = true;
 			boolean columnCountUnset = true;
 			byte count = 0;
@@ -66,7 +68,9 @@ class ColumnsShorthandSetter extends ShorthandSetter {
 				}
 				nextCurrentValue();
 			}
+
 			flush();
+
 			return true;
 		}
 

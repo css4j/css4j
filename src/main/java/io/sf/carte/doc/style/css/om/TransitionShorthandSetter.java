@@ -87,6 +87,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 			}
 			value = value.getNextLexicalUnit();
 		} while (value != null);
+
 		cssText = valueBuffer.toString();
 		minifiedCssText = miniValueBuffer.toString();
 	}
@@ -237,6 +238,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				lstDelay.add(defaultPropertyValue("transition-delay"));
 			}
 		}
+
 		/*
 		 * "If a property is specified multiple times in the value of
 		 * ‘transition-property’ (either on its own, via a shorthand that
@@ -263,12 +265,15 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				i++;
 			}
 		}
+
 		// Assign subproperties
 		setSubpropertyValueWListCheck("transition-property", lstProperty);
 		setSubpropertyValueWListCheck("transition-duration", lstDuration);
 		setSubpropertyValueWListCheck("transition-timing-function", lstTiming);
 		setSubpropertyValueWListCheck("transition-delay", lstDelay);
+
 		flush();
+
 		return true;
 	}
 

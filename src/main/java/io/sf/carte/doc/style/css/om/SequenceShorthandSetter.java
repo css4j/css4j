@@ -32,6 +32,7 @@ class SequenceShorthandSetter extends ShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
+
 		String[] subparray = getShorthandSubproperties();
 		int vcount = countValues();
 		if (vcount == 2) {
@@ -45,7 +46,9 @@ class SequenceShorthandSetter extends ShorthandSetter {
 		} else {
 			return false;
 		}
+
 		flush();
+
 		return true;
 	}
 

@@ -79,6 +79,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 		ValueList lineNames = null;
 		boolean missSlash = !setTemplateAreas;
 		LexicalType lasttype = LexicalType.UNKNOWN;
+
 		topLoop: do {
 			StyleValue value;
 			LexicalType type;
@@ -156,6 +157,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 				break;
 			}
 		} while (currentValue != null);
+
 		// Check for possible error
 		if (missSlash) {
 			String message = "Not a correct rows / columns syntax: "
@@ -163,6 +165,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 			syntaxError(message);
 			return false;
 		}
+
 		if (gridTemplateRows.getLength() != 0) {
 			StyleValue value;
 			if (gridTemplateRows.getLength() != 1) {
@@ -176,6 +179,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 			auto.setSubproperty(true);
 			setSubpropertyValue("grid-template-rows", auto);
 		}
+
 		if (gridTemplateAreas.getLength() != 0) {
 			StyleValue value;
 			if (gridTemplateAreas.getLength() != 1) {
@@ -185,6 +189,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 			}
 			setSubpropertyValue("grid-template-areas", value);
 		} // grid-template-areas: none (initial value)
+
 		return true;
 	}
 

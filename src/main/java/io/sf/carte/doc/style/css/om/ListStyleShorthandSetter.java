@@ -27,9 +27,11 @@ class ListStyleShorthandSetter extends ShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
+
 		setPropertyToDefault("list-style-image");
 		setPropertyToDefault("list-style-type");
 		setPropertyToDefault("list-style-position");
+
 		boolean stylePositionUnset = true;
 		boolean styleImageUnset = true;
 		boolean styleTypeUnset = true;
@@ -74,7 +76,9 @@ class ListStyleShorthandSetter extends ShorthandSetter {
 			}
 			nextCurrentValue();
 		}
+
 		flush();
+
 		return true;
 	}
 

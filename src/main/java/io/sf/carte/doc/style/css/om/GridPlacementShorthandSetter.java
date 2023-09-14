@@ -34,8 +34,10 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
+
 		setPropertyToDefault(subparray[0]);
 		setPropertyToDefault(subparray[1]);
+
 		StyleValue firstValue = gridLine();
 		if (firstValue != null) {
 			setSubpropertyValue(subparray[0], firstValue);
@@ -57,6 +59,7 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 				return true;
 			}
 		}
+
 		return false;
 	}
 
