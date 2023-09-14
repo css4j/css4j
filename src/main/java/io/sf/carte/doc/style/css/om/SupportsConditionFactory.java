@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
-import io.sf.carte.doc.style.css.parser.DeclarationCondition;
 
 /**
  * Contains factory methods related to <code>{@literal @}supports</code>
@@ -70,8 +69,8 @@ public class SupportsConditionFactory
 	 * Create a declaration (operand) condition.
 	 * <p>
 	 * The value of the feature can be set later with
-	 * {@link DeclarationCondition#setValue(io.sf.carte.doc.style.css.CSSValue)
-	 * DeclarationCondition.setValue(CSSValue)}.
+	 * {@link io.sf.carte.doc.style.css.nsac.DeclarationPredicate#setValue(io.sf.carte.doc.style.css.nsac.LexicalUnit)
+	 * DeclarationPredicate.setValue(LexicalUnit)}.
 	 * 
 	 * @param featureName the name of the declared feature.
 	 * 
