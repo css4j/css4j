@@ -54,11 +54,11 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	final ValueFactory valueFactory;
 
-	private final HashMap<String, StyleValue> mypropValue = new HashMap<String, StyleValue>();
+	private final HashMap<String, StyleValue> mypropValue = new HashMap<>();
 
-	private final List<String> mypropertyList = new ArrayList<String>();
+	private final List<String> mypropertyList = new ArrayList<>();
 
-	private final List<Boolean> mypriorities = new ArrayList<Boolean>();
+	private final List<Boolean> mypriorities = new ArrayList<>();
 
 	protected LexicalUnit currentValue = null;
 
@@ -70,7 +70,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 	 * The values in the shorthand are attempted to set subproperty values in a certain order.
 	 * The properties that failed to be set to the tested value are stored here.
 	 */
-	private final ArrayList<String> unassignedProperties = new ArrayList<String>(6);
+	private final ArrayList<String> unassignedProperties = new ArrayList<>(6);
 
 	ShorthandSetter(BaseCSSStyleDeclaration style, String shorthandName) {
 		super(style, shorthandName);
@@ -358,7 +358,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	protected List<String> subpropertyList() {
 		String[] subparray = getShorthandSubproperties();
-		List<String> subp = new ArrayList<String>(subparray.length);
+		List<String> subp = new ArrayList<>(subparray.length);
 		Collections.addAll(subp, subparray);
 		return subp;
 	}
@@ -379,7 +379,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 		} else if (kwscan == 2) {
 			return false;
 		}
-		LinkedList<LexicalUnit> unassignedValues = new LinkedList<LexicalUnit>();
+		LinkedList<LexicalUnit> unassignedValues = new LinkedList<>();
 		List<String> subp = subpropertyList();
 		while (currentValue != null) {
 			boolean assigned = false;

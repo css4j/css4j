@@ -53,7 +53,7 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 		this.lexicalUnit = lexicalUnit;
 		this.important = important;
 		priorityCompat = lexicalUnit.getLexicalUnitType() == LexicalUnit.LexicalType.COMPAT_PRIO;
-		this.longhands = new HashSet<String>(longhands.length);
+		this.longhands = new HashSet<>(longhands.length);
 		Collections.addAll(this.longhands, longhands);
 	}
 
@@ -64,7 +64,7 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 		this.priorityCompat = copied.priorityCompat;
 		this.cssText = copied.cssText;
 		this.miniCssText = copied.miniCssText;
-		this.longhands = new HashSet<String>(copied.longhands.size());
+		this.longhands = new HashSet<>(copied.longhands.size());
 		this.longhands.addAll(copied.longhands);
 	}
 

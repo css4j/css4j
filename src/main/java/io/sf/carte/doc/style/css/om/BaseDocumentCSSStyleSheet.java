@@ -345,7 +345,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 	}
 
 	class Cascade {
-		private final SortedMap<StyleRule.RuleSpecificity, LinkedList<StyleRule>> matchingStyles = new TreeMap<StyleRule.RuleSpecificity, LinkedList<StyleRule>>(
+		private final SortedMap<StyleRule.RuleSpecificity, LinkedList<StyleRule>> matchingStyles = new TreeMap<>(
 				new StyleRule.SpecificityComparator());
 
 		Cascade() {
@@ -407,7 +407,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 			if (matchingStyles.containsKey(sp)) {
 				matchingStyles.get(sp).add(sp.getCSSStyleRule());
 			} else {
-				LinkedList<StyleRule> matchingRules = new LinkedList<StyleRule>();
+				LinkedList<StyleRule> matchingRules = new LinkedList<>();
 				matchingRules.add(sp.getCSSStyleRule());
 				matchingStyles.put(sp, matchingRules);
 			}

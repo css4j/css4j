@@ -56,13 +56,13 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 	private final UserAgentErrorHandler errorHandler = new LogUserAgentErrorHandler();
 
 	// Hostname -> Cookies
-	private final Map<String, Set<Cookie>> cookieMap = new HashMap<String, Set<Cookie>>();
+	private final Map<String, Set<Cookie>> cookieMap = new HashMap<>();
 
 	private final SimpleDateFormat cookieDateFormat = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss zzz", Locale.ROOT);
 
 	private final CookieConfig globalConfig = new GlobalCookieConfig();
 
-	private final Map<String, Set<AuthenticationCredentials>> credentialMap = new HashMap<String, Set<AuthenticationCredentials>>();
+	private final Map<String, Set<AuthenticationCredentials>> credentialMap = new HashMap<>();
 
 	private String userAgentId = System.getProperty("http.agent", "Mozilla/4.0 (compatible; CSS4J)");
 
@@ -186,7 +186,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 		}
 		Set<AuthenticationCredentials> credset = credentialMap.get(host);
 		if (credset == null) {
-			credset = new HashSet<AuthenticationCredentials>();
+			credset = new HashSet<>();
 		} else {
 			Iterator<AuthenticationCredentials> it = credset.iterator();
 			while (it.hasNext()) {
@@ -284,7 +284,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 	}
 
 	private void setCookies(HttpURLConnection hcon, URL url, long creationDate) {
-		Set<Cookie> matchingCookies = new HashSet<Cookie>(8);
+		Set<Cookie> matchingCookies = new HashSet<>(8);
 		String host = url.getHost().toLowerCase(Locale.ROOT);
 		Set<Cookie> cookies = cookieMap.get(host);
 		if (cookies != null) {
@@ -339,7 +339,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 					}
 					Set<Cookie> set = cookieMap.get(ck.getDomain());
 					if (set == null) {
-						set = new HashSet<Cookie>(8);
+						set = new HashSet<>(8);
 						cookieMap.put(ck.getDomain(), set);
 					}
 					set.add(ck);

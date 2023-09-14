@@ -92,7 +92,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 		miniLayerBuffer = new StringBuilder(64);
 
 		String[] subparray = getShorthandSubproperties();
-		Set<String> subp = new HashSet<String>(subparray.length);
+		Set<String> subp = new HashSet<>(subparray.length);
 
 		int i = 0;
 		while (i < layerCount && currentValue != null) {

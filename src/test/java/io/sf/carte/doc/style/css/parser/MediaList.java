@@ -56,8 +56,8 @@ public class MediaList implements MediaQueryList, Serializable {
 
 	private MediaList() {
 		super();
-		mediastringList = new ArrayList<String>(5);
-		mediaList = new ArrayList<String>(5);
+		mediastringList = new ArrayList<>(5);
+		mediaList = new ArrayList<>(5);
 	}
 
 	private MediaList(List<String> listRef, List<String> mediaList) {

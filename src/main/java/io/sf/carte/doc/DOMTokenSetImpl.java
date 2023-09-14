@@ -60,7 +60,7 @@ public class DOMTokenSetImpl implements DOMTokenList, java.io.Serializable {
 	public String getSortedValue() {
 		if (multiple) {
 			@SuppressWarnings("unchecked")
-			TreeSet<String> set = new TreeSet<String>((LinkedList<String>) this.value);
+			TreeSet<String> set = new TreeSet<>((LinkedList<String>) this.value);
 			StringBuilder buf = new StringBuilder(32 + 8 * set.size());
 			Iterator<String> it = set.iterator();
 			buf.append(it.next());
@@ -91,7 +91,7 @@ public class DOMTokenSetImpl implements DOMTokenList, java.io.Serializable {
 				set.clear();
 			} else {
 				multiple = true;
-				set = new LinkedList<String>();
+				set = new LinkedList<>();
 				this.value = set;
 			}
 			StringTokenizer st = new StringTokenizer(value);
@@ -159,7 +159,7 @@ public class DOMTokenSetImpl implements DOMTokenList, java.io.Serializable {
 			LinkedList<String> linkedList = (LinkedList<String>) this.value;
 			return linkedList.iterator();
 		}
-		return ((String) value).length() == 0 ? new EmptyIterator<String>() : new SingleItemIterator((String) value);
+		return ((String) value).length() == 0 ? new EmptyIterator<>() : new SingleItemIterator((String) value);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -222,7 +222,7 @@ public class DOMTokenSetImpl implements DOMTokenList, java.io.Serializable {
 			}
 		} else if ((strValue = (String) this.value).length() != 0) {
 			if (!strValue.equals(token)) {
-				LinkedList<String> set = new LinkedList<String>();
+				LinkedList<String> set = new LinkedList<>();
 				set.add(strValue);
 				set.add(token);
 				this.value = set;
@@ -279,7 +279,7 @@ public class DOMTokenSetImpl implements DOMTokenList, java.io.Serializable {
 			this.value = token;
 			return true;
 		} else {
-			set = new LinkedList<String>();
+			set = new LinkedList<>();
 			set.add((String) this.value);
 			set.add(token);
 			this.value = set;

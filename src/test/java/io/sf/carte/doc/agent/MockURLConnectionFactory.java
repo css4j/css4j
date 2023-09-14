@@ -27,11 +27,11 @@ public class MockURLConnectionFactory {
 
 	public static final String SAMPLE_URL = "http://www.example.com/xhtml/htmlsample.html";
 
-	private final Map<String, String> mockURLMap = new HashMap<String, String>(12);
+	private final Map<String, String> mockURLMap = new HashMap<>(12);
 
-	private final Map<String, Map<String, List<String>>> headerMap = new HashMap<String, Map<String, List<String>>>();
+	private final Map<String, Map<String, List<String>>> headerMap = new HashMap<>();
 
-	private final HashMap<String, String> referrerMap = new HashMap<String, String>();
+	private final HashMap<String, String> referrerMap = new HashMap<>();
 
 	/*
 	 * After adding a file here and in classpath, remember to refresh the IDE if you
@@ -70,12 +70,12 @@ public class MockURLConnectionFactory {
 	public void setHeader(String ext, String headerName, String value) {
 		Map<String, List<String>> extheaders = headerMap.get(ext);
 		if (extheaders == null) {
-			extheaders = new HashMap<String, List<String>>();
+			extheaders = new HashMap<>();
 			headerMap.put(ext, extheaders);
 		}
 		List<String> hdrs = extheaders.get(headerName);
 		if (hdrs == null) {
-			hdrs = new ArrayList<String>(4);
+			hdrs = new ArrayList<>(4);
 			extheaders.put(headerName, hdrs);
 		}
 		int idx = hdrs.indexOf(headerName);
@@ -121,7 +121,7 @@ public class MockURLConnectionFactory {
 		MockURLConnection(URL url) {
 			super(url);
 			String ext = getExtension();
-			connheaders = new HashMap<String, List<String>>();
+			connheaders = new HashMap<>();
 			Map<String, List<String>> hdrmap = getHeadersForExtension(ext);
 			if (hdrmap != null) {
 				connheaders.putAll(hdrmap);
@@ -133,7 +133,7 @@ public class MockURLConnectionFactory {
 				} else {
 					domain = '.' + domain;
 				}
-				LinkedList<String> ckhdr = new LinkedList<String>();
+				LinkedList<String> ckhdr = new LinkedList<>();
 				ckhdr.add("countryCode=EN; Domain=" + domain + "; Path=/");
 				connheaders.put("Set-Cookie", ckhdr);
 			}

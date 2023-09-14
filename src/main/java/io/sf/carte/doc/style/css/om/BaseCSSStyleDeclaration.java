@@ -97,19 +97,19 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	protected BaseCSSStyleDeclaration(BaseCSSDeclarationRule parentRule) {
 		super();
 		this.parentRule = parentRule;
-		propValue = new HashMap<String, StyleValue>();
-		propertyList = new ArrayList<String>();
-		priorities = new ArrayList<String>();
-		shorthandSet = new ArrayList<String>(6);
+		propValue = new HashMap<>();
+		propertyList = new ArrayList<>();
+		priorities = new ArrayList<>();
+		shorthandSet = new ArrayList<>(6);
 	}
 
 	public BaseCSSStyleDeclaration() {
 		super();
 		this.parentRule = null;
-		propValue = new HashMap<String, StyleValue>();
-		propertyList = new ArrayList<String>();
-		priorities = new ArrayList<String>();
-		shorthandSet = new ArrayList<String>(6);
+		propValue = new HashMap<>();
+		propertyList = new ArrayList<>();
+		priorities = new ArrayList<>();
+		shorthandSet = new ArrayList<>(6);
 	}
 
 	/**
@@ -133,7 +133,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	private HashMap<String, StyleValue> deepClone(HashMap<String, StyleValue> cloneFrom) {
-		HashMap<String, StyleValue> propValue = new HashMap<String, StyleValue>(cloneFrom.size());
+		HashMap<String, StyleValue> propValue = new HashMap<>(cloneFrom.size());
 		Iterator<Entry<String, StyleValue>> it = cloneFrom.entrySet().iterator();
 		while (it.hasNext()) {
 			Entry<String, StyleValue> entry = it.next();
@@ -148,7 +148,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	@Override
 	public String getMinifiedCssText() {
-		LinkedList<String> unusedShorthands = new LinkedList<String>(shorthandSet);
+		LinkedList<String> unusedShorthands = new LinkedList<>(shorthandSet);
 		int sz = propertyList.size();
 		StringBuilder sb = new StringBuilder(50 + sz * 10);
 		for (int i = 0; i < sz; i++) {
@@ -230,7 +230,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	@Override
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
-		LinkedList<String> unusedShorthands = new LinkedList<String>(shorthandSet);
+		LinkedList<String> unusedShorthands = new LinkedList<>(shorthandSet);
 		int sz = propertyList.size();
 		for (int i = 0; i < sz; i++) {
 			String ptyname = propertyList.get(i);
@@ -311,9 +311,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	String getOptimizedCssText() {
 		int sz = propertyList.size();
-		ArrayList<String> ptyList = new ArrayList<String>(sz);
-		HashSet<String> prioSet = new HashSet<String>(sz);
-		HashMap<String, ShorthandBuilder> builders = new HashMap<String, ShorthandBuilder>();
+		ArrayList<String> ptyList = new ArrayList<>(sz);
+		HashSet<String> prioSet = new HashSet<>(sz);
+		HashMap<String, ShorthandBuilder> builders = new HashMap<>();
 		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
 		StringBuilder sb = new StringBuilder(50 + sz * 24);
 		for (int i = 0; i < sz; i++) {
@@ -859,7 +859,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			LinkedList<String> shadowedShorthands = null;
 			if (!shorthandSet.isEmpty()) {
 				if (shorthandSet.contains(propertyName)) {
-					shadowedShorthands = new LinkedList<String>();
+					shadowedShorthands = new LinkedList<>();
 					shadowedShorthands.add(propertyName);
 				}
 				// Check whether propertyName, while being a shorthand, is
@@ -873,7 +873,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 						if (important || !((ShorthandValue) propValue.get(sh)).isImportant()) {
 							// It is replaceable, add to shadowedShorthands
 							if (shadowedShorthands == null) {
-								shadowedShorthands = new LinkedList<String>();
+								shadowedShorthands = new LinkedList<>();
 							}
 							shadowedShorthands.add(sh);
 						}
@@ -1412,7 +1412,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 */
 	public void addStyle(BaseCSSStyleDeclaration style) {
 		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
-		HashSet<String> addedShorthands = new HashSet<String>(style.shorthandSet.size());
+		HashSet<String> addedShorthands = new HashSet<>(style.shorthandSet.size());
 		// Process individual properties
 		Iterator<String> it = style.propertyList.iterator();
 		int i = -1;
@@ -1769,7 +1769,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		TreeSet<String> propertyNames = new TreeSet<String>(propertyList);
+		TreeSet<String> propertyNames = new TreeSet<>(propertyList);
 		Iterator<String> it = propertyNames.iterator();
 		while (it.hasNext()) {
 			String property = it.next();
@@ -1873,9 +1873,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	private static class PropertyDiff implements Diff<String> {
 
-		LinkedList<String> leftSide = new LinkedList<String>();
-		LinkedList<String> rightSide = new LinkedList<String>();
-		LinkedList<String> differentValues = new LinkedList<String>();
+		LinkedList<String> leftSide = new LinkedList<>();
+		LinkedList<String> rightSide = new LinkedList<>();
+		LinkedList<String> differentValues = new LinkedList<>();
 
 		private PropertyDiff() {
 			super();

@@ -53,8 +53,8 @@ abstract class ShorthandBuilder {
 	private final String shorthandName;
 	private final BaseCSSStyleDeclaration parentStyle;
 	private final String[] subp;
-	private final Set<String> impPtySet = new TreeSet<String>();
-	private final Set<String> ptySet = new TreeSet<String>();
+	private final Set<String> impPtySet = new TreeSet<>();
+	private final Set<String> ptySet = new TreeSet<>();
 
 	ShorthandBuilder(String shorthandName, BaseCSSStyleDeclaration parentStyle) {
 		super();

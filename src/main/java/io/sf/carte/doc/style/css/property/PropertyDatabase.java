@@ -100,7 +100,7 @@ public final class PropertyDatabase {
 				"text-transform", "text-underline-position", "visibility", "voice-balance",
 				"voice-family", "voice-pitch", "voice-range", "voice-rate", "voice-stress",
 				"voice-volume", "volume", "white-space", "widows", "word-spacing", "writing-mode" };
-		HashSet<String> inheritSet = new HashSet<String>(inherit.length);
+		HashSet<String> inheritSet = new HashSet<>(inherit.length);
 		Collections.addAll(inheritSet, inherit);
 		return inheritSet;
 	}
@@ -345,7 +345,7 @@ public final class PropertyDatabase {
 			{"writing-mode", "horizontal-tb"},
 			{"z-index", "auto"}
 		};
-		Map<String, Object> initialValueMap = new HashMap<String, Object>(initialArray.length);
+		Map<String, Object> initialValueMap = new HashMap<>(initialArray.length);
 		for (int i=0; i<initialArray.length; i++){
 			initialValueMap.put(initialArray[i][0], initialArray[i][1]);
 		}

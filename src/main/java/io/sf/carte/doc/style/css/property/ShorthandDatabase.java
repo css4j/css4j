@@ -34,12 +34,12 @@ public final class ShorthandDatabase {
 	/**
 	 * Map from shorthand property names to subproperties
 	 */
-	private final Map<String, String[]> shorthand2subp = new HashMap<String, String[]>();
+	private final Map<String, String[]> shorthand2subp = new HashMap<>();
 
 	/**
 	 * Maps shorthand subproperties to their shorthand property name.
 	 */
-	private final Map<String, String> subp2shorthand = new HashMap<String, String>();
+	private final Map<String, String> subp2shorthand = new HashMap<>();
 
 	/**
 	 * Identifier properties
@@ -72,7 +72,7 @@ public final class ShorthandDatabase {
 		 * Shorthand properties
 		 */
 		Properties shand = loadPropertiesfromClasspath("shorthand.properties", loader);
-		ArrayList<String> array = new ArrayList<String>();
+		ArrayList<String> array = new ArrayList<>();
 		Iterator<Entry<Object, Object>> it = shand.entrySet().iterator();
 		while (it.hasNext()) {
 			Entry<Object, Object> me = it.next();
@@ -204,7 +204,7 @@ public final class ShorthandDatabase {
 	}
 
 	private String[] longhandArray(String[] subparray) {
-		LinkedList<String> list = new LinkedList<String>();
+		LinkedList<String> list = new LinkedList<>();
 		for (String subproperty : subparray) {
 			if (!isShorthand(subproperty)) {
 				list.add(subproperty);

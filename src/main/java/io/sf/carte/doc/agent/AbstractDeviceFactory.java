@@ -21,7 +21,7 @@ import io.sf.carte.doc.style.css.StyleDatabase;
  */
 abstract public class AbstractDeviceFactory implements DeviceFactory {
 
-	private final Map<String, StyleDatabase> mediaDatabaseMap = new HashMap<String, StyleDatabase>();
+	private final Map<String, StyleDatabase> mediaDatabaseMap = new HashMap<>();
 
 	protected AbstractDeviceFactory() {
 		super();

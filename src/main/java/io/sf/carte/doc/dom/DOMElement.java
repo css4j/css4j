@@ -956,7 +956,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		}
 		if (matcher == null) {
 			matcher = new DOMSelectorMatcher(this);
-			selectorMatcherRef = new WeakReference<SelectorMatcher>(matcher);
+			selectorMatcherRef = new WeakReference<>(matcher);
 		}
 		return matcher;
 	}
@@ -1036,7 +1036,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	public CSSStyleDeclaration getOverrideStyle(Condition pseudoElt) {
 		CSSStyleDeclaration overrideStyle = null;
 		if (overrideStyleSet == null) {
-			overrideStyleSet = new HashMap<Condition, CSSStyleDeclaration>(1);
+			overrideStyleSet = new HashMap<>(1);
 		} else {
 			overrideStyle = overrideStyleSet.get(pseudoElt);
 		}

@@ -212,7 +212,7 @@ public class DOMTokenSetImplTest {
 
 	@Test
 	public void testContainsAllCollection() {
-		HashSet<String> tokenSet2 = new HashSet<String>();
+		HashSet<String> tokenSet2 = new HashSet<>();
 		assertTrue(tokenSet.containsAll(tokenSet2));
 		tokenSet2.add("three");
 		assertFalse(tokenSet.containsAll(tokenSet2));

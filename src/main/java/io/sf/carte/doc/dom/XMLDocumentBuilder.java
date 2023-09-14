@@ -562,12 +562,12 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			} else if (endDTD) {
 				if (documentType == null) {
 					if (preDocTypeNodes == null) {
-						preDocTypeNodes = new LinkedList<MockNode>();
+						preDocTypeNodes = new LinkedList<>();
 					}
 					preDocTypeNodes.add(new MockProcessingInstruction(target, data));
 				} else {
 					if (preDocElementNodes == null) {
-						preDocElementNodes = new LinkedList<MockNode>();
+						preDocElementNodes = new LinkedList<>();
 					}
 					preDocElementNodes.add(new MockProcessingInstruction(target, data));
 				}
@@ -620,12 +620,12 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 			} else if (endDTD) {
 				if (documentType == null) {
 					if (preDocTypeNodes == null) {
-						preDocTypeNodes = new LinkedList<MockNode>();
+						preDocTypeNodes = new LinkedList<>();
 					}
 					preDocTypeNodes.add(new MockCommentNode(comment));
 				} else {
 					if (preDocElementNodes == null) {
-						preDocElementNodes = new LinkedList<MockNode>();
+						preDocElementNodes = new LinkedList<>();
 					}
 					preDocElementNodes.add(new MockCommentNode(comment));
 				}

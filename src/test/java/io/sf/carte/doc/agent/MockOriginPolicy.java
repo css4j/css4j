@@ -25,7 +25,7 @@ public class MockOriginPolicy implements OriginPolicy {
 	private static final List<String> topLevelSuffixes;
 
 	static {
-		topLevelSuffixes = new ArrayList<String>();
+		topLevelSuffixes = new ArrayList<>();
 		topLevelSuffixes.add("com");
 		topLevelSuffixes.add("net");
 		topLevelSuffixes.add("org");

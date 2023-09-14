@@ -26,23 +26,23 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 class TestCSSHandler extends TestDeclarationHandler {
 
-	LinkedHashMap<String, String> namespaceMaps = new LinkedHashMap<String, String>();
-	LinkedList<String> atRules = new LinkedList<String>();
-	LinkedList<SelectorList> selectors = new LinkedList<SelectorList>();
-	LinkedList<SelectorList> endSelectors = new LinkedList<SelectorList>();
-	LinkedList<String> importURIs = new LinkedList<String>();
-	LinkedList<MediaQueryList> importMedias = new LinkedList<MediaQueryList>();
-	LinkedList<MediaQueryList> mediaRuleLists = new LinkedList<MediaQueryList>();
-	LinkedList<BooleanCondition> supportsRuleLists = new LinkedList<BooleanCondition>();
-	LinkedList<PageSelectorList> pageRuleSelectors = new LinkedList<PageSelectorList>();
-	LinkedList<String> marginRuleNames = new LinkedList<String>();
-	LinkedList<String> counterStyleNames = new LinkedList<String>();
-	LinkedList<String> keyframesNames = new LinkedList<String>();
-	LinkedList<LexicalUnit> keyframeSelectors = new LinkedList<LexicalUnit>();
+	LinkedHashMap<String, String> namespaceMaps = new LinkedHashMap<>();
+	LinkedList<String> atRules = new LinkedList<>();
+	LinkedList<SelectorList> selectors = new LinkedList<>();
+	LinkedList<SelectorList> endSelectors = new LinkedList<>();
+	LinkedList<String> importURIs = new LinkedList<>();
+	LinkedList<MediaQueryList> importMedias = new LinkedList<>();
+	LinkedList<MediaQueryList> mediaRuleLists = new LinkedList<>();
+	LinkedList<BooleanCondition> supportsRuleLists = new LinkedList<>();
+	LinkedList<PageSelectorList> pageRuleSelectors = new LinkedList<>();
+	LinkedList<String> marginRuleNames = new LinkedList<>();
+	LinkedList<String> counterStyleNames = new LinkedList<>();
+	LinkedList<String> keyframesNames = new LinkedList<>();
+	LinkedList<LexicalUnit> keyframeSelectors = new LinkedList<>();
 	LinkedList<String[]> fontFeaturesNames = new LinkedList<>();
-	LinkedList<String> featureMapNames = new LinkedList<String>();
-	LinkedList<String> customPropertyNames = new LinkedList<String>();
-	LinkedList<String> eventSeq = new LinkedList<String>();
+	LinkedList<String> featureMapNames = new LinkedList<>();
+	LinkedList<String> customPropertyNames = new LinkedList<>();
+	LinkedList<String> eventSeq = new LinkedList<>();
 
 	int fontFaceCount = 0;
 	int viewportCount = 0;

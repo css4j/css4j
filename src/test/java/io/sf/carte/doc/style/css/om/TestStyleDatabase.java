@@ -36,7 +36,7 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 
 	public TestStyleDatabase() {
 		super();
-		fontfaceNames = new HashSet<String>();
+		fontfaceNames = new HashSet<>();
 	}
 
 	@Override

@@ -37,7 +37,7 @@ public class DOMUtil {
 	public static void parsePseudoAttributes(String data, LinkedHashMap<String, String> pseudoAttrs)
 			throws DOMException {
 		pseudoAttrs.clear();
-		LinkedList<String> tokenlist = new LinkedList<String>();
+		LinkedList<String> tokenlist = new LinkedList<>();
 		TokenParser tp = new TokenParser(data, " ", "\"'");
 		while (tp.hasNext()) {
 			tokenlist.add(tp.next());

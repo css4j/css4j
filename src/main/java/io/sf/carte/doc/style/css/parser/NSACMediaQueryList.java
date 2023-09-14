@@ -33,7 +33,7 @@ import io.sf.carte.doc.style.css.nsac.Parser;
 
 class NSACMediaQueryList implements MediaQueryList {
 
-	private final LinkedList<NSACMediaQuery> queryList = new LinkedList<NSACMediaQuery>();
+	private final LinkedList<NSACMediaQuery> queryList = new LinkedList<>();
 
 	private LinkedList<CSSParseException> queryErrorList = null;
 
@@ -183,7 +183,7 @@ class NSACMediaQueryList implements MediaQueryList {
 			return oldMatch(otherMedia);
 		}
 		// Prepare a set of other media
-		HashSet<NSACMediaQuery> otherList = new HashSet<NSACMediaQuery>(otherqlist.queryList.size());
+		HashSet<NSACMediaQuery> otherList = new HashSet<>(otherqlist.queryList.size());
 		otherList.addAll(otherqlist.queryList);
 		Iterator<NSACMediaQuery> it = queryList.iterator();
 		while (it.hasNext()) {
@@ -204,7 +204,7 @@ class NSACMediaQueryList implements MediaQueryList {
 
 	private boolean oldMatch(MediaQueryList otherMedia) {
 		int sz = getLength();
-		HashSet<String> mediastringList = new HashSet<String>(sz);
+		HashSet<String> mediastringList = new HashSet<>(sz);
 		for (int i = 0; i < sz; i++) {
 			String item = item(i).toLowerCase(Locale.ROOT);
 			mediastringList.add(item);
@@ -462,7 +462,7 @@ class NSACMediaQueryList implements MediaQueryList {
 			invalidQuery = true;
 			invalidQueryList = true;
 			if (queryErrorList == null) {
-				queryErrorList = new LinkedList<CSSParseException>();
+				queryErrorList = new LinkedList<>();
 			}
 			queryErrorList.add(queryError);
 			if (ownerNode != null) {
@@ -476,7 +476,7 @@ class NSACMediaQueryList implements MediaQueryList {
 			invalidQueryList = true;
 			compatQuery = true;
 			if (queryErrorList == null) {
-				queryErrorList = new LinkedList<CSSParseException>();
+				queryErrorList = new LinkedList<>();
 			}
 			queryErrorList.add(exception);
 			if (ownerNode != null) {

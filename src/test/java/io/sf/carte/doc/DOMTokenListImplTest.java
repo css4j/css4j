@@ -169,7 +169,7 @@ public class DOMTokenListImplTest {
 	@Test
 	public void testContainsAllCollection() {
 		tokenSet.setValue("one two three four five");
-		HashSet<String> tokenSet2 = new HashSet<String>();
+		HashSet<String> tokenSet2 = new HashSet<>();
 		tokenSet2.add("three");
 		tokenSet2.add("four");
 		tokenSet2.add("five");

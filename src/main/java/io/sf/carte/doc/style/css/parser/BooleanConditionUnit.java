@@ -127,7 +127,7 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 
 		GroupCondition(LexicalType unitType) {
 			super(unitType);
-			nestedConditions = new LinkedList<BooleanCondition>();
+			nestedConditions = new LinkedList<>();
 		}
 
 		@Override
@@ -184,7 +184,7 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 
 		AndCondition() {
 			super(LexicalType.CONDITION_AND);
-			nestedConditions = new LinkedList<BooleanCondition>();
+			nestedConditions = new LinkedList<>();
 		}
 
 		@Override

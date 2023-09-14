@@ -407,8 +407,8 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 
 	private void lazyUserData() {
 		if (userData == null) {
-			userData = new HashMap<String, Object>(2);
-			userDataHandler = new HashMap<String, UserDataHandler>(2);
+			userData = new HashMap<>(2);
+			userDataHandler = new HashMap<>(2);
 		}
 	}
 

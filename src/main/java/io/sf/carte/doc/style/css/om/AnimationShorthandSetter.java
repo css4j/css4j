@@ -95,7 +95,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 		int i = 0;
 		topLoop: while (i < layerCount && currentValue != null) {
 			boolean validLayer = false;
-			Set<String> subp = new HashSet<String>(subparray.length);
+			Set<String> subp = new HashSet<>(subparray.length);
 			Collections.addAll(subp, subparray);
 			valueLoop: while (currentValue != null) {
 				if (currentValue.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {

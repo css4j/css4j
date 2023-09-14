@@ -266,7 +266,7 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 			}
 			if (list == null) {
 				list = new ChildElementList();
-				childElementRef = new WeakReference<ElementList>(list);
+				childElementRef = new WeakReference<>(list);
 			}
 			return list;
 		}

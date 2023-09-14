@@ -27,7 +27,7 @@ class MediaQueryDatabase {
 	static {
 		final String[] discreteFeatures = { "any-hover", "any-pointer", "color-gamut", "grid", "hover", "orientation",
 				"overflow-block", "overflow-inline", "pointer", "scan", "update" };
-		mediaFeatureSet = new HashSet<String>(rangeFeatures.length + discreteFeatures.length);
+		mediaFeatureSet = new HashSet<>(rangeFeatures.length + discreteFeatures.length);
 		Collections.addAll(mediaFeatureSet, rangeFeatures);
 		Collections.addAll(mediaFeatureSet, discreteFeatures);
 	}

@@ -93,7 +93,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 
 	void registerNamespacePrefix(String prefix, String uri) {
 		if (mapNsPrefix2Uri == null) {
-			mapNsPrefix2Uri = new HashMap<String, String>();
+			mapNsPrefix2Uri = new HashMap<>();
 		}
 		mapNsPrefix2Uri.put(prefix, uri);
 	}

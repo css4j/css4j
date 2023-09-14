@@ -50,7 +50,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void malformedURIValue(String uri) {
 		if (malformedURIs == null) {
-			malformedURIs = new LinkedList<String>();
+			malformedURIs = new LinkedList<>();
 		}
 		malformedURIs.add(uri);
 	}
@@ -58,7 +58,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void shorthandError(String shorthandName, String message) {
 		if (seShorthands == null) {
-			seShorthands = new LinkedHashMap<String, String>();
+			seShorthands = new LinkedHashMap<>();
 		}
 		seShorthands.put(shorthandName, message);
 	}
@@ -77,7 +77,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	public void unassignedShorthandValues(String shorthandName, String[] unassignedProperties,
 			LexicalUnit[] unassignedValues) {
 		if (unassigned == null) {
-			unassigned = new LinkedList<String>();
+			unassigned = new LinkedList<>();
 		}
 		for (int i = 0; i < unassignedValues.length; i++) {
 			LexicalUnit lu = unassignedValues[i];
@@ -88,7 +88,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void wrongSubpropertyCount(String shorthandName, int count) {
 		if (wrongCount == null) {
-			wrongCount = new LinkedList<String>();
+			wrongCount = new LinkedList<>();
 		}
 		wrongCount.add(shorthandName);
 	}
@@ -96,7 +96,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void unknownIdentifier(String propertyName, String ident) {
 		if (unknownIdent == null) {
-			unknownIdent = new HashMap<String, String>();
+			unknownIdent = new HashMap<>();
 		}
 		unknownIdent.put(propertyName, ident);
 	}
@@ -104,7 +104,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void missingRequiredProperty(String propertyName) {
 		if (missingReq == null) {
-			missingReq = new LinkedList<String>();
+			missingReq = new LinkedList<>();
 		}
 		missingReq.add(propertyName);
 	}
@@ -112,7 +112,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void wrongValue(String propertyName, CSSPropertyValueException e) {
 		if (wrongValue == null) {
-			wrongValue = new HashMap<String, String>();
+			wrongValue = new HashMap<>();
 		}
 		wrongValue.put(propertyName, e.getValueText());
 	}
@@ -120,7 +120,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void syntaxWarning(String message) {
 		if (valueWarnings == null) {
-			valueWarnings = new LinkedList<String>();
+			valueWarnings = new LinkedList<>();
 		}
 		valueWarnings.add(message);
 	}
@@ -141,7 +141,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void noContainingBlock(String containedNode, Node ownerNode) {
 		if (noContainer == null) {
-			noContainer = new LinkedList<Node>();
+			noContainer = new LinkedList<>();
 		}
 		noContainer.add(ownerNode);
 	}
@@ -149,7 +149,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void unassignedShorthandValue(String shorthandName, String valueCss) {
 		if (unassignedValue == null) {
-			unassignedValue = new HashMap<String, String>();
+			unassignedValue = new HashMap<>();
 		}
 		unassignedValue.put(shorthandName, valueCss);
 	}
@@ -229,7 +229,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void sacWarning(CSSParseException exception, int previousIndex) {
 		if (sacWarnings == null) {
-			sacWarnings = new LinkedList<CSSParseException>();
+			sacWarnings = new LinkedList<>();
 		}
 		sacWarnings.add(exception);
 	}
@@ -237,7 +237,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 	@Override
 	public void sacError(CSSParseException exception, int previousIndex) {
 		if (sacErrors == null) {
-			sacErrors = new LinkedList<CSSParseException>();
+			sacErrors = new LinkedList<>();
 		}
 		sacErrors.add(exception);
 	}

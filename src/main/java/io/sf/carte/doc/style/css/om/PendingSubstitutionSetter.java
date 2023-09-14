@@ -53,7 +53,7 @@ class PendingSubstitutionSetter extends BaseShorthandSetter {
 	String[] getLonghands() {
 		String[] longhands = getShorthandDatabase().getLonghandProperties(getShorthandName());
 		if ("border".equals(getShorthandName())) {
-			ArrayList<String> lhs = new ArrayList<String>(longhands.length + 5);
+			ArrayList<String> lhs = new ArrayList<>(longhands.length + 5);
 			Collections.addAll(lhs, longhands);
 			lhs.add("border-image-source");
 			lhs.add("border-image-slice");
@@ -62,7 +62,7 @@ class PendingSubstitutionSetter extends BaseShorthandSetter {
 			lhs.add("border-image-repeat");
 			longhands = lhs.toArray(new String[0]);
 		} else if ("font".equals(getShorthandName())) {
-			ArrayList<String> lhs = new ArrayList<String>(longhands.length + 6);
+			ArrayList<String> lhs = new ArrayList<>(longhands.length + 6);
 			Collections.addAll(lhs, longhands);
 			lhs.add("font-variant-caps");
 			lhs.add("font-variant-ligatures");

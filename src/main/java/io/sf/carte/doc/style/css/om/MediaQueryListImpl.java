@@ -37,7 +37,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 
 	private static final MediaQueryList allMediaSingleton = new MediaQueryListImpl().unmodifiable();
 
-	private final LinkedList<MediaQueryImpl> queryList = new LinkedList<MediaQueryImpl>();
+	private final LinkedList<MediaQueryImpl> queryList = new LinkedList<>();
 
 	private LinkedList<CSSParseException> queryErrorList = null;
 
@@ -236,7 +236,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 			return oldMatch(otherMedia);
 		}
 		// Prepare a set of other media
-		HashSet<MediaQueryImpl> otherList = new HashSet<MediaQueryImpl>(otherqlist.queryList.size());
+		HashSet<MediaQueryImpl> otherList = new HashSet<>(otherqlist.queryList.size());
 		otherList.addAll(otherqlist.queryList);
 		Iterator<MediaQueryImpl> it = queryList.iterator();
 		while (it.hasNext()) {
@@ -257,7 +257,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 
 	private boolean oldMatch(MediaQueryList otherMedia) {
 		int sz = getLength();
-		HashSet<String> mediastringList = new HashSet<String>(sz);
+		HashSet<String> mediastringList = new HashSet<>(sz);
 		for (int i = 0; i < sz; i++) {
 			String item = item(i).toLowerCase(Locale.ROOT);
 			mediastringList.add(item);
@@ -607,7 +607,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 			invalidQuery = true;
 			invalidQueryList = true;
 			if (queryErrorList == null) {
-				queryErrorList = new LinkedList<CSSParseException>();
+				queryErrorList = new LinkedList<>();
 			}
 			queryErrorList.add(queryError);
 			if (ownerNode != null) {
@@ -621,7 +621,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 			invalidQueryList = true;
 			compatQuery = true;
 			if (queryErrorList == null) {
-				queryErrorList = new LinkedList<CSSParseException>();
+				queryErrorList = new LinkedList<>();
 			}
 			queryErrorList.add(exception);
 			if (ownerNode != null) {

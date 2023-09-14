@@ -168,8 +168,8 @@ public class DeclarationRuleParserTest {
 
 	static class TestDeclarationRuleHandler extends TestDeclarationHandler implements CSSParser.DeclarationRuleHandler {
 
-		private LinkedList<String> ruleNames = new LinkedList<String>();
-		private LinkedList<String> selectorNames = new LinkedList<String>();
+		private LinkedList<String> ruleNames = new LinkedList<>();
+		private LinkedList<String> selectorNames = new LinkedList<>();
 
 		@Override
 		public void property(String name, LexicalUnit value, boolean important) {

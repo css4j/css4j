@@ -71,7 +71,7 @@ public class ShorthandSetterTest {
 
 	@Parameters
 	public static Collection<EnumSet<Parser.Flag>> data() {
-		List<EnumSet<Parser.Flag>> flags = new LinkedList<EnumSet<Parser.Flag>>();
+		List<EnumSet<Parser.Flag>> flags = new LinkedList<>();
 		flags.add(EnumSet.noneOf(Parser.Flag.class));
 		flags.add(EnumSet.of(Parser.Flag.IEVALUES));
 		return flags;

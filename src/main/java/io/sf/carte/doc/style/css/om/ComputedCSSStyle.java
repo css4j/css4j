@@ -275,7 +275,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		//
 		if (value != null) {
 			if (ancStyle.customPropertyStack == null) {
-				ancStyle.customPropertyStack = new LinkedList<String>();
+				ancStyle.customPropertyStack = new LinkedList<>();
 			}
 			LexicalUnit lunit = value.getLexicalUnit().clone();
 			LexicalUnit replUnit;
@@ -571,7 +571,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 	private boolean substituteShorthand(String longhand, String shorthand, LexicalUnit lunit, boolean prioImportant) {
 		if (customPropertyStack == null) {
-			customPropertyStack = new LinkedList<String>();
+			customPropertyStack = new LinkedList<>();
 		}
 		lunit = replaceLexicalProxy(longhand, lunit, new CounterRef());
 		return lunit != null ? setShorthandLonghands(shorthand, lunit, prioImportant, null) : false;
@@ -1389,7 +1389,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 	private void addAttrNameGuard(String attrname) {
 		if (attrValueStack == null) {
-			attrValueStack = new LinkedList<String>();
+			attrValueStack = new LinkedList<>();
 		} else if (attrValueStack.contains(attrname)) {
 			attrValueStack.clear();
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
@@ -1484,7 +1484,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 		// Circularity checks
 		if (customPropertyStack == null) {
-			customPropertyStack = new LinkedList<String>();
+			customPropertyStack = new LinkedList<>();
 		} else if (customPropertyStack.contains(propertyName)) {
 			// Circularity found, report error
 			computedStyleError(property, value.getCssText(), "var() dependency loop in " + propertyName);
@@ -1606,7 +1606,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	 */
 	private StyleValue evaluateLexicalValue(String property, LexicalValue lexval, CounterRef counter) {
 		if (customPropertyStack == null) {
-			customPropertyStack = new LinkedList<String>();
+			customPropertyStack = new LinkedList<>();
 		}
 		LexicalUnit lunit = lexval.getLexicalUnit().clone();
 		LexicalUnit replUnit;

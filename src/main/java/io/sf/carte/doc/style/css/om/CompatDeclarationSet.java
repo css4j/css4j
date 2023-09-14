@@ -32,11 +32,11 @@ class CompatDeclarationSet implements Cloneable, java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private final HashMap<String, StyleValue> overrideMap = new HashMap<String, StyleValue>();
-	private final HashMap<String, Boolean> overridePrio = new HashMap<String, Boolean>();
-	private final HashMap<String, StyleValue> nonOverrideMap = new HashMap<String, StyleValue>();
-	private final HashMap<String, ShorthandValue> compatShorthandMap = new HashMap<String, ShorthandValue>();
-	private final HashMap<String, ShorthandValue> nonOvShorthandMap = new HashMap<String, ShorthandValue>();
+	private final HashMap<String, StyleValue> overrideMap = new HashMap<>();
+	private final HashMap<String, Boolean> overridePrio = new HashMap<>();
+	private final HashMap<String, StyleValue> nonOverrideMap = new HashMap<>();
+	private final HashMap<String, ShorthandValue> compatShorthandMap = new HashMap<>();
+	private final HashMap<String, ShorthandValue> nonOvShorthandMap = new HashMap<>();
 
 	CompatDeclarationSet() {
 		super();

@@ -42,7 +42,7 @@ abstract public class StyleSheetList implements CSSStyleSheetList<AbstractCSSRul
 
 	protected StyleSheetList(int initialCapacity) {
 		super();
-		list = new ArrayList<AbstractCSSStyleSheet>(initialCapacity);
+		list = new ArrayList<>(initialCapacity);
 		needsUpdate = true;
 	}
 
@@ -190,7 +190,7 @@ abstract public class StyleSheetList implements CSSStyleSheetList<AbstractCSSRul
 
 		MyDOMStringList() {
 			super();
-			titleSet = new TreeSet<String>();
+			titleSet = new TreeSet<>();
 		}
 
 		/**

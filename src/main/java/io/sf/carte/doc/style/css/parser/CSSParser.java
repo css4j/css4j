@@ -1446,7 +1446,7 @@ public class CSSParser implements Parser, Cloneable {
 
 	private class MediaQueryTokenHandler extends ConditionTokenHandler<MediaQueryFactory> {
 
-		private final HashSet<String> mediaTypes = new HashSet<String>(10);
+		private final HashSet<String> mediaTypes = new HashSet<>(10);
 
 		MediaQueryTokenHandler(MediaQueryFactory conditionFactory, MediaQueryHandler mqhandler) {
 			super(conditionFactory);

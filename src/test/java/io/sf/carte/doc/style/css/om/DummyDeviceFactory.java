@@ -59,7 +59,7 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 
 		private static final long serialVersionUID = 1L;
 
-		private final HashSet<String> fontfaceNames = new HashSet<String>();
+		private final HashSet<String> fontfaceNames = new HashSet<>();
 
 		@Override
 		public String getDefaultGenericFontFamily(String genericFamily) {
@@ -155,7 +155,7 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 
 		DummyCanvas(CSSDocument doc) {
 			super(doc);
-			statePseudoclasses = new HashMap<CSSElement, List<String>>();
+			statePseudoclasses = new HashMap<>();
 		}
 
 		@Override

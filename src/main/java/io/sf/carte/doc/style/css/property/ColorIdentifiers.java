@@ -28,8 +28,8 @@ public class ColorIdentifiers {
 
 	private static final ColorIdentifiers singleton = new ColorIdentifiers();
 
-	private final Map<String, String> colorKeywords = new HashMap<String, String>(147);
-	private final HashSet<String> systemColors = new HashSet<String>();
+	private final Map<String, String> colorKeywords = new HashMap<>(147);
+	private final HashSet<String> systemColors = new HashSet<>();
 
 	public ColorIdentifiers() {
 		super();

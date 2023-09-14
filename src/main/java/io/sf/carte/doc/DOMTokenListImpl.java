@@ -32,7 +32,7 @@ public class DOMTokenListImpl implements DOMTokenList, java.io.Serializable {
 
 	public DOMTokenListImpl() {
 		super();
-		this.tokenset = new LinkedList<String>();
+		this.tokenset = new LinkedList<>();
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class DOMTokenListImpl implements DOMTokenList, java.io.Serializable {
 		if (sz == 1) {
 			return tokenset.getFirst();
 		}
-		TreeSet<String> set = new TreeSet<String>(tokenset);
+		TreeSet<String> set = new TreeSet<>(tokenset);
 		StringBuilder buf = new StringBuilder(32 + 12 * tokenset.size());
 		Iterator<String> it = set.iterator();
 		buf.append(it.next());

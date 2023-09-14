@@ -133,7 +133,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 				!featureValueName.equals("stylistic") && !featureValueName.equals("swash") &&
 				!featureValueName.equals("character-variant") && !featureValueName.equals("styleset")) {
 			if (mapmap == null) {
-				mapmap = new HashMap<String, CSSFontFeatureValuesMapImpl>();
+				mapmap = new HashMap<>();
 			}
 			mapmap.put(featureValueName, new CSSFontFeatureValuesMapImpl());
 		}
@@ -513,7 +513,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 		@Override
 		public void property(String name, LexicalUnit value, boolean important) {
-			LinkedList<PrimitiveValue> values = new LinkedList<PrimitiveValue>();
+			LinkedList<PrimitiveValue> values = new LinkedList<>();
 			for (; value != null; value = value.getNextLexicalUnit()) {
 				LexicalType lutype = value.getLexicalUnitType();
 				if (lutype == LexicalType.INTEGER) {
@@ -679,7 +679,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			HashMap<String, CSSFontFeatureValuesMapImpl> cloneFrom) {
 		HashMap<String, CSSFontFeatureValuesMapImpl> propValue = null;
 		if (cloneFrom != null) {
-			propValue = new HashMap<String, CSSFontFeatureValuesMapImpl>(cloneFrom.size());
+			propValue = new HashMap<>(cloneFrom.size());
 			Iterator<Entry<String, CSSFontFeatureValuesMapImpl>> it = cloneFrom.entrySet()
 				.iterator();
 			while (it.hasNext()) {
@@ -698,7 +698,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 
 		private static final long serialVersionUID = 1L;
 
-		private final LinkedHashMap<String, PrimitiveValue[]> featureMap = new LinkedHashMap<String, PrimitiveValue[]>();
+		private final LinkedHashMap<String, PrimitiveValue[]> featureMap = new LinkedHashMap<>();
 		private StringList precedingComments = null;
 		private StringList trailingComments = null;
 
@@ -768,7 +768,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 				return 0;
 			}
 			int result = 1;
-			TreeSet<String> set = new TreeSet<String>(featureMap.keySet());
+			TreeSet<String> set = new TreeSet<>(featureMap.keySet());
 			Iterator<String> it = set.iterator();
 			while (it.hasNext()) {
 				String ffname = it.next();

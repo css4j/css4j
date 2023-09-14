@@ -36,7 +36,7 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 	@Override
 	public void linkedStyleError(Node node, String message) {
 		if (linkedStyleErrors == null) {
-			linkedStyleErrors = new LinkedHashMap<Node, String>();
+			linkedStyleErrors = new LinkedHashMap<>();
 		}
 		linkedStyleErrors.put(node, message);
 	}
@@ -52,7 +52,7 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 	@Override
 	public void inlineStyleError(CSSElement owner, Exception e, String style) {
 		if (inlineStyleErrors == null) {
-			inlineStyleErrors = new LinkedHashMap<Exception, String>();
+			inlineStyleErrors = new LinkedHashMap<>();
 		}
 		inlineStyleErrors.put(e, style);
 	}

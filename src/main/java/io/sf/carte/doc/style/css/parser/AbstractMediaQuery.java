@@ -26,7 +26,7 @@ abstract public class AbstractMediaQuery implements MediaQuery, java.io.Serializ
 	private static final HashSet<String> rangeFeatureSet;
 
 	static {
-		rangeFeatureSet = new HashSet<String>(MediaQueryDatabase.rangeFeatures.length);
+		rangeFeatureSet = new HashSet<>(MediaQueryDatabase.rangeFeatures.length);
 		Collections.addAll(rangeFeatureSet, MediaQueryDatabase.rangeFeatures);
 	}
 

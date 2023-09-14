@@ -54,7 +54,7 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 	@Override
 	public StyleDeclarationErrorHandler getInlineStyleErrorHandler(CSSElement owner) {
 		if (inlineErrorHandlerMap == null) {
-			inlineErrorHandlerMap = new HashMap<CSSElement, StyleDeclarationErrorHandler>();
+			inlineErrorHandlerMap = new HashMap<>();
 		}
 		StyleDeclarationErrorHandler handler = inlineErrorHandlerMap.get(owner);
 		if (handler == null) {
@@ -114,13 +114,13 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 	public void computedStyleError(CSSElement element, String propertyName, CSSPropertyValueException exception) {
 		HashMap<String, CSSPropertyValueException> map;
 		if (computedStyleErrors == null) {
-			computedStyleErrors = new HashMap<CSSElement, HashMap<String, CSSPropertyValueException>>();
-			map = new HashMap<String, CSSPropertyValueException>();
+			computedStyleErrors = new HashMap<>();
+			map = new HashMap<>();
 			computedStyleErrors.put(element, map);
 		} else {
 			map = computedStyleErrors.get(element);
 			if (map == null) {
-				map = new HashMap<String, CSSPropertyValueException>();
+				map = new HashMap<>();
 				computedStyleErrors.put(element, map);
 			}
 		}
@@ -130,7 +130,7 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 	@Override
 	public void mediaQueryError(Node ownerNode, CSSMediaException exception) {
 		if (mediaQueryErrors == null) {
-			mediaQueryErrors = new HashMap<Node,CSSMediaException>(5);
+			mediaQueryErrors = new HashMap<>(5);
 		}
 		mediaQueryErrors.put(ownerNode, exception);
 	}
@@ -138,7 +138,7 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 	@Override
 	public void ioError(String uri, IOException exception) {
 		if (ioErrors == null) {
-			ioErrors = new HashMap<String,IOException>();
+			ioErrors = new HashMap<>();
 		}
 		ioErrors.put(uri, exception);
 	}
@@ -207,13 +207,13 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 	public void computedStyleWarning(CSSElement element, String propertyName, CSSPropertyValueException exception) {
 		HashMap<String, CSSPropertyValueException> map;
 		if (computedStyleWarnings == null) {
-			computedStyleWarnings = new HashMap<CSSElement, HashMap<String, CSSPropertyValueException>>();
-			map = new HashMap<String, CSSPropertyValueException>();
+			computedStyleWarnings = new HashMap<>();
+			map = new HashMap<>();
 			computedStyleWarnings.put(element, map);
 		} else {
 			map = computedStyleWarnings.get(element);
 			if (map == null) {
-				map = new HashMap<String, CSSPropertyValueException>();
+				map = new HashMap<>();
 				computedStyleWarnings.put(element, map);
 			}
 		}
@@ -223,7 +223,7 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 	@Override
 	public void mediaQueryWarning(Node ownerNode, CSSMediaException exception) {
 		if (mediaQueryWarnings == null) {
-			mediaQueryWarnings = new HashMap<Node,CSSMediaException>(5);
+			mediaQueryWarnings = new HashMap<>(5);
 		}
 		mediaQueryWarnings.put(ownerNode, exception);
 	}
@@ -285,13 +285,13 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 	public void presentationalHintError(CSSElement elm, DOMException ex) {
 		List<DOMException> exlist;
 		if (hintErrors == null) {
-			hintErrors = new HashMap<CSSElement, List<DOMException>>();
-			exlist = new LinkedList<DOMException>();
+			hintErrors = new HashMap<>();
+			exlist = new LinkedList<>();
 			hintErrors.put(elm, exlist);
 		} else {
 			exlist = hintErrors.get(elm);
 			if (exlist == null) {
-				exlist = new LinkedList<DOMException>();
+				exlist = new LinkedList<>();
 			}
 		}
 		exlist.add(ex);

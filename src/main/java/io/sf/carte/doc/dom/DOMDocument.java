@@ -89,9 +89,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	private String documentURI = null;
 
-	final Set<LinkStyleDefiner> linkedStyle = new LinkedHashSet<LinkStyleDefiner>(4);
+	final Set<LinkStyleDefiner> linkedStyle = new LinkedHashSet<>(4);
 
-	final Set<LinkStyleDefiner> embeddedStyle = new LinkedHashSet<LinkStyleDefiner>(3);
+	final Set<LinkStyleDefiner> embeddedStyle = new LinkedHashSet<>(3);
 
 	private Set<CSSPropertyDefinition> registeredPropertySet = null;
 
@@ -115,7 +115,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	private String targetMedium = null;
 
-	private final Map<String, CSSCanvas> canvases = new HashMap<String, CSSCanvas>(3);
+	private final Map<String, CSSCanvas> canvases = new HashMap<>(3);
 
 	public DOMDocument(DocumentType documentType) {
 		super(Node.DOCUMENT_NODE);
@@ -504,7 +504,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		private static final long serialVersionUID = DOMDocument.serialVersionUID;
 
 		private AbstractCSSStyleSheet linkedSheet = null;
-		private final LinkedHashMap<String, String> pseudoAttrs = new LinkedHashMap<String, String>();
+		private final LinkedHashMap<String, String> pseudoAttrs = new LinkedHashMap<>();
 
 		private MyStyleProcessingInstruction(String data) {
 			super("xml-stylesheet", data);

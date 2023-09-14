@@ -116,7 +116,7 @@ public class DOMWriter {
 		}
 		int ret = 0;
 		if (entityMap == null) {
-			entityMap = new HashMap<Integer, String>(entities.length + 2);
+			entityMap = new HashMap<>(entities.length + 2);
 			entityMap.put(60, "lt");
 			entityMap.put(62, "gt");
 		}
@@ -834,7 +834,7 @@ public class DOMWriter {
 	protected String getDisplayProperty(Element element) {
 		String localName = element.getLocalName();
 		if (displayMap == null) {
-			displayMap = new HashMap<String, String>();
+			displayMap = new HashMap<>();
 		}
 		String display = displayMap.get(localName);
 		if (display == null && uaSheet != null) {

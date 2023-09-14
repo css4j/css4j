@@ -2144,7 +2144,7 @@ public class SelectorMatcherTest {
 		assertEquals("none", styledecl.getPropertyValue("text-decoration-line"));
 		DummyCanvas canvas = (DummyCanvas) doc.getCanvas();
 		assertNotNull(canvas);
-		List<String> statePseudoClasses = new LinkedList<String>();
+		List<String> statePseudoClasses = new LinkedList<>();
 		statePseudoClasses.add("hover");
 		canvas.registerStatePseudoclasses(elm, statePseudoClasses);
 		styledecl = doc.getStyleSheet().getComputedStyle(elm, null);
@@ -2161,7 +2161,7 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testFindStaticPseudoClasses() throws Exception {
-		List<String> statePseudoClasses = new LinkedList<String>();
+		List<String> statePseudoClasses = new LinkedList<>();
 		BaseCSSStyleSheet css = parseStyle("div:blank {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();

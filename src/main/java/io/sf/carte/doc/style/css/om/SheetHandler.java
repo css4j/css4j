@@ -65,7 +65,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		this.parentSheet = sheet;
 		this.sheetOrigin = origin;
 		if (commentsMode != CSSStyleSheet.COMMENTS_IGNORE) {
-			comments = new LinkedList<String>();
+			comments = new LinkedList<>();
 		} else {
 			comments = null;
 		}

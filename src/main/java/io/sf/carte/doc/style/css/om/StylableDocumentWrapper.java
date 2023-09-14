@@ -82,13 +82,13 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	private final Document document;
 
 	// Maps original DOM nodes to CSS-enabled nodes.
-	private final Map<Node, CSSNode> nodemap = new HashMap<Node, CSSNode>();
+	private final Map<Node, CSSNode> nodemap = new HashMap<>();
 
 	private BaseDocumentCSSStyleSheet mergedStyleSheet = null;
 
-	Set<LinkStyleDefiner> linkedStyle = new LinkedHashSet<LinkStyleDefiner>(4);
+	Set<LinkStyleDefiner> linkedStyle = new LinkedHashSet<>(4);
 
-	Set<LinkStyleDefiner> embeddedStyle = new LinkedHashSet<LinkStyleDefiner>(3);
+	Set<LinkStyleDefiner> embeddedStyle = new LinkedHashSet<>(3);
 
 	private Set<CSSPropertyDefinition> registeredPropertySet = null;
 
@@ -110,7 +110,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	private String targetMedium = null;
 
-	private final Map<String, CSSCanvas> canvases = new HashMap<String, CSSCanvas>(3);
+	private final Map<String, CSSCanvas> canvases = new HashMap<>(3);
 
 	protected StylableDocumentWrapper(Document document) {
 		super(document);
@@ -375,7 +375,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	class MyStyleProcessingInstruction extends MyProcessingInstruction implements LinkStyleProcessingInstruction {
 		private boolean needsUpdate = true;
 		private AbstractCSSStyleSheet linkedSheet = null;
-		private final LinkedHashMap<String, String> pseudoAttrs = new LinkedHashMap<String, String>();
+		private final LinkedHashMap<String, String> pseudoAttrs = new LinkedHashMap<>();
 
 		MyStyleProcessingInstruction(ProcessingInstruction node) {
 			super(node);
@@ -1008,7 +1008,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			}
 			if (matcher == null) {
 				matcher = new WrapperSelectorMatcher(this, element);
-				selectorMatcherRef = new WeakReference<SelectorMatcher>(matcher);
+				selectorMatcherRef = new WeakReference<>(matcher);
 			}
 			return matcher;
 		}
@@ -1083,7 +1083,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		public CSSStyleDeclaration getOverrideStyle(Condition pseudoElt) {
 			InlineStyle overrideStyle = null;
 			if (overrideStyleSet == null) {
-				overrideStyleSet = new HashMap<Condition, InlineStyle>(1);
+				overrideStyleSet = new HashMap<>(1);
 			} else {
 				overrideStyle = overrideStyleSet.get(pseudoElt);
 			}

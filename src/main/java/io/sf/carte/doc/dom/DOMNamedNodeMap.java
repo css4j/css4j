@@ -34,7 +34,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	DOMNamedNodeMap(short nodeType) {
 		super();
 		this.nodeType = nodeType;
-		attributeMap = new HashMap<String, T>();
+		attributeMap = new HashMap<>();
 		attributes = new MyLinkedNodeList();
 	}
 
@@ -298,7 +298,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	public int hashCode() {
 		final int prime = 31;
 		int result = nodeType;
-		SortedSet<String> sorted = new TreeSet<String>(attributeMap.keySet());
+		SortedSet<String> sorted = new TreeSet<>(attributeMap.keySet());
 		Iterator<String> it = sorted.iterator();
 		while (it.hasNext()) {
 			String key = it.next();

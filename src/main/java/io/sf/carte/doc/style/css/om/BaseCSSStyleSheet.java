@@ -90,7 +90,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	/**
 	 * URI-to-prefix map.
 	 */
-	private Map<String, String> namespaces = new HashMap<String, String>();
+	private Map<String, String> namespaces = new HashMap<>();
 
 	private boolean disabled = false;
 
@@ -883,7 +883,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 */
 	@Override
 	public Selector[] getSelectorsForProperty(String longhandPropertyName) {
-		LinkedList<Selector> selectors = new LinkedList<Selector>();
+		LinkedList<Selector> selectors = new LinkedList<>();
 		scanRulesForPropertyDeclaration(cssRules, longhandPropertyName, selectors);
 		if (selectors.isEmpty()) {
 			return null;
@@ -932,7 +932,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 *         property-value pair.
 	 */
 	public Selector[] getSelectorsForPropertyValue(String propertyName, String declaredValue) {
-		LinkedList<Selector> selectors = new LinkedList<Selector>();
+		LinkedList<Selector> selectors = new LinkedList<>();
 		scanRulesForValue(cssRules, propertyName, declaredValue, selectors);
 		if (selectors.isEmpty()) {
 			return null;

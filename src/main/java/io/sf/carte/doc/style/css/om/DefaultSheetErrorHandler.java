@@ -63,7 +63,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	@Override
 	public void badAtRule(DOMException e, String atRule) {
 		if (badAtRules == null) {
-			badAtRules = new LinkedList<String>();
+			badAtRules = new LinkedList<>();
 		}
 		badAtRules.add(atRule);
 	}
@@ -71,7 +71,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	@Override
 	public void badMediaList(MediaQueryList media) {
 		if (badMediaLists == null) {
-			badMediaLists = new LinkedList<MediaQueryList>();
+			badMediaLists = new LinkedList<>();
 		}
 		badMediaLists.add(media);
 	}
@@ -79,7 +79,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	@Override
 	public void emptyStyleRule(String selector) {
 		if (emptyRules == null) {
-			emptyRules = new LinkedList<String>();
+			emptyRules = new LinkedList<>();
 		}
 		emptyRules.add(selector);
 	}
@@ -87,8 +87,8 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	@Override
 	public void handleSacError(CSSParseException exception) {
 		if (sacErrors == null) {
-			sacErrors = new LinkedList<CSSParseException>();
-			ruleList = new LinkedList<CSSRule>();
+			sacErrors = new LinkedList<>();
+			ruleList = new LinkedList<>();
 		}
 		sacErrors.add(exception);
 		ruleList.add(null);
@@ -97,7 +97,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	@Override
 	public void handleSacWarning(CSSParseException exception) {
 		if (sacWarnings == null) {
-			sacWarnings = new LinkedList<CSSParseException>();
+			sacWarnings = new LinkedList<>();
 		}
 		sacWarnings.add(exception);
 	}
@@ -126,7 +126,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	@Override
 	public void ignoredImport(String uri) {
 		if (ignoredImports == null) {
-			ignoredImports = new LinkedList<String>();
+			ignoredImports = new LinkedList<>();
 		}
 		ignoredImports.add(uri);
 	}
@@ -134,7 +134,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	@Override
 	public void ruleParseError(CSSRule rule, CSSParseException ex) {
 		if (ruleParseErrors == null) {
-			ruleParseErrors = new LinkedList<RuleParseException>();
+			ruleParseErrors = new LinkedList<>();
 		}
 		RuleParseException rpe = new RuleParseException(ex, rule);
 		ruleParseErrors.add(rpe);
@@ -159,7 +159,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	@Override
 	public void unknownRule(String rule) {
 		if (unknownRules == null) {
-			unknownRules = new LinkedList<String>();
+			unknownRules = new LinkedList<>();
 		}
 		unknownRules.add(rule);
 	}
@@ -167,8 +167,8 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	@Override
 	public void mapError(CSSParseException exception, CSSRule rule) {
 		if (ruleList == null) {
-			ruleList = new LinkedList<CSSRule>();
-			sacErrors = new LinkedList<CSSParseException>();
+			ruleList = new LinkedList<>();
+			sacErrors = new LinkedList<>();
 		}
 		sacErrors.add(exception);
 		ruleList.add(rule);

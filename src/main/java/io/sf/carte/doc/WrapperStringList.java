@@ -79,7 +79,7 @@ public class WrapperStringList implements StringList, Iterable<String>, java.io.
 
 	@Override
 	public Iterator<String> iterator() {
-		return new UnmodifiableIterator<String>(collection.iterator());
+		return new UnmodifiableIterator<>(collection.iterator());
 	}
 
 	@Override

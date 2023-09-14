@@ -103,7 +103,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		int i = 0;
 		topLoop: while (i < layerCount && currentValue != null) {
 			boolean validLayer = false;
-			Set<String> subp = new HashSet<String>(subparray.length);
+			Set<String> subp = new HashSet<>(subparray.length);
 			Collections.addAll(subp, subparray);
 			valueLoop: while (currentValue != null) {
 				if (currentValue.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
@@ -176,7 +176,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 					break;
 				case 2:
 					if (unknownValues == null) {
-						unknownValues = new LinkedList<LexicalUnit>();
+						unknownValues = new LinkedList<>();
 					}
 					unknownValues.add(currentValue);
 					nextCurrentValue();

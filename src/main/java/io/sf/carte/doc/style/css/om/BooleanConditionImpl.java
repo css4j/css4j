@@ -117,7 +117,7 @@ abstract class BooleanConditionImpl implements BooleanCondition, java.io.Seriali
 
 		GroupCondition() {
 			super();
-			nestedConditions = new LinkedList<BooleanCondition>();
+			nestedConditions = new LinkedList<>();
 		}
 
 		@Override

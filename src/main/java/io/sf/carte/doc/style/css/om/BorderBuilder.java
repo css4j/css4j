@@ -26,7 +26,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 	private boolean hasBorderImage = false; // At least one border-image property is available
 	private boolean borderImageDone = false;
 
-	private final Set<String> unusedSet = new HashSet<String>();
+	private final Set<String> unusedSet = new HashSet<>();
 
 	BorderBuilder(BaseCSSStyleDeclaration parentStyle) {
 		super("border", parentStyle);
@@ -193,7 +193,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 
 	private short appendWithInternals(StringBuilder buf, Set<String> declaredSet,
 			boolean important) {
-		HashSet<String> pendingSet = new HashSet<String>();
+		HashSet<String> pendingSet = new HashSet<>();
 
 		// Check whether any internal border-image property reference
 		// the border shorthand
@@ -497,13 +497,13 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 					&& equivalentProperties("border-right-color", "border-bottom-color",
 							score.getColorState().getBestState())) {
 				// right = left, plus right = bottom
-				Set<String> equivWidthSet = new HashSet<String>();
+				Set<String> equivWidthSet = new HashSet<>();
 				equivWidthSet.add("border-right-width");
 				equivWidthSet.add("border-left-width");
-				Set<String> equivStyleSet = new HashSet<String>();
+				Set<String> equivStyleSet = new HashSet<>();
 				equivStyleSet.add("border-right-style");
 				equivStyleSet.add("border-left-style");
-				Set<String> equivColorSet = new HashSet<String>();
+				Set<String> equivColorSet = new HashSet<>();
 				equivColorSet.add("border-right-color");
 				equivColorSet.add("border-left-color");
 				appendFullBorderText(buf, declaredSet, score, live_state, equivWidthSet, equivStyleSet, equivColorSet,
@@ -531,13 +531,13 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 					&& equivalentProperties("border-right-color", "border-bottom-color",
 							score.getColorState().getBestState())) {
 				// top = bottom, plus right = bottom
-				Set<String> equivWidthSet = new HashSet<String>();
+				Set<String> equivWidthSet = new HashSet<>();
 				equivWidthSet.add("border-top-width");
 				equivWidthSet.add("border-bottom-width");
-				Set<String> equivStyleSet = new HashSet<String>();
+				Set<String> equivStyleSet = new HashSet<>();
 				equivStyleSet.add("border-top-style");
 				equivStyleSet.add("border-bottom-style");
-				Set<String> equivColorSet = new HashSet<String>();
+				Set<String> equivColorSet = new HashSet<>();
 				equivColorSet.add("border-top-color");
 				equivColorSet.add("border-bottom-color");
 				appendFullBorderText(buf, declaredSet, score, live_state, equivWidthSet, equivStyleSet, equivColorSet,
@@ -577,13 +577,13 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 				&& equivalentProperties("border-right-color", "border-top-color",
 						score.getColorState().getBestState())) {
 			// top = right
-			Set<String> equivWidthSet = new HashSet<String>();
+			Set<String> equivWidthSet = new HashSet<>();
 			equivWidthSet.add("border-top-width");
 			equivWidthSet.add("border-right-width");
-			Set<String> equivStyleSet = new HashSet<String>();
+			Set<String> equivStyleSet = new HashSet<>();
 			equivStyleSet.add("border-top-style");
 			equivStyleSet.add("border-right-style");
-			Set<String> equivColorSet = new HashSet<String>();
+			Set<String> equivColorSet = new HashSet<>();
 			equivColorSet.add("border-top-color");
 			equivColorSet.add("border-right-color");
 			appendFullBorderText(buf, declaredSet, score, live_state, equivWidthSet, equivStyleSet, equivColorSet,
@@ -602,13 +602,13 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 				&& equivalentProperties("border-left-color", "border-bottom-color",
 						score.getColorState().getBestState())) {
 			// bottom = left
-			Set<String> equivWidthSet = new HashSet<String>();
+			Set<String> equivWidthSet = new HashSet<>();
 			equivWidthSet.add("border-bottom-width");
 			equivWidthSet.add("border-left-width");
-			Set<String> equivStyleSet = new HashSet<String>();
+			Set<String> equivStyleSet = new HashSet<>();
 			equivStyleSet.add("border-bottom-style");
 			equivStyleSet.add("border-left-style");
-			Set<String> equivColorSet = new HashSet<String>();
+			Set<String> equivColorSet = new HashSet<>();
 			equivColorSet.add("border-bottom-color");
 			equivColorSet.add("border-left-color");
 			appendFullBorderText(buf, declaredSet, score, live_state, equivWidthSet, equivStyleSet, equivColorSet,
@@ -978,7 +978,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 
 	private void appendBorderSideText(StringBuilder buf, Set<String> declaredSet, PropertyValueScore score,
 			byte live_state, String widthProperty, String styleProperty, String colorProperty, boolean important) {
-		Set<String> localSet = new HashSet<String>(3);
+		Set<String> localSet = new HashSet<>(3);
 		if (declaredSet.contains(widthProperty)) {
 			localSet.add(widthProperty);
 		}
@@ -1711,7 +1711,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 		}
 
 		private Set<String> getEquivWidthSet(int propertyScore) {
-			Set<String> equivWidthSet = new HashSet<String>();
+			Set<String> equivWidthSet = new HashSet<>();
 			switch (propertyScore) {
 			case 21:
 				equivWidthSet.add("border-top-width");
@@ -1756,7 +1756,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 		}
 
 		private Set<String> getEquivStyleSet(int propertyScore) {
-			Set<String> equivStyleSet = new HashSet<String>();
+			Set<String> equivStyleSet = new HashSet<>();
 			switch (propertyScore) {
 			case 21:
 				equivStyleSet.add("border-top-style");
@@ -1801,7 +1801,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 		}
 
 		private Set<String> getEquivColorSet(int propertyScore) {
-			Set<String> equivColorSet = new HashSet<String>();
+			Set<String> equivColorSet = new HashSet<>();
 			switch (propertyScore) {
 			case 21:
 				equivColorSet.add("border-top-color");
