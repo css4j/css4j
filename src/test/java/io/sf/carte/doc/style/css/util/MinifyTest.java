@@ -32,7 +32,7 @@ class MinifyTest {
 		final int FINAL_LENGTH = 6194;
 		ByteArrayOutputStream out = new ByteArrayOutputStream(FINAL_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
-		Minify.Main(args, ps, System.err);
+		Minify.main(args, ps, System.err);
 		assertEquals(FINAL_LENGTH, out.size());
 	}
 
@@ -45,7 +45,7 @@ class MinifyTest {
 		final int FINAL_LENGTH = 1118;
 		ByteArrayOutputStream out = new ByteArrayOutputStream(FINAL_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
-		Minify.Main(args, ps, System.err);
+		Minify.main(args, ps, System.err);
 		assertEquals(FINAL_LENGTH, out.size());
 	}
 
@@ -54,7 +54,7 @@ class MinifyTest {
 		String[] args = {};
 		ByteArrayOutputStream out = new ByteArrayOutputStream(64);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
-		Minify.Main(args, System.out, ps);
+		Minify.main(args, System.out, ps);
 		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
 		result = result.replaceAll("\r", "");
 		assertEquals(63, result.length());
@@ -64,7 +64,7 @@ class MinifyTest {
 	void testMain_URI_Error() throws IOException {
 		String[] args = new String[1];
 		args[0] = ":/";
-		assertThrows(URISyntaxException.class, () -> Minify.Main(args, System.out, System.err));
+		assertThrows(URISyntaxException.class, () -> Minify.main(args, System.out, System.err));
 	}
 
 	@Test
@@ -72,7 +72,7 @@ class MinifyTest {
 		String[] args = new String[1];
 		args[0] = "/:";
 		assertThrows(IllegalArgumentException.class,
-				() -> Minify.Main(args, System.out, System.err));
+				() -> Minify.main(args, System.out, System.err));
 	}
 
 	@Test
