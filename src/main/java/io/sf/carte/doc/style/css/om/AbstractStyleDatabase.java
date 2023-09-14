@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Iterator;
 import java.util.Locale;
 
 import org.w3c.dom.Node;
@@ -100,9 +99,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Se
 		if (value != null) {
 			if (value.getCssValueType() == CssType.LIST) {
 				ValueList fontList = (ValueList) value;
-				Iterator<StyleValue> it = fontList.iterator();
-				while (it.hasNext()) {
-					StyleValue item = it.next();
+				for (StyleValue item : fontList) {
 					requestedFamily = stringValueOrNull(item);
 					if (requestedFamily != null && isFontFamilyAvailable(requestedFamily, style)) {
 						return requestedFamily;
@@ -158,9 +155,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Se
 			if (value.getCssValueType() == CssType.LIST) {
 				ValueList list = (ValueList) value;
 				if (list.isCommaSeparated()) {
-					Iterator<StyleValue> it = list.iterator();
-					while (it.hasNext()) {
-						StyleValue item = it.next();
+					for (StyleValue item : list) {
 						if (item.getCssValueType() == CssType.LIST) {
 							if (loadFont(familyName, (ValueList) item, rule)) {
 								return;
@@ -185,11 +180,9 @@ abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Se
 	private boolean loadFont(String familyName, ValueList value, CSSFontFaceRule rule) {
 		if (!value.isCommaSeparated()) {
 			ValueList list = value;
-			Iterator<StyleValue> it = list.iterator();
 			TypedValue uri = null;
 			String fontFormat = null;
-			while (it.hasNext()) {
-				StyleValue item = it.next();
+			for (StyleValue item : list) {
 				if (item.getCssValueType() == CssType.TYPED) {
 					TypedValue primi = (TypedValue) item;
 					Type pType = primi.getPrimitiveType();

@@ -77,9 +77,9 @@ class SequenceShorthandBuilder extends ShorthandBuilder {
 
 		// Check for properties with more than one value
 		String[] subp = getSubproperties();
-		for (int i = 0; i < subp.length; i++) {
-			if (declaredSet.contains(subp[i])) {
-				StyleValue cssVal = getCSSValue(subp[i]);
+		for (String property : subp) {
+			if (declaredSet.contains(property)) {
+				StyleValue cssVal = getCSSValue(property);
 				if (cssVal.getCssValueType() == CssType.LIST) {
 					return 1;
 				}

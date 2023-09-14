@@ -98,9 +98,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		}
 		copyFieldsTo(myCopy);
 		myCopy.cssRules.ensureCapacity(cssRules.getLength());
-		Iterator<AbstractCSSRule> it = cssRules.iterator();
-		while (it.hasNext()) {
-			AbstractCSSRule rule = it.next();
+		for (AbstractCSSRule rule : cssRules) {
 			int type = rule.getType();
 			if ((type == CSSRule.MEDIA_RULE && !((MediaRule) rule).getMedia().matches(targetMedium, canvas))
 					|| (type == CSSRule.IMPORT_RULE
@@ -353,9 +351,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		}
 
 		void cascade(SelectorMatcher matcher, String targetMedium, CSSRuleArrayList list) {
-			Iterator<AbstractCSSRule> it = list.iterator();
-			while (it.hasNext()) {
-				CSSRule rule = it.next();
+			for (CSSRule rule : list) {
 				short type = rule.getType();
 				if (type != CSSRule.STYLE_RULE) {
 					if (type == CSSRule.MEDIA_RULE) {
@@ -414,9 +410,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		}
 
 		public void cascade(SelectorMatcher matcher, String targetMedium, CSSRuleArrayList list, byte origin) {
-			Iterator<AbstractCSSRule> it = list.iterator();
-			while (it.hasNext()) {
-				AbstractCSSRule rule = it.next();
+			for (AbstractCSSRule rule : list) {
 				if (rule.getOrigin() >= origin) {
 					short type = rule.getType();
 					if (type != CSSRule.STYLE_RULE && type != CSSRule.PAGE_RULE) {

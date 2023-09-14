@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css.parser;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map.Entry;
 
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
@@ -104,9 +103,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 	}
 
 	String getNamespacePrefix(String namespaceUri) {
-		Iterator<Entry<String, String>> it = mapNsPrefix2Uri.entrySet().iterator();
-		while (it.hasNext()) {
-			Entry<String, String> me = it.next();
+		for (Entry<String, String> me : mapNsPrefix2Uri.entrySet()) {
 			if (namespaceUri.equals(me.getValue())) {
 				return me.getKey();
 			}

@@ -752,9 +752,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		}
 		//
 		boolean firstTextAdded = true;
-		Iterator<DOMNode> it = element.getNodeList().iterator();
-		while (it.hasNext()) {
-			DOMNode node = it.next();
+		for (DOMNode node : element.getNodeList()) {
 			switch (node.getNodeType()) {
 			case Node.ELEMENT_NODE:
 				if (!node.getChildNodes().isEmpty()) {
@@ -833,9 +831,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	}
 
 	private boolean hasPrintableNodes() {
-		Iterator<DOMNode> it = getNodeList().iterator();
-		while (it.hasNext()) {
-			DOMNode node = it.next();
+		for (DOMNode node : getNodeList()) {
 			switch (node.getNodeType()) {
 			case Node.ELEMENT_NODE:
 				if (((DOMElement) node).hasPrintableNodes()) {
@@ -1005,9 +1001,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		DOMDocument.StyleAttr styleAttr = (DOMDocument.StyleAttr) getAttributeNode("style");
 		if (styleAttr == null) {
 			if (getOwnerDocument().getComplianceMode() == CSSDocument.ComplianceMode.QUIRKS) {
-				Iterator<Attr> it = getAttributes().iterator();
-				while (it.hasNext()) {
-					Attr node = it.next();
+				for (Attr node : getAttributes()) {
 					if ("style".equalsIgnoreCase(node.getNodeName())) {
 						return ((DOMDocument.StyleAttr) node).getStyle();
 					}

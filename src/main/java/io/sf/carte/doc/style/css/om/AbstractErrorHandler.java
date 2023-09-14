@@ -80,9 +80,8 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 
 	protected boolean hasInlineErrors() {
 		if (inlineErrorHandlerMap != null) {
-			Iterator<StyleDeclarationErrorHandler> it = inlineErrorHandlerMap.values().iterator();
-			while (it.hasNext()) {
-				if (it.next().hasErrors()) {
+			for (StyleDeclarationErrorHandler handler : inlineErrorHandlerMap.values()) {
+				if (handler.hasErrors()) {
 					return true;
 				}
 			}
@@ -92,9 +91,8 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 
 	protected boolean hasInlineWarnings() {
 		if (inlineErrorHandlerMap != null) {
-			Iterator<StyleDeclarationErrorHandler> it = inlineErrorHandlerMap.values().iterator();
-			while (it.hasNext()) {
-				if (it.next().hasWarnings()) {
+			for (StyleDeclarationErrorHandler handler : inlineErrorHandlerMap.values()) {
+				if (handler.hasWarnings()) {
 					return true;
 				}
 			}

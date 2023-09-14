@@ -79,8 +79,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 		if (unassigned == null) {
 			unassigned = new LinkedList<>();
 		}
-		for (int i = 0; i < unassignedValues.length; i++) {
-			LexicalUnit lu = unassignedValues[i];
+		for (LexicalUnit lu : unassignedValues) {
 			unassigned.add(lu.toString());
 		}
 	}
@@ -261,9 +260,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 		}
 		if (seShorthands != null && !seShorthands.isEmpty()) {
 			buf.append("Shorthands with syntax error:");
-			Iterator<Entry<String, String>> it = seShorthands.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<String, String> entry = it.next();
+			for (Entry<String, String> entry : seShorthands.entrySet()) {
 				buf.append(' ').append(entry.getKey()).append(" (").append(entry.getValue()).append(')');
 			}
 			buf.append('\n');
@@ -286,18 +283,14 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 		}
 		if (unknownIdent != null && !unknownIdent.isEmpty()) {
 			buf.append("Unknown identifiers:");
-			Iterator<Entry<String, String>> it = unknownIdent.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<String, String> me = it.next();
+			for (Entry<String, String> me : unknownIdent.entrySet()) {
 				buf.append(' ').append(me.getKey()).append(':').append(' ').append(me.getValue());
 			}
 			buf.append('\n');
 		}
 		if (wrongValue != null && !wrongValue.isEmpty()) {
 			buf.append("Wrong values:");
-			Iterator<Entry<String, String>> it = wrongValue.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<String, String> me = it.next();
+			for (Entry<String, String> me : wrongValue.entrySet()) {
 				buf.append(' ').append(me.getKey()).append(':').append(' ').append(me.getValue());
 			}
 			buf.append('\n');
@@ -307,9 +300,7 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 		}
 		if (unassignedValue != null) {
 			buf.append("Shorthands with unassigned values:\n");
-			Iterator<Entry<String, String>> it = unassignedValue.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<String, String> me = it.next();
+			for (Entry<String, String> me : unassignedValue.entrySet()) {
 				buf.append(' ').append(me.getKey()).append(':').append(' ').append(me.getValue());
 			}
 			buf.append('\n');

@@ -8649,8 +8649,8 @@ public class CSSParser implements Parser, Cloneable {
 							if (!isPreviousValueCustomIdent()) {
 								String[] longhands = propertyDatabase
 									.getLonghandProperties(propertyName);
-								for (int i = 0; i < longhands.length; i++) {
-									if (isIdentifierValueOf(longhands[i], lcident)) {
+								for (String longhand : longhands) {
+									if (isIdentifierValueOf(longhand, lcident)) {
 										ident = lcident;
 									}
 								}

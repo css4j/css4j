@@ -118,9 +118,8 @@ public class DOMTokenListImpl implements DOMTokenList, java.io.Serializable {
 		if (otherlist == null) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Argument is null.");
 		}
-		Iterator<String> it = otherlist.iterator();
-		while (it.hasNext()) {
-			if (!contains(it.next())) {
+		for (String element : otherlist) {
+			if (!contains(element)) {
 				return false;
 			}
 		}

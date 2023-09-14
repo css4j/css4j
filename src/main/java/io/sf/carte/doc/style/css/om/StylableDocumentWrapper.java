@@ -1657,9 +1657,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	}
 
 	private boolean isAlreadyLoaded(Set<LinkStyleDefiner> definerSet, String href) {
-		Iterator<LinkStyleDefiner> it = definerSet.iterator();
-		while (it.hasNext()) {
-			LinkStyleDefiner definer = it.next();
+		for (LinkStyleDefiner definer : definerSet) {
 			if (definer instanceof LinkStyleProcessingInstruction
 					&& ((LinkStyleProcessingInstruction) definer).isSameSheet(href)) {
 				return true;

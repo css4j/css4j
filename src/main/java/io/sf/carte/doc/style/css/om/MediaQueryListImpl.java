@@ -192,9 +192,8 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 			return true;
 		}
 
-		Iterator<MediaQueryImpl> it = queryList.iterator();
-		while (it.hasNext()) {
-			if (it.next().matches(medium, canvas)) {
+		for (MediaQueryImpl query : queryList) {
+			if (query.matches(medium, canvas)) {
 				return true;
 			}
 		}
@@ -238,9 +237,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 		// Prepare a set of other media
 		HashSet<MediaQueryImpl> otherList = new HashSet<>(otherqlist.queryList.size());
 		otherList.addAll(otherqlist.queryList);
-		Iterator<MediaQueryImpl> it = queryList.iterator();
-		while (it.hasNext()) {
-			MediaQueryImpl query = it.next();
+		for (MediaQueryImpl query : queryList) {
 			Iterator<MediaQueryImpl> otherIt = otherList.iterator();
 			while (otherIt.hasNext()) {
 				MediaQueryImpl othermq = otherIt.next();
@@ -576,9 +573,8 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 		}
 
 		private boolean containsNotAll() {
-			Iterator<MediaQueryImpl> it = queryList.iterator();
-			while (it.hasNext()) {
-				if (it.next().isNotAllMedia()) {
+			for (MediaQueryImpl query : queryList) {
+				if (query.isNotAllMedia()) {
 					return true;
 				}
 			}

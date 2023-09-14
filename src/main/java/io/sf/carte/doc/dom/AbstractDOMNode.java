@@ -384,9 +384,7 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 
 	static void callUserHandlers(short operation, AbstractDOMNode child, Node destNode) {
 		if (child.userDataHandler != null) {
-			Iterator<Entry<String, UserDataHandler>> it = child.userDataHandler.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<String, UserDataHandler> entry = it.next();
+			for (Entry<String, UserDataHandler> entry : child.userDataHandler.entrySet()) {
 				String key = entry.getKey();
 				UserDataHandler handler = entry.getValue();
 				if (handler != null) {

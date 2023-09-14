@@ -11,7 +11,6 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.util.Iterator;
 import java.util.Set;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
@@ -55,9 +54,7 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 		}
 
 		// Value sanity check
-		Iterator<String> it = declaredSet.iterator();
-		while (it.hasNext()) {
-			String property = it.next();
+		for (String property : declaredSet) {
 			if (isResetProperty(property)) {
 				continue;
 			}
@@ -80,8 +77,7 @@ abstract class ListOrderedShorthandBuilder extends OrderedShorthandBuilder {
 			}
 			boolean appended = false;
 			String[] subp = getSubproperties();
-			for (int i = 0; i < subp.length; i++) {
-				String property = subp[i];
+			for (String property : subp) {
 				if (declaredSet.contains(property)) {
 					appended = appendValueText(index, buf, property, appended);
 				}

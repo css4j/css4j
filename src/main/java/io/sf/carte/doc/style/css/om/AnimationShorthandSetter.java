@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -329,9 +328,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 	}
 
 	private void resetUnsetProperties(Set<String> subp) {
-		Iterator<String> it = subp.iterator();
-		while (it.hasNext()) {
-			String pname = it.next();
+		for (String pname : subp) {
 			StyleValue cssVal = defaultPropertyValue(pname);
 			if ("animation-duration".equals(pname)) {
 				lstDuration.add(cssVal);

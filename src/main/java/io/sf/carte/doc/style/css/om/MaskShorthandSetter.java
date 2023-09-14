@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -286,9 +285,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 	}
 
 	private void resetUnsetProperties(Set<String> subp) {
-		Iterator<String> it = subp.iterator();
-		while (it.hasNext()) {
-			String pname = it.next();
+		for (String pname : subp) {
 			StyleValue cssVal = defaultPropertyValue(pname);
 			if ("mask-image".equals(pname)) {
 				// No mask-image: "Note that a value of ‘none’ still creates a layer."

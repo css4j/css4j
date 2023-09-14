@@ -666,9 +666,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 
 	private void buildUnusedSet(Set<String> declaredSet) {
 		unusedSet.clear();
-		Iterator<String> it = declaredSet.iterator();
-		while (it.hasNext()) {
-			String property = it.next();
+		for (String property : declaredSet) {
 			unusedSet.add(property);
 		}
 	}
@@ -798,9 +796,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 
 	private void appendUnused(StringBuilder buf, boolean important) {
 		if (!unusedSet.isEmpty()) {
-			Iterator<String> it = unusedSet.iterator();
-			while (it.hasNext()) {
-				String unusedPty = it.next();
+			for (String unusedPty : unusedSet) {
 				buf.append(unusedPty).append(':').append(getCSSValue(unusedPty).getMinifiedCssText(unusedPty));
 				appendPriority(buf, important);
 			}
@@ -966,9 +962,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 
 	private String liveMember(Set<String> declaredSet, Set<String> equivSet, PropertyValueScore score,
 			byte live_state) {
-		Iterator<String> it = equivSet.iterator();
-		while (it.hasNext()) {
-			String property = it.next();
+		for (String property : equivSet) {
 			if (declaredSet.contains(property) && isLiveProperty(property, live_state)) {
 				return property;
 			}

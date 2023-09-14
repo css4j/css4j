@@ -293,15 +293,13 @@ class ShorthandSetter extends BaseShorthandSetter {
 	 */
 	protected void resetSubproperties() {
 		List<String> props = getUnassignedProperties();
-		Iterator<String> it = props.iterator();
-		while (it.hasNext()) {
-			String pname = it.next();
+		for (String pname : props) {
 			if (!getShorthandDatabase().isShorthand(pname)) {
 				setPropertyToDefault(pname);
 			} else {
-				String[] sh = getShorthandDatabase().getShorthandSubproperties(pname);
-				for (int i = 0; i < sh.length; i++) {
-					setPropertyToDefault(sh[i]);
+				String[] longhands = getShorthandDatabase().getShorthandSubproperties(pname);
+				for (String longhand : longhands) {
+					setPropertyToDefault(longhand);
 				}
 			}
 		}
@@ -316,9 +314,9 @@ class ShorthandSetter extends BaseShorthandSetter {
 			if (!getShorthandDatabase().isShorthand(pname)) {
 				setPropertyToDefault(pname);
 			} else {
-				String[] sh = getShorthandDatabase().getShorthandSubproperties(pname);
-				for (int i = 0; i < sh.length; i++) {
-					setPropertyToDefault(sh[i]);
+				String[] longhands = getShorthandDatabase().getShorthandSubproperties(pname);
+				for (String longhand : longhands) {
+					setPropertyToDefault(longhand);
 				}
 			}
 		}
@@ -528,9 +526,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	void flush() {
 		int i = 0;
-		Iterator<String> it = mypropertyList.iterator();
-		while (it.hasNext()) {
-			String myproperty = it.next();
+		for (String myproperty : mypropertyList) {
 			styleDeclaration.setProperty(myproperty, mypropValue.get(myproperty), mypriorities.get(i));
 			i++;
 		}

@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
 
@@ -64,9 +63,7 @@ public class NamespaceRule extends BaseCSSRule implements CSSNamespaceRule {
 	}
 
 	private void updateSelectorText(CSSRuleArrayList rules) {
-		Iterator<AbstractCSSRule> it = rules.iterator();
-		while (it.hasNext()) {
-			CSSRule rule = it.next();
+		for (CSSRule rule : rules) {
 			short type = rule.getType();
 			if (type == CSSRule.STYLE_RULE) {
 				((CSSStyleDeclarationRule) rule).updateSelectorText();

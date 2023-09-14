@@ -147,10 +147,8 @@ public class WrapperStringList implements StringList, Iterable<String>, java.io.
 		if (index < 0) {
 			throw new IndexOutOfBoundsException("Invalid index: " + index);
 		}
-		Iterator<String> it = collection.iterator();
 		int i = 0;
-		while (it.hasNext()) {
-			String s = it.next();
+		for (String s : collection) {
 			if (i == index) {
 				return s;
 			}
@@ -176,10 +174,8 @@ public class WrapperStringList implements StringList, Iterable<String>, java.io.
 
 	@Override
 	public int indexOf(Object o) {
-		Iterator<String> it = collection.iterator();
 		int i = 0;
-		while (it.hasNext()) {
-			String s = it.next();
+		for (String s : collection) {
 			if (o == s) {
 				return i;
 			}
@@ -190,10 +186,8 @@ public class WrapperStringList implements StringList, Iterable<String>, java.io.
 
 	@Override
 	public int lastIndexOf(Object o) {
-		Iterator<String> it = collection.iterator();
 		int i = 0, last = -1;
-		while (it.hasNext()) {
-			String s = it.next();
+		for (String s : collection) {
 			if (o == s) {
 				last = i;
 			}

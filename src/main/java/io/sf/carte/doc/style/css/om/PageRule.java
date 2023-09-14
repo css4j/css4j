@@ -74,9 +74,8 @@ public class PageRule extends BaseCSSDeclarationRule implements CSSPageRule {
 				if (styleText.length() != 0) {
 					buf.append(';');
 				}
-				Iterator<MarginRule> it = marginRules.iterator();
-				while (it.hasNext()) {
-					buf.append(((CSSRule) it.next()).getMinifiedCssText());
+				for (MarginRule rule : marginRules) {
+					buf.append(rule.getMinifiedCssText());
 				}
 			}
 			buf.append('}');
@@ -103,9 +102,7 @@ public class PageRule extends BaseCSSDeclarationRule implements CSSPageRule {
 			context.endStyleDeclaration(wri);
 			if (marginRules != null) {
 				context.updateContext(this);
-				Iterator<MarginRule> it = marginRules.iterator();
-				while (it.hasNext()) {
-					CSSRule rule = it.next();
+				for (MarginRule rule : marginRules) {
 					rule.writeCssText(wri, context);
 				}
 				context.endCurrentContext(this);

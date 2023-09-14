@@ -185,9 +185,8 @@ public class DOMTokenSetImpl implements DOMTokenList, java.io.Serializable {
 			if (otherlen == 1) {
 				return ((LinkedList<String>) this.value).contains(otherlist.item(0));
 			}
-			Iterator<String> it = otherlist.iterator();
-			while (it.hasNext()) {
-				if (!contains(it.next())) {
+			for (String element : otherlist) {
+				if (!contains(element)) {
 					return false;
 				}
 			}

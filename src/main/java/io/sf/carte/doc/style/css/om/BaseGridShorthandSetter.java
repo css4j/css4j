@@ -11,8 +11,6 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.util.Iterator;
-
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
@@ -225,9 +223,8 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 	 * Is list different than a set of 'auto' ?
 	 */
 	static boolean isAutoOnly(ValueList list) {
-		Iterator<StyleValue> it = list.iterator();
-		while (it.hasNext()) {
-			if (!"auto".equalsIgnoreCase(it.next().getCssText())) {
+		for (StyleValue value : list) {
+			if (!"auto".equalsIgnoreCase(value.getCssText())) {
 				return false;
 			}
 		}

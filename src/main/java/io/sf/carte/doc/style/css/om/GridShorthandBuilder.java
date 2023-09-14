@@ -319,9 +319,8 @@ class GridShorthandBuilder extends ShorthandBuilder {
 		private boolean lacksRepeatFunction(StyleValue value) {
 			if (value.getCssValueType() == CssType.LIST) {
 				ValueList list = (ValueList) value;
-				Iterator<StyleValue> it = list.iterator();
-				while (it.hasNext()) {
-					if (!lacksRepeatFunction(it.next())) {
+				for (StyleValue item : list) {
+					if (!lacksRepeatFunction(item)) {
 						return false;
 					}
 				}

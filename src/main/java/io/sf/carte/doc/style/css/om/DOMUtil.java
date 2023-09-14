@@ -128,8 +128,8 @@ public class DOMUtil {
 	private static boolean invalidPseudoAttrName(String name) {
 		if (name.length() != 0) {
 			char[] na = name.toCharArray();
-			for (int i = 0; i < na.length; i++) {
-				if (!Character.isLetterOrDigit(na[i])) {
+			for (char c : na) {
+				if (!Character.isLetterOrDigit(c)) {
 					return true;
 				}
 			}

@@ -346,8 +346,8 @@ public final class PropertyDatabase {
 			{"z-index", "auto"}
 		};
 		Map<String, Object> initialValueMap = new HashMap<>(initialArray.length);
-		for (int i=0; i<initialArray.length; i++){
-			initialValueMap.put(initialArray[i][0], initialArray[i][1]);
+		for (String[] iniTuple : initialArray) {
+			initialValueMap.put(iniTuple[0], iniTuple[1]);
 		}
 		return initialValueMap;
 	}

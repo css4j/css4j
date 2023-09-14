@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Map;
@@ -73,9 +72,7 @@ public final class ShorthandDatabase {
 		 */
 		Properties shand = loadPropertiesfromClasspath("shorthand.properties", loader);
 		ArrayList<String> array = new ArrayList<>();
-		Iterator<Entry<Object, Object>> it = shand.entrySet().iterator();
-		while (it.hasNext()) {
-			Entry<Object, Object> me = it.next();
+		for (Entry<Object, Object> me : shand.entrySet()) {
 			String shname = (String) me.getKey();
 			String subpties = (String) me.getValue();
 			StringTokenizer st = new StringTokenizer(subpties, ",");
@@ -155,8 +152,8 @@ public final class ShorthandDatabase {
 					return true;
 				} else {
 					String[] subp = shorthand2subp.get(shorthand);
-					for (int i = 0; i < subp.length; i++) {
-						if (subp[i].equals(subpName)) {
+					for (String longhand : subp) {
+						if (longhand.equals(subpName)) {
 							return true;
 						}
 					}
@@ -228,8 +225,8 @@ public final class ShorthandDatabase {
 
 	private void addShorthand(String shorthand, String[] subproperties) {
 		shorthand2subp.put(shorthand, subproperties);
-		for (int i = 0; i < subproperties.length; i++) {
-			String prevSh = subp2shorthand.get(subproperties[i]);
+		for (String subProperty : subproperties) {
+			String prevSh = subp2shorthand.get(subProperty);
 			if (prevSh != null) {
 				// Already one map for this key, e.g. we have
 				// border-top-width -> border-top and now we got
@@ -244,7 +241,7 @@ public final class ShorthandDatabase {
 					subp2shorthand.put(prevSh, topShorthand);
 				}
 			}
-			subp2shorthand.put(subproperties[i], shorthand);
+			subp2shorthand.put(subProperty, shorthand);
 		}
 	}
 

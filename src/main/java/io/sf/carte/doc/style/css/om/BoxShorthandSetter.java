@@ -80,8 +80,8 @@ class BoxShorthandSetter extends ShorthandSetter {
 		switch (vcount) {
 		case 1:
 			StyleValue cssValue = createCSSValue(getShorthandName(), currentValue);
-			for (int i = 0; i < subparray.length; i++) {
-				setSubpropertyValue(subparray[i], cssValue);
+			for (String property : subparray) {
+				setSubpropertyValue(property, cssValue);
 			}
 			break;
 		case 2:
@@ -118,9 +118,9 @@ class BoxShorthandSetter extends ShorthandSetter {
 			setSubpropertyValue(subparray[3], right_left);
 			break;
 		case 4:
-			for (int i = 0; i < subparray.length; i++) {
-				cssValue = createCSSValue(subparray[i], currentValue);
-				setSubpropertyValue(subparray[i], cssValue);
+			for (String property : subparray) {
+				cssValue = createCSSValue(property, currentValue);
+				setSubpropertyValue(property, cssValue);
 				nextCurrentValue();
 			}
 			break;

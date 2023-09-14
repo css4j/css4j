@@ -11,7 +11,6 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 
@@ -90,8 +89,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		boolean appended = false;
 		String[] subp = getLonghandProperties();
-		for (int i = 0; i < subp.length; i++) {
-			String property = subp[i];
+		for (String property : subp) {
 			if (declaredSet.contains(property) && !isResetProperty(property)) {
 				// First, make sure that it is not a layered property
 				StyleValue cssVal = getCSSValue(property);
@@ -165,9 +163,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 			if (identifierValuesAreKnown(propertyName) || containsControl(ident)) {
 				return true; // Invalid value
 			}
-			Iterator<String> it = declaredSet.iterator();
-			while (it.hasNext()) {
-				String property = it.next();
+			for (String property : declaredSet) {
 				if (getShorthandDatabase().hasKnownIdentifierValues(property)
 						&& getShorthandDatabase().isIdentifierValue(property, ident)) {
 					return true;

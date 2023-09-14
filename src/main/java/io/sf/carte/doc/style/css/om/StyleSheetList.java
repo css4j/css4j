@@ -209,11 +209,9 @@ abstract public class StyleSheetList implements CSSStyleSheetList<AbstractCSSRul
 			if (index >= titleSet.size() || index < 0) {
 				return null;
 			}
-			Iterator<String> it = titleSet.iterator();
 			String title = null;
 			int i = 0;
-			while (it.hasNext()) {
-				String s = it.next();
+			for (String s : titleSet) {
 				if (i == index) {
 					title = s;
 					break;

@@ -157,9 +157,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 	public AuthenticationCredentials getAuthenticationCredentials(URL url, String realm) {
 		Set<AuthenticationCredentials> credset = credentialMap.get(url.getHost());
 		if (credset != null) {
-			Iterator<AuthenticationCredentials> it = credset.iterator();
-			while (it.hasNext()) {
-				AuthenticationCredentials cred = it.next();
+			for (AuthenticationCredentials cred : credset) {
 				String orealm = cred.getRealm();
 				if (realm == null || realm.equals(orealm)) {
 					return cred;
@@ -188,9 +186,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 		if (credset == null) {
 			credset = new HashSet<>();
 		} else {
-			Iterator<AuthenticationCredentials> it = credset.iterator();
-			while (it.hasNext()) {
-				AuthenticationCredentials cred = it.next();
+			for (AuthenticationCredentials cred : credset) {
 				if (realm.equals(cred.getRealm())) {
 					return cred;
 				}
@@ -288,9 +284,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 		String host = url.getHost().toLowerCase(Locale.ROOT);
 		Set<Cookie> cookies = cookieMap.get(host);
 		if (cookies != null) {
-			Iterator<Cookie> it = cookies.iterator();
-			while (it.hasNext()) {
-				Cookie cookie = it.next();
+			for (Cookie cookie : cookies) {
 				if (match(cookie, url, host, creationDate)) {
 					matchingCookies.add(cookie);
 				}
@@ -302,9 +296,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 			if (domain != host) {
 				cookies = cookieMap.get(host);
 				if (cookies != null) {
-					Iterator<Cookie> it = cookies.iterator();
-					while (it.hasNext()) {
-						Cookie cookie = it.next();
+					for (Cookie cookie : cookies) {
 						if (match(cookie, url, host, creationDate)) {
 							matchingCookies.add(cookie);
 						}

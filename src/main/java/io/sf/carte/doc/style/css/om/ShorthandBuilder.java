@@ -16,7 +16,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
@@ -236,9 +235,7 @@ abstract class ShorthandBuilder {
 	}
 
 	boolean hasPropertiesToExclude(Set<String> declaredSet) {
-		Iterator<String> it = declaredSet.iterator();
-		while (it.hasNext()) {
-			String property = it.next();
+		for (String property : declaredSet) {
 			if (isPropertyToExclude(property)) {
 				return true;
 			}
@@ -256,9 +253,8 @@ abstract class ShorthandBuilder {
 		} else if (cssValue.getCssValueType() == CssType.LIST) {
 			@SuppressWarnings("unchecked")
 			CSSValueList<StyleValue> list = (CSSValueList<StyleValue>) cssValue;
-			Iterator<StyleValue> it = list.iterator();
-			while (it.hasNext()) {
-				if (isExcludedValue(it.next())) {
+			for (StyleValue item : list) {
+				if (isExcludedValue(item)) {
 					return true;
 				}
 			}

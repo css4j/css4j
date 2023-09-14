@@ -141,9 +141,8 @@ class NSACMediaQueryList implements MediaQueryList {
 	 */
 	@Override
 	public boolean matches(String medium, CSSCanvas canvas) {
-		Iterator<NSACMediaQuery> it = queryList.iterator();
-		while (it.hasNext()) {
-			if (it.next().matches(medium, canvas)) {
+		for (NSACMediaQuery query : queryList) {
+			if (query.matches(medium, canvas)) {
 				return true;
 			}
 		}
@@ -185,9 +184,7 @@ class NSACMediaQueryList implements MediaQueryList {
 		// Prepare a set of other media
 		HashSet<NSACMediaQuery> otherList = new HashSet<>(otherqlist.queryList.size());
 		otherList.addAll(otherqlist.queryList);
-		Iterator<NSACMediaQuery> it = queryList.iterator();
-		while (it.hasNext()) {
-			NSACMediaQuery query = it.next();
+		for (NSACMediaQuery query : queryList) {
 			Iterator<NSACMediaQuery> otherIt = otherList.iterator();
 			while (otherIt.hasNext()) {
 				NSACMediaQuery othermq = otherIt.next();
@@ -431,9 +428,8 @@ class NSACMediaQueryList implements MediaQueryList {
 		}
 
 		private boolean containsNotAll() {
-			Iterator<NSACMediaQuery> it = queryList.iterator();
-			while (it.hasNext()) {
-				if (it.next().isNotAllMedia()) {
+			for (NSACMediaQuery query : queryList) {
+				if (query.isNotAllMedia()) {
 					return true;
 				}
 			}

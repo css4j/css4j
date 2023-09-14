@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css.om;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -382,9 +381,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	}
 
 	private void resetUnsetProperties(Set<String> subp) {
-		Iterator<String> it = subp.iterator();
-		while (it.hasNext()) {
-			String pname = it.next();
+		for (String pname : subp) {
 			StyleValue cssVal = defaultPropertyValue(pname);
 			if ("background-image".equals(pname)) {
 				// No background-image: "Note that a value of ‘none’ still creates a layer."

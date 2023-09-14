@@ -13,7 +13,6 @@ package io.sf.carte.doc.dom;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.xml.XMLConstants;
@@ -469,18 +468,14 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 				if (refNode == null) {
 					refNode = document.getDocumentElement();
 				}
-				Iterator<MockNode> it = preDocTypeNodes.iterator();
-				while (it.hasNext()) {
-					MockNode mock = it.next();
+				for (MockNode mock : preDocTypeNodes) {
 					insertMockNode(mock, refNode);
 				}
 			}
 			// Pre-docElement stuff
 			if (preDocElementNodes != null) {
 				Element docElm = document.getDocumentElement();
-				Iterator<MockNode> it = preDocElementNodes.iterator();
-				while (it.hasNext()) {
-					MockNode mock = it.next();
+				for (MockNode mock : preDocElementNodes) {
 					insertMockNode(mock, docElm);
 				}
 			}

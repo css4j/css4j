@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Locale;
@@ -227,9 +226,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			buf.append('}');
 		}
 		if (mapmap != null) {
-			Iterator<Entry<String, CSSFontFeatureValuesMapImpl>> it = mapmap.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<String, CSSFontFeatureValuesMapImpl> me = it.next();
+			for (Entry<String, CSSFontFeatureValuesMapImpl> me : mapmap.entrySet()) {
 				buf.append('@').append(me.getKey()).append('{');
 				appendMinifiedFeatureString(buf, me.getValue());
 				buf.append('}');
@@ -277,9 +274,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		writeFeatureBlock(wri, context, "@styleset", styleset);
 		writeFeatureBlock(wri, context, "@character-variant", characterVariant);
 		if (mapmap != null) {
-			Iterator<Entry<String, CSSFontFeatureValuesMapImpl>> it = mapmap.entrySet().iterator();
-			while (it.hasNext()) {
-				Entry<String, CSSFontFeatureValuesMapImpl> me = it.next();
+			for (Entry<String, CSSFontFeatureValuesMapImpl> me : mapmap.entrySet()) {
 				CSSFontFeatureValuesMapImpl ffvmap = me.getValue();
 				context.startRule(wri, ffvmap.precedingComments);
 				wri.write('@');
@@ -321,10 +316,8 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			CSSFontFeatureValuesMapImpl featureMap) throws IOException {
 		context.deepenCurrentContext();
 		context.startStyleDeclaration(wri);
-		Iterator<Entry<String, PrimitiveValue[]>> it = featureMap.featureMap.entrySet().iterator();
-		while (it.hasNext()) {
+		for (Entry<String, PrimitiveValue[]> me : featureMap.featureMap.entrySet()) {
 			context.startPropertyDeclaration(wri);
-			Entry<String, PrimitiveValue[]> me = it.next();
 			wri.write(me.getKey());
 			context.writeColon(wri);
 			PrimitiveValue[] values = me.getValue();
@@ -680,10 +673,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		HashMap<String, CSSFontFeatureValuesMapImpl> propValue = null;
 		if (cloneFrom != null) {
 			propValue = new HashMap<>(cloneFrom.size());
-			Iterator<Entry<String, CSSFontFeatureValuesMapImpl>> it = cloneFrom.entrySet()
-				.iterator();
-			while (it.hasNext()) {
-				Entry<String, CSSFontFeatureValuesMapImpl> entry = it.next();
+			for (Entry<String, CSSFontFeatureValuesMapImpl> entry : cloneFrom.entrySet()) {
 				CSSFontFeatureValuesMapImpl value = entry.getValue();
 				if (value != null) {
 					value = value.clone();
@@ -769,9 +759,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			}
 			int result = 1;
 			TreeSet<String> set = new TreeSet<>(featureMap.keySet());
-			Iterator<String> it = set.iterator();
-			while (it.hasNext()) {
-				String ffname = it.next();
+			for (String ffname : set) {
 				result = prime * result + ffname.hashCode();
 				result = prime * result + Arrays.hashCode(featureMap.get(ffname));
 			}
@@ -797,9 +785,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			} else if (other.featureMap == null || featureMap.size() != other.featureMap.size()) {
 				return false;
 			} else {
-				Iterator<Entry<String, PrimitiveValue[]>> it = featureMap.entrySet().iterator();
-				while (it.hasNext()) {
-					Entry<String, PrimitiveValue[]> entry = it.next();
+				for (Entry<String, PrimitiveValue[]> entry : featureMap.entrySet()) {
 					String ffname = entry.getKey();
 					PrimitiveValue[] values = entry.getValue();
 					PrimitiveValue[] ovalues = other.featureMap.get(ffname);

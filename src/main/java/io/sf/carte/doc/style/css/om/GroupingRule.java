@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
 
@@ -47,9 +46,8 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 			getPrecedingComments().addAll(copyfrom.getPrecedingComments());
 		}
 		cssRules = new CSSRuleArrayList(copyfrom.getCssRules().getLength());
-		Iterator<AbstractCSSRule> it = copyfrom.getCssRules().iterator();
-		while (it.hasNext()) {
-			AbstractCSSRule cloned = it.next().clone(parentSheet);
+		for (AbstractCSSRule rule : copyfrom.getCssRules()) {
+			AbstractCSSRule cloned = rule.clone(parentSheet);
 			cloned.setParentRule(this);
 			cssRules.add(cloned);
 		}

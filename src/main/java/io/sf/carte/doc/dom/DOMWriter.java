@@ -120,8 +120,8 @@ public class DOMWriter {
 			entityMap.put(60, "lt");
 			entityMap.put(62, "gt");
 		}
-		for (int i = 0; i < entities.length; i++) {
-			entityMap.putIfAbsent(entities[i], null);
+		for (int entity : entities) {
+			entityMap.putIfAbsent(entity, null);
 		}
 		if (resolver == null) {
 			resolver = new DefaultEntityResolver();
@@ -367,9 +367,7 @@ public class DOMWriter {
 	private boolean hasXmlnsAttr(AttributeNamedNodeMap attributeMap, String nsPrefix, String nsUri)
 			throws DOMException {
 		if (!attributeMap.isEmpty()) {
-			Iterator<Attr> it = attributeMap.iterator();
-			while (it.hasNext()) {
-				Attr attr = it.next();
+			for (Attr attr : attributeMap) {
 				if (DOMDocument.XMLNS_NAMESPACE_URI.equals(attr.getNamespaceURI()) && nsUri.equals(attr.getValue())) {
 					String localName = attr.getLocalName();
 					String prefix = attr.getPrefix();
@@ -840,9 +838,7 @@ public class DOMWriter {
 		if (display == null && uaSheet != null) {
 			CSSRuleList<? extends CSSRule> list = uaSheet.getRulesForProperty("display");
 			if (list != null) {
-				Iterator<? extends CSSRule> it = list.iterator();
-				while (it.hasNext()) {
-					CSSRule rule = it.next();
+				for (CSSRule rule : list) {
 					if (rule.getType() == CSSRule.STYLE_RULE) {
 						CSSStyleRule stylerule = (CSSStyleRule) rule;
 						SelectorList selist = stylerule.getSelectorList();

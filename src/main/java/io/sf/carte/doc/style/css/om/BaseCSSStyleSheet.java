@@ -329,9 +329,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	private boolean containsRuleWithNamespace(String namespaceURI) {
-		Iterator<AbstractCSSRule> it = cssRules.iterator();
-		while (it.hasNext()) {
-			CSSRule rule = it.next();
+		for (CSSRule rule : cssRules) {
 			if (rule.getType() == CSSRule.STYLE_RULE) {
 				CSSStyleDeclarationRule stylerule = (CSSStyleDeclarationRule) rule;
 				if (selectorListHasNamespace(stylerule.getSelectorList(), namespaceURI)) {
@@ -674,9 +672,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	String getNamespaceURI(String nsPrefix) {
-		Iterator<Entry<String, String>> it = namespaces.entrySet().iterator();
-		while (it.hasNext()) {
-			Entry<String, String> entry = it.next();
+		for (Entry<String, String> entry : namespaces.entrySet()) {
 			String prefix = entry.getValue();
 			if (nsPrefix.equals(prefix)) {
 				return entry.getKey();

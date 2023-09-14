@@ -47,12 +47,12 @@ public class BoxModelHelperTest {
 		box.colwidth = initial;
 		float[] minrcw = { 8f, 12f, 10f, 5f, 9f };
 		float curwidth = 0f;
-		for (int i = 0; i < initial.length; i++) {
-			curwidth += initial[i];
+		for (float iniColWidth : initial) {
+			curwidth += iniColWidth;
 		}
 		float minwidth = 0f;
-		for (int i = 0; i < minrcw.length; i++) {
-			minwidth += minrcw[i];
+		for (float minColWidth : minrcw) {
+			minwidth += minColWidth;
 		}
 
 		BoxModelHelper.shrinkTo(box, minrcw, minwidth, curwidth, 46f);

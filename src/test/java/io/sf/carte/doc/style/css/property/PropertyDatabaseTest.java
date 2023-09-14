@@ -17,8 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Iterator;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -55,9 +53,7 @@ public class PropertyDatabaseTest {
 
 	@Test
 	public void testInitialValues() {
-		Iterator<String> it = pdb.getKnownPropertySet().iterator();
-		while (it.hasNext()) {
-			String property = it.next();
+		for (String property : pdb.getKnownPropertySet()) {
 			assertNotNull(pdb.getInitialValue(property));
 		}
 	}

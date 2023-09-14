@@ -166,9 +166,9 @@ class ProfiledColorImpl extends BaseColor {
 	public String toString() {
 		StringBuilder buf = new StringBuilder(64);
 		buf.append("color(").append(getColorSpace());
-		for (int i = 0; i < components.length; i++) {
+		for (PrimitiveValue component : components) {
 			buf.append(' ');
-			appendComponentCssText(buf, components[i]);
+			appendComponentCssText(buf, component);
 		}
 		if (isNonOpaque()) {
 			buf.append(" / ");
@@ -182,9 +182,9 @@ class ProfiledColorImpl extends BaseColor {
 	public String toMinifiedString() {
 		StringBuilder buf = new StringBuilder(58);
 		buf.append("color(").append(getColorSpace());
-		for (int i = 0; i < components.length; i++) {
+		for (PrimitiveValue component : components) {
 			buf.append(' ');
-			appendComponentMinifiedCssText(buf, components[i]);
+			appendComponentMinifiedCssText(buf, component);
 		}
 		if (isNonOpaque()) {
 			buf.append('/');

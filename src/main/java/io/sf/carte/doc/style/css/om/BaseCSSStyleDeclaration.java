@@ -134,9 +134,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	private HashMap<String, StyleValue> deepClone(HashMap<String, StyleValue> cloneFrom) {
 		HashMap<String, StyleValue> propValue = new HashMap<>(cloneFrom.size());
-		Iterator<Entry<String, StyleValue>> it = cloneFrom.entrySet().iterator();
-		while (it.hasNext()) {
-			Entry<String, StyleValue> entry = it.next();
+		for (Entry<String, StyleValue> entry : cloneFrom.entrySet()) {
 			StyleValue value = entry.getValue();
 			if (value.getCssValueType() == CssType.SHORTHAND) {
 				value = value.clone();
@@ -734,9 +732,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		// effect again
 		String shorthand = propertyName;
 		int shidx = -1;
-		Iterator<String> it = shorthandSet.iterator();
-		while (it.hasNext()) {
-			String shname = it.next();
+		for (String shname : shorthandSet) {
 			if (sdb.isShorthandSubpropertyOf(shname, propertyName)) {
 				ShorthandValue shval = (ShorthandValue) propValue.get(shname);
 				String pty = shval.getLonghands().iterator().next();
@@ -763,9 +759,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	private void removeSubproperties(ShorthandValue shval, ShorthandDatabase sdb) {
 		HashSet<String> longhands = shval.getLonghands();
-		Iterator<String> it = longhands.iterator();
-		while (it.hasNext()) {
-			String property = it.next();
+		for (String property : longhands) {
 			int idx = propertyList.indexOf(property);
 			propertyList.remove(idx);
 			priorities.remove(idx);
@@ -819,8 +813,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
 		if (sdb.isShorthand(propertyName)) {
 			String[] longhands = sdb.getLonghandProperties(propertyName);
-			for (int i = 0; i < longhands.length; i++) {
-				if (!isPropertyImportant(longhands[i])) {
+			for (String longhand : longhands) {
+				if (!isPropertyImportant(longhand)) {
 					return "";
 				}
 			}
@@ -865,9 +859,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				// Check whether propertyName, while being a shorthand, is
 				// also a subproperty of a previously set shorthand, or if a previously set
 				// shorthand happens to be a subproperty of propertyName.
-				Iterator<String> it = shorthandSet.iterator();
-				while (it.hasNext()) {
-					String sh = it.next();
+				for (String sh : shorthandSet) {
 					if (sdb.isShorthandSubpropertyOf(propertyName, sh)) {
 						// Found a set shorthand that is a subproperty of propertyName
 						if (important || !((ShorthandValue) propValue.get(sh)).isImportant()) {
@@ -897,9 +889,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				ShorthandValue shVal = shorthandSetter.createCSSShorthandValue(value);
 				shVal.setShorthandText(shorthandText, shorthandSetter.getMinifiedCssText());
 				if (shadowedShorthands != null) {
-					Iterator<String> it = shadowedShorthands.iterator();
-					while (it.hasNext()) {
-						String shadowed = it.next();
+					for (String shadowed : shadowedShorthands) {
 						shorthandSet.remove(shadowed);
 						propValue.remove(shadowed);
 					}
@@ -1414,11 +1404,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
 		HashSet<String> addedShorthands = new HashSet<>(style.shorthandSet.size());
 		// Process individual properties
-		Iterator<String> it = style.propertyList.iterator();
 		int i = -1;
-		while (it.hasNext()) {
+		for (String propertyName : style.propertyList) {
 			i++;
-			String propertyName = it.next();
 			int pIndex = propertyList.indexOf(propertyName);
 			if (pIndex == -1) {
 				// Property has no value set currently.
@@ -1431,6 +1419,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				// Current value is !important, added value is not.
 				continue;
 			}
+
 			// Obtain value
 			StyleValue value = style.getCSSValue(propertyName);
 			// Deal with shorthands (we reach this only if priority allows)
@@ -1455,6 +1444,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					}
 				}
 			}
+
 			// Retrieve href info
 			String href = null;
 			if ("background-image".equals(propertyName) || "border-image-source".equals(propertyName)) {
@@ -1465,6 +1455,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					href = ((NodeStyleDeclaration) style).getOwnerNode().getOwnerDocument().getBaseURI();
 				}
 			}
+
 			// Set value
 			setPropertyCSSValue(propertyName, value, href);
 		}
@@ -1770,9 +1761,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		final int prime = 31;
 		int result = 1;
 		TreeSet<String> propertyNames = new TreeSet<>(propertyList);
-		Iterator<String> it = propertyNames.iterator();
-		while (it.hasNext()) {
-			String property = it.next();
+		for (String property : propertyNames) {
 			result = prime * result + property.hashCode();
 			result = prime * result + propValue.get(property).hashCode();
 			String prio = priorities.get(propertyList.indexOf(property));
@@ -1794,9 +1783,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		if (propertyList.size() != other.propertyList.size()) {
 			return false;
 		}
-		Iterator<String> it = propertyList.iterator();
-		while (it.hasNext()) {
-			String property = it.next();
+		for (String property : propertyList) {
 			if (!other.propertyList.contains(property)) {
 				return false;
 			}

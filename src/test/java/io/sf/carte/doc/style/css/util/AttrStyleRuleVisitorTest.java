@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
-import java.util.Iterator;
 
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
@@ -45,9 +44,7 @@ public class AttrStyleRuleVisitorTest {
 
 		PrependConditionVisitor attrVisitor = new PrependConditionVisitor();
 		Visitor<CSSStyleRule> ruleVisitor = new AttrStyleRuleVisitor(attrVisitor);
-		Iterator<DOMElement> styleIt = doc.getElementsByTagNameNS("*", "style").iterator();
-		while (styleIt.hasNext()) {
-			DOMElement style = styleIt.next();
+		for (DOMElement style : doc.getElementsByTagNameNS("*", "style")) {
 			AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) style).getSheet();
 			if (sheet != null) {
 				sheet.acceptStyleRuleVisitor(ruleVisitor);

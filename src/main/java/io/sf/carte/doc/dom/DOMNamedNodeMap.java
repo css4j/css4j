@@ -191,9 +191,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 		if (oldPrefix != null && oldPrefix.length() != 0) {
 			name = oldPrefix + ':' + name;
 		}
-		Iterator<DOMNode> it = attributes.iterator();
-		while (it.hasNext()) {
-			DOMNode n = it.next();
+		for (DOMNode n : attributes) {
 			if (n == node) {
 				attributeMap.remove(name);
 				attributeMap.put(node.getNodeName(), (T) node);
@@ -211,9 +209,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	}
 
 	private T getCINamedItem(String namespaceURI, String localName) {
-		Iterator<DOMNode> it = attributes.iterator();
-		while (it.hasNext()) {
-			DOMNode node = it.next();
+		for (DOMNode node : attributes) {
 			if (node.getLocalName().equalsIgnoreCase(localName) && isSameNamespace(namespaceURI, node)) {
 				@SuppressWarnings("unchecked")
 				T node2 = (T) node;
@@ -224,9 +220,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	}
 
 	private T getCSNamedItem(String namespaceURI, String localName) {
-		Iterator<DOMNode> it = attributes.iterator();
-		while (it.hasNext()) {
-			DOMNode node = it.next();
+		for (DOMNode node : attributes) {
 			if (node.getLocalName().equals(localName) && isSameNamespace(namespaceURI, node)) {
 				@SuppressWarnings("unchecked")
 				T node2 = (T) node;
@@ -251,9 +245,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	}
 
 	private T removeCINamedItem(String namespaceURI, String localName) {
-		Iterator<DOMNode> it = attributes.iterator();
-		while (it.hasNext()) {
-			DOMNode node = it.next();
+		for (DOMNode node : attributes) {
 			if (node.getLocalName().equalsIgnoreCase(localName) && isSameNamespace(namespaceURI, node)) {
 				attributes.remove((AbstractDOMNode) node);
 				T retval = attributeMap.remove(node.getNodeName());
@@ -265,9 +257,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	}
 
 	private T removeCSNamedItem(String namespaceURI, String localName) {
-		Iterator<DOMNode> it = attributes.iterator();
-		while (it.hasNext()) {
-			DOMNode node = it.next();
+		for (DOMNode node : attributes) {
 			if (node.getLocalName().equals(localName) && isSameNamespace(namespaceURI, node)) {
 				attributes.remove((AbstractDOMNode) node);
 				T retval = attributeMap.remove(node.getNodeName());
@@ -299,9 +289,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 		final int prime = 31;
 		int result = nodeType;
 		SortedSet<String> sorted = new TreeSet<>(attributeMap.keySet());
-		Iterator<String> it = sorted.iterator();
-		while (it.hasNext()) {
-			String key = it.next();
+		for (String key : sorted) {
 			result = prime * result + key.hashCode();
 			result = prime * result + attributeMap.get(key).hashCode();
 		}
@@ -330,9 +318,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 		if (attributeMap.size() != otherAttr.size()) {
 			return false;
 		}
-		Iterator<Entry<String, T>> it = attributeMap.entrySet().iterator();
-		while (it.hasNext()) {
-			Entry<String, T> me = it.next();
+		for (Entry<String, T> me : attributeMap.entrySet()) {
 			String key = me.getKey();
 			Node node = me.getValue();
 			Node otherNode = (Node) otherAttr.get(key);
