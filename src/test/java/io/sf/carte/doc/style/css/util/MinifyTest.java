@@ -51,7 +51,7 @@ class MinifyTest {
 
 	@Test
 	void testMain_Print_Usage() throws URISyntaxException, IOException {
-		String[] args = new String[0];
+		String[] args = {};
 		ByteArrayOutputStream out = new ByteArrayOutputStream(64);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		Minify.Main(args, System.out, ps);
