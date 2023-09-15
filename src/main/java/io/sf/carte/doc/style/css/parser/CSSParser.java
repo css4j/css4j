@@ -9169,7 +9169,7 @@ public class CSSParser implements Parser, Cloneable {
 		CallbackIgnoredDeclarationTH(TokenControl parserctl) {
 			super();
 			this.parserctl = parserctl;
-			this.parent = parserctl.getTokenHandler();
+			this.parent = (TokenHandler2) parserctl.getTokenHandler();
 		}
 
 		@Override
