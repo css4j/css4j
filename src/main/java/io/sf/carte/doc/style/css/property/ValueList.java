@@ -41,12 +41,12 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 
 	private ValueList() {
 		super();
-		valueList = new ArrayList<StyleValue>();
+		valueList = new ArrayList<>();
 	}
 
 	private ValueList(ValueList copy) {
 		super();
-		valueList = new ArrayList<StyleValue>(copy.valueList);
+		valueList = new ArrayList<>(copy.valueList);
 	}
 
 	@Override
