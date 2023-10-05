@@ -154,9 +154,7 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 		final int prime = 31;
 		int result = super.hashCode() * prime;
 		if (valueList != null) {
-			Iterator<StyleValue> it = valueList.iterator();
-			while (it.hasNext()) {
-				CSSValue value = it.next();
+			for (CSSValue value : valueList) {
 				result = prime * result + ((value == null) ? 0 : value.hashCode());
 			}
 		}
@@ -215,9 +213,8 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 	@Override
 	public boolean isSubproperty() {
 		if (valueList != null) {
-			Iterator<StyleValue> it = valueList.iterator();
-			while (it.hasNext()) {
-				if (!it.next().isSubproperty()) {
+			for (StyleValue element : valueList) {
+				if (!element.isSubproperty()) {
 					return false;
 				}
 			}

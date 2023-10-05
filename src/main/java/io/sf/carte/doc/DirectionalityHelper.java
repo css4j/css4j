@@ -11,8 +11,6 @@
 
 package io.sf.carte.doc;
 
-import java.util.Iterator;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -99,10 +97,7 @@ public class DirectionalityHelper {
 		if (element.hasChildNodes()) {
 			NodeList list = element.getChildNodes();
 			if (list instanceof Iterable) {
-				@SuppressWarnings("unchecked")
-				Iterator<? extends Node> it = ((Iterable<? extends Node>) list).iterator();
-				while (it.hasNext()) {
-					Node node = it.next();
+				for (Node node : ((Iterable<? extends Node>) list)) {
 					switch (node.getNodeType()) {
 					case Node.ELEMENT_NODE:
 						element = (Element) node;

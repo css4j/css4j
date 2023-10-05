@@ -44,8 +44,8 @@ public class DOMUtil {
 		}
 		String token = null, name = null;
 		byte stage = 0;
-		for (int i = 0, sz = tokenlist.size(); i < sz; i++) {
-			token = tokenlist.get(i);
+		for (String element : tokenlist) {
+			token = element;
 			if (stage == 0) {
 				int idx = token.indexOf('=');
 				if (idx == -1) {
