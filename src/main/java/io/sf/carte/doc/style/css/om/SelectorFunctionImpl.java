@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Objects;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.nsac.SelectorFunction;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 /**
@@ -27,7 +28,7 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
  * predictable future extension.
  * </p>
  */
-class SelectorFunctionImpl extends BooleanConditionImpl implements BooleanCondition {
+class SelectorFunctionImpl extends BooleanConditionImpl implements SelectorFunction {
 
 	private static final long serialVersionUID = 1L;
 
@@ -47,9 +48,14 @@ class SelectorFunctionImpl extends BooleanConditionImpl implements BooleanCondit
 		this.selectors = selectors;
 	}
 
+	/**
+	 * The selectors.
+	 * 
+	 * @return the selectors.
+	 */
 	@Override
-	public Type getType() {
-		return Type.SELECTOR_FUNCTION;
+	public SelectorList getSelectors() {
+		return selectors;
 	}
 
 	@Override

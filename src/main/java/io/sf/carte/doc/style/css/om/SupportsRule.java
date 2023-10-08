@@ -23,13 +23,14 @@ import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.SelectorFunction;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.DeclarationCondition;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * CSS supports rule.
+ * CSS {@code @supports} rule.
  * 
  * @author Carlos Amengual
  * 
@@ -129,7 +130,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 				}
 				return false;
 			}
-			return supports(nested, styleDatabase);
+			return !supports(nested, styleDatabase);
 		case OR:
 			subcond = condition.getSubConditions();
 			if (subcond == null) {
@@ -146,8 +147,10 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 					return true;
 				}
 			}
+			break;
 		case SELECTOR_FUNCTION:
-			return true;
+			SelectorFunction selCond = (SelectorFunction) condition;
+			return styleDatabase.supports(selCond.getSelectors());
 		case OTHER:
 			break;
 		}

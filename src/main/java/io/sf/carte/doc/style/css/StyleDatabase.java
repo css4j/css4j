@@ -13,6 +13,8 @@ package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.nsac.SelectorList;
+
 /**
  * CSS Style database.
  * <p>
@@ -217,6 +219,16 @@ public interface StyleDatabase {
 	 */
 	default CSSValue getEnvValue(String envVarName) {
 		return null;
+	}
+
+	/**
+	 * Does this agent support all of the given selectors?
+	 * 
+	 * @param selectors the selectors.
+	 * @return <code>true</code> if supported.
+	 */
+	default boolean supports(SelectorList selectors) {
+		return true;
 	}
 
 	/**

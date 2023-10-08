@@ -911,6 +911,11 @@ public class CSSParser implements Parser, Cloneable {
 					BooleanCondition oldCond = operation.replaceLast(newCond);
 					newCond.addCondition(oldCond);
 					setNestedCondition(newCond);
+				} else if (opType == BooleanCondition.Type.AND
+						|| opType == BooleanCondition.Type.OR) {
+					BooleanCondition newCond = createOperation(index, opType);
+					newCond.addCondition(currentCond);
+					setNestedCondition(newCond);
 				} else {
 					unexpectedTokenError(index, opname);
 				}

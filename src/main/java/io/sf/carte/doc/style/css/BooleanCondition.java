@@ -36,6 +36,9 @@ public interface BooleanCondition {
 
 		/**
 		 * A supported selector function predicate.
+		 * 
+		 * Cast to {@link io.sf.carte.doc.style.css.nsac.SelectorFunction
+		 * SelectorFunction}.
 		 */
 		SELECTOR_FUNCTION,
 
