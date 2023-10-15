@@ -160,9 +160,9 @@ and optional library packages are the following:
   or higher.
 
 - The [tokenproducer](https://github.com/css4j/tokenproducer) library; version
-  2.0.1 or higher is required.
+  3.0 or higher is required.
 
-- The [xml-dtd](https://github.com/css4j/xml-dtd) library; version 4.2 or
+- The [xml-dtd](https://github.com/css4j/xml-dtd) library; version 4.2.1 or
   higher is required.
   **It is optional at runtime.**
 
