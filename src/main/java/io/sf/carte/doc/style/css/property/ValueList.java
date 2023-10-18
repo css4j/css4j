@@ -28,10 +28,7 @@ import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
- * Implementation of ValueList.
- * 
- * @author Carlos Amengual
- *
+ * Implementation of {@code CSSValueList} based on {@link StyleValue}.
  */
 abstract public class ValueList extends StyleValue implements CSSValueList<StyleValue> {
 

@@ -1150,6 +1150,14 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		return null;
 	}
 
+	/**
+	 * Returns a minified parsable representation of the rule list of this sheet.
+	 * <p>
+	 * Equivalent to <code>getCssRules().toMinifiedString()</code>.
+	 * </p>
+	 * 
+	 * @return a minified parsable representation of the rule list of this sheet.
+	 */
 	@Override
 	public String toMinifiedString() {
 		return getCssRules().toMinifiedString();
