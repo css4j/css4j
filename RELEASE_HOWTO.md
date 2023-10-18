@@ -55,10 +55,10 @@ Manually copy there the current compatible _jar_ files for the `css4j-agent`,
 `css4j-awt` and `css4j-dom4j` modules.
 
 6) Use `changes.sh <new-version>` to create a `CHANGES.txt` file with the
-changes from the latest tag. For example if you are releasing `4.2.1`:
+changes from the latest tag. For example if you are releasing `4.3.1`:
 
 ```shell
-./changes.sh 4.2.1
+./changes.sh 4.3.1
 ```
 
 Edit the resulting `CHANGES.txt` as convenient, to use it as the basis for the
@@ -86,14 +86,14 @@ generate_directory_index_caddystyle.py -r css4j
 ```
 
 If the changes to the `css4j.github.io` repo look correct, commit them as
-"Maven: deploy css4j 4.2.1 artifacts" or similar but do not push yet.
+"Maven: deploy css4j 4.3.1 artifacts" or similar but do not push yet.
 
 10) Create a `v<version>` tag in the css4j Git repository. For example:
 
 ```shell
 cd /path/to/css4j
-git tag -s v4.2.1 -m "Release 4.2.1"
-git push origin v4.2.1
+git tag -s v4.3.1 -m "Release 4.3.1"
+git push origin v4.3.1
 ```
 
 or `git tag -a` instead of `-s` if you do not plan to sign the tag. But it is
@@ -104,29 +104,29 @@ Alternatively, you could create the new tag when drafting the Github release
 
 11) Now prepare the release Zip file by running `./gradlew clean`, removing the
 unnecessary directories and finally creating the archive. In the following
-example we create the 4.2.1 release Zip with the `7z` compressor:
+example we create the 4.3.1 release Zip with the `7z` compressor:
 
 ```shell
 cd /path/to/css4j
 ./gradlew clean
 rm -fr .git .gitattributes .gitignore .gradle buildSrc/.gradle
 cd ..
-mv css4j css4j-4.2.1
-7z a -mx7 css4j-4.2.1.zip css4j-4.2.1
+mv css4j css4j-4.3.1
+7z a -mx7 css4j-4.3.1.zip css4j-4.3.1
 ```
 
 12) Create the release's digest files:
 
 ```shell
 cd /path/to/css4j.github.io/digest
-./ha.sh /path/to/css4j-4.2.1.zip
+./ha.sh /path/to/css4j-4.3.1.zip
 ```
 
-You should now have the `css4j-4.2.1.sha1`, `css4j-4.2.1.sha256`,
-`css4j-4.2.1.b2` and `css4j-4.2.1.md5` files under the `digest` directory.
+You should now have the `css4j-4.3.1.sha1`, `css4j-4.3.1.sha256`,
+`css4j-4.3.1.b2` and `css4j-4.3.1.md5` files under the `digest` directory.
 
 If the changes to the `css4j.github.io` repo look correct, commit them as
-"Digests for css4j 4.2.1 zip distribution" or similar but do not push yet.
+"Digests for css4j 4.3.1 zip distribution" or similar but do not push yet.
 
 13) Upload the newly created digest files and the Zip release to the appropriate
 folders in https://sourceforge.net/projects/carte/files/css4j/
@@ -137,7 +137,8 @@ Summarize the most important changes in the release description, using the
 Release Notes as a source.
 
 Add to the Github release the five css4j _jar_ files from the `jar` directory
-in your copy of the css4j release.
+in your copy of the css4j release, as well as the zip distribution file mentioned
+above.
 
 15) Verify that the new [Github packages](https://github.com/orgs/css4j/packages?repo_name=css4j)
 were created successfully by the [Gradle Package](https://github.com/css4j/css4j/actions/workflows/gradle-publish.yml)
@@ -147,7 +148,7 @@ task.
 the new version number and the new download URLs, Release Notes included.
 
 If the changes to the `css4j.github.io` repo look correct, commit them with an
-appropriate description but do not push yet.
+appropriate description and push it.
 
 Now you can remove your local copy of the release code if you want.
 
@@ -157,12 +158,13 @@ repository and execute `./gradlew mergedJavadoc`. Move the javadocs from
 `build/docs/javadoc` to `/path/to/css4j.github.io/api/latest`.
 
 If the changes to the `css4j.github.io` repo look correct, commit them with a
-description like "Latest modular Javadocs after css4j 4.2.1".
+description like "Latest modular Javadocs after css4j 4.3.1". Make sure that the
+previous `pages-build-deployment` action in that repository has finished, before
+pushing this new commit.
 
-18) Push the commits to the `css4j.github.io` repository, and check whether the
-subsequent ["Examples" CI](https://github.com/css4j/css4j.github.io/actions/workflows/examples.yml)
-completed successfully. A failure could mean that the artifacts are not usable
-with Java 8, for example.
+18) Check whether the ["Examples" CI](https://github.com/css4j/css4j.github.io/actions/workflows/examples.yml)
+from this last push to `css4j.github.io` completed successfully. A failure could
+mean that the artifacts are not usable with Java 8, for example.
 
 19) If this css4j release is coming from the `master` branch and is therefore
 the latest one, in your local copy of the [css4j-dist](https://github.com/css4j/css4j-dist)
