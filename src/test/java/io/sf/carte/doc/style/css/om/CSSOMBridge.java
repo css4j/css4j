@@ -33,12 +33,14 @@ public class CSSOMBridge {
 		return css.createSheetHandler(commentMode);
 	}
 
-	public static void assertSpecificity(int idCount, int attribClassesCount, int namesPseudoelementsCount,
-			Selector sel, SelectorMatcher matcher) {
+	public static void assertSpecificity(int idCount, int attribClassesCount,
+			int namesPseudoelementsCount, Selector sel, SelectorMatcher matcher) {
 		Specificity sp = new Specificity(sel, matcher);
-		assertEquals(idCount, sp.id_count);
-		assertEquals(attribClassesCount, sp.attrib_classes_count);
-		assertEquals(namesPseudoelementsCount, sp.names_pseudoelements_count);
+		assertEquals(idCount, sp.id_count, "ID count mismatch");
+		assertEquals(attribClassesCount, sp.attrib_classes_count,
+				"attribute/classes count mismatch");
+		assertEquals(namesPseudoelementsCount, sp.names_pseudoelements_count,
+				"names/pseudo-elements count mismatch");
 	}
 
 	public static String selectorListToString(SelectorList selist, CSSStyleDeclarationRule rule) {

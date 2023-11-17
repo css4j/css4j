@@ -62,12 +62,6 @@ public class Specificity implements java.io.Serializable {
 		names_pseudoelements_count += specificity.names_pseudoelements_count;
 	}
 
-	private void clear() {
-		id_count = 0;
-		attrib_classes_count = 0;
-		names_pseudoelements_count = 0;
-	}
-
 	private void specificity(Selector selector) {
 		switch (selector.getSelectorType()) {
 		case ELEMENT:
@@ -80,7 +74,9 @@ public class Specificity implements java.io.Serializable {
 			break;
 		case CONDITIONAL:
 			ConditionalSelector condsel = (ConditionalSelector) selector;
-			conditionSpecificity(condsel.getCondition(), condsel.getSimpleSelector(), this);
+			SimpleSelector simple = condsel.getSimpleSelector();
+			specificity(simple);
+			conditionSpecificity(condsel.getCondition());
 			break;
 		case DESCENDANT:
 		case CHILD:
@@ -93,18 +89,13 @@ public class Specificity implements java.io.Serializable {
 		}
 	}
 
-	private void conditionSpecificity(Condition cond, SimpleSelector selector, Specificity sp) {
+	private void conditionSpecificity(Condition cond) {
 		switch (cond.getConditionType()) {
 		case POSITIONAL:
 			PositionalCondition pcond = (PositionalCondition) cond;
 			SelectorList ofList = pcond.getOfList();
 			if (ofList != null) {
-				int selIdx = selectorMatcher.matches(ofList);
-				if (selIdx == -1) {
-					return;
-				}
-				Specificity argSpecificity = new Specificity(ofList.item(selIdx), selectorMatcher);
-				add(argSpecificity);
+				mostSpecific(ofList);
 			}
 		case CLASS:
 		case ATTRIBUTE:
@@ -117,44 +108,19 @@ public class Specificity implements java.io.Serializable {
 		case LANG:
 		case ONLY_CHILD:
 		case ONLY_TYPE:
-			sp.attrib_classes_count++;
+			attrib_classes_count++;
 			break;
 		case PSEUDO_ELEMENT:
-			sp.names_pseudoelements_count++;
+			names_pseudoelements_count++;
 			break;
 		case ID:
-			sp.id_count++;
+			id_count++;
 			break;
 		case AND:
 			CombinatorCondition comb = (CombinatorCondition) cond;
-			Specificity firstsp = new Specificity(selector, selectorMatcher);
-			conditionSpecificity(comb.getFirstCondition(), selector, firstsp);
-			Specificity secondsp = new Specificity(selector, selectorMatcher);
-			conditionSpecificity(comb.getSecondCondition(), selector, secondsp);
-			if (firstsp.id_count > secondsp.id_count) {
-				sp.id_count += firstsp.id_count;
-				sp.attrib_classes_count += firstsp.attrib_classes_count;
-				sp.names_pseudoelements_count += firstsp.names_pseudoelements_count;
-			} else if (firstsp.id_count < secondsp.id_count) {
-				sp.id_count += secondsp.id_count;
-				sp.attrib_classes_count += secondsp.attrib_classes_count;
-				sp.names_pseudoelements_count += secondsp.names_pseudoelements_count;
-			} else {
-				if (firstsp.attrib_classes_count > secondsp.attrib_classes_count) {
-					sp.attrib_classes_count += firstsp.attrib_classes_count;
-					sp.names_pseudoelements_count += firstsp.names_pseudoelements_count;
-				} else if (firstsp.attrib_classes_count < secondsp.attrib_classes_count) {
-					sp.attrib_classes_count += secondsp.attrib_classes_count;
-					sp.names_pseudoelements_count += secondsp.names_pseudoelements_count;
-				} else {
-					if (firstsp.names_pseudoelements_count > secondsp.names_pseudoelements_count) {
-						sp.names_pseudoelements_count += firstsp.names_pseudoelements_count;
-					} else if (firstsp.names_pseudoelements_count < secondsp.names_pseudoelements_count) {
-						sp.names_pseudoelements_count += secondsp.names_pseudoelements_count;
-					}
-				}
-			}
-			return;
+			conditionSpecificity(comb.getFirstCondition());
+			conditionSpecificity(comb.getSecondCondition());
+			break;
 		case SELECTOR_ARGUMENT:
 			ArgumentCondition acond = (ArgumentCondition) cond;
 			String name = acond.getName();
@@ -163,17 +129,32 @@ public class Specificity implements java.io.Serializable {
 				break;
 			}
 			SelectorList argList = acond.getSelectors();
-			int selIdx = selectorMatcher.matches(argList);
-			if (selIdx == -1) {
-				clear();
-				return;
-			}
-			Specificity argSpecificity = new Specificity(argList.item(selIdx), selectorMatcher);
-			add(argSpecificity);
+			// Assume it is not(), is() or has()
+			// Just compute the most specific in the list
+			mostSpecific(argList);
 			break;
 		default:
 		}
-		sp.specificity(selector);
+	}
+
+	/**
+	 * Add the specificity of the most specific selector in the list.
+	 * 
+	 * @param selectorList the selector list.
+	 */
+	private void mostSpecific(SelectorList selectorList) {
+		// Find the most specific selector
+		int sz = selectorList.getLength();
+		Selector selector = selectorList.item(0);
+		Specificity spMost = new Specificity(selector, selectorMatcher);
+		for (int i = 1; i < sz; i++) {
+			Selector sel = selectorList.item(i);
+			Specificity sp = new Specificity(sel, selectorMatcher);
+			if (selectorCompare(spMost, sp) < 0) {
+				spMost = sp;
+			}
+		}
+		add(spMost);
 	}
 
 	@Override

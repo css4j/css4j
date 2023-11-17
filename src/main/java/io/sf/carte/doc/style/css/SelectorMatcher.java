@@ -75,4 +75,15 @@ public interface SelectorMatcher {
 	 * @return <code>true</code> if this matcher matches this object, <code>false</code> otherwise.
 	 */
 	boolean matches(Selector selector);
+
+	/**
+	 * Does this object match the given selector inside a {@code has()}
+	 * pseudo-class?
+	 *
+	 * @param selector the selector to be tested.
+	 *
+	 * @return <code>true</code> if this matcher relationally matches this object,
+	 *         <code>false</code> otherwise.
+	 */
+	boolean matchesRelational(Selector selector);
 }

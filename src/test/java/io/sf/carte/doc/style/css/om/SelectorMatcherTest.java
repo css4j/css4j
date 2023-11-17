@@ -36,15 +36,16 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
-import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.DummyDeviceFactory.DummyCanvas;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 
 public class SelectorMatcherTest {
 
 	static TestCSSStyleSheetFactory factory;
 
-	private Parser cssParser;
+	private CSSParser cssParser;
 
 	private DOMDocument doc;
 
@@ -915,6 +916,43 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
+	public void testMatchSelectorTwoClasses() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p.secondclass.firstclass {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		CSSElement elm = createTopLevelElement("p");
+		elm.setAttribute("class", "firstclass secondclass thirdclass");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		CSSOMBridge.assertSpecificity(0, 2, 1, selist.item(selidx), matcher);
+	}
+
+	@Test
+	public void testMatchSelectorTwoClassesTwoPseudo() throws Exception {
+		BaseCSSStyleSheet css = parseStyle(
+				"p.secondclass::before.firstclass::first-line {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		CSSElement elm = createTopLevelElement("p");
+		elm.setAttribute("class", "firstclass secondclass thirdclass");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		Condition pseudo = cssParser.parsePseudoElement("::before::first-line");
+		matcher.setPseudoElement(pseudo);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		CSSOMBridge.assertSpecificity(0, 2, 3, selist.item(selidx), matcher);
+
+		// Fail the pseudo-element match
+		pseudo = cssParser.parsePseudoElement("::first-line");
+		matcher.setPseudoElement(pseudo);
+		selidx = matcher.matches(selist);
+		assertTrue(selidx == -1);
+	}
+
+	@Test
 	public void testMatchSelector3MultipleClasses() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p.firstclass {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
@@ -1762,7 +1800,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		CSSOMBridge.assertSpecificity(0, 1, 2, selist.item(selidx), matcher);
+		CSSOMBridge.assertSpecificity(0, 1, 3, selist.item(selidx), matcher);
 		//
 		elm.removeChild(span);
 		assertEquals(-1, matcher.matches(selist));
@@ -1786,7 +1824,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		CSSOMBridge.assertSpecificity(0, 1, 2, selist.item(selidx), matcher);
+		CSSOMBridge.assertSpecificity(0, 1, 3, selist.item(selidx), matcher);
 		//
 		parent.removeChild(elm);
 		parent.removeChild(elm2);
@@ -1813,7 +1851,7 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		CSSOMBridge.assertSpecificity(0, 1, 3, selist.item(selidx), matcher);
+		CSSOMBridge.assertSpecificity(0, 1, 4, selist.item(selidx), matcher);
 		//
 		parent.removeChild(elm);
 		parent.removeChild(elm2);
@@ -1821,11 +1859,52 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
-	public void testMatchSelectorPseudoIs() throws Exception {
-		BaseCSSStyleSheet css = parseStyle(":is(.exampleclass span, div > span) {color: blue;}");
+	public void testMatchSelectorPseudoHasNested() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p.exampleclass:has(* img,#fooID) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals(":is(.exampleclass span,div>span)", selectorListToString(selist, rule));
+		assertEquals("p.exampleclass:has(* img,#fooID)", selectorListToString(selist, rule));
+		//
+		CSSElement parent = createTopLevelElement("p");
+		parent.setAttribute("id", "p1");
+		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		elm.setAttribute("id", "childid1");
+		parent.appendChild(elm);
+		CSSElement elm2 = parent.getOwnerDocument().createElement("span");
+		elm2.setAttribute("id", "childid2");
+		parent.appendChild(elm2);
+		CSSElement elm3 = parent.getOwnerDocument().createElement("img");
+		elm3.setAttribute("id", "childid3");
+		elm2.appendChild(elm3);
+		SelectorMatcher matcher = selectorMatcher(parent);
+		assertEquals(-1, matcher.matches(selist));
+		parent.setAttribute("class", "exampleclass");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		CSSOMBridge.assertSpecificity(1, 1, 1, selist.item(selidx), matcher);
+
+		// Now nested
+		// This should not be allowed, but anyway
+		css = parseStyle("p.exampleclass:has(span:has(> img,#fooID)) {color: blue;}");
+		rule = (StyleRule) css.getCssRules().item(0);
+		selist = rule.getSelectorList();
+		selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		CSSOMBridge.assertSpecificity(1, 1, 2, selist.item(selidx), matcher);
+
+		parent.removeChild(elm2);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelectorPseudoIs() throws Exception {
+		BaseCSSStyleSheet css = parseStyle(
+				":is(.exampleclass span[foo], div > span) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals(":is(.exampleclass span[foo],div>span)", selectorListToString(selist, rule));
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
@@ -1834,12 +1913,64 @@ public class SelectorMatcherTest {
 		elm = parent.getOwnerDocument().createElement("b");
 		parent.appendChild(elm);
 		CSSElement child2 = parent.getOwnerDocument().createElement("span");
+		child2.setAttribute("foo", "bar");
 		elm.appendChild(child2);
 		SelectorMatcher matcher = selectorMatcher(child2);
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
+		CSSOMBridge.assertSpecificity(0, 2, 1, selist.item(selidx), matcher);
+	}
+
+	@Test
+	public void testMatchSelectorPseudoIsID() throws Exception {
+		BaseCSSStyleSheet css = parseStyle(
+				"span:is(.exampleclass span[foo], div > span, #fooID) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("span:is(.exampleclass span[foo],div>span,#fooID)",
+				selectorListToString(selist, rule));
+		CSSElement parent = createTopLevelElement("p");
+		parent.setAttribute("class", "exampleclass");
+		parent.setAttribute("id", "exampleid");
+		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		parent.appendChild(elm);
+		elm = parent.getOwnerDocument().createElement("b");
+		parent.appendChild(elm);
+		CSSElement child2 = parent.getOwnerDocument().createElement("span");
+		child2.setAttribute("foo", "bar");
+		elm.appendChild(child2);
+		SelectorMatcher matcher = selectorMatcher(child2);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		CSSOMBridge.assertSpecificity(1, 0, 1, selist.item(selidx), matcher);
+	}
+
+	@Test
+	public void testMatchSelectorPseudoIsNested() throws Exception {
+		BaseCSSStyleSheet css = parseStyle(
+				":is(.fooclass span, div > span, :is(p#exampleid.exampleclass span#sp2Id.spcl)) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals(":is(.fooclass span,div>span,:is(p#exampleid.exampleclass span#sp2Id.spcl))",
+				selectorListToString(selist, rule));
+		CSSElement parent = createTopLevelElement("p");
+		parent.setAttribute("class", "exampleclass");
+		parent.setAttribute("id", "exampleid");
+		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		parent.appendChild(elm);
+		elm = parent.getOwnerDocument().createElement("b");
+		parent.appendChild(elm);
+		CSSElement child2 = parent.getOwnerDocument().createElement("span");
+		child2.setAttribute("class", "spcl");
+		child2.setAttribute("id", "sp2Id");
+		elm.appendChild(child2);
+		SelectorMatcher matcher = selectorMatcher(child2);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		CSSOMBridge.assertSpecificity(2, 2, 2, selist.item(selidx), matcher);
 	}
 
 	@Test
@@ -1909,7 +2040,53 @@ public class SelectorMatcherTest {
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
-		CSSOMBridge.assertSpecificity(0, 1, 2, selist.item(selidx), matcher);
+		CSSOMBridge.assertSpecificity(0, 2, 1, selist.item(selidx), matcher);
+	}
+
+	@Test
+	public void testMatchSelectorPseudoNotId() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p.exampleclass:not(:last-child,p#noID) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p.exampleclass:not(:last-child,p#noID)", selectorListToString(selist, rule));
+		CSSElement parent = createTopLevelElement("div");
+		parent.setAttribute("id", "div1");
+		CSSElement elm = parent.getOwnerDocument().createElement("p");
+		elm.setAttribute("id", "p1");
+		elm.setAttribute("class", "exampleclass");
+		parent.appendChild(elm);
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertTrue(matcher.matches(selist) < 0);
+		CSSElement elm2 = parent.getOwnerDocument().createElement("p");
+		elm2.setAttribute("id", "p2");
+		parent.appendChild(elm2);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		CSSOMBridge.assertSpecificity(1, 1, 2, selist.item(selidx), matcher);
+	}
+
+	@Test
+	public void testMatchSelectorPseudoNotNested() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p:not(:last-child, :not(p)) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p:not(:last-child,:not(p))",
+				selectorListToString(selist, rule));
+		CSSElement parent = createTopLevelElement("div");
+		parent.setAttribute("id", "div1");
+		CSSElement elm = parent.getOwnerDocument().createElement("p");
+		elm.setAttribute("id", "p1");
+		parent.appendChild(elm);
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertTrue(matcher.matches(selist) < 0);
+		CSSElement elm2 = parent.getOwnerDocument().createElement("p");
+		elm2.setAttribute("id", "p2");
+		parent.appendChild(elm2);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
 	}
 
 	@Test

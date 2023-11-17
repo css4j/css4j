@@ -23,6 +23,7 @@ import io.sf.carte.doc.DirectionalityHelper.Directionality;
 import io.sf.carte.doc.style.css.CSSDocument.ComplianceMode;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
+import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
@@ -451,7 +452,13 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 		return scopeMatchRecursive(first, desc);
 	}
 
-	private boolean scopeMatchRecursive(Node node, SimpleSelector desc) {
+	@Override
+	public boolean matchesRelational(Selector selector) {
+		Node first = element.getFirstChild();
+		return scopeMatchRecursive(first, selector);
+	}
+
+	private boolean scopeMatchRecursive(Node node, Selector desc) {
 		while (node != null) {
 			if (node.getNodeType() == Node.ELEMENT_NODE) {
 				@SuppressWarnings("unchecked")
