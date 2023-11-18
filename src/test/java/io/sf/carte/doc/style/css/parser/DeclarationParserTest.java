@@ -91,7 +91,9 @@ public class DeclarationParserTest {
 		assertEquals("", lu.getStringValue());
 		assertEquals("", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -105,7 +107,9 @@ public class DeclarationParserTest {
 		assertEquals("", lu.getStringValue());
 		assertEquals("", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -119,7 +123,9 @@ public class DeclarationParserTest {
 		assertEquals("", lu.getStringValue());
 		assertEquals("", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -149,6 +155,7 @@ public class DeclarationParserTest {
 		assertEquals(500, param.getIntegerValue());
 		assertNull(param.getNextLexicalUnit());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -174,6 +181,7 @@ public class DeclarationParserTest {
 		assertEquals(500.3f, param.getFloatValue(), 1e-6f);
 		assertNull(param.getNextLexicalUnit());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -183,7 +191,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: #;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -191,7 +201,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: #");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -199,7 +211,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: #x");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -207,7 +221,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: #,");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -215,7 +231,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: #:");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -223,7 +241,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: #@charset");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -231,7 +251,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: #-");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -239,7 +261,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: #_");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -247,7 +271,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: #.");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -255,7 +281,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: ##");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -263,7 +291,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: foo #;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -271,7 +301,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: foo #");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -279,7 +311,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("width: calc(100% - 3em");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -287,7 +321,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("width: calc(100% - 3em;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -295,7 +331,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("width: calc(100% -");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -303,7 +341,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("width: calc(100% -;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -311,7 +351,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("background-image: url(http://www.example.com/");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -319,7 +361,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("background-image: url(http://www.example.com/;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -327,7 +371,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("background-image: url(");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -335,7 +381,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("background-image: url(;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -343,7 +391,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("list-style: @");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -351,7 +401,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("list-style;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -359,7 +411,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("list-style:;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -373,7 +427,9 @@ public class DeclarationParserTest {
 		assertEquals("", lu.getStringValue());
 		assertEquals("", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -381,7 +437,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("list-style: -9foo_bar");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -389,7 +447,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("list-style: 9foo_bar");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -397,7 +457,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("list-style: foo\0");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -405,7 +467,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("list-style: foo\u0000");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -413,7 +477,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("list-style: foo\u0007");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -435,7 +501,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("yellow", lu.getStringValue());
 		assertEquals("yellow", lu.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -476,7 +544,9 @@ public class DeclarationParserTest {
 		assertEquals("em", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 3em)", lu.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -520,7 +590,9 @@ public class DeclarationParserTest {
 		assertEquals("sans-serif", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("bold 14px/32px \"Courier New\", Arial, sans-serif", lunit.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -549,7 +621,9 @@ public class DeclarationParserTest {
 		assertEquals("!rtl:ignore", handler.comments.get(0));
 		assertEquals("!rtl:ignore", handler.comments.get(1));
 		assertEquals("!rtl:ignore", handler.comments.get(2));
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -563,7 +637,9 @@ public class DeclarationParserTest {
 		assertEquals("\\1f44d ", lu.toString());
 		assertEquals(1, handler.priorities.size());
 		assertEquals("important", handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -577,7 +653,9 @@ public class DeclarationParserTest {
 		assertEquals("\\1f44d ", lu.toString());
 		assertEquals(1, handler.priorities.size());
 		assertEquals("important", handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -591,7 +669,9 @@ public class DeclarationParserTest {
 		assertEquals("\\1f44d ", lu.toString());
 		assertEquals(1, handler.priorities.size());
 		assertEquals("important", handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -604,7 +684,9 @@ public class DeclarationParserTest {
 		assertEquals("#ddd", lu.toString());
 		assertEquals(1, handler.priorities.size());
 		assertEquals("important", handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -617,7 +699,9 @@ public class DeclarationParserTest {
 		assertEquals("#ddd", lu.toString());
 		assertEquals(1, handler.priorities.size());
 		assertEquals("important", handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -625,7 +709,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("width: calc(100% - 3em !important;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -633,7 +719,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: rgb(128, 0, 97 !important;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -641,7 +729,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: # !important;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -649,7 +739,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("color: #!important;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -657,7 +749,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("margin: 1em!imp;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -665,7 +759,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("margin: 1em!important!;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -673,7 +769,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("margin: 1em!\\\\69mportant;");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -689,7 +787,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.INTEGER, subv.getLexicalUnitType());
 		assertEquals(1046, subv.getIntegerValue());
 		assertNull(subv.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -709,7 +809,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.INTEGER, subv.getLexicalUnitType());
 		assertEquals(255, subv.getIntegerValue());
 		assertNull(subv.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -725,7 +827,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.UNICODE_WILDCARD, subv.getLexicalUnitType());
 		assertEquals("4??", subv.getStringValue());
 		assertNull(subv.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -775,7 +879,9 @@ public class DeclarationParserTest {
 		subv = lu.getSubValues();
 		assertEquals(LexicalType.INTEGER, subv.getLexicalUnitType());
 		assertEquals(65280, subv.getIntegerValue());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -791,7 +897,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.UNICODE_WILDCARD, subv.getLexicalUnitType());
 		assertEquals("???", subv.getStringValue());
 		assertNull(subv.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -799,7 +907,9 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("unicode-range: U+??????");
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -813,7 +923,9 @@ public class DeclarationParserTest {
 		assertEquals("5px\t", lu.getStringValue());
 		assertEquals("\\35 px\\9 ", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -827,7 +939,9 @@ public class DeclarationParserTest {
 		assertEquals("j\\", lu.getStringValue());
 		assertEquals("j\\\\", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -839,6 +953,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(1, lu.getIntegerValue());
 		assertEquals("1", lu.toString());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 		assertEquals(12, errorHandler.warningException.getColumnNumber());
@@ -853,7 +968,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("-1zzz:_", lu.getStringValue());
 		assertEquals("\\-1zzz\\:_", lu.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -865,7 +982,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("\uD83D\uDC4D", lu.getStringValue());
 		assertEquals("\\1f44d ", lu.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -877,7 +996,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals(":foo", lu.getStringValue());
 		assertEquals("\\:foo", lu.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -889,7 +1010,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("block\t", lu.getStringValue());
 		assertEquals("block\\9 ", lu.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -901,7 +1024,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("bl\tock", lu.getStringValue());
 		assertEquals("bl\\9 ock", lu.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -913,7 +1038,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("-\tblock", lu.getStringValue());
 		assertEquals("-\\9 block", lu.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -943,7 +1070,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("sans-serif", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -961,7 +1090,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Arial", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -979,7 +1110,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Arial", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -992,7 +1125,9 @@ public class DeclarationParserTest {
 		assertEquals("file:///dir/file", lu.getStringValue());
 		assertEquals("file\\:\\/\\/\\/dir\\/file", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1005,7 +1140,9 @@ public class DeclarationParserTest {
 		assertEquals("file:c:\\\\dir\\file", lu.getStringValue());
 		assertEquals("file\\:c\\:\\\\\\\\dir\\\\file", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1033,13 +1170,17 @@ public class DeclarationParserTest {
 		assertEquals("\u00a7", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("symbols('*' '\\2020' '\\2021' '\\A7')", lunit.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
 	public void testParseStyleDeclarationBackslashHackError() throws CSSException {
 		parseStyleDeclaration("width: 600px\\9");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1056,6 +1197,7 @@ public class DeclarationParserTest {
 		assertEquals("600px\\9", lu.getStringValue());
 		assertEquals("600px\\9", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1072,6 +1214,7 @@ public class DeclarationParserTest {
 		assertEquals("600px\\0", lu.getStringValue());
 		assertEquals("600px\\0", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1080,6 +1223,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationBackslashHack3Error() throws CSSException {
 		parseStyleDeclaration("width: calc(80% - 3cap)\\9");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1096,6 +1241,7 @@ public class DeclarationParserTest {
 		assertEquals("calc(80% - 3cap)\\9", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("calc(80% - 3cap)\\9", lu.toString());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1112,6 +1258,7 @@ public class DeclarationParserTest {
 		assertEquals("#000\\9", lu.getStringValue());
 		assertEquals("#000\\9", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1133,6 +1280,7 @@ public class DeclarationParserTest {
 		assertEquals("Roman\t", lu.getStringValue());
 		assertEquals("Roman\\9 ", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertFalse(errorHandler.hasWarning());
 	}
@@ -1158,6 +1306,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.OPERATOR_SLASH, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertFalse(errorHandler.hasWarning());
 	}
@@ -1181,6 +1330,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.OPERATOR_SLASH, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1189,6 +1339,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationPropertyNameError() throws CSSException {
 		parseStyleDeclaration("color\0:#ff0");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1197,6 +1349,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationPropertyNameError2() throws CSSException {
 		parseStyleDeclaration("color\u0007:#ff0");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1205,6 +1359,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationPropertyNameError3() throws CSSException {
 		parseStyleDeclaration("color#:#ff0");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1213,6 +1369,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationPropertyNameError4() throws CSSException {
 		parseStyleDeclaration("#color:#ff0");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1222,6 +1380,8 @@ public class DeclarationParserTest {
 		// Test the recovery from previous error
 		parseStyleDeclaration("#color:#ff0;margin-right:0");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-right", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
@@ -1235,6 +1395,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationPropertyNameError6() throws CSSException {
 		parseStyleDeclaration("color color:#ff0");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1243,6 +1405,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationPropertyNameError7() throws CSSException {
 		parseStyleDeclaration("9color:#ff0");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1251,6 +1415,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationPropertyNameStringError() throws CSSException {
 		parseStyleDeclaration("\"color\":#ff0");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1259,6 +1425,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationPropertyNameStringError2() throws CSSException {
 		parseStyleDeclaration("background-\"color\":#ff0");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1268,11 +1436,13 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("\\30 color:#ff0");
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
+
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("0color", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+
 		assertEquals("#ff0", lu.toString());
 	}
 
@@ -1281,11 +1451,13 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("\\30 color :#ff0");
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
+
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("0color", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+
 		assertEquals("#ff0", lu.toString());
 	}
 
@@ -1311,6 +1483,7 @@ public class DeclarationParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("#ff0", lu.toString());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1319,6 +1492,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationStarHackError() throws CSSException {
 		parseStyleDeclaration("*width:600px");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1336,6 +1511,7 @@ public class DeclarationParserTest {
 		assertEquals("cap", lu.getDimensionUnitText());
 		assertEquals("60cap", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1357,6 +1533,7 @@ public class DeclarationParserTest {
 		assertEquals("px", lu.getDimensionUnitText());
 		assertEquals("600px", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1365,6 +1542,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationIEPrioError() throws CSSException {
 		parseStyleDeclaration("display:block!ie");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1382,6 +1561,7 @@ public class DeclarationParserTest {
 		assertEquals("60cap!ie", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
 		assertNull(handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1399,6 +1579,7 @@ public class DeclarationParserTest {
 		assertEquals("60cap!ie", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
 		assertNull(handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1416,6 +1597,7 @@ public class DeclarationParserTest {
 		assertEquals("calc(80% - 3cap)!ie", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
 		assertNull(handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1433,6 +1615,7 @@ public class DeclarationParserTest {
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("foo 60cap!ie", lu.toString());
 		assertNull(handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1441,6 +1624,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationIECharPrioError() throws CSSException {
 		parseStyleDeclaration("display:block!important!");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1449,6 +1634,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationIECharPrioError2() throws CSSException {
 		parseStyleDeclaration("display:block!important!;");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1466,6 +1653,7 @@ public class DeclarationParserTest {
 		assertEquals("60cap", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("important", handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1483,6 +1671,7 @@ public class DeclarationParserTest {
 		assertEquals("60cap", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("important", handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1499,6 +1688,7 @@ public class DeclarationParserTest {
 		assertEquals("foo 60cap", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("important", handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1515,6 +1705,7 @@ public class DeclarationParserTest {
 		assertEquals("calc(80% - 3cap)", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("important", handler.priorities.getFirst());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1530,7 +1721,9 @@ public class DeclarationParserTest {
 		assertEquals("larger", lu.getStringValue());
 		assertEquals("larger", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1544,7 +1737,9 @@ public class DeclarationParserTest {
 		assertEquals("larger", lu.getStringValue());
 		assertEquals("larger", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1558,7 +1753,9 @@ public class DeclarationParserTest {
 		assertEquals("\t", lu.getStringValue());
 		assertEquals("\\9 ", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1573,7 +1770,9 @@ public class DeclarationParserTest {
 		assertEquals("px", lu.getDimensionUnitText());
 		assertEquals("1px", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1588,7 +1787,9 @@ public class DeclarationParserTest {
 		assertEquals("px", lu.getDimensionUnitText());
 		assertEquals("11px", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1603,7 +1804,9 @@ public class DeclarationParserTest {
 		assertEquals("em", lu.getDimensionUnitText());
 		assertEquals("1.1em", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1617,7 +1820,9 @@ public class DeclarationParserTest {
 		assertEquals("foo", lu.getDimensionUnitText());
 		assertEquals("1foo", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1632,7 +1837,9 @@ public class DeclarationParserTest {
 		assertEquals(0.0083f, lu.getFloatValue(), 1e-7f);
 		assertEquals("0.0083ex", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1647,7 +1854,9 @@ public class DeclarationParserTest {
 		assertEquals(0.0083f, lu.getFloatValue(), 1e-7f);
 		assertEquals("0.0083ex", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1662,7 +1871,9 @@ public class DeclarationParserTest {
 		assertEquals(-0.0083f, lu.getFloatValue(), 1e-7f);
 		assertEquals("-0.0083ex", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1675,7 +1886,9 @@ public class DeclarationParserTest {
 		assertEquals(0, lu.getIntegerValue());
 		assertEquals("0", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1727,7 +1940,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(1, lu.getIntegerValue());
 		assertEquals("1", lu.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1742,6 +1957,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationMinusError() throws CSSException {
 		parseStyleDeclaration("z-index:- 1deg");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1750,6 +1967,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationProductError() throws CSSException {
 		parseStyleDeclaration("z-index:* 1deg");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -1768,7 +1987,9 @@ public class DeclarationParserTest {
 		assertEquals("auto", lu.getStringValue());
 		assertEquals("auto", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1801,7 +2022,9 @@ public class DeclarationParserTest {
 		assertEquals("green", lu.getStringValue());
 		assertEquals("green", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1855,7 +2078,9 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("round", lu.getStringValue());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2118,6 +2343,9 @@ public class DeclarationParserTest {
 		assertEquals("em", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 3em)", lu.toString());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2144,6 +2372,9 @@ public class DeclarationParserTest {
 		assertEquals("mm", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 12mm)", lu.toString());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2170,6 +2401,9 @@ public class DeclarationParserTest {
 		assertEquals("em", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 0.3em)", lu.toString());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2196,6 +2430,57 @@ public class DeclarationParserTest {
 		assertEquals("em", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(100% - 3em)", lu.toString());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcPlus() throws CSSException {
+		parseStyleDeclaration("width: calc(80% + 3em)");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("width", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
+		assertEquals(80f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(3f, param.getFloatValue(), 1e-5f);
+		assertEquals("em", param.getDimensionUnitText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(80% + 3em)", lu.toString());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcWSPlusError() throws CSSException {
+		parseStyleDeclaration("width: calc(90%+3em)");
+		assertEquals(0, handler.propertyNames.size());
+
+		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcWSMinusError() throws CSSException {
+		parseStyleDeclaration("width: calc(90%-3em)");
+		assertEquals(0, handler.propertyNames.size());
+
+		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2461,6 +2746,74 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationCalcPlusDimensionProd() throws CSSException {
+		parseStyleDeclaration("padding-left:calc(+.0083ex*+.25)");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("padding-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EX, param.getCssUnit());
+		assertEquals(0.0083f, param.getFloatValue(), 1e-7f);
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
+		assertEquals(0.25f, param.getFloatValue(), 1e-7f);
+		assertEquals("0.25", param.getCssText());
+
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(0.0083ex*0.25)", lu.getCssText());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcPlusDimensionDiv() throws CSSException {
+		parseStyleDeclaration("padding-left:calc(+.0083ex/+.25)");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("padding-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EX, param.getCssUnit());
+		assertEquals(0.0083f, param.getFloatValue(), 1e-7f);
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
+		assertEquals(0.25f, param.getFloatValue(), 1e-7f);
+		assertEquals("0.25", param.getCssText());
+
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(0.0083ex/0.25)", lu.getCssText());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
 	public void testParseStyleDeclarationCalcMinusDimension() throws CSSException {
 		parseStyleDeclaration("padding-left:calc(-.0083ex)");
 		assertEquals(1, handler.propertyNames.size());
@@ -2478,7 +2831,145 @@ public class DeclarationParserTest {
 		assertEquals("-0.0083ex", param.getCssText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(-0.0083ex)", lu.getCssText());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcMinusDimensionProd() throws CSSException {
+		parseStyleDeclaration("padding-left:calc(-.0083ex*-.25)");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("padding-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EX, param.getCssUnit());
+		assertEquals(-0.0083f, param.getFloatValue(), 1e-7f);
+		assertEquals("-0.0083ex", param.getCssText());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
+		assertEquals(-0.25f, param.getFloatValue(), 1e-7f);
+		assertEquals("-0.25", param.getCssText());
+
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(-0.0083ex*-0.25)", lu.getCssText());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcMinusDimensionDiv() throws CSSException {
+		parseStyleDeclaration("padding-left:calc(-.0083ex/-.25)");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("padding-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EX, param.getCssUnit());
+		assertEquals(-0.0083f, param.getFloatValue(), 1e-7f);
+		assertEquals("-0.0083ex", param.getCssText());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
+		assertEquals(-0.25f, param.getFloatValue(), 1e-7f);
+		assertEquals("-0.25", param.getCssText());
+
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(-0.0083ex/-0.25)", lu.getCssText());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcVar() throws CSSException {
+		parseStyleDeclaration("margin-top:calc(-1*(-.9px + var(--offset-top,-.6pt)))");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("margin-top", handler.propertyNames.getFirst());
+
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
+		assertEquals(-1, param.getIntegerValue());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.SUB_EXPRESSION, param.getLexicalUnitType());
+		assertNull(param.getNextLexicalUnit());
+
+		param = param.getSubValues();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(-0.9f, param.getFloatValue(), 1e-7f);
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertNull(param.getNextLexicalUnit());
+
+		param = param.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--offset-top", param.getStringValue());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PT, param.getCssUnit());
+		assertEquals(-0.6f, param.getFloatValue(), 1e-7f);
+
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("calc(-1*(-0.9px + var(--offset-top, -0.6pt)))", lu.getCssText());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2494,6 +2985,7 @@ public class DeclarationParserTest {
 		assertEquals("0.0083ex", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2509,6 +3001,7 @@ public class DeclarationParserTest {
 		assertEquals("-0.0083ex", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2528,6 +3021,7 @@ public class DeclarationParserTest {
 		assertEquals("- 0.0083ex", lu.toString());
 		assertNull(nlu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2547,12 +3041,15 @@ public class DeclarationParserTest {
 		assertEquals("1deg", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
 	public void testParseStyleDeclarationCustomPropertyPlusError() throws CSSException {
 		parseStyleDeclaration("--rot:+ + 1deg");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -2574,12 +3071,15 @@ public class DeclarationParserTest {
 		assertEquals("1deg", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
 	public void testParseStyleDeclarationCustomPropertyMinusError() throws CSSException {
 		parseStyleDeclaration("--rot:- - 1deg");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -2588,6 +3088,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationCustomPropertyPlusMinusError() throws CSSException {
 		parseStyleDeclaration("--rot:+ - 1deg");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -2601,6 +3103,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.OPERATOR_MULTIPLY, lu.getLexicalUnitType());
 		assertEquals("*", lu.getCssText());
 		assertEquals("*1deg", lu.toString());
+
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
@@ -2608,7 +3111,9 @@ public class DeclarationParserTest {
 		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("1deg", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2632,7 +3137,9 @@ public class DeclarationParserTest {
 		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("1deg", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2650,7 +3157,9 @@ public class DeclarationParserTest {
 		assertEquals(2, lu.getIntegerValue());
 		assertEquals("2", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2674,7 +3183,9 @@ public class DeclarationParserTest {
 		assertEquals(2, lu.getIntegerValue());
 		assertEquals("2", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2693,13 +3204,17 @@ public class DeclarationParserTest {
 		assertEquals(32f, lu.getFloatValue(), 1e-5f);
 		assertEquals("32deg", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
 	public void testParseStyleDeclarationCustomPropertyCommaPlusError() throws CSSException {
 		parseStyleDeclaration("--rot:, + 1deg");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -2708,6 +3223,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationCustomPropertyCommaMinusError() throws CSSException {
 		parseStyleDeclaration("--rot:, - 1deg");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -2716,6 +3233,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationCustomPropertyCommaAsteriskError() throws CSSException {
 		parseStyleDeclaration("--rot:, * 1deg");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -2741,7 +3260,9 @@ public class DeclarationParserTest {
 		assertEquals("#3fa", param.toString());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("var(--my-color, #3fa)", lu.toString());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2766,7 +3287,9 @@ public class DeclarationParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("var(--my-color, #3fa)", lu.toString());
 		assertEquals("var(--my-color, #3fa)", lu.getCssText());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2778,6 +3301,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		assertNull(lu.getParameters());
+
 		assertFalse(errorHandler.hasError());
 		assertFalse(errorHandler.hasWarning());
 	}
@@ -2800,6 +3324,7 @@ public class DeclarationParserTest {
 		assertEquals(CSSUnit.CSS_INVALID, lu.getCssUnit());
 		assertEquals("min-color=5", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -2808,6 +3333,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationCustomFunction2Error() throws CSSException {
 		parseStyleDeclaration("filter: --my-function(min-color =5)");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -2830,6 +3357,7 @@ public class DeclarationParserTest {
 		assertEquals(CSSUnit.CSS_INVALID, lu.getCssUnit());
 		assertEquals("min-color=5", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -2839,6 +3367,8 @@ public class DeclarationParserTest {
 		parseStyleDeclaration(
 				"filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -2876,6 +3406,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("#d0df9f", lu.getStringValue());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -2885,6 +3416,8 @@ public class DeclarationParserTest {
 		parseStyleDeclaration(
 				"filter:progid:DXImageTransform.Microsoft.Gradient(GradientType=0,StartColorStr=#bd0afa,EndColorStr=#d0df9f);");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -2921,6 +3454,7 @@ public class DeclarationParserTest {
 		assertEquals(CSSUnit.CSS_INVALID, lu.getCssUnit());
 		assertEquals("EndColorStr=#d0df9f", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -2929,6 +3463,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationProgid3Error() throws CSSException {
 		parseStyleDeclaration("filter: progid:DXImageTransform.Microsoft.Blur(pixelradius=5)");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -2948,6 +3484,7 @@ public class DeclarationParserTest {
 		assertEquals(CSSUnit.CSS_INVALID, lu.getCssUnit());
 		assertEquals("pixelradius=5", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -2957,6 +3494,8 @@ public class DeclarationParserTest {
 		parseStyleDeclaration(
 				"_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=scale,src='http://www.example.com/images/myimage.png');");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 	}
@@ -2998,6 +3537,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("http://www.example.com/images/myimage.png", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -3010,6 +3550,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("progid:DXImageTransform.Microsoft.gradient(enabled=false)", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertFalse(errorHandler.hasWarning());
 	}
@@ -3018,6 +3559,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationIEExpressionError() throws CSSException {
 		parseStyleDeclaration("top:expression(iequirk = (document.body.scrollTop) + \"px\" )");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 	}
 
@@ -3026,6 +3569,8 @@ public class DeclarationParserTest {
 		parser.setFlag(Parser.Flag.IEVALUES); // Must throw exception despite the flag
 		parseStyleDeclaration("top:expression(= (document.body.scrollTop) + \"px\" )");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 	}
 
@@ -3060,6 +3605,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("px", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -3068,6 +3614,8 @@ public class DeclarationParserTest {
 	public void testParseStyleDeclarationIEExpression2Error() throws CSSException {
 		parseStyleDeclaration("zoom:expression(this.runtimeStyle['zoom'] = '1',this.innerHTML = '&#xe03a;')");
 		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
 		assertEquals(0, handler.propertyNames.size());
 	}
 
@@ -3118,6 +3666,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("&#xe03a;", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -3169,14 +3718,17 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("&#xe03a;", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
 
 	@Test
 	public void testParseStyleDeclarationIEExpression3() throws CSSException {
+		parser.setFlag(Parser.Flag.IEVALUES);
 		parseStyleDeclaration(
 				"top:expression(eval(document.documentElement.scrollTop+(document.documentElement.clientHeight-this.offsetHeight)))");
+		assertEquals(1, handler.propertyNames.size());
 		assertEquals("top", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
@@ -3203,7 +3755,9 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, subv.getLexicalUnitType());
 		assertEquals("document.documentElement.clientHeight-this.offsetHeight", subv.getStringValue());
 		assertNull(subv.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -3222,7 +3776,9 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.RIGHT_BRACKET, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -3253,7 +3809,9 @@ public class DeclarationParserTest {
 		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
 		assertEquals(10f, lu.getFloatValue(), 1e-5f);
 		assertNull(lu.getNextLexicalUnit());
+
 		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test

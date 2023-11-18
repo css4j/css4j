@@ -6843,6 +6843,11 @@ public class CSSParser implements Parser, Cloneable {
 					|| type == LexicalType.OPERATOR_MULTIPLY || type == LexicalType.OPERATOR_SLASH;
 		}
 
+		private boolean lastParamIsMultOrSlashOperator() {
+			LexicalType type = findLastValue(currentlu.parameters).getLexicalUnitType();
+			return type == LexicalType.OPERATOR_MULTIPLY || type == LexicalType.OPERATOR_SLASH;
+		}
+
 		private boolean isValidRGBColor(int index) {
 			LexicalUnitImpl lu = currentlu.parameters;
 			short valCount = 0;
@@ -8033,20 +8038,35 @@ public class CSSParser implements Parser, Cloneable {
 							if (buffer.length() == 1 && ((c = buffer.charAt(0)) == 'U' || c == 'u')) {
 								buffer.setLength(0);
 								unicodeRange = true;
-							} else if (!isPrevCpWhitespace() && (buffer.length() == 0
-									|| (c = buffer.charAt(buffer.length() - 1)) != 'E' && c != 'e')) {
+							} else if (buffer.length() == 0
+									|| (c = buffer.charAt(buffer.length() - 1)) != 'E'
+											&& c != 'e') {
+								// No scientific notation
 								if (functionToken) {
 									processBuffer(index);
-									if (currentlu.parameters == null
-										|| !lastParamIsAlgebraicOperator()) {
+									boolean prevCpWS = isPrevCpWhitespace();
+									if (((prevCpWS
+											&& currentlu.getLexicalUnitType() == LexicalType.CALC)
+											|| flagIEValues) && currentlu.parameters != null
+											&& !lastParamIsAlgebraicOperator()) {
+										// We are either in calc() plus operator context
+										// or in IE compatibility
 										newLexicalUnit(LexicalType.OPERATOR_PLUS, false);
+									} else if (prevCpWS || currentlu.parameters == null
+											|| lastParamIsMultOrSlashOperator()) {
+										// We are in sign context
+										buffer.append('+');
+										codepoint = 65;
 									} else {
 										unexpectedCharError(index, codepoint);
 									}
+								} else if (isPrevCpWhitespace()) {
+									buffer.append('+');
+									codepoint = 65;
 								} else if (isCustomProperty()) {
 									processBuffer(index);
 									newCustomPropertyOperator(index, codepoint,
-										LexicalType.OPERATOR_PLUS);
+											LexicalType.OPERATOR_PLUS);
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
