@@ -272,12 +272,17 @@ publishing {
 			artifact(testsJar)
 			pom {
 				description = 'css4j core module'
-				url = "https://github.com/css4j/css4j/"
+				url = "https://css4j.github.io/"
 				licenses {
 					license {
 						name = "BSD 3-clause license"
 						url = "https://css4j.github.io/LICENSE.txt"
 					}
+				}
+				scm {
+					connection = "scm:git:https://github.com/css4j/css4j.git"
+					developerConnection = "scm:git:git://git@github.com:css4j/css4j.git"
+					url = "https://github.com/css4j/css4j"
 				}
 			}
 		}
