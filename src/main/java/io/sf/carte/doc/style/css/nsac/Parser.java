@@ -327,4 +327,13 @@ public interface Parser {
 	void parseMediaQueryList(String media, MediaQueryFactory queryFactory, MediaQueryHandler mqhandler)
 			throws CSSBudgetException;
 
+	/**
+	 * Parse a pseudo-element.
+	 * 
+	 * @param pseudoElement the string representation of a pseudo-element.
+	 * @return the pseudo-element condition.
+	 * @throws CSSException if the argument is not a parsable pseudo-element.
+	 */
+	Condition parsePseudoElement(String pseudoElement) throws CSSException;
+
 }

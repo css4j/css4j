@@ -2212,6 +2212,7 @@ public class CSSParser implements Parser, Cloneable {
 		return handler.getTrimmedSelectorList();
 	}
 
+	@Override
 	public Condition parsePseudoElement(String pseudoElement) throws CSSException {
 		SelectorList peList = parseSelectors(pseudoElement);
 		Selector sel;
