@@ -47,6 +47,18 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
+  testOn8:
+    runs-on: ubuntu-latest
+
+    name: Test on Java 8
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
       # Run tests with Java 8
       - name: Test with Java 8
         run: ./gradlew testOn8
