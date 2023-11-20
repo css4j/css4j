@@ -366,6 +366,27 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
+	public void testMatchSelectorEndsAttribute() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p[title$=\"hi\"] {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p[title$='hi']", selectorListToString(selist, rule));
+		CSSElement elm = createTopLevelElement("p");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		assertTrue(matcher.matches(selist) < 0);
+		elm.setAttribute("title", "ho hi");
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
+		//
+		elm = createTopLevelElement("div");
+		elm.setAttribute("title", "hi");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
 	public void testMatchSelectorBeginsAttribute() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p[title^=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
@@ -412,27 +433,6 @@ public class SelectorMatcherTest {
 		elm.setAttribute("title", "h");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		//
-		elm = createTopLevelElement("div");
-		elm.setAttribute("title", "hi");
-		matcher = selectorMatcher(elm);
-		assertEquals(-1, matcher.matches(selist));
-	}
-
-	@Test
-	public void testMatchSelectorEndsAttribute() throws Exception {
-		BaseCSSStyleSheet css = parseStyle("p[title$=\"hi\"] {color: blue;}");
-		StyleRule rule = (StyleRule) css.getCssRules().item(0);
-		SelectorList selist = rule.getSelectorList();
-		assertEquals("p[title$='hi']", selectorListToString(selist, rule));
-		CSSElement elm = createTopLevelElement("p");
-		SelectorMatcher matcher = selectorMatcher(elm);
-		assertTrue(matcher.matches(selist) < 0);
-		elm.setAttribute("title", "ho hi");
-		int selidx = matcher.matches(selist);
-		assertTrue(selidx >= 0);
-		// Specificity
-		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
 		//
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
@@ -835,7 +835,7 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -853,10 +853,10 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
-		elm = parent.getOwnerDocument().createElement("b");
+		elm = doc.createElement("b");
 		elm.setAttribute("id", "childid2");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -871,13 +871,13 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
-		elm = parent.getOwnerDocument().createElement("b");
+		elm = doc.createElement("b");
 		elm.setAttribute("id", "childid2");
 		parent.appendChild(elm);
-		CSSElement child2 = parent.getOwnerDocument().createElement("span");
+		CSSElement child2 = doc.createElement("span");
 		child2.setAttribute("id", "grandchildid1");
 		elm.appendChild(child2);
 		SelectorMatcher matcher = selectorMatcher(child2);
@@ -988,10 +988,10 @@ public class SelectorMatcherTest {
 		assertEquals("p:first-child", selectorListToString(selist, rule));
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "parentid");
-		CSSElement firstChild = parent.getOwnerDocument().createElement("p");
+		CSSElement firstChild = doc.createElement("p");
 		firstChild.setAttribute("id", "pid1");
 		parent.appendChild(firstChild);
-		CSSElement elm = parent.getOwnerDocument().createElement("p");
+		CSSElement elm = doc.createElement("p");
 		elm.setAttribute("id", "pid2");
 		parent.appendChild(elm);
 
@@ -1068,7 +1068,7 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -1086,10 +1086,10 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
-		elm = parent.getOwnerDocument().createElement("b");
+		elm = doc.createElement("b");
 		elm.setAttribute("id", "childid2");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -1104,13 +1104,13 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
-		elm = parent.getOwnerDocument().createElement("b");
+		elm = doc.createElement("b");
 		elm.setAttribute("id", "childid2");
 		parent.appendChild(elm);
-		CSSElement child2 = parent.getOwnerDocument().createElement("span");
+		CSSElement child2 = doc.createElement("span");
 		child2.setAttribute("id", "grandchildid1");
 		elm.appendChild(child2);
 		SelectorMatcher matcher = selectorMatcher(child2);
@@ -1129,7 +1129,7 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("id", "childid");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -1147,10 +1147,10 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("id", "childid");
 		parent.appendChild(elm);
-		elm = parent.getOwnerDocument().createElement("b");
+		elm = doc.createElement("b");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
@@ -1185,11 +1185,11 @@ public class SelectorMatcherTest {
 		assertEquals("p.exampleclass+p", selectorListToString(selist, rule));
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
-		CSSElement elm = parent.getOwnerDocument().createElement("p");
+		CSSElement elm = doc.createElement("p");
 		elm.setAttribute("id", "childid1");
 		elm.setAttribute("class", "exampleclass");
 		parent.appendChild(elm);
-		elm = parent.getOwnerDocument().createElement("p");
+		elm = doc.createElement("p");
 		elm.setAttribute("id", "childid2");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -1207,14 +1207,14 @@ public class SelectorMatcherTest {
 		assertEquals("p+.exampleclass", selectorListToString(selist, rule));
 
 		CSSElement parent = createTopLevelElement("div");
-		CSSElement elm = parent.getOwnerDocument().createElement("p");
+		CSSElement elm = doc.createElement("p");
 		parent.appendChild(elm);
-		elm = parent.getOwnerDocument().createElement("div");
+		elm = doc.createElement("div");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
 		assertEquals(-1, selidx);
-		elm = parent.getOwnerDocument().createElement("div");
+		elm = doc.createElement("div");
 		elm.setAttribute("class", "exampleclass");
 		parent.appendChild(elm);
 		matcher = selectorMatcher(elm);
@@ -1236,7 +1236,7 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
 		parent.appendChild(doc.createElement("pre"));
-		CSSElement elm = parent.getOwnerDocument().createElement("p");
+		CSSElement elm = doc.createElement("p");
 		elm.setAttribute("id", "childidp1");
 		elm.setAttribute("class", "exampleclass");
 		parent.appendChild(elm);
@@ -1244,7 +1244,7 @@ public class SelectorMatcherTest {
 		CSSElement pre = doc.createElement("pre");
 		pre.setAttribute("id", "idpre");
 		parent.appendChild(pre);
-		elm = parent.getOwnerDocument().createElement("p");
+		elm = doc.createElement("p");
 		elm.setAttribute("id", "childidp2");
 		parent.appendChild(elm);
 
@@ -1269,27 +1269,27 @@ public class SelectorMatcherTest {
 		assertEquals("ul li a", selectorListToString(selist, rule));
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
-		CSSElement ul = parent.getOwnerDocument().createElement("ul");
+		CSSElement ul = doc.createElement("ul");
 		ul.setAttribute("id", "ul1");
 		parent.appendChild(ul);
-		CSSElement li = parent.getOwnerDocument().createElement("li");
+		CSSElement li = doc.createElement("li");
 		li.setAttribute("id", "li1");
 		ul.appendChild(li);
-		CSSElement p = parent.getOwnerDocument().createElement("p");
+		CSSElement p = doc.createElement("p");
 		li.appendChild(p);
-		CSSElement a = parent.getOwnerDocument().createElement("a");
+		CSSElement a = doc.createElement("a");
 		a.setAttribute("id", "a1");
 		p.appendChild(a);
-		CSSElement a2 = parent.getOwnerDocument().createElement("a");
+		CSSElement a2 = doc.createElement("a");
 		a2.setAttribute("id", "a2");
 		p.appendChild(a2);
 		assertFalse(p.matches(selist, null));
 		assertTrue(a.matches(selist, null));
 		assertTrue(a2.matches(selist, null));
-		CSSElement li2 = parent.getOwnerDocument().createElement("li");
+		CSSElement li2 = doc.createElement("li");
 		li2.setAttribute("id", "li2");
 		ul.appendChild(li2);
-		CSSElement a3 = parent.getOwnerDocument().createElement("a");
+		CSSElement a3 = doc.createElement("a");
 		a3.setAttribute("id", "a3");
 		li.appendChild(a3);
 		assertTrue(a3.matches(selist, null));
@@ -1300,7 +1300,7 @@ public class SelectorMatcherTest {
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 0, 3, selist.item(selidx), matcher);
 		//
-		CSSElement span = parent.getOwnerDocument().createElement("span");
+		CSSElement span = doc.createElement("span");
 		a3.appendChild(span);
 		assertFalse(span.matches(selist, null));
 	}
@@ -1313,24 +1313,24 @@ public class SelectorMatcherTest {
 		assertEquals("*>ul>li>a", selectorListToString(selist, rule));
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
-		CSSElement ul = parent.getOwnerDocument().createElement("ul");
+		CSSElement ul = doc.createElement("ul");
 		ul.setAttribute("id", "ul1");
 		parent.appendChild(ul);
-		CSSElement li = parent.getOwnerDocument().createElement("li");
+		CSSElement li = doc.createElement("li");
 		li.setAttribute("id", "li1");
 		ul.appendChild(li);
-		CSSElement a = parent.getOwnerDocument().createElement("a");
+		CSSElement a = doc.createElement("a");
 		a.setAttribute("id", "a1");
 		li.appendChild(a);
-		CSSElement a2 = parent.getOwnerDocument().createElement("a");
+		CSSElement a2 = doc.createElement("a");
 		a2.setAttribute("id", "a2");
 		li.appendChild(a2);
 		assertTrue(a.matches(selist, null));
 		assertTrue(a2.matches(selist, null));
-		CSSElement li2 = parent.getOwnerDocument().createElement("li");
+		CSSElement li2 = doc.createElement("li");
 		li2.setAttribute("id", "li2");
 		ul.appendChild(li2);
-		CSSElement a3 = parent.getOwnerDocument().createElement("a");
+		CSSElement a3 = doc.createElement("a");
 		a3.setAttribute("id", "a3");
 		li.appendChild(a3);
 		assertTrue(a3.matches(selist, null));
@@ -1341,7 +1341,7 @@ public class SelectorMatcherTest {
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 0, 3, selist.item(selidx), matcher);
 		//
-		CSSElement span = parent.getOwnerDocument().createElement("span");
+		CSSElement span = doc.createElement("span");
 		a3.appendChild(span);
 		assertFalse(span.matches(selist, null));
 	}
@@ -1737,10 +1737,10 @@ public class SelectorMatcherTest {
 		//
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("id", "p1");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
-		CSSElement elm2 = parent.getOwnerDocument().createElement("img");
+		CSSElement elm2 = doc.createElement("img");
 		elm2.setAttribute("id", "childid2");
 		parent.appendChild(elm2);
 		SelectorMatcher matcher = selectorMatcher(parent);
@@ -1764,10 +1764,10 @@ public class SelectorMatcherTest {
 		//
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
-		CSSElement elm = parent.getOwnerDocument().createElement("p");
+		CSSElement elm = doc.createElement("p");
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
-		CSSElement elm2 = parent.getOwnerDocument().createElement("p");
+		CSSElement elm2 = doc.createElement("p");
 		elm2.setAttribute("id", "childid2");
 		parent.appendChild(elm2);
 		SelectorMatcher matcher = selectorMatcher(elm);
@@ -1790,9 +1790,9 @@ public class SelectorMatcherTest {
 		assertEquals("div.exampleclass:has(p>span)", selectorListToString(selist, rule));
 		//
 		CSSElement parent = createTopLevelElement("div");
-		CSSElement elm = parent.getOwnerDocument().createElement("p");
+		CSSElement elm = doc.createElement("p");
 		parent.appendChild(elm);
-		CSSElement span = parent.getOwnerDocument().createElement("span");
+		CSSElement span = doc.createElement("span");
 		elm.appendChild(span);
 		SelectorMatcher matcher = selectorMatcher(parent);
 		assertEquals(-1, matcher.matches(selist));
@@ -1814,9 +1814,9 @@ public class SelectorMatcherTest {
 		assertEquals("div.exampleclass:has(span+p)", selectorListToString(selist, rule));
 		//
 		CSSElement parent = createTopLevelElement("div");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		parent.appendChild(elm);
-		CSSElement elm2 = parent.getOwnerDocument().createElement("p");
+		CSSElement elm2 = doc.createElement("p");
 		parent.appendChild(elm2);
 		SelectorMatcher matcher = selectorMatcher(parent);
 		assertEquals(-1, matcher.matches(selist));
@@ -1867,13 +1867,13 @@ public class SelectorMatcherTest {
 		//
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("id", "p1");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
-		CSSElement elm2 = parent.getOwnerDocument().createElement("span");
+		CSSElement elm2 = doc.createElement("span");
 		elm2.setAttribute("id", "childid2");
 		parent.appendChild(elm2);
-		CSSElement elm3 = parent.getOwnerDocument().createElement("img");
+		CSSElement elm3 = doc.createElement("img");
 		elm3.setAttribute("id", "childid3");
 		elm2.appendChild(elm3);
 		SelectorMatcher matcher = selectorMatcher(parent);
@@ -1908,11 +1908,11 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		parent.appendChild(elm);
-		elm = parent.getOwnerDocument().createElement("b");
+		elm = doc.createElement("b");
 		parent.appendChild(elm);
-		CSSElement child2 = parent.getOwnerDocument().createElement("span");
+		CSSElement child2 = doc.createElement("span");
 		child2.setAttribute("foo", "bar");
 		elm.appendChild(child2);
 		SelectorMatcher matcher = selectorMatcher(child2);
@@ -1933,11 +1933,11 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		parent.appendChild(elm);
-		elm = parent.getOwnerDocument().createElement("b");
+		elm = doc.createElement("b");
 		parent.appendChild(elm);
-		CSSElement child2 = parent.getOwnerDocument().createElement("span");
+		CSSElement child2 = doc.createElement("span");
 		child2.setAttribute("foo", "bar");
 		elm.appendChild(child2);
 		SelectorMatcher matcher = selectorMatcher(child2);
@@ -1958,11 +1958,11 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		parent.appendChild(elm);
-		elm = parent.getOwnerDocument().createElement("b");
+		elm = doc.createElement("b");
 		parent.appendChild(elm);
-		CSSElement child2 = parent.getOwnerDocument().createElement("span");
+		CSSElement child2 = doc.createElement("span");
 		child2.setAttribute("class", "spcl");
 		child2.setAttribute("id", "sp2Id");
 		elm.appendChild(child2);
@@ -1982,13 +1982,13 @@ public class SelectorMatcherTest {
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("class", "exampleclass");
 		parent.setAttribute("id", "exampleid");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("id", "childid1");
 		parent.appendChild(elm);
-		elm = parent.getOwnerDocument().createElement("b");
+		elm = doc.createElement("b");
 		elm.setAttribute("id", "childid2");
 		parent.appendChild(elm);
-		CSSElement child2 = parent.getOwnerDocument().createElement("span");
+		CSSElement child2 = doc.createElement("span");
 		child2.setAttribute("id", "grandchildid1");
 		elm.appendChild(child2);
 		SelectorMatcher matcher = selectorMatcher(child2);
@@ -2006,12 +2006,12 @@ public class SelectorMatcherTest {
 		assertEquals("span:where(.foo .bar,div>.bar)", selectorListToString(selist, rule));
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("class", "foo");
-		CSSElement elm = parent.getOwnerDocument().createElement("span");
+		CSSElement elm = doc.createElement("span");
 		elm.setAttribute("class", "bar");
 		parent.appendChild(elm);
-		CSSElement p = parent.getOwnerDocument().createElement("p");
+		CSSElement p = doc.createElement("p");
 		parent.appendChild(p);
-		CSSElement child2 = parent.getOwnerDocument().createElement("span");
+		CSSElement child2 = doc.createElement("span");
 		p.appendChild(child2);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		int selidx = matcher.matches(selist);
@@ -2028,13 +2028,13 @@ public class SelectorMatcherTest {
 		assertEquals("p.exampleclass:not(:last-child)", selectorListToString(selist, rule));
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
-		CSSElement elm = parent.getOwnerDocument().createElement("p");
+		CSSElement elm = doc.createElement("p");
 		elm.setAttribute("id", "p1");
 		elm.setAttribute("class", "exampleclass");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
-		CSSElement elm2 = parent.getOwnerDocument().createElement("p");
+		CSSElement elm2 = doc.createElement("p");
 		elm2.setAttribute("id", "p2");
 		parent.appendChild(elm2);
 		int selidx = matcher.matches(selist);
@@ -2051,13 +2051,13 @@ public class SelectorMatcherTest {
 		assertEquals("p.exampleclass:not(:last-child,p#noID)", selectorListToString(selist, rule));
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
-		CSSElement elm = parent.getOwnerDocument().createElement("p");
+		CSSElement elm = doc.createElement("p");
 		elm.setAttribute("id", "p1");
 		elm.setAttribute("class", "exampleclass");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
-		CSSElement elm2 = parent.getOwnerDocument().createElement("p");
+		CSSElement elm2 = doc.createElement("p");
 		elm2.setAttribute("id", "p2");
 		parent.appendChild(elm2);
 		int selidx = matcher.matches(selist);
@@ -2075,12 +2075,12 @@ public class SelectorMatcherTest {
 				selectorListToString(selist, rule));
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
-		CSSElement elm = parent.getOwnerDocument().createElement("p");
+		CSSElement elm = doc.createElement("p");
 		elm.setAttribute("id", "p1");
 		parent.appendChild(elm);
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
-		CSSElement elm2 = parent.getOwnerDocument().createElement("p");
+		CSSElement elm2 = doc.createElement("p");
 		elm2.setAttribute("id", "p2");
 		parent.appendChild(elm2);
 		int selidx = matcher.matches(selist);
