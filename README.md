@@ -20,7 +20,7 @@ The functionality of this library can be divided in the following areas:
   that allows accessing the CSS information (style sheets, inline styles, etc.)
   in a DOM Document, as well as getting computed styles for its elements.
 
-- A CSS-enabled [native DOM implementation](https://css4j.github.io/api/3/io/sf/carte/doc/dom/package-summary.html).
+- A CSS-enabled [native DOM implementation](https://css4j.github.io/api/latest/io.sf.carte.css4j/io/sf/carte/doc/dom/package-summary.html).
 
 - A DOM wrapper that can be used with an external DOM implementation.
 
@@ -29,13 +29,15 @@ The functionality of this library can be divided in the following areas:
 In separate modules you can find:
 
 - A DOM4J backend (module [css4j-dom4j](https://github.com/css4j/css4j-dom4j))
-  which uses documents and elements that extend those of dom4j (for those who
-  are comfortable with the [dom4j API](https://dom4j.github.io/)).
+  which uses [documents and elements that extend those of dom4j](https://css4j.github.io/api/latest/io.sf.carte.css4j.dom4j/module-summary.html)
+  (for those who are comfortable with the [dom4j API](https://dom4j.github.io/)).
 
-- User agent helper classes, that ease the usage of the library with correct
-  cookie settings etc. ([css4j-agent](https://github.com/css4j/css4j-agent) module).
+- [User agent helper classes](https://css4j.github.io/api/latest/io.sf.carte.css4j.agent.net/module-summary.html)
+  that ease the usage of the library with correct cookie settings etc.
+  ([css4j-agent](https://github.com/css4j/css4j-agent) module).
 
-- A few AWT helper classes ([AWT module](https://github.com/css4j/css4j-awt)).
+- A few [AWT helper classes](https://css4j.github.io/api/latest/io.sf.carte.css4j.awt/module-summary.html)
+  ([AWT module](https://github.com/css4j/css4j-awt)).
 
 <br/>
 
