@@ -77,11 +77,29 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 
 	@Override
 	public LexicalUnit getNextLexicalUnit() {
+		LexicalUnitImpl lu = nextLexicalUnit;
+		while (lu != null && lu.getLexicalUnitType() == LexicalType.EMPTY) {
+			lu = lu.nextLexicalUnit;
+		}
+		return lu;
+	}
+
+	@Override
+	public LexicalUnit getNextRawLexicalUnit() {
 		return nextLexicalUnit;
 	}
 
 	@Override
 	public LexicalUnit getPreviousLexicalUnit() {
+		LexicalUnitImpl lu = previousLexicalUnit;
+		while (lu != null && lu.getLexicalUnitType() == LexicalType.EMPTY) {
+			lu = lu.previousLexicalUnit;
+		}
+		return lu;
+	}
+
+	@Override
+	public LexicalUnit getPreviousRawLexicalUnit() {
 		return previousLexicalUnit;
 	}
 
@@ -293,13 +311,12 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		if (parameters == null) {
 			parameters = paramUnit;
 		} else {
-			LexicalUnit lu = parameters;
-			while (lu.getNextLexicalUnit() != null) {
-				lu = lu.getNextLexicalUnit();
+			LexicalUnitImpl lu = parameters;
+			while (lu.nextLexicalUnit != null) {
+				lu = lu.nextLexicalUnit;
 			}
-			LexicalUnitImpl luimpl = (LexicalUnitImpl) lu;
-			luimpl.nextLexicalUnit = paramUnit;
-			paramUnit.previousLexicalUnit = luimpl;
+			lu.nextLexicalUnit = paramUnit;
+			paramUnit.previousLexicalUnit = lu;
 		}
 	}
 
@@ -340,13 +357,20 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			case OPERATOR_SLASH:
 			case OPERATOR_TILDE:
 			case LEFT_BRACKET:
-			case EMPTY:
 				needSpaces = false;
 			case OPERATOR_COMMA:
 			case OPERATOR_SEMICOLON:
 				break;
 			case RIGHT_BRACKET:
 				needSpaces = true;
+				break;
+			case EMPTY:
+				if (lu.identCssText != null && lu.previousLexicalUnit != null
+						&& lu.previousLexicalUnit
+								.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
+					// Space only after a comma
+					buf.append(' ');
+				}
 				break;
 			default:
 				if (needSpaces) {
@@ -355,6 +379,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 					needSpaces = true;
 				}
 			}
+
 			buf.append(lu.currentToString());
 			lu = lu.nextLexicalUnit;
 		}
@@ -411,6 +436,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			buf.append(')');
 			return buf;
 		case IDENT:
+		case EMPTY:
 			return identCssText != null ? identCssText : value;
 		case STRING:
 			return identCssText;
@@ -686,7 +712,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 				switch (param.getLexicalUnitType()) {
 				case OPERATOR_COMMA:
 					dataType = "string";
-					fallback = param.getNextLexicalUnit();
+					fallback = param.getNextRawLexicalUnit();
 					break;
 				case IDENT:
 					// We got a data type spec
@@ -696,12 +722,12 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 						if (param.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
 							return Match.FALSE; // Should never happen
 						}
-						fallback = param.getNextLexicalUnit();
+						fallback = param.getNextRawLexicalUnit();
 					}
 					break;
 				case OPERATOR_MOD:
 					dataType = "percentage";
-					fallback = param.getNextLexicalUnit();
+					fallback = param.getNextRawLexicalUnit();
 					break;
 				case VAR:
 					return Match.PENDING;
