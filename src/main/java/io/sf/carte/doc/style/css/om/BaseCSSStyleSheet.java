@@ -802,14 +802,17 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	private boolean isInvalidContentType(URL url, String conType) {
-		if (conType != null) {
+		String proto;
+		if (conType != null && !"content/unknown".equalsIgnoreCase(conType)
+				&& !"jar".equals(proto = url.getProtocol()) && !"file".equals(proto)) {
 			int sepidx = conType.indexOf(';');
 			if (sepidx != -1) {
 				conType = conType.substring(0, sepidx);
 			}
-			return !"text/css".equalsIgnoreCase(conType);
+			return !"text/css".equalsIgnoreCase(conType)
+					&& !url.getPath().toLowerCase(Locale.ROOT).endsWith(".css");
 		}
-		return !"file".equals(url.getProtocol())
+		return !"file".equals(proto = url.getProtocol()) && !"jar".equals(proto)
 				&& !url.getPath().toLowerCase(Locale.ROOT).endsWith(".css");
 	}
 
