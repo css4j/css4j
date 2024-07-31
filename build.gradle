@@ -213,7 +213,15 @@ tasks.register('testsJar', Jar) {
 	exclude '**/CSSParserFuzzTestInputs'
 }
 
-build.dependsOn lineEndingConversion, testsJar
+tasks.register('testsSourceJar', Jar) {
+	dependsOn testLineEndingConvCopy
+	archiveClassifier = 'tests-sources'
+	from(sourceSets.test.java)
+	// Exclude Jazzer stuff
+	exclude '**/CSSParserFuzzTestInputs'
+}
+
+build.dependsOn lineEndingConversion, testsJar, testsSourceJar
 
 tasks.withType(AbstractPublishToMaven).configureEach {
 	doFirst {
