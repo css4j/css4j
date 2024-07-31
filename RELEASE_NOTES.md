@@ -1,32 +1,25 @@
-# css4j version 4.2.2 Release Notes
+# css4j version 4.3 Release Notes
 
-### November 19, 2023
+### July 31, 2024
 
 <br/>
 
 ## Highlights
 
-### Require `Flag.IEVALUES` to parse legacy IE expressions
-
-This implies a stricter parsing of `calc()` expressions involving a plus sign.
-
-Previously, the library would accept invalid values like `calc(2+2)`, while
-correctly serializing them as `calc(2 + 2)`, because they are unambiguous and
-some legacy Internet Explorer expressions allow that syntax. However that was
-problematic for the people that uses the library for error detection, so now
-you have to configure the parser with `Flag.IEVALUES` if you want the more
-relaxed behaviour.
-
-### Specificity fixes
-
-Fixes issues with the computation of selector specificity.
+This version comes with CSSOM updates and a less strict check for the content
+type in `CSSParser.parseStyleSheet(String)`.
 
 <br/>
 
 ## Detail of changes
 
-- NSAC: require `Flag.IEVALUES` to parse IE expressions.
-- CSSOM: fix issues with computation of selector specificity.
-- A couple of Javadoc improvements.
-- Upgrade to Jazzer 0.22.1.
-- Upgrade to JUnit 5.10.1.
+- NSAC: make `parsePseudoElement(String)` part of the `Parser` interface.
+- NSAC: make content type check less strict.
+- CSSOM: include a default `getSeparator()` in `CSSCounterValue`.
+- CSSOM: add a name setter to `CSSKeyframesRule`.
+- Tests: simplify SelectorMatcher Test.
+- Tests: use the float variant of assertEquals in RuleParserTest.
+- Bump year to 2024 in copyrights.
+- Upgrade to JUnit 5.10.3.
+- Upgrade Gradle wrapper to 8.5.
+- README: update Javadoc links.
