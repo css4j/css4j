@@ -16,13 +16,4 @@ package io.sf.carte.doc.style.css;
  */
 public interface CSSCountersValue extends CSSCounterValue {
 
-	/**
-	 * Get the separator.
-	 * <p>
-	 * If no separator was set, returns the empty string.
-	 * 
-	 * @return the separator.
-	 */
-	String getSeparator();
-
 }

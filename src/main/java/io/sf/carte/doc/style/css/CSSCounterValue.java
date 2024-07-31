@@ -30,4 +30,15 @@ public interface CSSCounterValue extends CSSTypedValue {
 	 */
 	CSSPrimitiveValue getCounterStyle();
 
+	/**
+	 * Get the separator.
+	 * <p>
+	 * In <code>counter()</code> values, returns the empty string.
+	 * </p>
+	 * @return the separator.
+	 */
+	default String getSeparator() {
+		return "";
+	}
+
 }
