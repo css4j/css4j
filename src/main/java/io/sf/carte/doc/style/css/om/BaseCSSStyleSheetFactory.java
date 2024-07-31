@@ -357,17 +357,12 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	}
 
 	private InputStream loadCSSfromClasspath(final String cssFilename) {
-		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<InputStream>() {
-			@Override
-			public InputStream run() {
-				if (classLoader != null) {
-					return classLoader.getResourceAsStream(
-							resourcePath(BaseCSSStyleSheetFactory.class.getPackage().getName(), cssFilename));
-				} else {
-					return this.getClass().getResourceAsStream(cssFilename);
-				}
-			}
-		});
+		if (classLoader != null) {
+			return classLoader.getResourceAsStream(
+					resourcePath(BaseCSSStyleSheetFactory.class.getPackage().getName(), cssFilename));
+		} else {
+			return this.getClass().getResourceAsStream(cssFilename);
+		}
 	}
 
 	private static String resourcePath(String clase, String filename) {

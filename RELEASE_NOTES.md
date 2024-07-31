@@ -6,17 +6,21 @@
 
 ## Highlights
 
-This version comes with CSSOM updates and a less strict check for the content
-type in `CSSParser.parseStyleSheet(String)`.
+This version comes with CSSOM updates and a less strict check for the style
+sheet content types.
+
+Also, the deprecated `doPrivileged()` calls were removed.
 
 <br/>
 
 ## Detail of changes
 
+- Remove deprecated `doPrivileged()` calls.
 - NSAC: make `parsePseudoElement(String)` part of the `Parser` interface.
 - NSAC: make content type check less strict.
 - CSSOM: include a default `getSeparator()` in `CSSCounterValue`.
 - CSSOM: add a name setter to `CSSKeyframesRule`.
+- CSSOM: make content type checking less strict.
 - Tests: simplify SelectorMatcher Test.
 - Tests: use the float variant of assertEquals in RuleParserTest.
 - Bump year to 2024 in copyrights.

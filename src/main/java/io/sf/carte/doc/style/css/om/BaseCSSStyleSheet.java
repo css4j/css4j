@@ -19,7 +19,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
-import java.security.PrivilegedActionException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -741,63 +740,51 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 */
 	@Override
 	public boolean loadStyleSheet(URL url, String referrerPolicy) throws DOMException, IOException {
+		boolean result = false;
+
 		final URLConnection ucon = openConnection(url, referrerPolicy);
-		try {
-			java.security.AccessController.doPrivileged(new java.security.PrivilegedExceptionAction<Void>() {
-				@Override
-				public Void run() throws IOException {
-					ucon.connect();
-					return null;
+		ucon.connect();
+
+		try (InputStream is = ucon.getInputStream()) {
+			String contentEncoding = ucon.getContentEncoding();
+			String conType = ucon.getContentType();
+
+			// Check that the content type is correct
+			if (isInvalidContentType(url, conType) && !isRedirect(ucon)) {
+				// Report security error
+				String msg;
+				if (conType != null) {
+					// Sanitize untrusted content-type by removing control characters
+					// ('Other, Control' unicode category).
+					conType = conType.replaceAll("\\p{Cc}", "*CTRL*");
+					msg = "Style sheet at " + url.toExternalForm() + " served with invalid type ("
+							+ conType + ").";
+				} else {
+					msg = "Style sheet at " + url.toExternalForm()
+							+ " has no content type nor ends with '.css' extension.";
 				}
-			});
-		} catch (PrivilegedActionException e) {
-			throw (IOException) e.getException();
+
+				getDocumentErrorHandler().policyError(getOwnerNode(), msg);
+				throw new DOMPolicyException(msg);
+			}
+
+			Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding,
+					StandardCharsets.UTF_8);
+
+			// Parse
+			try {
+				setHref(url.toExternalForm());
+				result = parseStyleSheet(re);
+			} catch (DOMException e) {
+				getDocumentErrorHandler().linkedSheetError(e, this);
+				throw e;
+			}
 		}
 
-		InputStream is = ucon.getInputStream();
-		String contentEncoding = ucon.getContentEncoding();
-		String conType = ucon.getContentType();
-		// Check that the content type is correct
-		if (isInvalidContentType(url, conType) && !isRedirect(ucon)) {
-			// Report security error
-			String msg;
-			if (conType != null) {
-				// Sanitize untrusted content-type by removing control characters
-				// ('Other, Control' unicode category).
-				conType = conType.replaceAll("\\p{Cc}", "*CTRL*");
-				msg = "Style sheet at " + url.toExternalForm() + " served with invalid type ("
-					+ conType + ").";
-			} else {
-				msg = "Style sheet at " + url.toExternalForm()
-					+ " has no content type nor ends with '.css' extension.";
-			}
-			try {
-				is.close();
-			} catch (IOException e) {
-			}
-			getDocumentErrorHandler().policyError(getOwnerNode(), msg);
-			throw new DOMPolicyException(msg);
-		}
-
-		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding,
-			StandardCharsets.UTF_8);
-		// Parse
-		boolean result;
-		try {
-			setHref(url.toExternalForm());
-			result = parseStyleSheet(re);
-		} catch (DOMException e) {
-			getDocumentErrorHandler().linkedSheetError(e, this);
-			throw e;
-		} finally {
-			try {
-				is.close();
-			} catch (IOException e) {
-			}
-		}
 		if (ucon instanceof HttpURLConnection) {
 			((HttpURLConnection) ucon).disconnect();
 		}
+
 		return result;
 	}
 

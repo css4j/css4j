@@ -296,33 +296,29 @@ public final class ShorthandDatabase {
 		return identifiers.containsKey(propertyName);
 	}
 
-	private Properties loadPropertiesfromClasspath(final String filename, final ClassLoader classLoader) {
-		return java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Properties>() {
-			@Override
-			public Properties run() {
-				InputStream is;
-				if (classLoader != null) {
-					is = classLoader.getResourceAsStream(resourcePath(filename));
-				} else {
-					is = this.getClass().getResourceAsStream(resourcePath(filename));
-				}
-				if (is == null) {
-					return null;
-				}
-				Properties p = new Properties();
-				try {
-					p.load(is);
-				} catch (IOException e) {
-					return null;
-				} finally {
-					try {
-						is.close();
-					} catch (IOException e) {
-					}
-				}
-				return p;
+	private Properties loadPropertiesfromClasspath(final String filename,
+			final ClassLoader classLoader) {
+		InputStream is;
+		if (classLoader != null) {
+			is = classLoader.getResourceAsStream(resourcePath(filename));
+		} else {
+			is = getClass().getResourceAsStream(resourcePath(filename));
+		}
+		if (is == null) {
+			return null;
+		}
+		Properties p = new Properties();
+		try {
+			p.load(is);
+		} catch (IOException e) {
+			return null;
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
 			}
-		});
+		}
+		return p;
 	}
 
 	private String resourcePath(String filename) {
