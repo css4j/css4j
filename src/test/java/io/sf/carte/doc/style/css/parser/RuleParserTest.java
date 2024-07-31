@@ -674,7 +674,7 @@ public class RuleParserTest {
 		assertEquals("*width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(80, lu.getFloatValue(), 0.01);
+		assertEquals(80f, lu.getFloatValue(), 0.01f);
 		handler.checkRuleEndings();
 	}
 
