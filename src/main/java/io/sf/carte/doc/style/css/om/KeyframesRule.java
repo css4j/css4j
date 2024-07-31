@@ -65,7 +65,8 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		return name;
 	}
 
-	void setName(String keyframesName) {
+	@Override
+	public void setName(String keyframesName) {
 		name = keyframesName;
 	}
 

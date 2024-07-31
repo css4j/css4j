@@ -26,6 +26,13 @@ public interface CSSKeyframesRule extends CSSRule {
 	String getName();
 
 	/**
+	 * Sets the name of the keyframes.
+	 * 
+	 * @param name the name of the keyframes.
+	 */
+	void setName(String name);
+
+	/**
 	 * Gets the list of keyframe rules.
 	 * 
 	 * @return the list of keyframe rules.
