@@ -280,7 +280,9 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	private boolean isInvalidContentType(URL url, String conType) {
-		if (conType != null) {
+		String proto;
+		if (conType != null && !"content/unknown".equalsIgnoreCase(conType)
+				&& !"jar".equals(proto = url.getProtocol()) && !"file".equals(proto)) {
 			int sepidx = conType.indexOf(';');
 			if (sepidx != -1) {
 				conType = conType.substring(0, sepidx);
