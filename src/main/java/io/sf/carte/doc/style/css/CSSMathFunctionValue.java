@@ -4,10 +4,10 @@
  * Copyright © 1999,2000 W3C® (MIT, INRIA, Keio). All Rights Reserved.
  * https://www.w3.org/Consortium/Legal/copyright-software-19980720
  *
- * Copyright © 2023 Carlos Amengual.
- * 
+ * Copyright © 2023-2024 Carlos Amengual.
+ */
+/*
  * SPDX-License-Identifier: W3C-19980720
- * 
  */
 
 package io.sf.carte.doc.style.css;
