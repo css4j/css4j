@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -177,6 +178,64 @@ public class XHTMLDocumentTest {
 		assertTrue(elm instanceof LinkStyle);
 		elm = xmlDoc.createElementNS(HTMLDocument.HTML_NAMESPACE_URI, "STYLE");
 		assertTrue(elm instanceof LinkStyle);
+	}
+
+	@Test
+	public void testCreateAttribute() {
+		DOMElement svg = xmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
+		Attr attr = xmlDoc.createAttribute("viewBox");
+		assertEquals("viewbox", attr.getName());
+
+		attr.setValue("0 0 150 100");
+		svg.setAttributeNode(attr);
+
+		assertTrue(svg.hasAttribute("viewBox"));
+		assertEquals("0 0 150 100", svg.getAttribute("viewBox"));
+
+		Attr vb = svg.getAttributeNode("viewBox");
+		assertNotNull(vb);
+		assertSame(attr, vb);
+	}
+
+	@Test
+	public void testCreateAttributeNSNull() {
+		DOMElement svg = xmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
+		Attr attr = xmlDoc.createAttributeNS(null, "viewBox");
+		assertEquals("viewBox", attr.getName());
+
+		attr.setValue("0 0 150 100");
+		svg.setAttributeNodeNS(attr);
+
+		assertTrue(svg.hasAttributeNS(null, "viewBox"));
+		assertTrue(svg.hasAttribute("viewBox"));
+		assertFalse(svg.hasAttribute("viewbox"));
+		assertEquals("0 0 150 100", svg.getAttributeNS(null, "viewBox"));
+		assertEquals("0 0 150 100", svg.getAttribute("viewBox"));
+
+		Attr vb = svg.getAttributeNodeNS(null, "viewBox");
+		assertNotNull(vb);
+		assertSame(attr, vb);
+	}
+
+	@Test
+	public void testCreateAttributeNS() {
+		DOMElement svg = xmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
+		Attr attr = xmlDoc.createAttributeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox");
+		assertEquals("s:viewBox", attr.getName());
+
+		attr.setValue("0 0 150 100");
+		svg.setAttributeNodeNS(attr);
+
+		assertTrue(svg.hasAttributeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox"));
+		assertFalse(svg.hasAttributeNS(TestConfig.SVG_NAMESPACE_URI, "viewbox"));
+		assertTrue(svg.hasAttribute("s:viewBox"));
+		assertEquals("0 0 150 100", svg.getAttributeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox"));
+		assertEquals("0 0 150 100", svg.getAttribute("s:viewBox"));
+		assertNull(svg.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "viewbox"));
+
+		Attr vb = svg.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox");
+		assertNotNull(vb);
+		assertSame(attr, vb);
 	}
 
 	@Test
@@ -909,8 +968,15 @@ public class XHTMLDocumentTest {
 		assertNotNull(svg);
 		assertEquals("s", svg.getPrefix());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, svg.getNamespaceURI());
+
 		Attr version = svg.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "version");
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, version.getNamespaceURI());
+
+		Attr viewBox = svg.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox");
+		assertNotNull(viewBox);
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, viewBox.getNamespaceURI());
+		assertEquals("0 0 100 100", viewBox.getValue());
+		assertEquals("0 0 100 100", svg.getAttributeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox"));
 
 		ElementList childe = svg.getChildren();
 		Iterator<DOMElement> it = childe.iterator();

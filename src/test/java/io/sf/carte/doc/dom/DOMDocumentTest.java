@@ -665,6 +665,44 @@ public class DOMDocumentTest {
 	}
 
 	@Test
+	public void testCreateAttribute_Case() {
+		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
+		DOMElement svg = document.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
+		Attr attr = document.createAttribute("viewBox");
+		assertEquals("viewBox", attr.getName());
+
+		attr.setValue("0 0 150 100");
+		svg.setAttributeNode(attr);
+
+		assertTrue(svg.hasAttribute("viewBox"));
+		assertEquals("0 0 150 100", svg.getAttribute("viewBox"));
+
+		Attr vb = svg.getAttributeNode("viewBox");
+		assertNotNull(vb);
+		assertSame(attr, vb);
+	}
+
+	@Test
+	public void testCreateAttributeNS_Case() {
+		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
+		DOMElement svg = document.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
+		Attr attr = document.createAttributeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox");
+		assertEquals("viewBox", attr.getName());
+
+		attr.setValue("0 0 150 100");
+		svg.setAttributeNodeNS(attr);
+
+		assertTrue(svg.hasAttributeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox"));
+		assertTrue(svg.hasAttribute("viewBox"));
+		assertEquals("0 0 150 100", svg.getAttributeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox"));
+		assertEquals("0 0 150 100", svg.getAttribute("viewBox"));
+
+		Attr vb = svg.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox");
+		assertNotNull(vb);
+		assertSame(attr, vb);
+	}
+
+	@Test
 	public void testCreateAttributeNSError() {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
 		try {

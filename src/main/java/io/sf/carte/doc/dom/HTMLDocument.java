@@ -750,6 +750,14 @@ abstract public class HTMLDocument extends DOMDocument {
 	}
 
 	@Override
+	public Attr createAttribute(String name) throws DOMException {
+		if (name == null) {
+			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "null name");
+		}
+		return createAttributeNS(null, name.toLowerCase(Locale.ROOT));
+	}
+
+	@Override
 	public Attr createAttributeNS(String namespaceURI, String qualifiedName) throws DOMException {
 		if (qualifiedName == null) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "null name");
@@ -775,12 +783,9 @@ abstract public class HTMLDocument extends DOMDocument {
 				}
 			} else {
 				namespaceURI = null;
-				localName = localName.toLowerCase(Locale.ROOT);
 			}
 		} else if (qualifiedName.indexOf(':') != -1) {
 			throw new DOMException(DOMException.NAMESPACE_ERR, "Prefix with null namespace");
-		} else {
-			localName = localName.toLowerCase(Locale.ROOT);
 		}
 		if (!DOMDocument.isValidName(localName)) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid name: " + localName);

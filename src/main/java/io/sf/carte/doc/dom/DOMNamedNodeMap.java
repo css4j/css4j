@@ -27,6 +27,8 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 
 	private static final long serialVersionUID = 1L;
 
+	private static final String SVG_NAMESPACE_URI = "http://www.w3.org/2000/svg";
+
 	private final short nodeType;
 	private final HashMap<String, T> attributeMap;
 	private final AbstractDOMNode.RawNodeList attributes;
@@ -66,13 +68,17 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 
 	@Override
 	public T getNamedItem(String name) {
+		String docNsUri;
 		T ret = attributeMap.get(name);
+		// In HTML attributes are case insensitive, in SVG many attributes are too.
 		if (ret == null && name != null && name.indexOf(':') == -1) {
-			name = name.toLowerCase(Locale.ROOT);
-			ret = attributeMap.get(name);
-			if (ret != null && HTMLDocument.HTML_NAMESPACE_URI != ret.getNamespaceURI()
-					&& HTMLDocument.HTML_NAMESPACE_URI != getOwnerNode().getNamespaceURI()) {
-				ret = null;
+			DOMDocument doc = (DOMDocument) getOwnerNode().getOwnerDocument();
+			if (doc.isHTML()
+					|| (docNsUri = getOwnerNode().getOwnerDocument()
+							.getNamespaceURI()) == HTMLDocument.HTML_NAMESPACE_URI
+					|| docNsUri == SVG_NAMESPACE_URI) {
+				name = name.toLowerCase(Locale.ROOT);
+				ret = attributeMap.get(name);
 			}
 		}
 		return ret;

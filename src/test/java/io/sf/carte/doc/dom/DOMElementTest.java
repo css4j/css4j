@@ -186,22 +186,38 @@ public class DOMElementTest {
 		body.setAttribute("foo", "bar");
 		assertTrue(body.hasAttributes());
 		assertEquals("bar", body.getAttribute("foo"));
+
 		Attr attr = body.getAttributeNode("foo");
 		assertFalse(attr.isId());
 		assertNull(attr.getSchemaTypeInfo().getTypeName());
 		assertEquals("https://www.w3.org/TR/xml/", attr.getSchemaTypeInfo().getTypeNamespace());
+
 		body.setAttribute("id", "bodyId");
 		assertTrue(body.hasAttributes());
 		assertEquals(2, body.getAttributes().getLength());
 		assertEquals("bodyId", body.getAttribute("id"));
+
 		attr = body.getAttributeNode("id");
 		assertTrue(attr.isId());
 		assertEquals("ID", attr.getSchemaTypeInfo().getTypeName());
 		assertEquals("https://www.w3.org/TR/xml/", attr.getSchemaTypeInfo().getTypeNamespace());
+
 		body.setAttribute("id", "newId");
 		assertEquals("newId", body.getAttribute("id"));
 		assertTrue(attr == body.getAttributeNode("id"));
 		assertEquals(2, body.getAttributes().getLength());
+	}
+
+	@Test
+	public void testSetAttributeCaseSensitivity() {
+		DOMElement html = xhtmlDoc.getDocumentElement();
+		DOMElement body = xhtmlDoc.createElement("body");
+		html.appendChild(body);
+		assertFalse(body.hasAttributes());
+		body.setAttribute("Foo", "bar");
+		assertTrue(body.hasAttributes());
+		assertEquals("bar", body.getAttribute("Foo"));
+		assertFalse(body.hasAttribute("foo"));
 	}
 
 	@Test

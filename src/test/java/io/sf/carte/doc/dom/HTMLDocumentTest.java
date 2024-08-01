@@ -386,6 +386,62 @@ public class HTMLDocumentTest {
 	}
 
 	@Test
+	public void testCreateAttribute() {
+		DOMElement svg = xhtmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
+		Attr attr = xhtmlDoc.createAttribute("viewBox");
+		assertEquals("viewbox", attr.getName());
+
+		attr.setValue("0 0 150 100");
+		svg.setAttributeNode(attr);
+
+		assertTrue(svg.hasAttribute("viewBox"));
+		assertEquals("0 0 150 100", svg.getAttribute("viewBox"));
+
+		Attr vb = svg.getAttributeNode("viewBox");
+		assertNotNull(vb);
+		assertSame(attr, vb);
+	}
+
+	@Test
+	public void testCreateAttributeNSNull() {
+		DOMElement svg = xhtmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
+		Attr attr = xhtmlDoc.createAttributeNS(null, "viewBox");
+		assertEquals("viewBox", attr.getName());
+
+		attr.setValue("0 0 150 100");
+		svg.setAttributeNodeNS(attr);
+
+		assertTrue(svg.hasAttributeNS(null, "viewBox"));
+		assertTrue(svg.hasAttribute("viewBox"));
+		assertFalse(svg.hasAttribute("viewbox"));
+		assertEquals("0 0 150 100", svg.getAttributeNS(null, "viewBox"));
+		assertEquals("0 0 150 100", svg.getAttribute("viewBox"));
+
+		Attr vb = svg.getAttributeNodeNS(null, "viewBox");
+		assertNotNull(vb);
+		assertSame(attr, vb);
+	}
+
+	@Test
+	public void testCreateAttributeNS() {
+		DOMElement svg = xhtmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
+		Attr attr = xhtmlDoc.createAttributeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox");
+		assertEquals("viewBox", attr.getName());
+
+		attr.setValue("0 0 150 100");
+		svg.setAttributeNodeNS(attr);
+
+		assertTrue(svg.hasAttributeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox"));
+		assertTrue(svg.hasAttribute("viewBox"));
+		assertEquals("0 0 150 100", svg.getAttributeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox"));
+		assertEquals("0 0 150 100", svg.getAttribute("viewBox"));
+
+		Attr vb = svg.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "viewBox");
+		assertNotNull(vb);
+		assertSame(attr, vb);
+	}
+
+	@Test
 	public void testAttributes() {
 		DOMElement p = xhtmlDoc.createElement("p");
 		Attr attr = xhtmlDoc.createAttribute("id");
@@ -2378,8 +2434,17 @@ public class HTMLDocumentTest {
 		assertNotNull(svg);
 		assertNull(svg.getPrefix());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, svg.getNamespaceURI());
+
 		Attr version = svg.getAttributeNode("version");
 		assertNull(version.getNamespaceURI());
+
+		Attr viewBox = svg.getAttributeNode("viewBox");
+		assertNotNull(viewBox);
+		assertNull(viewBox.getNamespaceURI());
+		assertEquals("viewBox", viewBox.getName());
+		assertEquals("0 0 100 100", viewBox.getValue());
+		assertEquals("0 0 100 100", svg.getAttribute("viewBox"));
+		assertEquals("0 0 100 100", svg.getAttributeNS(null, "viewBox"));
 
 		ElementList childe = svg.getChildren();
 		Iterator<DOMElement> it = childe.iterator();
