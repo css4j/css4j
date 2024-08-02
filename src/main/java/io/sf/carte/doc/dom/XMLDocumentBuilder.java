@@ -771,12 +771,9 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 
 		@Override
 		void newElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-			// In HTML, an SVG element is implicitly in the SVG namespace
-			if ("svg".equals(localName) && uri == null) {
-				uri = "http://www.w3.org/2000/svg";
-			}
 			Element element = document.createElementNS(uri, qName);
 			setAttributes(element, atts);
+
 			/*
 			 * Check implicit parents.
 			 */
@@ -797,6 +794,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 					return;
 				}
 			}
+
 			// Check for implicit BODY element
 			if (bodyPending && (currentNode.getParentNode() == document
 					|| (headImplicit && currentNode.getParentNode().getParentNode() == document))) {
@@ -824,7 +822,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 					return;
 				}
 			}
-			//
+
 			appendChild(element);
 			currentNode = element;
 		}

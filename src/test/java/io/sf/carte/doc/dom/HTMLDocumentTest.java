@@ -827,7 +827,7 @@ public class HTMLDocumentTest {
 	public void getElementsByTagNameNS() {
 		ElementList list = xhtmlDoc.getElementsByTagNameNS(TestConfig.SVG_NAMESPACE_URI, "*");
 		assertNotNull(list);
-		assertEquals(7, list.getLength());
+		assertEquals(9, list.getLength());
 		DOMElement svg = list.item(0);
 		assertEquals("svg", svg.getNodeName());
 		Attr version = svg.getAttributeNode("version");
@@ -836,7 +836,7 @@ public class HTMLDocumentTest {
 		assertEquals("style", list.item(1).getNodeName());
 		assertEquals("rect", list.item(2).getNodeName());
 		list.item(0).appendChild(xhtmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "circle"));
-		assertEquals(8, list.getLength());
+		assertEquals(10, list.getLength());
 
 		ElementList svglist = xhtmlDoc.getElementsByTagNameNS(TestConfig.SVG_NAMESPACE_URI, "svg");
 		assertNotNull(svglist);
@@ -860,6 +860,18 @@ public class HTMLDocumentTest {
 		list = xhtmlDoc.getElementsByTagNameNS(TestConfig.SVG_NAMESPACE_URI, "xxxxxx");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
+	}
+
+	@Test
+	public void getElementsByTagNameNS2() {
+		DOMElement docElm = xhtmlDoc.getDocumentElement();
+		ElementList list = docElm.getElementsByTagName("foreignObject");
+		assertFalse(list.isEmpty());
+		assertEquals(3, list.getLength());
+
+		list = docElm.getElementsByTagNameNS(TestConfig.SVG_NAMESPACE_URI, "foreignObject");
+		assertFalse(list.isEmpty());
+		assertEquals(3, list.getLength());
 	}
 
 	@Test
@@ -2476,7 +2488,6 @@ public class HTMLDocumentTest {
 		DOMElement g2 = it.next();
 		assertEquals("g", g2.getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, g2.getNamespaceURI());
-		assertFalse(it.hasNext());
 
 		DOMElement fo2 = g2.getFirstElementChild();
 		assertNotNull(fo2);
@@ -2492,6 +2503,38 @@ public class HTMLDocumentTest {
 		assertNotNull(span);
 		assertEquals("span", span.getLocalName());
 		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, span.getNamespaceURI());
+
+		// MathML
+		assertTrue(it.hasNext());
+		DOMElement gMath = it.next();
+		assertEquals("g", gMath.getLocalName());
+		assertNull(gMath.getPrefix());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, gMath.getNamespaceURI());
+		assertFalse(it.hasNext());
+
+		DOMElement foMath = gMath.getFirstElementChild();
+		assertNotNull(foMath);
+		assertEquals("foreignObject", foMath.getLocalName());
+		assertNull(foMath.getPrefix());
+		assertEquals(TestConfig.SVG_NAMESPACE_URI, foMath.getNamespaceURI());
+
+		DOMElement math = foMath.getFirstElementChild();
+		assertNotNull(math);
+		assertEquals("math", math.getLocalName());
+		assertNull(math.getPrefix());
+		assertEquals("http://www.w3.org/1998/Math/MathML", math.getNamespaceURI());
+
+		DOMElement sqrt = math.getFirstElementChild();
+		assertNotNull(sqrt);
+		assertEquals("sqrt", sqrt.getLocalName());
+		assertNull(sqrt.getPrefix());
+		assertEquals("http://www.w3.org/1998/Math/MathML", sqrt.getNamespaceURI());
+
+		DOMElement mn1 = sqrt.getFirstElementChild();
+		assertNotNull(mn1);
+		assertEquals("mn", mn1.getLocalName());
+		assertNull(mn1.getPrefix());
+		assertEquals("http://www.w3.org/1998/Math/MathML", mn1.getNamespaceURI());
 	}
 
 	@Test

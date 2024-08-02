@@ -152,68 +152,124 @@ public class DOMWriterTest {
 	}
 
 	@Test
+	public void testSerializeHTML() throws IOException {
+		DOMDocument document = TestDOMImplementation.sampleHTMLDocument();
+		BufferSimpleWriter writer = new BufferSimpleWriter(4096);
+
+		DOMWriter.writeTree(document, writer);
+
+		String expected = classPathFile("/io/sf/carte/doc/dom/domwriter-html.html");
+		String canonical = classPathFile("/io/sf/carte/doc/dom/domwriter-html-normalized.html");
+		expected = expected.replace("\r", "");
+		canonical = canonical.replace("\r", "");
+		String result = writer.toString();
+		assertEquals(expected, result);
+
+		// Format the styles
+		DOMDocument pdoc = parseDocument(new StringReader(result));
+		pdoc.setDocumentURI(document.getDocumentURI());
+		StyleFormattingFactory factory = new DefaultStyleFormattingFactory();
+		pdoc.getImplementation().setStyleFormattingFactory(factory);
+		document.getImplementation().setStyleFormattingFactory(factory);
+
+		// Normalize and re-test.
+		pdoc.getStyleSheet();
+		pdoc.normalizeDocument();
+		document.normalizeDocument();
+
+		// Do not check for equal nodes because of namespace issues
+
+		DOMWriter domWriter = new DOMWriter();
+		assertEquals(canonical, domWriter.serializeToString(document));
+	}
+
+	@Test
 	public void testSerializeDocument() throws IOException {
 		DOMDocument document = TestDOMImplementation.sampleXHTMLDocument();
 		BufferSimpleWriter writer = new BufferSimpleWriter(4096);
+
 		DOMWriter.writeTree(document, writer);
+
 		String expected = classPathFile("/io/sf/carte/doc/dom/domwriteroutput.html");
 		String canonical = classPathFile("/io/sf/carte/doc/dom/domwritercanonical.html");
 		expected = expected.replace("\r", "");
 		canonical = canonical.replace("\r", "");
 		String result = writer.toString();
 		assertEquals(expected, result);
-		//
+
+		// Format the styles
 		DOMDocument pdoc = parseDocument(new StringReader(result));
 		pdoc.setDocumentURI(document.getDocumentURI());
 		StyleFormattingFactory factory = new DefaultStyleFormattingFactory();
 		pdoc.getImplementation().setStyleFormattingFactory(factory);
 		document.getImplementation().setStyleFormattingFactory(factory);
+
 		// Normalize and re-test.
 		pdoc.getStyleSheet();
 		pdoc.normalizeDocument();
 		document.normalizeDocument();
+
+		// We still have the same document nodes
 		assertEqualNodes(document, pdoc);
+
 		DOMWriter domWriter = new DOMWriter();
 		assertEquals(canonical, domWriter.serializeToString(document));
 	}
 
+	/**
+	 * Test serialization with entities.
+	 * 
+	 * @throws IOException
+	 * @throws SAXException
+	 */
 	@Test
 	public void testSerializeDocument2() throws IOException, SAXException {
 		DOMDocument document = TestDOMImplementation.sampleXHTMLDocument();
 		BufferSimpleWriter writer = new BufferSimpleWriter(4096);
+
 		int[] codePointsToReplace = { 237, 8734 }; // 'í','∞'
 		DOMWriter domWriter = new DOMWriter();
 		assertEquals(codePointsToReplace.length,
 				domWriter.setEntityCodepoints(document.getDoctype(), codePointsToReplace));
+
 		domWriter.writeNode(document, writer);
+
 		String expected = classPathFile("/io/sf/carte/doc/dom/domwriteroutput2.html");
 		String canonical = classPathFile("/io/sf/carte/doc/dom/domwritercanonical2.html");
 		expected = expected.replace("\r", "");
 		canonical = canonical.replace("\r", "");
 		String result = writer.toString();
 		assertEquals(expected, result);
-		//
+
+		// Format the styles
 		DOMDocument pdoc = parseDocument(new StringReader(result));
 		pdoc.setDocumentURI(document.getDocumentURI());
 		StyleFormattingFactory factory = new DefaultStyleFormattingFactory();
 		pdoc.getImplementation().setStyleFormattingFactory(factory);
 		document.getImplementation().setStyleFormattingFactory(factory);
+
 		// Normalize and re-test.
 		pdoc.getStyleSheet();
 		pdoc.normalizeDocument();
 		document.normalizeDocument();
+
+		// We still have the same document nodes
 		assertEqualNodes(document, pdoc);
+
 		assertEquals(canonical, domWriter.serializeToString(document));
 	}
 
 	void assertEqualNodes(Node first, Node arg) {
 		if (arg != null) {
-			assertEquals(first.getNodeType(), arg.getNodeType());
-			assertEquals(first.getNodeName(), arg.getNodeName());
-			assertEquals(first.getLocalName(), arg.getLocalName());
-			assertEquals(first.getNamespaceURI(), arg.getNamespaceURI());
-			assertEquals(first.getPrefix(), arg.getPrefix());
-			assertTrue(stringEquals(first.getNodeValue(), arg.getNodeValue()));
+			assertEquals(first.getNodeType(), arg.getNodeType(), "Different node type.");
+			assertEquals(first.getNodeName(), arg.getNodeName(), "Different node name.");
+			assertEquals(first.getLocalName(), arg.getLocalName(), "Different local name.");
+			assertEquals(first.getNamespaceURI(), arg.getNamespaceURI(),
+					"Different namespace URI for node " + first.getNodeName());
+			assertEquals(first.getPrefix(), arg.getPrefix(),
+					"Different prefix for node " + first.getNodeName());
+			assertTrue(stringEquals(first.getNodeValue(), arg.getNodeValue()),
+					"Different node value.");
 			Node node = first.getFirstChild();
 			Node othernode = arg.getFirstChild();
 			while (node != null) {
@@ -284,6 +340,7 @@ public class DOMWriterTest {
 		InputSource is = new InputSource(re);
 		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(false));
 		builder.setIgnoreElementContentWhitespace(true);
+		builder.setHTMLProcessing(true);
 		builder.setEntityResolver(new DefaultEntityResolver());
 		DOMDocument xhtmlDoc;
 		try {
