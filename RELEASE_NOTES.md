@@ -1,29 +1,19 @@
-# css4j version 4.3 Release Notes
+# css4j version 4.3.1 Release Notes
 
-### July 31, 2024
+### August 5, 2024
 
 <br/>
 
 ## Highlights
 
-This version comes with CSSOM updates and a less strict check for the style
-sheet content types.
-
-Also, the deprecated `doPrivileged()` calls were removed.
+A small spec-compliance fix for native DOM (`io.sf.carte.doc.dom` package).
 
 <br/>
 
 ## Detail of changes
 
-- Remove deprecated `doPrivileged()` calls.
-- NSAC: make `parsePseudoElement(String)` part of the `Parser` interface.
-- NSAC: make content type check less strict.
-- CSSOM: include a default `getSeparator()` in `CSSCounterValue`.
-- CSSOM: add a name setter to `CSSKeyframesRule`.
-- CSSOM: make content type checking less strict.
-- Tests: simplify SelectorMatcher Test.
-- Tests: use the float variant of assertEquals in RuleParserTest.
-- Bump year to 2024 in copyrights.
-- Upgrade to JUnit 5.10.3.
-- Upgrade Gradle wrapper to 8.5.
-- README: update Javadoc links.
+- NSAC impl: avoid `IndexOutOfBoundsException` when parsing invalid functions. Detected via Jazzer fuzz testing.
+- NSAC impl: fix a bug where an error in nested rules wasn't reported. Detected via Jazzer fuzz testing.
+- DOM: make case sensitivity of non-HTML embedded into HTML documents more spec-compliant.
+- DOM: do not check for <svg> elements with the wrong namespace in HTML mode. Use an HTML parser instead.
+- Gradle: add a test sources jar.
