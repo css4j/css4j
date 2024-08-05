@@ -108,4 +108,20 @@ class SheetParserErrorTest {
 		assertEquals(7, errorHandler.getLastException().getColumnNumber());
 	}
 
+	@Test
+	public void testBadPageRule() throws CSSException, IOException {
+		String s = "@page{;;@";
+		parser.parseStyleSheet(new StringReader(s));
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(10, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testBadPageRule2() throws CSSException, IOException {
+		String s = "@page{;;@m";
+		parser.parseStyleSheet(new StringReader(s));
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(11, errorHandler.getLastException().getColumnNumber());
+	}
+
 }

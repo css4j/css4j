@@ -2656,7 +2656,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		abstract boolean processNestedSelector(int index);
 
-		abstract void endBlockList();
+		abstract void endBlockList(int index);
 
 		@Override
 		public void rightCurlyBracket(int index) {
@@ -2665,7 +2665,7 @@ public class CSSParser implements Parser, Cloneable {
 				if (curlyBracketDepth == 1) {
 					endBlock();
 				} else if (curlyBracketDepth == 0) {
-					endBlockList();
+					endBlockList(index);
 					stage = STAGE_END_BLOCK_LIST;
 				}
 				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
@@ -2678,7 +2678,7 @@ public class CSSParser implements Parser, Cloneable {
 		protected void handleRightCurlyBracket(int index) {
 			if (curlyBracketDepth == 0) {
 				// Body of rule ends
-				endBlockList();
+				endBlockList(index);
 				stage = STAGE_END_BLOCK_LIST;
 				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
 			} else if (curlyBracketDepth == 1 && stage == STAGE_NESTED_SELECTOR_ERROR) {
@@ -2729,6 +2729,7 @@ public class CSSParser implements Parser, Cloneable {
 						buffer.append(chars);
 						prevcp = codePoint;
 					} else {
+						buffer.setLength(0);
 						unexpectedCharError(index, codePoint, STAGE_NESTED_SELECTOR_ERROR);
 					}
 					return;
@@ -2778,11 +2779,11 @@ public class CSSParser implements Parser, Cloneable {
 					return;
 				}
 				handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of " + blockRuleName + " rule.");
-				endBlockList();
+				endBlockList(len);
 			} else if (stage != STAGE_END_BLOCK_LIST) {
 				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Malformed " + blockRuleName + " rule.",
 						STAGE_SELECTOR_ERROR);
-				endBlockList();
+				endBlockList(len);
 			}
 		}
 
@@ -2987,8 +2988,12 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		void endBlockList() {
+		void endBlockList(int index) {
 			if (getStage() != STAGE_SELECTOR_ERROR) {
+				if (buffer.length() > 0 || prevcp == TokenProducer.CHAR_COMMERCIAL_AT) {
+					buffer.setLength(0);
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Unexpected end of rule.");
+				}
 				handler.endPage(pageSelectorList);
 			}
 			pageSelectorList = null;
@@ -3074,7 +3079,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		void endBlockList() {
+		void endBlockList(int index) {
 			handler.endKeyframes();
 		}
 
@@ -3126,7 +3131,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		void endBlockList() {
+		void endBlockList(int index) {
 			handler.endFontFeatures();
 		}
 
@@ -4291,8 +4296,8 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			void endBlockList() {
-				super.endBlockList();
+			void endBlockList(int index) {
+				super.endBlockList(index);
 				endRuleBody();
 			}
 
@@ -4340,8 +4345,8 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			void endBlockList() {
-				super.endBlockList();
+			void endBlockList(int index) {
+				super.endBlockList(index);
 				endRuleBody();
 			}
 
@@ -4389,8 +4394,8 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			void endBlockList() {
-				super.endBlockList();
+			void endBlockList(int index) {
+				super.endBlockList(index);
 				endRuleBody();
 			}
 
