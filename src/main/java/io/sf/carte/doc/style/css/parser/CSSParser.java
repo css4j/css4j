@@ -6661,6 +6661,9 @@ public class CSSParser implements Parser, Cloneable {
 				lu = newLexicalUnit(LexicalType.CUBIC_BEZIER_FUNCTION, true);
 			} else if ("steps".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.STEPS_FUNCTION, true);
+			} else if (name.isEmpty()) {
+				handleError(index, ParseHelper.ERR_WRONG_VALUE, "Unexpected character '('.");
+				return;
 			} else if (isNotForbiddenIdentStart(raw)) {
 				lu = newLexicalUnit(LexicalType.FUNCTION, true);
 			} else {

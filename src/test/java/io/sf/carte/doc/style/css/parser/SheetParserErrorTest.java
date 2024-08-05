@@ -124,4 +124,12 @@ class SheetParserErrorTest {
 		assertEquals(11, errorHandler.getLastException().getColumnNumber());
 	}
 
+	@Test
+	public void testBadFunction() throws CSSException, IOException {
+		String s = "A{Q	\\A(z\"#\"(z\"#\"\"'ÿ";
+		parser.parseStyleSheet(new StringReader(s));
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(12, errorHandler.getLastException().getColumnNumber());
+	}
+
 }

@@ -3307,6 +3307,64 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationFunctionEscaped() throws CSSException {
+		parseStyleDeclaration("filter:\\-(.1)");
+		assertEquals("filter", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("-", lu.getFunctionName());
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 0.001f);
+		assertNull(param.getNextLexicalUnit());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationFunctionEscapedHex() throws CSSException {
+		parseStyleDeclaration("filter:\\1b(.1)");
+		assertEquals("filter", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("\u001b", lu.getFunctionName());
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 0.001f);
+		assertNull(param.getNextLexicalUnit());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationFunctionEscapedString() throws CSSException {
+		parseStyleDeclaration("filter:\'foo\'(.1)");
+		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+	}
+
+	@Test
+	public void testParseStyleDeclarationFunctionStringError() throws CSSException {
+		parseStyleDeclaration("filter:\"foo\"(.1)");
+		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
+		assertEquals(0, handler.propertyNames.size());
+		assertEquals(0, handler.lexicalValues.size());
+	}
+
+	@Test
 	public void testParseStyleDeclarationCustomFunction() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		parseStyleDeclaration("filter: --my-function(min-color = 5)");
