@@ -68,20 +68,21 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 
 	@Override
 	public T getNamedItem(String name) {
-		String docNsUri;
 		T ret = attributeMap.get(name);
 		// In HTML attributes are case insensitive, in SVG many attributes are too.
-		if (ret == null && name != null && name.indexOf(':') == -1) {
-			DOMDocument doc = (DOMDocument) getOwnerNode().getOwnerDocument();
-			if (doc.isHTML()
-					|| (docNsUri = getOwnerNode().getOwnerDocument()
-							.getNamespaceURI()) == HTMLDocument.HTML_NAMESPACE_URI
-					|| docNsUri == SVG_NAMESPACE_URI) {
-				name = name.toLowerCase(Locale.ROOT);
-				ret = attributeMap.get(name);
-			}
+		if (ret == null && name != null && name.indexOf(':') == -1 && isCaseInsensitive()) {
+			name = name.toLowerCase(Locale.ROOT);
+			ret = attributeMap.get(name);
 		}
 		return ret;
+	}
+
+	private boolean isCaseInsensitive() {
+		DOMDocument doc = (DOMDocument) getOwnerNode().getOwnerDocument();
+		String docNsUri;
+		return doc.isHTML()
+				|| (docNsUri = doc.getNamespaceURI()) == HTMLDocument.HTML_NAMESPACE_URI
+				|| docNsUri == SVG_NAMESPACE_URI;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -134,7 +135,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	@Override
 	public T removeNamedItem(String name) throws DOMException {
 		if (!attributeMap.containsKey(name)) {
-			if (name != null && name.indexOf(':') == -1) {
+			if (name != null && name.indexOf(':') == -1 && isCaseInsensitive()) {
 				name = name.toLowerCase(Locale.ROOT);
 			}
 			if (!attributeMap.containsKey(name)) {
@@ -208,7 +209,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	@Override
 	public T getNamedItemNS(String namespaceURI, String localName) throws DOMException {
 		if (HTMLDocument.HTML_NAMESPACE_URI.equals(namespaceURI)
-				|| (namespaceURI == null && HTMLDocument.HTML_NAMESPACE_URI == getOwnerNode().getNamespaceURI())) {
+				|| (namespaceURI == null && isCaseInsensitive())) {
 			return getCINamedItem(namespaceURI, localName);
 		}
 		return getCSNamedItem(namespaceURI, localName);
@@ -244,7 +245,7 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 	@Override
 	public T removeNamedItemNS(String namespaceURI, String localName) throws DOMException {
 		if (HTMLDocument.HTML_NAMESPACE_URI.equals(namespaceURI)
-				|| (namespaceURI == null && HTMLDocument.HTML_NAMESPACE_URI == getOwnerNode().getNamespaceURI())) {
+				|| (namespaceURI == null && isCaseInsensitive())) {
 			return removeCINamedItem(namespaceURI, localName);
 		}
 		return removeCSNamedItem(namespaceURI, localName);
