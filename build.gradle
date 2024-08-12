@@ -276,7 +276,8 @@ publishing {
 			description = 'css4j core module'
 			from(components.java)
 			suppressAllPomMetadataWarnings()
-			artifact(testsJar)
+			artifact testsJar
+			artifact testsSourceJar
 			pom {
 				description = 'css4j core module'
 				url = "https://css4j.github.io/"
