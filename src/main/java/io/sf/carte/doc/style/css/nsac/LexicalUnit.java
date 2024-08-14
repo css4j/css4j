@@ -122,31 +122,32 @@ public interface LexicalUnit {
 		 * parsed as {@link #REAL}.
 		 * </p>
 		 * 
-		 * @see #getIntegerValue
+		 * @see LexicalUnit#getIntegerValue
 		 */
 		INTEGER,
 
 		/**
 		 * Real numbers.
 		 * 
-		 * @see #getFloatValue
-		 * @see #getDimensionUnitText
+		 * @see LexicalUnit#getFloatValue
+		 * @see LexicalUnit#getDimensionUnitText
 		 */
 		REAL,
 
 		/**
 		 * Percentage.
 		 * 
-		 * @see #getFloatValue
-		 * @see #getDimensionUnitText
+		 * @see LexicalUnit#getFloatValue
+		 * @see LexicalUnit#getDimensionUnitText
 		 */
 		PERCENTAGE,
 
 		/**
-		 * Unknown dimension.
+		 * A dimensional quantity (number + unit).
 		 * 
-		 * @see #getFloatValue
-		 * @see #getDimensionUnitText
+		 * @see LexicalUnit#getFloatValue
+		 * @see LexicalUnit#getCssUnit
+		 * @see LexicalUnit#getDimensionUnitText
 		 */
 		DIMENSION,
 
@@ -154,8 +155,8 @@ public interface LexicalUnit {
 		 * RGB colors in functional (<code>rgb(0, 0, 0)</code>) and hex
 		 * (<code>#000</code>) notations.
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		RGBCOLOR,
 
@@ -163,8 +164,8 @@ public interface LexicalUnit {
 		 * HSL(A) colors, for example: <code>hsl(0 0% 0% / 0)</code> or
 		 * <code>hsla(0, 0%, 0%, 0)</code>
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		HSLCOLOR,
 
@@ -172,16 +173,16 @@ public interface LexicalUnit {
 		 * HWB colors, for example: <code>hwb(0 0% 0% / 0)</code> or
 		 * <code>hwb(120 0% 49.8%)</code>
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		HWBCOLOR,
 
 		/**
 		 * lab() colors, for example: <code>lab(53.2% 42.4 57.76 / 0.6)</code>
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		LABCOLOR,
 
@@ -189,16 +190,16 @@ public interface LexicalUnit {
 		 * lch() colors, for example: <code>lch(58.9% 44.4 97.21 / 0.6)</code> or
 		 * <code>lch(58.9% 44.4 97.21deg / 0.6)</code>
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		LCHCOLOR,
 
 		/**
 		 * oklab() colors, for example: <code>oklab(53.2% 42.4 57.76 / 0.6)</code>
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		OKLABCOLOR,
 
@@ -206,38 +207,38 @@ public interface LexicalUnit {
 		 * oklch() colors, for example: <code>oklch(58.9% 44.4 97.21 / 0.6)</code> or
 		 * <code>oklch(58.9% 44.4 97.21deg / 0.6)</code>
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		OKLCHCOLOR,
 
 		/**
 		 * color() function, for example: <code>color(display-p3, 0.328 0.962 0.551 / 0.6)</code>
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		COLOR_FUNCTION,
 
 		/**
 		 * color-mix() function, for example: <code>color-mix(in display-p3, #0200fa 10%, white)</code>
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		COLOR_MIX,
 
 		/**
 		 * Identifier, both predefined and custom.
 		 * 
-		 * @see #getStringValue
+		 * @see LexicalUnit#getStringValue
 		 */
 		IDENT,
 
 		/**
 		 * A string.
 		 * 
-		 * @see #getStringValue
+		 * @see LexicalUnit#getStringValue
 		 */
 		STRING,
 
@@ -253,7 +254,7 @@ public interface LexicalUnit {
 		/**
 		 * A unicode range.
 		 * 
-		 * @see #getSubValues
+		 * @see LexicalUnit#getSubValues
 		 */
 		UNICODE_RANGE,
 
@@ -278,8 +279,8 @@ public interface LexicalUnit {
 		 * getParameters()} if it contains a {@code var()} or {@code attr()}.
 		 * </p>
 		 *
-		 * @see #getStringValue
-		 * @see #getParameters
+		 * @see LexicalUnit#getStringValue
+		 * @see LexicalUnit#getParameters
 		 */
 		ELEMENT_REFERENCE,
 
@@ -295,70 +296,70 @@ public interface LexicalUnit {
 		/**
 		 * Attribute: <code>attr(...)</code>.
 		 * 
-		 * @see #getParameters
+		 * @see LexicalUnit#getParameters
 		 */
 		ATTR,
 
 		/**
 		 * A <code>calc()</code> expression.
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		CALC,
 
 		/**
 		 * function <code>counter</code>.
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		COUNTER_FUNCTION,
 
 		/**
 		 * function <code>counters</code>.
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		COUNTERS_FUNCTION,
 
 		/**
 		 * <code>cubic-bezier()</code> easing function.
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		CUBIC_BEZIER_FUNCTION,
 
 		/**
 		 * <code>steps()</code> easing function.
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		STEPS_FUNCTION,
 
 		/**
 		 * function <code>rect</code>.
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		RECT_FUNCTION,
 
 		/**
 		 * A function.
 		 * 
-		 * @see #getFunctionName
-		 * @see #getParameters
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
 		FUNCTION,
 
 		/**
 		 * Sub-expressions <code>(a)</code> <code>(a + b)</code>
 		 * 
-		 * @see #getSubValues
+		 * @see LexicalUnit#getSubValues
 		 */
 		SUB_EXPRESSION,
 
@@ -376,7 +377,7 @@ public interface LexicalUnit {
 		 * Compat identifier: invalid value accepted for IE compatibility as an
 		 * ident-like value.
 		 *
-		 * @see #getStringValue
+		 * @see LexicalUnit#getStringValue
 		 */
 		COMPAT_IDENT,
 
@@ -385,7 +386,7 @@ public interface LexicalUnit {
 		 * interpreted as being of <code>!important</code> priority by the compatible
 		 * browsers, which makes it different from <code>COMPAT_IDENT</code>.
 		 *
-		 * @see #getStringValue
+		 * @see LexicalUnit#getStringValue
 		 */
 		COMPAT_PRIO,
 
@@ -562,11 +563,12 @@ public interface LexicalUnit {
 	float getFloatValue();
 
 	/**
-	 * If this unit is a {@link LexicalType#DIMENSION}, returns the string
+	 * If this unit is a {@link LexicalType#DIMENSION DIMENSION}, returns the string
 	 * representation of the CSS unit returned by {@link #getCssUnit()}.
 	 * 
 	 * @return the string representation of the CSS unit, or the empty string if
-	 *         this lexical unit does not represent a {@link LexicalType#DIMENSION}.
+	 *         this lexical unit does not represent a {@link LexicalType#DIMENSION
+	 *         DIMENSION}.
 	 */
 	String getDimensionUnitText();
 
@@ -598,14 +600,25 @@ public interface LexicalUnit {
 	 * @return the function name, or <code>null</code> if this unit is not a
 	 *         function.
 	 * 
+	 * @see LexicalType#CALC
+	 * @see LexicalType#FUNCTION
 	 * @see LexicalType#COUNTER_FUNCTION
 	 * @see LexicalType#COUNTERS_FUNCTION
+	 * @see LexicalType#CUBIC_BEZIER_FUNCTION
+	 * @see LexicalType#STEPS_FUNCTION
 	 * @see LexicalType#RECT_FUNCTION
-	 * @see LexicalType#FUNCTION
 	 * @see LexicalType#RGBCOLOR
 	 * @see LexicalType#HSLCOLOR
+	 * @see LexicalType#HWBCOLOR
 	 * @see LexicalType#LABCOLOR
 	 * @see LexicalType#LCHCOLOR
+	 * @see LexicalType#OKLABCOLOR
+	 * @see LexicalType#OKLCHCOLOR
+	 * @see LexicalType#COLOR_FUNCTION
+	 * @see LexicalType#COLOR_MIX
+	 * @see LexicalType#ELEMENT_REFERENCE
+	 * @see LexicalType#VAR
+	 * @see LexicalType#ATTR
 	 */
 	String getFunctionName();
 
@@ -621,14 +634,25 @@ public interface LexicalUnit {
 	 * @return the parameters of this function, or <code>null</code> if this unit is
 	 *         not a function, or an empty <code>FUNCTION</code>.
 	 * 
+	 * @see LexicalType#CALC
+	 * @see LexicalType#FUNCTION
 	 * @see LexicalType#COUNTER_FUNCTION
 	 * @see LexicalType#COUNTERS_FUNCTION
+	 * @see LexicalType#CUBIC_BEZIER_FUNCTION
+	 * @see LexicalType#STEPS_FUNCTION
 	 * @see LexicalType#RECT_FUNCTION
-	 * @see LexicalType#FUNCTION
 	 * @see LexicalType#RGBCOLOR
 	 * @see LexicalType#HSLCOLOR
+	 * @see LexicalType#HWBCOLOR
 	 * @see LexicalType#LABCOLOR
 	 * @see LexicalType#LCHCOLOR
+	 * @see LexicalType#OKLABCOLOR
+	 * @see LexicalType#OKLCHCOLOR
+	 * @see LexicalType#COLOR_FUNCTION
+	 * @see LexicalType#COLOR_MIX
+	 * @see LexicalType#ELEMENT_REFERENCE
+	 * @see LexicalType#VAR
+	 * @see LexicalType#ATTR
 	 */
 	LexicalUnit getParameters();
 
