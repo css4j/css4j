@@ -15,205 +15,96 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSExpressionValue;
-import io.sf.carte.doc.style.css.CSSFunctionValue;
-import io.sf.carte.doc.style.css.CSSTypedValue;
-import io.sf.carte.doc.style.css.CSSValue;
-import io.sf.carte.doc.style.css.CSSValue.CssType;
-import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSColorMixFunction;
+import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.RGBAColor;
-import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
-import io.sf.carte.doc.style.css.property.StyleValue;
-import io.sf.carte.doc.style.css.property.ValueList;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * DeclarationFormattingContext that serializes colors as RGB (sRGB).
  */
-public class RGBColorDeclarationFormattingContext extends DefaultDeclarationFormattingContext {
+public class RGBColorDeclarationFormattingContext extends ColorDeclarationFormattingContext {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Write a css {@code COLOR} to the given writer.
+	 * 
+	 * @param wri          the writer.
+	 * @param propertyName the name of the property whose value is being printed.
+	 * @param value        the value to write.
+	 * @throws IOException if an error happened while writing.
+	 */
 	@Override
-	public void writeValue(SimpleWriter wri, String propertyName, CSSValue value)
-		throws IOException {
-		if (value.getCssValueType() == CssType.LIST) {
-			writeList(wri, propertyName, (ValueList) value);
+	protected void writeColor(SimpleWriter wri, String propertyName, CSSColorValue value)
+			throws IOException {
+		try {
+			RGBAColor rgb = value.toRGBColor();
+			wri.write(rgb.toString());
 			return;
+		} catch (DOMException e) {
 		}
-
-		switch (value.getPrimitiveType()) {
-		case COLOR:
-		case COLOR_MIX:
-			try {
-				RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
-				wri.write(rgb.toString());
-				return;
-			} catch (DOMException e) {
-			}
-			break;
-		case FUNCTION:
-		case MATH_FUNCTION:
-		case GRADIENT:
-			writeFunction(wri, propertyName, (CSSFunctionValue) value);
-			return;
-		default:
-		}
-		super.writeValue(wri, propertyName, value);
+		super.writeColor(wri, propertyName, value);
 	}
 
-	private void writeList(SimpleWriter wri, String propertyName, ValueList list)
-		throws IOException {
-		if (list.isCommaSeparated()) {
-			writeCSList(wri, propertyName, list);
-		} else if (!list.isBracketList()) {
-			// WS List
-			writeWSList(wri, propertyName, list);
-		} else {
-			super.writeValue(wri, propertyName, list);
-		}
-	}
-
-	private void writeCSList(SimpleWriter wri, String propertyName, ValueList valueList)
-		throws IOException {
-		if (!valueList.isEmpty()) {
-			writeValue(wri, propertyName, valueList.item(0));
-			int sz = valueList.getLength();
-			for (int i = 1; i < sz; i++) {
-				wri.write(',');
-				wri.write(' ');
-				writeValue(wri, propertyName, valueList.item(i));
-			}
-		}
-	}
-
-	private void writeWSList(SimpleWriter wri, String propertyName, ValueList valueList)
-		throws IOException {
-		if (!valueList.isEmpty()) {
-			writeValue(wri, propertyName, valueList.item(0));
-			int sz = valueList.getLength();
-			for (int i = 1; i < sz; i++) {
-				wri.write(' ');
-				writeValue(wri, propertyName, valueList.item(i));
-			}
-		}
-	}
-
-	private void writeFunction(SimpleWriter wri, String propertyName, CSSFunctionValue value)
-		throws IOException {
-		LinkedCSSValueList arguments = value.getArguments();
-		wri.write(value.getFunctionName());
-		wri.write('(');
-		int sz = arguments.size();
-		if (sz == 1) {
-			// Check whether the only parameter is an expression, and omit the
-			// parentheses in that case
-			StyleValue first = arguments.get(0);
-			if (first.getPrimitiveType() == Type.EXPRESSION
-				&& ((CSSExpressionValue) first).getStringValue().length() == 0) {
-				((CSSExpressionValue) first).getExpression().writeCssText(wri);
-			} else {
-				writeValue(wri, propertyName, first);
-			}
-		} else if (sz != 0) {
-			writeValue(wri, propertyName, arguments.get(0));
-			for (int i = 1; i < sz; i++) {
-				wri.write(',');
-				wri.write(' ');
-				writeValue(wri, propertyName, arguments.get(i));
-			}
-		}
-		wri.write(')');
-	}
-
+	/**
+	 * Write a css {@code COLOR_MIX} to the given writer.
+	 * 
+	 * @param wri          the writer.
+	 * @param propertyName the name of the property whose value is being printed.
+	 * @param value        the value to write.
+	 * @throws IOException if an error happened while writing.
+	 */
 	@Override
-	public void writeMinifiedValue(SimpleWriter wri, String propertyName, CSSValue value)
-		throws IOException {
-		if (value.getCssValueType() == CssType.LIST) {
-			writeMinifiedList(wri, propertyName, (ValueList) value);
+	protected void writeColorMix(SimpleWriter wri, String propertyName, CSSColorMixFunction value)
+			throws IOException {
+		try {
+			RGBAColor rgb = value.toRGBColor();
+			wri.write(rgb.toString());
 			return;
+		} catch (DOMException e) {
 		}
+		super.writeColorMix(wri, propertyName, value);
+	}
 
-		switch (value.getPrimitiveType()) {
-		case COLOR:
-		case COLOR_MIX:
-			try {
-				RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
-				wri.write(rgb.toMinifiedString());
-				return;
-			} catch (DOMException e) {
-			}
-			break;
-		case FUNCTION:
-		case MATH_FUNCTION:
-		case GRADIENT:
-			writeMinifiedFunction(wri, propertyName, (CSSFunctionValue) value);
+	/**
+	 * Write a minified css {@code COLOR} value to the given writer.
+	 * 
+	 * @param wri          the writer.
+	 * @param propertyName the name of the property whose value is being printed.
+	 * @param value        the value to write.
+	 * @throws IOException if an error happened while writing.
+	 */
+	@Override
+	protected void writeMinifiedColor(SimpleWriter wri, String propertyName, CSSColorValue value)
+			throws IOException {
+		try {
+			RGBAColor rgb = value.toRGBColor();
+			wri.write(rgb.toMinifiedString());
 			return;
-		default:
+		} catch (DOMException e) {
 		}
-		super.writeMinifiedValue(wri, propertyName, value);
+		super.writeMinifiedColor(wri, propertyName, value);
 	}
 
-	private void writeMinifiedList(SimpleWriter wri, String propertyName, ValueList list)
-		throws IOException {
-		if (list.isCommaSeparated()) {
-			writeMinifiedCSList(wri, propertyName, list);
-		} else if (!list.isBracketList()) {
-			// WS List
-			writeMinifiedWSList(wri, propertyName, list);
-		} else {
-			super.writeMinifiedValue(wri, propertyName, list);
+	/**
+	 * Write a minified css {@code COLOR_MIX} value to the given writer.
+	 * 
+	 * @param wri          the writer.
+	 * @param propertyName the name of the property whose value is being printed.
+	 * @param value        the value to write.
+	 * @throws IOException if an error happened while writing.
+	 */
+	@Override
+	protected void writeMinifiedColorMix(SimpleWriter wri, String propertyName,
+			CSSColorMixFunction value) throws IOException {
+		try {
+			RGBAColor rgb = value.toRGBColor();
+			wri.write(rgb.toMinifiedString());
+			return;
+		} catch (DOMException e) {
 		}
-	}
-
-	private void writeMinifiedCSList(SimpleWriter wri, String propertyName, ValueList valueList)
-		throws IOException {
-		if (!valueList.isEmpty()) {
-			writeMinifiedValue(wri, propertyName, valueList.item(0));
-			int sz = valueList.getLength();
-			for (int i = 1; i < sz; i++) {
-				wri.write(',');
-				writeMinifiedValue(wri, propertyName, valueList.item(i));
-			}
-		}
-	}
-
-	private void writeMinifiedWSList(SimpleWriter wri, String propertyName, ValueList valueList)
-		throws IOException {
-		if (!valueList.isEmpty()) {
-			writeMinifiedValue(wri, propertyName, valueList.item(0));
-			int sz = valueList.getLength();
-			for (int i = 1; i < sz; i++) {
-				wri.write(' ');
-				writeMinifiedValue(wri, propertyName, valueList.item(i));
-			}
-		}
-	}
-
-	private void writeMinifiedFunction(SimpleWriter wri, String propertyName,
-		CSSFunctionValue value) throws IOException {
-		LinkedCSSValueList arguments = value.getArguments();
-		wri.write(value.getFunctionName());
-		wri.write('(');
-		int sz = arguments.size();
-		if (sz == 1) {
-			// Check whether the only parameter is an expression, and omit the
-			// parentheses in that case
-			StyleValue first = arguments.get(0);
-			if (first.getPrimitiveType() == Type.EXPRESSION
-				&& ((CSSExpressionValue) first).getStringValue().length() == 0) {
-				wri.write(((CSSExpressionValue) first).getExpression().getMinifiedCssText());
-			} else {
-				writeMinifiedValue(wri, propertyName, first);
-			}
-		} else if (sz != 0) {
-			writeMinifiedValue(wri, propertyName, arguments.get(0));
-			for (int i = 1; i < sz; i++) {
-				wri.write(',');
-				writeMinifiedValue(wri, propertyName, arguments.get(i));
-			}
-		}
-		wri.write(')');
+		super.writeMinifiedColorMix(wri, propertyName, value);
 	}
 
 }
