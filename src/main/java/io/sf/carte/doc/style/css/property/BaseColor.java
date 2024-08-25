@@ -134,16 +134,10 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateExpression((ExpressionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateExpression((ExpressionValue) primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
 		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
@@ -158,11 +152,11 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 				typed.setSubproperty(true);
 				primi = typed;
 			}
-		} else if (primi.getCssValueType() != CssType.PROXY
-				&& primi.getPrimitiveType() != Type.EXPRESSION
+		} else if (primi.getCssValueType() != CssType.TYPED ||
+				(primi.getPrimitiveType() != Type.EXPRESSION
 				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
 				&& (primi.getPrimitiveType() != Type.IDENT
-						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue()))) {
+						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue())))) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Invalid color component: " + primi.getCssText());
 		}
@@ -213,11 +207,11 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 				typed.setSubproperty(true);
 				primi = typed;
 			}
-		} else if (primi.getCssValueType() != CssType.PROXY
-				&& primi.getPrimitiveType() != Type.EXPRESSION
+		} else if (primi.getCssValueType() != CssType.TYPED ||
+				(primi.getPrimitiveType() != Type.EXPRESSION
 				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
 				&& (primi.getPrimitiveType() != Type.IDENT
-						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue()))) {
+						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue())))) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Invalid color component: " + primi.getCssText());
 		}
@@ -245,11 +239,11 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 		}
 
 		if (hue.getUnitType() != CSSUnit.CSS_NUMBER && !CSSUnit.isAngleUnitType(hue.getUnitType())
-				&& hue.getCssValueType() != CssType.PROXY
-				&& hue.getPrimitiveType() != Type.EXPRESSION
-				&& hue.getPrimitiveType() != Type.MATH_FUNCTION
-				&& (hue.getPrimitiveType() != Type.IDENT
-						|| !"none".equalsIgnoreCase(((TypedValue) hue).getStringValue()))) {
+				&& (hue.getCssValueType() != CssType.TYPED
+						|| (hue.getPrimitiveType() != Type.EXPRESSION
+								&& hue.getPrimitiveType() != Type.MATH_FUNCTION
+								&& (hue.getPrimitiveType() != Type.IDENT || !"none"
+										.equalsIgnoreCase(((TypedValue) hue).getStringValue()))))) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with hue.");
 		}
 
@@ -287,12 +281,12 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			number.setSpecified(spec);
 			number.setMaxFractionDigits(maxFractionDigits);
 			primi = number;
-		} else if (primi.getUnitType() != CSSUnit.CSS_NUMBER
-				&& primi.getCssValueType() != CssType.PROXY
-				&& primi.getPrimitiveType() != Type.EXPRESSION
-				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
-				&& (primi.getPrimitiveType() != Type.IDENT
-						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue()))) {
+		} else if (primi.getUnitType() != CSSUnit.CSS_NUMBER &&
+				(primi.getCssValueType() != CssType.TYPED
+				|| (primi.getPrimitiveType() != Type.EXPRESSION
+						&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+						&& (primi.getPrimitiveType() != Type.IDENT || !"none"
+								.equalsIgnoreCase(((TypedValue) primi).getStringValue()))))) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Type not compatible: " + primi.getCssText());
 		}
@@ -570,6 +564,59 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 		ColorConverter converter = new ColorConverter(true);
 		converter.toColorSpace(this, colorSpace, true);
 		return converter.getLastColor();
+	}
+
+	/**
+	 * Is this color inside the given gamut?
+	 * 
+	 * @param colorSpace the color gamut to check. It can be one of the
+	 *                   {@link ColorSpace} constants, as well as {@code hsl},
+	 *                   {@code hsla}, {@code hwb} and {@code rgb}, which are used
+	 *                   as synonyms for {@code srgb}.
+	 * @return {@code true} if this color is in the gamut of the given color space.
+	 * @throws DOMException NOT_SUPPORTED_ERR if the color space is not supported,
+	 *                      INVALID_STATE_ERR if the color components have to be
+	 *                      converted to typed values.
+	 */
+	@Override
+	public boolean isInGamut(String colorSpace) {
+		colorSpace = colorSpace.toLowerCase(Locale.ROOT);
+		if (getColorSpace().equals(colorSpace) || getSpace() == Space.sRGB || getSpace() == Space.Linear_sRGB) {
+			return true;
+		}
+
+		switch (colorSpace) {
+		case ColorSpace.xyz:
+		case "xyz-d65":
+		case ColorSpace.xyz_d50:
+		case ColorSpace.cie_lab:
+		case ColorSpace.cie_lch:
+		case ColorSpace.ok_lab:
+		case ColorSpace.ok_lch:
+			return true;
+		case ColorSpace.srgb:
+		case "hsl":
+		case "hsla":
+		case "hwb":
+		case "rgb":
+			colorSpace = ColorSpace.srgb_linear;
+		default:
+		}
+
+		ColorConverter converter = new ColorConverter(false);
+		double[] comp = converter.toColorSpace(this, colorSpace, false);
+
+		/*
+		 * Check whether the value is in bounds within the margins
+		 * used by ColorUtil.rangeRoundCheck().
+		 */
+		for (double c : comp) {
+			if (c <= -1e-4 || c >= 1.0001) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	abstract double[] toSRGB(boolean clamp);

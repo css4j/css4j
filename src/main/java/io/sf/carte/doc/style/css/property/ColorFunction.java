@@ -195,7 +195,7 @@ class ColorFunction extends ColorValue {
 	class MyLexicalSetter extends LexicalSetter {
 
 		@Override
-		void setLexicalUnit(LexicalUnit lunit) {
+		void setLexicalUnit(LexicalUnit lunit) throws DOMException {
 			try {
 				if (lunit.getLexicalUnitType() == LexicalUnit.LexicalType.COLOR_FUNCTION) {
 					setLexical(lunit);
@@ -205,12 +205,14 @@ class ColorFunction extends ColorValue {
 			} catch (DOMException e) {
 				throw e;
 			} catch (RuntimeException e) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Wrong value: " + lunit.toString());
+				DOMException ex = new DOMException(DOMException.SYNTAX_ERR, "Wrong value: " + lunit.toString());
+				ex.initCause(e);
+				throw ex;
 			}
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
 
-		private void setLexical(LexicalUnit lunit) {
+		private void setLexical(LexicalUnit lunit) throws DOMException {
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
 			List<PrimitiveValue> components = new ArrayList<>(5);
@@ -232,7 +234,7 @@ class ColorFunction extends ColorValue {
 			PrimitiveValue primi;
 			while (true) {
 				primi = factory.createCSSPrimitiveValue(lu, true);
-				checkNumberPcntCompValidity(primi, lunit);
+				checkComponentValidity(primi, lunit);
 				components.add(primi);
 				lu = lu.getNextLexicalUnit();
 
@@ -244,6 +246,7 @@ class ColorFunction extends ColorValue {
 					alpha = factory.createCSSPrimitiveValue(lu, true);
 					lu = lu.getNextLexicalUnit();
 					if (lu != null) {
+						// This won't happen because it is filtered at NSAC level
 						throw new DOMException(DOMException.SYNTAX_ERR,
 								"Wrong value: " + lunit.toString());
 					}
@@ -271,17 +274,21 @@ class ColorFunction extends ColorValue {
 
 	}
 
-	private static void checkNumberPcntCompValidity(PrimitiveValue primi, LexicalUnit lunit) {
-		if (primi.getUnitType() != CSSUnit.CSS_NUMBER
-				&& primi.getUnitType() != CSSUnit.CSS_PERCENTAGE
-				&& primi.getCssValueType() != CssType.PROXY
-				&& primi.getPrimitiveType() != Type.EXPRESSION
-				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
-				&& (primi.getPrimitiveType() != Type.IDENT
-						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue()))) {
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
-					"Unsupported value: " + lunit.toString());
+	private static void checkComponentValidity(PrimitiveValue primi, LexicalUnit lunit)
+			throws DOMException {
+		if (!isComponentUnit(primi.getUnitType()) && (primi.getCssValueType() != CssType.TYPED
+				|| (primi.getPrimitiveType() != Type.EXPRESSION
+						&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+						&& (primi.getPrimitiveType() != Type.IDENT || !"none"
+								.equalsIgnoreCase(((TypedValue) primi).getStringValue()))))) {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Type not compatible with a color component: "
+							+ (lunit != null ? lunit.getCssText() : primi.getCssText()));
 		}
+	}
+
+	private static boolean isComponentUnit(short unit) {
+		return unit == CSSUnit.CSS_NUMBER || unit == CSSUnit.CSS_PERCENTAGE;
 	}
 
 	private void setComponents(List<PrimitiveValue> components) {
@@ -301,31 +308,16 @@ class ColorFunction extends ColorValue {
 		}
 	}
 
-	static PrimitiveValue enforceColorComponentType(PrimitiveValue primi) {
+	static PrimitiveValue enforceColorComponentType(PrimitiveValue primi) throws DOMException {
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateExpression((ExpressionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateExpression((ExpressionValue) primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
-		if (primi.getUnitType() != CSSUnit.CSS_NUMBER
-				&& primi.getUnitType() != CSSUnit.CSS_PERCENTAGE
-				&& primi.getCssValueType() != CssType.PROXY
-				&& primi.getPrimitiveType() != Type.EXPRESSION
-				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
-				&& (primi.getPrimitiveType() != Type.IDENT
-						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue()))) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
-					"Type not compatible with a color component: " + primi.getCssText());
-		}
+		checkComponentValidity(primi, null);
 
 		return primi;
 	}

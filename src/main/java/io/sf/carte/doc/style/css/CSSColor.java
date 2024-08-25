@@ -84,6 +84,17 @@ public interface CSSColor {
 	double[] toNumberArray() throws DOMException;
 
 	/**
+	 * Is this color inside the given gamut?
+	 * 
+	 * @param colorSpace the color gamut to check.
+	 * @return {@code true} if this color is in the gamut of the given color space.
+	 * @throws DOMException NOT_SUPPORTED_ERR if the color space is not supported,
+	 *                      INVALID_STATE_ERR if the color components have to be
+	 *                      converted to typed values.
+	 */
+	boolean isInGamut(String colorSpace);
+
+	/**
 	 * Convert this color to the given CSS color space.
 	 * 
 	 * @param colorSpace the destination color space. The color spaces in

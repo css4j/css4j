@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.property;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue;
-import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HWBColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -135,11 +134,9 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			// whiteness
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primiwhite = factory.createCSSPrimitiveValue(lu, true);
-			checkPcntCompValidity(primiwhite, lunit);
 			// blackness
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primiblackness = factory.createCSSPrimitiveValue(lu, true);
-			checkPcntCompValidity(primiblackness, lunit);
 			// slash or null
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue alpha = null;
@@ -160,15 +157,6 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			hwbColor.setBlackness(primiblackness);
 		}
 
-	}
-
-	private static void checkPcntCompValidity(PrimitiveValue primisat, LexicalUnit lunit) {
-		if (primisat.getUnitType() != CSSUnit.CSS_PERCENTAGE
-				&& primisat.getCssValueType() != CssType.PROXY
-				&& primisat.getPrimitiveType() != Type.EXPRESSION) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
-					"Type not compatible: " + lunit.toString());
-		}
 	}
 
 	@Override
