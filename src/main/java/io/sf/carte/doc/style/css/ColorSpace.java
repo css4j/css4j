@@ -22,6 +22,11 @@ public interface ColorSpace {
 	String srgb = "srgb";
 
 	/**
+	 * Linear sRGB
+	 */
+	String srgb_linear = "srgb-linear";
+
+	/**
 	 * Display P3
 	 * <p>
 	 * Uses DCI-P3 primaries but with a D65 white point and the sRGB transfer curve.

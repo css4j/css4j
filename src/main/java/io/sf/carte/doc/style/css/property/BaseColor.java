@@ -32,11 +32,11 @@ import io.sf.carte.util.SimpleWriter;
 
 abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
-	private static final long serialVersionUID = 3L;
+	private static final long serialVersionUID = 4L;
 
 	enum Space {
-		sRGB, p3, A98_RGB, ProPhoto_RGB, Rec2020, CIE_XYZ, CIE_XYZ_D50, CIE_Lab, CIE_LCh, OK_Lab,
-		OK_LCh, OTHER
+		sRGB, Linear_sRGB, p3, A98_RGB, ProPhoto_RGB, Rec2020, CIE_XYZ, CIE_XYZ_D50, CIE_Lab,
+		CIE_LCh, OK_Lab, OK_LCh, OTHER
 	}
 
 	// ASTM E308-01 via http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html

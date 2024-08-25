@@ -40,6 +40,8 @@ class ColorSpaceHelper {
 			space = Space.ProPhoto_RGB;
 		} else if (internedLcColorSpace == ColorSpace.rec2020) {
 			space = Space.Rec2020;
+		} else if (internedLcColorSpace == ColorSpace.srgb_linear) {
+			space = Space.Linear_sRGB;
 		} else {
 			throw new IllegalStateException("This value only accepts RGB.");
 		}
@@ -62,6 +64,9 @@ class ColorSpaceHelper {
 			color = new ProfiledRGBColor(colorSpace);
 		} else if (ColorSpace.rec2020.equalsIgnoreCase(colorSpace)) {
 			colorSpace = ColorSpace.rec2020;
+			color = new ProfiledRGBColor(colorSpace);
+		} else if (ColorSpace.srgb_linear.equalsIgnoreCase(colorSpace)) {
+			colorSpace = ColorSpace.srgb_linear;
 			color = new ProfiledRGBColor(colorSpace);
 		} else if (ColorSpace.xyz.equalsIgnoreCase(colorSpace)
 				|| "xyz-d65".equalsIgnoreCase(colorSpace)) {

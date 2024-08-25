@@ -52,50 +52,68 @@ class ColorConverter {
 
 		double[] result;
 		ColorProfile profile;
-		if (ColorSpace.srgb.equals(colorSpace)) {
-			result = source.toSRGB(true);
+		switch (colorSpace) {
+		case ColorSpace.srgb:
+			result = source.toSRGB(clamp);
 			if (createValue) {
 				this.destColor = new RGBColor();
 			}
-		} else if (ColorSpace.display_p3.equals(colorSpace)) {
+			break;
+		case ColorSpace.srgb_linear:
+			profile = new LinearSRGBColorProfile();
+			result = new double[3];
+			convertToProfiled(profile, source, clamp, result);
+			if (createValue) {
+				this.destColor = new ProfiledRGBColor(ColorSpace.srgb_linear);
+			}
+			break;
+		case ColorSpace.display_p3:
 			profile = new DisplayP3ColorProfile();
 			result = new double[3];
 			convertToProfiled(profile, source, clamp, result);
 			if (createValue) {
 				this.destColor = new ProfiledRGBColor(ColorSpace.display_p3);
 			}
-		} else if (ColorSpace.a98_rgb.equals(colorSpace)) {
+			break;
+		case ColorSpace.a98_rgb:
 			profile = new A98RGBColorProfile();
 			result = new double[3];
 			convertToProfiled(profile, source, clamp, result);
 			if (createValue) {
 				this.destColor = new ProfiledRGBColor(ColorSpace.a98_rgb);
 			}
-		} else if (ColorSpace.prophoto_rgb.equals(colorSpace)) {
+			break;
+		case ColorSpace.prophoto_rgb:
 			profile = new ProPhotoRGBColorProfile();
 			result = new double[3];
 			convertToProfiled(profile, source, clamp, result);
 			if (createValue) {
 				this.destColor = new ProfiledRGBColor(ColorSpace.prophoto_rgb);
 			}
-		} else if (ColorSpace.rec2020.equals(colorSpace)) {
+			break;
+		case ColorSpace.rec2020:
 			profile = new Rec2020ColorProfile();
 			result = new double[3];
 			convertToProfiled(profile, source, clamp, result);
 			if (createValue) {
 				this.destColor = new ProfiledRGBColor(ColorSpace.rec2020);
 			}
-		} else if (ColorSpace.xyz.equals(colorSpace) || "xyz-d65".equals(colorSpace)) {
+			break;
+		case ColorSpace.xyz:
+		case "xyz-d65":
 			result = source.toXYZ(Illuminant.D65);
 			if (createValue) {
 				this.destColor = new XYZColorImpl(Illuminant.D65);
 			}
-		} else if (ColorSpace.xyz_d50.equals(colorSpace)) {
+			break;
+		case ColorSpace.xyz_d50:
 			result = source.toXYZ(Illuminant.D50);
 			if (createValue) {
 				this.destColor = new XYZColorImpl(Illuminant.D50);
 			}
-		} else if ("hsl".equals(colorSpace) || "hsla".equals(colorSpace)) {
+			break;
+		case "hsl":
+		case "hsla":
 			if (source.getColorModel() == ColorModel.HSL) {
 				result = source.toNumberArray();
 			} else {
@@ -105,7 +123,8 @@ class ColorConverter {
 			if (createValue) {
 				this.destColor = new HSLColorImpl();
 			}
-		} else if ("hwb".equals(colorSpace)) {
+			break;
+		case "hwb":
 			if (source.getColorModel() == ColorModel.HWB) {
 				result = source.toNumberArray();
 			} else {
@@ -115,7 +134,8 @@ class ColorConverter {
 			if (createValue) {
 				this.destColor = new HWBColorImpl();
 			}
-		} else if (ColorSpace.cie_lab.equals(colorSpace)) {
+			break;
+		case ColorSpace.cie_lab:
 			result = new double[3];
 			if (source.getSpace() == Space.CIE_LCh) {
 				// LCh to Lab
@@ -128,7 +148,8 @@ class ColorConverter {
 			if (createValue) {
 				this.destColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
 			}
-		} else if (ColorSpace.cie_lch.equals(colorSpace)) {
+			break;
+		case ColorSpace.cie_lch:
 			double[] lab;
 			if (source.getSpace() == Space.CIE_Lab) {
 				lab = source.toNumberArray();
@@ -143,7 +164,8 @@ class ColorConverter {
 			if (createValue) {
 				this.destColor = new LCHColorImpl(Space.CIE_LCh, ColorSpace.cie_lch);
 			}
-		} else if (ColorSpace.ok_lab.equals(colorSpace)) {
+			break;
+		case ColorSpace.ok_lab:
 			result = new double[3];
 			if (source.getSpace() == Space.OK_LCh) {
 				// LCh to Lab
@@ -156,22 +178,24 @@ class ColorConverter {
 			if (createValue) {
 				this.destColor = new LABColorImpl(Space.OK_Lab, ColorSpace.ok_lab);
 			}
-		} else if (ColorSpace.ok_lch.equals(colorSpace)) {
-			double[] lab;
+			break;
+		case ColorSpace.ok_lch:
+			double[] oklab;
 			if (source.getSpace() == Space.OK_Lab) {
-				lab = source.toNumberArray();
+				oklab = source.toNumberArray();
 			} else {
 				double[] xyz = source.toXYZ(Illuminant.D65);
-				lab = new double[3];
-				ColorUtil.xyzD65ToOkLab(xyz, lab);
+				oklab = new double[3];
+				ColorUtil.xyzD65ToOkLab(xyz, oklab);
 			}
 			// Lab to LCh
 			result = new double[3];
-			ColorUtil.labToLCh(lab, result);
+			ColorUtil.labToLCh(oklab, result);
 			if (createValue) {
 				this.destColor = new LCHColorImpl(Space.OK_LCh, ColorSpace.ok_lch);
 			}
-		} else {
+			break;
+		default:
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
 					"Unsupported color space: " + colorSpace);
 		}

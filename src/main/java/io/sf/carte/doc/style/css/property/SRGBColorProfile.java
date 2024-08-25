@@ -11,6 +11,9 @@
 
 package io.sf.carte.doc.style.css.property;
 
+/**
+ * sRGB color profile.
+ */
 class SRGBColorProfile extends ColorProfile {
 
 	public SRGBColorProfile() {

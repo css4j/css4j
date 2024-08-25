@@ -11,6 +11,9 @@
 
 package io.sf.carte.doc.style.css.property;
 
+/**
+ * ITU rec. bt.2020 color profile.
+ */
 class Rec2020ColorProfile extends ColorProfile {
 
 	private static final double ALPHA = 1.09929682680944d;
@@ -31,6 +34,7 @@ class Rec2020ColorProfile extends ColorProfile {
 		} else {
 			comp = Math.signum(linearComponent) * Math.pow(abs, 0.45d) * ALPHA - (ALPHA - 1d);
 		}
+
 		return comp;
 	}
 
@@ -44,6 +48,7 @@ class Rec2020ColorProfile extends ColorProfile {
 		} else {
 			cl = Math.signum(comp) * Math.pow((abs + ALPHA - 1d) / ALPHA, 1d / 0.45d);
 		}
+
 		return cl;
 	}
 

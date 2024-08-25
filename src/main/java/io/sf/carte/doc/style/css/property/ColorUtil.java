@@ -588,7 +588,7 @@ class ColorUtil {
 		rgb[2] = sRGBCompanding(b);
 	}
 
-	private static double sRGBCompanding(double linearComponent) {
+	static double sRGBCompanding(double linearComponent) {
 		// sRGB Companding
 		final double abs = Math.abs(linearComponent);
 		double nlComp;

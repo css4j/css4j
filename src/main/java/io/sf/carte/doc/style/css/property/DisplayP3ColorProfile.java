@@ -11,6 +11,9 @@
 
 package io.sf.carte.doc.style.css.property;
 
+/**
+ * Display P3 color profile.
+ */
 class DisplayP3ColorProfile extends ColorProfile {
 
 	public DisplayP3ColorProfile() {

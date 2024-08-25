@@ -11,6 +11,9 @@
 
 package io.sf.carte.doc.style.css.property;
 
+/**
+ * A98 RGB color profile.
+ */
 class A98RGBColorProfile extends ColorProfile {
 
 	public A98RGBColorProfile() {

@@ -157,6 +157,13 @@ class ProfiledRGBColor extends RGBColor {
 				xyz = ColorUtil.d65xyzToD50(xyz);
 			}
 			break;
+		case Linear_sRGB:
+			profile = new LinearSRGBColorProfile();
+			profile.linearRgbToXYZ(r, g, b, xyz);
+			if (white == Illuminant.D50) {
+				xyz = ColorUtil.d65xyzToD50(xyz);
+			}
+			break;
 		case sRGB:
 			return super.toXYZ(white);
 		default:
@@ -176,6 +183,8 @@ class ProfiledRGBColor extends RGBColor {
 			xyzD50 = toXYZ(Illuminant.D50);
 			// Chromatic adjustment: D50 to D65
 			xyz = ColorUtil.d50xyzToD65(xyzD50);
+		} else if (space == Space.Linear_sRGB) {
+			return linearToSRGB();
 		} else {
 			xyz = toXYZ(Illuminant.D65);
 		}
@@ -194,6 +203,17 @@ class ProfiledRGBColor extends RGBColor {
 			ColorUtil.clampRGB(lab[0], lab[1], lab[2], profile, rgb);
 		}
 
+		return rgb;
+	}
+
+	private double[] linearToSRGB() {
+		double r = rgbComponentNormalized((TypedValue) getRed());
+		double g = rgbComponentNormalized((TypedValue) getGreen());
+		double b = rgbComponentNormalized((TypedValue) getBlue());
+		double[] rgb = new double[3];
+		rgb[0] = ColorUtil.sRGBCompanding(r);
+		rgb[1] = ColorUtil.sRGBCompanding(g);
+		rgb[2] = ColorUtil.sRGBCompanding(b);
 		return rgb;
 	}
 

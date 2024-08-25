@@ -11,6 +11,9 @@
 
 package io.sf.carte.doc.style.css.property;
 
+/**
+ * ProPhoto RGB color profile.
+ */
 class ProPhotoRGBColorProfile extends ColorProfile {
 
 	public ProPhotoRGBColorProfile() {
@@ -41,6 +44,7 @@ class ProPhotoRGBColorProfile extends ColorProfile {
 		} else {
 			cl = Math.signum(c) * Math.pow(abs, 1.8d);
 		}
+
 		return cl;
 	}
 
