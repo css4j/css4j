@@ -821,31 +821,149 @@ public class ColorMixFunctionTest {
 	}
 
 	@Test
-	public void testColorMixUnknownHueInterpolation() throws IOException {
-		style.setCssText("color: color-mix(in oklch best hue, #0200fa, hwb(325.6 40% 3%) 60%)");
+	public void testColorMixLinearRGB() throws IOException {
+		style.setCssText(
+				"color: color-mix(in srgb-linear, oklch(0.831 0.1602 167.34) 44%, hwb(186.2 29% 12%))");
 		CSSValue value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
 		assertEquals(CssType.TYPED, value.getCssValueType());
 		assertEquals(Type.COLOR_MIX, value.getPrimitiveType());
 		ColorMixFunction color = (ColorMixFunction) value;
-		assertEquals(CSSColorValue.ColorModel.LCH, color.getColorModel());
-		assertEquals(ColorSpace.ok_lch, color.getCSSColorSpace());
+		assertEquals(CSSColorValue.ColorModel.RGB, color.getColorModel());
+		assertEquals(ColorSpace.srgb_linear, color.getCSSColorSpace());
 
 		// Serialization
-		assertEquals("color-mix(in oklch best hue, #0200fa, hwb(325.6 40% 3%) 60%)",
+		assertEquals("color-mix(in srgb-linear, oklch(0.831 0.1602 167.34) 44%, hwb(186.2 29% 12%))",
 				color.getCssText());
-		assertEquals("color-mix(in oklch best hue,#0200fa,hwb(325.6 40% 3%) 60%)",
+		assertEquals("color-mix(in srgb-linear,oklch(.831 .1602 167.34) 44%,hwb(186.2 29% 12%))",
 				color.getMinifiedCssText("color"));
 
 		BufferSimpleWriter wri = new BufferSimpleWriter(100);
 		color.writeCssText(wri);
-		assertEquals("color-mix(in oklch best hue, #0200fa, hwb(325.6 40% 3%) 60%)",
+		assertEquals("color-mix(in srgb-linear, oklch(0.831 0.1602 167.34) 44%, hwb(186.2 29% 12%))",
 				wri.toString());
 
-		// We do not know how to mix the colors
+		// Mix the colors
+		BaseColor mixed = color.getColor();
+		assertNotNull(mixed);
+		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
+		assertEquals(ColorSpace.srgb_linear, mixed.getColorSpace());
+		assertEquals("color(srgb-linear 0.0517 0.7117 0.6153)", mixed.toString());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
-		assertTrue(getStyleDeclarationErrorHandler().hasWarnings());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testColorMixPcntCalc() throws IOException {
+		style.setCssText("color: color-mix(in srgb-linear, #0200fa, hwb(325.6 40% 3%) calc(2*30%))");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(Type.COLOR_MIX, value.getPrimitiveType());
+		ColorMixFunction color = (ColorMixFunction) value;
+		assertEquals(CSSColorValue.ColorModel.RGB, color.getColorModel());
+		assertEquals(ColorSpace.srgb_linear, color.getCSSColorSpace());
+
+		// Serialization
+		assertEquals("color-mix(in srgb-linear, #0200fa, hwb(325.6 40% 3%) 60%)",
+				color.getCssText());
+		assertEquals("color-mix(in srgb-linear,#0200fa,hwb(325.6 40% 3%) 60%)",
+				color.getMinifiedCssText("color"));
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(100);
+		color.writeCssText(wri);
+		assertEquals("color-mix(in srgb-linear, #0200fa, hwb(325.6 40% 3%) 60%)",
+				wri.toString());
+
+		// Mix the colors
+		BaseColor mixed = color.getColor();
+		assertNotNull(mixed);
+		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
+		assertEquals(ColorSpace.srgb_linear, mixed.getColorSpace());
+		assertEquals("color(srgb-linear 0.5601 0.0797 0.6747)", mixed.toString());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testColorMixPcntCalcError() throws IOException {
+		style.setCssText(
+				"color: color-mix(in srgb-linear, #0200fa, hwb(325.6 40% 3%) calc(2*3mm))");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNull(value);
+
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testColorMixPcntMax() throws IOException {
+		style.setCssText(
+				"color: color-mix(in srgb-linear, #0200fa, color(display-p3 0.0064507 0.0002603 0.9407362) max(10%,60%))");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(Type.COLOR_MIX, value.getPrimitiveType());
+		ColorMixFunction color = (ColorMixFunction) value;
+		assertEquals(CSSColorValue.ColorModel.RGB, color.getColorModel());
+		assertEquals(ColorSpace.srgb_linear, color.getCSSColorSpace());
+
+		// Serialization
+		assertEquals("color-mix(in srgb-linear, #0200fa, color(display-p3 0.0064507 2.603E-4 0.9407362) 60%)",
+				color.getCssText());
+		assertEquals("color-mix(in srgb-linear,#0200fa,color(display-p3 .0064507 2.603E-4 .9407362) 60%)",
+				color.getMinifiedCssText("color"));
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(100);
+		color.writeCssText(wri);
+		assertEquals("color-mix(in srgb-linear, #0200fa, color(display-p3 0.0064507 2.603E-4 0.9407362) 60%)",
+				wri.toString());
+
+		// Mix the colors
+		BaseColor mixed = color.getColor();
+		assertNotNull(mixed);
+		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
+		assertEquals(ColorSpace.srgb_linear, mixed.getColorSpace());
+		assertEquals("color(srgb-linear 0.0006 0 0.9558)", mixed.toString());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testColorMixPcntMaxError() throws IOException {
+		style.setCssText(
+				"color: color-mix(in srgb-linear, #0200fa, hwb(325.6 40% 3%) max(10%,60px))");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNull(value);
+
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testColorMixOutsideGamut() throws IOException {
+		style.setCssText(
+				"color:color-mix(in srgb-linear,#0200fa,color(display-p3 0.0064507 0.0002603 0.9407362) 60%)");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(Type.COLOR_MIX, value.getPrimitiveType());
+		ColorMixFunction color = (ColorMixFunction) value;
+		assertEquals(CSSColorValue.ColorModel.RGB, color.getColorModel());
+		assertEquals(ColorSpace.srgb_linear, color.getCSSColorSpace());
+
+		// Mix the colors
+		BaseColor mixed = color.getColor();
+		assertNotNull(mixed);
+		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
+		assertEquals(ColorSpace.srgb_linear, mixed.getColorSpace());
+		assertEquals("color(srgb-linear 0.0006 0 0.9558)", mixed.toString());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
 	}
 
 	@Test

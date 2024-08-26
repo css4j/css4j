@@ -202,20 +202,14 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateExpression((ExpressionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateExpression((ExpressionValue) primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
 		if (primi.getUnitType() != CSSUnit.CSS_PERCENTAGE
-				&& primi.getCssValueType() != CssType.PROXY
+				&& primi.getPrimitiveType() != Type.ATTR
 				&& primi.getPrimitiveType() != Type.EXPRESSION
 				&& primi.getPrimitiveType() != Type.MATH_FUNCTION) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
@@ -696,8 +690,8 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 			ColorMixFunction.this.unknownMethod = unknownMethod;
 			ColorMixFunction.this.colorValue1 = color1;
 			ColorMixFunction.this.colorValue2 = color2;
-			ColorMixFunction.this.percent1 = pcnt1;
-			ColorMixFunction.this.percent2 = pcnt2;
+			ColorMixFunction.this.setPercentage1(pcnt1);
+			ColorMixFunction.this.setPercentage2(pcnt2);
 
 			setColorModelSpace(colorSpace);
 		}
@@ -713,6 +707,9 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 		if (ColorSpace.srgb.equalsIgnoreCase(colorSpace)) {
 			inColorSpace = ColorSpace.srgb;
 			color = new RGBColor();
+		} else if (ColorSpace.srgb_linear.equalsIgnoreCase(colorSpace)) {
+			inColorSpace = ColorSpace.srgb_linear;
+			color = new ProfiledRGBColor(inColorSpace);
 		} else if (ColorSpace.display_p3.equalsIgnoreCase(colorSpace)) {
 			inColorSpace = ColorSpace.display_p3;
 			color = new ProfiledRGBColor(inColorSpace);
