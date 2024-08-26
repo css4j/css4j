@@ -158,9 +158,9 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 		l.setSubproperty(true);
 		l.setAbsolutizedUnit();
 		if (getSpace() == Space.OK_LCh) {
-			l.setMaxFractionDigits(6);
+			l.setMaximumFractionDigits(6);
 		} else {
-			l.setMaxFractionDigits(4);
+			l.setMaximumFractionDigits(4);
 		}
 		setLightness(l);
 
@@ -168,9 +168,9 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 		c.setSubproperty(true);
 		c.setAbsolutizedUnit();
 		if (getSpace() == Space.OK_LCh) {
-			c.setMaxFractionDigits(5);
+			c.setMaximumFractionDigits(5);
 		} else {
-			c.setMaxFractionDigits(4);
+			c.setMaximumFractionDigits(4);
 		}
 		setChroma(c);
 
@@ -181,7 +181,7 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 		NumberValue h = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, fhue);
 		h.setSubproperty(true);
 		h.setAbsolutizedUnit();
-		h.setMaxFractionDigits(4);
+		h.setMaximumFractionDigits(4);
 		setHue(h);
 	}
 

@@ -85,21 +85,21 @@ class ProfiledRGBColor extends RGBColor {
 		red.setFloatValue(CSSUnit.CSS_NUMBER, (float) rgb[0]);
 		red.setSubproperty(true);
 		red.setAbsolutizedUnit();
-		red.setMaxFractionDigits(4);
+		red.setMaximumFractionDigits(4);
 		setRed(red);
 
 		NumberValue green = new NumberValue();
 		green.setFloatValue(CSSUnit.CSS_NUMBER, (float) rgb[1]);
 		green.setSubproperty(true);
 		green.setAbsolutizedUnit();
-		green.setMaxFractionDigits(4);
+		green.setMaximumFractionDigits(4);
 		setGreen(green);
 
 		NumberValue blue = new NumberValue();
 		blue.setFloatValue(CSSUnit.CSS_NUMBER, (float) rgb[2]);
 		blue.setSubproperty(true);
 		blue.setAbsolutizedUnit();
-		blue.setMaxFractionDigits(4);
+		blue.setMaximumFractionDigits(4);
 		setBlue(blue);
 	}
 

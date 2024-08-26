@@ -151,19 +151,19 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 		NumberValue x = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) xyz[0]);
 		x.setSubproperty(true);
 		x.setAbsolutizedUnit();
-		x.setMaxFractionDigits(5);
+		x.setMaximumFractionDigits(5);
 		setX(x);
 
 		NumberValue y = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) xyz[1]);
 		y.setSubproperty(true);
 		y.setAbsolutizedUnit();
-		y.setMaxFractionDigits(5);
+		y.setMaximumFractionDigits(5);
 		setY(y);
 
 		NumberValue z = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) xyz[2]);
 		z.setSubproperty(true);
 		z.setAbsolutizedUnit();
-		z.setMaxFractionDigits(5);
+		z.setMaximumFractionDigits(5);
 		setZ(z);
 	}
 

@@ -298,7 +298,13 @@ public class NumberValue extends TypedValue {
 		return specified;
 	}
 
-	void setMaxFractionDigits(int maxFractionDigits) {
+	/**
+	 * Set the maximum fraction digits to use in the serialization of this number
+	 * when it was not specified or is the result of a calculation.
+	 * 
+	 * @param maxFractionDigits the maximum fraction digits.
+	 */
+	public void setMaximumFractionDigits(int maxFractionDigits) {
 		this.maxFractionDigits = maxFractionDigits;
 	}
 

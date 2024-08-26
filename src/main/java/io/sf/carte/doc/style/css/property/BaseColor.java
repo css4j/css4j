@@ -73,7 +73,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			try {
 				alpha = eval.evaluateExpression((ExpressionValue) alpha);
 				if (alpha.getPrimitiveType() == Type.NUMERIC) {
-					((NumberValue) alpha).setMaxFractionDigits(5);
+					((NumberValue) alpha).setMaximumFractionDigits(5);
 				}
 			} catch (DOMException e) {
 			}
@@ -82,7 +82,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			try {
 				alpha = eval.evaluateFunction((CSSMathFunctionValue) alpha);
 				if (alpha.getPrimitiveType() == Type.NUMERIC) {
-					((NumberValue) alpha).setMaxFractionDigits(5);
+					((NumberValue) alpha).setMaximumFractionDigits(5);
 				}
 			} catch (DOMException e) {
 			}
@@ -279,7 +279,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			number.setFloatValue(CSSUnit.CSS_NUMBER, num);
 			number.setSubproperty(true);
 			number.setSpecified(spec);
-			number.setMaxFractionDigits(maxFractionDigits);
+			number.setMaximumFractionDigits(maxFractionDigits);
 			primi = number;
 		} else if (primi.getUnitType() != CSSUnit.CSS_NUMBER &&
 				(primi.getCssValueType() != CssType.TYPED

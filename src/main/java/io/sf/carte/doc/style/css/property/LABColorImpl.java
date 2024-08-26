@@ -161,22 +161,22 @@ class LABColorImpl extends BaseColor implements LABColor {
 		l.setSubproperty(true);
 		l.setAbsolutizedUnit();
 		if (getSpace() == Space.OK_Lab) {
-			l.setMaxFractionDigits(6);
+			l.setMaximumFractionDigits(6);
 		} else {
-			l.setMaxFractionDigits(4);
+			l.setMaximumFractionDigits(4);
 		}
 		setLightness(l);
 
 		NumberValue a = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[1]);
 		a.setSubproperty(true);
 		a.setAbsolutizedUnit();
-		a.setMaxFractionDigits(5);
+		a.setMaximumFractionDigits(5);
 		setA(a);
 
 		NumberValue b = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[2]);
 		b.setSubproperty(true);
 		b.setAbsolutizedUnit();
-		b.setMaxFractionDigits(5);
+		b.setMaximumFractionDigits(5);
 		setB(b);
 	}
 
