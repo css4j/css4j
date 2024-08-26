@@ -7796,7 +7796,7 @@ public class CSSParser implements Parser, Cloneable {
 
 			// Check the first color spec
 			LexicalType uType = lu.getLexicalUnitType();
-			if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC) {
+			if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC || uType == LexicalType.FUNCTION) {
 				// Could be % <color>
 				lu = lu.getNextLexicalUnit();
 				if (lu == null || cannotBeColor(lu, synColor)) {
@@ -7822,6 +7822,7 @@ public class CSSParser implements Parser, Cloneable {
 						hasVar = true;
 					case PERCENTAGE:
 					case CALC:
+					case FUNCTION:
 					case ATTR:
 						lu = lu.getNextLexicalUnit();
 						break;
@@ -7840,14 +7841,14 @@ public class CSSParser implements Parser, Cloneable {
 			if (uType != LexicalType.OPERATOR_COMMA) {
 				// Assume the rest is right if we got the right type
 				return hasVar && (!cannotBeColor(lu, synColor) || uType == LexicalType.PERCENTAGE
-						|| uType == LexicalType.CALC || uType == LexicalType.VAR);
+						|| uType == LexicalType.CALC || uType == LexicalType.FUNCTION || uType == LexicalType.VAR);
 			} else {
 				lu = lu.getNextLexicalUnit();
 				uType = lu.getLexicalUnitType();
 			}
 
 			// Now examine the second color spec
-			if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC) {
+			if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC || uType == LexicalType.FUNCTION) {
 				// Could be % <color>
 				lu = lu.getNextLexicalUnit();
 				if (lu == null || cannotBeColor(lu, synColor)) {
@@ -7867,7 +7868,7 @@ public class CSSParser implements Parser, Cloneable {
 					return true;
 				}
 				uType = lu.getLexicalUnitType();
-				if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC
+				if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC || uType == LexicalType.FUNCTION
 						|| uType == LexicalType.VAR || uType == LexicalType.ATTR) {
 					lu = lu.getNextLexicalUnit();
 				} else {
