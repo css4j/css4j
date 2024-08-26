@@ -251,23 +251,17 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 	}
 
 	static PrimitiveValue normalizePcntToNumber(PrimitiveValue primi, float factor,
-			int maxFractionDigits, boolean specified) {
+			int maxFractionDigits, boolean specified) throws DOMException {
 		if (primi == null) {
 			throw new NullPointerException();
 		}
 
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateExpression((ExpressionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateExpression((ExpressionValue) primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
 		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {

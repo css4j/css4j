@@ -97,26 +97,20 @@ class RGBColor extends BaseColor implements RGBAColor {
 		}
 	}
 
-	public void setRed(PrimitiveValue red) {
+	public void setRed(PrimitiveValue red) throws DOMException {
 		if (red == null) {
 			throw new NullPointerException();
 		}
 		this.red = enforceColorComponentType(red);
 	}
 
-	PrimitiveValue enforceColorComponentType(PrimitiveValue primi) {
+	PrimitiveValue enforceColorComponentType(PrimitiveValue primi) throws DOMException {
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateExpression((ExpressionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateExpression((ExpressionValue) primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
 		if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
@@ -162,7 +156,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 		return red;
 	}
 
-	public void setGreen(PrimitiveValue green) {
+	public void setGreen(PrimitiveValue green) throws DOMException {
 		if (green == null) {
 			throw new NullPointerException();
 		}
@@ -174,7 +168,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 		return green;
 	}
 
-	public void setBlue(PrimitiveValue blue) {
+	public void setBlue(PrimitiveValue blue) throws DOMException {
 		if (blue == null) {
 			throw new NullPointerException();
 		}
@@ -226,7 +220,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 	}
 
 	@Override
-	double[] toSRGB(boolean clamp) {
+	double[] toSRGB(boolean clamp) throws DOMException {
 		if (!hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
@@ -239,7 +233,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 
 	@Override
 	double[] toXYZ(Illuminant white) {
-		double[] rgb =toSRGB(true);
+		double[] rgb = toSRGB(true);
 		double r = RGBColor.inverseSRGBCompanding(rgb[0]);
 		double g = RGBColor.inverseSRGBCompanding(rgb[1]);
 		double b = RGBColor.inverseSRGBCompanding(rgb[2]);
@@ -261,7 +255,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 		return new HSLColorImpl();
 	}
 
-	void toHSLColor(HSLColorImpl hslColor) {
+	void toHSLColor(HSLColorImpl hslColor) throws DOMException {
 		double[] hsl = toHSL();
 		if (hsl == null) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Conversion to hsl() failed.");
@@ -286,7 +280,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 	 * 
 	 * @return the color in HSL space, or null if the conversion failed.
 	 */
-	double[] toHSL() {
+	double[] toHSL() throws DOMException {
 		if (!hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
@@ -308,7 +302,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 	 * @param typed the component.
 	 * @return the normalized component.
 	 */
-	double rgbComponentNormalized(TypedValue typed) {
+	double rgbComponentNormalized(TypedValue typed) throws DOMException {
 		double comp;
 		short unit = typed.getUnitType();
 		if (unit == CSSUnit.CSS_PERCENTAGE) {
