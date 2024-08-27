@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suppressions PUBLIC "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN" "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+<suppressions>
+  <suppress files="[\\/]DOMElement\.java$" checks="EmptyStatement"/>
+  <suppress files="[\\/]BoxModelHelper\.java$" checks="EmptyStatement"/>
+
+  <!-- Generated tests -->
+  <suppress files="[\\/]SimpleBoxModelTest\.java$" checks="RegexpSinglelineJava"/>
+  <suppress files="[\\/]SimpleBoxModelTest\.java$" checks="WhitespaceAround"/>
+
+  <!-- Line length -->
+  <suppress files="[\\/]CSSStyleSheet\.java$" checks="LineLength"/>
+  <suppress files="[\\/]HTMLDocument\.java$" checks="LineLength"/>
+  <suppress files="[\\/]AbstractCSSStyleSheet\.java$" checks="LineLength"/>
+  <suppress files="[\\/]BaseCSSStyleSheet\.java$" checks="LineLength"/>
+  <suppress files="[\\/]PrimitiveValue\.java$" checks="LineLength"/>
+
+  <!-- Disable line length checks in tests -->
+  <suppress files="[\\/]src[\\/]test[\\/]java[\\/]" checks="LineLength"/>
+
+  <!-- Disable other checks in tests -->
+  <suppress files="Test[0-9]?\.java$" checks="LeftCurly"/>
+  <suppress files="Test[0-9]?\.java$" checks="MethodName"/>
+  <suppress files="[\\/]src[\\/]test[\\/]java[\\/]" checks="SimplifyBooleanReturn"/>
+  <suppress files="Test[0-9]?\.java$" checks="WhitespaceAround"/>
+</suppressions>

@@ -134,7 +134,7 @@ abstract public class PrimitiveValue extends StyleValue implements CSSPrimitiveV
 
 		void reportSyntaxWarning(String message) {
 			if (syntaxWarnings == null) {
-				syntaxWarnings  = new LinkedList<>();
+				syntaxWarnings = new LinkedList<>();
 			}
 			syntaxWarnings.add(message);
 		}

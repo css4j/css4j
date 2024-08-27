@@ -73,7 +73,7 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 	 */
 	@Override
 	public boolean add(StyleValue value) {
-		if( value == null) {
+		if (value == null) {
 			throw new NullPointerException("Null value added to ValueList");
 		}
 		return valueList.add(value);
@@ -122,7 +122,7 @@ abstract public class ValueList extends StyleValue implements CSSValueList<Style
 	 */
 	@Override
 	public StyleValue set(int index, StyleValue value) {
-		if( value == null) {
+		if (value == null) {
 			throw new NullPointerException("Null value set to ValueList");
 		}
 		return valueList.set(index, value);

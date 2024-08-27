@@ -125,7 +125,7 @@ public class LinkedCSSValueList extends LinkedList<StyleValue> implements CSSVal
 	 */
 	@Override
 	public StyleValue set(int index, StyleValue value) {
-		if(value == null) {
+		if (value == null) {
 			throw new NullPointerException("Null value set to ValueList");
 		}
 		return super.set(index, value);

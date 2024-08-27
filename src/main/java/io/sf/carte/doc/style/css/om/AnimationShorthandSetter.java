@@ -35,7 +35,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 	private final ValueList lstTimingFunction = ValueList.createCSValueList();
 	private final ValueList lstDelay = ValueList.createCSValueList();
 	private final ValueList lstIterationCount = ValueList.createCSValueList();
-	private final ValueList lstDirection= ValueList.createCSValueList();
+	private final ValueList lstDirection = ValueList.createCSValueList();
 	private final ValueList lstFillMode = ValueList.createCSValueList();
 	private final ValueList lstPlayState = ValueList.createCSValueList();
 	private final ValueList lstTimeline = ValueList.createCSValueList();
@@ -119,7 +119,8 @@ class AnimationShorthandSetter extends ShorthandSetter {
 						|| lutype == LexicalType.REVERT) {
 					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 					// Full property is 'keyword'
-					if (layerCount != 1 || currentValue.getPreviousLexicalUnit() != null || currentValue.getNextLexicalUnit() != null) {
+					if (layerCount != 1 || currentValue.getPreviousLexicalUnit() != null
+							|| currentValue.getNextLexicalUnit() != null) {
 						BaseCSSDeclarationRule prule = styleDeclaration.getParentRule();
 						if (prule != null) {
 							StyleDeclarationErrorHandler eh = prule

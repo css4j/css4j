@@ -1297,7 +1297,7 @@ public class PropertyParserTest {
 		assertEquals(1.3f, lu.getFloatValue(), 1e-5f);
 		assertEquals("ms", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_MS	, lu.getCssUnit());
+		assertEquals(CSSUnit.CSS_MS, lu.getCssUnit());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>+");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -1321,7 +1321,7 @@ public class PropertyParserTest {
 		assertEquals(0.7f, lu.getFloatValue(), 1e-5f);
 		assertEquals("fr", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_FR	, lu.getCssUnit());
+		assertEquals(CSSUnit.CSS_FR, lu.getCssUnit());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<flex>");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -2120,7 +2120,7 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM	, param.getCssUnit());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
 		assertEquals(3f, param.getFloatValue(), 1e-5f);
 		assertEquals("em", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());

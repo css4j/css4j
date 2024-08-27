@@ -213,7 +213,7 @@ public class NumberValue extends TypedValue {
 	}
 
 	private boolean isLengthUnitType() {
-		return lengthUnitType ;
+		return lengthUnitType;
 	}
 
 	@Override
@@ -266,7 +266,7 @@ public class NumberValue extends TypedValue {
 
 	@Override
 	public boolean isCalculatedNumber() {
-		return calculated ;
+		return calculated;
 	}
 
 	/**
@@ -600,7 +600,7 @@ public class NumberValue extends TypedValue {
 		try {
 			requestedUnitStr = CSSUnit.dimensionUnitString(unitType);
 			if (requestedUnitStr.length() == 0) {
-				requestedUnitStr ="<number>";
+				requestedUnitStr = "<number>";
 			}
 		} catch (DOMException e) {
 			requestedUnitStr = '<' + Integer.toString(unitType) + '>';

@@ -115,7 +115,7 @@ public class DOMTokenSetImpl implements DOMTokenList, java.io.Serializable {
 		int len = value.length();
 		for (int i = 0; i < len; i++) {
 			char c = value.charAt(i);
-			if (foundChar && (c == ' ' ||c == '\n' ||c == '\t' ||c == '\r' ||c == '\f')) {
+			if (foundChar && (c == ' ' || c == '\n' || c == '\t' || c == '\r' || c == '\f')) {
 				foundWS = true;
 			} else {
 				if (foundWS) {

@@ -70,7 +70,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 				StyleValue cssVal = item.getCSSValue();
 				int len = valueBuffer.length();
 				if (len != 0) {
-					char c = valueBuffer.charAt(len -1);
+					char c = valueBuffer.charAt(len - 1);
 					if (c != ',') {
 						miniValueBuffer.append(' ');
 					}

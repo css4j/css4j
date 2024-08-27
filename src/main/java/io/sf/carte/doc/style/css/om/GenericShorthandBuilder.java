@@ -94,7 +94,7 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 				// First, make sure that it is not a layered property
 				StyleValue cssVal = getCSSValue(property);
 				if ((cssVal.getCssValueType() == CssType.LIST &&
-						((ValueList) cssVal).isCommaSeparated()) || 
+						((ValueList) cssVal).isCommaSeparated()) ||
 						invalidValueClash(declaredSet, property, cssVal)) {
 					return 1;
 				}

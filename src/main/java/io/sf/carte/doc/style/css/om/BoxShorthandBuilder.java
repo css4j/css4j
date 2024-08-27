@@ -62,7 +62,7 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 					&& primi.getPrimitiveType() != Type.IDENT;
 		}
 		return type == CssType.LIST;
-    }
+	}
 
 	/**
 	 * Score for finding same values in the box property.

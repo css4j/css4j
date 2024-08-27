@@ -369,8 +369,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case REAL:
 		case DIMENSION:
 			StringBuilder buf = new StringBuilder();
-			if(floatValue % 1 != 0) {
-			    buf.append(String.format(Locale.ROOT, "%s", floatValue));
+			if (floatValue % 1 != 0) {
+				buf.append(String.format(Locale.ROOT, "%s", floatValue));
 			} else {
 				buf.append(String.format(Locale.ROOT, "%.0f", floatValue));
 			}

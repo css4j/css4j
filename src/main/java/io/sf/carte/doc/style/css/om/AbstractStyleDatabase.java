@@ -52,7 +52,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Se
 		TRUETYPE, OPENTYPE, EMBEDDED_OPENTYPE, SVG, WOFF, WOFF2
 	}
 
-	protected final String DEFAULT_GENERIC_FONT_FAMILY = "serif";
+	protected static final String DEFAULT_GENERIC_FONT_FAMILY = "serif";
 
 	private static final TypedValue DEFAULT_INITIAL_COLOR;
 
@@ -192,7 +192,9 @@ abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Se
 							uri = primi;
 							continue;
 						}
-					} else if (pType == Type.FUNCTION && "format".equalsIgnoreCase(primi.getStringValue()) && (args = ((FunctionValue) primi).getArguments()).size() == 1) {
+					} else if (pType == Type.FUNCTION
+							&& "format".equalsIgnoreCase(primi.getStringValue())
+							&& (args = ((FunctionValue) primi).getArguments()).size() == 1) {
 						StyleValue arg = args.item(0);
 						if (arg.getCssValueType() == CssType.TYPED) {
 							primi = (TypedValue) arg;

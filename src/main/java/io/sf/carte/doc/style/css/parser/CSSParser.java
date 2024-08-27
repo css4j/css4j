@@ -323,7 +323,7 @@ public class CSSParser implements Parser, Cloneable {
 				return;
 			}
 			String charset = source.getEncoding();
-			if ( charset == null) {
+			if (charset == null) {
 				charset = "UTF-8";
 			}
 			re = new InputStreamReader(is, charset);
@@ -3243,7 +3243,7 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			public void control(int index, int codepoint) {
 				RuleTokenHandler.this.control(index, codepoint);
-				this.foundControl  = true;
+				this.foundControl = true;
 			}
 
 			@Override

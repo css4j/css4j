@@ -398,8 +398,8 @@ class FontBuilder extends ShorthandBuilder {
 		if (!isCssValueOfType(CSSValue.Type.INITIAL, vFontFamily) && isNotInitialValue(vFontFamily, "font-family")) {
 			return false;
 		}
-        return isCssValueOfType(CSSValue.Type.INITIAL, vLineHeight) || !isNotInitialValue(vLineHeight, "line-height");
-    }
+		return isCssValueOfType(CSSValue.Type.INITIAL, vLineHeight) || !isNotInitialValue(vLineHeight, "line-height");
+	}
 
 	private boolean isFontVariantCss21(StyleValue vFontVariant) {
 		String text = vFontVariant.getCssText().toLowerCase(Locale.ROOT);

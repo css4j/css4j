@@ -595,7 +595,7 @@ class ColorUtil {
 		if (abs <= 0.0031308d) {
 			nlComp = 12.92d * linearComponent;
 		} else {
-			nlComp = 1.055d * Math.signum(linearComponent) * Math.pow(abs, 1d/2.4d) - 0.055d;
+			nlComp = 1.055d * Math.signum(linearComponent) * Math.pow(abs, 1d / 2.4d) - 0.055d;
 		}
 		return nlComp;
 	}
@@ -650,7 +650,7 @@ class ColorUtil {
 		final double kappa = 24389d / 27d;
 		double f;
 		if (xyz > eps) {
-			f = Math.pow(xyz, 1d/3d);
+			f = Math.pow(xyz, 1d / 3d);
 		} else {
 			f = (kappa * xyz + 16d) / 116d;
 		}

@@ -449,7 +449,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 			return true;
 		}
 		return false;
-    }
+	}
 
 	private boolean appendBackgroundPositionSize(StringBuilder buf, StyleValue posvalue,
 			StyleValue sizevalue) {

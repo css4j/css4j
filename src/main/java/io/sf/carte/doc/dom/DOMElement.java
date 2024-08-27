@@ -179,7 +179,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 
 	@Override
 	public boolean hasAttribute(String name) {
-		boolean ret  = nodeMap.hasAttribute(name);
+		boolean ret = nodeMap.hasAttribute(name);
 		if (!ret && name.indexOf(':') == -1) {
 			name = name.toLowerCase(Locale.ROOT);
 			ret = nodeMap.hasAttribute(name);
@@ -255,7 +255,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	public String getId() {
 		if (!nodeMap.isEmpty()) {
 			Iterator<DOMNode> it = nodeMap.getNodeList().iterator();
-			while(it.hasNext()) {
+			while (it.hasNext()) {
 				Attr attr = (Attr) it.next();
 				if (attr.isId()) {
 					return attr.getValue();

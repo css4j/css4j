@@ -28,7 +28,7 @@ public interface BooleanCondition {
 	 * that is carried by the other condition types (<code>AND</code>,
 	 * <code>OR</code>, <code>NOT</code>).
 	 */
-	public enum Type {
+	enum Type {
 		/**
 		 * An implementation-dependent predicate.
 		 */

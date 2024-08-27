@@ -84,7 +84,7 @@ class CombinatorConditionImpl implements CombinatorCondition, java.io.Serializab
 		buf.append(getFirstCondition().toString());
 		if (second != null) {
 			buf.append(second.toString());
-		} else  {
+		} else {
 			buf.append('?');
 		}
 		return buf.toString();

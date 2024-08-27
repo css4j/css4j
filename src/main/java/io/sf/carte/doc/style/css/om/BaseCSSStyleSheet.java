@@ -309,7 +309,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * @throws DOMException
 	 *             INDEX_SIZE_ERR: Raised if the specified index does not
 	 *             correspond to a rule in the style sheet's rule list. <br>
-	 *             NAMESPACE_ERR: Raised if the rule is a namespace rule and 
+	 *             NAMESPACE_ERR: Raised if the rule is a namespace rule and
 	 *             this style sheet contains style rules with that namespace.
 	 */
 	@Override
@@ -435,7 +435,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	private static boolean selectorListHasNamespace(SelectorList selist, String namespaceURI) {
-		for(int i = 0; i < selist.getLength(); i++) {
+		for (int i = 0; i < selist.getLength(); i++) {
 			if (selectorHasNamespace(selist.item(i), namespaceURI)) {
 				return true;
 			}

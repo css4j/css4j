@@ -183,7 +183,7 @@ public interface BoxValues {
 	/**
 	 * Sub-interface for tables in the simple box model.
 	 */
-	public interface TableBoxValues extends BoxValues {
+	interface TableBoxValues extends BoxValues {
 
 		/**
 		 * Gets an array with the content width of table columns.

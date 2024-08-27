@@ -172,9 +172,9 @@ class BorderImageBuilder extends ShorthandBuilder {
 				&& isNotInitialValue(biOutset, "border-image-outset")) {
 			return false;
 		}
-        return !declaredSet.contains("border-image-repeat") || isEffectiveInitialKeyword(biRepeat)
-                || !isNotInitialValue(biRepeat, "border-image-repeat");
-    }
+		return !declaredSet.contains("border-image-repeat") || isEffectiveInitialKeyword(biRepeat)
+				|| !isNotInitialValue(biRepeat, "border-image-repeat");
+	}
 
 	private byte checkValuesForRevert(Set<String> declaredSet, StyleValue biSource, StyleValue biSlice, StyleValue biWidth,
 			StyleValue biOutset, StyleValue biRepeat) {

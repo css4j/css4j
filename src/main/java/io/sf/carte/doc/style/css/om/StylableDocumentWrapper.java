@@ -1601,7 +1601,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 						linkedStyle.add(pi);
 					}
 				}
-			} else if(type == Node.ELEMENT_NODE) {
+			} else if (type == Node.ELEMENT_NODE) {
 				break;
 			}
 		}

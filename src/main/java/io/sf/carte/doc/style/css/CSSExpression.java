@@ -25,7 +25,7 @@ public interface CSSExpression {
 	/**
 	 * Enumeration of expression parts (operations, operands).
 	 */
-	public enum AlgebraicPart {
+	enum AlgebraicPart {
 		/**
 		 * A sum.
 		 * <p>

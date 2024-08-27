@@ -38,8 +38,7 @@ public class BoxModelHelper {
 		while ((ini = t.indexOf("  ", fin)) != -1) {
 			sb.append(t, fin, ini);
 			fin = ini;
-			while (++fin < tl && t.charAt(fin) == ' ')
-				;
+			while (++fin < tl && t.charAt(fin) == ' ');
 			fin--;
 		}
 		sb.append(t.substring(fin));

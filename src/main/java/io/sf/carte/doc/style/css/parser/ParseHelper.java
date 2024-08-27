@@ -81,7 +81,8 @@ public class ParseHelper {
 	 *                                   and <code>replaceNull</code> is
 	 *                                   <code>false</code>.
 	 */
-	public static String unescapeStringValue(String value, boolean unescapeControl, boolean replaceNull) throws DOMNullCharacterException {
+	public static String unescapeStringValue(String value, boolean unescapeControl, boolean replaceNull)
+			throws DOMNullCharacterException {
 		int iCP = value.indexOf('\\');
 		if (iCP == -1) {
 			return value;

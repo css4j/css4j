@@ -22,7 +22,7 @@ public interface CSSGradientValue extends CSSFunctionValue {
 	/**
 	 * Enumeration of gradient types.
 	 */
-	public enum GradientType {
+	enum GradientType {
 		LINEAR_GRADIENT, RADIAL_GRADIENT, CONIC_GRADIENT,
 		REPEATING_LINEAR_GRADIENT, REPEATING_RADIAL_GRADIENT, REPEATING_CONIC_GRADIENT,
 		OTHER_GRADIENT

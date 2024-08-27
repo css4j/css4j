@@ -39,9 +39,9 @@ abstract public class HTMLElement extends DOMElement implements org.w3c.dom.html
 
 	@Override
 	boolean isNonHTMLOrVoid() {
-		return "br".equals(localName) || "hr".equals(localName) || "input".equals(localName) || 
-				"area".equals(localName) || "col".equals(localName) || "embed".equals(localName) || 
-				"param".equals(localName) || "source".equals(localName) || "track".equals(localName) || 
+		return "br".equals(localName) || "hr".equals(localName) || "input".equals(localName) ||
+				"area".equals(localName) || "col".equals(localName) || "embed".equals(localName) ||
+				"param".equals(localName) || "source".equals(localName) || "track".equals(localName) ||
 				"wbr".equals(localName);
 	}
 

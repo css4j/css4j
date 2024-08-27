@@ -74,8 +74,8 @@ abstract public class KeywordValue extends StyleValue implements ValueItem {
 
 	@Override
 	public boolean equals(Object obj) {
-        return this == obj || (obj instanceof KeywordValue && getCssText().equals(((KeywordValue) obj).getCssText()));
-    }
+		return this == obj || (obj instanceof KeywordValue && getCssText().equals(((KeywordValue) obj).getCssText()));
+	}
 
 	public KeywordValue asSubproperty() {
 		return new SubpropertyKeywordValue();

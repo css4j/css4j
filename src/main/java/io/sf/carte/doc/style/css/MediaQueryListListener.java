@@ -20,5 +20,5 @@ package io.sf.carte.doc.style.css;
  * No class is implementing this by now, and this interface may be removed in the future.
  */
 public interface MediaQueryListListener {
-	void onChange (MediaQueryList list);
+	void onChange(MediaQueryList list);
 }

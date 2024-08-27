@@ -80,7 +80,7 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	 *            the contents of the attribute containing the inline style (generally
 	 *            <code>style</code>).
 	 */
-	@Deprecated(forRemoval=true)
+	@Deprecated(forRemoval = true)
 	default void inlineStyleError(DOMException e, Element elm, String attr) {
 	}
 

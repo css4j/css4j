@@ -41,7 +41,7 @@ public interface AttributeCondition extends Condition {
 	 */
 	String getLocalName();
 
-    /**
+	/**
      * Returns the
      * <a href="http://www.w3.org/TR/REC-xml-names/#dt-NSName">namespace
      * URI</a> of this attribute condition.
@@ -50,8 +50,8 @@ public interface AttributeCondition extends Condition {
      * <li>this attribute condition can match any namespace.
      * <li>this attribute is an id attribute.
      * </ul>
-     */    
-    String getNamespaceURI();
+     */
+	String getNamespaceURI();
 
 	/**
 	 * If this attribute is a class attribute, you'll get the class name without the
@@ -67,7 +67,7 @@ public interface AttributeCondition extends Condition {
 	/**
 	 * Attribute selector flags.
 	 */
-	public enum Flag {
+	enum Flag {
 		/**
 		 * Case insensitive comparisons should be used.
 		 */

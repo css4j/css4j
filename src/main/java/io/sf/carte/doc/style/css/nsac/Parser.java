@@ -292,7 +292,7 @@ public interface Parser {
 	/**
 	 * Interface giving access to namespace URI from the prefix.
 	 */
-	public interface NamespaceMap {
+	interface NamespaceMap {
 		/**
 		 * Gets the namespace URI associated to the given prefix.
 		 *

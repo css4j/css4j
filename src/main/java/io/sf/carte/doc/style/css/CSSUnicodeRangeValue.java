@@ -39,7 +39,7 @@ public interface CSSUnicodeRangeValue extends CSSTypedValue {
 	/**
 	 * A CSS unicode character value.
 	 */
-	public interface CSSUnicodeValue extends CSSTypedValue {
+	interface CSSUnicodeValue extends CSSTypedValue {
 
 		/**
 		 * Set the value of the unicode codepoint.

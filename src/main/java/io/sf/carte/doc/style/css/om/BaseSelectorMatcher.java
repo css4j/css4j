@@ -121,7 +121,7 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 		}
 		SelectorMatcher matcher = obtainSelectorMatcher(element);
 		int sz = selectors.getLength();
-		for (int i=0; i<sz; i++) {
+		for (int i = 0; i < sz; i++) {
 			if (matcher.matches(selectors.item(i))) {
 				return true;
 			}

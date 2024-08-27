@@ -70,7 +70,7 @@ public interface UserAgent {
 	 * User agent configuration and control.
 	 *
 	 */
-	public interface AgentControl {
+	interface AgentControl {
 		/**
 		 * Gets a control property.
 		 *

@@ -163,7 +163,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 			buffer.append(selunit.getStringValue());
 		} else if (type == LexicalType.PERCENTAGE) {
 			float floatValue = selunit.getFloatValue();
-			if(floatValue % 1 != 0) {
+			if (floatValue % 1 != 0) {
 				buffer.append(String.format(Locale.ROOT, "%s", floatValue));
 			} else {
 				buffer.append(String.format(Locale.ROOT, "%.0f", floatValue));

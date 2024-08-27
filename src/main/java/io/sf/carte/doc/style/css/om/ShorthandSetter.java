@@ -596,7 +596,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 			StringBuilder minibuf = getValueItemBufferMini();
 			int len = buf.length();
 			if (len != 0) {
-				char c = buf.charAt(len -1);
+				char c = buf.charAt(len - 1);
 				if (!isDelimiterChar(c, miniCssText)) {
 					minibuf.append(' ');
 				}

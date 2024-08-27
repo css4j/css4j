@@ -80,13 +80,15 @@ public class StringValue extends AbstractTextValue {
 	private void setQuote() {
 		if (isDoubleQuoteSet()) {
 			quote = '"';
-		} else if ((flags & AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE) == AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE) {
+		} else if ((flags
+				& AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE) == AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE) {
 			quote = '\'';
 		}
 	}
 
 	private boolean isDoubleQuoteSet() {
-		return (flags & AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE) == AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE;
+		return (flags
+				& AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE) == AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE;
 	}
 
 	private boolean isNoQuotePreferenceSet() {

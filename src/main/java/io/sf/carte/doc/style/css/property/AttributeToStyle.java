@@ -126,7 +126,7 @@ public final class AttributeToStyle {
 	}
 
 	private static String translateFontSize(String size) {
-		// It is assumed was previously checked that size.length() 
+		// It is assumed was previously checked that size.length()
 		// is greater than zero.
 		if (size.charAt(0) == '+') {
 			return "larger";

@@ -45,13 +45,13 @@ class GridShorthandBuilder extends ShorthandBuilder {
 
 		BaseCSSStyleDeclaration style = getParentStyle();
 		if (!style.isPropertySet("grid-template-rows") || !style.isPropertySet("grid-template-columns")
-				 || !style.isPropertySet("grid-template-areas")) {
+				|| !style.isPropertySet("grid-template-areas")) {
 			return 1;
 		}
 
 		// Now we have, at least 'grid-template'. Check for full 'grid'.
 		if (style.isPropertySet("grid-auto-rows") && style.isPropertySet("grid-auto-columns")
-				 && style.isPropertySet("grid-auto-flow")) {
+				&& style.isPropertySet("grid-auto-flow")) {
 			return new FullGridShorthandBuilder(style).appendShorthandSet(buf, declaredSet, important);
 		}
 
@@ -372,7 +372,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 							int sz = bracketlist.getLength();
 							if (sz < 2) {
 								appendValueText(buf, value);
-							} else if (sz == 2){
+							} else if (sz == 2) {
 								buf.append('[');
 								appendValueText(buf, bracketlist.item(0));
 								buf.append("] [");
@@ -407,7 +407,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 						}
 					}
 				} else {
-					// Bracket list [line-name] 
+					// Bracket list [line-name]
 					appendValueText(buf, cssGridTRows);
 					StyleValue areavalue;
 					int idx = 0;
@@ -567,7 +567,7 @@ class GridShorthandBuilder extends ShorthandBuilder {
 		@Override
 		boolean isNoneValue() {
 			return defaultGridTAreas && defaultGridTRows && defaultGridTColumns && defaultGridARows
-					 && defaultGridAColumns && defaultGridAFlow;
+					&& defaultGridAColumns && defaultGridAFlow;
 		}
 
 		private boolean isRowAutoflow() {

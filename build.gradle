@@ -12,6 +12,7 @@
 plugins {
 	id 'java-library'
 	id 'maven-publish'
+	id 'checkstyle'
 	id 'jacoco'
 }
 
@@ -83,6 +84,10 @@ test {
 	useJUnitPlatform() {
 		excludeTags 'Fuzz'
 	}
+}
+
+checkstyle {
+	toolVersion = '10.18.0'
 }
 
 tasks.compileJava {

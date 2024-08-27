@@ -48,7 +48,7 @@ public class Minify {
 	 * @throws IllegalArgumentException if the URI is otherwise incorrect.
 	 * @throws IOException              if an I/O error happened.
 	 */
-	public static void main(String args[]) throws URISyntaxException, IOException {
+	public static void main(String[] args) throws URISyntaxException, IOException {
 		main(args, System.out, System.err);
 	}
 
@@ -66,7 +66,7 @@ public class Minify {
 	 * @throws IllegalArgumentException if the URI is otherwise incorrect.
 	 * @throws IOException              if an I/O error happened.
 	 */
-	static void main(String args[], PrintStream out, PrintStream err)
+	static void main(String[] args, PrintStream out, PrintStream err)
 			throws URISyntaxException, IOException {
 		if (args == null || args.length != 1) {
 			printUsage(err);
