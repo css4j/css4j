@@ -11,6 +11,9 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 import io.sf.jclf.math.linear3.Matrices;
 
 abstract class ColorProfile {
@@ -119,6 +122,32 @@ abstract class ColorProfile {
 			linearComp = Math.signum(compandedComponent) * Math.pow((abs + 0.055d) / 1.055d, 2.4d);
 		}
 		return linearComp;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.deepHashCode(m);
+		result = prime * result + Arrays.deepHashCode(minv);
+		result = prime * result + Objects.hash(getIlluminant());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		ColorProfile other = (ColorProfile) obj;
+		return getIlluminant() == other.getIlluminant() && Arrays.deepEquals(m, other.m)
+				&& Arrays.deepEquals(minv, other.minv);
 	}
 
 	abstract public Illuminant getIlluminant();

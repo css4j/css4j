@@ -1824,7 +1824,7 @@ public class ColorValueOKSpaceTest {
 		CSSColor a98rgb = lch.toColorSpace(ColorSpace.a98_rgb);
 		assertNotNull(a98rgb);
 		assertEquals(CSSColorValue.ColorModel.RGB, a98rgb.getColorModel());
-		assertEquals("color(a98-rgb 0.0055 0.0054 0.0339)", a98rgb.toString());
+		assertEquals("color(a98-rgb 0 0 0.0378)", a98rgb.toString());
 
 		// To Display P3
 		CSSColor display_p3 = lch.toColorSpace(ColorSpace.display_p3);
@@ -2302,6 +2302,7 @@ public class ColorValueOKSpaceTest {
 		assertEquals("oklch(.041502 .0288 264.05)", value.getMinifiedCssText("color"));
 
 		// To RGB
+		assertTrue(lch.isInGamut(ColorSpace.srgb));
 		RGBAColor rgb = color.toRGBColor(false);
 		assertEquals(0f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
 				0.0001f);

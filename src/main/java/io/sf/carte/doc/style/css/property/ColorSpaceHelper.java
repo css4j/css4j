@@ -43,7 +43,7 @@ class ColorSpaceHelper {
 		} else if (internedLcColorSpace == ColorSpace.srgb_linear) {
 			space = Space.Linear_sRGB;
 		} else {
-			throw new IllegalStateException("This value only accepts RGB.");
+			space = Space.OTHER;
 		}
 		return space;
 	}

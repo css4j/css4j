@@ -317,16 +317,19 @@ class ColorUtil {
 
 	static void oklabToRGB(double light, double a, double b, boolean clamp,
 			ColorProfile profile, double[] rgb) {
-		oklabToSRGB(light, a, b, rgb);
+		double[] xyz = oklabToXyzD65(light, a, b);
+
+		if (profile.getIlluminant() != Illuminant.D65) {
+			// Chromatic adjustment: D65 to D50
+			xyz = d65xyzToD50(xyz);
+		}
+
+		profile.xyzToRgb(xyz, rgb);
+
 		// range check
 		if (!rangeRoundCheck(rgb) && clamp) {
 			okClampRGB(light, a, b, profile, rgb);
 		}
-	}
-
-	private static void oklabToSRGB(double light, double a, double b, double[] rgb) {
-		double[] xyz = oklabToXyzD65(light, a, b);
-		d65xyzToSRGB(xyz, rgb);
 	}
 
 	static void oklabToLab(double light, double a, double b, double[] lab) {
@@ -375,9 +378,12 @@ class ColorUtil {
 
 	/**
 	 * A rough range-gamut check.
+	 * <p>
+	 * If the color is very close to gamut, it is adjusted.
+	 * </p>
 	 * 
 	 * @param rgb the RGB to check.
-	 * @return true if the RGB is valid within 0.0001
+	 * @return true if the RGB is in gamut within 0.0001
 	 */
 	static boolean rangeRoundCheck(double[] rgb) {
 		boolean inRange = true;
@@ -419,7 +425,7 @@ class ColorUtil {
 		// Now look for a clipped color that is close enough according to deltaE2000
 		double[] rgbClamped = new double[3];
 		double[] labClamped = new double[3];
-		if (isInGamut(light, current_a, current_b, rgb, rgbClamped, labClamped)) {
+		if (isInGamut(light, current_a, current_b, rgb, profile, rgbClamped, labClamped)) {
 			System.arraycopy(rgbClamped, 0, rgb, 0, rgb.length);
 			return;
 		}
@@ -436,7 +442,7 @@ class ColorUtil {
 		// A classical bisection is avoided, as the gamut shape may lead to wrong results.
 		do {
 			rangeClamp(rgb, rgbClamped);
-			rgbToLab(rgbClamped[0], rgbClamped[1], rgbClamped[2], labClamped);
+			rgbToLab(rgbClamped[0], rgbClamped[1], rgbClamped[2], profile, labClamped);
 			// Check deltaE2000
 			c = Math.sqrt(current_a * current_a + current_b * current_b);
 			double dE = deltaE2000ChromaReduction(light, c, current_a, current_b, labClamped);
@@ -478,12 +484,12 @@ class ColorUtil {
 			final double upper_c = 400d;
 			current_a = upper_c * cosh;
 			current_b = upper_c * sinh;
-			oklabToSRGB(light, current_a, current_b, rgb);
+			oklabToRGB(light, current_a, current_b, false, profile, rgb);
 		}
 		// Now look for a clipped color that is close enough according to deltaE2000
 		double[] rgbClamped = new double[3];
 		double[] labClamped = new double[3];
-		if (isInGamut(light, current_a, current_b, rgb, rgbClamped, labClamped)) {
+		if (isInGamut(light, current_a, current_b, rgb, profile, rgbClamped, labClamped)) {
 			System.arraycopy(rgbClamped, 0, rgb, 0, rgb.length);
 			return;
 		}
@@ -491,7 +497,7 @@ class ColorUtil {
 		double c = Math.sqrt(current_a * current_a + current_b * current_b) - labClamped[0];
 		current_a = c * cosh;
 		current_b = c * sinh;
-		oklabToSRGB(light, current_a, current_b, rgb);
+		oklabToRGB(light, current_a, current_b, false, profile, rgb);
 		//
 		float eps = 0.025f;
 		float factor = 0.97f;
@@ -499,7 +505,7 @@ class ColorUtil {
 		// A classical bisection is avoided, as the gamut shape may lead to wrong results.
 		do {
 			rangeClamp(rgb, rgbClamped);
-			rgbToLab(rgbClamped[0], rgbClamped[1], rgbClamped[2], labClamped);
+			rgbToLab(rgbClamped[0], rgbClamped[1], rgbClamped[2], profile, labClamped);
 			// Check deltaE2000
 			c = Math.sqrt(current_a * current_a + current_b * current_b);
 			double dE = deltaE2000ChromaReduction(light, c, current_a, current_b, labClamped);
@@ -539,9 +545,9 @@ class ColorUtil {
 	}
 
 	private static boolean isInGamut(double light, double current_a, double current_b, double[] rgb,
-			double[] rgbClamped, double[] labClamped) {
+			ColorProfile profile, double[] rgbClamped, double[] labClamped) {
 		rangeClamp(rgb, rgbClamped);
-		rgbToLab(rgbClamped[0], rgbClamped[1], rgbClamped[2], labClamped);
+		rgbToLab(rgbClamped[0], rgbClamped[1], rgbClamped[2], profile, labClamped);
 		// Check deltaE2000
 		double c = Math.sqrt(current_a * current_a + current_b * current_b);
 		double dE = deltaE2000ChromaReduction(light, c, current_a, current_b, labClamped);
@@ -608,14 +614,17 @@ class ColorUtil {
 		return linearSRGBToXYZd65(r, g, b);
 	}
 
-	static void rgbToLab(double r, double g, double b, double[] lab) {
-		r = RGBColor.inverseSRGBCompanding(r);
-		g = RGBColor.inverseSRGBCompanding(g);
-		b = RGBColor.inverseSRGBCompanding(b);
+	static void rgbToLab(double r, double g, double b, ColorProfile profile, double[] lab) {
+		r = profile.linearComponent(r);
+		g = profile.linearComponent(g);
+		b = profile.linearComponent(b);
 		//
-		double[] xyzD65 = linearSRGBToXYZd65(r, g, b);
-		// Chromatic adjustment: D65 to D50
-		double[] xyz = d65xyzToD50(xyzD65);
+		double[] xyz = new double[3];
+		profile.linearRgbToXYZ(r, g, b, xyz);
+		if (profile.getIlluminant() != Illuminant.D50) {
+			// Chromatic adjustment: D65 to D50
+			xyz = d65xyzToD50(xyz);
+		}
 		xyzD50ToLab(xyz, lab);
 	}
 

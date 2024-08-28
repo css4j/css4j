@@ -11,194 +11,95 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import java.util.Arrays;
+import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
-import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 
-class ProfiledColorImpl extends BaseColor {
+/**
+ * A color specified through the {@code color()} function, where the profile is
+ * available at object creation time.
+ */
+class ProfiledColorImpl extends BaseProfiledColor {
 
 	private static final long serialVersionUID = 1L;
 
-	private String colorSpace;
+	private ColorProfile profile;
 
-	private PrimitiveValue[] components;
-
-	ProfiledColorImpl(String colorSpace) {
-		this(colorSpace, new PrimitiveValue[0]);
-	}
-
-	ProfiledColorImpl(String colorSpace, PrimitiveValue[] components) {
-		super();
-		this.colorSpace = colorSpace;
-		this.components = components;
+	/**
+	 * Construct a new profiled color.
+	 * 
+	 * @param profileName a string with the name of the color space.
+	 * @param profile     the color profile.
+	 * @param components  the components.
+	 */
+	ProfiledColorImpl(String profileName, ColorProfile profile, double[] components) {
+		super(profileName, new PrimitiveValue[components.length]);
+		this.profile = profile;
+		setColorComponents(components);
 	}
 
 	ProfiledColorImpl(ProfiledColorImpl copyMe) {
-		super();
-		this.alpha = copyMe.alpha;
-		this.colorSpace = copyMe.colorSpace;
-		this.components = copyMe.components.clone();
-	}
-
-	@Override
-	public ColorModel getColorModel() {
-		return ColorModel.PROFILE;
-	}
-
-	@Override
-	public String getColorSpace() {
-		return colorSpace;
-	}
-
-	@Override
-	Space getSpace() {
-		return Space.OTHER;
+		super(copyMe);
+		profile = copyMe.profile;
 	}
 
 	@Override
 	void set(BaseColor color) {
 		super.set(color);
-		//
-		ProfiledColorImpl setfrom = (ProfiledColorImpl) color;
-		if (setfrom.components.length != this.components.length) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
-					"This value can only be set to a color in the " + getColorModel() + " color model with "
-							+ this.components.length + " components.");
-		}
-		System.arraycopy(setfrom.components, 0, components, 0, this.components.length);
-		this.colorSpace = color.getColorSpace();
-	}
-
-	@Override
-	public PrimitiveValue item(int index) {
-		if (index == 0) {
-			return getAlpha();
-		}
-		try {
-			return components[index - 1];
-		} catch (IndexOutOfBoundsException e) {
-			return null;
-		}
-	}
-
-	/**
-	 * Set the component of this color located at {@code index}.
-	 * 
-	 * @param index the index.
-	 * @param component the component value.
-	 */
-	@Override
-	void setComponent(int index, PrimitiveValue component) {
-		if (index == 0) {
-			setAlpha(component);
-		} else {
-			try {
-				components[index - 1] = component;
-			} catch (IndexOutOfBoundsException e) {
-			}
-		}
-	}
-
-	@Override
-	public int getLength() {
-		return components.length + 1;
-	}
-
-	@Override
-	public boolean hasConvertibleComponents() {
-		final int len = components.length;
-		for (int i = 0; i < len; i++) {
-			if (!isConvertibleComponent(components[i])) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	@Override
-	void setColorComponents(double[] comp) {
-		if (components.length == 0) {
-			components = new PrimitiveValue[comp.length];
-		}
-
-		for (int i = 0; i < comp.length; i++) {
-			NumberValue c = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) comp[i]);
-			c.setSubproperty(true);
-			c.setAbsolutizedUnit();
-			this.components[i] = c;
-		}
-
-		for (int i = comp.length; i < components.length; i++) {
-			NumberValue c = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0f);
-			c.setSubproperty(true);
-			this.components[i] = c;
-		}
-	}
-
-	@Override
-	public double[] toNumberArray() throws DOMException {
-		if (!hasConvertibleComponents()) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
-		}
-
-		double[] comp = new double[components.length];
-		for (int i = 0; i < comp.length; i++) {
-			comp[i] = ((TypedValue) components[i]).getFloatValue(CSSUnit.CSS_NUMBER);
-		}
-		return comp;
-	}
-
-	@Override
-	double[] toSRGB(boolean clamp) {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Cannot convert profiled colors.");
+		this.profile = ((ProfiledColorImpl) color).profile;
 	}
 
 	@Override
 	double[] toXYZ(Illuminant white) {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Cannot convert profiled colors.");
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+
+		double[] comps = toNumberArray();
+		for (int i = 0; i < comps.length; i++) {
+			comps[i] = profile.linearComponent(comps[i]);
+		}
+
+		double[] xyz = new double[3];
+		profile.linearRgbToXYZ(comps[0], comps[1], comps[2], xyz);
+
+		if (white != profile.getIlluminant()) {
+			if (white == Illuminant.D50) {
+				xyz = ColorUtil.d65xyzToD50(xyz);
+			} else {
+				xyz = ColorUtil.d50xyzToD65(xyz);
+			}
+		}
+
+		return xyz;
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder buf = new StringBuilder(64);
-		buf.append("color(").append(getColorSpace());
-		for (PrimitiveValue component : components) {
-			buf.append(' ');
-			appendComponentCssText(buf, component);
-		}
-		if (isNonOpaque()) {
-			buf.append(" / ");
-			appendAlphaChannel(buf);
-		}
-		buf.append(')');
-		return buf.toString();
-	}
+	double[] toSRGB(boolean clamp) {
+		double[] xyz = toXYZ(Illuminant.D65);
 
-	@Override
-	public String toMinifiedString() {
-		StringBuilder buf = new StringBuilder(58);
-		buf.append("color(").append(getColorSpace());
-		for (PrimitiveValue component : components) {
-			buf.append(' ');
-			appendComponentMinifiedCssText(buf, component);
+		double[] rgb = new double[3];
+		ColorUtil.d65xyzToSRGB(xyz, rgb);
+
+		// range check
+		if (!ColorUtil.rangeRoundCheck(rgb) && clamp) {
+			double[] xyzD50 = ColorUtil.d65xyzToD50(xyz);
+			double[] lab = new double[3];
+			ColorUtil.xyzD50ToLab(xyzD50, lab);
+			ColorProfile profile = new SRGBColorProfile();
+			ColorUtil.clampRGB(lab[0], lab[1], lab[2], profile, rgb);
 		}
-		if (isNonOpaque()) {
-			buf.append('/');
-			appendAlphaChannelMinified(buf);
-		}
-		buf.append(')');
-		return buf.toString();
+
+		return rgb;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Arrays.hashCode(components);
+		result = prime * result + Objects.hash(profile);
 		return result;
 	}
 
@@ -214,12 +115,7 @@ class ProfiledColorImpl extends BaseColor {
 			return false;
 		}
 		ProfiledColorImpl other = (ProfiledColorImpl) obj;
-		return Arrays.equals(components, other.components);
-	}
-
-	@Override
-	public ColorValue packInValue() {
-		return new ColorFunction(this);
+		return Objects.equals(profile, other.profile);
 	}
 
 	@Override

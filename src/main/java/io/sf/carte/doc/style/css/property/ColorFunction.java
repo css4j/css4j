@@ -258,7 +258,7 @@ class ColorFunction extends ColorValue {
 			if (color == null) {
 				if (colorSpace.startsWith("--")) {
 					PrimitiveValue[] ca = components.toArray(new PrimitiveValue[0]);
-					color = new ProfiledColorImpl(colorSpace, ca);
+					color = new BaseProfiledColor(colorSpace, ca);
 				} else {
 					throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
 							"Unsupported color space: " + colorSpace);

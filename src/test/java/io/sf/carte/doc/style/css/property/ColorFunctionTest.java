@@ -752,6 +752,15 @@ public class ColorFunctionTest {
 		assertTrue(rgb.isInGamut(ColorSpace.display_p3));
 		DOMException ex = assertThrows(DOMException.class, () -> rgb.isInGamut("foo"));
 		assertEquals(DOMException.NOT_SUPPORTED_ERR, ex.code);
+
+		CSSColor identColor = rgb.toColorSpace(ColorSpace.display_p3);
+		assertEquals("color(display-p3 0.0314 0.24706 1)", identColor.toString());
+
+		CSSColor recColor = rgb.toColorSpace(ColorSpace.rec2020);
+		assertEquals("color(rec2020 0.2089 0.2092 0.9923)", recColor.toString());
+
+		CSSColor roundTripColor = recColor.toColorSpace(ColorSpace.display_p3);
+		assertEquals("color(display-p3 0.0314 0.2471 1)", roundTripColor.toString());
 	}
 
 	@Test
@@ -1366,6 +1375,8 @@ public class ColorFunctionTest {
 		assertEquals("lab(95.868 -24.065 122.484)", labValue.getCssText());
 		assertEquals(0f, val.deltaE2000(labValue), 1e-3f);
 		assertEquals(0f, labValue.deltaE2000(val), 1e-3f);
+		CSSColor roundTripColor = labValue.getColor().toColorSpace(ColorSpace.rec2020);
+		assertEquals("color(rec2020 0.928 0.986 0.048)", roundTripColor.toString());
 
 		RGBAColor srgb = val.toRGBColor();
 		String s = srgb.toString();
@@ -1380,7 +1391,10 @@ public class ColorFunctionTest {
 		style.setCssText("color:color(--my-profile 0.428 0.726 0.348); ");
 		assertEquals("color(--my-profile 0.428 0.726 0.348)", style.getPropertyValue("color"));
 		assertEquals("color: color(--my-profile 0.428 0.726 0.348); ", style.getCssText());
+	}
 
+	@Test
+	public void testCustomProfileAlpha() {
 		style.setCssText("color:color(--my-profile 0.428 0.726 0.348/ 0.5); ");
 		assertEquals("color(--my-profile 0.428 0.726 0.348 / 0.5)", style.getPropertyValue("color"));
 		assertEquals("color: color(--my-profile 0.428 0.726 0.348 / 0.5); ", style.getCssText());
@@ -1530,11 +1544,67 @@ public class ColorFunctionTest {
 		assertFalse(value.equals(other));
 		assertFalse(other.equals(value));
 		assertFalse(value.hashCode() == other.hashCode());
+
+		other = (ColorValue) factory.parseProperty("color(--display-p3-linear 0.442 0.7764 0.9976)");
+		assertFalse(value.equals(other));
+		assertFalse(other.equals(value));
+		assertFalse(value.hashCode() == other.hashCode());
+	}
+
+	@Test
+	public void testKnownCustomProfiles() {
+		style.setCssText("color:color(a98-rgb 0.0314 0.24706 0.566);");
+		assertEquals("color(a98-rgb 0.0314 0.24706 0.566)", style.getPropertyValue("color"));
+		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
+		assertEquals(ColorModel.RGB, val.getColorModel());
+
+		CSSColor color = val.getColor();
+
+		// Conversion to P3-linear
+		assertFalse(color.isInGamut("--display-p3-linear"));
+		CSSColor pcolor = color.toColorSpace("--display-p3-linear");
+		assertEquals(ColorModel.PROFILE, pcolor.getColorModel());
+		assertEquals("--display-p3-linear", pcolor.getColorSpace());
+		assertEquals("color(--display-p3-linear 0 0.044078 0.272835)", pcolor.toString());
+		// Clamped value
+		assertEquals(0f, ((CSSTypedValue) pcolor.item(1)).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
+
+		CSSColor roundTripColor = pcolor.toColorSpace(ColorSpace.a98_rgb);
+		assertEquals("color(a98-rgb 0.0976 0.2464 0.5659)", roundTripColor.toString());
+
+		// Conversion to A98-linear
+		assertTrue(color.isInGamut("--a98-rgb-linear"));
+		pcolor = color.toColorSpace("--a98-rgb-linear");
+		assertEquals(ColorModel.PROFILE, pcolor.getColorModel());
+		assertEquals("--a98-rgb-linear", pcolor.getColorSpace());
+		assertEquals("color(--a98-rgb-linear 0.000495 0.0462 0.286015)", pcolor.toString());
+
+		roundTripColor = pcolor.toColorSpace(ColorSpace.a98_rgb);
+		assertEquals("color(a98-rgb 0.0314 0.2471 0.566)", roundTripColor.toString());
+
+		// Conversion to Rec2020-linear
+		assertTrue(color.isInGamut("--rec2020-linear"));
+		pcolor = color.toColorSpace("--rec2020-linear");
+		assertEquals(ColorModel.PROFILE, pcolor.getColorModel());
+		assertEquals("--rec2020-linear", pcolor.getColorSpace());
+		assertEquals("color(--rec2020-linear 0.01693 0.044624 0.269146)", pcolor.toString());
+
+		roundTripColor = pcolor.toColorSpace(ColorSpace.a98_rgb);
+		assertEquals("color(a98-rgb 0.0314 0.2471 0.566)", roundTripColor.toString());
+
+		// Conversion to Prophoto-linear
+		pcolor = color.toColorSpace("--prophoto-rgb-linear");
+		assertEquals(ColorModel.PROFILE, pcolor.getColorModel());
+		assertEquals("--prophoto-rgb-linear", pcolor.getColorSpace());
+		assertEquals("color(--prophoto-rgb-linear 0.047532 0.046956 0.261579)", pcolor.toString());
+
+		roundTripColor = pcolor.toColorSpace(ColorSpace.a98_rgb);
+		assertEquals("color(a98-rgb 0.0314 0.2471 0.566)", roundTripColor.toString());
 	}
 
 	@Test
 	public void testXYZ() {
-		style.setCssText("color:color(xyz 0.173 0.102 0.786); ");
+		style.setCssText("color:color(xyz 0.173 0.102 0.786);");
 		assertEquals("color(xyz 0.173 0.102 0.786)", style.getPropertyValue("color"));
 		assertEquals("color: color(xyz 0.173 0.102 0.786); ", style.getCssText());
 
@@ -1554,7 +1624,7 @@ public class ColorFunctionTest {
 
 	@Test
 	public void testXYZ_Alpha() {
-		style.setCssText("color:color(xyz 0.173 0.102 0.786/.5); ");
+		style.setCssText("color:color(xyz 0.173 0.102 0.786/.5);");
 		assertEquals("color(xyz 0.173 0.102 0.786 / 0.5)", style.getPropertyValue("color"));
 		assertEquals("color: color(xyz 0.173 0.102 0.786 / 0.5); ", style.getCssText());
 		assertEquals("color:color(xyz .173 .102 .786/.5)", style.getMinifiedCssText());

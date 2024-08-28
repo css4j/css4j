@@ -753,7 +753,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 			hueIndex = 2;
 		} else if (colorSpace.startsWith("--")) {
 			inColorSpace = colorSpace;
-			color = new ProfiledColorImpl(colorSpace);
+			color = new BaseProfiledColor(colorSpace);
 		} else {
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
 					"Unsupported color space: " + colorSpace);

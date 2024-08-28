@@ -195,6 +195,38 @@ class ColorConverter {
 				this.destColor = new LCHColorImpl(Space.OK_LCh, ColorSpace.ok_lch);
 			}
 			break;
+		case "--display-p3-linear":
+			profile = new LinearDisplayP3ColorProfile();
+			result = new double[3];
+			convertToProfiled(profile, source, clamp, result);
+			if (createValue) {
+				this.destColor = new ProfiledColorImpl("--display-p3-linear", profile, result);
+			}
+			break;
+		case "--a98-rgb-linear":
+			profile = new LinearA98RGBColorProfile();
+			result = new double[3];
+			convertToProfiled(profile, source, clamp, result);
+			if (createValue) {
+				this.destColor = new ProfiledColorImpl("--a98-rgb-linear", profile, result);
+			}
+			break;
+		case "--rec2020-linear":
+			profile = new LinearRec2020ColorProfile();
+			result = new double[3];
+			convertToProfiled(profile, source, clamp, result);
+			if (createValue) {
+				this.destColor = new ProfiledColorImpl("--rec2020-linear", profile, result);
+			}
+			break;
+		case "--prophoto-rgb-linear":
+			profile = new LinearProPhotoRGBColorProfile();
+			result = new double[3];
+			convertToProfiled(profile, source, clamp, result);
+			if (createValue) {
+				this.destColor = new ProfiledColorImpl("--prophoto-rgb-linear", profile, result);
+			}
+			break;
 		default:
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
 					"Unsupported color space: " + colorSpace);
@@ -216,7 +248,7 @@ class ColorConverter {
 		rgb[1] = profile.gammaCompanding(rgb[1]);
 		rgb[2] = profile.gammaCompanding(rgb[2]);
 
-		if (clamp && !ColorUtil.rangeRoundCheck(rgb)) {
+		if (!ColorUtil.rangeRoundCheck(rgb) && clamp) {
 			double[] lab = new double[3];
 			if (profile.getIlluminant() == Illuminant.D65) {
 				xyz = ColorUtil.d65xyzToD50(xyz);
