@@ -1870,6 +1870,87 @@ public class ColorValueCIELabLChTest {
 	}
 
 	@Test
+	public void testLCHColorModelWPT_lch009() {
+		style.setCssText("color:lch(100% 110 60)");
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertNotNull(value);
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(Type.COLOR, value.getPrimitiveType());
+		ColorValue color = (ColorValue) value;
+		assertEquals(CSSColorValue.ColorModel.LCH, color.getColorModel());
+		LCHColorValue lchColor = (LCHColorValue) color;
+		LCHColor lch = lchColor.getColor();
+		assertNotNull(lch);
+		CSSPrimitiveValue lightness = lch.getLightness();
+		CSSPrimitiveValue chroma = lch.getChroma();
+		CSSPrimitiveValue hue = lch.getHue();
+		assertNotNull(lightness);
+		assertNotNull(chroma);
+		assertNotNull(hue);
+		assertEquals(100f, ((CSSTypedValue) lightness).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertEquals(110f, ((CSSTypedValue) chroma).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertEquals(60f, ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertEquals(1f, ((CSSTypedValue) lch.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertEquals("lch(100 110 60)", value.getCssText());
+		assertEquals("lch(100 110 60)", lchColor.toString());
+		assertEquals("lch(100 110 60)", value.getMinifiedCssText("color"));
+
+		// To RGB
+		RGBAColor rgb = color.toRGBColor();
+		assertEquals(100f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				0.001f);
+		assertEquals(99.65f,
+				((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
+		assertEquals(98.38f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
+				0.01f);
+
+		assertEquals("rgb(100%, 99.65%, 98.38%)", rgb.toString());
+		assertEquals("hsl(47.118, 100%, 99.19%)", ((RGBColor) rgb).toHSLColor().toString());
+
+		// Delta 0 to converted value
+		ColorValue srgbValue = (ColorValue) rgb.packInValue();
+		assertEquals(31.31f, color.deltaE2000(srgbValue), 0.01f);
+		assertEquals(31.31f, srgbValue.deltaE2000(color), 0.01f);
+
+		// To LAB
+		LABColorValue labColor = lchColor.toLABColorValue();
+		LABColor lab = labColor.getColor();
+		assertNotNull(lab);
+		assertEquals("lab(100 55 95.263)", lab.toString());
+
+		CSSPrimitiveValue labLightness = lab.getLightness();
+		assertNotNull(labLightness);
+		assertEquals(100f, ((CSSTypedValue) labLightness).getFloatValue(CSSUnit.CSS_NUMBER),
+				1e-5f);
+		assertEquals(1f, ((CSSTypedValue) lab.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+
+		// Delta 0 to converted value
+		assertEquals(0f, color.deltaE2000(labColor), 0.00001f);
+		assertEquals(0f, labColor.deltaE2000(color), 0.00001f);
+
+		// Conversions
+		CSSColor pcolor = lch.toColorSpace(ColorSpace.rec2020);
+		assertNotNull(pcolor);
+		assertEquals("color(rec2020 1 0.9972 0.9822)", pcolor.toString());
+
+		pcolor = lch.toColorSpace(ColorSpace.prophoto_rgb);
+		assertNotNull(pcolor);
+		assertEquals("color(prophoto-rgb 1 0.9965 0.9745)", pcolor.toString());
+
+		CSSColor roundTripColor = pcolor.toColorSpace(ColorSpace.cie_lch);
+		assertNotNull(roundTripColor);
+		assertEquals("lch(99.8241 2.7922 82.527)", roundTripColor.toString());
+
+		pcolor = lch.toColorSpace(ColorSpace.xyz);
+		assertNotNull(pcolor);
+		assertEquals("color(xyz 1.24456 0.97513 0.15335)", pcolor.toString());
+
+		roundTripColor = pcolor.toColorSpace(ColorSpace.cie_lch);
+		assertNotNull(roundTripColor);
+		assertEquals("lch(100 110 60)", roundTripColor.toString());
+	}
+
+	@Test
 	public void testLCHColorModelAlpha() {
 		style.setCssText("color: lch(29.189% 122.218 300.3190/.8);");
 		CSSValue value = style.getPropertyCSSValue("color");
