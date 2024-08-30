@@ -17,6 +17,7 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorMixFunction;
 import io.sf.carte.doc.style.css.CSSColorValue;
@@ -32,7 +33,6 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.BaseColor.Space;
-import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 import io.sf.carte.doc.style.css.property.ColorSpaceHelper.HueInterpolationMethod;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;

@@ -12,17 +12,20 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.color.Illuminants;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.LABColor;
-import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
+import io.sf.jclf.math.linear3.Matrices;
 
 class LABColorImpl extends BaseColor implements LABColor {
 
@@ -213,7 +216,7 @@ class LABColorImpl extends BaseColor implements LABColor {
 	}
 
 	@Override
-	double[] toXYZ(Illuminant white) {
+	public double[] toXYZ(Illuminant white) {
 		// Convert to XYZ
 		if (!hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
@@ -236,6 +239,42 @@ class LABColorImpl extends BaseColor implements LABColor {
 			if (white == Illuminant.D65) {
 				// D50 to D65
 				xyz = ColorUtil.d50xyzToD65(xyz);
+			}
+		}
+
+		return xyz;
+	}
+
+	/**
+	 * Convert this color to the XYZ space using the given reference white.
+	 * 
+	 * @param white the white point tristimulus value, normalized so the {@code Y}
+	 *              component is always {@code 1}.
+	 * @return the color expressed in XYZ coordinates with the given white point.
+	 */
+	@Override
+	public double[] toXYZ(double[] white) {
+		double[] lab = toNumberArray();
+
+		double[] xyz;
+
+		if (colorSpace == Space.OK_Lab) {
+			xyz = ColorUtil.oklabToXyzD65(lab[0], lab[1], lab[2]);
+			if (!Arrays.equals(Illuminants.whiteD65, white)) {
+				double[][] cam = new double[3][3];
+				ChromaticAdaption.chromaticAdaptionMatrix(Illuminants.whiteD65, white, cam);
+				double[] result = new double[3];
+				Matrices.multiplyByVector3(cam, xyz, result);
+				xyz = result;
+			}
+		} else {
+			xyz = ColorUtil.labToXYZd50(lab[0], lab[1], lab[2]);
+			if (!Arrays.equals(Illuminants.whiteD50, white)) {
+				double[][] cam = new double[3][3];
+				ChromaticAdaption.chromaticAdaptionMatrix(Illuminants.whiteD50, white, cam);
+				double[] result = new double[3];
+				Matrices.multiplyByVector3(cam, xyz, result);
+				xyz = result;
 			}
 		}
 

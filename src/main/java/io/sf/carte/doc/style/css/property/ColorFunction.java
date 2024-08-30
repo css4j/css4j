@@ -312,14 +312,25 @@ class ColorFunction extends ColorValue {
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
 			primi = eval.evaluateExpression((ExpressionValue) primi);
+			setMaximumPrecision(primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
 			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
+			setMaximumPrecision(primi);
 		}
 
 		checkComponentValidity(primi, null);
 
 		return primi;
+	}
+
+	private static void setMaximumPrecision(PrimitiveValue primi) {
+		short unit = primi.getUnitType();
+		if (unit == CSSUnit.CSS_NUMBER) {
+			((NumberValue) primi).setMaximumFractionDigits(6);
+		} else if (unit == CSSUnit.CSS_PERCENTAGE) {
+			((NumberValue) primi).setMaximumFractionDigits(3);
+		}
 	}
 
 	@Override

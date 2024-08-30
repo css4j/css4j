@@ -16,6 +16,7 @@
 module io.sf.carte.css4j {
 	exports io.sf.carte.doc;
 	exports io.sf.carte.doc.agent;
+	exports io.sf.carte.doc.color;
 	exports io.sf.carte.doc.dom;
 	exports io.sf.carte.doc.geom;
 	exports io.sf.carte.doc.style.css;

@@ -11,13 +11,16 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.color.Illuminants;
+
 /**
  * A98 RGB color profile.
  */
 class A98RGBColorProfile extends ColorProfile {
 
 	public A98RGBColorProfile() {
-		super(0.6400f, 0.3300f, 0.2100f, 0.7100f, 0.1500f, 0.0600f, BaseColor.whiteD65);
+		super(0.6400f, 0.3300f, 0.2100f, 0.7100f, 0.1500f, 0.0600f, Illuminants.whiteD65);
 	}
 
 	@Override

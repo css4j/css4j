@@ -11,13 +11,16 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.color.Illuminants;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.Type;
-import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
+import io.sf.jclf.math.linear3.Matrices;
 
 /**
  * An RGB color specified through the {@code color()} function.
@@ -38,7 +41,7 @@ class ProfiledRGBColor extends RGBColor {
 	ProfiledRGBColor(String lcColorSpace) {
 		super();
 		this.colorSpace = lcColorSpace;
-		space = ColorSpaceHelper.sRGBSpaceEnum(lcColorSpace);
+		space = ColorSpaceHelper.rgbSpaceEnum(lcColorSpace);
 	}
 
 	ProfiledRGBColor(ProfiledRGBColor copyMe) {
@@ -104,7 +107,7 @@ class ProfiledRGBColor extends RGBColor {
 	}
 
 	@Override
-	double[] toXYZ(Illuminant white) {
+	public double[] toXYZ(Illuminant white) {
 		if (!hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
@@ -171,6 +174,72 @@ class ProfiledRGBColor extends RGBColor {
 		}
 	
 		return xyz;
+	}
+
+	/**
+	 * Convert this color to the XYZ space using the given reference white.
+	 * 
+	 * @param white the white point tristimulus value, normalized so the {@code Y}
+	 *              component is always {@code 1}.
+	 * @return the color expressed in XYZ coordinates with the given white point.
+	 */
+	@Override
+	public double[] toXYZ(double[] white) {
+		double[] rgb = toNumberArray();
+
+		ColorProfile profile = getColorProfile();
+		double[] xyz = new double[3];
+
+		profile.linearizeComponents(rgb);
+		profile.linearRgbToXYZ(rgb, xyz);
+
+		if (profile.getIlluminant() == Illuminant.D50) {
+			if (!Arrays.equals(Illuminants.whiteD50, white)) {
+				double[][] cam = new double[3][3];
+				ChromaticAdaption.chromaticAdaptionMatrix(Illuminants.whiteD50, white, cam);
+				double[] result = new double[3];
+				Matrices.multiplyByVector3(cam, xyz, result);
+				xyz = result;
+			}
+		} else { // refWhite == Illuminant.D65
+			if (!Arrays.equals(Illuminants.whiteD65, white)) {
+				double[][] cam = new double[3][3];
+				ChromaticAdaption.chromaticAdaptionMatrix(Illuminants.whiteD65, white, cam);
+				double[] result = new double[3];
+				Matrices.multiplyByVector3(cam, xyz, result);
+				xyz = result;
+			}
+		}
+
+		return xyz;
+	}
+
+	private ColorProfile getColorProfile() {
+		ColorProfile profile;
+		switch (space) {
+		case sRGB:
+			profile = new SRGBColorProfile();
+			break;
+		case p3:
+			profile = new DisplayP3ColorProfile();
+			break;
+		case A98_RGB:
+			profile = new A98RGBColorProfile();
+			break;
+		case ProPhoto_RGB:
+			profile = new ProPhotoRGBColorProfile();
+			break;
+		case Rec2020:
+			profile = new Rec2020ColorProfile();
+			break;
+		case Linear_sRGB:
+			profile = new LinearSRGBColorProfile();
+			break;
+		default:
+			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Color space is not supported.");
+		}
+
+		return profile;
 	}
 
 	@Override

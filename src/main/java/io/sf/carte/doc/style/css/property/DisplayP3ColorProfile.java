@@ -11,13 +11,16 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.color.Illuminants;
+
 /**
  * Display P3 color profile.
  */
 class DisplayP3ColorProfile extends ColorProfile {
 
 	public DisplayP3ColorProfile() {
-		super(0.680f, 0.320f, 0.265f, 0.690f, 0.150f, 0.060f, BaseColor.whiteD65);
+		super(0.680f, 0.320f, 0.265f, 0.690f, 0.150f, 0.060f, Illuminants.whiteD65);
 	}
 
 	@Override

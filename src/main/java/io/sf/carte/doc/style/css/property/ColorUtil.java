@@ -13,10 +13,11 @@ package io.sf.carte.doc.style.css.property;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.color.Illuminants;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.Type;
-import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 import io.sf.jclf.math.linear3.Matrices;
 
 /**
@@ -641,8 +642,8 @@ class ColorUtil {
 	static void xyzD50ToLab(double[] xyz, double[] lab) {
 		// XYZ to Lab
 		// D50 reference white (from ASTM E308-01 via Lindbloom)
-		final double xwhite = BaseColor.whiteD50[0];
-		final double zwhite = BaseColor.whiteD50[2];
+		final double xwhite = Illuminants.whiteD50[0];
+		final double zwhite = Illuminants.whiteD50[2];
 		xyz[0] /= xwhite;
 		xyz[2] /= zwhite;
 		//
@@ -810,6 +811,13 @@ class ColorUtil {
 			labClamped[0] = 0d;
 		}
 		return dE00;
+	}
+
+	static double deltaEokLab(double[] ok1, double[] ok2) {
+		final double dL = ok2[0] - ok1[0];
+		final double da = ok2[1] - ok1[1];
+		final double db = ok2[2] - ok1[2];
+		return Math.sqrt(dL * dL + da * da + db * db);
 	}
 
 }

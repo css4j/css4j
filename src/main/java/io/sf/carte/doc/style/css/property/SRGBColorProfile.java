@@ -11,13 +11,16 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.color.Illuminants;
+
 /**
  * sRGB color profile.
  */
 class SRGBColorProfile extends ColorProfile {
 
 	public SRGBColorProfile() {
-		super(0.6400f, 0.3300f, 0.3000f, 0.6000f, 0.1500f, 0.0600f, BaseColor.whiteD65);
+		super(0.6400f, 0.3300f, 0.3000f, 0.6000f, 0.1500f, 0.0600f, Illuminants.whiteD65);
 	}
 
 	@Override

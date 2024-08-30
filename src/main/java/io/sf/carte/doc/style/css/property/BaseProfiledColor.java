@@ -17,8 +17,8 @@ import java.util.Objects;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 
 /**
  * A color specified through the {@code color()} function, where the profile is
@@ -171,7 +171,7 @@ class BaseProfiledColor extends BaseColor {
 	}
 
 	@Override
-	double[] toXYZ(Illuminant white) {
+	public double[] toXYZ(Illuminant white) {
 		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Cannot convert profiled colors.");
 	}
 

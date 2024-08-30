@@ -11,6 +11,9 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.color.Illuminants;
+
 /**
  * ITU rec. bt.2020 color profile.
  */
@@ -20,7 +23,7 @@ class Rec2020ColorProfile extends ColorProfile {
 	private static final double BETA = 0.018053968510807d;
 
 	public Rec2020ColorProfile() {
-		super(0.708f, 0.292f, 0.170f, 0.797f, 0.131f, 0.046f, BaseColor.whiteD65);
+		super(0.708f, 0.292f, 0.170f, 0.797f, 0.131f, 0.046f, Illuminants.whiteD65);
 	}
 
 	@Override

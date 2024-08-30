@@ -12,17 +12,20 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.color.Illuminants;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.LCHColor;
-import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
+import io.sf.jclf.math.linear3.Matrices;
 
 class LCHColorImpl extends BaseColor implements LCHColor {
 
@@ -223,7 +226,7 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	}
 
 	@Override
-	double[] toXYZ(Illuminant white) {
+	public double[] toXYZ(Illuminant white) {
 		if (!hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
@@ -253,6 +256,60 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 		}
 
 		return xyz;
+	}
+
+	/**
+	 * Convert this color to the XYZ space using the given reference white.
+	 * 
+	 * @param white the white point tristimulus value, normalized so the {@code Y}
+	 *              component is always {@code 1}.
+	 * @return the color expressed in XYZ coordinates with the given white point.
+	 */
+	@Override
+	public double[] toXYZ(double[] white) {
+		double[] lab = toLab();
+
+		double[] xyz;
+
+		if (colorSpace == Space.OK_LCh) {
+			xyz = ColorUtil.oklabToXyzD65(lab[0], lab[1], lab[2]);
+			if (!Arrays.equals(Illuminants.whiteD65, white)) {
+				double[][] cam = new double[3][3];
+				ChromaticAdaption.chromaticAdaptionMatrix(Illuminants.whiteD65, white, cam);
+				double[] result = new double[3];
+				Matrices.multiplyByVector3(cam, xyz, result);
+				xyz = result;
+			}
+		} else {
+			xyz = ColorUtil.labToXYZd50(lab[0], lab[1], lab[2]);
+			if (!Arrays.equals(Illuminants.whiteD50, white)) {
+				double[][] cam = new double[3][3];
+				ChromaticAdaption.chromaticAdaptionMatrix(Illuminants.whiteD50, white, cam);
+				double[] result = new double[3];
+				Matrices.multiplyByVector3(cam, xyz, result);
+				xyz = result;
+			}
+		}
+
+		return xyz;
+	}
+
+	private double[] toLab() {
+		if (!hasConvertibleComponents()) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
+		}
+
+		CSSTypedValue primihue = (CSSTypedValue) getHue();
+		float c = ColorUtil.floatNumber((CSSTypedValue) getChroma());
+		double h = ColorUtil.hueRadians(primihue);
+
+		double[] lab = new double[3];
+
+		lab[1] = (float) (c * Math.cos(h));
+		lab[2] = (float) (c * Math.sin(h));
+		lab[0] = ColorUtil.floatNumber((CSSTypedValue) getLightness());
+
+		return lab;
 	}
 
 	@Override

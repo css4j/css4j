@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 
 /**
@@ -106,6 +107,41 @@ public interface CSSColor {
 	 *                               typed values.
 	 */
 	CSSColor toColorSpace(String colorSpace) throws DOMException;
+
+	/**
+	 * Convert this color to the XYZ space using the given reference illuminant.
+	 * 
+	 * @param white the standard illuminant. If you need a conversion for an
+	 *              illuminant not included in the {@link Illuminant} enumeration,
+	 *              please use {@link #toXYZ(double[])}.
+	 * @return the color expressed in XYZ coordinates with the given white point.
+	 */
+	double[] toXYZ(Illuminant white);
+
+	/**
+	 * Convert this color to the XYZ space using the given reference white.
+	 * <p>
+	 * If your white happens to be D65 or D50, please use {@link #toXYZ(Illuminant)}
+	 * instead which is faster.
+	 * </p>
+	 * 
+	 * @param white the white point tristimulus value, normalized so the {@code Y}
+	 *              component is always {@code 1}.
+	 * @return the color expressed in XYZ coordinates with the given white point.
+	 */
+	double[] toXYZ(double[] white);
+
+	/**
+	 * Compute the difference to the given color, according to &#x394;EOK.
+	 * <p>
+	 * If the delta is inferior to {@code 0.02}, it is considered that the two
+	 * colors are difficult to distinguish.
+	 * </p>
+	 * 
+	 * @param color the color to compute the delta from.
+	 * @return the &#x394;EOK.
+	 */
+	float deltaEOK(CSSColor color);
 
 	/**
 	 * Gives a minified string representation of this color.

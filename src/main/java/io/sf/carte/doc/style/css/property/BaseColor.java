@@ -13,11 +13,14 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.color.Illuminants;
 import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
@@ -27,8 +30,8 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.ColorSpace;
-import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 import io.sf.carte.util.SimpleWriter;
+import io.sf.jclf.math.linear3.Matrices;
 
 abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
@@ -38,10 +41,6 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 		sRGB, Linear_sRGB, p3, A98_RGB, ProPhoto_RGB, Rec2020, CIE_XYZ, CIE_XYZ_D50, CIE_Lab,
 		CIE_LCh, OK_Lab, OK_LCh, OTHER
 	}
-
-	// ASTM E308-01 via http://www.brucelindbloom.com/index.html?Eqn_ChromAdapt.html
-	static final double[] whiteD65 = { 0.95047d, 1d, 1.08883d };
-	static final double[] whiteD50 = { 0.96422d, 1d, 0.82521d };
 
 	PrimitiveValue alpha = ColorValue.opaqueAlpha;
 
@@ -171,16 +170,10 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateExpression((ExpressionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateExpression((ExpressionValue) primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			try {
-				primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
-			} catch (DOMException e) {
-			}
+			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
 		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
@@ -533,13 +526,52 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 	@Override
 	abstract public double[] toNumberArray() throws DOMException;
 
-	double[] toXYZ(Illuminant white) {
+	/**
+	 * Convert this color to the XYZ space using the given reference illuminant.
+	 * 
+	 * @param white the standard illuminant. If you need a conversion for an
+	 *              illuminant not included in the {@link Illuminant} enumeration,
+	 *              please use {@link #toXYZ(double[])}.
+	 * @return the color expressed in XYZ coordinates with the given white point.
+	 */
+	@Override
+	public double[] toXYZ(Illuminant white) {
+		// Default implementation valid for sRGB colors
 		double[] rgb = toSRGB(true);
 
 		double[] xyz = ColorUtil.srgbToXYZd65(rgb[0], rgb[1], rgb[2]);
 
 		if (white == Illuminant.D50) {
 			xyz = ColorUtil.d65xyzToD50(xyz);
+		}
+
+		return xyz;
+	}
+
+	/**
+	 * Convert this color to the XYZ space using the given reference white.
+	 * <p>
+	 * If your white happens to be D65 or D50, please use {@link #toXYZ(Illuminant)}
+	 * instead which is faster.
+	 * </p>
+	 * 
+	 * @param white the white point tristimulus value, normalized so the {@code Y}
+	 *              component is always {@code 1}.
+	 * @return the color expressed in XYZ coordinates with the given white point.
+	 */
+	@Override
+	public double[] toXYZ(double[] white) {
+		// Default implementation valid for sRGB colors
+		double[] rgb = toSRGB(true);
+
+		double[] xyz = ColorUtil.srgbToXYZd65(rgb[0], rgb[1], rgb[2]);
+
+		if (!Arrays.equals(Illuminants.whiteD65, white)) {
+			double[][] cam = new double[3][3];
+			ChromaticAdaption.chromaticAdaptionMatrix(Illuminants.whiteD65, white, cam);
+			double[] result = new double[3];
+			Matrices.multiplyByVector3(cam, xyz, result);
+			xyz = result;
 		}
 
 		return xyz;
@@ -611,6 +643,43 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Compute the difference to the given color, according to &#x394;EOK.
+	 * <p>
+	 * If the delta is inferior to {@code 0.02}, it is considered that the two
+	 * colors are difficult to distinguish.
+	 * </p>
+	 * 
+	 * @param color the color to compute the delta from.
+	 * @return the &#x394;EOK.
+	 */
+	@Override
+	public float deltaEOK(CSSColor color) {
+		// Convert to oklab
+		double[] ok1 = toOKLab(this);
+		double[] ok2 = toOKLab((BaseColor) color);
+
+		return (float) ColorUtil.deltaEokLab(ok1, ok2);
+	}
+
+	private static double[] toOKLab(BaseColor color) {
+		// Convert to oklab
+		if (color.getSpace() == Space.OK_Lab) {
+			return color.toNumberArray();
+		}
+		double[] result = new double[3];
+		if (color.getSpace() == Space.OK_LCh) {
+			// LCh to Lab
+			double[] lch = color.toNumberArray();
+			ColorUtil.lchToLab(lch, result);
+		} else {
+			double[] xyz = color.toXYZ(Illuminant.D65);
+			ColorUtil.xyzD65ToOkLab(xyz, result);
+		}
+
+		return result;
 	}
 
 	abstract double[] toSRGB(boolean clamp);

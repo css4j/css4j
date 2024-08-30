@@ -16,6 +16,7 @@ import java.util.Objects;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -23,7 +24,6 @@ import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.RGBAColor;
-import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 
 class RGBColor extends BaseColor implements RGBAColor {
 
@@ -232,7 +232,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 	}
 
 	@Override
-	double[] toXYZ(Illuminant white) {
+	public double[] toXYZ(Illuminant white) {
 		double[] rgb = toSRGB(true);
 		double r = RGBColor.inverseSRGBCompanding(rgb[0]);
 		double g = RGBColor.inverseSRGBCompanding(rgb[1]);

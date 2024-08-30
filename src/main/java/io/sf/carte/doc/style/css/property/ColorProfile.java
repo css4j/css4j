@@ -14,13 +14,11 @@ package io.sf.carte.doc.style.css.property;
 import java.util.Arrays;
 import java.util.Objects;
 
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.color.Illuminants;
 import io.sf.jclf.math.linear3.Matrices;
 
 abstract class ColorProfile {
-
-	enum Illuminant {
-		D50, D65
-	}
 
 	final double[][] m = new double[3][3];
 	final double[][] minv = new double[3][3];
@@ -124,6 +122,17 @@ abstract class ColorProfile {
 		return linearComp;
 	}
 
+	/**
+	 * Perform an inverse gamma companding on the components.
+	 * 
+	 * @param comp the non-linear color components.
+	 */
+	public void linearizeComponents(double[] rgb) {
+		for (int i = 0; i < rgb.length; i++) {
+			rgb[i] = linearComponent(rgb[i]);
+		}
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -151,5 +160,9 @@ abstract class ColorProfile {
 	}
 
 	abstract public Illuminant getIlluminant();
+
+	public double[] getWhitePoint() {
+		return Illuminants.whiteD65;
+	}
 
 }

@@ -11,11 +11,11 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import java.util.Arrays;
 import java.util.Objects;
 
-import org.w3c.dom.DOMException;
-
-import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.jclf.math.linear3.Matrices;
 
 /**
  * A color specified through the {@code color()} function, where the profile is
@@ -52,12 +52,9 @@ class ProfiledColorImpl extends BaseProfiledColor {
 	}
 
 	@Override
-	double[] toXYZ(Illuminant white) {
-		if (!hasConvertibleComponents()) {
-			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
-		}
-
+	public double[] toXYZ(Illuminant white) {
 		double[] comps = toNumberArray();
+
 		for (int i = 0; i < comps.length; i++) {
 			comps[i] = profile.linearComponent(comps[i]);
 		}
@@ -71,6 +68,37 @@ class ProfiledColorImpl extends BaseProfiledColor {
 			} else {
 				xyz = ColorUtil.d50xyzToD65(xyz);
 			}
+		}
+
+		return xyz;
+	}
+
+	/**
+	 * Convert this color to the XYZ space using the given reference white.
+	 * 
+	 * @param white the white point tristimulus value, normalized so the {@code Y}
+	 *              component is always {@code 1}.
+	 * @return the color expressed in XYZ coordinates with the given white point.
+	 */
+	@Override
+	public double[] toXYZ(double[] white) {
+		double[] comps = toNumberArray();
+
+		for (int i = 0; i < comps.length; i++) {
+			comps[i] = profile.linearComponent(comps[i]);
+		}
+
+		double[] xyz = new double[3];
+
+		profile.linearRgbToXYZ(comps, xyz);
+
+		double[] wp = profile.getWhitePoint();
+		if (!Arrays.equals(wp, white)) {
+			double[][] cam = new double[3][3];
+			ChromaticAdaption.chromaticAdaptionMatrix(wp, white, cam);
+			double[] result = new double[3];
+			Matrices.multiplyByVector3(cam, xyz, result);
+			xyz = result;
 		}
 
 		return xyz;

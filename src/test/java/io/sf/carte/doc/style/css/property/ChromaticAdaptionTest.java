@@ -15,12 +15,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+import io.sf.carte.doc.color.Illuminants;
+
 class ChromaticAdaptionTest {
 
 	@Test
 	void testChromaticAdaptionMatrixD50D65() {
 		double[][] cam = new double[3][3];
-		ChromaticAdaption.chromaticAdaptionMatrix(BaseColor.whiteD50, BaseColor.whiteD65, cam);
+		ChromaticAdaption.chromaticAdaptionMatrix(Illuminants.whiteD50, Illuminants.whiteD65, cam);
 
 		assertEquals(0.9555766d, cam[0][0], 1e-7);
 		assertEquals(-0.0230393d, cam[0][1], 1e-7);
@@ -36,7 +38,7 @@ class ChromaticAdaptionTest {
 	@Test
 	void testChromaticAdaptionMatrixD65D50() {
 		double[][] cam = new double[3][3];
-		ChromaticAdaption.chromaticAdaptionMatrix(BaseColor.whiteD65, BaseColor.whiteD50, cam);
+		ChromaticAdaption.chromaticAdaptionMatrix(Illuminants.whiteD65, Illuminants.whiteD50, cam);
 
 		assertEquals(1.0478112436606313d, cam[0][0], 1e-16);
 		assertEquals(0.022886602481693052d, cam[0][1], 1e-18);

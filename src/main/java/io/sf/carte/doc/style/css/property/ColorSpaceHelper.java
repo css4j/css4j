@@ -11,9 +11,9 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.property.BaseColor.Space;
-import io.sf.carte.doc.style.css.property.ColorProfile.Illuminant;
 
 class ColorSpaceHelper {
 
@@ -22,13 +22,13 @@ class ColorSpaceHelper {
 	}
 
 	/**
-	 * Get the color space enum.
+	 * Get the color space enum for a space in the RGB color model.
 	 * 
 	 * @param internedLcColorSpace an interned string with the canonical (lower
 	 *                             case) name of the color space.
 	 * @return the color space enum.
 	 */
-	static Space sRGBSpaceEnum(String internedLcColorSpace) {
+	static Space rgbSpaceEnum(String internedLcColorSpace) {
 		Space space;
 		if (internedLcColorSpace == ColorSpace.srgb) {
 			space = Space.sRGB;

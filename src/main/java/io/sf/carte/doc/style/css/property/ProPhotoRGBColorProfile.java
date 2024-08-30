@@ -11,13 +11,16 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.color.Illuminants;
+
 /**
  * ProPhoto RGB color profile.
  */
 class ProPhotoRGBColorProfile extends ColorProfile {
 
 	public ProPhotoRGBColorProfile() {
-		super(0.734699f, 0.265301f, 0.159597f, 0.840403f, 0.036598f, 0.000105f, BaseColor.whiteD50);
+		super(0.734699f, 0.265301f, 0.159597f, 0.840403f, 0.036598f, 0.000105f, Illuminants.whiteD50);
 	}
 
 	@Override
@@ -51,6 +54,11 @@ class ProPhotoRGBColorProfile extends ColorProfile {
 	@Override
 	public Illuminant getIlluminant() {
 		return Illuminant.D50;
+	}
+
+	@Override
+	public double[] getWhitePoint() {
+		return Illuminants.whiteD50;
 	}
 
 }

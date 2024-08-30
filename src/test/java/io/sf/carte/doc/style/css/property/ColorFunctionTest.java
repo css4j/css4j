@@ -21,12 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.color.Illuminants;
 import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
@@ -380,6 +382,12 @@ public class ColorFunctionTest {
 		assertNotNull(prophoto);
 		assertEquals(CSSColorValue.ColorModel.RGB, prophoto.getColorModel());
 		assertEquals("color(prophoto-rgb 0.4506 0.4598 0.9381)", prophoto.toString());
+
+		double[] xyz = rgb.toXYZ(Illuminants.whiteD50);
+		double[] sxyz = srgb.toXYZ(Illuminants.whiteD50);
+		assertEquals(xyz[0], sxyz[0], 2e-9, "Different component x.");
+		assertEquals(xyz[1], sxyz[1], 1e-8, "Different component y.");
+		assertEquals(xyz[2], sxyz[2], 1e-8, "Different component z.");
 	}
 
 	@Test
@@ -522,8 +530,8 @@ public class ColorFunctionTest {
 
 
 		RGBAColor rgb = rgbColor.toRGBColor();
-		assertEquals("color(srgb 0.1112 0.7743 0.343)", rgb.toString());
-		assertEquals("color(srgb .1112 .7743 .343)", rgb.toMinifiedString());
+		assertEquals("color(srgb 0.1112 0.7743 0.34316)", rgb.toString());
+		assertEquals("color(srgb .1112 .7743 .34316)", rgb.toMinifiedString());
 		assertEquals(1f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 0.0001f);
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 	}
@@ -557,6 +565,8 @@ public class ColorFunctionTest {
 		assertEquals(0f, rgbColor.deltaE2000(labColor), 1e-3f);
 		assertEquals(0f, labColor.deltaE2000(rgbColor), 1e-3f);
 
+		assertEquals(0f, color.deltaEOK(lab), 1e-7f);
+
 		LCHColorValue lchColor = rgbColor.toLCHColorValue();
 		assertNotNull(lchColor);
 		LCHColor lch = lchColor.getColor();
@@ -570,10 +580,28 @@ public class ColorFunctionTest {
 		assertEquals(0f, rgbColor.deltaE2000(lchColor), 1e-3f);
 		assertEquals(0f, lchColor.deltaE2000(rgbColor), 1e-3f);
 
+		assertEquals(0f, color.deltaEOK(lch), 1e-6f);
+
 		HSLColorValue hslVal = rgbColor.toHSLColorValue();
 		assertEquals("hsla(234.947, 100%, 47.5%, 0.8)", hslVal.getCssText());
 		assertEquals(0f, rgbColor.deltaE2000(hslVal), 0.001f);
 		assertEquals(0f, hslVal.deltaE2000(rgbColor), 0.001f);
+
+		// to XYZ D50
+		CSSColor xyz = color.toColorSpace(ColorSpace.xyz_d50);
+		double[] xyzd = xyz.toNumberArray();
+		double[] xyz2 = color.toXYZ(Illuminants.whiteD50);
+		assertEquals(xyzd[0], xyz2[0], 1e-8, "Different component x.");
+		assertEquals(xyzd[1], xyz2[1], 1e-8, "Different component y.");
+		assertEquals(xyzd[2], xyz2[2], 2e-8, "Different component z.");
+
+		// to XYZ D65
+		xyz = color.toColorSpace(ColorSpace.xyz);
+		xyzd = xyz.toNumberArray();
+		xyz2 = color.toXYZ(Illuminants.whiteD65);
+		assertEquals(xyzd[0], xyz2[0], 1e-8, "Different component x.");
+		assertEquals(xyzd[1], xyz2[1], 1e-8, "Different component y.");
+		assertEquals(xyzd[2], xyz2[2], 3e-8, "Different component z.");
 	}
 
 	@Test
@@ -605,6 +633,8 @@ public class ColorFunctionTest {
 		assertEquals(0f, rgbColor.deltaE2000(labColor), 1e-3f);
 		assertEquals(0f, labColor.deltaE2000(rgbColor), 1e-3f);
 
+		assertEquals(0f, color.deltaEOK(lab), 1e-7f);
+
 		LCHColorValue lchColor = labColor.toLCHColorValue();
 		assertNotNull(lchColor);
 		LCHColor lch = lchColor.getColor();
@@ -617,6 +647,8 @@ public class ColorFunctionTest {
 		// Delta 0 to converted value
 		assertEquals(0f, rgbColor.deltaE2000(lchColor), 1e-3f);
 		assertEquals(0f, lchColor.deltaE2000(rgbColor), 1e-3f);
+
+		assertEquals(0f, color.deltaEOK(lch), 1e-7f);
 	}
 
 	@Test
@@ -648,6 +680,8 @@ public class ColorFunctionTest {
 		assertEquals(0f, rgbColor.deltaE2000(labColor), 1e-3f);
 		assertEquals(0f, labColor.deltaE2000(rgbColor), 1e-3f);
 
+		assertEquals(0f, color.deltaEOK(lab), 1e-7f);
+
 		LCHColorValue lchColor = labColor.toLCHColorValue();
 		assertNotNull(lchColor);
 		LCHColor lch = lchColor.getColor();
@@ -660,6 +694,8 @@ public class ColorFunctionTest {
 		// Delta 0 to converted value
 		assertEquals(0f, rgbColor.deltaE2000(lchColor), 1e-3f);
 		assertEquals(0f, lchColor.deltaE2000(rgbColor), 1e-3f);
+
+		assertEquals(0f, color.deltaEOK(lch), 1e-7f);
 	}
 
 	@Test
@@ -691,6 +727,8 @@ public class ColorFunctionTest {
 		assertEquals(0f, rgbColor.deltaE2000(labColor), 1e-3f);
 		assertEquals(0f, labColor.deltaE2000(rgbColor), 1e-3f);
 
+		assertEquals(0f, color.deltaEOK(lab), 1e-7f);
+
 		LCHColorValue lchColor = labColor.toLCHColorValue();
 		assertNotNull(lchColor);
 		LCHColor lch = lchColor.getColor();
@@ -703,6 +741,8 @@ public class ColorFunctionTest {
 		// Delta 0 to converted value
 		assertEquals(0f, rgbColor.deltaE2000(lchColor), 1e-3f);
 		assertEquals(0f, lchColor.deltaE2000(rgbColor), 1e-3f);
+
+		assertEquals(0f, color.deltaEOK(lch), 1e-7f);
 	}
 
 	@Test
@@ -761,6 +801,22 @@ public class ColorFunctionTest {
 
 		CSSColor roundTripColor = recColor.toColorSpace(ColorSpace.display_p3);
 		assertEquals("color(display-p3 0.0314 0.2471 1)", roundTripColor.toString());
+
+		// to XYZ D50
+		CSSColor xyz = rgb.toColorSpace(ColorSpace.xyz_d50);
+		double[] xyzd = xyz.toNumberArray();
+		double[] xyz2 = rgb.toXYZ(Illuminants.whiteD50);
+		assertEquals(xyzd[0], xyz2[0], 1e-8, "Different component x.");
+		assertEquals(xyzd[1], xyz2[1], 1e-8, "Different component y.");
+		assertEquals(xyzd[2], xyz2[2], 1e-8, "Different component z.");
+
+		// to XYZ D65
+		xyz = rgb.toColorSpace(ColorSpace.xyz);
+		xyzd = xyz.toNumberArray();
+		xyz2 = rgb.toXYZ(Illuminants.whiteD65);
+		assertEquals(xyzd[0], xyz2[0], 1e-8, "Different component x.");
+		assertEquals(xyzd[1], xyz2[1], 1e-8, "Different component y.");
+		assertEquals(xyzd[2], xyz2[2], 2e-7, "Different component z.");
 	}
 
 	@Test
@@ -794,6 +850,8 @@ public class ColorFunctionTest {
 		assertEquals(0f, val.deltaE2000(labValue), 1e-3f);
 		assertEquals(0f, labValue.deltaE2000(val), 1e-3f);
 
+		assertEquals(0f, rgb.deltaEOK(labValue.getColor()), 1e-7f);
+
 		// LCH
 		LCHColorValue lchColor = val.toLCHColorValue();
 		assertNotNull(lchColor);
@@ -808,13 +866,19 @@ public class ColorFunctionTest {
 		assertEquals(0f, val.deltaE2000(lchColor), 1e-3f);
 		assertEquals(0f, lchColor.deltaE2000(val), 1e-3f);
 
+		assertEquals(0f, rgb.deltaEOK(lch), 1e-6f);
+
 		// RGB
 		RGBAColor srgb = val.toRGBColor();
 		assertEquals("rgba(0%, 25.2%, 100%, 0.5)", srgb.toString());
 		assertEquals("rgba(0%,25.2%,100%,.5)", srgb.toMinifiedString());
+
 		ColorValue srgbValue = (ColorValue) srgb.packInValue();
 		assertEquals(0.981f, val.deltaE2000(srgbValue), 1e-3f);
 		assertEquals(0.981f, srgbValue.deltaE2000(val), 1e-3f);
+
+		assertEquals(0.017017f, rgb.deltaEOK(srgb), 1e-6f);
+
 		assertFalse(rgb.equals(srgb));
 		assertFalse(srgb.equals(rgb));
 
@@ -837,8 +901,11 @@ public class ColorFunctionTest {
 		assertEquals(0.7764f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
 		assertEquals(0.9976f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
 		assertEquals(0.8f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
+
 		assertEquals(41.449f, val2.deltaE2000(val), 1e-3f);
 		assertEquals(41.449f, val.deltaE2000(val2), 1e-3f);
+
+		assertEquals(0.338672f, rgb.deltaEOK(srgb), 1e-5f);
 
 		assertSame(rgb.getAlpha(), rgb.item(0));
 		assertSame(rgb.getRed(), rgb.item(1));
@@ -850,6 +917,8 @@ public class ColorFunctionTest {
 		srgbValue = (ColorValue) srgb.packInValue();
 		assertEquals(1.15f, val2.deltaE2000(srgbValue), 1e-2f);
 		assertEquals(1.15f, srgbValue.deltaE2000(val2), 1e-2f);
+
+		assertEquals(7.24e-3f, rgb.deltaEOK(srgb), 1e-5f);
 
 		// Set components
 		val.setComponent(0, NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0.427f));
@@ -992,11 +1061,13 @@ public class ColorFunctionTest {
 		assertEquals("color(display-p3 0.0314 0.7241 0)", rgb.toString());
 		assertEquals("color(display-p3 .0314 .7241 0)", rgb.toMinifiedString());
 
-		rgb = val.toRGBColor();
-		assertEquals("rgb(0%, 72.42%, 0%)", rgb.toString());
-		ColorValue srgbValue = (ColorValue) rgb.packInValue();
+		RGBAColor srgb = val.toRGBColor();
+		assertEquals("rgb(0%, 72.42%, 0%)", srgb.toString());
+		ColorValue srgbValue = (ColorValue) srgb.packInValue();
 		assertEquals(4.924f, val.deltaE2000(srgbValue), 1e-3f);
 		assertEquals(4.924f, srgbValue.deltaE2000(val), 1e-3f);
+
+		assertEquals(0.05991f, rgb.deltaEOK(srgb), 1e-5f);
 	}
 
 	@Test
@@ -1082,6 +1153,14 @@ public class ColorFunctionTest {
 		assertEquals("color: color(a98-rgb 0.0314 0.24706 1); ", style.getCssText());
 		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
 		assertEquals(ColorModel.RGB, val.getColorModel());
+
+		CSSColor color = val.getColor();
+		CSSColor xyz = color.toColorSpace(ColorSpace.xyz_d50);
+		double[] xyzd = xyz.toNumberArray();
+		double[] xyz2 = color.toXYZ(Illuminants.whiteD50);
+		assertEquals(xyzd[0], xyz2[0], 1e-8, "Different component x.");
+		assertEquals(xyzd[1], xyz2[1], 1e-8, "Different component y.");
+		assertEquals(xyzd[2], xyz2[2], 1e-8, "Different component z.");
 	}
 
 	@Test
@@ -1158,6 +1237,23 @@ public class ColorFunctionTest {
 		labValue = val.toLABColorValue();
 		assertNotNull(labValue);
 		assertEquals("lab(36.4194 48.244 -103.15 / 0.5)", labValue.getCssText());
+
+		// to XYZ D50
+		CSSColor color = val.getColor();
+		CSSColor xyz = color.toColorSpace(ColorSpace.xyz_d50);
+		double[] xyzd = xyz.toNumberArray();
+		double[] xyz2 = color.toXYZ(Illuminants.whiteD50);
+		assertEquals(xyzd[0], xyz2[0], 1e-8, "Different component x.");
+		assertEquals(xyzd[1], xyz2[1], 1e-8, "Different component y.");
+		assertEquals(xyzd[2], xyz2[2], 1e-8, "Different component z.");
+
+		// to XYZ D65
+		xyz = color.toColorSpace(ColorSpace.xyz);
+		xyzd = xyz.toNumberArray();
+		xyz2 = color.toXYZ(Illuminants.whiteD65);
+		assertEquals(xyzd[0], xyz2[0], 1e-8, "Different component x.");
+		assertEquals(xyzd[1], xyz2[1], 1e-8, "Different component y.");
+		assertEquals(xyzd[2], xyz2[2], 3e-8, "Different component z.");
 	}
 
 	@Test
@@ -1188,6 +1284,22 @@ public class ColorFunctionTest {
 		assertEquals("lab(64.2535 47.001 -21.741)", labValue.getCssText());
 		assertEquals(0f, val.deltaE2000(labValue), 1e-3f);
 		assertEquals(0f, labValue.deltaE2000(val), 1e-3f);
+
+		// to XYZ D50
+		CSSColor xyz = rgb.toColorSpace(ColorSpace.xyz_d50);
+		double[] xyzd = xyz.toNumberArray();
+		double[] xyz2 = rgb.toXYZ(Illuminants.whiteD50);
+		assertEquals(xyzd[0], xyz2[0], 1e-8, "Different component x.");
+		assertEquals(xyzd[1], xyz2[1], 1e-8, "Different component y.");
+		assertEquals(xyzd[2], xyz2[2], 1e-8, "Different component z.");
+
+		// to XYZ D65
+		xyz = rgb.toColorSpace(ColorSpace.xyz);
+		xyzd = xyz.toNumberArray();
+		xyz2 = rgb.toXYZ(Illuminants.whiteD65);
+		assertEquals(xyzd[0], xyz2[0], 1e-8, "Different component x.");
+		assertEquals(xyzd[1], xyz2[1], 2e-8, "Different component y.");
+		assertEquals(xyzd[2], xyz2[2], 3e-8, "Different component z.");
 	}
 
 	@Test
@@ -1384,6 +1496,14 @@ public class ColorFunctionTest {
 		ColorValue srgbValue = (ColorValue) rgb.packInValue();
 		assertEquals(0f, val.deltaE2000(srgbValue), 1e-6f);
 		assertEquals(0f, srgbValue.deltaE2000(val), 1e-6f);
+
+		CSSColor color = val.getColor();
+		CSSColor xyz = color.toColorSpace(ColorSpace.xyz_d50);
+		double[] xyzd = xyz.toNumberArray();
+		double[] xyz2 = color.toXYZ(Illuminants.whiteD50);
+		assertEquals(xyzd[0], xyz2[0], 1e-8, "Different component x.");
+		assertEquals(xyzd[1], xyz2[1], 1e-8, "Different component y.");
+		assertEquals(xyzd[2], xyz2[2], 1e-8, "Different component z.");
 	}
 
 	@Test
@@ -1391,6 +1511,45 @@ public class ColorFunctionTest {
 		style.setCssText("color:color(--my-profile 0.428 0.726 0.348); ");
 		assertEquals("color(--my-profile 0.428 0.726 0.348)", style.getPropertyValue("color"));
 		assertEquals("color: color(--my-profile 0.428 0.726 0.348); ", style.getCssText());
+
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSValue.Type.COLOR, value.getPrimitiveType());
+
+		ColorValue val = (ColorValue) value;
+		assertEquals(ColorModel.PROFILE, val.getColorModel());
+		BaseColor color = (BaseColor) val.getColor();
+		assertEquals(ColorModel.PROFILE, color.getColorModel());
+		assertEquals("--my-profile", color.getColorSpace());
+
+		assertSame(color.getAlpha(), color.item(0));
+		assertEquals(4, color.getLength());
+
+		NumberValue alpha = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, 66f);
+		val.setComponent(0, alpha);
+
+		assertEquals("color(--my-profile 0.428 0.726 0.348 / 66%)", color.toString());
+		assertEquals("color(--my-profile .428 .726 .348/66%)", color.toMinifiedString());
+
+		NumberValue green = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0.401f);
+		val.setComponent(2, green);
+
+		assertEquals("color(--my-profile 0.428 0.401 0.348 / 66%)", color.toString());
+
+		BufferSimpleWriter wri = new BufferSimpleWriter(32);
+		try {
+			val.writeCssText(wri);
+		} catch (IOException e) {
+		}
+		assertEquals("color(--my-profile 0.428 0.401 0.348 / 66%)", wri.toString());
+
+		double[] comps = new double[1];
+		comps[0] = 0.8739f;
+		color.setColorComponents(comps);
+
+		assertEquals("color(--my-profile 0.8739 0 0 / 66%)", color.toString());
+
+		assertNull(color.item(4));
 	}
 
 	@Test
@@ -1620,6 +1779,15 @@ public class ColorFunctionTest {
 		CSSColor d50 = xyz.toColorSpace(ColorSpace.xyz_d50);
 		assertNotNull(d50);
 		assertEquals("color(xyz-d50 0.14421 0.09274 0.59111)", d50.toString());
+
+		double[] xyz2 = xyz.toXYZ(Illuminants.whiteD65);
+		assertTrue(Arrays.equals(xyz2, xyz.toNumberArray()), "Different components.");
+
+		double[] xyzd50 = d50.toNumberArray();
+		xyz2 = xyz.toXYZ(Illuminants.whiteD50);
+		assertEquals(xyzd50[0], xyz2[0], 1e-8, "Different D50 component x.");
+		assertEquals(xyzd50[1], xyz2[1], 1e-8, "Different D50 component y.");
+		assertEquals(xyzd50[2], xyz2[2], 2e-8, "Different D50 component z.");
 	}
 
 	@Test
@@ -1696,6 +1864,8 @@ public class ColorFunctionTest {
 		assertEquals(0f, val.deltaE2000(labValue), 1e-3f);
 		assertEquals(0f, labValue.deltaE2000(val), 1e-3f);
 
+		assertEquals(0f, xyz.deltaEOK(labValue.getColor()), 1e-7f);
+
 		assertFalse(val.equals(labValue));
 		assertFalse(labValue.equals(val));
 		assertFalse(val.getColor().equals(labValue.getColor()));
@@ -1707,6 +1877,8 @@ public class ColorFunctionTest {
 		ColorValue srgbValue = (ColorValue) srgb.packInValue();
 		assertEquals(0f, val.deltaE2000(srgbValue), 1e-3f);
 		assertEquals(0f, srgbValue.deltaE2000(val), 1e-3f);
+
+		assertEquals(0f, xyz.deltaEOK(srgb), 1e-7f);
 
 		style.setCssText("color:color(xyz 0.106 0.074 0.413/0.8); ");
 		assertEquals("color(xyz 0.106 0.074 0.413 / 0.8)", style.getPropertyValue("color"));
@@ -1723,14 +1895,17 @@ public class ColorFunctionTest {
 		assertFalse(val2.getColor().equals(xyz));
 		assertFalse(val.equals(null));
 
-		xyz = (XYZColor) val2.getColor();
-		assertEquals(ColorSpace.xyz, xyz.getColorSpace());
-		assertEquals(0.106f, ((CSSTypedValue) xyz.getX()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
-		assertEquals(0.074f, ((CSSTypedValue) xyz.getY()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
-		assertEquals(0.413f, ((CSSTypedValue) xyz.getZ()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
-		assertEquals(0.8f, ((CSSTypedValue) xyz.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
+		XYZColor xyz2 = (XYZColor) val2.getColor();
+		assertEquals(ColorSpace.xyz, xyz2.getColorSpace());
+		assertEquals(0.106f, ((CSSTypedValue) xyz2.getX()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
+		assertEquals(0.074f, ((CSSTypedValue) xyz2.getY()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
+		assertEquals(0.413f, ((CSSTypedValue) xyz2.getZ()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
+		assertEquals(0.8f, ((CSSTypedValue) xyz2.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
+
 		assertEquals(6.5f, val2.deltaE2000(val), 0.1f);
 		assertEquals(6.5f, val.deltaE2000(val2), 0.1f);
+
+		assertEquals(0.093345f, xyz.deltaEOK(xyz2), 1e-5f);
 
 		// To RGB
 		srgb = val2.toRGBColor(false);
@@ -1741,6 +1916,9 @@ public class ColorFunctionTest {
 
 		assertFalse(val2.getColor().equals(srgb));
 		assertFalse(srgb.equals(val2.getColor()));
+
+		assertEquals(0f, srgb.deltaEOK(xyz2), 1e-7f);
+		assertEquals(0.093345f, xyz.deltaEOK(srgb), 1e-5f);
 
 		// To HSL
 		HSLColorValue hslVal = val2.toHSLColorValue();
@@ -1842,10 +2020,41 @@ public class ColorFunctionTest {
 	}
 
 	@Test
+	public void testXYZ_Math() {
+		style.setCssText("color:color(xyz 0.173 calc(2*0.208) sqrt(0.286));");
+		assertEquals("color(xyz 0.173 0.416 0.53479)", style.getPropertyValue("color"));
+	}
+
+	@Test
+	public void testXYZ_Math_Invalid() {
+		style.setCssText("color:color(xyz 0.173 calc(2*0.208Hz) sqrt(0.286));");
+		assertNull(style.getPropertyCSSValue("color"));
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
 	public void testXYZd50() {
 		style.setCssText("color:color(xyz-d50 0.173 0.102 0.786); ");
 		assertEquals("color(xyz-d50 0.173 0.102 0.786)", style.getPropertyValue("color"));
 		assertEquals("color: color(xyz-d50 0.173 0.102 0.786); ", style.getCssText());
+
+		CSSValue value = style.getPropertyCSSValue("color");
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSValue.Type.COLOR, value.getPrimitiveType());
+
+		ColorValue val = (ColorValue) value;
+		assertEquals(ColorModel.XYZ, val.getColorModel());
+		XYZColor xyz = (XYZColor) val.getColor();
+
+		double[] xyz2 = xyz.toXYZ(Illuminants.whiteD50);
+		assertTrue(Arrays.equals(xyz2, xyz.toNumberArray()), "Different components.");
+
+		double[] xyzd65 = xyz.toColorSpace(ColorSpace.xyz).toNumberArray();
+		xyz2 = xyz.toXYZ(Illuminants.whiteD65);
+		assertEquals(xyzd65[0], xyz2[0], 1e-8, "Different D65 component x.");
+		assertEquals(xyzd65[1], xyz2[1], 1e-8, "Different D65 component y.");
+		assertEquals(xyzd65[2], xyz2[2], 1e-8, "Different D65 component z.");
 	}
 
 	@Test
