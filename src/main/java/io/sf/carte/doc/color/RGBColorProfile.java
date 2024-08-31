@@ -49,10 +49,9 @@ public interface RGBColorProfile extends ICCColorProfile {
 	/**
 	 * Convert from xyz coordinates to RGB.
 	 * 
-	 * @param xyz       a 3-vector with the xyz coordinates, expressed in this
-	 *                  profile's chromaticity.
-	 * @param linearRgb a 3-vector that can store the resulting r, g and b
-	 *                  components.
+	 * @param xyz a 3-vector with the xyz coordinates, expressed in this profile's
+	 *            chromaticity.
+	 * @param rgb a 3-vector that can store the resulting r, g and b components.
 	 */
 	default void xyzToRgb(double[] xyz, double[] rgb) {
 		xyzToLinearRgb(xyz, rgb);
