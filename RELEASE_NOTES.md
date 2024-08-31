@@ -1,19 +1,33 @@
-# css4j version 4.3.1 Release Notes
+# css4j version 4.4 Release Notes
 
-### August 5, 2024
+### August 31, 2024
 
 <br/>
 
 ## Highlights
 
-A small spec-compliance fix for native DOM (`io.sf.carte.doc.dom` package).
+Color improvements:
+
+- Added the `toXYZ(Illuminant)`, `toXYZ(double[])`, `deltaEOK(CSSColor)` and `isInGamut(String)` methods to `CSSColor`.
+- The `srgb-linear` color space is now supported in the `color()` and `color-mix()` functions.
+- `RGBColorDeclarationFormattingContext` was refactored so alternative color serializations can be easily implemented.
+- A few other changes that either directly or indirectly improve the handling of colors.
 
 <br/>
 
 ## Detail of changes
 
-- NSAC impl: avoid `IndexOutOfBoundsException` when parsing invalid functions. Detected via Jazzer fuzz testing.
-- NSAC impl: fix a bug where an error in nested rules wasn't reported. Detected via Jazzer fuzz testing.
-- DOM: make case sensitivity of non-HTML embedded into HTML documents more spec-compliant.
-- DOM: do not check for <svg> elements with the wrong namespace in HTML mode. Use an HTML parser instead.
-- Gradle: add a test sources jar.
+- NSAC: allow mathematical functions inside `color-mix()`.
+- CSSOM: add a public `setMaximumFractionDigits()` method to `NumberValue`.
+- CSSOM: add methods `toXYZ(Illuminant)`, `toXYZ(double[])` and `deltaEOK(CSSColor)` to `CSSColor`
+- CSSOM: add the `isInGamut(String)` method to `CSSColor`, improve component type checks.
+- CSSOM: support the `srgb-linear` color space in the `color()` and `color-mix()` functions.
+- CSSOM: throw exceptions for invalid `calc()` and math functions in color component percentages and rgb components.
+- CSSOM: extract superclass from `RGBColorDeclarationFormattingContext`.
+- CSSOM: check the unit at the final result instead of inside an operation in `PercentageEvaluator`.
+- CSSOM: unofficial and undocumented support for linear versions of predefined RGB color spaces.
+- Javadocs: improve the LexicalType javadoc.
+- Upgrade to Junit 5.11.0.
+- Upgrade Gradle wrapper to 8.10.
+- Upgrade to wrapper-validation action v4.
+- Code style: add a checkstyle check.
