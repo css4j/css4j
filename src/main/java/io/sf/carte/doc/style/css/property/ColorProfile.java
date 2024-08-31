@@ -12,13 +12,12 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.util.Arrays;
-import java.util.Objects;
 
 import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.color.Illuminants;
 import io.sf.jclf.math.linear3.Matrices;
 
-abstract class ColorProfile {
+abstract class ColorProfile implements io.sf.carte.doc.color.RGBColorProfile {
 
 	final double[][] m = new double[3][3];
 	final double[][] minv = new double[3][3];
@@ -71,19 +70,14 @@ abstract class ColorProfile {
 		xyz[2] = m[2][0] * r + m[2][1] * g + m[2][2] * b;
 	}
 
+	@Override
 	public void linearRgbToXYZ(double[] rgb, double[] xyz) {
 		Matrices.multiplyByVector3(m, rgb, xyz);
 	}
 
+	@Override
 	public void xyzToLinearRgb(double[] xyz, double[] linearRgb) {
 		Matrices.multiplyByVector3(minv, xyz, linearRgb);
-	}
-
-	public void xyzToRgb(double[] xyz, double[] rgb) {
-		xyzToLinearRgb(xyz, rgb);
-		rgb[0] = gammaCompanding(rgb[0]);
-		rgb[1] = gammaCompanding(rgb[1]);
-		rgb[2] = gammaCompanding(rgb[2]);
 	}
 
 	/**
@@ -92,6 +86,7 @@ abstract class ColorProfile {
 	 * @param linearComponent the linear component.
 	 * @return the non-linear color component.
 	 */
+	@Override
 	public double gammaCompanding(double linearComponent) {
 		// sRGB Companding
 		final double abs = Math.abs(linearComponent);
@@ -107,9 +102,10 @@ abstract class ColorProfile {
 	/**
 	 * Perform an inverse gamma companding.
 	 * 
-	 * @param comp the non-linear color component.
+	 * @param compandedComponent the non-linear color component.
 	 * @return the linear component.
 	 */
+	@Override
 	public double linearComponent(double compandedComponent) {
 		// Inverse sRGB Companding
 		final double abs = Math.abs(compandedComponent);
@@ -122,24 +118,12 @@ abstract class ColorProfile {
 		return linearComp;
 	}
 
-	/**
-	 * Perform an inverse gamma companding on the components.
-	 * 
-	 * @param comp the non-linear color components.
-	 */
-	public void linearizeComponents(double[] rgb) {
-		for (int i = 0; i < rgb.length; i++) {
-			rgb[i] = linearComponent(rgb[i]);
-		}
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Arrays.deepHashCode(m);
-		result = prime * result + Arrays.deepHashCode(minv);
-		result = prime * result + Objects.hash(getIlluminant());
+		result = prime * result + Arrays.hashCode(getWhitePoint());
 		return result;
 	}
 
@@ -155,12 +139,13 @@ abstract class ColorProfile {
 			return false;
 		}
 		ColorProfile other = (ColorProfile) obj;
-		return getIlluminant() == other.getIlluminant() && Arrays.deepEquals(m, other.m)
-				&& Arrays.deepEquals(minv, other.minv);
+		return Arrays.deepEquals(m, other.m)
+				&& Arrays.equals(getWhitePoint(), other.getWhitePoint());
 	}
 
 	abstract public Illuminant getIlluminant();
 
+	@Override
 	public double[] getWhitePoint() {
 		return Illuminants.whiteD65;
 	}

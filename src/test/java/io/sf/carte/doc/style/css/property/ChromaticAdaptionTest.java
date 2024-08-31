@@ -20,7 +20,7 @@ import io.sf.carte.doc.color.Illuminants;
 class ChromaticAdaptionTest {
 
 	@Test
-	void testChromaticAdaptionMatrixD50D65() {
+	public void testChromaticAdaptionMatrixD50D65() {
 		double[][] cam = new double[3][3];
 		ChromaticAdaption.chromaticAdaptionMatrix(Illuminants.whiteD50, Illuminants.whiteD65, cam);
 
@@ -36,7 +36,7 @@ class ChromaticAdaptionTest {
 	}
 
 	@Test
-	void testChromaticAdaptionMatrixD65D50() {
+	public void testChromaticAdaptionMatrixD65D50() {
 		double[][] cam = new double[3][3];
 		ChromaticAdaption.chromaticAdaptionMatrix(Illuminants.whiteD65, Illuminants.whiteD50, cam);
 
