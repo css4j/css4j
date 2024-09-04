@@ -93,6 +93,7 @@ public class DirectionalityHelper {
 		return parentDirection(element);
 	}
 
+	@SuppressWarnings("unchecked")
 	private static byte descendantTextDirection(Element element) {
 		if (element.hasChildNodes()) {
 			NodeList list = element.getChildNodes();
