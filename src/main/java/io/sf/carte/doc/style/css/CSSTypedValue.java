@@ -135,4 +135,7 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	 */
 	boolean isNumberZero();
 
+	@Override
+	CSSTypedValue clone();
+
 }
