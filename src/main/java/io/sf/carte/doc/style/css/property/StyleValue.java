@@ -59,17 +59,6 @@ abstract public class StyleValue implements CSSValue, Cloneable, java.io.Seriali
 	}
 
 	/**
-	 * Check whether this value is primitive, that is, either a
-	 * {@link io.sf.carte.doc.style.css.CSSValue.CssType#TYPED TYPED} or
-	 * {@link io.sf.carte.doc.style.css.CSSValue.CssType#PROXY PROXY} value.
-	 * 
-	 * @return {@code true} if the value is {@code TYPED} or {@code PROXY}.
-	 */
-	public boolean isPrimitiveValue() {
-		return false;
-	}
-
-	/**
 	 * Is this a subproperty that has been set by a shorthand?
 	 * 
 	 * @return <code>true</code> if this a subproperty that has been set by a shorthand,

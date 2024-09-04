@@ -52,6 +52,18 @@ public interface CSSPrimitiveValue extends CSSValue {
 	}
 
 	/**
+	 * Check whether this value is primitive, that is, either a
+	 * {@link io.sf.carte.doc.style.css.CSSValue.CssType#TYPED TYPED} or
+	 * {@link io.sf.carte.doc.style.css.CSSValue.CssType#PROXY PROXY} value.
+	 * 
+	 * @return {@code true} if the value is {@code TYPED} or {@code PROXY}.
+	 */
+	@Override
+	default boolean isPrimitiveValue() {
+		return true;
+	}
+
+	/**
 	 * If this is a {@link CSSValue.Type#NUMERIC NUMERIC} value, get its unit type.
 	 * <p>
 	 * You can also find the unit types of mathematical functions and {@code calc()}

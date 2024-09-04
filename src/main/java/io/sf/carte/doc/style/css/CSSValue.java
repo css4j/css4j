@@ -385,6 +385,17 @@ public interface CSSValue extends Cloneable {
 	Type getPrimitiveType();
 
 	/**
+	 * Check whether this value is primitive, that is, either a
+	 * {@link io.sf.carte.doc.style.css.CSSValue.CssType#TYPED TYPED} or
+	 * {@link io.sf.carte.doc.style.css.CSSValue.CssType#PROXY PROXY} value.
+	 * 
+	 * @return {@code true} if the value is {@code TYPED} or {@code PROXY}.
+	 */
+	default boolean isPrimitiveValue() {
+		return false;
+	}
+
+	/**
 	 * Get a parsable representation of this value.
 	 * 
 	 * @return the CSS serialization of this value.
