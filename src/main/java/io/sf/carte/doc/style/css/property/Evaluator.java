@@ -17,12 +17,14 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -83,6 +85,10 @@ public class Evaluator {
 		float fv = result.getFloatValue(result.getUnitType());
 		if (Float.isNaN(fv)) {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Result is not a number (NaN).");
+		}
+
+		if (function.expectsInteger()) {
+			((CSSNumberValue) result).roundToInteger();
 		}
 
 		return result;
@@ -617,7 +623,7 @@ public class Evaluator {
 	 * @return the result from evaluating the expression.
 	 * @throws DOMException if a problem was found evaluating the expression.
 	 */
-	public TypedValue evaluateExpression(ExpressionValue calc) throws DOMException {
+	public TypedValue evaluateExpression(CSSExpressionValue calc) throws DOMException {
 		Unit resultUnit = new Unit();
 		TypedValue result = evaluateExpression(calc.getExpression(), resultUnit);
 		int exp = resultUnit.getExponent();
@@ -625,13 +631,13 @@ public class Evaluator {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Resulting unit is not valid CSS unit.");
 		}
 
-		if (calc.mustRoundResult()) {
-			((NumberValue) result).roundToInteger();
-		}
-
 		float fv = result.getFloatValue(result.getUnitType());
 		if (Float.isNaN(fv)) {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Result is not a number (NaN).");
+		}
+
+		if (calc.expectsInteger()) {
+			((CSSNumberValue) result).roundToInteger();
 		}
 
 		return result;
@@ -801,7 +807,7 @@ public class Evaluator {
 			typed = evaluateFunction((CSSMathFunctionValue) partialValue, resultUnit);
 			break;
 		case EXPRESSION:
-			CSSExpression expr = ((ExpressionValue) partialValue).getExpression();
+			CSSExpression expr = ((CSSExpressionValue) partialValue).getExpression();
 			typed = evaluateExpression(expr, resultUnit);
 			break;
 		case FUNCTION:

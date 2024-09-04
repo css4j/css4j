@@ -20,6 +20,7 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
@@ -29,7 +30,7 @@ import io.sf.carte.util.SimpleWriter;
  * @author Carlos Amengual
  *
  */
-public class NumberValue extends TypedValue {
+public class NumberValue extends TypedValue implements CSSNumberValue {
 
 	private static final long serialVersionUID = 1L;
 
@@ -242,7 +243,7 @@ public class NumberValue extends TypedValue {
 	}
 
 	@Override
-	public void setExpectInteger() {
+	public void setExpectInteger() throws DOMException {
 		if (getUnitType() != CSSUnit.CSS_NUMBER) {
 			super.setExpectInteger();
 		} else if (calculated) {
@@ -253,7 +254,8 @@ public class NumberValue extends TypedValue {
 		}
 	}
 
-	void roundToInteger() throws DOMException {
+	@Override
+	public void roundToInteger() throws DOMException {
 		asInteger = true;
 		setExpectInteger();
 		realvalue = Math.round(realvalue);
@@ -274,7 +276,8 @@ public class NumberValue extends TypedValue {
 	 * 
 	 * @param calculated {@code true} if this number was calculated.
 	 */
-	void setCalculatedNumber(boolean calculated) {
+	@Override
+	public void setCalculatedNumber(boolean calculated) {
 		this.calculated = calculated;
 		this.specified = this.specified && !calculated;
 	}

@@ -339,7 +339,8 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 		roundResult = true;
 	}
 
-	boolean mustRoundResult() {
+	@Override
+	public boolean expectsInteger() {
 		return roundResult;
 	}
 

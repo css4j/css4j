@@ -15,7 +15,7 @@ package io.sf.carte.doc.style.css;
 /**
  * A primitive value containing an expression (like <code>calc()</code>).
  */
-public interface CSSExpressionValue extends CSSTypedValue {
+public interface CSSExpressionValue extends CSSMathValue {
 
 	/**
 	 * Get the root expression corresponding to this <code>calc()</code> value.
@@ -23,14 +23,6 @@ public interface CSSExpressionValue extends CSSTypedValue {
 	 * @return the expression.
 	 */
 	CSSExpression getExpression();
-
-	/**
-	 * Performs a dimensional analysis of this expression and computes the unit type
-	 * of the result.
-	 * 
-	 * @return the unit type of the result, as in {@link CSSUnit}.
-	 */
-	short computeUnitType();
 
 	@Override
 	CSSExpressionValue clone();

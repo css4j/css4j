@@ -28,6 +28,8 @@ class MathFunctionValue extends FunctionValue implements CSSMathFunctionValue {
 
 	private final MathFunction function;
 
+	private boolean roundResult = false;
+
 	MathFunctionValue(MathFunction function) {
 		super(Type.MATH_FUNCTION);
 		this.function = function;
@@ -41,6 +43,16 @@ class MathFunctionValue extends FunctionValue implements CSSMathFunctionValue {
 	@Override
 	public MathFunction getFunction() {
 		return function;
+	}
+
+	@Override
+	public void setExpectInteger() {
+		roundResult = true;
+	}
+
+	@Override
+	public boolean expectsInteger() {
+		return roundResult;
 	}
 
 	/**

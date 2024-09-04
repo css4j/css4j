@@ -55,7 +55,7 @@ abstract public class PrimitiveValue extends StyleValue implements CSSPrimitiveV
 	}
 
 	@Override
-	public void setExpectInteger() {
+	public void setExpectInteger() throws DOMException {
 		throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 				"Expected an integer, found type " + getPrimitiveType());
 	}

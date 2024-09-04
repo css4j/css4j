@@ -17,7 +17,7 @@ package io.sf.carte.doc.style.css;
  * 
  * @see MathFunction
  */
-public interface CSSMathFunctionValue extends CSSFunctionValue {
+public interface CSSMathFunctionValue extends CSSFunctionValue, CSSMathValue {
 
 	/**
 	 * Enumeration of mathematical functions.
@@ -82,6 +82,7 @@ public interface CSSMathFunctionValue extends CSSFunctionValue {
 	 * 
 	 * @return the unit type of the result, as in {@link CSSUnit}.
 	 */
+	@Override
 	short computeUnitType();
 
 	@Override

@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -27,7 +28,7 @@ public class PercentageEvaluator extends Evaluator {
 	}
 
 	@Override
-	public TypedValue evaluateExpression(ExpressionValue calc) throws DOMException {
+	public TypedValue evaluateExpression(CSSExpressionValue calc) throws DOMException {
 		TypedValue ret = super.evaluateExpression(calc);
 		short unit = ret.getUnitType();
 		if (unit != CSSUnit.CSS_PERCENTAGE && unit != CSSUnit.CSS_NUMBER) {
