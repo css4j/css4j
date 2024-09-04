@@ -193,7 +193,7 @@ public class CSSParserTest {
 		assertTrue(mql.isAllMedia());
 		assertFalse(mql.isNotAllMedia());
 		assertFalse(mql.hasErrors());
-		assertEquals("all", mql.getMediaText());
+		assertEquals("all", mql.getMedia());
 	}
 
 	@Test
@@ -203,7 +203,7 @@ public class CSSParserTest {
 		assertTrue(mql.isAllMedia());
 		assertFalse(mql.isNotAllMedia());
 		assertFalse(mql.hasErrors());
-		assertEquals("all", mql.getMediaText());
+		assertEquals("all", mql.getMedia());
 	}
 
 	@Test
@@ -213,7 +213,7 @@ public class CSSParserTest {
 		assertFalse(mql.isAllMedia());
 		assertFalse(mql.isNotAllMedia());
 		assertFalse(mql.hasErrors());
-		assertEquals("screen", mql.getMediaText());
+		assertEquals("screen", mql.getMedia());
 
 		MediaQueryList mqlAll = parser.parseMediaQueryList("all", null);
 		assertFalse(mql.matches(mqlAll));
@@ -227,7 +227,7 @@ public class CSSParserTest {
 		assertFalse(mql.isAllMedia());
 		assertTrue(mql.isNotAllMedia());
 		assertTrue(mql.hasErrors());
-		assertEquals("not all", mql.getMediaText());
+		assertEquals("not all", mql.getMedia());
 
 		MediaQueryList mqlAll = parser.parseMediaQueryList("all", null);
 		assertFalse(mql.matches(mqlAll));

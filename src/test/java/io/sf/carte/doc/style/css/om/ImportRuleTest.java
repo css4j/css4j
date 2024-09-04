@@ -109,7 +109,7 @@ public class ImportRuleTest {
 		assertNotNull(mql);
 		assertFalse(mql.isAllMedia());
 		assertFalse(mql.isNotAllMedia());
-		assertEquals("screen", mql.getMediaText());
+		assertEquals("screen", mql.getMedia());
 		AbstractCSSStyleSheet imported = imp.getStyleSheet();
 		assertNotNull(imported);
 		CSSRuleArrayList list = imported.getCssRules();
@@ -131,7 +131,7 @@ public class ImportRuleTest {
 		AbstractCSSRule rule = docsheet.getCssRules().item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
 		MediaRule mediaRule = (MediaRule) rule;
-		assertEquals("screen", mediaRule.getMedia().getMediaText());
+		assertEquals("screen", mediaRule.getMedia().getMedia());
 		assertEquals(1, mediaRule.getCssRules().getLength());
 		rule = mediaRule.getCssRules().item(0);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
@@ -164,7 +164,7 @@ public class ImportRuleTest {
 		rule = docsheet.getCssRules().item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
 		mediaRule = (MediaRule) rule;
-		assertEquals("screen", mediaRule.getMedia().getMediaText());
+		assertEquals("screen", mediaRule.getMedia().getMedia());
 		assertEquals(1, mediaRule.getCssRules().getLength());
 		rule = mediaRule.getCssRules().item(0);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
@@ -216,7 +216,7 @@ public class ImportRuleTest {
 		assertNotNull(mql);
 		assertFalse(mql.isAllMedia());
 		assertFalse(mql.isNotAllMedia());
-		assertEquals("screen", mql.getMediaText());
+		assertEquals("screen", mql.getMedia());
 		AbstractCSSStyleSheet imported = imp.getStyleSheet();
 		assertNotNull(imported);
 		CSSRuleArrayList list = imported.getCssRules();
@@ -238,7 +238,7 @@ public class ImportRuleTest {
 		AbstractCSSRule rule = docsheet.getCssRules().item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
 		MediaRule mediaRule = (MediaRule) rule;
-		assertEquals("screen", mediaRule.getMedia().getMediaText());
+		assertEquals("screen", mediaRule.getMedia().getMedia());
 		assertEquals(2, mediaRule.getCssRules().getLength());
 		rule = mediaRule.getCssRules().item(0);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
@@ -271,7 +271,7 @@ public class ImportRuleTest {
 		rule = docsheet.getCssRules().item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
 		mediaRule = (MediaRule) rule;
-		assertEquals("screen", mediaRule.getMedia().getMediaText());
+		assertEquals("screen", mediaRule.getMedia().getMedia());
 		assertEquals(2, mediaRule.getCssRules().getLength());
 		rule = mediaRule.getCssRules().item(0);
 		assertEquals(CSSRule.STYLE_RULE, rule.getType());
@@ -537,7 +537,7 @@ public class ImportRuleTest {
 		assertEquals(CSSRule.IMPORT_RULE, list.item(0).getType());
 		ImportRule imp = (ImportRule) list.item(0);
 		assertFalse(imp.getMedia().isAllMedia());
-		assertEquals("screen and (min-width: 600px)", imp.getMedia().getMediaText());
+		assertEquals("screen and (min-width: 600px)", imp.getMedia().getMedia());
 		assertEquals("@import url('http://www.example.com/css/default.css') screen and (min-width: 600px); ",
 				imp.getCssText());
 		assertEquals("@import 'http://www.example.com/css/default.css' screen and (min-width:600px);",
@@ -551,7 +551,7 @@ public class ImportRuleTest {
 		ImportRule imp = sheet.createImportRule(mql, "http://www.example.com/css/foo.css");
 		imp.setCssText("@import 'bar.css' screen;");
 		assertFalse(imp.getMedia().isAllMedia());
-		assertEquals("screen", imp.getMedia().getMediaText());
+		assertEquals("screen", imp.getMedia().getMedia());
 		assertEquals("bar.css", imp.getHref());
 		assertEquals("@import url('bar.css') screen; ", imp.getCssText());
 		assertEquals("@import 'bar.css' screen;", imp.getMinifiedCssText());
@@ -581,7 +581,7 @@ public class ImportRuleTest {
 		ImportRule cloned = rule.clone(newSheet);
 		assertFalse(rule == cloned);
 		assertEquals(rule.getHref(), cloned.getHref());
-		assertEquals(rule.getMedia().getMediaText(), cloned.getMedia().getMediaText());
+		assertEquals(rule.getMedia().getMedia(), cloned.getMedia().getMedia());
 		assertTrue(rule.equals(cloned));
 		assertEquals(rule.hashCode(), cloned.hashCode());
 	}

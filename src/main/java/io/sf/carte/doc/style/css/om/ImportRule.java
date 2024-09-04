@@ -152,7 +152,7 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 		context.writeURL(wri, getHref());
 		if (!mediaList.isAllMedia()) {
 			wri.write(' ');
-			wri.write(mediaList.getMediaText());
+			wri.write(mediaList.getMedia());
 		}
 		context.writeSemiColon(wri);
 	}

@@ -1117,7 +1117,7 @@ public class HTMLDocumentTest {
 		sheet = it.next().getSheet();
 		assertNotNull(sheet);
 		assertNull(sheet.getTitle());
-		assertEquals("print", sheet.getMedia().getMediaText());
+		assertEquals("print", sheet.getMedia().getMedia());
 		assertEquals(1, sheet.getCssRules().getLength());
 
 		assertEquals(defSz + 25, css.getCssRules().getLength());

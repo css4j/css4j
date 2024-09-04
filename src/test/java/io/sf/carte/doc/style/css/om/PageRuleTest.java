@@ -58,7 +58,7 @@ public class PageRuleTest {
 		AbstractCSSRule rule = sheet.getCssRules().item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
 		MediaRule mediarule = (MediaRule) rule;
-		assertEquals("print", mediarule.getMedia().getMediaText());
+		assertEquals("print", mediarule.getMedia().getMedia());
 		assertEquals(2, mediarule.getCssRules().getLength());
 		assertEquals(CSSRule.PAGE_RULE, mediarule.getCssRules().item(0).getType());
 		PageRule pagerule = (PageRule) mediarule.getCssRules().item(0);

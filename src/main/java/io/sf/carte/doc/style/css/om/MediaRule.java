@@ -83,7 +83,7 @@ public class MediaRule extends GroupingRule implements CSSMediaRule {
 		wri.write("@media");
 		if (!mediaList.isAllMedia()) {
 			wri.write(' ');
-			wri.write(mediaList.getMediaText());
+			wri.write(mediaList.getMedia());
 		}
 		context.updateContext(this);
 		context.writeLeftCurlyBracket(wri);
