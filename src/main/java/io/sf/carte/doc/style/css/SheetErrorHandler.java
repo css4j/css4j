@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Element;
 
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
@@ -65,24 +64,6 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	 * @param message a message describing the issue.
 	 */
 	void conditionalRuleError(BooleanCondition condition, String message);
-
-	/**
-	 * Report an error processing an inline style.
-	 * <p>
-	 * In HTML, it means that the style declaration within the <code>style</code> attribute
-	 * could not be parsed.
-	 * 
-	 * @param e
-	 *            the exception found.
-	 * @param elm
-	 *            the element whose inline style was parsed.
-	 * @param attr
-	 *            the contents of the attribute containing the inline style (generally
-	 *            <code>style</code>).
-	 */
-	@Deprecated(forRemoval = true)
-	default void inlineStyleError(DOMException e, Element elm, String attr) {
-	}
 
 	/**
 	 * An error was found when parsing a rule.

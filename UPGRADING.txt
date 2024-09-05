@@ -1,6 +1,20 @@
 UPGRADING FROM PREVIOUS VERSIONS
 ================================
 
+Upgrading to 5.0 from 4.x
+-------------------------
+- CSSOM: deprecated `inlineStyleError()` was removed from `SheetErrorHandler`.
+
+- CSSOM: `CSSFunctionValue.getArguments()` now returns a `CSSValueList<? extends CSSValue>`.
+
+- CSSOM: interface `MediaQueryList` now extends `EventTarget`.
+
+- CSSOM: interface `MediaQueryListListener` was deprecated.
+
+- CSSOM: protected method `absoluteTypedValue(TypedValue)` in `ComputedCSSStyle`
+  now accepts and returns a `CSSTypedValue`.
+
+
 Upgrading to 4.0 from 3.9.1
 ---------------------------
 - NSAC: ATTR values no longer return a string serialization of the arguments in
