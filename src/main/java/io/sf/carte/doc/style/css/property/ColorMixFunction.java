@@ -21,6 +21,7 @@ import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorMixFunction;
 import io.sf.carte.doc.style.css.CSSColorValue;
+import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
@@ -202,10 +203,10 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			primi = eval.evaluateExpression((ExpressionValue) primi);
+			primi = (PrimitiveValue) eval.evaluateExpression((CSSExpressionValue) primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
+			primi = (PrimitiveValue) eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
 		if (primi.getUnitType() != CSSUnit.CSS_PERCENTAGE

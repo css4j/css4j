@@ -15,6 +15,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
+import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 
@@ -28,8 +29,8 @@ public class PercentageEvaluator extends Evaluator {
 	}
 
 	@Override
-	public TypedValue evaluateExpression(CSSExpressionValue calc) throws DOMException {
-		TypedValue ret = super.evaluateExpression(calc);
+	public CSSTypedValue evaluateExpression(CSSExpressionValue calc) throws DOMException {
+		CSSTypedValue ret = super.evaluateExpression(calc);
 		short unit = ret.getUnitType();
 		if (unit != CSSUnit.CSS_PERCENTAGE && unit != CSSUnit.CSS_NUMBER) {
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unexpected calc() result.");
@@ -38,8 +39,8 @@ public class PercentageEvaluator extends Evaluator {
 	}
 
 	@Override
-	public TypedValue evaluateFunction(CSSMathFunctionValue function) throws DOMException {
-		TypedValue ret = super.evaluateFunction(function);
+	public CSSNumberValue evaluateFunction(CSSMathFunctionValue function) throws DOMException {
+		CSSNumberValue ret = super.evaluateFunction(function);
 		short unit = ret.getUnitType();
 		if (unit != CSSUnit.CSS_PERCENTAGE && unit != CSSUnit.CSS_NUMBER) {
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unexpected calc() result.");

@@ -277,7 +277,7 @@ public class EvaluatorTest {
 		val.setExpectInteger();
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		TypedValue result = evaluator.evaluateExpression(val);
+		CSSTypedValue result = evaluator.evaluateExpression(val);
 
 		assertEquals(CSSUnit.CSS_NUMBER, result.getUnitType());
 		assertEquals(3f, result.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -291,7 +291,7 @@ public class EvaluatorTest {
 		val.setExpectInteger();
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		TypedValue result = evaluator.evaluateExpression(val);
+		CSSTypedValue result = evaluator.evaluateExpression(val);
 
 		assertEquals(CSSUnit.CSS_NUMBER, result.getUnitType());
 		assertEquals(2f, result.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);

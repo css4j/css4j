@@ -74,9 +74,9 @@ public class Evaluator {
 	 * @throws DOMException if a problem was found evaluating the function, or the
 	 *                      resulting unit is not a valid CSS unit.
 	 */
-	public TypedValue evaluateFunction(CSSMathFunctionValue function) throws DOMException {
+	public CSSNumberValue evaluateFunction(CSSMathFunctionValue function) throws DOMException {
 		Unit resultUnit = new Unit();
-		TypedValue result = evaluateFunction(function, resultUnit);
+		CSSNumberValue result = evaluateFunction(function, resultUnit);
 		int exp = resultUnit.getExponent();
 		if (exp > 1 || exp < 0) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Resulting unit is not valid CSS unit.");
@@ -103,9 +103,9 @@ public class Evaluator {
 	 *         class does not know how to evaluate it.
 	 * @throws DOMException if a problem was found evaluating the function.
 	 */
-	TypedValue evaluateFunction(CSSMathFunctionValue function, Unit resultUnit)
+	CSSNumberValue evaluateFunction(CSSMathFunctionValue function, Unit resultUnit)
 			throws DOMException {
-		TypedValue typed;
+		CSSNumberValue typed;
 		switch (function.getFunction()) {
 		case MAX:
 			typed = functionMax(function.getArguments(), resultUnit);
@@ -160,15 +160,15 @@ public class Evaluator {
 		return typed;
 	}
 
-	private TypedValue functionMax(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionMax(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
-		if (arguments.getLength() == 0) {
+		if (arguments.isEmpty()) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "max() functions take at least one argument");
 		}
 
 		Iterator<? extends CSSValue> it = arguments.iterator();
 		CSSValue arg = it.next();
-		TypedValue typed = enforceTyped(arg);
+		CSSTypedValue typed = enforceTyped(arg);
 		typed = evaluate(typed, resultUnit);
 		boolean calculated = typed.isCalculatedNumber();
 		float max = floatValue(typed, resultUnit);
@@ -194,18 +194,16 @@ public class Evaluator {
 			}
 		}
 
-		NumberValue value = NumberValue.createCSSNumberValue(maxUnit, maxInSpecifiedUnit);
-		value.setCalculatedNumber(calculated);
-		return value;
+		return createNumberValue(maxUnit, maxInSpecifiedUnit, calculated);
 	}
 
-	private TypedValue enforceTyped(CSSValue arg) throws DOMException {
+	private CSSTypedValue enforceTyped(CSSValue arg) throws DOMException {
 		if (arg.getCssValueType() != CssType.TYPED) {
 			throw new DOMException(DOMException.SYNTAX_ERR,
 					"Unexpected value: " + arg.getCssText());
 		}
 
-		TypedValue typed = (TypedValue) arg;
+		CSSTypedValue typed = (CSSTypedValue) arg;
 		if (typed.getPrimitiveType() == Type.IDENT) {
 			String s = typed.getStringValue();
 			// We may have got Pi or E
@@ -222,16 +220,16 @@ public class Evaluator {
 		return typed;
 	}
 
-	private TypedValue functionMin(CSSValueList<? extends CSSValue> arguments, Unit resultUnit)
+	private CSSNumberValue functionMin(CSSValueList<? extends CSSValue> arguments, Unit resultUnit)
 			throws DOMException {
-		if (arguments.getLength() == 0) {
+		if (arguments.isEmpty()) {
 			throw new DOMException(DOMException.SYNTAX_ERR,
 					"min() functions take at least one argument");
 		}
 
 		Iterator<? extends CSSValue> it = arguments.iterator();
 		CSSValue arg = it.next();
-		TypedValue typed = enforceTyped(arg);
+		CSSTypedValue typed = enforceTyped(arg);
 		typed = evaluate(typed, resultUnit);
 		boolean calculated = typed.isCalculatedNumber();
 		float min = floatValue(typed, resultUnit);
@@ -258,12 +256,10 @@ public class Evaluator {
 			}
 		}
 
-		NumberValue value = NumberValue.createCSSNumberValue(minUnit, minInSpecifiedUnit);
-		value.setCalculatedNumber(calculated);
-		return value;
+		return createNumberValue(minUnit, minInSpecifiedUnit, calculated);
 	}
 
-	private TypedValue functionClamp(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionClamp(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 3) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Clamp functions take three arguments");
@@ -275,7 +271,7 @@ public class Evaluator {
 		float result = floatValue(arg, resultUnit);
 		short centralUnit = resultUnit.getUnitType();
 		int exp = resultUnit.getExponent();
-		TypedValue arg0 = typedArgument(arguments, 0);
+		CSSTypedValue arg0 = typedArgument(arguments, 0);
 		arg0 = evaluate(arg0, resultUnit);
 		float min = floatValue(arg0, resultUnit);
 		if (exp != resultUnit.getExponent()) {
@@ -283,7 +279,7 @@ public class Evaluator {
 					"clamp() arguments have incompatible dimensions.");
 		}
 		min = NumberValue.floatValueConversion(min, resultUnit.getUnitType(), centralUnit);
-		TypedValue arg2 = typedArgument(arguments, 2);
+		CSSTypedValue arg2 = typedArgument(arguments, 2);
 		arg2 = evaluate(arg2, resultUnit);
 		float max = floatValue(arg2, resultUnit);
 		if (exp != resultUnit.getExponent()) {
@@ -301,12 +297,10 @@ public class Evaluator {
 			calculated = arg0.isCalculatedNumber();
 		}
 
-		NumberValue value = NumberValue.createCSSNumberValue(centralUnit, result);
-		value.setCalculatedNumber(calculated);
-		return value;
+		return createNumberValue(centralUnit, result, calculated);
 	}
 
-	private TypedValue functionSin(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionSin(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "sin() functions take one argument");
@@ -323,13 +317,11 @@ public class Evaluator {
 		float result = (float) Math.sin(fval);
 		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
 		resultUnit.setExponent(0);
-		NumberValue value = new NumberValue();
-		value.setFloatValue(CSSUnit.CSS_NUMBER, result);
-		value.setCalculatedNumber(true);
-		return value;
+
+		return createNumberValue(CSSUnit.CSS_NUMBER, result, true);
 	}
 
-	private TypedValue functionCos(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionCos(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "cos() functions take one argument");
@@ -346,13 +338,11 @@ public class Evaluator {
 		float result = (float) Math.cos(fval);
 		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
 		resultUnit.setExponent(0);
-		NumberValue value = new NumberValue();
-		value.setFloatValue(CSSUnit.CSS_NUMBER, result);
-		value.setCalculatedNumber(true);
-		return value;
+
+		return createNumberValue(CSSUnit.CSS_NUMBER, result, true);
 	}
 
-	private TypedValue functionTan(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionTan(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "tan() functions take one argument");
@@ -369,13 +359,11 @@ public class Evaluator {
 		float result = (float) Math.tan(fval);
 		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
 		resultUnit.setExponent(0);
-		NumberValue value = new NumberValue();
-		value.setFloatValue(CSSUnit.CSS_NUMBER, result);
-		value.setCalculatedNumber(true);
-		return value;
+
+		return createNumberValue(CSSUnit.CSS_NUMBER, result, true);
 	}
 
-	private TypedValue functionASin(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionASin(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "asin() functions take one argument");
@@ -387,13 +375,11 @@ public class Evaluator {
 		}
 		resultUnit.setUnitType(CSSUnit.CSS_RAD);
 		resultUnit.setExponent(1);
-		NumberValue value = new NumberValue();
-		value.setFloatValue(CSSUnit.CSS_RAD, result);
-		value.setCalculatedNumber(true);
-		return value;
+
+		return createNumberValue(CSSUnit.CSS_RAD, result, true);
 	}
 
-	private TypedValue functionACos(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionACos(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "acos() functions take one argument");
@@ -405,13 +391,11 @@ public class Evaluator {
 		}
 		resultUnit.setUnitType(CSSUnit.CSS_RAD);
 		resultUnit.setExponent(1);
-		NumberValue value = new NumberValue();
-		value.setFloatValue(CSSUnit.CSS_RAD, result);
-		value.setCalculatedNumber(true);
-		return value;
+
+		return createNumberValue(CSSUnit.CSS_RAD, result, true);
 	}
 
-	private TypedValue functionATan(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionATan(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "atan() functions take one argument");
@@ -424,13 +408,11 @@ public class Evaluator {
 		float result = (float) Math.atan(f1);
 		resultUnit.setUnitType(CSSUnit.CSS_RAD);
 		resultUnit.setExponent(1);
-		NumberValue value = new NumberValue();
-		value.setFloatValue(CSSUnit.CSS_RAD, result);
-		value.setCalculatedNumber(true);
-		return value;
+
+		return createNumberValue(CSSUnit.CSS_RAD, result, true);
 	}
 
-	private TypedValue functionATan2(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionATan2(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 2) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "atan2() functions take two arguments");
@@ -448,13 +430,11 @@ public class Evaluator {
 		float result = (float) Math.atan2(f1, f2);
 		resultUnit.setUnitType(CSSUnit.CSS_RAD);
 		resultUnit.setExponent(1);
-		NumberValue value = new NumberValue();
-		value.setFloatValue(CSSUnit.CSS_RAD, result);
-		value.setCalculatedNumber(true);
-		return value;
+
+		return createNumberValue(CSSUnit.CSS_RAD, result, true);
 	}
 
-	private TypedValue functionPow(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionPow(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 2) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "pow() functions take two arguments");
@@ -470,12 +450,11 @@ public class Evaluator {
 		}
 		float result = (float) Math.pow(base, exponent);
 		resultUnit.setExponent(resultUnit.getExponent() * Math.round(exponent));
-		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
-		value.setCalculatedNumber(true);
-		return value;
+
+		return createNumberValue(resultUnit.getUnitType(), result, true);
 	}
 
-	private TypedValue functionSqrt(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionSqrt(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "sqrt() functions take one argument");
@@ -489,12 +468,10 @@ public class Evaluator {
 		}
 		resultUnit.setExponent(exp / 2);
 
-		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
-		value.setCalculatedNumber(true);
-		return value;
+		return createNumberValue(resultUnit.getUnitType(), result, true);
 	}
 
-	private TypedValue functionHypot(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionHypot(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		int len = arguments.getLength();
 		if (len == 2) {
@@ -515,12 +492,11 @@ public class Evaluator {
 			result += partial * partial;
 		}
 		result = Math.sqrt(result);
-		NumberValue value = NumberValue.createCSSNumberValue(firstUnit, (float) result);
-		value.setCalculatedNumber(true);
-		return value;
+
+		return createNumberValue(firstUnit, (float) result, true);
 	}
 
-	private TypedValue functionHypot2(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionHypot2(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		CSSTypedValue arg2 = typedArgument(arguments, 1);
@@ -531,26 +507,24 @@ public class Evaluator {
 			f2 = NumberValue.floatValueConversion(f2, arg2Type.getUnitType(), resultUnit.getUnitType());
 		}
 		float result = (float) Math.hypot(f1, f2);
-		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
-		value.setCalculatedNumber(true);
-		return value;
+
+		return createNumberValue(resultUnit.getUnitType(), result, true);
 	}
 
-	private TypedValue functionAbs(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionAbs(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "abs() functions take one argument.");
 		}
 		CSSTypedValue arg = typedArgument(arguments, 0);
-		TypedValue typed = evaluate(arg, resultUnit);
+		CSSTypedValue typed = evaluate(arg, resultUnit);
 		float fval = floatValue(typed, resultUnit);
 		float result = Math.abs(fval);
-		NumberValue value = NumberValue.createCSSNumberValue(resultUnit.getUnitType(), result);
-		value.setCalculatedNumber(typed.isCalculatedNumber());
-		return value;
+
+		return createNumberValue(resultUnit.getUnitType(), result, typed.isCalculatedNumber());
 	}
 
-	private TypedValue functionSign(CSSValueList<? extends CSSValue> arguments,
+	private CSSNumberValue functionSign(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 1) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "sign() functions take one argument.");
@@ -560,35 +534,24 @@ public class Evaluator {
 		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
 		resultUnit.setExponent(0);
 		float result = Math.signum(fval);
-		NumberValue value = new NumberValue();
-		value.setFloatValue(CSSUnit.CSS_NUMBER, result);
-		return value;
+
+		return createNumberValue(CSSUnit.CSS_NUMBER, result, false);
 	}
 
-	TypedValue unknownFunction(CSSFunctionValue function, Unit resultUnit) {
-		// Do not know how to evaluate, convert arguments to absolute anyway.
+	CSSTypedValue unknownFunction(CSSFunctionValue function, Unit resultUnit) {
+		// Do not know how to evaluate
 		resultUnit.setUnitType(CSSUnit.CSS_INVALID);
-
-		function = function.clone();
-		LinkedCSSValueList args = function.getArguments();
-		int sz = args.getLength();
-		for (int i = 0; i < sz; i++) {
-			CSSValue value = args.item(i);
-			if (value.getCssValueType() == CssType.TYPED) {
-				args.set(i, absoluteValue((CSSPrimitiveValue) value));
-			}
-		}
-		return (TypedValue) function;
+		return function;
 	}
 
-	private TypedValue typedArgument(CSSValueList<? extends CSSValue> arguments,
+	private CSSTypedValue typedArgument(CSSValueList<? extends CSSValue> arguments,
 			int index) {
 		CSSValue arg = arguments.item(index);
 		return enforceTyped(arg);
 	}
 
 	private float evalValue(CSSTypedValue value, Unit resultUnit) throws DOMException {
-		TypedValue typed = evaluate(value, resultUnit);
+		CSSTypedValue typed = evaluate(value, resultUnit);
 		return floatValue(typed, resultUnit);
 	}
 
@@ -608,6 +571,21 @@ public class Evaluator {
 		return result;
 	}
 
+	/**
+	 * Create a {@code CSSNumberValue} in the desired implementation.
+	 * 
+	 * @param unit                 the unit.
+	 * @param valueInSpecifiedUnit the value in the given unit.
+	 * @param calculated           whether the value was calculated. Implementations
+	 *                             may ignore this parameter.
+	 * @return the number value.
+	 */
+	protected CSSNumberValue createNumberValue(short unit, float valueInSpecifiedUnit, boolean calculated) {
+		NumberValue value = NumberValue.createCSSNumberValue(unit, valueInSpecifiedUnit);
+		value.setCalculatedNumber(calculated);
+		return value;
+	}
+
 	short getPreferredUnit() {
 		return preferredUnit;
 	}
@@ -623,9 +601,9 @@ public class Evaluator {
 	 * @return the result from evaluating the expression.
 	 * @throws DOMException if a problem was found evaluating the expression.
 	 */
-	public TypedValue evaluateExpression(CSSExpressionValue calc) throws DOMException {
+	public CSSTypedValue evaluateExpression(CSSExpressionValue calc) throws DOMException {
 		Unit resultUnit = new Unit();
-		TypedValue result = evaluateExpression(calc.getExpression(), resultUnit);
+		CSSTypedValue result = evaluateExpression(calc.getExpression(), resultUnit);
 		int exp = resultUnit.getExponent();
 		if (exp > 1 || exp < 0) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Resulting unit is not valid CSS unit.");
@@ -651,7 +629,7 @@ public class Evaluator {
 	 * @return the result from evaluating the expression.
 	 * @throws DOMException if a problem was found evaluating the expression.
 	 */
-	TypedValue evaluateExpression(CSSExpression expression, Unit resultUnit) throws DOMException {
+	CSSTypedValue evaluateExpression(CSSExpression expression, Unit resultUnit) throws DOMException {
 		float result;
 		switch (expression.getPartType()) {
 		case SUM:
@@ -800,8 +778,8 @@ public class Evaluator {
 		throw exception;
 	}
 
-	private TypedValue evaluate(CSSPrimitiveValue partialValue, Unit resultUnit) {
-		TypedValue typed;
+	private CSSTypedValue evaluate(CSSPrimitiveValue partialValue, Unit resultUnit) {
+		CSSTypedValue typed;
 		switch (partialValue.getPrimitiveType()) {
 		case MATH_FUNCTION:
 			typed = evaluateFunction((CSSMathFunctionValue) partialValue, resultUnit);
@@ -829,25 +807,23 @@ public class Evaluator {
 	 * @param partialValue the value that has to be expressed in absolute units.
 	 * @return the value in absolute units.
 	 */
-	protected TypedValue absoluteValue(CSSPrimitiveValue partialValue) throws DOMException {
-		CssType type = partialValue.getCssValueType();
-		while (type == CssType.PROXY) {
+	protected CSSTypedValue absoluteValue(CSSPrimitiveValue partialValue) throws DOMException {
+		while (partialValue.getCssValueType() == CssType.PROXY) {
 			CSSValue value = absoluteProxyValue(partialValue);
-			if (value == null) {
+			if (value == null || !value.isPrimitiveValue()) {
 				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 						"Unable to evaluate: " + partialValue.getCssText());
 			}
 			partialValue = (CSSPrimitiveValue) value;
-			type = value.getCssValueType();
 		}
-		if (type == CssType.TYPED) {
-			return absoluteTypedValue((TypedValue) partialValue);
+		if (partialValue.getCssValueType() == CssType.TYPED) {
+			return absoluteTypedValue((CSSTypedValue) partialValue);
 		}
 		throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 				"Unexpected value: " + partialValue.getCssText());
 	}
 
-	protected TypedValue absoluteTypedValue(TypedValue partialValue) {
+	protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
 		return partialValue;
 	}
 

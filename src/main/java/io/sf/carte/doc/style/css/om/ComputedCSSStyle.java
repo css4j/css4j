@@ -31,7 +31,9 @@ import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSExpression;
+import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
+import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSPropertyDefinition;
@@ -69,6 +71,7 @@ import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
+import io.sf.carte.doc.style.css.property.MathFunctionValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.PercentageEvaluator;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
@@ -654,7 +657,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	TypedValue absoluteTypedValue(String propertyName, TypedValue typed, boolean useParentStyle) {
 		if (isRelativeUnit(typed)) {
 			try {
-				typed = absoluteNumberValue((NumberValue) typed, useParentStyle);
+				typed = absoluteNumberValue((CSSNumberValue) typed, useParentStyle);
 			} catch (DOMException | IllegalStateException e) {
 				computedStyleError(propertyName, typed.getCssText(),
 						"Could not absolutize property value.", e);
@@ -666,7 +669,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				ExpressionValue exprval = (ExpressionValue) typed;
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
-					typed = ev.evaluateExpression(exprval);
+					typed = (TypedValue) ev.evaluateExpression(exprval);
 				} catch (DOMException e) {
 					computedStyleWarning(propertyName, typed,
 							"Could not evaluate expression value.", e);
@@ -674,16 +677,15 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					absoluteExpressionValue(propertyName, exprval.getExpression(), useParentStyle);
 				}
 			} else if (type == Type.MATH_FUNCTION) {
-				CSSMathFunctionValue function = (CSSMathFunctionValue) typed;
+				MathFunctionValue function = (MathFunctionValue) typed;
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
-					typed = ev.evaluateFunction(function);
+					typed = (TypedValue) ev.evaluateFunction(function);
 				} catch (DOMException e) {
 					computedStyleWarning(propertyName, typed, "Could not evaluate function value.",
 							e);
 					// Evaluation failed, convert arguments to absolute anyway.
-					typed = typed.clone();
-					function = (CSSMathFunctionValue) typed;
+					function = (MathFunctionValue) typed.clone();
 					LinkedCSSValueList args = function.getArguments();
 					int sz = args.size();
 					for (int i = 0; i < sz; i++) {
@@ -704,7 +706,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		return typed;
 	}
 
-	private NumberValue absoluteNumberValue(NumberValue value, boolean useParentStyle) {
+	private NumberValue absoluteNumberValue(CSSNumberValue value, boolean useParentStyle) {
 		short unit = value.getUnitType();
 		float fv = value.getFloatValue(unit);
 		if (unit == CSSUnit.CSS_EM) {
@@ -987,7 +989,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					}
 					Evaluator ev = new PercentageEvaluator();
 					try {
-						typed = ev.evaluateExpression((ExpressionValue) typed);
+						typed = (TypedValue) ev.evaluateExpression((ExpressionValue) typed);
 					} catch (DOMException e) {
 						computedStyleError(propertyName, color.getCssText(),
 								"Could not evaluate expression value in color.", e);
@@ -1000,7 +1002,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					}
 					PercentageEvaluator eval = new PercentageEvaluator();
 					try {
-						typed = eval.evaluateFunction((CSSMathFunctionValue) typed);
+						typed = (TypedValue) eval.evaluateFunction((CSSMathFunctionValue) typed);
 					} catch (DOMException e) {
 						computedStyleError(propertyName, color.getCssText(),
 								"Could not evaluate math function in color.", e);
@@ -1147,7 +1149,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				ExpressionValue exprval = (ExpressionValue) value;
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
-					comp = ev.evaluateExpression(exprval);
+					comp = (TypedValue) ev.evaluateExpression(exprval);
 					typed2.setComponent(i, comp);
 				} catch (RuntimeException e) {
 					computedStyleWarning(propertyName, exprval,
@@ -1166,10 +1168,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				if (typed2 == null) {
 					typed2 = typed.clone();
 				}
-				CSSMathFunctionValue mathFunction = (CSSMathFunctionValue) value;
+				MathFunctionValue mathFunction = (MathFunctionValue) value;
 				PercentageEvaluator eval = new PercentageEvaluator();
 				try {
-					comp = eval.evaluateFunction(mathFunction);
+					comp = (StyleValue) eval.evaluateFunction(mathFunction);
 					typed2.setComponent(i, comp);
 				} catch (RuntimeException e) {
 					computedStyleWarning(propertyName, mathFunction,
@@ -2123,11 +2125,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			return cssSize;
 		case EXPRESSION:
 			cssSize = cssSize.clone();
-			ExpressionValue exprval = (ExpressionValue) cssSize;
+			CSSExpressionValue exprval = (CSSExpressionValue) cssSize;
 			absoluteExpressionValue("font-size", exprval.getExpression(), true);
 			Evaluator ev = new FontEvaluator();
 			try {
-				cssSize = ev.evaluateExpression(exprval);
+				cssSize = (TypedValue) ev.evaluateExpression(exprval);
 			} catch (DOMException e) {
 				computedStyleError("font-size", exprval.getCssText(),
 						"Could not evaluate expression value.", e);
@@ -2135,7 +2137,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			return cssSize;
 		case MATH_FUNCTION:
-			CSSMathFunctionValue function = (CSSMathFunctionValue) cssSize;
+			MathFunctionValue function = (MathFunctionValue) cssSize;
 			function = function.clone();
 			LinkedCSSValueList args = function.getArguments();
 			int siz = args.size();
@@ -2144,7 +2146,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			ev = new FontEvaluator();
 			try {
-				cssSize = ev.evaluateFunction(function);
+				cssSize = (TypedValue) ev.evaluateFunction(function);
 			} catch (DOMException e) {
 				computedStyleError("font-size", function.getCssText(),
 						"Could not evaluate function value.", e);
@@ -2743,8 +2745,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 
 		@Override
-		protected TypedValue absoluteTypedValue(TypedValue partialValue) {
-			return ComputedCSSStyle.this.absoluteTypedValue(propertyName, partialValue, false);
+		protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
+			return ComputedCSSStyle.this.absoluteTypedValue(propertyName, (TypedValue) partialValue, false);
 		}
 
 		@Override
@@ -2761,8 +2763,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 
 		@Override
-		protected TypedValue absoluteTypedValue(TypedValue partialValue) {
-			return ComputedCSSStyle.this.absoluteTypedValue(propertyName, partialValue, true);
+		protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
+			return ComputedCSSStyle.this.absoluteTypedValue(propertyName, (TypedValue) partialValue, true);
 		}
 
 		@Override

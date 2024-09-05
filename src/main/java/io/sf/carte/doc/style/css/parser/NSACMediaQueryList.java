@@ -26,7 +26,6 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.MediaQuery;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.MediaQueryListListener;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
@@ -214,16 +213,6 @@ class NSACMediaQueryList implements MediaQueryList {
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public void addListener(MediaQueryListListener listener) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "You should use CSSCanvas for this");
-	}
-
-	@Override
-	public void removeListener(MediaQueryListListener listener) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "You should use CSSCanvas for this");
 	}
 
 	/**

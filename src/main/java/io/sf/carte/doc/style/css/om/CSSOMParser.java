@@ -32,7 +32,7 @@ public class CSSOMParser extends CSSParser {
 
 	@Override
 	protected MediaQueryFactory getMediaQueryFactory() {
-		return new MediaQueryFactoryImpl();
+		return new CSSValueMediaQueryFactory();
 	}
 
 	@Override

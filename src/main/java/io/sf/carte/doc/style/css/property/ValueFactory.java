@@ -19,9 +19,11 @@ import java.util.Locale;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
+import io.sf.carte.doc.style.css.CSSPrimitiveValueItem;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueFactory;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -41,7 +43,7 @@ import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
  * @author Carlos Amengual
  * 
  */
-public class ValueFactory {
+public class ValueFactory implements CSSValueFactory {
 
 	private final byte flags;
 
@@ -487,6 +489,7 @@ public class ValueFactory {
 	 * @throws DOMException if the lexical unit had a wrong content to create a
 	 *                      value.
 	 */
+	@Override
 	public StyleValue createCSSValue(LexicalUnit lunit)
 			throws DOMException {
 		return createCSSValue(lunit, null);
@@ -800,6 +803,26 @@ public class ValueFactory {
 	 */
 	PrimitiveValue createCSSPrimitiveValue(LexicalUnit lunit, boolean subp) throws DOMException {
 		return createCSSPrimitiveValueItem(lunit, !subp, subp).getCSSValue();
+	}
+
+	/**
+	 * Creates a LexicalSetter according to the given lexical value.
+	 * <p>
+	 * This method either returns a value or throws an exception, but cannot return null.
+	 * </p>
+	 * 
+	 * @param lunit
+	 *            the lexical value.
+	 * @param subp
+	 *            the flag marking whether it is a sub-property.
+	 * @return the LexicalSetter for the CSS primitive value.
+	 * @throws DOMException
+	 *             if a problem was found setting the lexical value to a CSS primitive.
+	 */
+	@Override
+	public CSSPrimitiveValueItem createCSSPrimitiveValueItem(LexicalUnit lunit, boolean subp)
+			throws DOMException {
+		return createCSSPrimitiveValueItem(lunit, false, subp);
 	}
 
 	/**

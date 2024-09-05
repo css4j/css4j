@@ -15,8 +15,9 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
+import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -107,10 +108,10 @@ class RGBColor extends BaseColor implements RGBAColor {
 	PrimitiveValue enforceColorComponentType(PrimitiveValue primi) throws DOMException {
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			primi = eval.evaluateExpression((ExpressionValue) primi);
+			primi = (PrimitiveValue) eval.evaluateExpression((CSSExpressionValue) primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
+			primi = (PrimitiveValue) eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
 		if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {

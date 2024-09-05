@@ -15,6 +15,8 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSPrimitiveValue;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.util.SimpleWriter;
 
@@ -42,20 +44,28 @@ public class CalcValue extends ExpressionValue {
 	}
 
 	@Override
-	protected boolean isInvalidOperand(PrimitiveValue primi, LexicalType lutype, LexicalType lastlutype) {
-		if (super.isInvalidOperand(primi, lutype, lastlutype)) {
-			return true;
-		}
-		if (primi.getPrimitiveType() == Type.NUMERIC) {
-			return lastlutype == LexicalType.SUB_EXPRESSION;
-		}
-		return lutype != LexicalType.CALC && lutype != LexicalType.FUNCTION && lutype != LexicalType.VAR
-				&& lutype != LexicalType.ATTR;
-	}
+	ExpressionFactory createExpressionFactory(LexicalUnit nextLexicalUnit) {
+		return new ExpressionFactory(nextLexicalUnit) {
 
-	@Override
-	public float getFloatValue(short unitType) throws DOMException {
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Must retrieve individual operands and compute result");
+			@Override
+			protected boolean isCalcValue() {
+				return true;
+			}
+
+			@Override
+			protected boolean isInvalidOperand(CSSPrimitiveValue primi, LexicalType lutype,
+					LexicalType lastlutype) {
+				if (super.isInvalidOperand(primi, lutype, lastlutype)) {
+					return true;
+				}
+				if (primi.getPrimitiveType() == Type.NUMERIC) {
+					return lastlutype == LexicalType.SUB_EXPRESSION;
+				}
+				return lutype != LexicalType.CALC && lutype != LexicalType.FUNCTION
+						&& lutype != LexicalType.VAR && lutype != LexicalType.ATTR;
+			}
+
+		};
 	}
 
 	@Override

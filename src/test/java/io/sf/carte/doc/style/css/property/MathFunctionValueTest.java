@@ -19,13 +19,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
-import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
@@ -51,15 +50,15 @@ public class MathFunctionValueTest {
 	@Test
 	public void testEquals() {
 		style.setCssText("function: atan2(0.2 * 2, -1.5)");
-		CSSMathFunctionValue value = (CSSMathFunctionValue) style.getPropertyCSSValue("function");
+		MathFunctionValue value = (MathFunctionValue) style.getPropertyCSSValue("function");
 		assertTrue(value.equals(value));
 		style.setCssText("function: atan2(0.2 * 2, -1.5)");
-		CSSMathFunctionValue value2 = (CSSMathFunctionValue) style.getPropertyCSSValue("function");
+		MathFunctionValue value2 = (MathFunctionValue) style.getPropertyCSSValue("function");
 		assertTrue(value.equals(value2));
 		assertEquals(value.hashCode(), value2.hashCode());
 
 		style.setCssText("function: atan2(0.2 * 2, 1.5)");
-		value2 = (CSSMathFunctionValue) style.getPropertyCSSValue("function");
+		value2 = (MathFunctionValue) style.getPropertyCSSValue("function");
 		assertFalse(value.equals(value2));
 		assertFalse(value.hashCode() == value2.hashCode());
 	}
@@ -119,7 +118,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testAbs() {
 		style.setCssText("foo: abs(1.2 * -.5)");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals("abs", val.getStringValue());
@@ -142,7 +141,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testAbsAngle() {
 		style.setCssText("foo: abs(1.2 * -.5rad)");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals("abs", val.getStringValue());
@@ -165,7 +164,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testMax() {
 		style.setCssText("foo: max(1.2 * -.5, .94)");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals("max", val.getStringValue());
@@ -188,7 +187,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testSin() {
 		style.setCssText("foo: sin(1.2 * 5deg)");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals("sin", val.getStringValue());
@@ -210,7 +209,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testCos() {
 		style.setCssText("foo: cos(1.2 * 5deg)");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals("cos", val.getStringValue());
@@ -232,7 +231,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testTan() {
 		style.setCssText("foo: tan(1.2 * 5deg)");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals("tan", val.getStringValue());
@@ -254,7 +253,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testASin() {
 		style.setCssText("foo: asin(1.2 * .5)");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals("asin", val.getStringValue());
@@ -277,7 +276,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testACos() {
 		style.setCssText("foo: acos(1.2 * .5)");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals("acos", val.getStringValue());
@@ -300,7 +299,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testATan() {
 		style.setCssText("foo: atan(1.2 * .5)");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals("atan", val.getStringValue());
@@ -323,7 +322,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testAtan2_1() {
 		style.setCssText("foo: atan2(-1.5, 0.2 * 2)");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals(MathFunction.ATAN2, val.getFunction());
@@ -349,7 +348,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testAtan2_2() {
 		style.setCssText("foo: atan2(0.2 * 2, -1.5)");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals("atan2", val.getStringValue());
@@ -377,7 +376,7 @@ public class MathFunctionValueTest {
 	@Test
 	public void testSqrt() {
 		style.setCssText("foo: sqrt(.2 * calc(attr(foo) / 3))");
-		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
 		assertEquals("sqrt", val.getStringValue());
@@ -400,8 +399,8 @@ public class MathFunctionValueTest {
 	public void testClone() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("foo: sin(1.2 * 5deg); ");
-		CSSMathFunctionValue value = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
-		CSSMathFunctionValue clon = value.clone();
+		MathFunctionValue value = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		MathFunctionValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getStringValue(), clon.getStringValue());

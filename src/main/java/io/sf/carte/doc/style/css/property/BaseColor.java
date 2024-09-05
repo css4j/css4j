@@ -23,6 +23,7 @@ import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.color.Illuminants;
 import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
+import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
@@ -70,7 +71,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 		if (alpha.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
 			try {
-				alpha = eval.evaluateExpression((ExpressionValue) alpha);
+				alpha = (PrimitiveValue) eval.evaluateExpression((CSSExpressionValue) alpha);
 				if (alpha.getPrimitiveType() == Type.NUMERIC) {
 					((NumberValue) alpha).setMaximumFractionDigits(5);
 				}
@@ -79,7 +80,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 		} else if (alpha.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
 			try {
-				alpha = eval.evaluateFunction((CSSMathFunctionValue) alpha);
+				alpha = (PrimitiveValue) eval.evaluateFunction((CSSMathFunctionValue) alpha);
 				if (alpha.getPrimitiveType() == Type.NUMERIC) {
 					((NumberValue) alpha).setMaximumFractionDigits(5);
 				}
@@ -133,10 +134,10 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			primi = eval.evaluateExpression((ExpressionValue) primi);
+			primi = (PrimitiveValue) eval.evaluateExpression((CSSExpressionValue) primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
+			primi = (PrimitiveValue) eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
 		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
@@ -170,10 +171,10 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			primi = eval.evaluateExpression((ExpressionValue) primi);
+			primi = (PrimitiveValue) eval.evaluateExpression((CSSExpressionValue) primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
+			primi = (PrimitiveValue) eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
 		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
@@ -220,13 +221,13 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 		if (hue.getPrimitiveType() == Type.EXPRESSION) {
 			Evaluator eval = new Evaluator(CSSUnit.CSS_DEG);
 			try {
-				hue = eval.evaluateExpression((ExpressionValue) hue);
+				hue = (PrimitiveValue) eval.evaluateExpression((CSSExpressionValue) hue);
 			} catch (DOMException e) {
 			}
 		} else if (hue.getPrimitiveType() == Type.MATH_FUNCTION) {
 			Evaluator eval = new Evaluator(CSSUnit.CSS_DEG);
 			try {
-				hue = eval.evaluateFunction((CSSMathFunctionValue) hue);
+				hue = (PrimitiveValue) eval.evaluateFunction((CSSMathFunctionValue) hue);
 			} catch (DOMException e) {
 			}
 		}
@@ -251,10 +252,10 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
 		if (primi.getPrimitiveType() == Type.EXPRESSION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			primi = eval.evaluateExpression((ExpressionValue) primi);
+			primi = (PrimitiveValue) eval.evaluateExpression((CSSExpressionValue) primi);
 		} else if (primi.getPrimitiveType() == Type.MATH_FUNCTION) {
 			PercentageEvaluator eval = new PercentageEvaluator();
-			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
+			primi = (PrimitiveValue) eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
 		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {

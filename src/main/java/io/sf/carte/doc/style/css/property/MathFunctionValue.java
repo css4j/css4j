@@ -22,7 +22,7 @@ import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 /**
  * Implementation of a mathematical function value.
  */
-class MathFunctionValue extends FunctionValue implements CSSMathFunctionValue {
+public class MathFunctionValue extends FunctionValue implements CSSMathFunctionValue {
 
 	private static final long serialVersionUID = 1L;
 

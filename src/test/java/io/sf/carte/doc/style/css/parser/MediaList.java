@@ -23,7 +23,6 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.MediaQuery;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.MediaQueryListListener;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 /**
@@ -419,16 +418,6 @@ public class MediaList implements MediaQueryList, Serializable {
 	@Override
 	public String toString() {
 		return getMediaText();
-	}
-
-	@Override
-	public void addListener(MediaQueryListListener listener) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "You should use CSSCanvas for this");
-	}
-
-	@Override
-	public void removeListener(MediaQueryListListener listener) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "You should use CSSCanvas for this");
 	}
 
 	private static class UnmodifiableMediaList extends MediaList {

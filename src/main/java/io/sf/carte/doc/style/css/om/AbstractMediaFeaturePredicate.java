@@ -15,24 +15,23 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSRatioValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValueFactory;
 import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.MediaQueryPredicate;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
-import io.sf.carte.doc.style.css.property.RatioValue;
-import io.sf.carte.doc.style.css.property.StyleValue;
-import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
  * Media feature predicate implementation.
  * 
  */
-class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
+abstract class AbstractMediaFeaturePredicate extends MediaPredicate implements MediaFeature {
 
 	private static final long serialVersionUID = 1L;
 
@@ -40,7 +39,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 	private CSSTypedValue value2 = null;
 	private byte rangeType;
 
-	MediaFeaturePredicateImpl(String featureName) {
+	AbstractMediaFeaturePredicate(String featureName) {
 		super(featureName);
 	}
 
@@ -67,7 +66,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 	@Override
 	public void setValue(LexicalUnit value) {
 		if (value != null) {
-			StyleValue cssval = new ValueFactory().createCSSValue(value);
+			CSSValue cssval = getValueFactory().createCSSValue(value);
 			if (cssval.getCssValueType() != CssType.TYPED) {
 				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 						"Expected typed value, got: " + cssval.getCssValueType());
@@ -78,6 +77,13 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 		}
 	}
 
+	/**
+	 * Get a value factory.
+	 * 
+	 * @return the value factory.
+	 */
+	abstract protected CSSValueFactory getValueFactory();
+
 	@Override
 	public CSSTypedValue getRangeSecondValue() {
 		return value2;
@@ -85,14 +91,15 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 
 	@Override
 	public void setValueRange(LexicalUnit value1, LexicalUnit value2) {
-		StyleValue cssval = new ValueFactory().createCSSValue(value1);
+		CSSValueFactory factory = getValueFactory();
+		CSSValue cssval = factory.createCSSValue(value1);
 		if (cssval.getCssValueType() != CssType.TYPED) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Expected typed value, got: " + cssval.getCssValueType());
 		}
 		this.value1 = (CSSTypedValue) cssval;
-		//
-		cssval = new ValueFactory().createCSSValue(value2);
+
+		cssval = factory.createCSSValue(value2);
 		if (cssval.getCssValueType() != CssType.TYPED) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Expected typed value, got: " + cssval.getCssValueType());
@@ -105,11 +112,13 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 		if (getPredicateType() != otherPredicate.getPredicateType()) {
 			return false;
 		}
-		MediaFeaturePredicateImpl other = (MediaFeaturePredicateImpl) otherPredicate;
+
+		AbstractMediaFeaturePredicate other = (AbstractMediaFeaturePredicate) otherPredicate;
 		String feature = getName();
 		String oFeature = other.getName();
 		byte type = getRangeType();
 		byte oType = other.getRangeType();
+
 		// Canonicalize types and feature names
 		if (type == MediaFeaturePredicate.FEATURE_PLAIN) {
 			if (feature.startsWith("min-")) {
@@ -136,6 +145,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 				}
 			}
 		}
+
 		if (oType == MediaFeaturePredicate.FEATURE_PLAIN) {
 			if (oFeature.startsWith("min-")) {
 				oFeature = oFeature.substring(4);
@@ -161,15 +171,18 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 				}
 			}
 		}
+
 		if (!feature.equals(oFeature)) {
 			return false;
 		}
+
 		// Negate condition?
 		if (negatedQuery == 2) {
 			oType = negateType(oType);
 		} else if (negatedQuery == 1) {
 			type = negateType(type);
 		}
+
 		// Normalize type
 		CSSTypedValue otherVal1 = other.value1;
 		CSSTypedValue otherVal2 = other.value2;
@@ -394,6 +407,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 		if (type != oType) {
 			return false;
 		}
+
 		// Values
 		float fval1;
 		float denom = 1f;
@@ -414,9 +428,9 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 				 */
 				fval1 = value1.getFloatValue(pType);
 			} else {
-				RatioValue ratio = (RatioValue) value1;
-				PrimitiveValue ante = ratio.getAntecedentValue();
-				PrimitiveValue cons = ratio.getConsequentValue();
+				CSSRatioValue ratio = (CSSRatioValue) value1;
+				CSSPrimitiveValue ante = ratio.getAntecedentValue();
+				CSSPrimitiveValue cons = ratio.getConsequentValue();
 				pType = ante.getUnitType();
 				if (pType != CSSUnit.CSS_NUMBER || cons.getUnitType() != CSSUnit.CSS_NUMBER) {
 					// We may have a custom property or calc() here.
@@ -431,14 +445,15 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 				isRatio = true;
 			}
 		}
+
 		float ofval1;
 		if (otherVal1 == null) {
 			ofval1 = 0f;
 		} else {
 			if (otherVal1.getPrimitiveType() == CSSValue.Type.RATIO) {
-				RatioValue ratio = (RatioValue) otherVal1;
-				PrimitiveValue ante = ratio.getAntecedentValue();
-				PrimitiveValue cons = ratio.getConsequentValue();
+				CSSRatioValue ratio = (CSSRatioValue) otherVal1;
+				CSSPrimitiveValue ante = ratio.getAntecedentValue();
+				CSSPrimitiveValue cons = ratio.getConsequentValue();
 				if (ante.getUnitType() != CSSUnit.CSS_NUMBER || cons.getUnitType() != CSSUnit.CSS_NUMBER) {
 					// We may have a custom property or calc() here.
 					return false;
@@ -462,6 +477,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 				ofval1 *= denom;
 			}
 		}
+
 		float fval2 = Float.NaN;
 		float ofval2 = Float.NaN;
 		if (value2 != null) {
@@ -478,9 +494,9 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 					return false;
 				}
 			} else {
-				RatioValue ratio = (RatioValue) value2;
-				PrimitiveValue ante = ratio.getAntecedentValue();
-				PrimitiveValue cons = ratio.getConsequentValue();
+				CSSRatioValue ratio = (CSSRatioValue) value2;
+				CSSPrimitiveValue ante = ratio.getAntecedentValue();
+				CSSPrimitiveValue cons = ratio.getConsequentValue();
 				pType = ante.getUnitType();
 				if (pType != CSSUnit.CSS_NUMBER || cons.getUnitType() != CSSUnit.CSS_NUMBER) {
 					return false;
@@ -494,9 +510,9 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 				isRatio2 = true;
 			}
 			if (otherVal2.getPrimitiveType() == CSSValue.Type.RATIO) {
-				RatioValue ratio = (RatioValue) otherVal2;
-				PrimitiveValue ante = ratio.getAntecedentValue();
-				PrimitiveValue cons = ratio.getConsequentValue();
+				CSSRatioValue ratio = (CSSRatioValue) otherVal2;
+				CSSPrimitiveValue ante = ratio.getAntecedentValue();
+				CSSPrimitiveValue cons = ratio.getConsequentValue();
 				if (ante.getUnitType() != CSSUnit.CSS_NUMBER || cons.getUnitType() != CSSUnit.CSS_NUMBER) {
 					return false;
 				}
@@ -519,7 +535,7 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 				ofval2 *= denom;
 			}
 		}
-		//
+
 		switch (type) {
 		case MediaFeaturePredicate.FEATURE_EQ:
 			boolean negated = negatedQuery == 1 || negatedQuery == 2;
@@ -802,10 +818,10 @@ class MediaFeaturePredicateImpl extends MediaPredicate implements MediaFeature {
 		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (!(obj instanceof AbstractMediaFeaturePredicate)) {
 			return false;
 		}
-		MediaFeaturePredicateImpl other = (MediaFeaturePredicateImpl) obj;
+		AbstractMediaFeaturePredicate other = (AbstractMediaFeaturePredicate) obj;
 		byte efftype, otherefftype;
 		if (rangeType == MediaFeaturePredicate.FEATURE_PLAIN) {
 			// We handle 'feature: value' effectively as 'feature = value'

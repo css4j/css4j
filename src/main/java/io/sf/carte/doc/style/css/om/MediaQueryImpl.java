@@ -17,21 +17,20 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSCanvas;
+import io.sf.carte.doc.style.css.CSSExpressionValue;
+import io.sf.carte.doc.style.css.CSSNumberValue;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSRatioValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.MediaQueryPredicate;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.parser.AbstractMediaQuery;
-import io.sf.carte.doc.style.css.property.CalcValue;
 import io.sf.carte.doc.style.css.property.Evaluator;
-import io.sf.carte.doc.style.css.property.ExpressionValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
-import io.sf.carte.doc.style.css.property.PrimitiveValue;
-import io.sf.carte.doc.style.css.property.RatioValue;
-import io.sf.carte.doc.style.css.property.TypedValue;
 
-class MediaQueryImpl extends AbstractMediaQuery {
+abstract class MediaQueryImpl extends AbstractMediaQuery {
 
 	private static final long serialVersionUID = 1L;
 
@@ -73,7 +72,7 @@ class MediaQueryImpl extends AbstractMediaQuery {
 		return true;
 	}
 
-	private static boolean matchesFeaturePredicate(MediaFeature predicate, CSSCanvas canvas) {
+	private boolean matchesFeaturePredicate(MediaFeature predicate, CSSCanvas canvas) {
 		String feature = predicate.getName();
 		CSSTypedValue value = predicate.getValue();
 		predicate.getRangeSecondValue();
@@ -119,7 +118,7 @@ class MediaQueryImpl extends AbstractMediaQuery {
 		return canvas.matchesFeature(feature, null);
 	}
 
-	private static boolean featureRangeMatch(String feature, byte type, CSSTypedValue value,
+	private boolean featureRangeMatch(String feature, byte type, CSSTypedValue value,
 			CSSTypedValue value2, CSSCanvas canvas) {
 		CSSTypedValue featured = canvas.getFeatureValue(feature);
 		if (featured == null) {
@@ -175,33 +174,33 @@ class MediaQueryImpl extends AbstractMediaQuery {
 		}
 	}
 
-	private static float valueInUnit(CSSTypedValue value, CSSCanvas canvas, short primitype)
+	private float valueInUnit(CSSTypedValue value, CSSCanvas canvas, short primitype)
 			throws DOMException {
 		float fval;
 		switch (value.getPrimitiveType()) {
 		case EXPRESSION:
-			ExpressionValue evalue = (ExpressionValue) value;
+			CSSExpressionValue evalue = (CSSExpressionValue) value;
 			Evaluator ev = new MQEvaluator(canvas);
 			fval = ev.evaluateExpression(evalue).getFloatValue(primitype);
 			break;
 		case RATIO:
 			float ffirst, fsecond;
-			RatioValue ratio = (RatioValue) value;
-			PrimitiveValue first = ratio.getAntecedentValue();
-			PrimitiveValue second = ratio.getConsequentValue();
+			CSSRatioValue ratio = (CSSRatioValue) value;
+			CSSPrimitiveValue first = ratio.getAntecedentValue();
+			CSSPrimitiveValue second = ratio.getConsequentValue();
 			if (first.getUnitType() == CSSUnit.CSS_NUMBER) {
 				ffirst = ((CSSTypedValue) first).getFloatValue(CSSUnit.CSS_NUMBER);
 			} else {
 				// Calc
 				ev = new MQEvaluator(canvas);
-				ffirst = ev.evaluateExpression((CalcValue) first).getFloatValue(CSSUnit.CSS_NUMBER);
+				ffirst = ev.evaluateExpression((CSSExpressionValue) first).getFloatValue(CSSUnit.CSS_NUMBER);
 			}
 			if (second.getUnitType() == CSSUnit.CSS_NUMBER) {
 				fsecond = ((CSSTypedValue) second).getFloatValue(CSSUnit.CSS_NUMBER);
 			} else {
 				// Calc
 				ev = new MQEvaluator(canvas);
-				fsecond = ev.evaluateExpression((CalcValue) second).getFloatValue(CSSUnit.CSS_NUMBER);
+				fsecond = ev.evaluateExpression((CSSExpressionValue) second).getFloatValue(CSSUnit.CSS_NUMBER);
 			}
 			fval = ffirst / fsecond;
 			break;
@@ -243,7 +242,10 @@ class MediaQueryImpl extends AbstractMediaQuery {
 		return Math.abs(value2 - value1) < 7e-6;
 	}
 
-	private static class MQEvaluator extends Evaluator {
+	protected abstract CSSNumberValue createNumberValue(short unit, float valueInSpecifiedUnit,
+			boolean calculated);
+
+	private class MQEvaluator extends Evaluator {
 
 		private final CSSCanvas canvas;
 
@@ -255,13 +257,18 @@ class MediaQueryImpl extends AbstractMediaQuery {
 		}
 
 		@Override
-		protected TypedValue absoluteTypedValue(TypedValue partialValue) {
+		protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
 			if (partialValue.getUnitType() != CSSUnit.CSS_NUMBER) {
 				float fval = valueInUnit(partialValue, canvas, expectedUnit);
-				NumberValue number = NumberValue.createCSSNumberValue(expectedUnit, fval);
-				return number;
+				return createNumberValue(expectedUnit, fval, true);
 			}
 			return partialValue;
+		}
+
+		@Override
+		protected CSSNumberValue createNumberValue(short unit, float valueInSpecifiedUnit,
+				boolean calculated) {
+			return MediaQueryImpl.this.createNumberValue(unit, valueInSpecifiedUnit, calculated);
 		}
 
 	}

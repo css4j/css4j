@@ -20,12 +20,14 @@ import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
+import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueList;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 
 /**
@@ -55,7 +57,7 @@ class DimensionalEvaluator extends Evaluator {
 	}
 
 	@Override
-	TypedValue evaluateExpression(CSSExpression expression, Unit resultUnit) throws DOMException {
+	CSSTypedValue evaluateExpression(CSSExpression expression, Unit resultUnit) throws DOMException {
 		this.latestExpression = expression;
 		return super.evaluateExpression(expression, resultUnit);
 	}
@@ -97,7 +99,7 @@ class DimensionalEvaluator extends Evaluator {
 	}
 
 	@Override
-	TypedValue evaluateFunction(CSSMathFunctionValue function, Unit resultUnit)
+	CSSNumberValue evaluateFunction(CSSMathFunctionValue function, Unit resultUnit)
 			throws DOMException {
 		this.latestFunction = function;
 		return super.evaluateFunction(function, resultUnit);
@@ -234,7 +236,7 @@ class DimensionalEvaluator extends Evaluator {
 	}
 
 	@Override
-	protected TypedValue absoluteTypedValue(TypedValue partialValue) {
+	protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
 		short unit = partialValue.getUnitType();
 		if (CSSUnit.isRelativeLengthUnitType(unit)) {
 			// Check if random is initialized
@@ -266,7 +268,7 @@ class DimensionalEvaluator extends Evaluator {
 	}
 
 	@Override
-	TypedValue unknownFunction(CSSFunctionValue function, Unit resultUnit) {
+	CSSTypedValue unknownFunction(CSSFunctionValue function, Unit resultUnit) {
 		unknownFunction = true;
 		return super.unknownFunction(function, resultUnit);
 	}
@@ -299,11 +301,11 @@ class DimensionalEvaluator extends Evaluator {
 		}
 
 		if (latestFunction != null && unit == CSSUnit.CSS_PERCENTAGE) { // Math function
-			LinkedCSSValueList args = latestFunction.getArguments();
+			CSSValueList<? extends CSSValue> args = latestFunction.getArguments();
 			int len = args.getLength();
 			argLoop: for (int i = 0; i < len; i++) {
 				short argUnit;
-				StyleValue arg = args.get(i);
+				CSSValue arg = args.item(i);
 				switch (arg.getPrimitiveType()) {
 				case NUMERIC:
 					argUnit = ((TypedValue) arg).getUnitType();

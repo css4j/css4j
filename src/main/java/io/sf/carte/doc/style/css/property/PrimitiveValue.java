@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
+import io.sf.carte.doc.style.css.CSSPrimitiveValueItem;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
@@ -99,7 +100,7 @@ abstract public class PrimitiveValue extends StyleValue implements CSSPrimitiveV
 		return primitiveType == other.primitiveType;
 	}
 
-	class LexicalSetter implements ValueItem {
+	class LexicalSetter implements ValueItem, CSSPrimitiveValueItem {
 
 		LexicalUnit nextLexicalUnit = null;
 

@@ -12,6 +12,11 @@ package io.sf.carte.doc.style.css;
 
 import java.util.List;
 
+import org.w3c.dom.DOMException;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventException;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.stylesheets.MediaList;
 
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
@@ -19,7 +24,7 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
 /**
  * Based on W3C's MediaQueryList interface.
  */
-public interface MediaQueryList extends MediaList {
+public interface MediaQueryList extends MediaList, EventTarget {
 
 	/**
 	 * Get the media query at {@code index}.
@@ -106,17 +111,38 @@ public interface MediaQueryList extends MediaList {
 	 * Appends a listener to the list of media query list listeners, unless it is
 	 * already in that list.
 	 * 
-	 * @param listener
-	 *            the listener to be appended.
+	 * @param listener the listener to be appended.
+	 * @deprecated use {@link #addEventListener(String, EventListener, boolean)}
+	 *             instead.
 	 */
-	void addListener(MediaQueryListListener listener);
+	@Deprecated
+	default void addListener(MediaQueryListListener listener) {
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "You should use CSSCanvas for this");
+	}
 
 	/**
 	 * Removes a listener from the list of media query list listeners.
 	 * 
-	 * @param listener
-	 *            the listener to be removed.
+	 * @param listener the listener to be removed.
+	 * @deprecated use {@link #removeEventListener(String, EventListener, boolean)}
+	 *             instead.
 	 */
-	void removeListener(MediaQueryListListener listener);
+	@Deprecated
+	default void removeListener(MediaQueryListListener listener) {
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "You should use CSSCanvas for this");
+	}
+
+	@Override
+	default void addEventListener(String type, EventListener listener, boolean useCapture) {
+	}
+
+	@Override
+	default void removeEventListener(String type, EventListener listener, boolean useCapture) {
+	}
+
+	@Override
+	default boolean dispatchEvent(Event evt) throws EventException {
+		return false;
+	}
 
 }

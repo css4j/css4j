@@ -20,8 +20,7 @@ import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
-import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
-import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.doc.style.css.CSSValueList;
 import io.sf.carte.doc.style.css.property.ValueList;
 import io.sf.carte.util.SimpleWriter;
 
@@ -128,14 +127,14 @@ public class ColorDeclarationFormattingContext extends DefaultDeclarationFormatt
 
 	private void writeFunction(SimpleWriter wri, String propertyName, CSSFunctionValue value)
 		throws IOException {
-		LinkedCSSValueList arguments = value.getArguments();
+		CSSValueList<? extends CSSValue> arguments = value.getArguments();
 		wri.write(value.getFunctionName());
 		wri.write('(');
-		int sz = arguments.size();
+		int sz = arguments.getLength();
 		if (sz == 1) {
 			// Check whether the only parameter is an expression, and omit the
 			// parentheses in that case
-			StyleValue first = arguments.get(0);
+			CSSValue first = arguments.item(0);
 			if (first.getPrimitiveType() == Type.EXPRESSION
 				&& ((CSSExpressionValue) first).getStringValue().length() == 0) {
 				((CSSExpressionValue) first).getExpression().writeCssText(wri);
@@ -143,11 +142,11 @@ public class ColorDeclarationFormattingContext extends DefaultDeclarationFormatt
 				writeValue(wri, propertyName, first);
 			}
 		} else if (sz != 0) {
-			writeValue(wri, propertyName, arguments.get(0));
+			writeValue(wri, propertyName, arguments.item(0));
 			for (int i = 1; i < sz; i++) {
 				wri.write(',');
 				wri.write(' ');
-				writeValue(wri, propertyName, arguments.get(i));
+				writeValue(wri, propertyName, arguments.item(i));
 			}
 		}
 		wri.write(')');
@@ -248,14 +247,14 @@ public class ColorDeclarationFormattingContext extends DefaultDeclarationFormatt
 
 	private void writeMinifiedFunction(SimpleWriter wri, String propertyName,
 		CSSFunctionValue value) throws IOException {
-		LinkedCSSValueList arguments = value.getArguments();
+		CSSValueList<? extends CSSValue> arguments = value.getArguments();
 		wri.write(value.getFunctionName());
 		wri.write('(');
-		int sz = arguments.size();
+		int sz = arguments.getLength();
 		if (sz == 1) {
 			// Check whether the only parameter is an expression, and omit the
 			// parentheses in that case
-			StyleValue first = arguments.get(0);
+			CSSValue first = arguments.item(0);
 			if (first.getPrimitiveType() == Type.EXPRESSION
 				&& ((CSSExpressionValue) first).getStringValue().length() == 0) {
 				wri.write(((CSSExpressionValue) first).getExpression().getMinifiedCssText());
@@ -263,10 +262,10 @@ public class ColorDeclarationFormattingContext extends DefaultDeclarationFormatt
 				writeMinifiedValue(wri, propertyName, first);
 			}
 		} else if (sz != 0) {
-			writeMinifiedValue(wri, propertyName, arguments.get(0));
+			writeMinifiedValue(wri, propertyName, arguments.item(0));
 			for (int i = 1; i < sz; i++) {
 				wri.write(',');
-				writeMinifiedValue(wri, propertyName, arguments.get(i));
+				writeMinifiedValue(wri, propertyName, arguments.item(i));
 			}
 		}
 		wri.write(')');

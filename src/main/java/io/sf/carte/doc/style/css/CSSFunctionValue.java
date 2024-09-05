@@ -12,8 +12,6 @@
 
 package io.sf.carte.doc.style.css;
 
-import io.sf.carte.doc.style.css.property.LinkedCSSValueList;
-
 /**
  * A function value.
  */
@@ -24,7 +22,7 @@ public interface CSSFunctionValue extends CSSTypedValue {
 	 * 
 	 * @return the list of arguments of this function.
 	 */
-	LinkedCSSValueList getArguments();
+	CSSValueList<? extends CSSValue> getArguments();
 
 	/**
 	 * Get the function name.

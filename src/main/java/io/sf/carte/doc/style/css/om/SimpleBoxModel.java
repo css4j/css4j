@@ -1232,8 +1232,8 @@ abstract class SimpleBoxModel {
 		}
 
 		@Override
-		protected TypedValue absoluteTypedValue(TypedValue partialValue) {
-			return styledecl.absoluteTypedValue(propertyName, partialValue, false);
+		protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
+			return styledecl.absoluteTypedValue(propertyName, (TypedValue) partialValue, false);
 		}
 
 		@Override

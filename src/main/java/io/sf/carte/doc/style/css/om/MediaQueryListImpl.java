@@ -24,18 +24,17 @@ import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.MediaQuery;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.MediaQueryListListener;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
+import io.sf.carte.doc.style.css.property.NumberValue;
 
 class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
-
-	private static final MediaQueryList allMediaSingleton = new MediaQueryListImpl().unmodifiable();
 
 	private final LinkedList<MediaQueryImpl> queryList = new LinkedList<>();
 
@@ -55,19 +54,26 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 	MediaQueryListImpl(String medium) {
 		super();
 		if (medium != null && !"all".equalsIgnoreCase(medium)) {
-			MediaQueryImpl query = new MediaQueryImpl();
+			MediaQueryImpl query = createMediaQuery();
 			query.setMediaType(medium);
 			queryList.add(query);
 		}
 	}
 
-	/**
-	 * Create an unmodifiable media list for all media.
-	 * 
-	 * @return the unmodifiable media list.
-	 */
-	static MediaQueryList createUnmodifiable() {
-		return allMediaSingleton;
+	protected MediaQueryImpl createMediaQuery() {
+		return new MediaQueryImpl() {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected CSSNumberValue createNumberValue(short unit, float valueInSpecifiedUnit,
+					boolean calculated) {
+				NumberValue value = NumberValue.createCSSNumberValue(unit, valueInSpecifiedUnit);
+				value.setCalculatedNumber(calculated);
+				return value;
+			}
+
+		};
 	}
 
 	@Override
@@ -226,7 +232,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 			return false;
 		}
 		MediaQueryListImpl otherqlist;
-		if (otherMedia.getClass() == MediaQueryListImpl.class) {
+		if (otherMedia instanceof MediaQueryListImpl) {
 			otherqlist = (MediaQueryListImpl) otherMedia;
 		} else if (otherMedia.getClass() == UnmodifiableMediaQueryList.class) {
 			otherqlist = ((UnmodifiableMediaQueryList) otherMedia).getEnclosingInstance();
@@ -267,16 +273,6 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public void addListener(MediaQueryListListener listener) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "You should use CSSCanvas for this");
-	}
-
-	@Override
-	public void removeListener(MediaQueryListListener listener) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "You should use CSSCanvas for this");
 	}
 
 	/**
@@ -427,13 +423,15 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 			return MediaQueryListImpl.this.getExceptions();
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
-		public void addListener(MediaQueryListListener listener) {
+		public void addListener(io.sf.carte.doc.style.css.MediaQueryListListener listener) {
 			MediaQueryListImpl.this.addListener(listener);
 		}
 
+		@SuppressWarnings("deprecation")
 		@Override
-		public void removeListener(MediaQueryListListener listener) {
+		public void removeListener(io.sf.carte.doc.style.css.MediaQueryListListener listener) {
 			MediaQueryListImpl.this.removeListener(listener);
 		}
 
@@ -488,27 +486,16 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 	 *         <code>false</code>.
 	 */
 	boolean parse(String mediaQueryString, Node owner) {
-		Parser parser = new CSSOMParser();
-		return parse(parser, mediaQueryString, owner);
+		CSSValueMediaQueryFactory mqf = getMediaQueryFactory();
+		Parser parser = mqf.createParser();
+		MyMediaQueryHandler qhandler = new MyMediaQueryHandler(owner);
+		invalidQueryList = false;
+		parser.parseMediaQueryList(mediaQueryString, mqf, qhandler);
+		return !invalidQueryList;
 	}
 
-	/**
-	 * Parses the given media query string.
-	 * <p>
-	 * Does not reset the media query list, but adds to it.
-	 * 
-	 * @param parser           the CSS parser to use.
-	 * @param mediaQueryString the media query string.
-	 * @param owner            the owner node that would process errors.
-	 * @return <code>true</code> if the query list is not invalid. Note that if this
-	 *         query list already contains a valid query, it will never return
-	 *         <code>false</code>.
-	 */
-	boolean parse(Parser parser, String mediaQueryString, Node owner) {
-		invalidQueryList = false;
-		MyMediaQueryHandler qhandler = new MyMediaQueryHandler(owner);
-		parser.parseMediaQueryList(mediaQueryString, new MediaQueryFactoryImpl(), qhandler);
-		return !invalidQueryList;
+	protected CSSValueMediaQueryFactory getMediaQueryFactory() {
+		return new CSSValueMediaQueryFactory();
 	}
 
 	class MyMediaQueryHandler implements io.sf.carte.doc.style.css.MediaQueryHandler {
@@ -525,7 +512,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 
 		@Override
 		public void startQuery() {
-			currentQuery = new MediaQueryImpl();
+			currentQuery = createMediaQuery();
 		}
 
 		@Override

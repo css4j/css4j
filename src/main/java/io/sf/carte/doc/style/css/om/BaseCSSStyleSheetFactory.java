@@ -126,7 +126,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	@Override
 	public AbstractCSSStyleSheet createStyleSheet(String title, MediaQueryList media) {
 		if (media == null) {
-			media = MediaQueryListImpl.createUnmodifiable();
+			media = CSSValueMediaQueryFactory.getAllMediaInstance();
 		}
 		return createLinkedStyleSheet(null, title, media);
 	}
@@ -519,7 +519,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	@Override
 	public MediaQueryList createImmutableMediaQueryList(String media, Node owner) throws CSSBudgetException {
 		if (media == null) {
-			return MediaQueryListImpl.createUnmodifiable();
+			return CSSValueMediaQueryFactory.getAllMediaInstance();
 		}
 		return ((MediaListAccess) parseMediaQueryList(media, owner)).unmodifiable();
 	}

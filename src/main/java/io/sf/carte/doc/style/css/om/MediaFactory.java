@@ -38,7 +38,7 @@ public class MediaFactory {
 	 * @return a media query list for all media, unmodifiable.
 	 */
 	public static MediaQueryList createImmutable() {
-		return MediaQueryListImpl.createUnmodifiable();
+		return CSSValueMediaQueryFactory.getAllMediaInstance();
 	}
 
 }

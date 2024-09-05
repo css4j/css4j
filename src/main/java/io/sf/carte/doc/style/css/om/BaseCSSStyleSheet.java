@@ -113,7 +113,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		super(title);
 		this.ownerRule = ownerRule;
 		if (media == null) {
-			this.destinationMedia = MediaQueryListImpl.createUnmodifiable();
+			this.destinationMedia = CSSValueMediaQueryFactory.getAllMediaInstance();
 		} else {
 			this.destinationMedia = media;
 		}

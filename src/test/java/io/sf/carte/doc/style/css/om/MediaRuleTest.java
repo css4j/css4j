@@ -52,7 +52,7 @@ public class MediaRuleTest {
 
 	@BeforeAll
 	public static void setUpBeforeClass() {
-		mediaFactory = new MediaQueryFactoryImpl();
+		mediaFactory = new CSSValueMediaQueryFactory();
 	}
 
 	@BeforeEach

@@ -9,25 +9,23 @@
 
  */
 
-package io.sf.carte.doc.style.css.property;
-
-import io.sf.carte.doc.style.css.CSSValueItem;
+package io.sf.carte.doc.style.css;
 
 /**
  * This interface provides information about the processing of one (or more) CSS
- * lexical unit(s) in order to produce a <code>StyleValue</code>, that can be
- * recovered with {@link #getCSSValue()}.
+ * lexical unit(s) in order to produce a <code>CSSPrimitiveValue</code>, that
+ * can be recovered with {@link #getCSSValue()}.
  */
-public interface ValueItem extends CSSValueItem {
+public interface CSSPrimitiveValueItem extends CSSValueItem {
 
 	/**
-	 * Gets the StyleValue associated to this item.
+	 * Gets the CSSValue associated to this item.
 	 * <p>
 	 * If there is an item there must be a value, so this method cannot return null.
 	 * 
-	 * @return the StyleValue associated to this item.
+	 * @return the CSSValue associated to this item.
 	 */
 	@Override
-	StyleValue getCSSValue();
+	CSSPrimitiveValue getCSSValue();
 
 }
