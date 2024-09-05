@@ -439,7 +439,9 @@ public interface CSSValue extends Cloneable {
 	 * @param propertyName the property name.
 	 * @return the minified css text.
 	 */
-	String getMinifiedCssText(String propertyName);
+	default String getMinifiedCssText(String propertyName) {
+		return getCssText();
+	}
 
 	/**
 	 * Serialize this value to a {@link SimpleWriter}.
