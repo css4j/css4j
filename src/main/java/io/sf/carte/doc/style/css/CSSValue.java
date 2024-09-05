@@ -423,6 +423,15 @@ public interface CSSValue extends Cloneable {
 
 	/**
 	 * Gives a minified version of the css text of the property.
+	 *
+	 * @return the minified css text.
+	 */
+	default String getMinifiedCssText() {
+		return getMinifiedCssText(null);
+	}
+
+	/**
+	 * Gives a minified version of the css text of the property.
 	 * <p>
 	 * It may be customized for the given property name.
 	 * </p>
