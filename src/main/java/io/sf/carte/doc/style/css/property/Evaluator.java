@@ -87,7 +87,7 @@ public class Evaluator {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Result is not a number (NaN).");
 		}
 
-		if (function.expectsInteger()) {
+		if (function.isExpectingInteger()) {
 			((CSSNumberValue) result).roundToInteger();
 		}
 
@@ -614,7 +614,7 @@ public class Evaluator {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Result is not a number (NaN).");
 		}
 
-		if (calc.expectsInteger()) {
+		if (calc.isExpectingInteger()) {
 			((CSSNumberValue) result).roundToInteger();
 		}
 

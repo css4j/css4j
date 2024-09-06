@@ -51,7 +51,7 @@ public class MathFunctionValue extends FunctionValue implements CSSMathFunctionV
 	}
 
 	@Override
-	public boolean expectsInteger() {
+	public boolean isExpectingInteger() {
 		return roundResult;
 	}
 

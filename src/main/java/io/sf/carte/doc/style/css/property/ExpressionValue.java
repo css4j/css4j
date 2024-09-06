@@ -135,7 +135,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 	}
 
 	@Override
-	public boolean expectsInteger() {
+	public boolean isExpectingInteger() {
 		return roundResult;
 	}
 

@@ -31,6 +31,6 @@ public interface CSSMathValue extends CSSTypedValue {
 	 * @return {@code true} if the result of this computation must be rounded to the
 	 *         nearest integer.
 	 */
-	boolean expectsInteger();
+	boolean isExpectingInteger();
 
 }
