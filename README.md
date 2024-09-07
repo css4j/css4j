@@ -74,8 +74,12 @@ repositories {
             releasesOnly()
         }
         content {
-            includeGroup 'io.sf.carte'
-            includeGroup 'io.sf.jclf'
+            // Include all the groups used by popular io.sf.* projects
+            includeGroupByRegex 'io\\.sf\\..*'
+
+            // Alternatively:
+            //includeGroup 'io.sf.carte'
+            //includeGroup 'io.sf.jclf'
         }
     }
 }
