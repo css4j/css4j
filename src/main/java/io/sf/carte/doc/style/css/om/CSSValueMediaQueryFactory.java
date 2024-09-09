@@ -87,7 +87,7 @@ public class CSSValueMediaQueryFactory implements MediaQueryFactory {
 
 			@Override
 			protected CSSValueFactory getValueFactory() {
-				return CSSValueMediaQueryFactory.this.getValueFactory();
+				return CSSValueMediaQueryFactory.this.getValueFactory(getName());
 			}
 
 		};
@@ -140,9 +140,10 @@ public class CSSValueMediaQueryFactory implements MediaQueryFactory {
 	/**
 	 * Create a {@code CSSValueFactory} with the desired OM value implementation.
 	 * 
+	 * @param featureName the name of the media feature.
 	 * @return the object-model value factory.
 	 */
-	protected CSSValueFactory getValueFactory() {
+	protected CSSValueFactory getValueFactory(String featureName) {
 		return new ValueFactory();
 	}
 
