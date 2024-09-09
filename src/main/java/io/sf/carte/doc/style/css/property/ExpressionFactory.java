@@ -16,7 +16,6 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
-import io.sf.carte.doc.style.css.CSSPrimitiveValueItem;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -213,8 +212,7 @@ public class ExpressionFactory {
 					break;
 				}
 			default:
-				CSSPrimitiveValueItem item = factory.createCSSPrimitiveValueItem(lu, true);
-				CSSPrimitiveValue primi = item.getCSSValue();
+				CSSPrimitiveValue primi = factory.createCSSPrimitiveValue(lu);
 				if (isInvalidOperand(primi, lutype, lastlutype)) {
 					throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operands");
 				}
@@ -222,7 +220,7 @@ public class ExpressionFactory {
 				operand.setOperand(primi);
 				expression = addOperand(expression, operand);
 				lastlutype = LexicalType.DIMENSION; // Equivalent to "operand"
-				lu = item.getNextLexicalUnit();
+				lu = lu.getNextLexicalUnit();
 				continue;
 			}
 			lastlutype = lutype;

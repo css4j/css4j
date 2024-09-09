@@ -19,7 +19,6 @@ import java.util.Locale;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
-import io.sf.carte.doc.style.css.CSSPrimitiveValueItem;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -787,9 +786,43 @@ public class ValueFactory implements CSSValueFactory {
 	}
 
 	/**
+	 * Creates a primitive value according to the given lexical value.
+	 * <p>
+	 * This method won't return a ratio value (callers must check for values
+	 * spanning more than one lexical unit).
+	 * </p>
+	 * <p>
+	 * If the lexical unit is a slash operator and is in {@code content} context,
+	 * returns a {@code LexicalValue}.
+	 * </p>
+	 * <p>
+	 * If the lexical unit is an operator and a parameter, returns an
+	 * {@code UnknownValue}.
+	 * </p>
+	 * 
+	 * @param lunit the lexical value.
+	 * @return the primitive value.
+	 * @throws DOMException if the lexical unit does not represent a valid
+	 *                      primitive.
+	 */
+	@Override
+	public PrimitiveValue createCSSPrimitiveValue(LexicalUnit lunit)
+			throws DOMException {
+		return createCSSPrimitiveValueItem(lunit, false, true).getCSSValue();
+	}
+
+	/**
 	 * Creates a PrimitiveValue according to the given lexical value.
 	 * <p>
 	 * This method either returns a value or throws an exception, but cannot return null.
+	 * </p>
+	 * <p>
+	 * If the lexical unit is a slash operator and is in {@code content} context,
+	 * returns a {@code LexicalValue}.
+	 * </p>
+	 * <p>
+	 * If the lexical unit is an operator and a parameter, returns an
+	 * {@code UnknownValue}.
 	 * </p>
 	 * 
 	 * @param lunit
@@ -808,38 +841,25 @@ public class ValueFactory implements CSSValueFactory {
 	/**
 	 * Creates a LexicalSetter according to the given lexical value.
 	 * <p>
-	 * This method either returns a value or throws an exception, but cannot return null.
+	 * This method either returns a value or throws an exception, but cannot return
+	 * null.
 	 * </p>
-	 * 
-	 * @param lunit
-	 *            the lexical value.
-	 * @param subp
-	 *            the flag marking whether it is a sub-property.
-	 * @return the LexicalSetter for the CSS primitive value.
-	 * @throws DOMException
-	 *             if a problem was found setting the lexical value to a CSS primitive.
-	 */
-	@Override
-	public CSSPrimitiveValueItem createCSSPrimitiveValueItem(LexicalUnit lunit, boolean subp)
-			throws DOMException {
-		return createCSSPrimitiveValueItem(lunit, false, subp);
-	}
-
-	/**
-	 * Creates a LexicalSetter according to the given lexical value.
 	 * <p>
-	 * This method either returns a value or throws an exception, but cannot return null.
+	 * If the lexical unit is a slash operator and is in {@code content} context,
+	 * returns a {@code LexicalValue}.
+	 * </p>
+	 * <p>
+	 * If the lexical unit is an operator and a parameter, returns an
+	 * {@code UnknownValue}.
 	 * </p>
 	 * 
-	 * @param lunit
-	 *            the lexical value.
-	 * @param ratioContext
-	 *            {@code true} if we are in a context where ratio values could be expected.
-	 * @param subp
-	 *            the flag marking whether it is a sub-property.
+	 * @param lunit        the lexical value.
+	 * @param ratioContext {@code true} if we are in a context where ratio values
+	 *                     could be expected.
+	 * @param subp         the flag marking whether it is a sub-property.
 	 * @return the LexicalSetter for the CSS primitive value.
-	 * @throws DOMException
-	 *             if a problem was found setting the lexical value to a CSS primitive.
+	 * @throws DOMException if a problem was found setting the lexical value to a
+	 *                      CSS primitive.
 	 */
 	LexicalSetter createCSSPrimitiveValueItem(LexicalUnit lunit, boolean ratioContext, boolean subp)
 			throws DOMException {
@@ -1029,6 +1049,11 @@ public class ValueFactory implements CSSValueFactory {
 			case OPERATOR_SEMICOLON:
 				throw new DOMException(DOMException.SYNTAX_ERR,
 					"A comma or semicolon is not a valid primitive");
+			case INHERIT:
+			case UNSET:
+			case REVERT:
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+						unitType + " keyword is not a primitive.");
 			case OPERATOR_SLASH:
 				if (isContentContext(lunit)) {
 					primi = new LexicalValue();

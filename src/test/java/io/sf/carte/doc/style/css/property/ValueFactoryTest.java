@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.property;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -222,6 +223,30 @@ public class ValueFactoryTest {
 		ValueList list = (ValueList) value;
 		assertEquals(3, list.getLength());
 		assertTrue(list.isCommaSeparated());
+	}
+
+	@Test
+	public void testCreateCSSPrimitiveValue() throws CSSException, IOException {
+		ValueFactory factory = new ValueFactory();
+
+		LexicalUnit lunit = parsePropertyValue("1");
+		PrimitiveValue value = factory.createCSSPrimitiveValue(lunit);
+		assertTrue(value.isPrimitiveValue());
+		assertEquals(CssType.TYPED, value.getCssValueType());
+		assertEquals(CSSUnit.CSS_NUMBER, value.getUnitType());
+		assertEquals(1f, ((CSSTypedValue) value).getFloatValue(CSSUnit.CSS_NUMBER));
+
+		LexicalUnit inherit = parsePropertyValue("inherit");
+		DOMException ex = assertThrows(DOMException.class, () -> factory.createCSSPrimitiveValue(inherit));
+		assertEquals(DOMException.TYPE_MISMATCH_ERR, ex.code);
+
+		LexicalUnit unset = parsePropertyValue("unset");
+		ex = assertThrows(DOMException.class, () -> factory.createCSSPrimitiveValue(unset));
+		assertEquals(DOMException.TYPE_MISMATCH_ERR, ex.code);
+
+		LexicalUnit revert = parsePropertyValue("revert");
+		ex = assertThrows(DOMException.class, () -> factory.createCSSPrimitiveValue(revert));
+		assertEquals(DOMException.TYPE_MISMATCH_ERR, ex.code);
 	}
 
 	@Test
