@@ -87,7 +87,7 @@ test {
 }
 
 checkstyle {
-	toolVersion = '10.18.0'
+	toolVersion = '10.18.1'
 }
 
 tasks.compileJava {
