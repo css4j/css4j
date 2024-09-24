@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.CSSCanvas;
-import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -27,25 +26,11 @@ import io.sf.carte.doc.style.css.property.NumberValue;
  */
 abstract public class AbstractCSSCanvas implements CSSCanvas {
 
-	private CSSDocument document;
-
 	/**
 	 * Construct a canvas to display the given document.
-	 * 
-	 * @param doc the document to display.
 	 */
-	protected AbstractCSSCanvas(CSSDocument doc) {
+	protected AbstractCSSCanvas() {
 		super();
-		this.document = doc;
-	}
-
-	@Override
-	public CSSDocument getDocument() {
-		return document;
-	}
-
-	protected void setDocument(CSSDocument doc) {
-		this.document = doc;
 	}
 
 	@Override

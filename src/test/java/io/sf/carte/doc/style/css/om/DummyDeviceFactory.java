@@ -151,11 +151,24 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 	 * A dumb canvas useful for testing.
 	 */
 	public class DummyCanvas extends AbstractCSSCanvas {
+
+		private CSSDocument document;
+
 		private final Map<CSSElement, List<String>> statePseudoclasses;
 
 		DummyCanvas(CSSDocument doc) {
-			super(doc);
+			super();
+			this.document = doc;
 			statePseudoclasses = new HashMap<>();
+		}
+
+		@Override
+		public CSSDocument getDocument() {
+			return document;
+		}
+
+		protected void setDocument(CSSDocument doc) {
+			this.document = doc;
 		}
 
 		@Override
