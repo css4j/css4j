@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
@@ -23,9 +24,9 @@ import io.sf.carte.doc.style.css.nsac.PositionalCondition;
 import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SheetContext;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
-import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.jclf.text.TokenParser;
 
 /**
@@ -35,17 +36,17 @@ import io.sf.jclf.text.TokenParser;
  */
 class SelectorSerializer {
 
-	private final AbstractCSSStyleSheet parentSheet;
+	private final SheetContext parentSheet;
 
 	/**
 	 * Construct a serializer.
 	 */
-	public SelectorSerializer(AbstractCSSStyleSheet parentSheet) {
+	public SelectorSerializer(SheetContext parentSheet) {
 		super();
 		this.parentSheet = parentSheet;
 	}
 
-	private AbstractCSSStyleSheet getStyleSheet() {
+	private SheetContext getSheetContext() {
 		return parentSheet;
 	}
 
@@ -66,7 +67,7 @@ class SelectorSerializer {
 			}
 			if (nsuri != null) {
 				if (nsuri.length() != 0) {
-					String nsprefix = getStyleSheet()
+					String nsprefix = getSheetContext()
 							.getNamespacePrefix(esel.getNamespaceURI());
 					if (nsprefix == null) {
 						throw new IllegalStateException(
@@ -82,7 +83,7 @@ class SelectorSerializer {
 					return "|" + lname;
 				}
 			} else {
-				AbstractCSSStyleSheet psheet = getStyleSheet();
+				SheetContext psheet = getSheetContext();
 				if (psheet != null && psheet.hasDefaultNamespace()) {
 					return "*|" + lname;
 				}
@@ -326,7 +327,7 @@ class SelectorSerializer {
 		String nsuri = acond.getNamespaceURI();
 		if (nsuri != null) {
 			if (nsuri.length() != 0) {
-				String nsprefix = getStyleSheet().getNamespacePrefix(nsuri);
+				String nsprefix = getSheetContext().getNamespacePrefix(nsuri);
 				if (nsprefix == null) {
 					throw new IllegalStateException("Unknown ns prefix for URI " + nsuri);
 				}
@@ -398,12 +399,11 @@ class SelectorSerializer {
 
 	private char quoteChar(boolean noDQ) {
 		char quote;
-		AbstractCSSStyleSheet sheet = getStyleSheet();
+		SheetContext sheet = getSheetContext();
 		if (sheet != null) {
-			ValueFactory factory = sheet.getStyleSheetFactory().getValueFactory();
-			if (factory.hasFactoryFlag(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE)) {
+			if (sheet.hasFactoryFlag(CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE)) {
 				quote = '"';
-			} else if (factory.hasFactoryFlag(AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE)) {
+			} else if (sheet.hasFactoryFlag(CSSStyleSheetFactory.FLAG_STRING_SINGLE_QUOTE)) {
 				quote = '\'';
 			} else {
 				quote = noDQ ? '\'' : '"';

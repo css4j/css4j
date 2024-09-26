@@ -73,7 +73,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 
 	private final EnumSet<Parser.Flag> parserFlags;
 
-	private byte flags = 0;
+	private short flags = 0;
 
 	private boolean lenientSystemValues = true;
 
@@ -375,14 +375,19 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	}
 
 	@Override
-	public void setFactoryFlag(byte flag) {
+	public void setFactoryFlag(short flag) {
 		if (flag < 0x3) {
-			this.flags &= (byte) 0x7c;
+			this.flags &= (short) 0x7c;
 			this.flags |= flag;
 		} else {
-			flag |= this.flags & (byte) 3;
+			flag |= this.flags & (short) 3;
 			this.flags = flag;
 		}
+	}
+
+	@Override
+	protected boolean hasFactoryFlag(short flag) {
+		return (flags & flag) == flag;
 	}
 
 	/**

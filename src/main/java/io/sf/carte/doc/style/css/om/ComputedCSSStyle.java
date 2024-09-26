@@ -1239,7 +1239,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				if (attrtype == null || "string".equalsIgnoreCase(attrtype)) {
 					// Do not reparse
 					StringValue value = new StringValue(
-							AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
+							CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 					value.setStringValue(Type.STRING, attrvalue);
 					return value;
 				}
@@ -1248,7 +1248,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					try {
 						URL url = getOwnerNode().getOwnerDocument().getURL(attrvalue);
 						URIValue uri = new URIValue(
-								AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
+								CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 						uri.setStringValue(Type.URI, url.toExternalForm());
 						return uri;
 					} catch (MalformedURLException e) {
@@ -1347,7 +1347,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (pri.getPrimitiveType() == Type.STRING && "url".equalsIgnoreCase(attrtype)) {
 			try {
 				URL url = getOwnerNode().getOwnerDocument().getURL(pri.getStringValue());
-				URIValue uri = new URIValue(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
+				URIValue uri = new URIValue(CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 				uri.setStringValue(Type.URI, url.toExternalForm());
 				return uri;
 			} catch (MalformedURLException e) {

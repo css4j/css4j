@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 public class SelectorSerializerTest {
@@ -53,7 +54,7 @@ public class SelectorSerializerTest {
 
 	@Test
 	public void testSelectorTextSelectorDQ() {
-		CSSStyleDeclarationRule rule = createStyleRule(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
+		CSSStyleDeclarationRule rule = createStyleRule(CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 		rule.setCssText("span[foo~='bar'],span[foo='bar'],span[class='example'] {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals(3, list.getLength());
@@ -129,7 +130,7 @@ public class SelectorSerializerTest {
 
 	@Test
 	public void testSelectorTextAttributeSelectorDQ() {
-		CSSStyleDeclarationRule rule = createStyleRule(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
+		CSSStyleDeclarationRule rule = createStyleRule(CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 		rule.setCssText("span[class=\"example\"][foo=\"bar\"],:rtl * {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals("span[class=\"example\"][foo=\"bar\"],:rtl *", rule.getSelectorText());
@@ -138,7 +139,7 @@ public class SelectorSerializerTest {
 		assertEquals(":rtl *", serializer.selectorText(list.item(1), false));
 	}
 
-	private StyleRule createStyleRule(byte flag) {
+	private StyleRule createStyleRule(short flag) {
 		factory.setFactoryFlag(flag);
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
 		return sheet.createStyleRule();

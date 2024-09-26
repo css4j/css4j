@@ -16,6 +16,7 @@ import java.util.Objects;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.nsac.SelectorFunction;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SheetContext;
 
 /**
  * A selector function condition.
@@ -32,17 +33,17 @@ class SelectorFunctionImpl extends BooleanConditionImpl implements SelectorFunct
 
 	private static final long serialVersionUID = 1L;
 
-	private final AbstractCSSStyleSheet parentSheet;
+	private final SheetContext parentSheet;
 
 	private final SelectorList selectors;
 
 	/**
 	 * Construct a new selector function condition.
 	 * 
-	 * @param parentSheet the parent style sheet.
+	 * @param parentSheet the parent style sheet context.
 	 * @param selectors   the selectors.
 	 */
-	public SelectorFunctionImpl(AbstractCSSStyleSheet parentSheet, SelectorList selectors) {
+	public SelectorFunctionImpl(SheetContext parentSheet, SelectorList selectors) {
 		super();
 		this.parentSheet = parentSheet;
 		this.selectors = selectors;

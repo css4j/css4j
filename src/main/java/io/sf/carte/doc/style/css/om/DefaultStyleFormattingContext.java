@@ -16,9 +16,9 @@ import java.util.List;
 
 import org.w3c.dom.css.CSSRule;
 
+import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
-import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -157,8 +157,8 @@ public class DefaultStyleFormattingContext extends DefaultDeclarationFormattingC
 		char quote = '\'';
 		if (parentContextRule != null) {
 			AbstractCSSRule rule = (AbstractCSSRule) parentContextRule;
-			ValueFactory vf = rule.getParentStyleSheet().getStyleSheetFactory().getValueFactory();
-			if (vf.hasFactoryFlag(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE)) {
+			AbstractCSSStyleSheetFactory sf = rule.getParentStyleSheet().getStyleSheetFactory();
+			if (sf.hasFactoryFlag(CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE)) {
 				quote = '"';
 			}
 		}

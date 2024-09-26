@@ -666,7 +666,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * @return the namespace prefix.
 	 */
 	@Override
-	protected String getNamespacePrefix(String uri) {
+	public String getNamespacePrefix(String uri) {
 		return namespaces.get(uri);
 	}
 
@@ -686,7 +686,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * @return <code>true</code> if a default namespace was defined, <code>false</code> otherwise.
 	 */
 	@Override
-	protected boolean hasDefaultNamespace() {
+	public boolean hasDefaultNamespace() {
 		return namespaces.containsValue("");
 	}
 

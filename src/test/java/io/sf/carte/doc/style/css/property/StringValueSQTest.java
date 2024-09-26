@@ -22,10 +22,10 @@ import java.io.StringReader;
 
 import org.junit.jupiter.api.Test;
 
+import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
 
@@ -194,7 +194,7 @@ public class StringValueSQTest {
 	}
 
 	private StringValue createCSSStringValue() {
-		byte flags = AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE;
+		short flags = CSSStyleSheetFactory.FLAG_STRING_SINGLE_QUOTE;
 		return new StringValue(flags);
 	}
 }

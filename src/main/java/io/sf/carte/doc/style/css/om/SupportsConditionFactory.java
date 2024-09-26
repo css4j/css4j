@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SheetContext;
 
 /**
  * Contains factory methods related to <code>{@literal @}supports</code>
@@ -21,15 +22,15 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
 public class SupportsConditionFactory
 		implements io.sf.carte.doc.style.css.SupportsConditionFactory {
 
-	private final AbstractCSSStyleSheet parentStyleSheet;
+	private final SheetContext parentStyleSheet;
 
 	/**
 	 * Construct a new condition factory for rules belonging to the given style
-	 * sheet.
+	 * sheet context.
 	 * 
-	 * @param parentStyleSheet the style sheet.
+	 * @param parentStyleSheet the style sheet context.
 	 */
-	public SupportsConditionFactory(AbstractCSSStyleSheet parentStyleSheet) {
+	public SupportsConditionFactory(SheetContext parentStyleSheet) {
 		super();
 		this.parentStyleSheet = parentStyleSheet;
 	}

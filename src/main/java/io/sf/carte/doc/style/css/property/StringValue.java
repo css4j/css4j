@@ -15,10 +15,10 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.SimpleWriter;
 
@@ -34,7 +34,7 @@ public class StringValue extends AbstractTextValue {
 
 	private String stringValue = null;
 
-	private final byte flags;
+	private final short flags;
 
 	char quote;
 
@@ -47,10 +47,10 @@ public class StringValue extends AbstractTextValue {
 	 * <p>
 	 * 
 	 * @param flags See
-	 *              {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#setFactoryFlag(byte)
-	 *              CSSStyleSheetFactory.setFactoryFlag(byte)}
+	 *              {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#setFactoryFlag(short)
+	 *              CSSStyleSheetFactory.setFactoryFlag(short)}
 	 */
-	public StringValue(byte flags) {
+	public StringValue(short flags) {
 		this(Type.STRING, flags);
 	}
 
@@ -60,10 +60,10 @@ public class StringValue extends AbstractTextValue {
 	 * 
 	 * @param primitiveType the primitive type.
 	 * @param flags         See
-	 *                      {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#setFactoryFlag(byte)
-	 *                      CSSStyleSheetFactory.setFactoryFlag(byte)}
+	 *                      {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#setFactoryFlag(short)
+	 *                      CSSStyleSheetFactory.setFactoryFlag(short)}
 	 */
-	StringValue(Type primitiveType, byte flags) {
+	StringValue(Type primitiveType, short flags) {
 		super(primitiveType);
 		this.flags = flags;
 		quote = '\'';
@@ -81,14 +81,14 @@ public class StringValue extends AbstractTextValue {
 		if (isDoubleQuoteSet()) {
 			quote = '"';
 		} else if ((flags
-				& AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE) == AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE) {
+				& CSSStyleSheetFactory.FLAG_STRING_SINGLE_QUOTE) == CSSStyleSheetFactory.FLAG_STRING_SINGLE_QUOTE) {
 			quote = '\'';
 		}
 	}
 
 	private boolean isDoubleQuoteSet() {
 		return (flags
-				& AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE) == AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE;
+				& CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE) == CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE;
 	}
 
 	private boolean isNoQuotePreferenceSet() {

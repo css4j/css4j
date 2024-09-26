@@ -27,10 +27,15 @@ import io.sf.carte.doc.agent.DeviceFactory;
  */
 public interface CSSStyleSheetFactory {
 
+	// Origins
 	byte ORIGIN_USER_IMPORTANT = 3;
 	byte ORIGIN_AUTHOR = 8;
 	byte ORIGIN_USER = 9;
 	byte ORIGIN_USER_AGENT = 16;
+
+	// Flags
+	short FLAG_STRING_SINGLE_QUOTE = 1;
+	short FLAG_STRING_DOUBLE_QUOTE = 2;
 
 	/**
 	 * Creates a stand-alone author style sheet.
@@ -110,7 +115,7 @@ public interface CSSStyleSheetFactory {
 	 * @param flag
 	 *             the flag to set.
 	 */
-	void setFactoryFlag(byte flag);
+	void setFactoryFlag(short flag);
 
 	/**
 	 * Set the value of the <code>lenientSystemValues</code> flag. Do not confuse this flag

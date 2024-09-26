@@ -30,6 +30,7 @@ import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SheetContext;
 import io.sf.carte.util.Visitor;
 
 /**
@@ -38,7 +39,8 @@ import io.sf.carte.util.Visitor;
  * @author Carlos Amengual
  *
  */
-abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implements CSSStyleSheet<AbstractCSSRule> {
+abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
+		implements CSSStyleSheet<AbstractCSSRule>, SheetContext {
 
 	private static final long serialVersionUID = 1L;
 
@@ -218,14 +220,21 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet implement
 	 *            the namespace URI string.
 	 * @return the namespace prefix.
 	 */
-	abstract protected String getNamespacePrefix(String uri);
+	@Override
+	abstract public String getNamespacePrefix(String uri);
 
 	/**
 	 * Has this style sheet defined a default namespace ?
 	 * 
 	 * @return <code>true</code> if a default namespace was defined, <code>false</code> otherwise.
 	 */
-	abstract protected boolean hasDefaultNamespace();
+	@Override
+	abstract public boolean hasDefaultNamespace();
+
+	@Override
+	public boolean hasFactoryFlag(short flag) {
+		return getStyleSheetFactory().hasFactoryFlag(flag);
+	}
 
 	abstract public void setHref(String href);
 

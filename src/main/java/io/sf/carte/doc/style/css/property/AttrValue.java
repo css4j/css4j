@@ -42,9 +42,9 @@ public class AttrValue extends ProxyValue implements CSSAttrValue {
 	private String typeval = null;
 	private StyleValue fallback = null;
 
-	private final byte flags;
+	private final short flags;
 
-	public AttrValue(byte flags) {
+	public AttrValue(short flags) {
 		super(Type.ATTR);
 		this.flags = flags;
 	}

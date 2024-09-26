@@ -230,7 +230,7 @@ public class KeyframesRuleTest {
 	public void testParseRuleCompatSQ() throws DOMException, IOException {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
 		factory.setStyleFormattingFactory(new TestStyleFormattingFactory());
-		factory.setFactoryFlag(AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE);
+		factory.setFactoryFlag(CSSStyleSheetFactory.FLAG_STRING_SINGLE_QUOTE);
 		sheet = factory.createStyleSheet(null, null);
 		StringReader re = new StringReader(
 				"@keyframes animate-opacity{0%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)\";filter:alpha(opacity=100);-moz-opacity:1;-khtml-opacity:1;opacity:1}100%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity:0;opacity:0}}");

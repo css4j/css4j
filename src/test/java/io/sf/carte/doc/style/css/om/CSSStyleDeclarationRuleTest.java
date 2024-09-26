@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
+import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
@@ -146,7 +147,7 @@ public class CSSStyleDeclarationRuleTest {
 
 	@Test
 	public void testSelectorTextAttributeSelector2DQ() {
-		CSSStyleDeclarationRule rule = createCSSStyleDeclarationRule(AbstractCSSStyleSheetFactory.STRING_DOUBLE_QUOTE);
+		CSSStyleDeclarationRule rule = createCSSStyleDeclarationRule(CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 		rule.setCssText("table[align=\"center\"] > caption[align=\"left\"] {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals(1, list.getLength());
@@ -262,7 +263,7 @@ public class CSSStyleDeclarationRuleTest {
 		assertEquals("p:lang(zh,'*-hant')", rule.getSelectorText());
 		rule.setCssText("p:lang(es, fr, \\*-Latn) {border-top-width: 1px; }");
 		assertEquals("p:lang(es,fr,\\*-Latn)", rule.getSelectorText());
-		rule = createCSSStyleDeclarationRule(AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE);
+		rule = createCSSStyleDeclarationRule(CSSStyleSheetFactory.FLAG_STRING_SINGLE_QUOTE);
 		rule.setCssText("p:lang(zh, \"*-hant\") {border-top-width: 1px; }");
 		assertEquals("p:lang(zh,'*-hant')", rule.getSelectorText());
 	}
@@ -332,7 +333,7 @@ public class CSSStyleDeclarationRuleTest {
 		assertFalse(rule.equals(rule2));
 	}
 
-	private CSSStyleDeclarationRule createCSSStyleDeclarationRule(byte flag) {
+	private CSSStyleDeclarationRule createCSSStyleDeclarationRule(short flag) {
 		factory.setFactoryFlag(flag);
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
 		return sheet.createStyleRule();

@@ -40,10 +40,10 @@ public class URIValue extends StringValue {
 	 * <p>
 	 * 
 	 * @param flags See
-	 *              {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#setFactoryFlag(byte)
-	 *              CSSStyleSheetFactory.setFactoryFlag(byte)}
+	 *              {@link io.sf.carte.doc.style.css.CSSStyleSheetFactory#setFactoryFlag(short)
+	 *              CSSStyleSheetFactory.setFactoryFlag(short)}
 	 */
-	public URIValue(byte flags) {
+	public URIValue(short flags) {
 		super(Type.URI, flags);
 	}
 

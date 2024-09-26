@@ -44,13 +44,13 @@ import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
  */
 public class ValueFactory implements CSSValueFactory {
 
-	private final byte flags;
+	private final short flags;
 
 	public ValueFactory() {
-		this((byte)0);
+		this((short)0);
 	}
 
-	public ValueFactory(byte flags) {
+	public ValueFactory(short flags) {
 		super();
 		this.flags = flags;
 	}
@@ -1202,7 +1202,7 @@ public class ValueFactory implements CSSValueFactory {
 	 * @param flag the flag.
 	 * @return <code>true</code> if the flag is set.
 	 */
-	public boolean hasFactoryFlag(byte flag) {
+	public boolean hasFactoryFlag(short flag) {
 		return (flags & flag) == flag;
 	}
 

@@ -30,10 +30,7 @@ import io.sf.carte.doc.style.css.property.ValueFactory;
  */
 abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFactory, java.io.Serializable {
 
-	private static final long serialVersionUID = 1L;
-
-	public static final byte STRING_SINGLE_QUOTE = 1;
-	public static final byte STRING_DOUBLE_QUOTE = 2;
+	private static final long serialVersionUID = 2L;
 
 	/**
 	 * Create an inline style.
@@ -107,6 +104,14 @@ abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFacto
 	 * @return <code>true</code> if the factory has compat value flags set.
 	 */
 	abstract protected boolean hasCompatValueFlags();
+
+	/**
+	 * Check whether the given factory flag is set.
+	 * 
+	 * @param flag the flag.
+	 * @return {@code true} if the flag is set.
+	 */
+	abstract protected boolean hasFactoryFlag(short flag);
 
 	/**
 	 * Get a value factory set to the appropriate flags.

@@ -67,6 +67,7 @@ import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.Selector.SelectorType;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SheetContext;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.SupportsConditionFactory;
@@ -601,7 +602,7 @@ public class CSSParser implements Parser, Cloneable {
 	 *                      <code>NOT_SUPPORTED_ERR</code> exceptions are always
 	 *                      thrown instead of being processed by the rule. Please
 	 *                      use
-	 *                      {@link #parseSupportsCondition(String, CSSRule, AbstractCSSStyleSheet)}
+	 *                      {@link #parseSupportsCondition(String, CSSRule, SheetContext)}
 	 *                      with a style sheet argument if you do not want to supply
 	 *                      a rule, otherwise namespace-related errors may be
 	 *                      produced.
@@ -612,7 +613,7 @@ public class CSSParser implements Parser, Cloneable {
 	 *                            handler.
 	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was
 	 *                            reached.
-	 * @see #parseSupportsCondition(String, CSSRule, AbstractCSSStyleSheet)
+	 * @see #parseSupportsCondition(String, CSSRule, SheetContext)
 	 */
 	public BooleanCondition parseSupportsCondition(String conditionText, CSSRule rule)
 			throws CSSParseException, CSSBudgetException {
@@ -627,13 +628,13 @@ public class CSSParser implements Parser, Cloneable {
 	 * Parse the condition text of a <code>{@literal @}supports</code> rule.
 	 * 
 	 * @param conditionText    the condition text.
-	 * @param rule             the rule that would process the error. if
+	 * @param rule             the rule that would process the error. If
 	 *                         <code>null</code>, a problem while parsing shall
 	 *                         result in an exception. Note that
 	 *                         <code>NOT_SUPPORTED_ERR</code> exceptions are always
 	 *                         thrown instead of being processed by the rule.
-	 * @param parentStyleSheet the parent style sheet. It is necessary to provide
-	 *                         information related to namespaces, as well as
+	 * @param parentStyleSheet the parent style sheet context. It is necessary to
+	 *                         provide information related to namespaces, as well as
 	 *                         customizing the serialization.
 	 * @return the <code>{@literal @}supports</code> condition, or <code>null</code>
 	 *         if a rule was specified to handle the errors, and an error was
@@ -644,7 +645,7 @@ public class CSSParser implements Parser, Cloneable {
 	 *                            reached.
 	 */
 	public BooleanCondition parseSupportsCondition(String conditionText, CSSRule rule,
-			AbstractCSSStyleSheet parentStyleSheet)
+			SheetContext parentStyleSheet)
 			throws CSSParseException, CSSBudgetException {
 		int[] allowInWords = { 45, 46 }; // -.
 		SupportsTokenHandler handler = new SupportsTokenHandler(rule, parentStyleSheet);
@@ -664,11 +665,11 @@ public class CSSParser implements Parser, Cloneable {
 	/**
 	 * Create a new factory for {@code @supports} conditions.
 	 * 
-	 * @param parentSheet the {@code @supports} rule's parent style sheet.
+	 * @param parentSheet the {@code @supports} rule's parent style sheet context.
 	 * @return the factory.
 	 */
 	protected io.sf.carte.doc.style.css.SupportsConditionFactory createSupportsConditionFactory(
-			AbstractCSSStyleSheet parentSheet) {
+			SheetContext parentSheet) {
 		return new SupportsConditionFactory(parentSheet);
 	}
 
@@ -1135,7 +1136,7 @@ public class CSSParser implements Parser, Cloneable {
 		private CSSParseException errorException = null;
 		private final CSSRule rule;
 
-		SupportsTokenHandler(CSSRule rule, AbstractCSSStyleSheet parentStyleSheet) {
+		SupportsTokenHandler(CSSRule rule, SheetContext parentStyleSheet) {
 			super(createSupportsConditionFactory(parentStyleSheet));
 			this.rule = rule;
 			setPredicateHandler(new SupportsDelegateHandler());
@@ -4518,7 +4519,7 @@ public class CSSParser implements Parser, Cloneable {
 		private class MySupportsTokenHandler extends SupportsTokenHandler {
 
 			MySupportsTokenHandler() {
-				super(null, (AbstractCSSStyleSheet) handler.getStyleSheet());
+				super(null, (SheetContext) handler.getStyleSheet());
 			}
 
 			@Override

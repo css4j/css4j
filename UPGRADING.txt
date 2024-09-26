@@ -3,6 +3,9 @@ UPGRADING FROM PREVIOUS VERSIONS
 
 Upgrading to 5.0 from 4.x
 -------------------------
+- NSAC: the third argument of `CSSParser.parseSupportsCondition()` is now a
+  `SheetContext` interface instead of an `AbstractCSSStyleSheet`.
+
 - CSSOM: deprecated `inlineStyleError()` was removed from `SheetErrorHandler`.
 
 - CSSOM: `CSSFunctionValue.getArguments()` now returns a `CSSValueList<? extends CSSValue>`.
@@ -13,6 +16,9 @@ Upgrading to 5.0 from 4.x
 
 - CSSOM: protected method `absoluteTypedValue(TypedValue)` in `ComputedCSSStyle`
   now accepts and returns a `CSSTypedValue`.
+
+- CSSOM: the single/double quote factory flags are now `short` and were moved
+  from `AbstractCSSStyleSheetFactory` to `CSSStyleSheetFactory`.
 
 - CSSOM: `AbstractCSSCanvas` no longer has a `CSSDocument` field.
 
