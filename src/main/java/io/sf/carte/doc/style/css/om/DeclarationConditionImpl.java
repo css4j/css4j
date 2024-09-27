@@ -13,23 +13,23 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.nsac.DeclarationCondition;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.parser.DeclarationCondition;
+import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
 class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements DeclarationCondition {
 
 	private static final long serialVersionUID = 2L;
 
-	private CSSValue value = null;
+	private LexicalUnit value = null;
 
 	public DeclarationConditionImpl(String propertyName) {
 		super(propertyName);
 	}
 
 	@Override
-	public CSSValue getValue() {
+	public LexicalUnit getValue() {
 		return value;
 	}
 
@@ -43,8 +43,7 @@ class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements
 	 */
 	@Override
 	public void setValue(LexicalUnit value) throws DOMException {
-		ValueFactory factory = new ValueFactory();
-		this.value = factory.createCSSValue(value);
+		this.value = value;
 	}
 
 	@Override
@@ -84,7 +83,7 @@ class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements
 	public void appendText(StringBuilder buf) {
 		buf.append('(').append(getName()).append(": ");
 		if (value != null) {
-			buf.append(value.getCssText());
+			buf.append(value.toString());
 		}
 		buf.append(')');
 	}
@@ -93,7 +92,14 @@ class DeclarationConditionImpl extends BooleanConditionImpl.Predicate implements
 	public void appendMinifiedText(StringBuilder buf) {
 		buf.append('(').append(getName()).append(':');
 		if (value != null) {
-			buf.append(value.getMinifiedCssText(getName()));
+			ValueFactory vf = new ValueFactory();
+			StyleValue cssval;
+			try {
+				cssval = vf.createCSSValue(value);
+				buf.append(cssval.getMinifiedCssText(getName()));
+			} catch (Exception e) {
+				buf.append(value.toString());
+			}
 		}
 		buf.append(')');
 	}

@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 /**
@@ -239,6 +240,20 @@ public interface StyleDatabase {
 	 * @return <code>true</code> if the property (with the given value, if any) is
 	 *         supported, <code>false</code> otherwise.
 	 */
+	default boolean supports(String property, LexicalUnit value) {
+		return false;
+	}
+
+	/**
+	 * Does this medium support the given property-value pair?
+	 *
+	 * @deprecated Use {@link #supports(String, LexicalUnit)}.
+	 * @param property the property name.
+	 * @param value    the optional property value to be tested against.
+	 * @return <code>true</code> if the property (with the given value, if any) is
+	 *         supported, <code>false</code> otherwise.
+	 */
+	@Deprecated(forRemoval = true)
 	default boolean supports(String property, CSSValue value) {
 		return false;
 	}

@@ -23,10 +23,11 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
-import io.sf.carte.doc.style.css.CSSValue;
-import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.DeclarationCondition;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.PageSelector;
 import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 
@@ -240,8 +241,8 @@ public class CSSParserTest {
 		assertNotNull(cond);
 		assertEquals(BooleanCondition.Type.PREDICATE, cond.getType());
 		assertEquals("display", ((DeclarationCondition) cond).getName());
-		CSSValue value = ((DeclarationCondition) cond).getValue();
-		assertEquals(Type.IDENT, value.getPrimitiveType());
+		LexicalUnit value = ((DeclarationCondition) cond).getValue();
+		assertEquals(LexicalType.IDENT, value.getLexicalUnitType());
 		assertEquals("flex", value.getCssText());
 	}
 

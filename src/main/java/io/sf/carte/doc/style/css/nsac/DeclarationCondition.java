@@ -9,10 +9,7 @@
 
  */
 
-package io.sf.carte.doc.style.css.parser;
-
-import io.sf.carte.doc.style.css.CSSValue;
-import io.sf.carte.doc.style.css.nsac.DeclarationPredicate;
+package io.sf.carte.doc.style.css.nsac;
 
 /**
  * A condition that declares a property name with an object model value.
@@ -24,6 +21,6 @@ public interface DeclarationCondition extends DeclarationPredicate {
 	 * 
 	 * @return the value.
 	 */
-	CSSValue getValue();
+	LexicalUnit getValue();
 
 }

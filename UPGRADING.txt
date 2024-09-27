@@ -9,6 +9,10 @@ Upgrading to 5.0 from 4.x
 - NSAC: the third argument of `CSSParser.parseSupportsCondition()` is now a
   `SheetContext` interface instead of an `AbstractCSSStyleSheet`.
 
+- CSSOM: `StyleDatabase.supports(String, CSSValue)` is deprecated and was replaced
+  by `StyleDatabase.supports(String, LexicalUnit)`. `DeclarationCondition` was
+  moved to the `nsac` package and now `getValue()` returns a `LexicalUnit`.
+
 - CSSOM: deprecated `inlineStyleError()` was removed from `SheetErrorHandler`.
 
 - CSSOM: `CSSFunctionValue.getArguments()` now returns a `CSSValueList<? extends CSSValue>`.
