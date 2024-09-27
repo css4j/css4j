@@ -913,7 +913,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		result = prime * result + cssUnit;
 		result = prime * result + ((dimensionUnitText == null) ? 0 : dimensionUnitText.hashCode());
 		result = prime * result + Float.floatToIntBits(floatValue);
-		result = prime * result + ((identCssText == null) ? 0 : identCssText.hashCode());
 		result = prime * result + intValue;
 		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		LexicalUnitImpl lu = parameters;
@@ -957,13 +956,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 				return false;
 			}
 		} else if (!value.equals(other.value)) {
-			return false;
-		}
-		if (identCssText == null) {
-			if (other.identCssText != null) {
-				return false;
-			}
-		} else if (!identCssText.equals(other.identCssText)) {
 			return false;
 		}
 		if (intValue != other.intValue) {

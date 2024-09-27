@@ -3,6 +3,9 @@ UPGRADING FROM PREVIOUS VERSIONS
 
 Upgrading to 5.0 from 4.x
 -------------------------
+- NSAC: the particular serialized form in that a lexical unit was specified is
+  no longer taken into account for `equals()` and `hashCode()`.
+
 - NSAC: the third argument of `CSSParser.parseSupportsCondition()` is now a
   `SheetContext` interface instead of an `AbstractCSSStyleSheet`.
 
