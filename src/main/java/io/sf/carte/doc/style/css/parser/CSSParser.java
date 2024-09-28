@@ -45,6 +45,7 @@ import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.MediaQueryHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.UnitStringToId;
+import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
@@ -237,7 +238,7 @@ public class CSSParser implements Parser, Cloneable {
 		String conType = ucon.getContentType();
 
 		// Check that the content type is correct
-		if (isInvalidContentType(url, conType) && !isRedirect(ucon)) {
+		if (CSSUtil.isInvalidCSSContentType(url, conType) && !isRedirect(ucon)) {
 			// Report security error
 			String msg;
 			if (conType != null) {
@@ -247,8 +248,7 @@ public class CSSParser implements Parser, Cloneable {
 				msg = "Style sheet at " + url.toExternalForm() + " served with invalid type ("
 						+ conType + ").";
 			} else {
-				msg = "Style sheet at " + url.toExternalForm()
-						+ " has no content type nor ends with '.css' extension.";
+				msg = "Style sheet at " + url.toExternalForm() + " has no valid content type.";
 			}
 			try {
 				is.close();
@@ -279,19 +279,6 @@ public class CSSParser implements Parser, Cloneable {
 			throw e;
 		}
 		re.close();
-	}
-
-	private boolean isInvalidContentType(URL url, String conType) {
-		String proto;
-		if (conType != null && !"content/unknown".equalsIgnoreCase(conType)
-				&& !"jar".equals(proto = url.getProtocol()) && !"file".equals(proto)) {
-			int sepidx = conType.indexOf(';');
-			if (sepidx != -1) {
-				conType = conType.substring(0, sepidx);
-			}
-			return !"text/css".equalsIgnoreCase(conType);
-		}
-		return false;
 	}
 
 	private boolean isRedirect(URLConnection ucon) {

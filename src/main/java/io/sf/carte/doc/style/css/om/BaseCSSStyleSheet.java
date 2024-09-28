@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -41,6 +40,7 @@ import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
@@ -750,7 +750,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			String conType = ucon.getContentType();
 
 			// Check that the content type is correct
-			if (isInvalidContentType(url, conType) && !isRedirect(ucon)) {
+			if (CSSUtil.isInvalidCSSContentType(url, conType) && !isRedirect(ucon)) {
 				// Report security error
 				String msg;
 				if (conType != null) {
@@ -760,8 +760,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					msg = "Style sheet at " + url.toExternalForm() + " served with invalid type ("
 							+ conType + ").";
 				} else {
-					msg = "Style sheet at " + url.toExternalForm()
-							+ " has no content type nor ends with '.css' extension.";
+					msg = "Style sheet at " + url.toExternalForm() + " has no valid content type.";
 				}
 
 				getDocumentErrorHandler().policyError(getOwnerNode(), msg);
@@ -786,21 +785,6 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		return result;
-	}
-
-	private boolean isInvalidContentType(URL url, String conType) {
-		String proto;
-		if (conType != null && !"content/unknown".equalsIgnoreCase(conType)
-				&& !"jar".equals(proto = url.getProtocol()) && !"file".equals(proto)) {
-			int sepidx = conType.indexOf(';');
-			if (sepidx != -1) {
-				conType = conType.substring(0, sepidx);
-			}
-			return !"text/css".equalsIgnoreCase(conType)
-					&& !url.getPath().toLowerCase(Locale.ROOT).endsWith(".css");
-		}
-		return !"file".equals(proto = url.getProtocol()) && !"jar".equals(proto)
-				&& !url.getPath().toLowerCase(Locale.ROOT).endsWith(".css");
 	}
 
 	private boolean isRedirect(URLConnection ucon) {

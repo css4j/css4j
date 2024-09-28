@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.InputSource;
 
 class SheetParserErrorTest {
 
@@ -127,7 +128,7 @@ class SheetParserErrorTest {
 	@Test
 	public void testBadFunction() throws CSSException, IOException {
 		String s = "A{Q	\\A(z\"#\"(z\"#\"\"'ÿ";
-		parser.parseStyleSheet(new StringReader(s));
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(12, errorHandler.getLastException().getColumnNumber());
 	}

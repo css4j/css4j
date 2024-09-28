@@ -67,6 +67,13 @@ public class MockURLConnectionFactory {
 		headerMap.put("ttf", ttfheaders);
 	}
 
+	/**
+	 * Set a header to be returned with the connection.
+	 * 
+	 * @param ext        the lower case extension.
+	 * @param headerName the lower case header name
+	 * @param value      the header value.
+	 */
 	public void setHeader(String ext, String headerName, String value) {
 		Map<String, List<String>> extheaders = headerMap.get(ext);
 		if (extheaders == null) {
@@ -75,14 +82,14 @@ public class MockURLConnectionFactory {
 		}
 		List<String> hdrs = extheaders.get(headerName);
 		if (hdrs == null) {
-			hdrs = new ArrayList<>(4);
-			extheaders.put(headerName, hdrs);
-		}
-		int idx = hdrs.indexOf(headerName);
-		if (idx < 0) {
+			hdrs = new ArrayList<>(3);
 			hdrs.add(value);
+			extheaders.put(headerName, hdrs);
 		} else {
-			hdrs.set(idx, value);
+			int idx = hdrs.indexOf(value);
+			if (idx < 0) {
+				hdrs.add(value);
+			}
 		}
 	}
 

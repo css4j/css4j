@@ -34,6 +34,7 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.InputSource;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Locator;
@@ -733,9 +734,10 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseMinimalStyleSheet() throws CSSException, IOException {
-		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader();
-		parser.parseStyleSheet(re);
-		//
+		try (Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader()) {
+			parser.parseStyleSheet(re);
+		}
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("background-color", handler.propertyNames.get(0));
@@ -759,10 +761,10 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheet1() throws CSSException, IOException {
-		Reader re = loadTestCSSReader("sheet1.css");
-		parser.parseStyleSheet(re);
-		re.close();
-		//
+		try (Reader re = loadTestCSSReader("sheet1.css")) {
+			parser.parseStyleSheet(re);
+		}
+
 		assertEquals(1, handler.supportsRuleLists.size());
 		assertEquals("(display: table-cell) and (display: list-item)",
 			handler.supportsRuleLists.get(0).toString());
@@ -820,10 +822,10 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetBadMedia() throws CSSException, IOException {
-		Reader re = loadTestCSSReader("badmedia.css");
-		parser.parseStyleSheet(re);
-		re.close();
-		//
+		try (Reader re = loadTestCSSReader("badmedia.css")) {
+			parser.parseStyleSheet(re);
+		}
+
 		assertEquals(1, handler.supportsRuleLists.size());
 		assertEquals("(display: table-cell) and (display: list-item)",
 			handler.supportsRuleLists.get(0).toString());
@@ -905,7 +907,7 @@ public class SheetParserTest {
 	public void testParseStyleSheetMediaRule() throws CSSException, IOException {
 		Reader re = new StringReader("@media {div.foo{margin:1em}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("all", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.selectors.size());
@@ -927,7 +929,7 @@ public class SheetParserTest {
 	public void testParseStyleSheetMediaRuleNL() throws CSSException, IOException {
 		Reader re = new StringReader("@media\n{div.foo{margin:1em}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("all", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.selectors.size());
@@ -949,7 +951,7 @@ public class SheetParserTest {
 	public void testParseStyleSheetMediaRuleNL2() throws CSSException, IOException {
 		Reader re = new StringReader("@media\nscreen{div.foo{margin:1em}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.selectors.size());
@@ -971,7 +973,7 @@ public class SheetParserTest {
 	public void testParseStyleSheetMediaRuleEscaped() throws CSSException, IOException {
 		Reader re = new StringReader("@\\6d edia screen {div.foo{margin:1em}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.selectors.size());
@@ -993,7 +995,7 @@ public class SheetParserTest {
 	public void testParseStyleSheetMediaRuleEscapedNL() throws CSSException, IOException {
 		Reader re = new StringReader("@medi\\61\n screen {div.foo{margin:1em}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.selectors.size());
@@ -1015,7 +1017,7 @@ public class SheetParserTest {
 	public void testParseStyleSheetMediaRuleEscaped2() throws CSSException, IOException {
 		Reader re = new StringReader("@medi\\61  screen {div.foo{margin:1em}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.selectors.size());
@@ -1037,6 +1039,7 @@ public class SheetParserTest {
 	public void testParseStyleSheetMediaRuleEscaped3() throws CSSException, IOException {
 		Reader re = new StringReader("@\\6d edi\\61  screen {div.foo{margin:1em}}");
 		parser.parseStyleSheet(re);
+
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.selectors.size());
@@ -1053,6 +1056,7 @@ public class SheetParserTest {
 	public void testParseStyleSheetMediaRuleError() throws CSSException, IOException {
 		Reader re = new StringReader("@+media screen {div.foo{margin:1em}}p{color:blue}");
 		parser.parseStyleSheet(re);
+
 		assertEquals(0, handler.mediaRuleLists.size());
 		assertEquals(1, handler.selectors.size());
 		assertEquals("p", handler.selectors.get(0).toString());
@@ -1069,6 +1073,7 @@ public class SheetParserTest {
 	public void testParseStyleSheetMediaRuleError2() throws CSSException, IOException {
 		Reader re = new StringReader("@.media screen {div.foo{margin:1em}}");
 		parser.parseStyleSheet(re);
+
 		assertEquals(0, handler.mediaRuleLists.size());
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.propertyNames.size());
@@ -1082,6 +1087,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}");
 		parser.parseStyleSheet(re);
+
 		assertEquals(2, handler.mediaRuleLists.size());
 		MediaQueryList mq0 = handler.mediaRuleLists.get(0);
 		assertEquals("handheld", mq0.toString());
@@ -1104,6 +1110,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}");
 		parser.parseStyleSheet(re);
+
 		assertEquals(2, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals("(max-width: 1600px)", handler.mediaRuleLists.get(1).toString());
@@ -1127,7 +1134,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@media screen{@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals(0, handler.selectors.size());
@@ -1153,10 +1160,10 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetCommon() throws CSSException, IOException {
-		Reader re = loadTestCSSReader("common.css");
-		parser.parseStyleSheet(re);
-		re.close();
-		//
+		try (Reader re = loadTestCSSReader("common.css")) {
+			parser.parseStyleSheet(re);
+		}
+
 		assertEquals(1, handler.comments.size());
 		assertEquals(108, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
@@ -1187,9 +1194,13 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseStyleSheetFontFaceRule() throws CSSException, IOException {
-		Reader re = loadCSSfromClasspath("/io/sf/carte/doc/agent/common.css");
-		parser.parseStyleSheet(re);
-		//
+		try (InputStream is = SheetParserTest.class.getResourceAsStream("/io/sf/carte/doc/agent/common.css")) {
+			InputSource source = new InputSource();
+			source.setByteStream(is);
+			source.setEncoding("utf-8");
+			parser.parseStyleSheet(source);
+		}
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		//

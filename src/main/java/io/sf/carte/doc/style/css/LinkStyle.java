@@ -15,7 +15,7 @@ public interface LinkStyle<R extends CSSRule> {
 	/**
 	 * Get the style sheet that this node links to.
 	 * 
-	 * @return the style sheet.
+	 * @return the style sheet, or {@code null} if there is no associated sheet.
 	 */
 	CSSStyleSheet<R> getSheet();
 

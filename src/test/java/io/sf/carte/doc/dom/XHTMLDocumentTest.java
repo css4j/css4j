@@ -924,10 +924,11 @@ public class XHTMLDocumentTest {
 		assertNull(sheet);
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
+		assertFalse(xmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test
-	public void testLinkElementBadExtension() {
+	public void testLinkElementNoMIMEType() {
 		DOMElement link = xmlDoc.createElement("link");
 		link.setAttribute("href", "http://www.example.com/etc/fakepasswd");
 		assertNull(((LinkStyleDefiner) link).getSheet());
@@ -937,6 +938,24 @@ public class XHTMLDocumentTest {
 		assertNull(sheet);
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
+		assertFalse(xmlDoc.getErrorHandler().hasIOErrors());
+	}
+
+	@Test
+	public void testLinkElementFileNotFound() {
+		DOMElement link = xmlDoc.createElement("link");
+		link.setAttribute("href", "http://www.example.com/file/not/found.txt");
+		assertNull(((LinkStyleDefiner) link).getSheet());
+		assertFalse(xmlDoc.getErrorHandler().hasErrors());
+
+		link.setAttribute("rel", "stylesheet");
+		AbstractCSSStyleSheet sheet = ((LinkStyleDefiner) link).getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
+
+		assertTrue(xmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasIOErrors());
+		assertFalse(xmlDoc.getErrorHandler().hasPolicyErrors());
 	}
 
 	@Test

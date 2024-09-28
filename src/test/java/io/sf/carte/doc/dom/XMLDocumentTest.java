@@ -293,13 +293,27 @@ public class XMLDocumentTest {
 	}
 
 	@Test
-	public void testProcessingInstructionWrongExtension() {
+	public void testProcessingInstructionNoMIMEType() {
 		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet",
 				"type=\"text/css\" href=\"http://www.example.com/etc/fakepasswd\"");
 		LinkStyleDefiner link = (LinkStyleDefiner) pi;
 		assertNull(link.getSheet());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
+	}
+
+	@Test
+	public void testProcessingInstructionFileNotFound() {
+		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href=\"http://www.example.com/file/not/found.txt\"");
+		LinkStyleDefiner link = (LinkStyleDefiner) pi;
+		AbstractCSSStyleSheet sheet = link.getSheet();
+		assertNotNull(sheet);
+		assertEquals(0, sheet.getCssRules().getLength());
+
+		assertTrue(xmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xmlDoc.getErrorHandler().hasIOErrors());
+		assertFalse(xmlDoc.getErrorHandler().hasPolicyErrors());
 	}
 
 	@Test
