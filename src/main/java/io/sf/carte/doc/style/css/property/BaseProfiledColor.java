@@ -16,8 +16,8 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.color.Illuminant;
+import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.style.css.CSSUnit;
 
 /**

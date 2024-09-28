@@ -16,14 +16,14 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.color.Illuminants;
+import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.RGBAColor;
-import io.sf.jclf.math.linear3.Matrices;
 import io.sf.carte.doc.style.css.XYZColor;
+import io.sf.jclf.math.linear3.Matrices;
 
 class XYZColorImpl extends BaseColor implements XYZColor {
 
