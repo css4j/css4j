@@ -34,7 +34,15 @@ public interface CSSStyleSheetFactory {
 	byte ORIGIN_USER_AGENT = 16;
 
 	// Flags
+
+	/**
+	 * Prefer single quotes in the serialization of strings.
+	 */
 	short FLAG_STRING_SINGLE_QUOTE = 1;
+
+	/**
+	 * Prefer double quotes in the serialization of strings.
+	 */
 	short FLAG_STRING_DOUBLE_QUOTE = 2;
 
 	/**

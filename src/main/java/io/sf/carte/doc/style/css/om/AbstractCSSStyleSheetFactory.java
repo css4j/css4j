@@ -33,6 +33,22 @@ abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFacto
 	private static final long serialVersionUID = 2L;
 
 	/**
+	 * Prefer single quotes in the serialization of strings.
+	 * 
+	 * @deprecated Use {@link #FLAG_STRING_SINGLE_QUOTE}
+	 */
+	@Deprecated(forRemoval = true)
+	public static final byte STRING_SINGLE_QUOTE = FLAG_STRING_SINGLE_QUOTE;
+
+	/**
+	 * Prefer double quotes in the serialization of strings.
+	 * 
+	 * @deprecated Use {@link #FLAG_STRING_DOUBLE_QUOTE}
+	 */
+	@Deprecated(forRemoval = true)
+	public static final byte STRING_DOUBLE_QUOTE = FLAG_STRING_DOUBLE_QUOTE;
+
+	/**
 	 * Create an inline style.
 	 * 
 	 * @param owner
