@@ -257,8 +257,6 @@ public class CSSParser implements Parser, Cloneable {
 			throw new IOException(msg);
 		}
 
-		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8);
-
 		NamespaceMap nsMap = null;
 		if (handler instanceof NamespaceMap) {
 			nsMap = (NamespaceMap) handler;
@@ -267,18 +265,12 @@ public class CSSParser implements Parser, Cloneable {
 		int[] allowInWords = { 45, 95 }; // -_
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
-		this.handler.parseStart(handler);
-		try {
+
+		try (Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding,
+				StandardCharsets.UTF_8)) {
+			this.handler.parseStart(handler);
 			tp.parse(re, "/*", "*/"); // We do not look for CDO-CDC comments here
-		} catch (IOException e) {
-			try {
-				re.close();
-			} catch (IOException e1) {
-				// Ignore e1
-			}
-			throw e;
 		}
-		re.close();
 	}
 
 	private boolean isRedirect(URLConnection ucon) {
