@@ -16,9 +16,9 @@ import java.util.Locale;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.UnitStringToId;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
-import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 /**
@@ -94,8 +94,7 @@ public class AttrUtil {
 		}
 
 		// Could be an unit suffix, or an error
-		attrtype = attrtype.intern();
-		short declUnit = ParseHelper.unitFromString(attrtype);
+		short declUnit = UnitStringToId.unitFromString(attrtype);
 		short fbUnit = lunit.getCssUnit();
 
 		return declUnit != CSSUnit.CSS_OTHER && fbUnit != CSSUnit.CSS_INVALID;

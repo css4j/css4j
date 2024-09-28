@@ -49,6 +49,7 @@ import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.UnitStringToId;
 import io.sf.carte.doc.style.css.Viewport;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
@@ -1454,8 +1455,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 			} else if (ptype == CSSUnit.CSS_NUMBER) {
 				float numVal = value.getFloatValue(ptype);
-				String lctypeval = type.toLowerCase(Locale.ROOT).intern();
-				short expectedType = ParseHelper.unitFromString(lctypeval);
+				String lctypeval = type.toLowerCase(Locale.ROOT);
+				short expectedType = UnitStringToId.unitFromString(lctypeval);
 				if (expectedType != CSSUnit.CSS_OTHER) {
 					result = NumberValue.createCSSNumberValue(expectedType, numVal);
 				} else {
@@ -1939,8 +1940,8 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					return substValue;
 				} else {
 					// Let's see if the type is an actual type or an unit suffix
-					if (attrtype.length() <= 2 || ParseHelper
-							.unitFromString(attrtype = attrtype.intern()) != CSSUnit.CSS_OTHER) {
+					if (attrtype.length() <= 2 || UnitStringToId
+							.unitFromString(attrtype) != CSSUnit.CSS_OTHER) {
 						attrvalue += attrtype;
 					}
 					LexicalUnit substValue;

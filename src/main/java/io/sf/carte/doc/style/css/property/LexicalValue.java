@@ -21,12 +21,12 @@ import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.UnitStringToId;
 import io.sf.carte.doc.style.css.impl.AttrUtil;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
-import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -229,7 +229,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			finalType = Type.NUMERIC;
 			break;
 		default:
-			if (ParseHelper.unitFromString(attrType.intern()) != CSSUnit.CSS_OTHER) {
+			if (UnitStringToId.unitFromString(attrType) != CSSUnit.CSS_OTHER) {
 				finalType = Type.NUMERIC;
 			} else {
 				finalType = Type.UNKNOWN;

@@ -44,6 +44,7 @@ import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.MediaQueryHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.UnitStringToId;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
@@ -8589,8 +8590,8 @@ public class CSSParser implements Parser, Cloneable {
 
 				// Unit
 				unit = s.substring(i);
-				unit = unit.trim().toLowerCase(Locale.ROOT).intern();
-				short cssUnit = ParseHelper.unitFromString(unit);
+				unit = unit.trim().toLowerCase(Locale.ROOT);
+				short cssUnit = UnitStringToId.unitFromString(unit);
 				final LexicalType unitType;
 				if (cssUnit == CSSUnit.CSS_PERCENTAGE) {
 					unitType = LexicalType.PERCENTAGE;

@@ -22,6 +22,7 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.UnitStringToId;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
@@ -123,8 +124,8 @@ public class AttrValue extends ProxyValue implements CSSAttrValue {
 		} else if ("percentage".equalsIgnoreCase(valueType)) {
 			defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, 0);
 		} else {
-			String lctypeval = valueType.toLowerCase(Locale.ROOT).intern();
-			short cssUnit = ParseHelper.unitFromString(lctypeval);
+			String lctypeval = valueType.toLowerCase(Locale.ROOT);
+			short cssUnit = UnitStringToId.unitFromString(lctypeval);
 			if (cssUnit != CSSUnit.CSS_OTHER) {
 				if (CSSUnit.isLengthUnitType(cssUnit)) {
 					defaultFallback = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0);
