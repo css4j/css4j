@@ -48,10 +48,10 @@ dependencies {
 	testImplementation 'org.slf4j:slf4j-simple:[1.7.28,)'
 	testImplementation 'nu.validator:htmlparser:1.4.16'
 	// JUnit
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.11.0'
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.11.1'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	// ShorthandSetterTest requires JUnit 4
-	testImplementation 'org.junit.vintage:junit-vintage-engine:5.11.0'
+	testImplementation 'org.junit.vintage:junit-vintage-engine:5.11.1'
 	// Jazzzer
 	testImplementation 'com.code-intelligence:jazzer-junit:0.22.1'
 }
