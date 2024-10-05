@@ -29,6 +29,9 @@ Upgrading to 5.0 from 4.x
 
 - CSSOM: `AbstractCSSCanvas` no longer has a `CSSDocument` field.
 
+- Unit string-to-numeric conversions were moved from `ParseHelper` to new
+  `UnitStringToId`.
+
 
 Upgrading to 4.0 from 3.9.1
 ---------------------------

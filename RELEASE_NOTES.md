@@ -1,33 +1,38 @@
-# css4j version 4.4 Release Notes
+# css4j version 5.0 Release Notes
 
-### August 31, 2024
+### October 5, 2024
 
 <br/>
 
 ## Highlights
 
-Color improvements:
+### API refactors
 
-- Added the `toXYZ(Illuminant)`, `toXYZ(double[])`, `deltaEOK(CSSColor)` and `isInGamut(String)` methods to `CSSColor`.
-- The `srgb-linear` color space is now supported in the `color()` and `color-mix()` functions.
-- `RGBColorDeclarationFormattingContext` was refactored so alternative color serializations can be easily implemented.
-- A few other changes that either directly or indirectly improve the handling of colors.
+The API was adjusted so it can provide more functionality to other implementations,
+like EchoSVG's.
 
 <br/>
 
 ## Detail of changes
 
-- NSAC: allow mathematical functions inside `color-mix()`.
-- CSSOM: add a public `setMaximumFractionDigits()` method to `NumberValue`.
-- CSSOM: add methods `toXYZ(Illuminant)`, `toXYZ(double[])` and `deltaEOK(CSSColor)` to `CSSColor`
-- CSSOM: add the `isInGamut(String)` method to `CSSColor`, improve component type checks.
-- CSSOM: support the `srgb-linear` color space in the `color()` and `color-mix()` functions.
-- CSSOM: throw exceptions for invalid `calc()` and math functions in color component percentages and rgb components.
-- CSSOM: extract superclass from `RGBColorDeclarationFormattingContext`.
-- CSSOM: check the unit at the final result instead of inside an operation in `PercentageEvaluator`.
-- CSSOM: unofficial and undocumented support for linear versions of predefined RGB color spaces.
-- Javadocs: improve the LexicalType javadoc.
-- Upgrade to Junit 5.11.0.
-- Upgrade Gradle wrapper to 8.10.
-- Upgrade to wrapper-validation action v4.
-- Code style: add a checkstyle check.
+- NSAC: do not account for the input serialization of a value in `equals()` and `hashCode()`.
+- NSAC: use try-with-resources in CSSParser.parseStyleSheet(String).
+- CSSOM: deprecate `AbstractCSSStyleSheetFactory.STRING_SINGLE_QUOTE` and `STRING_DOUBLE_QUOTE` for removal. Use the `CSSStyleSheetFactory` replacements instead.
+- CSSOM: make style sheet content-type check stricter for http/https.
+- CSSOM: new `CSSMathValue` and `CSSNumberValue` interfaces.
+- CSSOM: suppress a warning in `DirectionalityHelper`.
+- CSSOM: push `isPrimitiveValue()` to `CSSValue`.
+- CSSOM: add `clone()` to `CSSTypedValue`.
+- CSSOM: make the handling of math expressions and media queries independent of the `CSSValue` implementation.
+- CSSOM: add a default `getMinifiedCssText()` method to `CSSValue`.
+- CSSOM: set a default implementation for `CSSValue.getMinifiedCssText(String)`.
+- CSSOM: remove deprecated `inlineStyleError()` from `SheetErrorHandler`.
+- CSSOM: `AbstractCSSCanvas` no longer has a `CSSDocument` field.
+- CSSOM: refactor the `@supports`-related interfaces to not use `CSSValue`s.
+- CSSOM: use `getMedia()` instead of the deprecated `getMediaText()` in `@import` and `@media` rules.
+- Refactor the parsing of supports conditions so it uses a context interface instead of an `AbstractCSSStyleSheet`.
+- Move unit string-to-numeric conversions from `ParseHelper` to new `UnitStringToId`.
+- Reorder a few imports.
+- Upgrade JUnit to version 5.11.1.
+- Upgrade to checkstyle 10.18.1.
+- Upgrade Gradle wrapper to 8.10.2.
