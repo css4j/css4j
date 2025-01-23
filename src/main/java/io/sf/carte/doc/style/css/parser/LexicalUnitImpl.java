@@ -276,10 +276,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 
 	@Override
 	public LexicalUnit getParameters() {
-		if (unitType != LexicalType.SUB_EXPRESSION) {
-			return parameters;
-		}
-		return null;
+		return parameters;
 	}
 
 	@Override

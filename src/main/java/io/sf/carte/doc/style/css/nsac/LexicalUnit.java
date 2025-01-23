@@ -634,6 +634,11 @@ public interface LexicalUnit {
 	 * <p>
 	 * May return <code>null</code> if type is <code>FUNCTION</code>.
 	 * </p>
+	 * <p>
+	 * Since version 5, also returns the sub-values if this is an expression or a
+	 * unicode range. Therefore, can be used as a more streamlined version of
+	 * {@link #getSubValues()}.
+	 * </p>
 	 * 
 	 * @return the parameters of this function, or <code>null</code> if this unit is
 	 *         not a function, or an empty <code>FUNCTION</code>.
