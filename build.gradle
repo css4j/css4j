@@ -62,7 +62,7 @@ repositories {
 		url = uri('https://repo.maven.apache.org/maven2/')
 	}
 	maven {
-		url "https://css4j.github.io/maven/"
+		url = "https://css4j.github.io/maven/"
 		mavenContent {
 			releasesOnly()
 		}
