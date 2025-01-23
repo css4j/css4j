@@ -46,7 +46,6 @@ import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
-import io.sf.carte.doc.style.css.impl.AttrUtil;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
@@ -512,11 +511,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		// (documented above) but the W3C API does not allow for that.
 		Parser parser = createSACParser();
 		StyleDeclarationHandler handler = new StyleDeclarationHandler();
+		handler.setLexicalPropertyListener(this);
 		parser.setErrorHandler(handler);
+		parser.setDocumentHandler(handler);
 		Reader re = new StringReader(cssText);
 		clear();
-		handler.setLexicalPropertyListener(this);
-		parser.setDocumentHandler(handler);
 		try {
 			parser.parseStyleDeclaration(re);
 		} catch (CSSParseException e) {
@@ -748,7 +747,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			// Reset sub-property
 			shval.getLonghands().add(propertyName);
 			BaseCSSStyleDeclaration copy = new BaseCSSStyleDeclaration();
-			copy.setSubproperties(shorthand, shval.getLexicalUnit(), shval.isImportant());
+			copy.setSubproperties(shorthand, shval.getLexicalUnit(), shval.isImportant(),
+					shval.isAttrTainted());
 			propValue.put(propertyName, copy.propValue.get(propertyName));
 			priorities.add(shidx, shval.isImportant() ? "important" : null);
 			propertyList.add(shidx, propertyName);
@@ -844,8 +844,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 	}
 
-	private void setShorthandProperty(ShorthandDatabase sdb, String propertyName, LexicalUnit value, boolean important)
-			throws DOMException {
+	private void setShorthandProperty(ShorthandDatabase sdb, String propertyName, LexicalUnit value,
+			boolean important) throws DOMException {
 		// Check whether an ordinary shorthand tries to replace an
 		// important one.
 		ShorthandValue overriddenVal = (ShorthandValue) propValue.get(propertyName);
@@ -876,16 +876,17 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					}
 				}
 			}
-			setShorthandLonghands(propertyName, value, important, shadowedShorthands);
+			setShorthandLonghands(propertyName, value, important, shadowedShorthands, false);
 		}
 	}
 
 	boolean setShorthandLonghands(String propertyName, LexicalUnit value, boolean important,
-			LinkedList<String> shadowedShorthands) {
+			LinkedList<String> shadowedShorthands, boolean attrTainted) {
 		try {
-			SubpropertySetter shorthandSetter = setSubproperties(propertyName, value, important);
+			SubpropertySetter shorthandSetter = setSubproperties(propertyName, value, important,
+					attrTainted);
 			String shorthandText = shorthandSetter.getCssText();
-			if (shorthandText.length() != 0) {
+			if (!shorthandText.isEmpty()) {
 				ShorthandValue shVal = shorthandSetter.createCSSShorthandValue(value);
 				shVal.setShorthandText(shorthandText, shorthandSetter.getMinifiedCssText());
 				if (shadowedShorthands != null) {
@@ -1623,16 +1624,18 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 *            the shorthand property name.
 	 * @param value
 	 *            the shorthand property value.
-	 * @param priority
+	 * @param important
 	 *            the shorthand property priority.
+	 * @param attrTainted
+	 *            the shorthand property is attr()-tainted.
 	 * @return the SubpropertySetter for the shorthand, or null if propertyName is not a
 	 *         shorthand.
 	 * @throws DOMException
 	 *             if a problem happens creating the value to assign to a subproperty, or the
 	 *             property value is invalid.
 	 */
-	private SubpropertySetter setSubproperties(String propertyName, LexicalUnit value, boolean important)
-			throws DOMException {
+	private SubpropertySetter setSubproperties(String propertyName, LexicalUnit value,
+			boolean important, boolean attrTainted) throws DOMException {
 		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
 		if (sdb.isShorthand(propertyName)) {
 			SubpropertySetter setter;
@@ -1685,8 +1688,6 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				setter = new FontVariantShorthandSetter(this);
 			} else if ("border-radius".equals(propertyName)) {
 				setter = new BorderRadiusShorthandSetter(this);
-			} else if ("cue".equals(propertyName) || "pause".equals(propertyName) || "rest".equals(propertyName)) {
-				setter = new SequenceShorthandSetter(this, propertyName);
 			} else if ("list-style".equals(propertyName)) {
 				setter = new ListStyleShorthandSetter(this);
 			} else if ("animation".equals(propertyName)) {
@@ -1712,10 +1713,16 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				setter = new OrderedTwoIdentifierShorthandSetter(this, propertyName);
 			} else if ("gap".equals(propertyName)) {
 				setter = new OrderedTwoLPIShorthandSetter(this, propertyName);
+			} else if ("cue".equals(propertyName)) { // Not supported by browsers
+				setter = new CueShorthandSetter(this, propertyName);
+			} else if ("pause".equals(propertyName) || "rest".equals(propertyName)) {
+				// Not supported by browsers
+				setter = new SequenceShorthandSetter(this, propertyName);
 			} else {
 				setter = new ShorthandSetter(this, propertyName);
 			}
 			setter.init(value, important);
+			setter.setAttrTainted(attrTainted);
 			if (!setter.assignSubproperties()) {
 				throw new DOMException(DOMException.SYNTAX_ERR, "Invalid property declaration: " + value.toString());
 			}
@@ -1728,8 +1735,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	private static boolean isOrContainsProxy(LexicalUnit lunit) {
 		do {
 			LexicalType type = lunit.getLexicalUnitType();
-			if (type == LexicalType.VAR
-					|| (type == LexicalType.ATTR && AttrUtil.isProxyAttr(lunit))
+			if (type == LexicalType.VAR || type == LexicalType.ATTR
 					|| (lunit.getParameters() != null && isOrContainsProxy(lunit.getParameters()))
 					|| (lunit.getSubValues() != null && isOrContainsProxy(lunit.getSubValues()))) {
 				return true;
@@ -1753,7 +1759,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			// this won't happen
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
-		return setSubproperties("font", lunit, important);
+		return setSubproperties("font", lunit, important, false);
 	}
 
 	@Override

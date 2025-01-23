@@ -17,6 +17,7 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 /**
  * A reference to a CSS custom property value ('variable').
  */
+@Deprecated(forRemoval = true)
 public interface CSSVarValue extends CSSPrimitiveValue {
 
 	/**

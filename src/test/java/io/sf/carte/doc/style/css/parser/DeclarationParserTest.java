@@ -2907,6 +2907,64 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationCalcMinusInteger() throws CSSException {
+		parseStyleDeclaration("padding-left:calc(-1*-2em)");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("padding-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(-1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(-2f, param.getFloatValue(), 1e-7f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(-1*-2em)", lu.getCssText());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationCalcMinusIntegerWS() throws CSSException {
+		parseStyleDeclaration("padding-left:calc(-1 * -2em)");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("padding-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc", lu.getFunctionName());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(-1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(-2f, param.getFloatValue(), 1e-7f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("calc(-1*-2em)", lu.getCssText());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
 	public void testParseStyleDeclarationCalcVar() throws CSSException {
 		parseStyleDeclaration("margin-top:calc(-1*(-.9px + var(--offset-top,-.6pt)))");
 		assertEquals(1, handler.propertyNames.size());
@@ -3866,6 +3924,87 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
 		assertEquals(10f, lu.getFloatValue(), 1e-5f);
+		assertNull(lu.getNextLexicalUnit());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationSquareBracketList() throws CSSException {
+		parseStyleDeclaration(
+				"grid-template-columns:[main-start] repeat(5,minmax(0,1fr)) [main-end toolbar-start]repeat(1,minmax(0,1fr)) [toolbar-end];");
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("grid-template-columns", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.LEFT_BRACKET, lu.getLexicalUnitType());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("main-start", lu.getStringValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.RIGHT_BRACKET, lu.getLexicalUnitType());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals("repeat(5, minmax(0, 1fr))", lu.getCssText());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(5, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals("minmax(0, 1fr)", param.toString());
+		assertNull(param.getNextLexicalUnit());
+		LexicalUnit param2 = param.getParameters();
+		assertNotNull(param2);
+		assertEquals(LexicalType.INTEGER, param2.getLexicalUnitType());
+		assertEquals(0, param2.getIntegerValue());
+		param2 = param2.getNextLexicalUnit();
+		assertNotNull(param2);
+		assertEquals(LexicalType.OPERATOR_COMMA, param2.getLexicalUnitType());
+		param2 = param2.getNextLexicalUnit();
+		assertNotNull(param2);
+		assertEquals(LexicalType.DIMENSION, param2.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_FR, param2.getCssUnit());
+		assertEquals(1f, param2.getFloatValue(), 1e-5f);
+		assertNull(param2.getNextLexicalUnit());
+
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.LEFT_BRACKET, lu.getLexicalUnitType());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("main-end", lu.getStringValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("toolbar-start", lu.getStringValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.RIGHT_BRACKET, lu.getLexicalUnitType());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals("repeat(1, minmax(0, 1fr))", lu.getCssText());
+
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.LEFT_BRACKET, lu.getLexicalUnitType());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("toolbar-end", lu.getStringValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.RIGHT_BRACKET, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 
 		assertFalse(errorHandler.hasError());

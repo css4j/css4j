@@ -152,7 +152,7 @@ public class ValueFactoryTest {
 		LexicalUnit lunit = parsePropertyValue("var(--foo, 3px)");
 		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CssType.PROXY, value.getCssValueType());
-		assertEquals(CSSValue.Type.VAR, value.getPrimitiveType());
+		assertEquals(CSSValue.Type.LEXICAL, value.getPrimitiveType());
 		assertEquals("var(--foo, 3px)", value.getCssText());
 	}
 

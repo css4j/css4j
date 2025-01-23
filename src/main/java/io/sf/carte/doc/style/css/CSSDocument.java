@@ -154,7 +154,7 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 	 * 
 	 * @param definition the definition.
 	 * @see CSSStyleSheetFactory#createPropertyDefinition(String, CSSValueSyntax,
-	 *      boolean, CSSLexicalValue)
+	 *      boolean, io.sf.carte.doc.style.css.nsac.LexicalUnit)
 	 */
 	void registerProperty(CSSPropertyDefinition definition);
 

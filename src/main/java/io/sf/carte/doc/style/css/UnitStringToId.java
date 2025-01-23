@@ -70,7 +70,7 @@ public class UnitStringToId {
 	/**
 	 * Retrieves the CSS unit associated to the given unit string.
 	 * 
-	 * @param unit the unit string.
+	 * @param unit the lower case unit string.
 	 * @return the associated CSS unit, or <code>CSS_OTHER</code> if the unit is
 	 *         not known.
 	 */

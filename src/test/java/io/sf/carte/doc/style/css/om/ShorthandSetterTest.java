@@ -2882,11 +2882,9 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
-	public void testBackgroundImageAttr() {
-		emptyStyleDecl.setCssText("background:attr(bkg url,'bkg.png');");
-		assertEquals("attr(bkg url, 'bkg.png')", emptyStyleDecl.getPropertyValue("background-image"));
-		assertEquals("background: attr(bkg url, 'bkg.png'); ", emptyStyleDecl.getCssText());
-		assertEquals("background:attr(bkg url,'bkg.png');", emptyStyleDecl.getMinifiedCssText());
+	public void testBackgroundImageAttrForbiddenURL() {
+		emptyStyleDecl.setCssText("background:attr(bkg type(<url>),'bkg.png');");
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-image"));
 	}
 
 	@Test

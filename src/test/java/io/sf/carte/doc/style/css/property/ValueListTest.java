@@ -145,11 +145,11 @@ public class ValueListTest {
 	public void testMatchAttrsTrue() {
 		ValueList cs = ValueList.createCSValueList();
 		ValueList ws = ValueList.createWSValueList();
-		cs.add(factory.parseProperty("attr(data-length length, 16px)"));
-		cs.add(factory.parseProperty("attr(data-length length)"));
-		ws.add(factory.parseProperty("attr(data-length length, 25px)"));
-		ws.add(factory.parseProperty("attr(data-length length, 18pt)"));
-		ws.add(factory.parseProperty("attr(data-length length, 2cm)"));
+		cs.add(factory.parseProperty("attr(data-length type(<length>), 16px)"));
+		cs.add(factory.parseProperty("attr(data-length type(<length>))"));
+		ws.add(factory.parseProperty("attr(data-length type(<length>), 25px)"));
+		ws.add(factory.parseProperty("attr(data-length type(<length>), 18pt)"));
+		ws.add(factory.parseProperty("attr(data-length type(<length>), 2cm)"));
 		//
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
@@ -191,11 +191,11 @@ public class ValueListTest {
 	public void testMatchAttrsPending() {
 		ValueList cs = ValueList.createCSValueList();
 		ValueList ws = ValueList.createWSValueList();
-		cs.add(factory.parseProperty("attr(data-length length, 8%)"));
-		cs.add(factory.parseProperty("attr(data-length length)"));
-		ws.add(factory.parseProperty("attr(data-length length, 16pt)"));
-		ws.add(factory.parseProperty("attr(data-length length)"));
-		ws.add(factory.parseProperty("attr(data-length length, 15%)"));
+		cs.add(factory.parseProperty("attr(data-length type(<length>), 8%)"));
+		cs.add(factory.parseProperty("attr(data-length type(<length>))"));
+		ws.add(factory.parseProperty("attr(data-length type(<length>), 16pt)"));
+		ws.add(factory.parseProperty("attr(data-length type(<length>))"));
+		ws.add(factory.parseProperty("attr(data-length type(<length>), 15%)"));
 		//
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>#");

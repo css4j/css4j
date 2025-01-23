@@ -11,18 +11,14 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import java.io.IOException;
-import java.io.StringReader;
-
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.DOMCharacterException;
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
-import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
@@ -1195,6 +1191,34 @@ public class ParseHelper {
 	}
 
 	/**
+	 * Create a {@code REAL} lexical unit with the given value.
+	 * 
+	 * @param value the value.
+	 * @return the lexical unit.
+	 */
+	public static LexicalUnit createRealLexicalUnit(float value) {
+		LexicalUnitImpl lu = new LexicalUnitImpl(LexicalType.REAL);
+		lu.floatValue = value;
+		lu.setCssUnit(CSSUnit.CSS_NUMBER);
+		return lu;
+	}
+
+	/**
+	 * Create a {@code DIMENSION} lexical unit with the given dimension and value.
+	 * 
+	 * @param unit  the unit according to {@code CSSUnit}.
+	 * @param value the value.
+	 * @return the lexical unit.
+	 */
+	public static LexicalUnit createDimensionLexicalUnit(short unit, float value) {
+		LexicalUnitImpl lu = new LexicalUnitImpl(LexicalType.DIMENSION);
+		lu.floatValue = value;
+		lu.setCssUnit(unit);
+		lu.dimensionUnitText = CSSUnit.dimensionUnitString(unit);
+		return lu;
+	}
+
+	/**
 	 * For internal use by the library, may be removed in the future.
 	 * <p>
 	 * Determine if the name is a transform function.
@@ -1208,84 +1232,6 @@ public class ParseHelper {
 				|| functionName.equals("translateY") || functionName.equals("scale") || functionName.equals("scaleX")
 				|| functionName.equals("scaleY") || functionName.equals("rotate") || functionName.equals("skew")
 				|| functionName.equals("skewX") || functionName.equals("skewY");
-	}
-
-	/**
-	 * For internal use by the library, may be removed in the future.
-	 * 
-	 * @param dataType the attr data type.
-	 * @param cat      the grammar data type category to check.
-	 * @return true if the data type matches the syntax category.
-	 */
-	public static boolean matchAttrType(String dataType, Category cat) {
-		if ("length".equals(dataType)) {
-			return cat == Category.length || cat == Category.lengthPercentage;
-		} else if ("percentage".equals(dataType) || "%".equals(dataType)) {
-			return cat == Category.percentage || cat == Category.lengthPercentage;
-		} else if ("color".equals(dataType)) {
-			return cat == Category.color;
-		} else if ("integer".equals(dataType)) {
-			return cat == Category.integer || cat == Category.number;
-		} else if ("number".equals(dataType)) {
-			return cat == Category.number;
-		} else if ("angle".equals(dataType)) {
-			return cat == Category.angle;
-		} else if ("time".equals(dataType)) {
-			return cat == Category.time;
-		} else if ("frequency".equals(dataType)) {
-			return cat == Category.frequency;
-		} else if ("string".equals(dataType)) {
-			return cat == Category.string;
-		} else if ("ident".equals(dataType)) {
-			return cat == Category.customIdent;
-		} else if ("url".equals(dataType)) {
-			return cat == Category.url || cat == Category.image;
-		} else if ("flex".equals(dataType)) {
-			return cat == Category.flex;
-		} else {
-			CSSParser parser = new CSSParser();
-			try {
-				LexicalUnit lu = parser.parsePropertyValue(new StringReader("1" + dataType));
-				return matchesDimension(lu.getCssUnit(), cat);
-			} catch (CSSParseException | IOException e) {
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Determine whether the given unit matches the category.
-	 * 
-	 * @param unit the dimension unit.
-	 * @param cat the grammar data type category to check.
-	 * @return true if the unit matches the syntax category.
-	 */
-	static boolean matchesDimension(short unit, Category cat) {
-		switch (cat) {
-		case length:
-			return CSSUnit.isLengthUnitType(unit);
-		case lengthPercentage:
-			return CSSUnit.isLengthUnitType(unit) || unit == CSSUnit.CSS_PERCENTAGE;
-		case percentage:
-			return unit == CSSUnit.CSS_PERCENTAGE;
-		case angle:
-			return CSSUnit.isAngleUnitType(unit);
-		case time:
-			return CSSUnit.isTimeUnitType(unit);
-		case resolution:
-			return CSSUnit.isResolutionUnitType(unit);
-		case flex:
-			return unit == CSSUnit.CSS_FR;
-		case frequency:
-			return unit == CSSUnit.CSS_HZ || unit == CSSUnit.CSS_KHZ;
-		case integer:
-		case number:
-			// This probably never returns true (only actual dimensions reach this)
-			return unit == CSSUnit.CSS_NUMBER;
-		default:
-			break;
-		}
-		return false;
 	}
 
 }

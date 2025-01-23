@@ -27,9 +27,9 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
-import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
-import io.sf.carte.doc.style.css.property.LexicalValue;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 
 public class PropertyRuleTest {
 
@@ -59,9 +59,9 @@ public class PropertyRuleTest {
 		//
 		assertFalse(rule.inherits());
 		//
-		LexicalValue initial = rule.getInitialValue();
+		LexicalUnit initial = rule.getInitialValue();
 		assertNotNull(initial);
-		assertEquals(Type.LEXICAL, initial.getPrimitiveType());
+		assertEquals(LexicalType.RGBCOLOR, initial.getLexicalUnitType());
 		//
 		assertEquals("@property --my-color {syntax:'<color>';inherits:false;initial-value:#047b42}",
 				rule.getMinifiedCssText());
@@ -113,9 +113,9 @@ public class PropertyRuleTest {
 		//
 		assertFalse(rule.inherits());
 		//
-		LexicalValue initial = rule.getInitialValue();
+		LexicalUnit initial = rule.getInitialValue();
 		assertNotNull(initial);
-		assertEquals(Type.LEXICAL, initial.getPrimitiveType());
+		assertEquals(LexicalType.IDENT, initial.getLexicalUnitType());
 		//
 		assertEquals("@property --my-color {syntax:'<color>';inherits:false;initial-value:green}",
 				rule.getMinifiedCssText());
@@ -279,9 +279,9 @@ public class PropertyRuleTest {
 		assertEquals("--my-color", rule.getName());
 		assertEquals(3, rule.getStyle().getLength());
 		//
-		LexicalValue initial = rule.getInitialValue();
+		LexicalUnit initial = rule.getInitialValue();
 		assertNotNull(initial);
-		assertEquals(Type.LEXICAL, initial.getPrimitiveType());
+		assertEquals(LexicalType.RGBCOLOR, initial.getLexicalUnitType());
 		//
 		assertEquals("@property --my-color {syntax:'<color>';inherits:false;initial-value:#047b42}",
 				rule.getMinifiedCssText());

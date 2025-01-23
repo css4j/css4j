@@ -75,8 +75,8 @@ public class BaseCSSStyleSheetTest2 {
 		//
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(41).getType());
 		stylerule = (StyleRule) sheet.getCssRules().item(41);
-		assertEquals("/* The start attribute on ol elements */ol[start] {counter-reset: list-item calc(attr(start integer, 1) - 1); }", stylerule.getCssText());
-		assertEquals("ol[start]{counter-reset:list-item calc(attr(start integer,1) - 1)}",
+		assertEquals("/* The start attribute on ol elements */ol[start] {counter-reset: list-item calc(attr(start type(<integer>), 1) - 1); }", stylerule.getCssText());
+		assertEquals("ol[start]{counter-reset:list-item calc(attr(start type(<integer>),1) - 1)}",
 				stylerule.getMinifiedCssText());
 		assertNotNull(stylerule.getPrecedingComments());
 		assertEquals(" The start attribute on ol elements ", stylerule.getPrecedingComments().get(0));

@@ -40,6 +40,8 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 
 	private final boolean priorityCompat;
 
+	private boolean attrTainted;
+
 	private final HashSet<String> longhands;
 
 	private String miniCssText = "";
@@ -86,6 +88,10 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 	@Override
 	public HashSet<String> getLonghands() {
 		return longhands;
+	}
+
+	public boolean isAttrTainted() {
+		return attrTainted;
 	}
 
 	@Override
@@ -140,7 +146,7 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 	}
 
 	static ShorthandValue createCSSShorthandValue(ShorthandDatabase sdb, String shorthandName, LexicalUnit value,
-			boolean important) {
+			boolean important, boolean attrTainted) {
 		ShorthandValue shval = new ShorthandValue(value, important, sdb.getLonghandProperties(shorthandName));
 		if ("border".equals(shorthandName)) {
 			shval.longhands.add("border-image-source");
@@ -156,6 +162,7 @@ class ShorthandValue extends StyleValue implements io.sf.carte.doc.style.css.CSS
 			shval.longhands.add("font-variant-alternates");
 			shval.longhands.add("font-variant-east-asian");
 		}
+		shval.attrTainted = attrTainted;
 		return shval;
 	}
 

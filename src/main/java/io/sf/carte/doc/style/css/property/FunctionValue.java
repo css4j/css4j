@@ -210,25 +210,13 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 				CSSTypedValue typed = (CSSTypedValue) value;
 				Type pType = typed.getPrimitiveType();
 				switch (pType) {
-				case STRING:
-				case COLOR:
-				case COLOR_MIX:
-				case URI:
-				case ATTR:
-				case COUNTER:
-				case COUNTERS:
-				case RECT:
-				case UNKNOWN:
-				case ELEMENT_REFERENCE:
-				case GRADIENT:
-				case UNICODE_CHARACTER:
-				case UNICODE_RANGE:
-				case UNICODE_WILDCARD:
-					break;
+				case NUMERIC:
+				case EXPRESSION:
+				case MATH_FUNCTION:
+					return true;
 				case IDENT:
 					return isConstant(typed.getStringValue());
 				default:
-					return true;
 				}
 			}
 			return false;

@@ -150,6 +150,13 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 		}
 
 		@Override
+		public GroupCondition shallowClone() {
+			GroupCondition clon = (GroupCondition) super.shallowClone();
+			clon.nestedConditions = nestedConditions;
+			return clon;
+		}
+
+		@Override
 		public int hashCode() {
 			return ((nestedConditions == null) ? 0 : nestedConditions.hashCode());
 		}
@@ -203,6 +210,11 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 		}
 
 		@Override
+		LexicalUnitImpl instantiateLexicalUnit() {
+			return new AndCondition();
+		}
+
+		@Override
 		public int hashCode() {
 			return super.hashCode() * 31 + 13;
 		}
@@ -220,6 +232,11 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 		@Override
 		public Type getType() {
 			return Type.OR;
+		}
+
+		@Override
+		LexicalUnitImpl instantiateLexicalUnit() {
+			return new OrCondition();
 		}
 
 		@Override
@@ -280,6 +297,18 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 		@Override
 		public void appendMinifiedText(StringBuilder buf) {
 			BooleanConditionHelper.appendNOTMinifiedText(this, buf);
+		}
+
+		@Override
+		NotCondition instantiateLexicalUnit() {
+			return new NotCondition();
+		}
+
+		@Override
+		public NotCondition shallowClone() {
+			NotCondition clon = (NotCondition) super.shallowClone();
+			clon.nestedCondition = nestedCondition;
+			return clon;
 		}
 
 		@Override
@@ -366,6 +395,11 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 		@Override
 		public String getCssText() {
 			return name;
+		}
+
+		@Override
+		LexicalUnitImpl instantiateLexicalUnit() {
+			return new Predicate(name);
 		}
 
 		@Override

@@ -28,7 +28,6 @@ import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.agent.HeadlessDeviceFactory;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSPropertyDefinition;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
@@ -40,6 +39,7 @@ import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.Parser.Flag;
 import io.sf.carte.doc.style.css.property.ColorValue;
@@ -159,7 +159,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 
 	@Override
 	public CSSPropertyDefinition createPropertyDefinition(String name, CSSValueSyntax syntax, boolean inherited,
-			CSSLexicalValue initialValue) throws DOMException {
+			LexicalUnit initialValue) throws DOMException {
 		if (name == null) {
 			throw new NullPointerException("Null name.");
 		}

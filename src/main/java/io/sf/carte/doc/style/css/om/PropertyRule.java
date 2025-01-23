@@ -23,6 +23,7 @@ import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.LexicalValue;
@@ -72,8 +73,9 @@ public class PropertyRule extends BaseCSSDeclarationRule implements CSSPropertyR
 	}
 
 	@Override
-	public LexicalValue getInitialValue() {
-		return (LexicalValue) getStyle().getPropertyCSSValue("initial-value");
+	public LexicalUnit getInitialValue() {
+		LexicalValue lv = (LexicalValue) getStyle().getPropertyCSSValue("initial-value");
+		return lv == null ? null : lv.getLexicalUnit();
 	}
 
 	@Override

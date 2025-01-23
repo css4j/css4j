@@ -246,7 +246,7 @@ public interface CSSValueSyntax {
 		 * Note that a {@code PROXY} value like:
 		 * </p>
 		 * <p>
-		 * {@code attr(size length, auto)}
+		 * {@code attr(size type(<length>), auto)}
 		 * </p>
 		 * <p>
 		 * would match as {@code PENDING} against {@code <lenght>}, but on

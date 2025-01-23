@@ -257,14 +257,14 @@ public class CounterValueTest {
 
 	@Test
 	public void testCounter_Attr() {
-		style.setCssText("content: counter(attr(data-counter ident), decimal);");
+		style.setCssText("content: counter(attr(data-counter type(<custom-ident>)), decimal);");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 
 		assertEquals(CssType.PROXY, cssval.getCssValueType());
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
 
-		assertEquals("counter(attr(data-counter ident), decimal)", cssval.getCssText());
-		assertEquals("counter(attr(data-counter ident),decimal)",
+		assertEquals("counter(attr(data-counter type(<custom-ident>)), decimal)", cssval.getCssText());
+		assertEquals("counter(attr(data-counter type(<custom-ident>)),decimal)",
 				cssval.getMinifiedCssText("content"));
 
 		assertFalse(styleRule.getStyleDeclarationErrorHandler().hasErrors());
@@ -282,14 +282,14 @@ public class CounterValueTest {
 
 	@Test
 	public void testCounter_Attr2() {
-		style.setCssText("content: counter(ListCounter, attr(data-counter-style ident));");
+		style.setCssText("content: counter(ListCounter, attr(data-counter-style type(<custom-ident>)));");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 
 		assertEquals(CssType.PROXY, cssval.getCssValueType());
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
 
-		assertEquals("counter(ListCounter, attr(data-counter-style ident))", cssval.getCssText());
-		assertEquals("counter(ListCounter,attr(data-counter-style ident))",
+		assertEquals("counter(ListCounter, attr(data-counter-style type(<custom-ident>)))", cssval.getCssText());
+		assertEquals("counter(ListCounter,attr(data-counter-style type(<custom-ident>)))",
 				cssval.getMinifiedCssText("content"));
 
 		assertFalse(styleRule.getStyleDeclarationErrorHandler().hasErrors());

@@ -309,14 +309,14 @@ public class CountersValueTest {
 
 	@Test
 	public void testCounters_Attr() {
-		style.setCssText("content: counters(attr(data-counter ident),'. ');");
+		style.setCssText("content: counters(attr(data-counter type(<custom-ident>)),'. ');");
 		StyleValue cssval = style.getPropertyCSSValue("content");
 
 		assertEquals(CssType.PROXY, cssval.getCssValueType());
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
 
-		assertEquals("counters(attr(data-counter ident), '. ')", cssval.getCssText());
-		assertEquals("counters(attr(data-counter ident),'. ')",
+		assertEquals("counters(attr(data-counter type(<custom-ident>)), '. ')", cssval.getCssText());
+		assertEquals("counters(attr(data-counter type(<custom-ident>)),'. ')",
 				cssval.getMinifiedCssText("content"));
 
 		assertFalse(styleRule.getStyleDeclarationErrorHandler().hasErrors());

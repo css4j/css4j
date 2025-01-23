@@ -1,6 +1,35 @@
 UPGRADING FROM PREVIOUS VERSIONS
 ================================
 
+Upgrading to 5.1 from 5.0
+-------------------------
+- API: `CSSPropertyDefinition` now gives a `LexicalUnit` initial value.
+
+- API: `CSSPropertyRule` now gives a `LexicalUnit` initial value.
+
+- NSAC: `LexicalUnit.getParameters()` now can return also sub-values.
+
+- NSAC & CSSOM: the attr() support now follows the current Values Level 5
+  specification, which is shipped with Google Chrome 133. The old `CSSAttrValue`
+  and `AttrValue` classes were removed, as the API is incompatible with the new
+  specification that is being implemented by browsers.
+
+- CSSOM: the handling of registered custom properties is now closer to the
+  Google Chrome behaviour: registered initial values take precedence over the
+  fallbacks.
+
+- CSSOM: on attr() and var() circularities (and other DoS attacks), it is no
+  longer attempted to use the supplied property fallbacks.
+
+- CSSOM: the legacy `ATTR` and `VAR` `Type`s are deprecated for removal.
+
+- CSSOM: legacy `CSSVarValue` is deprecated for removal, use `CSSLexicalValue`
+  instead.
+
+- CSSOM: `CSSStyleSheetFactorycreatePropertyDefinition()` now takes a
+  `LexicalUnit` initial value.
+
+
 Upgrading to 5.0 from 4.x
 -------------------------
 - NSAC: the particular serialized form in that a lexical unit was specified is
@@ -28,6 +57,8 @@ Upgrading to 5.0 from 4.x
   from `AbstractCSSStyleSheetFactory` to `CSSStyleSheetFactory`.
 
 - CSSOM: `AbstractCSSCanvas` no longer has a `CSSDocument` field.
+
+- CSSOM: `CSSPropertyDefinition` now returns a `LexicalUnit` initial value.
 
 - Unit string-to-numeric conversions were moved from `ParseHelper` to new
   `UnitStringToId`.

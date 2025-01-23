@@ -858,7 +858,7 @@ public class PropertyParserColorHSLTest {
 	@Test
 	public void testParsePropertyValueHSLAttr() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-				"hsla(attr(data-hue turn),attr(data-s percentage),attr(data-l %),attr(data-alpha number))");
+				"hsla(attr(data-hue turn),attr(data-s type(<percentage>)),attr(data-l %),attr(data-alpha type(<number>)))");
 		assertNotNull(lu);
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -871,7 +871,7 @@ public class PropertyParserColorHSLTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		assertEquals("attr(data-s percentage)", param.getCssText());
+		assertEquals("attr(data-s type(<percentage>))", param.getCssText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -885,11 +885,11 @@ public class PropertyParserColorHSLTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		assertEquals("attr(data-alpha number)", param.getCssText());
+		assertEquals("attr(data-alpha type(<number>))", param.getCssText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("hsla", lu.getFunctionName());
 		assertEquals(
-				"hsla(attr(data-hue turn), attr(data-s percentage), attr(data-l %), attr(data-alpha number))",
+				"hsla(attr(data-hue turn), attr(data-s type(<percentage>)), attr(data-l %), attr(data-alpha type(<number>)))",
 				lu.toString());
 	}
 

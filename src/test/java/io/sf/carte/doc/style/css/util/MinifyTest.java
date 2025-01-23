@@ -29,7 +29,7 @@ class MinifyTest {
 		String[] args = new String[1];
 		args[0] = MinifyTest.class.getResource("/io/sf/carte/doc/style/css/html.css")
 				.toExternalForm();
-		final int FINAL_LENGTH = 6194;
+		final int FINAL_LENGTH = 6210;
 		ByteArrayOutputStream out = new ByteArrayOutputStream(FINAL_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		Minify.main(args, ps, System.err);

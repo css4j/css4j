@@ -37,7 +37,7 @@ class ListStyleShorthandSetter extends ShorthandSetter {
 		boolean styleTypeUnset = true;
 		while (currentValue != null) {
 			LexicalType lut;
-			if (isImage()) {
+			if (!isAttrTainted() && isImage()) {
 				// list-style-image
 				setSubpropertyValue("list-style-image", createCSSValue("list-style-image", currentValue));
 				styleImageUnset = false;

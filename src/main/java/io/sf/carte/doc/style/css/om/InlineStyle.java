@@ -124,8 +124,15 @@ abstract public class InlineStyle extends BaseCSSStyleDeclaration implements Nod
 	@Override
 	public StyleDeclarationErrorHandler getStyleDeclarationErrorHandler() {
 		Node node = getOwnerNode();
-		if (node != null && node.getNodeType() == Node.ATTRIBUTE_NODE) {
-			CSSElement owner = (CSSElement) ((Attr) node).getOwnerElement();
+		if (node != null) {
+			CSSElement owner;
+			if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
+				owner = (CSSElement) ((Attr) node).getOwnerElement();
+			} else if (node.getNodeType() == Node.ELEMENT_NODE) {
+				owner = (CSSElement) node;
+			} else {
+				owner = null;
+			}
 			if (owner != null) {
 				return owner.getOwnerDocument().getErrorHandler().getInlineStyleErrorHandler(owner);
 			}

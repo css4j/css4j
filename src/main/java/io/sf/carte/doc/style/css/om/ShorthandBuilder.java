@@ -263,7 +263,7 @@ abstract class ShorthandBuilder {
 	}
 
 	boolean isExcludedType(Type type) {
-		return type == Type.VAR || type == Type.ATTR;
+		return type == Type.LEXICAL;
 	}
 
 	int processPriorities(StringBuilder buf) {

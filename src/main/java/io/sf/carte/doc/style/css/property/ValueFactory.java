@@ -802,13 +802,27 @@ public class ValueFactory implements CSSValueFactory {
 	 * 
 	 * @param lunit the lexical value.
 	 * @return the primitive value.
-	 * @throws DOMException if the lexical unit does not represent a valid
-	 *                      primitive.
+	 * @throws CSSLexicalProcessingException if this value is part of a larger
+	 *                                       lexical chain that should be handled as
+	 *                                       a lexical value.
+	 * @throws DOMException                  if the lexical unit does not represent
+	 *                                       a valid primitive.
 	 */
 	@Override
 	public PrimitiveValue createCSSPrimitiveValue(LexicalUnit lunit)
 			throws DOMException {
-		return createCSSPrimitiveValueItem(lunit, false, true).getCSSValue();
+		PrimitiveValue value;
+		try {
+			value = createCSSPrimitiveValueItem(lunit, false, true).getCSSValue();
+		} catch (CSSLexicalProcessingException e) {
+			if (!isIsolatedLexicalUnit(lunit)) {
+				throw e;
+			}
+			LexicalSetter item = new LexicalValue().newLexicalSetter();
+			item.setLexicalUnit(lunit);
+			value = item.getCSSValue();
+		}
+		return value;
 	}
 
 	/**
@@ -993,23 +1007,17 @@ public class ValueFactory implements CSSValueFactory {
 				}
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case VAR:
-				if (!isIsolatedLexicalUnit(lunit)) {
-					throw new CSSLexicalProcessingException("var() found.");
-				}
-				primi = new VarValue();
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
 			case COLOR_MIX:
 				primi = new ColorMixFunction();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			case VAR:
+			case ATTR:
+				if (!isIsolatedLexicalUnit(lunit)) {
+					throw new CSSLexicalProcessingException(unitType + " found.");
+				}
 			case EMPTY:
 				primi = new LexicalValue();
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case ATTR:
-				primi = new AttrValue(flags);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case UNICODE_RANGE:

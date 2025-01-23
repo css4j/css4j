@@ -26,8 +26,9 @@ import io.sf.carte.util.SimpleWriter;
  * <code>var()</code> value.
  * 
  * @author Carlos Amengual
- *
+ * @deprecated see {@link LexicalValue}.
  */
+@Deprecated(forRemoval = true)
 public class VarValue extends ProxyValue implements CSSVarValue {
 
 	private static final long serialVersionUID = 1L;

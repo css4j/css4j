@@ -301,6 +301,20 @@ public interface LexicalUnit {
 		ATTR,
 
 		/**
+		 * The {@code type()} function inside {@code attr()}.
+		 * 
+		 * @see LexicalUnit#getParameters
+		 */
+		TYPE_FUNCTION,
+
+		/**
+		 * A syntax specification inside the {@code type()} function.
+		 * 
+		 * @see LexicalUnit#getSyntax
+		 */
+		SYNTAX,
+
+		/**
 		 * A <code>calc()</code> expression.
 		 * 
 		 * @see LexicalUnit#getFunctionName
@@ -650,6 +664,7 @@ public interface LexicalUnit {
 	 * @see LexicalType#CUBIC_BEZIER_FUNCTION
 	 * @see LexicalType#STEPS_FUNCTION
 	 * @see LexicalType#RECT_FUNCTION
+	 * @see LexicalType#TYPE_FUNCTION
 	 * @see LexicalType#RGBCOLOR
 	 * @see LexicalType#HSLCOLOR
 	 * @see LexicalType#HWBCOLOR
@@ -682,6 +697,17 @@ public interface LexicalUnit {
 	 * @see LexicalType#UNICODE_RANGE
 	 */
 	LexicalUnit getSubValues();
+
+	/**
+	 * Get the syntax specified by this unit.
+	 * 
+	 * @return the CSS syntax.
+	 * @throws IllegalStateException if this is not a syntax unit.
+	 * @see LexicalType#SYNTAX
+	 */
+	default CSSValueSyntax getSyntax() throws IllegalStateException {
+		throw new IllegalStateException("Not a SYNTAX unit.");
+	}
 
 	/**
 	 * Get a parsable representation of this unit.
@@ -728,7 +754,7 @@ public interface LexicalUnit {
 	 * </thead><tbody>
 	 * <tr style="text-align:center;">
 	 * <td style="border:1px solid;padding:6pt" rowspan=
-	 * "7"><code>attr(data-width length, 8%)</code></td>
+	 * "7"><code>attr(data-width type(&lt;length&gt;), 8%)</code></td>
 	 * <td style="border:1px
 	 * solid;padding:4pt"><code>&lt;percentage&gt; | &lt;length&gt;</code></td>
 	 * <td><code>TRUE</code></td>

@@ -1062,15 +1062,13 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionAttributeInt() {
-		style.setCssText("counter-reset: calc(attr(start integer, 1) - 1);");
+		style.setCssText("counter-reset: calc(attr(start type(<integer>), 1) - 1);");
 		StyleValue val = style.getPropertyCSSValue("counter-reset");
 		assertNotNull(val);
-		assertEquals(CssType.TYPED, val.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		assertEquals("attr(start integer, 1) - 1", calc.getExpression().toString());
-		assertEquals("calc(attr(start integer, 1) - 1)", val.getCssText());
-		assertEquals("calc(attr(start integer,1) - 1)", val.getMinifiedCssText("line-height"));
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
+		assertEquals("calc(attr(start type(<integer>), 1) - 1)", val.getCssText());
+		assertEquals("calc(attr(start type(<integer>),1) - 1)", val.getMinifiedCssText("line-height"));
 
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
@@ -1089,22 +1087,21 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionAttributeNumber() {
-		style.setCssText("line-height: calc(attr(data-lh number, 1) + 1);");
+		style.setCssText("line-height: calc(attr(data-lh type(<number>), 1) + 1);");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
-		assertEquals(CssType.TYPED, val.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		assertEquals("attr(data-lh number, 1) + 1", calc.getExpression().toString());
-		assertEquals("calc(attr(data-lh number, 1) + 1)", val.getCssText());
-		assertEquals("calc(attr(data-lh number,1) + 1)", val.getMinifiedCssText("line-height"));
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
+		assertEquals("calc(attr(data-lh type(<number>), 1) + 1)", val.getCssText());
+		assertEquals("calc(attr(data-lh type(<number>),1) + 1)", val.getMinifiedCssText("line-height"));
 
 		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		CSSValueSyntax syn;
+		syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<length>");
 		assertEquals(Match.FALSE, val.matches(syn));
@@ -1116,15 +1113,13 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionAttributeLength() {
-		style.setCssText("line-height: calc(attr(data-lh length, 1em) + 1ex);");
+		style.setCssText("line-height: calc(attr(data-lh type(<length>), 1em) + 1ex);");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
-		assertEquals(CssType.TYPED, val.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		assertEquals("attr(data-lh length, 1em) + 1ex", calc.getExpression().toString());
-		assertEquals("calc(attr(data-lh length, 1em) + 1ex)", val.getCssText());
-		assertEquals("calc(attr(data-lh length,1em) + 1ex)", val.getMinifiedCssText("line-height"));
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
+		assertEquals("calc(attr(data-lh type(<length>), 1em) + 1ex)", val.getCssText());
+		assertEquals("calc(attr(data-lh type(<length>),1em) + 1ex)", val.getMinifiedCssText("line-height"));
 
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
@@ -1146,10 +1141,8 @@ public class CalcValueTest {
 		style.setCssText("line-height: calc(attr(data-lh ex, 1em) + 1ex);");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
-		assertEquals(CssType.TYPED, val.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		assertEquals("attr(data-lh ex, 1em) + 1ex", calc.getExpression().toString());
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
 		assertEquals("calc(attr(data-lh ex, 1em) + 1ex)", val.getCssText());
 		assertEquals("calc(attr(data-lh ex,1em) + 1ex)", val.getMinifiedCssText("line-height"));
 
@@ -1173,10 +1166,8 @@ public class CalcValueTest {
 		style.setCssText("line-height: calc(attr(data-lh %, 1em) + 1ex);");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
-		assertEquals(CssType.TYPED, val.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		assertEquals("attr(data-lh %, 1em) + 1ex", calc.getExpression().toString());
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
 		assertEquals("calc(attr(data-lh %, 1em) + 1ex)", val.getCssText());
 		assertEquals("calc(attr(data-lh %,1em) + 1ex)", val.getMinifiedCssText("line-height"));
 
@@ -1186,7 +1177,7 @@ public class CalcValueTest {
 		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
 		assertEquals(Match.TRUE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertEquals(Match.PENDING, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.FALSE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<color>");
@@ -1200,10 +1191,8 @@ public class CalcValueTest {
 		style.setCssText("line-height: calc(attr(data-lh %, 1%) + 2%);");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
-		assertEquals(CssType.TYPED, val.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		assertEquals("attr(data-lh %, 1%) + 2%", calc.getExpression().toString());
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
 		assertEquals("calc(attr(data-lh %, 1%) + 2%)", val.getCssText());
 		assertEquals("calc(attr(data-lh %,1%) + 2%)", val.getMinifiedCssText("line-height"));
 
@@ -1224,15 +1213,13 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionAttributeLengthPercentage3() {
-		style.setCssText("line-height: calc(attr(data-lh percentage, 1%) + 2%);");
+		style.setCssText("line-height: calc(attr(data-lh type(<percentage>), 1%) + 2%);");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
-		assertEquals(CssType.TYPED, val.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		assertEquals("attr(data-lh percentage, 1%) + 2%", calc.getExpression().toString());
-		assertEquals("calc(attr(data-lh percentage, 1%) + 2%)", val.getCssText());
-		assertEquals("calc(attr(data-lh percentage,1%) + 2%)",
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
+		assertEquals("calc(attr(data-lh type(<percentage>), 1%) + 2%)", val.getCssText());
+		assertEquals("calc(attr(data-lh type(<percentage>),1%) + 2%)",
 				val.getMinifiedCssText("line-height"));
 
 		SyntaxParser syntaxParser = new SyntaxParser();
@@ -1252,15 +1239,13 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionAttributeAngle() {
-		style.setCssText("azimuth: calc(attr(data-az angle, 1rad) + 25deg);");
+		style.setCssText("azimuth: calc(attr(data-az type(<angle>), 1rad) + 25deg);");
 		StyleValue val = style.getPropertyCSSValue("azimuth");
 		assertNotNull(val);
-		assertEquals(CssType.TYPED, val.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		assertEquals("attr(data-az angle, 1rad) + 25deg", calc.getExpression().toString());
-		assertEquals("calc(attr(data-az angle, 1rad) + 25deg)", val.getCssText());
-		assertEquals("calc(attr(data-az angle,1rad) + 25deg)",
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
+		assertEquals("calc(attr(data-az type(<angle>), 1rad) + 25deg)", val.getCssText());
+		assertEquals("calc(attr(data-az type(<angle>),1rad) + 25deg)",
 				val.getMinifiedCssText("azimuth"));
 
 		SyntaxParser syntaxParser = new SyntaxParser();
@@ -1280,15 +1265,13 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionAttributeTime() {
-		style.setCssText("pause-after: calc(attr(data-pause time, 1s) + 2/1Hz);");
+		style.setCssText("pause-after: calc(attr(data-pause type(<time>), 1s) + 2/1Hz);");
 		StyleValue val = style.getPropertyCSSValue("pause-after");
 		assertNotNull(val);
-		assertEquals(CssType.TYPED, val.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		assertEquals("attr(data-pause time, 1s) + 2/1hz", calc.getExpression().toString());
-		assertEquals("calc(attr(data-pause time, 1s) + 2/1hz)", val.getCssText());
-		assertEquals("calc(attr(data-pause time,1s) + 2/1hz)",
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
+		assertEquals("calc(attr(data-pause type(<time>), 1s) + 2/1hz)", val.getCssText());
+		assertEquals("calc(attr(data-pause type(<time>),1s) + 2/1hz)",
 				val.getMinifiedCssText("pause-after"));
 
 		SyntaxParser syntaxParser = new SyntaxParser();
@@ -1308,15 +1291,13 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionAttributeFreq() {
-		style.setCssText("pitch: calc(attr(data-pitch frequency, 1hz) + 1/25ms);");
+		style.setCssText("pitch: calc(attr(data-pitch type(<frequency>), 1hz) + 1/25ms);");
 		StyleValue val = style.getPropertyCSSValue("pitch");
 		assertNotNull(val);
-		assertEquals(CssType.TYPED, val.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		assertEquals("attr(data-pitch frequency, 1hz) + 1/25ms", calc.getExpression().toString());
-		assertEquals("calc(attr(data-pitch frequency, 1hz) + 1/25ms)", val.getCssText());
-		assertEquals("calc(attr(data-pitch frequency,1hz) + 1/25ms)",
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
+		assertEquals("calc(attr(data-pitch type(<frequency>), 1hz) + 1/25ms)", val.getCssText());
+		assertEquals("calc(attr(data-pitch type(<frequency>),1hz) + 1/25ms)",
 				val.getMinifiedCssText("pitch"));
 
 		SyntaxParser syntaxParser = new SyntaxParser();
@@ -1336,15 +1317,13 @@ public class CalcValueTest {
 
 	@Test
 	public void testSetCssTextSubExpressionAttributeTimeFreq() {
-		style.setCssText("pitch: calc(1/attr(data-pitch time, 1ms) + 1/.0025s);");
+		style.setCssText("pitch: calc(1/attr(data-pitch type(<time>), 1ms) + 1/.0025s);");
 		StyleValue val = style.getPropertyCSSValue("pitch");
 		assertNotNull(val);
-		assertEquals(CssType.TYPED, val.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		CalcValue calc = (CalcValue) val;
-		assertEquals("1/attr(data-pitch time, 1ms) + 1/0.0025s", calc.getExpression().toString());
-		assertEquals("calc(1/attr(data-pitch time, 1ms) + 1/0.0025s)", val.getCssText());
-		assertEquals("calc(1/attr(data-pitch time,1ms) + 1/.0025s)",
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
+		assertEquals("calc(1/attr(data-pitch type(<time>), 1ms) + 1/0.0025s)", val.getCssText());
+		assertEquals("calc(1/attr(data-pitch type(<time>),1ms) + 1/0.0025s)",
 				val.getMinifiedCssText("pitch"));
 
 		SyntaxParser syntaxParser = new SyntaxParser();

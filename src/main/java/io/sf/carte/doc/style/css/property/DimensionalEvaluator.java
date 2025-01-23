@@ -19,6 +19,7 @@ import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
+import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
@@ -28,7 +29,11 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueList;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.UnitStringToId;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 
 /**
  * Determine the dimension of an expression.
@@ -196,43 +201,82 @@ class DimensionalEvaluator extends Evaluator {
 
 	@Override
 	protected CSSValue absoluteProxyValue(CSSPrimitiveValue partialValue) {
-		if (partialValue.getPrimitiveType() == Type.ATTR) {
+		if (partialValue.getPrimitiveType() == Type.LEXICAL) {
 			checkRandom();
-			AttrValue attr = (AttrValue) partialValue;
-			String attrtype = attr.getAttributeType();
-			if (attrtype != null) {
-				int len = attrtype.length();
-				if (len <= 2) {
-					ValueFactory factory = new ValueFactory();
-					NumberValue value = (NumberValue) factory.parseProperty('1' + attrtype);
-					value.setFloatValue(value.getUnitType(), random.nextFloat() + 1.1f);
-					return value;
-				}
-				if ("length".equals(attrtype)) {
-					return NumberValue.createCSSNumberValue(CSSUnit.CSS_PX,
-							random.nextFloat() + 1.1f);
-				} else if ("percentage".equals(attrtype)) {
-					return NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE,
-							random.nextFloat() * 10f + 1.1f);
-				} else if ("integer".equals(attrtype)) {
-					return NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER,
-							random.nextInt(15) + 1);
-				} else if ("number".equals(attrtype)) {
-					return NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER,
-							random.nextFloat() + 1.1f);
-				} else if ("angle".equals(attrtype)) {
-					return NumberValue.createCSSNumberValue(CSSUnit.CSS_RAD,
-							random.nextFloat() + 1.1f);
-				} else if ("time".equals(attrtype)) {
-					return NumberValue.createCSSNumberValue(CSSUnit.CSS_S,
-							random.nextFloat() + 1.1f);
-				} else if ("frequency".equals(attrtype)) {
-					return NumberValue.createCSSNumberValue(CSSUnit.CSS_HZ,
-							random.nextFloat() * 10f + 1.1f);
+			LexicalUnit var = ((CSSLexicalValue) partialValue).getLexicalUnit();
+			if (var.getLexicalUnitType() == LexicalType.ATTR) {
+				// We do not have the attribute value, so let's produce a random number
+				// with the correct dimension.
+				LexicalUnit param = var.getParameters();
+				param = param.getNextLexicalUnit();
+				if (param != null) {
+					short unit;
+					switch (param.getLexicalUnitType()) {
+					case TYPE_FUNCTION:
+						CSSValueSyntax attrSyntax = param.getParameters().getSyntax();
+						unit = categoryDefaultUnit(attrSyntax.getCategory());
+						if (unit == CSSUnit.CSS_OTHER) {
+							return super.absoluteProxyValue(partialValue);
+						}
+						break;
+					case OPERATOR_MOD:
+						unit = CSSUnit.CSS_PERCENTAGE;
+						break;
+					case IDENT:
+						unit = UnitStringToId.unitFromString(param.getStringValue());
+						if (unit != CSSUnit.CSS_OTHER) {
+							break;
+						}
+					default:
+						return super.absoluteProxyValue(partialValue);
+					}
+					return NumberValue.createCSSNumberValue(unit, random.nextFloat() + 1.1f);
 				}
 			}
 		}
 		return super.absoluteProxyValue(partialValue);
+	}
+
+	/**
+	 * Obtain the default unit for a given syntax category.
+	 * 
+	 * @param cat the category.
+	 * @return the default unit.
+	 */
+	private static short categoryDefaultUnit(Category cat) {
+		short unit;
+		switch (cat) {
+		case length:
+		case lengthPercentage:
+			unit = CSSUnit.CSS_PX;
+			break;
+		case number:
+		case integer:
+			unit = CSSUnit.CSS_NUMBER;
+			break;
+		case percentage:
+			unit = CSSUnit.CSS_PERCENTAGE;
+			break;
+		case angle:
+			unit = CSSUnit.CSS_DEG;
+			break;
+		case flex:
+			unit = CSSUnit.CSS_FR;
+			break;
+		case frequency:
+			unit = CSSUnit.CSS_HZ;
+			break;
+		case resolution:
+			unit = CSSUnit.CSS_DPI;
+			break;
+		case time:
+			unit = CSSUnit.CSS_S;
+			break;
+		default:
+			unit = CSSUnit.CSS_INVALID;
+			break;
+		}
+		return unit;
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 /*
 
- Copyright (c) 2005-2024, Carlos Amengual.
+ Copyright (c) 2005-2025, Carlos Amengual.
 
  SPDX-License-Identifier: BSD-3-Clause
 
@@ -9,22 +9,22 @@
 
  */
 
-package io.sf.carte.doc.style.css.om;
+package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
 
 /**
  * A resource limit was found.
  */
-class CSSResourceLimitException extends DOMException {
+public class CSSResourceLimitException extends DOMException {
 
 	private static final long serialVersionUID = 2L;
 
-	CSSResourceLimitException(String message) {
+	public CSSResourceLimitException(String message) {
 		super(DOMException.INVALID_ACCESS_ERR, message);
 	}
 
-	CSSResourceLimitException(String message, Throwable cause) {
+	public CSSResourceLimitException(String message, Throwable cause) {
 		super(DOMException.INVALID_ACCESS_ERR, message);
 		initCause(cause);
 	}

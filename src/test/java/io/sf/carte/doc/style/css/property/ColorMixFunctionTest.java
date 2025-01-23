@@ -553,27 +553,23 @@ public class ColorMixFunctionTest {
 	@Test
 	public void testColorMixOKLabAttr() throws IOException {
 		style.setCssText(
-				"color: color-mix(in oklab, oklch(0.831 0.1602 167.34) attr(data-pcnt1 percentage), hwb(186.2 29% 12%))");
+				"color: color-mix(in oklab, oklch(0.831 0.1602 167.34) attr(data-pcnt1 type(<percentage>)), hwb(186.2 29% 12%))");
 		CSSValue value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
-		assertEquals(CssType.TYPED, value.getCssValueType());
-		assertEquals(Type.COLOR_MIX, value.getPrimitiveType());
-		ColorMixFunction color = (ColorMixFunction) value;
-		assertEquals(CSSColorValue.ColorModel.LAB, color.getColorModel());
-		assertEquals(ColorSpace.ok_lab, color.getCSSColorSpace());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
 
 		// Serialization
 		assertEquals(
-				"color-mix(in oklab, oklch(0.831 0.1602 167.34) attr(data-pcnt1 percentage), hwb(186.2 29% 12%))",
-				color.getCssText());
+				"color-mix(in oklab, oklch(0.831 0.1602 167.34) attr(data-pcnt1 type(<percentage>)), hwb(186.2 29% 12%))",
+				value.getCssText());
 		assertEquals(
-				"color-mix(in oklab,oklch(.831 .1602 167.34) attr(data-pcnt1 percentage),hwb(186.2 29% 12%))",
-				color.getMinifiedCssText("color"));
+				"color-mix(in oklab,oklch(0.831 0.1602 167.34) attr(data-pcnt1 type(<percentage>)),hwb(186.2 29% 12%))",
+				value.getMinifiedCssText("color"));
 
 		BufferSimpleWriter wri = new BufferSimpleWriter(100);
-		color.writeCssText(wri);
+		value.writeCssText(wri);
 		assertEquals(
-				"color-mix(in oklab, oklch(0.831 0.1602 167.34) attr(data-pcnt1 percentage), hwb(186.2 29% 12%))",
+				"color-mix(in oklab, oklch(0.831 0.1602 167.34) attr(data-pcnt1 type(<percentage>)), hwb(186.2 29% 12%))",
 				wri.toString());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());

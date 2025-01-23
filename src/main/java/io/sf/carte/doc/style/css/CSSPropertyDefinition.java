@@ -9,6 +9,8 @@
 
 package io.sf.carte.doc.style.css;
 
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+
 /**
  * A property definition.
  * <p>
@@ -38,7 +40,7 @@ public interface CSSPropertyDefinition {
 	 * 
 	 * @return the initial value, or {@code null} if none was specified.
 	 */
-	CSSLexicalValue getInitialValue();
+	LexicalUnit getInitialValue();
 
 	/**
 	 * The syntax associated with the property.

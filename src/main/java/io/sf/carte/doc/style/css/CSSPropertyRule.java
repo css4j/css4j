@@ -9,6 +9,8 @@
 
 package io.sf.carte.doc.style.css;
 
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+
 /**
  * <code>{@literal @}property</code> rule.
  * @see <a href=
@@ -39,7 +41,7 @@ public interface CSSPropertyRule extends CSSRule, CSSPropertyDefinition {
 	 * @return the initial value, or {@code null} if none was specified.
 	 */
 	@Override
-	CSSLexicalValue getInitialValue();
+	LexicalUnit getInitialValue();
 
 	/**
 	 * The syntax associated with the <code>{@literal @}property</code> rule.

@@ -14,15 +14,16 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Locale;
 import java.util.Set;
 
+import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
-import io.sf.carte.doc.style.css.CSSVarValue;
 import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.LexicalValue;
@@ -647,11 +648,15 @@ class BackgroundBuilder extends ShorthandBuilder {
 			if (ptype == Type.IDENT) {
 				String s = primi.getStringValue().toLowerCase(Locale.ROOT);
 				return ColorIdentifiers.getInstance().isColorIdentifier(s);
-			} else if (ptype == Type.VAR) {
-				CSSVarValue custom = (CSSVarValue) primi;
-				LexicalUnit fallback = custom.getFallback();
-				if (fallback != null) {
-					return BaseCSSStyleDeclaration.testColor(fallback);
+			} else if (ptype == Type.LEXICAL) {
+				LexicalUnit var = ((CSSLexicalValue) primi).getLexicalUnit();
+				if (var.getLexicalUnitType() == LexicalType.VAR) {
+					LexicalUnit param = var.getParameters();
+					param = param.getNextLexicalUnit();
+					if (param != null && param.getLexicalUnitType() == LexicalType.OPERATOR_COMMA
+							&& (param = param.getNextLexicalUnit()) != null) {
+						return BaseCSSStyleDeclaration.testColor(param);
+					}
 				}
 			}
 		} else {

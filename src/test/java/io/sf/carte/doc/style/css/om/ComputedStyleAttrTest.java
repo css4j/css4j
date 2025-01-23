@@ -33,6 +33,7 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
+import io.sf.carte.doc.style.css.property.TypedValue;
 
 public class ComputedStyleAttrTest {
 
@@ -67,6 +68,7 @@ public class ComputedStyleAttrTest {
 		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin,0.8em)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(CSSValue.Type.NUMERIC, marginLeft.getPrimitiveType());
 		assertEquals(9.6f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
@@ -87,7 +89,7 @@ public class ComputedStyleAttrTest {
 		 * attr() wrong value, fallback.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("margin-left:attr(data-foo length,0.8em)");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(data-foo type(<length>),0.8em)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(9.6f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
@@ -99,7 +101,7 @@ public class ComputedStyleAttrTest {
 		 * attr() value.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("margin-left:attr(data-foo length,0.8em)");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(data-foo type(<length>),0.8em)");
 		elm.getAttributeNode("data-foo").setValue("11pt");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
@@ -128,75 +130,64 @@ public class ComputedStyleAttrTest {
 		assertEquals(2.1f, marginLeft.getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-		/*
-		 * attr() unsafe value, fallback.
-		 */
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		CSSElement usernameElm = xhtmlDoc.getElementById("username");
-		usernameElm.getOverrideStyle(null).setCssText("foo:attr(data-default-user,\"no luck\")");
-		style = usernameElm.getComputedStyle(null);
-		CSSTypedValue typed = (CSSTypedValue) style.getPropertyCSSValue("foo");
-		assertEquals("no luck", typed.getStringValue());
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(usernameElm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(usernameElm));
-		/*
-		 * attr() unsafe 'value' attribute inside form, fallback.
-		 */
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		usernameElm.getOverrideStyle(null).setCssText("foo:attr(value,\"no luck\")");
-		style = usernameElm.getComputedStyle(null);
-		typed = (CSSTypedValue) style.getPropertyCSSValue("foo");
-		assertEquals("no luck", typed.getStringValue());
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(usernameElm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(usernameElm));
+	}
+
+	@Test
+	public void getComputedStyleAttrCircularities() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+
 		/*
 		 * attr() circular reference, default/fallback.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getAttributeNode("data-foo").setValue("attr(data-bar integer)");
-		elm.getAttributeNode("data-bar").setValue("attr(data-foo integer, 1)");
-		elm.getOverrideStyle(null).setCssText("foo:attr(data-foo integer)");
-		style = elm.getComputedStyle(null);
-		typed = (CSSTypedValue) style.getPropertyCSSValue("foo");
-		assertEquals("0", typed.getCssText());
+		elm.getAttributeNode("data-foo").setValue("attr(data-bar type(<integer>))");
+		elm.getAttributeNode("data-bar").setValue("attr(data-foo type(<integer>), 1)");
+		elm.getOverrideStyle(null).setCssText("foo:attr(data-foo type(<integer>))");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue typed = (CSSTypedValue) style.getPropertyCSSValue("foo");
+		assertNull(typed);
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		//
+
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("foo:attr(data-bar integer)");
-		style = elm.getComputedStyle(null);
-		typed = (CSSTypedValue) style.getPropertyCSSValue("foo");
-		assertEquals("1", typed.getCssText());
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		/*
-		 * attr() circular reference, wrong data type.
-		 */
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getAttributeNode("data-foo").setValue("attr(data-bar integr)");
-		elm.getAttributeNode("data-bar").setValue("attr(data-foo integr)");
-		elm.getOverrideStyle(null).setCssText("foo:attr(data-foo integr)");
+		elm.getOverrideStyle(null).setCssText("foo:attr(data-bar type(<integer>))");
 		style = elm.getComputedStyle(null);
 		typed = (CSSTypedValue) style.getPropertyCSSValue("foo");
 		assertNull(typed);
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+
+		/*
+		 * attr() circular reference, wrong data type.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getAttributeNode("data-foo").setValue("attr(data-bar type(<integr>))");
+		elm.getAttributeNode("data-bar").setValue("attr(data-foo type(<integr>))");
+		elm.getOverrideStyle(null).setCssText("foo:attr(data-foo type(<integr>))");
+		style = elm.getComputedStyle(null);
+		typed = (CSSTypedValue) style.getPropertyCSSValue("foo");
+		assertNull(typed);
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+
 		/*
 		 * attr() circular reference, wrong data type, default.
 		 */
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("foo:attr(data-foo integer)");
+		xhtmlDoc.getErrorHandler().reset();
+		elm.getOverrideStyle(null).setCssText("foo:attr(data-foo type(<integer>))");
 		style = elm.getComputedStyle(null);
 		typed = (CSSTypedValue) style.getPropertyCSSValue("foo");
-		assertEquals("0", typed.getCssText());
+		assertNull(typed);
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+
 		/*
 		 * attr() circular reference, wrong data type, fallback.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getAttributeNode("data-foo").setValue("attr(data-bar integr, 1)");
-		elm.getOverrideStyle(null).setCssText("foo:attr(data-foo integer)");
+		elm.getAttributeNode("data-foo").setValue("attr(data-bar type(<integr>))");
+		elm.getOverrideStyle(null).setCssText("foo:attr(data-foo type(<integer>), 1)");
 		style = elm.getComputedStyle(null);
 		typed = (CSSTypedValue) style.getPropertyCSSValue("foo");
 		assertEquals("1", typed.getCssText());
@@ -212,7 +203,7 @@ public class ComputedStyleAttrTest {
 		elm.setAttribute("data-green", "29%");
 		elm.setAttribute("data-blue", "77%");
 		elm.getOverrideStyle(null).setCssText(
-				"color: rgb(attr(data-red percentage) attr(data-green percentage) attr(data-blue percentage))");
+				"color: rgb(attr(data-red type(<percentage>)) attr(data-green type(<percentage>)) attr(data-blue type(<percentage>)))");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("rgb(11% 29% 77%)", style.getPropertyValue("color"));
 
@@ -221,7 +212,7 @@ public class ComputedStyleAttrTest {
 
 		// Attr error
 		elm.getOverrideStyle(null).setCssText(
-				"color: rgb(attr(data-red percentage),attr(data-green percentage),attr(data-blue %))");
+				"color: rgb(attr(data-red type(<percentage>)),attr(data-green type(<percentage>)),attr(data-blue %))");
 		style = elm.getComputedStyle(null);
 		assertEquals("#808000", style.getPropertyValue("color"));
 
@@ -238,7 +229,7 @@ public class ComputedStyleAttrTest {
 		elm.setAttribute("data-2", "pow(2,3)");
 		elm.setAttribute("data-3", "calc(2*11px)");
 		elm.getOverrideStyle(null).setCssText(
-				"foo: function(attr(data-1 number) attr(data-2 number), attr(data-3 length))");
+				"foo: function(attr(data-1 type(<number>)) attr(data-2 type(<number>)), attr(data-3 type(<length>)))");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("function(5 8, 22px)", style.getPropertyValue("foo"));
 
@@ -247,12 +238,27 @@ public class ComputedStyleAttrTest {
 
 		// Attr error with fallback
 		elm.getOverrideStyle(null).setCssText(
-				"foo: function(attr(data-1 number) attr(data-2 number), attr(data-3 px))");
+				"foo: function(attr(data-1 type(<number>)) attr(data-2 type(<number>)), attr(data-3 px, 0))");
 		style = elm.getComputedStyle(null);
 		assertEquals("function(5 8, 0)", style.getPropertyValue("foo"));
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void testSqrt() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		assertNotNull(elm);
+
+		elm.setAttribute("data-1", "calc(2*9)");
+		elm.getOverrideStyle(null).setCssText("foo: sqrt(.2 * calc(attr(data-1 type(<number>)) / 3))");
+
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		TypedValue val = (TypedValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.NUMERIC, val.getPrimitiveType());
+		assertEquals(1.0954452f, val.getFloatValue(CSSUnit.CSS_NUMBER));
 	}
 
 	@Test
@@ -262,7 +268,7 @@ public class ComputedStyleAttrTest {
 		 * attr() value, fallback.
 		 */
 		elm.getOverrideStyle(null).setCssText(
-				"content:counters(attr(data-counter ident, List),attr(data-separator, ': '),symbols(attr(data-symboltype ident,symbolic) '*' '†' '‡'))");
+				"content:counters(attr(data-counter type(<custom-ident>), List),attr(data-separator, ': '),symbols(attr(data-symboltype type(<custom-ident>),symbolic) '*' '†' '‡'))");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		CSSTypedValue content = (CSSTypedValue) style.getPropertyCSSValue("content");
 		assertEquals("counters(List, ': ', symbols(symbolic '*' '†' '‡'))", content.getCssText());
@@ -279,7 +285,7 @@ public class ComputedStyleAttrTest {
 		elm.setAttribute("data-separator", ". ");
 		elm.setAttribute("data-symboltype", "cyclic");
 		elm.getOverrideStyle(null).setCssText(
-				"content:counters(attr(data-counter ident),attr(data-separator),symbols(attr(data-symboltype ident) '*' '†' '‡'))");
+				"content:counters(attr(data-counter type(<custom-ident>)),attr(data-separator),symbols(attr(data-symboltype type(<custom-ident>)) '*' '†' '‡'))");
 		style = elm.getComputedStyle(null);
 		content = (CSSTypedValue) style.getPropertyCSSValue("content");
 		assertEquals("counters(MyCounter, '. ', symbols(cyclic '*' '†' '‡'))",
@@ -292,14 +298,14 @@ public class ComputedStyleAttrTest {
 	}
 
 	@Test
-	public void getComputedStyleCounterAttrRecursive() {
+	public void getComputedStyleCounterAttrRecursiveFallbackVar() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 
 		/*
 		 * attr() value, recursive var() in fallback (lexical).
 		 */
 		elm.getOverrideStyle(null).setCssText(
-				"content:counters(attr(data-counter ident, var(--myList)),': ',symbols(symbolic '*' '†' '‡'));--myList:attr(data-counter ident)");
+				"content:counters(attr(data-counter type(<custom-ident>), var(--myList)),': ',symbols(symbolic '*' '†' '‡'));--myList:attr(data-counter type(<custom-ident>))");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		CSSTypedValue content = (CSSTypedValue) style.getPropertyCSSValue("content");
 		assertEquals("normal", content.getCssText());
@@ -308,93 +314,21 @@ public class ComputedStyleAttrTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
 		xhtmlDoc.getErrorHandler().reset();
+	}
+
+	@Test
+	public void getComputedStyleCounterAttrRecursiveVar() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
 
 		/*
 		 * attr() recursive var() in attribute value, no fallback (lexical).
 		 */
 		elm.setAttribute("data-counter", "var(--myCounter)");
 		elm.getOverrideStyle(null).setCssText(
-				"content:counters(attr(data-counter ident),'. ', symbols(cyclic '*' '†' '‡'));--myCounter:var(--foo);--foo:var(--myCounter);");
-		style = elm.getComputedStyle(null);
-		content = (CSSTypedValue) style.getPropertyCSSValue("content");
+				"content:counters(attr(data-counter type(<custom-ident>)),'. ', symbols(cyclic '*' '†' '‡'));--myCounter:var(--foo);--foo:var(--myCounter);");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue content = (CSSTypedValue) style.getPropertyCSSValue("content");
 		assertEquals("normal", content.getCssText());
-
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		xhtmlDoc.getErrorHandler().reset();
-
-		/*
-		 * attr() recursive var() in attribute value, fallback (lexical).
-		 */
-		elm.getOverrideStyle(null).setCssText(
-				"content:counters(attr(data-counter ident, TheCounter),'. ', symbols(cyclic '*' '†' '‡'));--myCounter:var(--foo);--foo:var(--myCounter);");
-		style = elm.getComputedStyle(null);
-		content = (CSSTypedValue) style.getPropertyCSSValue("content");
-		assertEquals("counters(TheCounter, '. ', symbols(cyclic '*' '†' '‡'))",
-				content.getCssText());
-
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		xhtmlDoc.getErrorHandler().reset();
-
-		/*
-		 * attr(), attr() in attribute value, no fallback (lexical).
-		 */
-		elm.setAttribute("data-counter", "attr(data-counter ident)");
-		elm.getOverrideStyle(null).setCssText(
-				"content:counters(attr(data-counter ident),'. ', symbols(cyclic '*' '†' '‡'));");
-		style = elm.getComputedStyle(null);
-		content = (CSSTypedValue) style.getPropertyCSSValue("content");
-		assertEquals("normal", content.getCssText());
-
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		xhtmlDoc.getErrorHandler().reset();
-
-		/*
-		 * attr(), attr() in attribute value, fallback (lexical).
-		 */
-		elm.setAttribute("data-counter", "attr(data-counter ident)");
-		elm.getOverrideStyle(null).setCssText(
-				"content:counters(attr(data-counter ident, TheCounter),'. ', symbols(cyclic '*' '†' '‡'));");
-		style = elm.getComputedStyle(null);
-		content = (CSSTypedValue) style.getPropertyCSSValue("content");
-		assertEquals("counters(TheCounter, '. ', symbols(cyclic '*' '†' '‡'))",
-				content.getCssText());
-
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		xhtmlDoc.getErrorHandler().reset();
-
-		/*
-		 * attr() attr() in attribute value, non-lexical, no fallback.
-		 */
-		elm.setAttribute("data-symboltype", "attr(data-symboltype ident)");
-		elm.getOverrideStyle(null).setCssText(
-				"content:counters(MyCounter,'. ',symbols(attr(data-symboltype ident) '*' '†' '‡'))");
-		style = elm.getComputedStyle(null);
-		content = (CSSTypedValue) style.getPropertyCSSValue("content");
-		assertEquals("normal", content.getCssText());
-
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		xhtmlDoc.getErrorHandler().reset();
-
-		/*
-		 * attr() attr() in attribute value, non-lexical, fallback.
-		 */
-		elm.setAttribute("data-symboltype", "attr(data-symboltype ident)");
-		elm.getOverrideStyle(null).setCssText(
-				"content:counters(MyCounter,'. ',symbols(attr(data-symboltype ident,cyclic) '*' '†' '‡'))");
-		style = elm.getComputedStyle(null);
-		content = (CSSTypedValue) style.getPropertyCSSValue("content");
-		assertEquals("counters(MyCounter, '. ', symbols(cyclic '*' '†' '‡'))",
-				content.getCssText());
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
@@ -403,18 +337,103 @@ public class ComputedStyleAttrTest {
 	}
 
 	@Test
-	public void testBackgroundUnsafeAttrName() {
-		CSSElement elm = xhtmlDoc.getElementById("h1");
-		assertNotNull(elm);
-		//
-		elm.setAttribute("nonce", "foo");
-		elm.getOverrideStyle(null).setCssText("background-image:attr(nonce, 'bar')");
+	public void getComputedStyleCounterAttrRecursiveVarFallback() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+
+		/*
+		 * attr() recursive var() in attribute value, fallback (lexical).
+		 */
+		elm.setAttribute("data-counter", "var(--myCounter)");
+		elm.getOverrideStyle(null).setCssText(
+				"content:counters(attr(data-counter type(<custom-ident>), TheCounter),'. ', symbols(cyclic '*' '†' '‡'));--myCounter:var(--foo);--foo:var(--myCounter);");
 		CSSComputedProperties style = elm.getComputedStyle(null);
-		assertEquals("bar", style.getPropertyValue("background-image"));
+		CSSTypedValue content = (CSSTypedValue) style.getPropertyCSSValue("content");
+		assertEquals("normal", content.getCssText());
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		xhtmlDoc.getErrorHandler().reset();
+	}
+
+	@Test
+	public void getComputedStyleCounterAttrRecursiveAttr() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+
+		/*
+		 * attr(), attr() in attribute value, no fallback (lexical).
+		 */
+		elm.setAttribute("data-counter", "attr(data-counter type(<custom-ident>))");
+		elm.getOverrideStyle(null).setCssText(
+				"content:counters(attr(data-counter type(<custom-ident>)),'. ', symbols(cyclic '*' '†' '‡'));");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue content = (CSSTypedValue) style.getPropertyCSSValue("content");
+		assertEquals("normal", content.getCssText());
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		xhtmlDoc.getErrorHandler().reset();
+	}
+
+	@Test
+	public void getComputedStyleCounterAttrRecursiveAttrFallback() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+
+		/*
+		 * attr(), attr() in attribute value, fallback (lexical).
+		 */
+		elm.setAttribute("data-counter", "attr(data-counter type(<custom-ident>))");
+		elm.getOverrideStyle(null).setCssText(
+				"content:counters(attr(data-counter type(<custom-ident>), TheCounter),'. ', symbols(cyclic '*' '†' '‡'));");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue content = (CSSTypedValue) style.getPropertyCSSValue("content");
+		assertEquals("normal", content.getCssText());
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		xhtmlDoc.getErrorHandler().reset();
+	}
+
+	@Test
+	public void getComputedStyleCounterAttrInAttributeValue() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+
+		/*
+		 * attr() attr() in attribute value, non-lexical, no fallback.
+		 */
+		elm.setAttribute("data-symboltype", "attr(data-symboltype type(<custom-ident>))");
+		elm.getOverrideStyle(null).setCssText(
+				"content:counters(MyCounter,'. ',symbols(attr(data-symboltype type(<custom-ident>)) '*' '†' '‡'))");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue content = (CSSTypedValue) style.getPropertyCSSValue("content");
+		assertEquals("normal", content.getCssText());
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		xhtmlDoc.getErrorHandler().reset();
+	}
+
+	@Test
+	public void getComputedStyleCounterAttrInAttributeValueFallback() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+
+		/*
+		 * attr() attr() in attribute value, non-lexical, fallback.
+		 */
+		elm.setAttribute("data-symboltype", "attr(data-symboltype type(<custom-ident>))");
+		elm.getOverrideStyle(null).setCssText(
+				"content:counters(MyCounter,'. ',symbols(attr(data-symboltype type(<custom-ident>),cyclic) '*' '†' '‡'))");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue content = (CSSTypedValue) style.getPropertyCSSValue("content");
+		assertEquals("normal", content.getCssText());
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		xhtmlDoc.getErrorHandler().reset();
 	}
 
 	/*
@@ -422,36 +441,27 @@ public class ComputedStyleAttrTest {
 	 */
 
 	@Test
-	public void testBackgroundUnsafeAttrNameLexical() {
+	public void testBackgroundShorthandAttr() {
 		CSSElement elm = xhtmlDoc.getElementById("h1");
 		assertNotNull(elm);
-		//
-		elm.setAttribute("nonce", "foo");
-		elm.getOverrideStyle(null).setCssText("background:attr(nonce, chartreuse)");
+
+		elm.getOverrideStyle(null).setCssText("background:attr(data-color type(<color>))");
 		CSSComputedProperties style = elm.getComputedStyle(null);
-		assertEquals("#7fff00", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background"));
 		assertEquals("none", style.getPropertyValue("background-image"));
 		assertEquals("0% 0%", style.getPropertyValue("background-position"));
-		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("auto", style.getPropertyValue("background-size"));
 		assertEquals("padding-box", style.getPropertyValue("background-origin"));
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("#7fff00", style.getPropertyValue("background-color"));
+		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
 
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-	}
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 
-	@Test
-	public void testBackgroundShorthandAttr() {
-		CSSElement elm = xhtmlDoc.getElementById("h1");
-		assertNotNull(elm);
-		//
 		elm.setAttribute("data-color", "antiquewhite");
-		elm.getOverrideStyle(null).setCssText("background:attr(data-color color)");
-		CSSComputedProperties style = elm.getComputedStyle(null);
+		style = elm.getComputedStyle(null);
 		assertEquals("#faebd7", style.getPropertyValue("background"));
 		assertEquals("none", style.getPropertyValue("background-image"));
 		assertEquals("0% 0%", style.getPropertyValue("background-position"));
@@ -463,20 +473,21 @@ public class ComputedStyleAttrTest {
 		assertEquals("#faebd7", style.getPropertyValue("background-color"));
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		xhtmlDoc.getErrorHandler().reset();
 
 		// Nonexistent color
 		elm.setAttribute("data-color", "not-a-color");
 		style = elm.getComputedStyle(null);
-		assertEquals("#808000", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background"));
 		assertEquals("none", style.getPropertyValue("background-image"));
 		assertEquals("0% 0%", style.getPropertyValue("background-position"));
-		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("auto", style.getPropertyValue("background-size"));
 		assertEquals("padding-box", style.getPropertyValue("background-origin"));
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("#808000", style.getPropertyValue("background-color"));
+		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
@@ -487,15 +498,15 @@ public class ComputedStyleAttrTest {
 		// Wrong color
 		elm.setAttribute("data-color", "rgb(wrong)");
 		style = elm.getComputedStyle(null);
-		assertEquals("#808000", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background"));
 		assertEquals("none", style.getPropertyValue("background-image"));
 		assertEquals("0% 0%", style.getPropertyValue("background-position"));
-		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("auto", style.getPropertyValue("background-size"));
 		assertEquals("padding-box", style.getPropertyValue("background-origin"));
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("#808000", style.getPropertyValue("background-color"));
+		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
@@ -508,7 +519,7 @@ public class ComputedStyleAttrTest {
 		assertNotNull(elm);
 		//
 		elm.setAttribute("data-color", "antiquewhite");
-		elm.getOverrideStyle(null).setCssText("background:attr(data-color color, #f00)");
+		elm.getOverrideStyle(null).setCssText("background:attr(data-color type(<color>), #f00)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("#faebd7", style.getPropertyValue("background"));
 		assertEquals("none", style.getPropertyValue("background-image"));
@@ -521,7 +532,8 @@ public class ComputedStyleAttrTest {
 		assertEquals("#faebd7", style.getPropertyValue("background-color"));
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		xhtmlDoc.getErrorHandler().reset();
 
 		// Nonexistent color
 		elm.setAttribute("data-color", "not-a-color");
@@ -538,7 +550,7 @@ public class ComputedStyleAttrTest {
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 		xhtmlDoc.getErrorHandler().reset();
 
 		// Wrong color
@@ -556,7 +568,7 @@ public class ComputedStyleAttrTest {
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 	}
 
 	@Test
@@ -565,19 +577,21 @@ public class ComputedStyleAttrTest {
 		assertNotNull(elm);
 		//
 		elm.getOverrideStyle(null).setCssText(
-				"background:attr(data-color color, linear-gradient(35deg,#fa3 50%,transparent 0))");
+				"background:attr(data-color type(<color>), linear-gradient(35deg,#fa3 50%,transparent 0))");
 		CSSComputedProperties style = elm.getComputedStyle(null);
-		assertEquals("linear-gradient(35deg,#fa3 50%,transparent 0)",
-				style.getPropertyValue("background"));
-		assertEquals("linear-gradient(35deg, #fa3 50%, transparent 0)",
-				style.getPropertyValue("background-image"));
+		assertEquals("none", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
 		assertEquals("0% 0%", style.getPropertyValue("background-position"));
-		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("auto", style.getPropertyValue("background-size"));
 		assertEquals("padding-box", style.getPropertyValue("background-origin"));
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
 		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		xhtmlDoc.getErrorHandler().reset();
 
 		elm.setAttribute("data-color", "antiquewhite");
 		style = elm.getComputedStyle(null);
@@ -592,17 +606,16 @@ public class ComputedStyleAttrTest {
 		assertEquals("#faebd7", style.getPropertyValue("background-color"));
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		xhtmlDoc.getErrorHandler().reset();
 
 		// Nonexistent color
 		elm.setAttribute("data-color", "not-a-color");
 		style = elm.getComputedStyle(null);
-		assertEquals("linear-gradient(35deg,#fa3 50%,transparent 0)",
-				style.getPropertyValue("background"));
-		assertEquals("linear-gradient(35deg, #fa3 50%, transparent 0)",
-				style.getPropertyValue("background-image"));
+		assertEquals("none", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
 		assertEquals("0% 0%", style.getPropertyValue("background-position"));
-		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("auto", style.getPropertyValue("background-size"));
 		assertEquals("padding-box", style.getPropertyValue("background-origin"));
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
@@ -611,19 +624,17 @@ public class ComputedStyleAttrTest {
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 		xhtmlDoc.getErrorHandler().reset();
 
 		// Wrong color
 		elm.setAttribute("data-color", "rgb(wrong)");
 		style = elm.getComputedStyle(null);
-		assertEquals("linear-gradient(35deg,#fa3 50%,transparent 0)",
-				style.getPropertyValue("background"));
-		assertEquals("linear-gradient(35deg, #fa3 50%, transparent 0)",
-				style.getPropertyValue("background-image"));
+		assertEquals("none", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
 		assertEquals("0% 0%", style.getPropertyValue("background-position"));
-		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("auto", style.getPropertyValue("background-size"));
 		assertEquals("padding-box", style.getPropertyValue("background-origin"));
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
@@ -632,7 +643,7 @@ public class ComputedStyleAttrTest {
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 	}
 
 	@Test
@@ -640,7 +651,7 @@ public class ComputedStyleAttrTest {
 		CSSElement elm = xhtmlDoc.getElementById("h1");
 		assertNotNull(elm);
 		//
-		elm.getOverrideStyle(null).setCssText("background:attr(data-uri url, antiquewhite)");
+		elm.getOverrideStyle(null).setCssText("background:attr(data-uri type(<url>), antiquewhite)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("#faebd7", style.getPropertyValue("background"));
 		assertEquals("none", style.getPropertyValue("background-image"));
@@ -652,12 +663,12 @@ public class ComputedStyleAttrTest {
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
 		assertEquals("#faebd7", style.getPropertyValue("background-color"));
 
-		elm.setAttribute("data-uri", "foo.png");
+		elm.setAttribute("data-uri", "url('foo.png')");
 		style = elm.getComputedStyle(null);
-		assertEquals("url(\"foo.png\")", style.getPropertyValue("background"));
-		assertEquals("url(\"foo.png\")", style.getPropertyValue("background-image"));
+		assertEquals("none", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
 		assertEquals("0% 0%", style.getPropertyValue("background-position"));
-		assertEquals("auto auto", style.getPropertyValue("background-size"));
+		assertEquals("auto", style.getPropertyValue("background-size"));
 		assertEquals("padding-box", style.getPropertyValue("background-origin"));
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
@@ -665,7 +676,7 @@ public class ComputedStyleAttrTest {
 		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 	}
 
 	@Test
@@ -674,17 +685,21 @@ public class ComputedStyleAttrTest {
 		assertNotNull(elm);
 		//
 		elm.getOverrideStyle(null)
-				.setCssText("background:attr(data-color color, url('bkg.png') 40%/10em)");
+				.setCssText("background:attr(data-color type(<color>), url('bkg.png') 40%/10em)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
-		assertEquals("url('bkg.png') 40%/360pt", style.getPropertyValue("background"));
-		assertEquals("url('bkg.png')", style.getPropertyValue("background-image"));
-		assertEquals("40%", style.getPropertyValue("background-position"));
-		assertEquals("360pt", style.getPropertyValue("background-size"));
+		assertEquals("none", style.getPropertyValue("background"));
+		assertEquals("none", style.getPropertyValue("background-image"));
+		assertEquals("0% 0%", style.getPropertyValue("background-position"));
+		assertEquals("auto", style.getPropertyValue("background-size"));
 		assertEquals("padding-box", style.getPropertyValue("background-origin"));
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
 		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		xhtmlDoc.getErrorHandler().reset();
 
 		elm.setAttribute("data-color", "antiquewhite");
 		style = elm.getComputedStyle(null);
@@ -699,7 +714,7 @@ public class ComputedStyleAttrTest {
 		assertEquals("#faebd7", style.getPropertyValue("background-color"));
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 	}
 
 	@Test
@@ -758,7 +773,7 @@ public class ComputedStyleAttrTest {
 		assertNotNull(elm);
 		//
 		elm.getOverrideStyle(null)
-				.setCssText("grid: auto-flow 1fr 1fr / attr(data-flex flex, 1fr 2fr)");
+				.setCssText("grid: auto-flow 1fr 1fr / attr(data-flex type(<flex>), 1fr 2fr)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("auto-flow 1fr 1fr/1fr 2fr", style.getPropertyValue("grid"));
 		assertEquals("none", style.getPropertyValue("grid-template-areas"));
@@ -840,7 +855,7 @@ public class ComputedStyleAttrTest {
 		assertNotNull(elm);
 		//
 		elm.getOverrideStyle(null)
-				.setCssText("font:attr(data-weight ident, 400 80%/120% 'Delicious Handrawn')");
+				.setCssText("font:attr(data-weight type(<custom-ident>), 400 80%/120% 'Delicious Handrawn')");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("Delicious Handrawn", style.getPropertyValue("font-family"));
 		assertEquals("400", style.getPropertyValue("font-weight"));

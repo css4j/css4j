@@ -2185,14 +2185,14 @@ public class ComputedCSSStyleTest {
 		elm.setAttribute("data-method", "longer");
 		elm.setAttribute("data-pcnt1", "41%");
 		elm.getOverrideStyle(null).setCssText(
-				"color: color-mix(in HWB attr(data-method ident) hue, hwb(60.8 26% 24%) attr(data-pcnt1 percentage), hwb(90.3 40% 31%))");
+				"color: color-mix(in HWB attr(data-method type(<custom-ident>)) hue, hwb(60.8 26% 24%) attr(data-pcnt1 type(<percentage>)), hwb(90.3 40% 31%))");
 		style = elm.getComputedStyle(null);
 		assertEquals("hwb(225.805 34.26% 28.13%)", style.getPropertyValue("color"));
 
 		// Attr colorspace method, %
 		elm.setAttribute("data-space", "hwb");
 		elm.getOverrideStyle(null).setCssText(
-				"color: color-mix(in attr(data-space ident) attr(data-method ident) hue, hwb(60.8 26% 24%) attr(data-pcnt1 percentage), hwb(90.3 40% 31%))");
+				"color: color-mix(in attr(data-space type(<custom-ident>)) attr(data-method type(<custom-ident>)) hue, hwb(60.8 26% 24%) attr(data-pcnt1 type(<percentage>)), hwb(90.3 40% 31%))");
 		style = elm.getComputedStyle(null);
 		assertEquals("hwb(225.805 34.26% 28.13%)", style.getPropertyValue("color"));
 
@@ -2201,7 +2201,7 @@ public class ComputedCSSStyleTest {
 		elm.setAttribute("data-color2", "oklch(0.7118 0.1088 130.59)");
 		elm.setAttribute("data-pcnt2", "55");
 		elm.getOverrideStyle(null).setCssText(
-				"color: color-mix(in HWB,attr(data-color1 color) attr(data-pcnt1 percentage),attr(data-color2 color) attr(data-pcnt2 %))");
+				"color: color-mix(in HWB,attr(data-color1 type(<color>)) attr(data-pcnt1 type(<percentage>)),attr(data-color2 type(<color>)) attr(data-pcnt2 %))");
 		style = elm.getComputedStyle(null);
 		assertEquals("hwb(77.659 34% 28.01%)", style.getPropertyValue("color"));
 

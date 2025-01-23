@@ -24,13 +24,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSPropertyDefinition;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
-import io.sf.carte.doc.style.css.property.LexicalValue;
 
 public class BaseCSSStyleSheetFactoryTest {
 
@@ -87,15 +86,14 @@ public class BaseCSSStyleSheetFactoryTest {
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syntax = syntaxParser.parseSyntax("<length>");
 		CSSOMParser parser = new CSSOMParser();
-		LexicalValue value = new LexicalValue();
-		value.setLexicalUnit(parser.parsePropertyValue(new StringReader("18px")));
+		LexicalUnit value = parser.parsePropertyValue(new StringReader("18px"));
 		//
 		CSSPropertyDefinition definition = factory.createPropertyDefinition("--my-length", syntax, true, value);
 		assertNotNull(definition);
 		assertEquals("--my-length", definition.getName());
 		assertEquals("<length>", definition.getSyntax().toString());
 		assertTrue(definition.inherits());
-		CSSLexicalValue initial = definition.getInitialValue();
+		LexicalUnit initial = definition.getInitialValue();
 		assertNotNull(initial);
 		assertEquals("18px", initial.getCssText());
 	}
@@ -126,8 +124,7 @@ public class BaseCSSStyleSheetFactoryTest {
 		}
 		//
 		CSSOMParser parser = new CSSOMParser();
-		LexicalValue value = new LexicalValue();
-		value.setLexicalUnit(parser.parsePropertyValue(new StringReader("#bbb")));
+		LexicalUnit value = parser.parsePropertyValue(new StringReader("#bbb"));
 		try {
 			factory.createPropertyDefinition("--my-length", syntax, true, value);
 			fail("Must throw exception.");

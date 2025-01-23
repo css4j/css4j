@@ -17,11 +17,11 @@ import org.w3c.dom.DOMException;
  * This exception can be used to force a set of lexical units to be processed as
  * a lexical value.
  */
-class CSSLexicalProcessingException extends DOMException {
+public class CSSLexicalProcessingException extends DOMException {
 
 	private static final long serialVersionUID = 1L;
 
-	CSSLexicalProcessingException(String message) {
+	public CSSLexicalProcessingException(String message) {
 		super(DOMException.HIERARCHY_REQUEST_ERR, message);
 	}
 

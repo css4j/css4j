@@ -325,20 +325,16 @@ public interface CSSValue extends Cloneable {
 
 		/**
 		 * {@code attr()} function.
-		 * <p>
-		 * Cast to {@link CSSAttrValue} or
-		 * {@link io.sf.carte.doc.style.css.property.AttrValue AttrValue}.
-		 * </p>
+		 * @deprecated look for {@link CSSValue.Type#LEXICAL LEXICAL} instead.
 		 */
+		@Deprecated(forRemoval = true)
 		ATTR,
 
 		/**
 		 * Custom property reference.
-		 * <p>
-		 * Cast to {@link CSSVarValue} or
-		 * {@link io.sf.carte.doc.style.css.property.VarValue VarValue}.
-		 * </p>
+		 * @deprecated look for {@link CSSValue.Type#LEXICAL LEXICAL} instead.
 		 */
+		@Deprecated(forRemoval = true)
 		VAR,
 
 		/**

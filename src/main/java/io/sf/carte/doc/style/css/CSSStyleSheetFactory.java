@@ -18,6 +18,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
 import io.sf.carte.doc.agent.DeviceFactory;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 /**
  * CSS style sheet factory.
@@ -222,7 +223,7 @@ public interface CSSStyleSheetFactory {
 	 *                      the syntax.
 	 */
 	CSSPropertyDefinition createPropertyDefinition(String name, CSSValueSyntax syntax, boolean inherited,
-			CSSLexicalValue initialValue) throws DOMException;
+			LexicalUnit initialValue) throws DOMException;
 
 	/**
 	 * Get the style formatting factory to be used with this sheet factory.

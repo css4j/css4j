@@ -374,28 +374,6 @@ public class MathFunctionValueTest {
 	}
 
 	@Test
-	public void testSqrt() {
-		style.setCssText("foo: sqrt(.2 * calc(attr(foo) / 3))");
-		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
-		assertNotNull(val);
-		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
-		assertEquals("sqrt", val.getStringValue());
-		assertEquals("sqrt", val.getFunctionName());
-		assertEquals(MathFunction.SQRT, val.getFunction());
-		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
-
-		assertEquals("sqrt(0.2*calc(attr(foo)/3))", val.getCssText());
-		assertEquals("sqrt(.2*calc(attr(foo)/3))", val.getMinifiedCssText(""));
-
-		assertEquals(1, val.getArguments().size());
-		StyleValue arg = val.getArguments().get(0);
-		assertEquals(CssType.TYPED, arg.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
-		ExpressionValue calc = (ExpressionValue) arg;
-		assertEquals("0.2*calc(attr(foo)/3)", calc.getExpression().getCssText());
-	}
-
-	@Test
 	public void testClone() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("foo: sin(1.2 * 5deg); ");

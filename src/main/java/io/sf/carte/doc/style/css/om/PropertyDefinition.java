@@ -11,9 +11,9 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSPropertyDefinition;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 class PropertyDefinition implements CSSPropertyDefinition {
 
@@ -23,9 +23,9 @@ class PropertyDefinition implements CSSPropertyDefinition {
 
 	private final CSSValueSyntax syntax;
 
-	private final CSSLexicalValue initialValue;
+	private final LexicalUnit initialValue;
 
-	PropertyDefinition(String name, CSSValueSyntax syntax, boolean inherits, CSSLexicalValue initialValue) {
+	PropertyDefinition(String name, CSSValueSyntax syntax, boolean inherits, LexicalUnit initialValue) {
 		super();
 		this.name = name;
 		this.syntax = syntax;
@@ -44,7 +44,7 @@ class PropertyDefinition implements CSSPropertyDefinition {
 	}
 
 	@Override
-	public CSSLexicalValue getInitialValue() {
+	public LexicalUnit getInitialValue() {
 		return initialValue;
 	}
 

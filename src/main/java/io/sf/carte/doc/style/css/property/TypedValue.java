@@ -13,12 +13,8 @@ package io.sf.carte.doc.style.css.property;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.AlgebraicExpression;
-import io.sf.carte.doc.style.css.CSSExpression;
-import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.RGBAColor;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 /**
  * Base implementation for CSS typed values.
@@ -87,115 +83,6 @@ abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue
 	static boolean isCSSIdentifier(PrimitiveValue value, String ident) {
 		return value.getPrimitiveType() == Type.IDENT
 				&& ident.equalsIgnoreCase(((CSSTypedValue) value).getStringValue());
-	}
-
-	/**
-	 * Determine whether the given value is or contains a given primitive type.
-	 * 
-	 * @param value         the value to check.
-	 * @param primitiveType the primitive type.
-	 * @return <code>true</code> if the given value is or contains an enclosed value
-	 *         with that primitive type.
-	 */
-	static boolean isOrContainsType(StyleValue value, Type primitiveType) {
-		CssType type = value.getCssValueType();
-		if (value.isPrimitiveValue()) {
-			return isOrContainsType((CSSPrimitiveValue) value, primitiveType);
-		} else if (type == CssType.LIST) {
-			return listContainsType((ValueList) value, primitiveType);
-		}
-		return false;
-	}
-
-	/**
-	 * Determine whether the given list contains a value with the given primitive
-	 * type.
-	 * 
-	 * @param list          the list to check.
-	 * @param primitiveType the primitive type.
-	 * @return <code>true</code> if the list contains a value with that primitive
-	 *         type.
-	 */
-	private static boolean listContainsType(ValueList list, Type primitiveType) {
-		for (StyleValue value : list) {
-			if (isOrContainsType(value, primitiveType)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Determine whether the given value is or contains a given primitive type.
-	 * 
-	 * @param value         the value to check.
-	 * @param primitiveType the primitive type.
-	 * @return <code>true</code> if the given value is or contains an enclosed value
-	 *         with that primitive type.
-	 */
-	static boolean isOrContainsType(CSSPrimitiveValue value, Type primitiveType) {
-		Type pType;
-		pType = value.getPrimitiveType();
-		if (pType == primitiveType) {
-			return true;
-		} else if (pType == Type.FUNCTION || pType == Type.MATH_FUNCTION) {
-			return functionContainsType((FunctionValue) value, primitiveType);
-		} else if (pType == Type.EXPRESSION) {
-			return expressionContainsType(((ExpressionValue) value).getExpression(), primitiveType);
-		} else if (pType == Type.VAR) {
-			LexicalUnit fallback = ((VarValue) value).getFallback();
-			return fallback != null && isOrContainsType(fallback, primitiveType);
-		}
-		return false;
-	}
-
-	private static boolean functionContainsType(FunctionValue function, Type primitiveType) {
-		LinkedCSSValueList list = function.getArguments();
-		for (StyleValue value : list) {
-			if (isOrContainsType(value, primitiveType)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private static boolean expressionContainsType(CSSExpression expr, Type primitiveType) {
-		switch (expr.getPartType()) {
-		case SUM:
-		case PRODUCT:
-			AlgebraicExpression ae = (AlgebraicExpression) expr;
-			int len = ae.getLength();
-			for (int i = 0; i < len; i++) {
-				if (expressionContainsType(ae.item(i), primitiveType)) {
-					return true;
-				}
-			}
-			break;
-		case OPERAND:
-			OperandExpression operand = (OperandExpression) expr;
-			CSSPrimitiveValue primi = operand.getOperand();
-			if (isOrContainsType(primi, primitiveType)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private static boolean isOrContainsType(LexicalUnit lunit, Type primitiveType) {
-		if (primitiveType == Type.ATTR) {
-			return hasLexicalUnitType(lunit, LexicalUnit.LexicalType.ATTR);
-		}
-		return false;
-	}
-
-	private static boolean hasLexicalUnitType(LexicalUnit lunit, LexicalUnit.LexicalType unitType) {
-		do {
-			if (lunit.getLexicalUnitType() == unitType) {
-				return true;
-			}
-			lunit = lunit.getNextLexicalUnit();
-		} while (lunit != null);
-		return false;
 	}
 
 	/**

@@ -30,6 +30,7 @@ abstract public class ProxyValue extends PrimitiveValue {
 
 	protected ProxyValue(ProxyValue copied) {
 		super(copied);
+		this.expectInteger = copied.expectInteger;
 	}
 
 	@Override

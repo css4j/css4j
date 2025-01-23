@@ -45,6 +45,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 	protected ExpressionValue(ExpressionValue copied) {
 		super(copied);
 		this.expression = copied.expression.clone();
+		this.roundResult = copied.roundResult;
 	}
 
 	@Override

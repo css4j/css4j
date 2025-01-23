@@ -100,15 +100,15 @@ public class ElementReferenceValueTest {
 	@Test
 	public void testParseLexicalAttrId() {
 		BaseCSSStyleDeclaration style = createStyleDeclaration();
-		style.setCssText("background-image: element(attr(data-id ident));");
+		style.setCssText("background-image: element(attr(data-id type(<custom-ident>)));");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
 		assertNotNull(cssval);
 
 		assertEquals(CssType.PROXY, cssval.getCssValueType());
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
 
-		assertEquals("element(attr(data-id ident))", cssval.getCssText());
-		assertEquals("background-image:element(attr(data-id ident))", style.getMinifiedCssText());
+		assertEquals("element(attr(data-id type(<custom-ident>)))", cssval.getCssText());
+		assertEquals("background-image:element(attr(data-id type(<custom-ident>)))", style.getMinifiedCssText());
 
 		// Syntax matching
 		SyntaxParser syntaxParser = new SyntaxParser();

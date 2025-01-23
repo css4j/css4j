@@ -11,20 +11,22 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.css.CSSStyleSheet;
 
@@ -33,6 +35,7 @@ import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSPropertyDefinition;
@@ -43,10 +46,9 @@ import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
-import io.sf.carte.doc.style.css.property.LexicalValue;
-import io.sf.carte.doc.style.css.property.NumberValue;
 
 public class ComputedCustomPropertyTest {
 
@@ -90,13 +92,14 @@ public class ComputedCustomPropertyTest {
 		assertEquals(
 				"display:block;unicode-bidi:embed;margin-bottom:36pt;margin-left:8pt;margin-top:24pt;background-position:20% 0%;padding-left:calc(10% - 36pt - 12pt);--foo:8pt;",
 				style.getMinifiedCssText());
-		//
+
 		CSSElement listpara = xhtmlDoc.getElementById("listpara");
 		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo,1vb)");
 		style = listpara.getComputedStyle(null);
-		CSSTypedValue customProperty = (CSSTypedValue) style.getPropertyCSSValue("--foo");
+		LexicalUnit customProperty = ((CSSLexicalValue) style.getPropertyCSSValue("--foo")).getLexicalUnit();
 		assertNotNull(customProperty);
-		assertEquals(8f, customProperty.getFloatValue(CSSUnit.CSS_PT), 1e-6f);
+		assertEquals(CSSUnit.CSS_PT, customProperty.getCssUnit());
+		assertEquals(8f, customProperty.getFloatValue(), 1e-6f);
 		CSSTypedValue fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertEquals(8f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
@@ -198,7 +201,7 @@ public class ComputedCustomPropertyTest {
 		// Prepare @property rule
 		xhtmlDoc.getStyleSheet().insertRule(
 				"@property --foo {syntax: '<length>'; inherits: false; initial-value:15pt;}", 0);
-		//
+
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		/*
 		 * custom property substitution.
@@ -209,29 +212,31 @@ public class ComputedCustomPropertyTest {
 		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,7pt)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(7f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,1vb);--foo:8pt");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(8f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		CSSElement listpara = xhtmlDoc.getElementById("listpara");
 		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo,19pt)");
 		style = listpara.getComputedStyle(null);
-		CSSTypedValue customProperty = (CSSTypedValue) style.getPropertyCSSValue("--foo");
+		CSSLexicalValue customProperty = (CSSLexicalValue) style.getPropertyCSSValue("--foo");
 		assertNotNull(customProperty);
-		assertEquals(15f, customProperty.getFloatValue(CSSUnit.CSS_PT), 1e-6f);
+		assertEquals(15f, customProperty.getLexicalUnit().getFloatValue(), 1e-6f);
+		assertEquals(CSSUnit.CSS_PT, customProperty.getLexicalUnit().getCssUnit());
 		CSSTypedValue fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(19f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		// Ignore fallback
+		assertEquals(15f, fontSize.getFloatValue(CSSUnit.CSS_PT), 1e-4f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		/*
@@ -246,6 +251,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * Same as above, with custom property set in parent style, fallback
 		 */
@@ -254,9 +260,10 @@ public class ComputedCustomPropertyTest {
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,21pt)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(21f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * custom property substitution, var() in fallback.
 		 */
@@ -266,13 +273,14 @@ public class ComputedCustomPropertyTest {
 		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * custom property substitution, var() in fallback, fallback-of-fallback.
 		 */
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--no-way,var(--foo,17pt));");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(17f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 	}
@@ -282,7 +290,7 @@ public class ComputedCustomPropertyTest {
 		// Prepare @property rule
 		xhtmlDoc.getStyleSheet().insertRule(
 				"@property --foo {syntax: '<length>'; inherits: false; initial-value:15pt;}", 0);
-		//
+
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		/*
 		 * custom property substitution.
@@ -293,33 +301,35 @@ public class ComputedCustomPropertyTest {
 		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,7pt)");
 		style = (ComputedCSSStyle) elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getCascadedValue("margin-left");
-		assertEquals(7f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-4f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,1vb);--foo:8pt");
 		style = (ComputedCSSStyle) elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getCascadedValue("margin-left");
 		assertEquals(8f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		CSSElement listpara = xhtmlDoc.getElementById("listpara");
 		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo,19pt)");
 		style = (ComputedCSSStyle) listpara.getComputedStyle(null);
-		NumberValue customProperty = (NumberValue) style.getPropertyCSSValue("--foo");
+		LexicalUnit customProperty = ((CSSLexicalValue) style.getPropertyCSSValue("--foo")).getLexicalUnit();
 		assertNotNull(customProperty);
-		assertEquals(Type.NUMERIC, customProperty.getPrimitiveType());
-		assertEquals(CSSUnit.CSS_PT, customProperty.getUnitType());
-		assertEquals(15f, customProperty.getFloatValue(CSSUnit.CSS_PT), 1e-6f);
+		assertEquals(LexicalType.DIMENSION, customProperty.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PT, customProperty.getCssUnit());
+		assertEquals(15f, customProperty.getFloatValue(), 1e-6f);
+
 		CSSTypedValue fontSize = (CSSTypedValue) style.getCascadedValue("font-size");
-		assertEquals(19f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * Same as above, with custom property set in parent style
 		 */
@@ -332,17 +342,19 @@ public class ComputedCustomPropertyTest {
 		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
-		 * Same as above, with custom property set in parent style, fallback
+		 * Same as above, with custom property set in parent style, ignore fallback
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		body = (CSSElement) elm.getParentNode();
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,21pt)");
 		style = (ComputedCSSStyle) elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getCascadedValue("margin-left");
-		assertEquals(21f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * custom property substitution, var() in fallback.
 		 */
@@ -352,13 +364,14 @@ public class ComputedCustomPropertyTest {
 		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * custom property substitution, var() in fallback, fallback-of-fallback.
 		 */
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--no-way,var(--foo,17pt));");
 		style = (ComputedCSSStyle) elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getCascadedValue("margin-left");
-		assertEquals(17f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 	}
@@ -369,15 +382,13 @@ public class ComputedCustomPropertyTest {
 		// Prepare property definition
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		//
+
 		CSSOMParser parser = new CSSOMParser();
 		LexicalUnit lunit = parser.parsePropertyValue(new StringReader("15pt"));
-		LexicalValue value = new LexicalValue();
-		value.setLexicalUnit(lunit);
 		CSSPropertyDefinition pdef = xhtmlDoc.getStyleSheet().getStyleSheetFactory()
-				.createPropertyDefinition("--foo", syn, false, value);
+				.createPropertyDefinition("--foo", syn, false, lunit);
 		xhtmlDoc.registerProperty(pdef);
-		//
+
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		/*
 		 * custom property substitution.
@@ -388,31 +399,34 @@ public class ComputedCustomPropertyTest {
 		assertEquals(15f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		elm.getOverrideStyle(null).setCssText("font-size:var(--foo,7pt)");
 		style = elm.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(7f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		elm.getOverrideStyle(null).setCssText("font-size:var(--foo,1vb);--foo:8pt");
 		style = elm.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertEquals(8f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		CSSElement listpara = xhtmlDoc.getElementById("listpara");
 		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo,19pt)");
 		style = listpara.getComputedStyle(null);
-		CSSTypedValue customProperty = (CSSTypedValue) style.getPropertyCSSValue("--foo");
+		LexicalUnit customProperty = ((CSSLexicalValue) style.getPropertyCSSValue("--foo")).getLexicalUnit();
 		assertNotNull(customProperty);
-		assertEquals(15f, customProperty.getFloatValue(CSSUnit.CSS_PT), 1e-6f);
+		assertEquals(CSSUnit.CSS_PT, customProperty.getCssUnit());
+		assertEquals(15f, customProperty.getFloatValue(), 1e-6f);
+
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(19f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * Same as above, with custom property set in parent style
 		 */
@@ -425,17 +439,19 @@ public class ComputedCustomPropertyTest {
 		assertEquals(15f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
-		 * Same as above, with custom property set in parent style, fallback
+		 * Same as above, with custom property set in parent style, ignore fallback
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		body = (CSSElement) elm.getParentNode();
 		elm.getOverrideStyle(null).setCssText("font-size:var(--foo,21pt)");
 		style = elm.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(21f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * custom property substitution, var() in fallback.
 		 */
@@ -445,13 +461,48 @@ public class ComputedCustomPropertyTest {
 		assertEquals(15f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * custom property substitution, var() in fallback, fallback-of-fallback.
 		 */
 		elm.getOverrideStyle(null).setCssText("font-size:var(--no-way,var(--foo,17pt));");
 		style = elm.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(17f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(15f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+	}
+
+	@Test
+	public void getComputedStyleCustomPropertiesMarginShorthand() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+
+		/*
+		 * double custom property and margin.
+		 */
+		elm.getOverrideStyle(null).setCssText("margin:var(--foo) var(--foo);--foo:8pt");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(8f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
+		/*
+		 * four var() and margin.
+		 */
+		elm.getOverrideStyle(null).setCssText(
+				"margin:var(--foo) var(--bar) var(--bar) var(--foo);--foo:8pt;--bar:10pt;");
+		style = elm.getComputedStyle(null);
+		CSSTypedValue marginSide = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
+		assertEquals(8f, marginSide.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		marginSide = (CSSTypedValue) style.getPropertyCSSValue("margin-right");
+		assertEquals(10f, marginSide.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		marginSide = (CSSTypedValue) style.getPropertyCSSValue("margin-bottom");
+		assertEquals(10f, marginSide.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		marginSide = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(8f, marginSide.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 	}
@@ -461,7 +512,7 @@ public class ComputedCustomPropertyTest {
 		// Prepare @property rule
 		xhtmlDoc.getStyleSheet().insertRule(
 				"@property --foo {syntax: '<length>'; inherits: false; initial-value:8.5pt;}", 0);
-		//
+
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		/*
 		 * custom property shorthand substitution.
@@ -475,16 +526,17 @@ public class ComputedCustomPropertyTest {
 		assertEquals(8.5f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
+		// The fallback must be ignored
 		elm.getOverrideStyle(null).setCssText("margin:var(--foo,29pt)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(29f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(8.5f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
-		assertEquals(29f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(8.5f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		CSSElement listpara = xhtmlDoc.getElementById("listpara");
 		listpara.getOverrideStyle(null).setCssText("font:var(--foo) 'Sans Serif'");
 		style = listpara.getComputedStyle(null);
@@ -492,6 +544,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals(8.5f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * Same as above, with custom property set in parent style
 		 */
@@ -499,9 +552,9 @@ public class ComputedCustomPropertyTest {
 		elm.getOverrideStyle(null).setCssText("margin:var(--foo,13pt);");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(13f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
+		assertEquals(8.5f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
-		assertEquals(13f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
+		assertEquals(8.5f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 	}
@@ -511,7 +564,7 @@ public class ComputedCustomPropertyTest {
 		// Prepare @property rule
 		xhtmlDoc.getStyleSheet().insertRule(
 				"@property --foo {syntax: '<length>'; inherits: false; initial-value:8.5pt;}", 0);
-		//
+
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		CSSElement listpara = xhtmlDoc.getElementById("listpara");
 		/*
@@ -524,13 +577,14 @@ public class ComputedCustomPropertyTest {
 		assertEquals(8.5f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		listpara.getOverrideStyle(null).setCssText("font:var(--foo,29pt) 'Sans Serif'");
 		style = listpara.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(29f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(8.5f, fontSize.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * Same as above, with custom property set in parent style
 		 */
@@ -538,15 +592,8 @@ public class ComputedCustomPropertyTest {
 		elm.getOverrideStyle(null).setCssText("font:var(--foo,3em) 'Sans Serif'");
 		style = elm.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(36f, fontSize.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
-		listpara.getOverrideStyle(null).setCssText("font:var(--foo) 'Sans Serif'");
-		style = listpara.getComputedStyle(null);
-		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertEquals(8.5f, fontSize.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 	}
 
@@ -648,7 +695,7 @@ public class ComputedCustomPropertyTest {
 		CSSTypedValue opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
 		assertEquals(CSSUnit.CSS_NUMBER, opacity.getUnitType());
 		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
@@ -667,7 +714,7 @@ public class ComputedCustomPropertyTest {
 		opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
 		assertEquals(CSSUnit.CSS_NUMBER, opacity.getUnitType());
 		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
@@ -685,7 +732,7 @@ public class ComputedCustomPropertyTest {
 		opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
 		assertEquals(CSSUnit.CSS_NUMBER, opacity.getUnitType());
 		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
@@ -703,7 +750,7 @@ public class ComputedCustomPropertyTest {
 		opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
 		assertEquals(CSSUnit.CSS_NUMBER, opacity.getUnitType());
 		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
@@ -720,7 +767,7 @@ public class ComputedCustomPropertyTest {
 		style = elm.getComputedStyle(null);
 		opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
 		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
@@ -737,7 +784,7 @@ public class ComputedCustomPropertyTest {
 		style = elm.getComputedStyle(null);
 		opacity = (CSSTypedValue) style.getPropertyCSSValue("opacity");
 		assertEquals(1f, opacity.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
@@ -799,7 +846,7 @@ public class ComputedCustomPropertyTest {
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		CSSValue value = style.getPropertyCSSValue("--bar");
 		assertNotNull(value);
-		assertEquals(Type.UNSET, value.getPrimitiveType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
 		CSSTypedValue marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
 		assertEquals(0f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
@@ -813,7 +860,7 @@ public class ComputedCustomPropertyTest {
 		style = elm.getComputedStyle(null);
 		value = style.getPropertyCSSValue("--bar");
 		assertNotNull(value);
-		assertEquals(Type.INITIAL, value.getPrimitiveType());
+		assertEquals(Type.LEXICAL, value.getPrimitiveType());
 		marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
 		assertEquals(0f, marginTop.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
@@ -870,7 +917,7 @@ public class ComputedCustomPropertyTest {
 		CSSTypedValue fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertEquals(16f, fontSize.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertEquals(16f, style.getComputedFontSize(), 1e-6f);
-		//
+
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 		/*
@@ -881,30 +928,32 @@ public class ComputedCustomPropertyTest {
 		style = elm.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertEquals(16f, fontSize.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		//
+
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-		//
+
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		assertEquals(16f, style.getComputedFontSize(), 1e-6f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
 		/*
-		 * font-size custom property fallback: initial.
+		 * font-size custom property fallback: 'initial' ignored.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		elm.getOverrideStyle(null).setCssText("font-size:var(--foo,initial);--foo:var(--bar)");
 		style = elm.getComputedStyle(null);
 		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
 		assertNotNull(fontSize);
-		assertEquals(Type.IDENT, fontSize.getPrimitiveType());
-		assertEquals("medium", fontSize.getStringValue());
-		//
+		assertEquals(Type.NUMERIC, fontSize.getPrimitiveType());
+		assertEquals(16f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		assertEquals(12f, style.getComputedFontSize(), 1e-5f);
+
+		assertEquals(16f, style.getComputedFontSize(), 1e-5f);
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
 	}
@@ -912,37 +961,31 @@ public class ComputedCustomPropertyTest {
 	@Test
 	public void getComputedStyleCustomPropertiesNoCustomError() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
-		/*
-		 * parent expects integer.
-		 */
+
+		// var() cannot point to a standard property
 		elm.getOverrideStyle(null).setCssText("text-indent:var(margin-left);");
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		List<CSSParseException> errors = ((DefaultStyleDeclarationErrorHandler) xhtmlDoc
+				.getErrorHandler().getInlineStyleErrorHandler(elm)).getSACErrors();
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+		Iterator<CSSParseException> errptyIt = errors.iterator();
+		assertEquals(17, errptyIt.next().getColumnNumber());
+		xhtmlDoc.getErrorHandler().reset();
+
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		CSSTypedValue textIndent = (CSSTypedValue) style.getPropertyCSSValue("text-indent");
 		assertEquals(0f, textIndent.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
-				.getErrorHandler()).getComputedStyleErrors(elm);
-		assertNotNull(errors);
-		assertEquals(1, errors.size());
-		Iterator<String> errptyIt = errors.keySet().iterator();
-		assertEquals("text-indent", errptyIt.next());
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		//
+
 		CSSElement listpara = xhtmlDoc.getElementById("listpara");
 		style = listpara.getComputedStyle(null);
 		textIndent = (CSSTypedValue) style.getPropertyCSSValue("text-indent");
 		assertNotNull(textIndent);
 		assertEquals(0f, textIndent.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
-		assertNotNull(errors);
-		assertEquals(1, errors.size());
-		errptyIt = errors.keySet().iterator();
-		assertEquals("text-indent", errptyIt.next());
+
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 	}
 
 	@Test
@@ -958,7 +1001,7 @@ public class ComputedCustomPropertyTest {
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		CSSTypedValue textIndent = (CSSTypedValue) style.getPropertyCSSValue("text-indent");
 		assertEquals(0f, textIndent.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
@@ -968,13 +1011,13 @@ public class ComputedCustomPropertyTest {
 		Iterator<String> errptyIt = errors.keySet().iterator();
 		assertEquals("text-indent", errptyIt.next());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		//
+
 		CSSElement listpara = xhtmlDoc.getElementById("listpara");
 		style = listpara.getComputedStyle(null);
 		textIndent = (CSSTypedValue) style.getPropertyCSSValue("text-indent");
 		assertNotNull(textIndent);
 		assertEquals(0f, textIndent.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
@@ -995,7 +1038,7 @@ public class ComputedCustomPropertyTest {
 		CSSTypedValue columnCount = (CSSTypedValue) style.getPropertyCSSValue("column-count");
 		assertEquals(Type.IDENT, columnCount.getPrimitiveType());
 		assertEquals("auto", columnCount.getStringValue());
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
@@ -1017,7 +1060,7 @@ public class ComputedCustomPropertyTest {
 		CSSTypedValue columnCount = (CSSTypedValue) style.getPropertyCSSValue("column-count");
 		assertEquals(Type.IDENT, columnCount.getPrimitiveType());
 		assertEquals("auto", columnCount.getStringValue());
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
@@ -1039,7 +1082,7 @@ public class ComputedCustomPropertyTest {
 		CSSTypedValue columnCount = (CSSTypedValue) style.getPropertyCSSValue("column-count");
 		assertEquals(Type.IDENT, columnCount.getPrimitiveType());
 		assertEquals("auto", columnCount.getStringValue());
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
@@ -1066,25 +1109,26 @@ public class ComputedCustomPropertyTest {
 	@Test
 	public void getComputedStyleCustomPropertiesCircularity() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
+
 		/*
 		 * custom property circular dependency, fallback used.
 		 */
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo,9pt);--foo:var(--foo)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
-		assertNull(style.getPropertyCSSValue("--foo"));
+		assertEquals("var(--foo)", style.getPropertyValue("--foo"));
+
+		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		//
-		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(9f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
-		assertNotNull(errors);
-		assertEquals(1, errors.size());
+
+		CSSPropertyValueException ex = errors.values().iterator().next();
+		assertNull(ex.getCause()); // No cause = circularity
+
 		/*
 		 * custom property circular dependency, no fallback.
 		 */
@@ -1093,7 +1137,7 @@ public class ComputedCustomPropertyTest {
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
@@ -1103,6 +1147,7 @@ public class ComputedCustomPropertyTest {
 	@Test
 	public void getComputedStyleCustomPropertiesCircularity2() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
+
 		/*
 		 * custom property circular dependency in ancestor, no fallback (I).
 		 */
@@ -1112,15 +1157,19 @@ public class ComputedCustomPropertyTest {
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(docelm));
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
-				.getErrorHandler()).getComputedStyleErrors(docelm);
+				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
+
+		CSSPropertyValueException ex = errors.values().iterator().next();
+		assertNull(ex.getCause()); // No cause = circularity
+
 		/*
-		 * custom property, check for bogus circular dependency with ancestor, no
+		 * custom property, check for circular dependency with ancestor, no
 		 * fallback.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
@@ -1129,7 +1178,11 @@ public class ComputedCustomPropertyTest {
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
+		ex = errors.values().iterator().next();
+		assertNull(ex.getCause()); // No cause = circularity
+
 		/*
 		 * custom property circular dependency in ancestor, fallback.
 		 */
@@ -1138,13 +1191,15 @@ public class ComputedCustomPropertyTest {
 		elm.getOverrideStyle(null).setCssText("margin-left:var(--foo);");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(2f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		//
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(docelm));
-		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(docelm);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
+		Iterator<String> it = errors.keySet().iterator();
+		assertEquals("margin-left", it.next());
 	}
 
 	@Test
@@ -1158,19 +1213,26 @@ public class ComputedCustomPropertyTest {
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		CSSTypedValue marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
-		assertEquals(7f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertEquals(7f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(0f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
-		assertEquals(1, errors.size());
+		assertEquals(2, errors.size());
+		Iterator<String> it = errors.keySet().iterator();
+		assertEquals("margin-left", it.next());
+		assertEquals("margin-top", it.next());
+
+		CSSPropertyValueException ex = errors.values().iterator().next();
+		assertNull(ex.getCause()); // No cause = circularity
 	}
 
 	@Test
 	public void getComputedStyleCustomPropertiesCircularityCalc() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
+
 		/*
 		 * custom property inside calc(), circular dependency.
 		 */
@@ -1178,16 +1240,24 @@ public class ComputedCustomPropertyTest {
 		elm.getOverrideStyle(null)
 				.setCssText("margin-left:calc(2*var(--foo,5pt));--foo:var(--foo)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertEquals(10f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
+		// Missing operand error overwrites the circularity error
 		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
+
+		CSSPropertyValueException ex = errors.values().iterator().next();
+		assertEquals(DOMException.class, ex.getCause().getClass());
+		DOMException dex = (DOMException) ex.getCause();
+		assertEquals(DOMException.SYNTAX_ERR, dex.code);
+
 		/*
 		 * custom property inside calc(), shorthand property, circular dependency.
 		 */
@@ -1197,14 +1267,15 @@ public class ComputedCustomPropertyTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		CSSTypedValue marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
-		assertEquals(10f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertEquals(10f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(0f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
-		assertEquals(1, errors.size());
+		assertEquals(2, errors.size());
+
 		/*
 		 * Same as above, with custom property set in parent style
 		 */
@@ -1216,19 +1287,23 @@ public class ComputedCustomPropertyTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
-		assertEquals(10f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertEquals(10f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(body));
+		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(0f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(body);
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
-		assertEquals(1, errors.size());
+		assertEquals(2, errors.size());
+		Iterator<String> errit = errors.keySet().iterator();
+		assertEquals("margin-left", errit.next());
+		assertEquals("margin-top", errit.next());
 	}
 
 	@Test
 	public void getComputedStyleCustomPropertiesCircularityCalc2() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
+
 		/*
 		 * custom property inside calc(), circular dependency, no fallback.
 		 */
@@ -1238,15 +1313,15 @@ public class ComputedCustomPropertyTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
-		assertEquals(2, errors.size());
+		assertEquals(1, errors.size());
 		Iterator<String> errptyIt = errors.keySet().iterator();
 		assertEquals("margin-left", errptyIt.next());
-		assertEquals("--foo", errptyIt.next());
+
 		/*
 		 * custom property inside calc(), shorthand, circular dependency, no fallback.
 		 */
@@ -1258,18 +1333,19 @@ public class ComputedCustomPropertyTest {
 		CSSTypedValue marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertEquals(0f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
-		assertEquals(1, errors.size());
+		assertEquals(2, errors.size());
 		errptyIt = errors.keySet().iterator();
-		assertEquals("--foo", errptyIt.next());
+		assertEquals("margin-left", errptyIt.next());
 	}
 
 	@Test
 	public void getComputedStyleCustomPropertiesCircularity3() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
+
 		/*
 		 * custom property circular dependency, no fallback.
 		 */
@@ -1280,14 +1356,18 @@ public class ComputedCustomPropertyTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
 		Iterator<String> it = errors.keySet().iterator();
-		assertEquals("--foo", it.next());
+		assertEquals("margin-left", it.next());
+
+		CSSPropertyValueException ex = errors.values().iterator().next();
+		assertNull(ex.getCause()); // No cause = circularity
+
 		/*
 		 * custom property circular dependency, shorthand, no fallback.
 		 */
@@ -1300,21 +1380,23 @@ public class ComputedCustomPropertyTest {
 		CSSTypedValue marginTop = (CSSTypedValue) style.getPropertyCSSValue("margin-top");
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertEquals(0f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
-		assertEquals(1, errors.size());
+		assertEquals(2, errors.size());
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
-		assertEquals(1, errors.size());
+		assertEquals(2, errors.size());
 		it = errors.keySet().iterator();
-		assertEquals("--foo", it.next());
+		assertEquals("margin-left", it.next());
+		assertEquals("margin-top", it.next());
 	}
 
 	@Test
 	public void getComputedStyleCustomPropertiesCircularity4() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
+
 		/*
 		 * custom property circular dependency, no fallback, inherited value used.
 		 */
@@ -1329,7 +1411,7 @@ public class ComputedCustomPropertyTest {
 		textIndent = (CSSTypedValue) style.getPropertyCSSValue("text-indent");
 		assertNotNull(textIndent);
 		assertEquals(1f, textIndent.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
@@ -1337,7 +1419,11 @@ public class ComputedCustomPropertyTest {
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
 		Iterator<String> errptyIt = errors.keySet().iterator();
-		assertEquals("--foo", errptyIt.next());
+		assertEquals("text-indent", errptyIt.next());
+
+		CSSPropertyValueException ex = errors.values().iterator().next();
+		assertNull(ex.getCause()); // No cause = circularity
+
 		/*
 		 * custom property circular dependency, shorthand, no fallback, inherited value
 		 * used.
@@ -1352,7 +1438,7 @@ public class ComputedCustomPropertyTest {
 		typed = (CSSTypedValue) style.getPropertyCSSValue("text-emphasis-style");
 		assertNotNull(typed);
 		assertEquals("open", typed.getStringValue());
-		//
+
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler())
@@ -1360,7 +1446,8 @@ public class ComputedCustomPropertyTest {
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
 		errptyIt = errors.keySet().iterator();
-		assertEquals("--foo", errptyIt.next());
+		assertEquals("text-emphasis-style", errptyIt.next());
+
 		/*
 		 * custom property substitution in list.
 		 */
@@ -1375,8 +1462,168 @@ public class ComputedCustomPropertyTest {
 	}
 
 	@Test
-	public void getComputedStyleCustomPropertiesCircularityEmpty() {
+	public void getComputedStyleCustomPropertiesCircularityFont() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
+
+		/*
+		 * font-size custom property circular dependency, no fallback, inherited value
+		 * used.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("font-size:21pt");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertEquals(21f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(21f, style.getComputedFontSize(), 1e-6f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		CSSElement listpara = xhtmlDoc.getElementById("listpara");
+		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo);--foo:var(--foo)");
+		style = listpara.getComputedStyle(null);
+		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertNotNull(fontSize);
+		assertEquals(21f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(listpara));
+		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+				.getErrorHandler()).getComputedStyleErrors(listpara);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+
+		CSSPropertyValueException ex = errors.values().iterator().next();
+		assertNull(ex.getCause()); // No cause = circularity
+
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		assertEquals(21f, style.getComputedFontSize(), 1e-6f);
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		/*
+		 * font shorthand custom property circular dependency, no fallback, inherited
+		 * value used.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("font:17pt Sans Serif");
+		style = elm.getComputedStyle(null);
+		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertEquals(17f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(17f, style.getComputedFontSize(), 1e-6f);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		listpara.getOverrideStyle(null).setCssText("font:var(--foo);--foo:var(--foo)");
+		style = listpara.getComputedStyle(null);
+		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertNotNull(fontSize);
+		assertEquals(17f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler())
+				.getComputedStyleErrors(listpara);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+		Iterator<String> errptyIt = errors.keySet().iterator();
+		assertEquals("font-size", errptyIt.next());
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		assertEquals(17f, style.getComputedFontSize(), 1e-6f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		/*
+		 * font-size custom property circular dependency, fallback ignored.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("font-size:var(--foo,9pt);--foo:var(--foo)");
+		style = elm.getComputedStyle(null);
+		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertEquals(12f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		assertEquals(12f, style.getComputedFontSize(), 1e-6f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		/*
+		 * font shorthand custom property circular dependency, fallback ignored.
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("font:var(--foo,9pt) Arial;--foo:var(--foo)");
+		style = elm.getComputedStyle(null);
+		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertEquals(12f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+		assertEquals(12f, style.getComputedFontSize(), 1e-6f);
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+
+		/*
+		 * font-size custom property circular dependency, no fallback, inherited value
+		 * used (II).
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("font-size:var(--foo);--foo:var(--foo)");
+		style = elm.getComputedStyle(null);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertEquals(12f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+		assertEquals("font-size", errors.keySet().iterator().next());
+
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		assertEquals(12f, style.getComputedFontSize(), 1e-6f);
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+
+		/*
+		 * font shorthand custom property circular dependency, no fallback, inherited
+		 * value used (II).
+		 */
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		elm.getOverrideStyle(null).setCssText("font:var(--foo);--foo:var(--foo)");
+		style = elm.getComputedStyle(null);
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
+		assertEquals(12f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
+
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
+		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
+		assertNotNull(errors);
+		assertEquals(1, errors.size());
+		errptyIt = errors.keySet().iterator();
+		assertEquals("font-size", errptyIt.next());
+
+		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+		assertEquals(12f, style.getComputedFontSize(), 1e-6f);
+		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
+	}
+
+	@Test
+	public void getComputedStyleCustomPropertiesEmpty() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+
 		/*
 		 * empty custom property substitution.
 		 */
@@ -1388,6 +1635,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals("10px 5px 5px blue", boxShadow.getCssText());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * double empty custom property substitution.
 		 */
@@ -1399,6 +1647,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals("10px 5px 5px blue", boxShadow.getCssText());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * triple empty custom property substitution.
 		 */
@@ -1413,156 +1662,7 @@ public class ComputedCustomPropertyTest {
 	}
 
 	@Test
-	public void getComputedStyleCustomPropertiesCircularityFont() {
-		CSSElement elm = xhtmlDoc.getElementById("div1");
-		/*
-		 * font-size custom property circular dependency, no fallback, inherited value
-		 * used.
-		 */
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("font-size:21pt");
-		CSSComputedProperties style = elm.getComputedStyle(null);
-		CSSTypedValue fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(21f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertEquals(21f, style.getComputedFontSize(), 1e-6f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-		//
-		CSSElement listpara = xhtmlDoc.getElementById("listpara");
-		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo);--foo:var(--foo)");
-		style = listpara.getComputedStyle(null);
-		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertNotNull(fontSize);
-		assertEquals(21f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(listpara));
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
-				.getErrorHandler()).getComputedStyleErrors(listpara);
-		assertNotNull(errors);
-		assertEquals(1, errors.size());
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		assertEquals(21f, style.getComputedFontSize(), 1e-6f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-		/*
-		 * font shorthand custom property circular dependency, no fallback, inherited
-		 * value used.
-		 */
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("font:17pt Sans Serif");
-		style = elm.getComputedStyle(null);
-		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(17f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertEquals(17f, style.getComputedFontSize(), 1e-6f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-		//
-		listpara.getOverrideStyle(null).setCssText("font:var(--foo);--foo:var(--foo)");
-		style = listpara.getComputedStyle(null);
-		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertNotNull(fontSize);
-		assertEquals(17f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler())
-				.getComputedStyleErrors(listpara);
-		assertNotNull(errors);
-		assertEquals(1, errors.size());
-		Iterator<String> errptyIt = errors.keySet().iterator();
-		assertEquals("--foo", errptyIt.next());
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		assertEquals(17f, style.getComputedFontSize(), 1e-6f);
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-		/*
-		 * font-size custom property circular dependency, fallback used.
-		 */
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("font-size:var(--foo,9pt);--foo:var(--foo)");
-		style = elm.getComputedStyle(null);
-		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(9f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
-		assertNotNull(errors);
-		assertEquals(1, errors.size());
-		//
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		assertEquals(9f, style.getComputedFontSize(), 1e-6f);
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-		/*
-		 * font shorthand custom property circular dependency, fallback used.
-		 */
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("font:var(--foo,9pt) Arial;--foo:var(--foo)");
-		style = elm.getComputedStyle(null);
-		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(9f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertEquals(9f, style.getComputedFontSize(), 1e-6f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
-		assertNotNull(errors);
-		assertEquals(1, errors.size());
-		/*
-		 * font-size custom property circular dependency, no fallback, inherited value
-		 * used (II).
-		 */
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("font-size:var(--foo);--foo:var(--foo)");
-		style = elm.getComputedStyle(null);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(12f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
-		assertNotNull(errors);
-		assertEquals(1, errors.size());
-		assertEquals("--foo", errors.keySet().iterator().next());
-		//
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		assertEquals(12f, style.getComputedFontSize(), 1e-6f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-		/*
-		 * font shorthand custom property circular dependency, no fallback, inherited
-		 * value used (II).
-		 */
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		elm.getOverrideStyle(null).setCssText("font:var(--foo);--foo:var(--foo)");
-		style = elm.getComputedStyle(null);
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		fontSize = (CSSTypedValue) style.getPropertyCSSValue("font-size");
-		assertEquals(12f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		//
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler()).getComputedStyleErrors(elm);
-		assertNotNull(errors);
-		assertEquals(1, errors.size());
-		errptyIt = errors.keySet().iterator();
-		assertEquals("--foo", errptyIt.next());
-		//
-		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
-		assertEquals(12f, style.getComputedFontSize(), 1e-6f);
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-	}
-
-	@Test
-	public void getComputedStyleCustomPropertiesEmpty() {
+	public void getComputedStyleCustomPropertiesEmptyToFinalProperty() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		/*
 		 * empty custom property substitution, error.
@@ -1576,6 +1676,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+
 		/*
 		 * font-size empty custom property substitution, error.
 		 * 
@@ -1588,7 +1689,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals(12f, fontSize.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		//
+
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		assertEquals(12f, style.getComputedFontSize(), 1e-6f);
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
@@ -1619,15 +1720,10 @@ public class ComputedCustomPropertyTest {
 	public void getComputedStyleBackgroundShorthandVar() {
 		CSSElement elm = xhtmlDoc.getElementById("h1");
 		assertNotNull(elm);
-		//
+
 		elm.getOverrideStyle(null).setCssText(
 				"background:var(--my-background);--start1:0;--gray:#aaa;--black:#010102;--stop1:90%;--my-background:linear-gradient(90deg,transparent var(--start1),var(--gray) 33%,var(--black) var(--stop1),transparent 0) no-repeat 0 100%/100% 100%");
 		CSSComputedProperties style = elm.getComputedStyle(null);
-		CSSValue custom = style.getPropertyCSSValue("--my-background");
-		assertNotNull(custom);
-		assertEquals(
-				"linear-gradient(90deg, transparent 0, #aaa 33%, #010102 90%, transparent 0) no-repeat 0 100%/100% 100%",
-				custom.getCssText());
 		assertEquals("linear-gradient(90deg, transparent 0, #aaa 33%, #010102 90%, transparent 0)",
 				style.getPropertyValue("background-image"));
 		assertEquals("0 100%", style.getPropertyValue("background-position"));

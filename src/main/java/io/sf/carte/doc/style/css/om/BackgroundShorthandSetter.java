@@ -415,7 +415,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	}
 
 	private boolean testBackgroundImage(int i, Set<String> subp) {
-		if (isImage()) {
+		if (!isAttrTainted() && isImage()) {
 			lstImage.add(createCSSValue("background-image", currentValue));
 			subp.remove("background-image");
 			return true;

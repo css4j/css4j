@@ -113,7 +113,7 @@ public class FontFeatureValuesRuleTest {
 		assertEquals(CSSValue.Type.EXPRESSION, primi.getPrimitiveType());
 		//
 		primi = rule.getStyleset().get("double-W")[0];
-		assertEquals(CSSValue.Type.VAR, primi.getPrimitiveType());
+		assertEquals(CSSValue.Type.LEXICAL, primi.getPrimitiveType());
 		//
 		assertEquals(
 				"@font-feature-values Some Font{@swash{swishy:1;flowing:calc(1 + 1)}@styleset{double-W:var(--doubleW,2);sharp-terminals:16 1}}",

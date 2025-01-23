@@ -1,6 +1,6 @@
 /*
 
- Copyright (c) 2005-2024, Carlos Amengual.
+ Copyright (c) 2005-2025, Carlos Amengual.
 
  SPDX-License-Identifier: BSD-3-Clause
 
@@ -15,7 +15,19 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 interface SubpropertySetter {
 
+	/**
+	 * Initialize the setter.
+	 * 
+	 * @param shorthandValue the shorthand value.
+	 * @param important      the priority.
+	 */
 	void init(LexicalUnit shorthandValue, boolean important);
+
+	/**
+	 * @param attrTainted {@code true} if the shorthand is attr()-tainted.
+	 */
+	default void setAttrTainted(boolean attrTainted) {
+	}
 
 	/**
 	 * Attempt to assign the shorthand to its longhand subproperties.

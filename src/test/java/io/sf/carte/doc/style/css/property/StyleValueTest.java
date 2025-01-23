@@ -23,6 +23,7 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
@@ -63,8 +64,9 @@ public class StyleValueTest {
 		value = factory.parseProperty("attr(href)", cssParser);
 		assertNotNull(value);
 		assertEquals(CssType.PROXY, value.getCssValueType());
-		assertEquals("href", ((AttrValue) value).getAttributeName());
-		assertEquals(CSSValue.Type.ATTR, value.getPrimitiveType());
+		LexicalUnit lunit = ((LexicalValue) value).getLexicalUnit();
+		assertEquals(LexicalUnit.LexicalType.ATTR, lunit.getLexicalUnitType());
+		assertEquals("href", lunit.getParameters().getStringValue());
 		assertEquals("attr(href)", value.getCssText());
 		value = factory.parseProperty("#f0be4f", cssParser);
 		assertNotNull(value);

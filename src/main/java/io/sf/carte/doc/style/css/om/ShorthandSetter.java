@@ -66,6 +66,8 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	private final StringBuilder miniValueBuffer = new StringBuilder(40);
 
+	private transient boolean attrTainted;
+
 	/**
 	 * The values in the shorthand are attempted to set subproperty values in a certain order.
 	 * The properties that failed to be set to the tested value are stored here.
@@ -87,6 +89,21 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	void setPriority(boolean important) {
 		this.priorityImportant = important;
+	}
+
+	/**
+	 * @return {@code true} if the shorthand is attr()-tainted.
+	 */
+	protected boolean isAttrTainted() {
+		return attrTainted;
+	}
+
+	/**
+	 * @param attrTainted {@code true} if the shorthand is attr()-tainted.
+	 */
+	@Override
+	public void setAttrTainted(boolean attrTainted) {
+		this.attrTainted = attrTainted;
 	}
 
 	/**
@@ -660,7 +677,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 	@Override
 	public ShorthandValue createCSSShorthandValue(LexicalUnit value) {
 		return ShorthandValue.createCSSShorthandValue(getShorthandDatabase(), getShorthandName(), value,
-				isPriorityImportant());
+				isPriorityImportant(), attrTainted);
 	}
 
 	void reportDeclarationError(String propertyName, String message) {

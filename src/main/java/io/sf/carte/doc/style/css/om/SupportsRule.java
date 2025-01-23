@@ -18,6 +18,7 @@ import java.util.List;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.CSSResourceLimitException;
 import io.sf.carte.doc.style.css.CSSSupportsRule;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingContext;

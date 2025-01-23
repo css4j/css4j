@@ -1040,17 +1040,17 @@ public class PropertyParserColorRGBTest {
 	@Test
 	public void testParsePropertyValueRGBAttr() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-				"rgb(attr(data-red percentage) attr(data-green percentage) attr(data-blue %)/attr(data-alpha %))");
+				"rgb(attr(data-red type(<percentage>)) attr(data-green type(<percentage>)) attr(data-blue %)/attr(data-alpha %))");
 		assertNotNull(lu);
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
 		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		assertEquals("attr(data-red percentage)", param.getCssText());
+		assertEquals("attr(data-red type(<percentage>))", param.getCssText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		assertEquals("attr(data-green percentage)", param.getCssText());
+		assertEquals("attr(data-green type(<percentage>))", param.getCssText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
@@ -1064,7 +1064,7 @@ public class PropertyParserColorRGBTest {
 		assertEquals("attr(data-alpha %)", param.getCssText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgb", lu.getFunctionName());
-		assertEquals("rgb(attr(data-red percentage) attr(data-green percentage) attr(data-blue %)/attr(data-alpha %))",
+		assertEquals("rgb(attr(data-red type(<percentage>)) attr(data-green type(<percentage>)) attr(data-blue %)/attr(data-alpha %))",
 				lu.toString());
 	}
 

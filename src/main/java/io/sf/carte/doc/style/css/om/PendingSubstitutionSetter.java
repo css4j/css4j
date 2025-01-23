@@ -78,7 +78,7 @@ class PendingSubstitutionSetter extends BaseShorthandSetter {
 	@Override
 	public ShorthandValue createCSSShorthandValue(LexicalUnit value) {
 		return ShorthandValue.createCSSShorthandValue(getShorthandDatabase(), getShorthandName(), value,
-				priorityImportant);
+				priorityImportant, false);
 	}
 
 	@Override

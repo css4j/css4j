@@ -6642,6 +6642,8 @@ public class CSSParser implements Parser, Cloneable {
 				lu = newLexicalUnit(LexicalType.CUBIC_BEZIER_FUNCTION, true);
 			} else if ("steps".equals(lcName)) {
 				lu = newLexicalUnit(LexicalType.STEPS_FUNCTION, true);
+			} else if ("type".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.TYPE_FUNCTION, true);
 			} else if (name.isEmpty()) {
 				handleError(index, ParseHelper.ERR_WRONG_VALUE, "Unexpected character '('.");
 				return;
@@ -6723,6 +6725,14 @@ public class CSSParser implements Parser, Cloneable {
 			return lu;
 		}
 
+		private SyntaxUnitImpl newSyntaxUnit() {
+			assert functionToken;
+
+			SyntaxUnitImpl lu = new SyntaxUnitImpl();
+			currentlu.addFunctionParameter(lu);
+			return lu;
+		}
+
 		@Override
 		public void rightParenthesis(int index) {
 			processBuffer(index);
@@ -6799,6 +6809,14 @@ public class CSSParser implements Parser, Cloneable {
 				}
 				break;
 			case VAR:
+				String s = currentlu.parameters.getStringValue();
+				if (s == null) {
+					break;
+				}
+				if (s.length() < 3 || s.charAt(0) != '-' || s.charAt(1) != '-') {
+					index -= s.length();
+					break;
+				}
 				LexicalType lastType = findLastValue(currentlu.parameters).getLexicalUnitType();
 				if (lastType == LexicalType.OPERATOR_COMMA) {
 					LexicalUnitImpl empty = newLexicalUnit(LexicalType.EMPTY, false);
@@ -8084,9 +8102,15 @@ public class CSSParser implements Parser, Cloneable {
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
+							} else if (currentlu.getLexicalUnitType() == LexicalType.TYPE_FUNCTION) {
+								if (codepoint == TokenProducer.CHAR_LESS_THAN
+										|| codepoint == TokenProducer.CHAR_GREATER_THAN) {
+									bufferAppend(codepoint);
+								} else {
+									unexpectedCharError(index, codepoint);
+								}
 							} else if (codepoint == 61 && handleEqualsSignInsideFunction(index)) {
-								prevcp = 65;
-								return;
+								codepoint = 65;
 							} else {
 								unexpectedCharError(index, codepoint);
 							}
@@ -8401,7 +8425,8 @@ public class CSSParser implements Parser, Cloneable {
 						checkIEPrioHack(index - buflen, prio);
 					}
 				} else if (functionToken) {
-					if (currentlu.getLexicalUnitType() == LexicalType.URI) {
+					switch (currentlu.getLexicalUnitType()) {
+					case URI:
 						// uri
 						if (currentlu.value == null) {
 							currentlu.value = rawBuffer();
@@ -8409,7 +8434,8 @@ public class CSSParser implements Parser, Cloneable {
 							handleError(index, ParseHelper.ERR_WRONG_VALUE,
 								"Unexpected token in url: '" + rawBuffer() + '\'');
 						}
-					} else if (currentlu.getLexicalUnitType() == LexicalType.ELEMENT_REFERENCE) {
+						break;
+					case ELEMENT_REFERENCE:
 						String s = unescapeStringValue(index);
 						if (s.length() > 1 && s.charAt(0) == '#') {
 							currentlu.value = s.substring(1);
@@ -8418,15 +8444,30 @@ public class CSSParser implements Parser, Cloneable {
 							functionToken = false;
 						}
 						buffer.setLength(0);
-					} else if (escapedTokenIndex != -1 || !checkLastIdentCompat()) {
-						if (!hexColor) {
-							parseNonHexcolorValue(index);
-						} else {
-							if (!parseHexColor(buflen)) {
-								handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE, "Wrong color value #" + buffer);
+						break;
+					case TYPE_FUNCTION:
+						String syn = unescapeStringValue(index);
+						buffer.setLength(0);
+						SyntaxUnitImpl synLU = newSyntaxUnit();
+						try {
+							synLU.syntax = new SyntaxParser().parseSyntax(syn);
+						} catch (CSSException e) {
+							handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE,
+									"Invalid syntax: " + syn);
+						}
+						break;
+					default:
+						if (escapedTokenIndex != -1 || !checkLastIdentCompat()) {
+							if (!hexColor) {
+								parseNonHexcolorValue(index);
+							} else {
+								if (!parseHexColor(buflen)) {
+									handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE,
+											"Wrong color value #" + buffer);
+								}
+								buffer.setLength(0);
+								hexColor = false;
 							}
-							buffer.setLength(0);
-							hexColor = false;
 						}
 					}
 				} else if (hexColor) {

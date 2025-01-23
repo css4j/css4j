@@ -13,11 +13,14 @@ package io.sf.carte.doc.style.css.parser;
 
 import java.util.Locale;
 
+import org.w3c.dom.DOMException;
+
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Multiplier;
+import io.sf.carte.doc.style.css.UnitStringToId;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -410,6 +413,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case COUNTERS_FUNCTION:
 		case CUBIC_BEZIER_FUNCTION:
 		case STEPS_FUNCTION:
+		case TYPE_FUNCTION:
 			return functionalSerialization(value.toLowerCase(Locale.ROOT));
 		case SUB_EXPRESSION:
 			buf = new StringBuilder();
@@ -645,7 +649,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case URI:
 			return matchBoolean(cat == Category.url || cat == Category.image);
 		case DIMENSION:
-			return matchBoolean(ParseHelper.matchesDimension(lexicalUnit.getCssUnit(), cat));
+			return matchBoolean(unitMatchesCategory(lexicalUnit.getCssUnit(), cat));
 		case PERCENTAGE:
 			return matchBoolean(cat == Category.percentage || cat == Category.lengthPercentage);
 		case REAL:
@@ -663,9 +667,9 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case COLOR_MIX:
 			return matchBoolean(cat == Category.color);
 		case CALC:
-			return isNumericCategory(cat) ? matchesOperandOfSyntax(lexicalUnit.getParameters(), syntax) : Match.FALSE;
+			return isNumericCategory(cat) ? matchExpression(lexicalUnit, rootSyntax, syntax) : Match.FALSE;
 		case FUNCTION:
-			return matchFunction(lexicalUnit, syntax);
+			return matchFunction(lexicalUnit, rootSyntax, syntax);
 		case ELEMENT_REFERENCE:
 			return matchBoolean(cat == Category.image);
 		case VAR:
@@ -685,50 +689,111 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		return b ? Match.TRUE : Match.FALSE;
 	}
 
+	/**
+	 * Determine whether the given unit matches the syntax category.
+	 * 
+	 * @param unit the dimension unit.
+	 * @param cat  the grammar type category to check.
+	 * @return true if the unit matches the syntax category.
+	 */
+	private static boolean unitMatchesCategory(short unit, Category cat) {
+		switch (cat) {
+		case length:
+			return CSSUnit.isLengthUnitType(unit);
+		case lengthPercentage:
+			return CSSUnit.isLengthUnitType(unit) || unit == CSSUnit.CSS_PERCENTAGE;
+		case percentage:
+			return unit == CSSUnit.CSS_PERCENTAGE;
+		case angle:
+			return CSSUnit.isAngleUnitType(unit);
+		case time:
+			return CSSUnit.isTimeUnitType(unit);
+		case resolution:
+			return CSSUnit.isResolutionUnitType(unit);
+		case flex:
+			return unit == CSSUnit.CSS_FR;
+		case frequency:
+			return unit == CSSUnit.CSS_HZ || unit == CSSUnit.CSS_KHZ;
+		case integer:
+		case number:
+			// This probably never returns true (only actual dimensions reach this)
+			return unit == CSSUnit.CSS_NUMBER;
+		default:
+			break;
+		}
+		return false;
+	}
+
 	private static Match matchAttr(LexicalUnitImpl lexicalUnit, CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
 		Match result = Match.FALSE;
 		LexicalUnit param = lexicalUnit.getParameters();
 		if (param != null) {
-			String dataType;
 			LexicalUnit fallback = null;
 			param = param.getNextLexicalUnit();
-			if (param != null) {
-				switch (param.getLexicalUnitType()) {
+			if (param == null) {
+				// Implicit "string"
+				return syntax.getCategory() == Category.string ? Match.TRUE : Match.FALSE;
+			}
+
+			short unit = CSSUnit.CSS_OTHER;
+			CSSValueSyntax attrSyntax = null;
+			LexicalType luType = param.getLexicalUnitType();
+			if (luType == LexicalType.OPERATOR_COMMA) {
+				attrSyntax = SyntaxParser.createSimpleSyntax("string");
+				fallback = param.getNextLexicalUnit();
+			} else {
+				switch (luType) {
 				case OPERATOR_COMMA:
-					dataType = "string";
-					fallback = param.getNextLexicalUnit();
+					break;
+				case TYPE_FUNCTION:
+					LexicalUnit typeParam = param.getParameters();
+					attrSyntax = typeParam.getSyntax();
 					break;
 				case IDENT:
 					// We got a data type spec
-					dataType = param.getStringValue().toLowerCase(Locale.ROOT);
-					param = param.getNextLexicalUnit();
-					if (param != null) {
-						if (param.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
-							return Match.FALSE; // Should never happen
-						}
-						fallback = param.getNextLexicalUnit();
+					String s = param.getStringValue().toLowerCase(Locale.ROOT);
+					if ("string".equals(s)) {
+						attrSyntax = SyntaxParser.createSimpleSyntax("string");
+					} else {
+						unit = UnitStringToId.unitFromString(s);
 					}
 					break;
 				case OPERATOR_MOD:
-					dataType = "percentage";
-					fallback = param.getNextLexicalUnit();
+					unit = CSSUnit.CSS_PERCENTAGE;
 					break;
 				case VAR:
 					return Match.PENDING;
 				default:
 					return Match.FALSE; // Should never happen
 				}
-			} else { // Implicit "string"
-				return syntax.getCategory() == Category.string ? Match.TRUE : Match.FALSE;
+				param = param.getNextLexicalUnit();
+				if (param != null) {
+					if (param.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
+						return Match.FALSE; // Should never happen
+					}
+					fallback = param.getNextLexicalUnit();
+				}
 			}
+
 			// Now, let's try matching the attr datatype and the fallback (if available).
 			CSSValueSyntax typeMatch = null;
 			CSSValueSyntax comp = rootSyntax;
 			topLoop: do {
-				boolean attrTypeMatch = ParseHelper.matchAttrType(dataType, comp.getCategory());
-				if (attrTypeMatch) {
-					result = Match.PENDING;
-					typeMatch = comp;
+				Match attrTypeMatch;
+				if (attrSyntax == null) {
+					if (unitMatchesCategory(unit, comp.getCategory())) {
+						attrTypeMatch = Match.TRUE;
+						result = Match.PENDING;
+						typeMatch = comp;
+					} else {
+						attrTypeMatch = Match.FALSE;
+					}
+				} else {
+					attrTypeMatch = matchAttrTypeSyntax(lexicalUnit.isParameter(), attrSyntax, comp.getCategory());
+					if (attrTypeMatch != Match.FALSE) {
+						result = Match.PENDING;
+						typeMatch = comp;
+					}
 				}
 				//
 				if (fallback != null) {
@@ -738,21 +803,22 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 						Match match = fallback.matches(fallbackComp);
 						if (match == Match.FALSE) {
 							// url is a special case
-							if (attrTypeMatch && "url".equals(dataType)
-								&& fallback.getLexicalUnitType() == LexicalType.STRING
-								&& hasNoSiblings(lexicalUnit)
-								&& fallback.getNextLexicalUnit() == null) {
+							if (attrTypeMatch != Match.FALSE && attrSyntax != null
+									&& attrSyntax.getCategory() == Category.url
+									&& fallback.getLexicalUnitType() == LexicalType.STRING
+									&& hasNoSiblings(lexicalUnit)
+									&& fallback.getNextLexicalUnit() == null) {
 								result = Match.TRUE;
 							} else {
 								continue;
 							}
 						} else if (match == Match.PENDING) {
 							result = Match.PENDING;
-							if (attrTypeMatch) {
+							if (attrTypeMatch != Match.FALSE) {
 								continue;
 							}
 						} else { // TRUE
-							if (!attrTypeMatch) {
+							if (attrTypeMatch != Match.TRUE) {
 								result = Match.PENDING;
 								// Perhaps we'll have better luck matching attr datatype with next syntax
 								continue topLoop;
@@ -762,7 +828,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 						}
 						return result;
 					} while ((fallbackComp = fallbackComp.getNext()) != null);
-				} else if (attrTypeMatch) {
+				} else if (attrTypeMatch == Match.TRUE) {
 					return Match.TRUE;
 				}
 			} while ((comp = comp.getNext()) != null);
@@ -770,130 +836,166 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		return result;
 	}
 
+	/**
+	 * Match the type syntax of an {@code attr()} value.
+	 * 
+	 * @param calcContext {@code true} if we are in {@code calc()} context.
+	 * @param typeSyntax  the syntax of the type being checked.
+	 * @param cat         the grammar data type category to check.
+	 * @return true if the type category matches the syntax category.
+	 */
+	private static Match matchAttrTypeSyntax(boolean calcContext, CSSValueSyntax typeSyntax,
+			Category cat) {
+		Match expected = Match.FALSE;
+		do {
+			Category typeCategory = typeSyntax.getCategory();
+			Match match = categoryMatch(calcContext, false, typeCategory, cat);
+			if (match != Match.FALSE) {
+				if (expected != Match.PENDING) {
+					expected = Match.TRUE;
+					break;
+				}
+			} else if (expected == Match.TRUE) {
+				expected = Match.PENDING;
+			}
+			typeSyntax = typeSyntax.getNext();
+		} while (typeSyntax != null);
+		return expected;
+	}
+
+	/**
+	 * If the supplied value represents an expression, determine if its result that
+	 * could be consistent with the requested syntax.
+	 * 
+	 * @param lunit      the lexical value containing the first operand.
+	 * @param rootSyntax the first syntax in the syntax chain.
+	 * @param syntax     the current syntax to be evaluated in the syntax chain.
+	 * @return the match that would be expected from the expression.
+	 */
+	private static Match matchExpression(LexicalUnitImpl lunit, CSSValueSyntax rootSyntax,
+			CSSValueSyntax syntax) {
+		DimensionalAnalyzer danal = new DimensionalAnalyzer();
+		Dimension dim;
+		try {
+			dim = danal.expressionDimension(lunit.parameters);
+		} catch (DOMException e) {
+			return Match.FALSE;
+		}
+		if (dim == null) { // var()
+			return Match.PENDING;
+		}
+
+		Match expected = Match.FALSE;
+		// Look for both lengths and percentages being matched
+		boolean lenghtMatched = false, pcntMatched = false;
+		CSSValueSyntax comp = rootSyntax;
+		do {
+			Category cat = comp.getCategory();
+
+			Match match;
+
+			boolean lenientLP = danal.isAttrPending();
+
+			if (lenientLP) {
+				/*
+				 * The idea of attr() lenient length-percentage processing is that the attr()
+				 * type and fallback may be a length and a percentage, or vice-versa. In which
+				 * case one cannot clearly match either with TRUE, FALSE nor PENDING. However,
+				 * when we find lengths or percentages in subsequent computations, this can be
+				 * used to narrow the match.
+				 */
+				match = categoryMatch(true, true, dim.category, cat);
+				if (match == Match.PENDING) {
+					// Special case: length-percentage
+					if (cat == Category.length) {
+						lenghtMatched = true;
+						match = dim.isPercentageProcessed() ? Match.FALSE : Match.PENDING;
+					} else if (cat == Category.percentage) {
+						pcntMatched = true;
+						match = dim.isLengthProcessed() ? Match.FALSE : Match.PENDING;
+					}
+				}
+			} else {
+				// Special case: length-percentage
+				if (cat == Category.length) {
+					lenghtMatched = true;
+				} else if (cat == Category.percentage) {
+					pcntMatched = true;
+				}
+				match = categoryMatch(true, false, dim.category, cat);
+			}
+
+			if (match == Match.TRUE) {
+				return Match.TRUE;
+			} else if (expected != Match.PENDING) {
+				expected = match;
+			}
+		} while ((comp = comp.getNext()) != null);
+
+		// Special case: length-percentage
+		if (dim.category == Category.lengthPercentage && lenghtMatched && pcntMatched) {
+			expected = Match.TRUE;
+		}
+
+		return expected;
+	}
+
+	/**
+	 * Match the syntax category of a type with a given category.
+	 * 
+	 * @param calcContext  {@code true} if we are in {@code calc()} context.
+	 * @param lenientLP    {@code true} for lenient {@code length-percentage}.
+	 * @param typeCategory the category of the type being checked.
+	 * @param cat          the grammar syntax type category to check.
+	 * @return the match of the syntax category.
+	 */
+	private static Match categoryMatch(boolean calcContext, boolean lenientLP,
+			Category typeCategory, Category cat) {
+		if (typeCategory == cat
+				|| (typeCategory == Category.length && cat == Category.lengthPercentage)
+				|| (typeCategory == Category.percentage && cat == Category.lengthPercentage)
+				|| (typeCategory == Category.integer && cat == Category.number)
+				// If the lexical unit is a calc() parameter, <number> is rounded to <integer>
+				|| (calcContext && (typeCategory == Category.number && cat == Category.integer))
+				|| (typeCategory == Category.url && cat == Category.image)
+				|| (cat == Category.url && typeCategory == Category.image)) {
+			return Match.TRUE;
+		}
+
+		if (lenientLP && ((typeCategory == Category.lengthPercentage && cat == Category.length)
+				|| (typeCategory == Category.lengthPercentage && cat == Category.percentage))) {
+			return Match.PENDING;
+		}
+
+		return Match.FALSE;
+	}
+
 	private static boolean hasNoSiblings(LexicalUnit lexicalUnit) {
 		return lexicalUnit.getNextLexicalUnit() == null
 				&& lexicalUnit.getPreviousLexicalUnit() == null;
 	}
 
-	private static Match matchFunction(LexicalUnitImpl lexicalUnit, CSSValueSyntax syntax) {
+	private static Match matchFunction(LexicalUnitImpl lexicalUnit, CSSValueSyntax rootSyntax,
+			CSSValueSyntax syntax) {
 		Category cat = syntax.getCategory();
 		String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
 		if (func.endsWith("-gradient") || func.equals("image") || func.equals("image-set")
-			|| func.equals("cross-fade")) {
+				|| func.equals("cross-fade")) {
 			return matchBoolean(cat == Category.image);
 		} else if (func.equals("env")) {
 			return Match.PENDING;
 		} else if (isNumericCategory(cat)) {
-			if (isCompatibleNumberFunction(func, cat)) {
-				return Match.TRUE;
+			DimensionalAnalyzer danal = new DimensionalAnalyzer();
+			Dimension dim;
+			try {
+				dim = danal.mathFunctionDimension(lexicalUnit);
+			} catch (DOMException e) {
+				return Match.FALSE;
 			}
-			return matchesOperandOfSyntax(lexicalUnit.getParameters(), syntax);
+			return dim != null ? dim.matches(syntax) : Match.PENDING;
 		} else {
 			return matchBoolean(ParseHelper.isTransformFunction(func));
 		}
-	}
-
-	/**
-	 * If the supplied value represents the chain of operands of an expression,
-	 * determine if the expression has operands that could be consistent with the
-	 * requested category.
-	 * 
-	 * @param lunit the lexical value containing the first operand.
-	 * @param cat   the data type category.
-	 * @return the match that would be expected from the expression.
-	 */
-	private static Match matchesOperandOfSyntax(LexicalUnit lunit, CSSValueSyntax syntax) {
-		Category cat = syntax.getCategory();
-		Match expected = Match.FALSE;
-		while (lunit != null) {
-			LexicalType sacType = lunit.getLexicalUnitType();
-			if (sacType == LexicalType.DIMENSION) {
-				if (ParseHelper.matchesDimension(lunit.getCssUnit(), cat)) {
-					if (expected != Match.PENDING) {
-						expected = Match.TRUE;
-					}
-				} else if (cat == Category.percentage) {
-					expected = Match.FALSE;
-					break;
-				} else if (lunit.getNextLexicalUnit() != null) {
-					// Probably FALSE, but next parameter could fit
-					expected = Match.PENDING;
-				} else {
-					expected = Match.FALSE;
-					break;
-				}
-			} else if (sacType == LexicalType.REAL) {
-				if (cat == Category.number && expected != Match.PENDING) {
-					expected = Match.TRUE;
-				}
-			} else if (sacType == LexicalType.INTEGER) {
-				if ((cat == Category.integer || cat == Category.number) && expected != Match.PENDING) {
-					expected = Match.TRUE;
-				}
-			} else if (sacType == LexicalType.PERCENTAGE) {
-				if (ParseHelper.matchesDimension(CSSUnit.CSS_PERCENTAGE, cat)) {
-					if (expected != Match.PENDING) {
-						expected = Match.TRUE;
-					}
-				} else {
-					expected = Match.FALSE;
-					break;
-				}
-			} else if (sacType == LexicalType.CALC) {
-				Match match = matchesOperandOfSyntax(lunit.getParameters(), syntax);
-				if (match != Match.FALSE) {
-					if (expected != Match.PENDING) {
-						expected = match;
-					}
-				} else {
-					expected = Match.FALSE;
-					break;
-				}
-			} else if (sacType == LexicalType.VAR) {
-				if (expected != Match.TRUE) {
-					expected = Match.PENDING;
-				}
-			} else if (sacType == LexicalType.SUB_EXPRESSION) {
-				Match match = matchesOperandOfSyntax(lunit.getSubValues(), syntax);
-				if (match != Match.FALSE) {
-					if (expected != Match.PENDING) {
-						expected = match;
-					}
-				} else {
-					expected = Match.FALSE;
-					break;
-				}
-			} else if (sacType == LexicalType.ATTR || sacType == LexicalType.FUNCTION) {
-				LexicalUnit attr = lunit;
-				if (lunit.getNextLexicalUnit() != null) {
-					attr = lunit.shallowClone();
-				}
-				Match match = attr.matches(syntax);
-				if (match == Match.FALSE) {
-					expected = Match.FALSE;
-					break;
-				}
-				if (expected != Match.PENDING) {
-					expected = match;
-				}
-			}
-			lunit = lunit.getNextLexicalUnit();
-		}
-		return expected;
-	}
-
-	private static boolean isCompatibleNumberFunction(String func, Category cat) {
-		switch (cat) {
-		case number:
-			return "sin".equals(func) || "cos".equals(func) || "tan".equals(func)
-					|| "sign".equals(func);
-		case angle:
-			return "asin".equals(func) || "acos".equals(func) || "atan".equals(func)
-					|| "atan2".equals(func);
-		default:
-			break;
-		}
-		return false;
 	}
 
 	private static boolean isNumericCategory(Category cat) {
@@ -990,7 +1092,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 
 	@Override
 	public LexicalUnitImpl shallowClone() {
-		LexicalUnitImpl clon = new LexicalUnitImpl(unitType);
+		LexicalUnitImpl clon = instantiateLexicalUnit();
 		clon.cssUnit = cssUnit;
 		clon.intValue = intValue;
 		clon.floatValue = floatValue;
@@ -1003,27 +1105,22 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		return clon;
 	}
 
+	LexicalUnitImpl instantiateLexicalUnit() {
+		return new LexicalUnitImpl(unitType);
+	}
+
 	@Override
 	public LexicalUnitImpl clone() {
 		return clone(null);
 	}
 
 	private LexicalUnitImpl clone(LexicalUnitImpl newOwner) {
-		LexicalUnitImpl clon = new LexicalUnitImpl(unitType);
-		clon.cssUnit = cssUnit;
-		clon.intValue = intValue;
-		clon.floatValue = floatValue;
-		clon.dimensionUnitText = dimensionUnitText;
-		clon.identCssText = identCssText;
-		clon.value = value;
+		LexicalUnitImpl clon = shallowClone();
 		if (nextLexicalUnit != null) {
 			clon.nextLexicalUnit = nextLexicalUnit.clone(newOwner);
 			clon.nextLexicalUnit.previousLexicalUnit = clon;
 		}
 		clon.ownerLexicalUnit = newOwner;
-		if (parameters != null) {
-			clon.parameters = parameters.clone(clon);
-		}
 		return clon;
 	}
 

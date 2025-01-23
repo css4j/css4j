@@ -148,61 +148,61 @@ public class LexicalValueTest {
 		value.setCssText("attr(data-title, 'title')");
 		assertEquals(Type.STRING, value.getFinalType());
 
-		value.setCssText("attr(data-ident ident)");
+		value.setCssText("attr(data-ident type(<custom-ident>))");
 		assertEquals(Type.IDENT, value.getFinalType());
 
-		value.setCssText("attr(data-ident ident,foo)");
+		value.setCssText("attr(data-ident type(<custom-ident>),foo)");
 		assertEquals(Type.IDENT, value.getFinalType());
 
-		value.setCssText("attr(data-url url)");
+		value.setCssText("attr(data-url type(<url>))");
 		assertEquals(Type.URI, value.getFinalType());
 
-		value.setCssText("attr(data-url url, url('foo.png'))");
+		value.setCssText("attr(data-url type(<url>), url('foo.png'))");
 		assertEquals(Type.URI, value.getFinalType());
 
-		value.setCssText("attr(data-color color)");
+		value.setCssText("attr(data-color type(<color>))");
 		assertEquals(Type.COLOR, value.getFinalType());
 
-		value.setCssText("attr(data-color color,#f00)");
+		value.setCssText("attr(data-color type(<color>),#f00)");
 		assertEquals(Type.COLOR, value.getFinalType());
 
-		value.setCssText("attr(data-num number)");
+		value.setCssText("attr(data-num type(<number>))");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num percentage)");
+		value.setCssText("attr(data-num type(<percentage>))");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num percentage,3%)");
+		value.setCssText("attr(data-num type(<percentage>),3%)");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num length)");
+		value.setCssText("attr(data-num type(<length>))");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num length,1ex)");
+		value.setCssText("attr(data-num type(<length>),1ex)");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num angle)");
+		value.setCssText("attr(data-num type(<angle>))");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num angle,1rad)");
+		value.setCssText("attr(data-num type(<angle>),1rad)");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num Time)");
+		value.setCssText("attr(data-num type(<Time>))");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num Time,1s)");
+		value.setCssText("attr(data-num type(<Time>),1s)");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num frequency)");
+		value.setCssText("attr(data-num type(<frequency>))");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num frequency,50Hz)");
+		value.setCssText("attr(data-num type(<frequency>),50Hz)");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num Flex)");
+		value.setCssText("attr(data-num type(<Flex>))");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
-		value.setCssText("attr(data-num Flex,1fr)");
+		value.setCssText("attr(data-num type(<Flex>),1fr)");
 		assertEquals(Type.NUMERIC, value.getFinalType());
 
 		value.setCssText("attr(data-pcnt %)");
@@ -894,7 +894,7 @@ public class LexicalValueTest {
 	public void testColorMix_Attr() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText(
-				"color: color-mix(attr(data-in ident) attr(data-space ident) attr(data-method ident) hue, hwb(60.8 26% 24%) 37%, hwb(90.3 40% 31%));");
+				"color: color-mix(attr(data-in type(<custom-ident>)) attr(data-space type(<custom-ident>)) attr(data-method type(<custom-ident>)) hue, hwb(60.8 26% 24%) 37%, hwb(90.3 40% 31%));");
 		StyleValue cssval = style.getPropertyCSSValue("color");
 		assertNotNull(cssval);
 
@@ -902,10 +902,10 @@ public class LexicalValueTest {
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
 
 		assertEquals(
-				"color-mix(attr(data-in ident) attr(data-space ident) attr(data-method ident) hue, hwb(60.8 26% 24%) 37%, hwb(90.3 40% 31%))",
+				"color-mix(attr(data-in type(<custom-ident>)) attr(data-space type(<custom-ident>)) attr(data-method type(<custom-ident>)) hue, hwb(60.8 26% 24%) 37%, hwb(90.3 40% 31%))",
 				cssval.getCssText());
 		assertEquals(
-				"color-mix(attr(data-in ident) attr(data-space ident) attr(data-method ident) hue,hwb(60.8 26% 24%) 37%,hwb(90.3 40% 31%))",
+				"color-mix(attr(data-in type(<custom-ident>)) attr(data-space type(<custom-ident>)) attr(data-method type(<custom-ident>)) hue,hwb(60.8 26% 24%) 37%,hwb(90.3 40% 31%))",
 				cssval.getMinifiedCssText("color"));
 
 		SyntaxParser syntaxParser = new SyntaxParser();
@@ -921,7 +921,7 @@ public class LexicalValueTest {
 	public void testColorMix_InAttr() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText(
-				"color: color-mix(in attr(data-space ident) attr(data-method ident) hue, hwb(60.8 26% 24%) 37%, hwb(90.3 40% 31%));");
+				"color: color-mix(in attr(data-space type(<custom-ident>)) attr(data-method type(<custom-ident>)) hue, hwb(60.8 26% 24%) 37%, hwb(90.3 40% 31%));");
 		StyleValue cssval = style.getPropertyCSSValue("color");
 		assertNotNull(cssval);
 
@@ -929,10 +929,10 @@ public class LexicalValueTest {
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
 
 		assertEquals(
-				"color-mix(in attr(data-space ident) attr(data-method ident) hue, hwb(60.8 26% 24%) 37%, hwb(90.3 40% 31%))",
+				"color-mix(in attr(data-space type(<custom-ident>)) attr(data-method type(<custom-ident>)) hue, hwb(60.8 26% 24%) 37%, hwb(90.3 40% 31%))",
 				cssval.getCssText());
 		assertEquals(
-				"color-mix(in attr(data-space ident) attr(data-method ident) hue,hwb(60.8 26% 24%) 37%,hwb(90.3 40% 31%))",
+				"color-mix(in attr(data-space type(<custom-ident>)) attr(data-method type(<custom-ident>)) hue,hwb(60.8 26% 24%) 37%,hwb(90.3 40% 31%))",
 				cssval.getMinifiedCssText("color"));
 
 		SyntaxParser syntaxParser = new SyntaxParser();

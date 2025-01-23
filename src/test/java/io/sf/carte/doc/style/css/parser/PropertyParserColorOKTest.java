@@ -1147,7 +1147,7 @@ public class PropertyParserColorOKTest {
 	@Test
 	public void testParsePropertyValueOKLabAttr() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-				"oklab(attr(data-l %) attr(data-a number) attr(data-b number)/attr(data-alpha number))");
+				"oklab(attr(data-l %) attr(data-a type(<number>)) attr(data-b type(<number>))/attr(data-alpha type(<number>)))");
 		assertNotNull(lu);
 		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -1157,22 +1157,22 @@ public class PropertyParserColorOKTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		assertEquals("attr(data-a number)", param.getCssText());
+		assertEquals("attr(data-a type(<number>))", param.getCssText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		assertEquals("attr(data-b number)", param.getCssText());
+		assertEquals("attr(data-b type(<number>))", param.getCssText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		assertEquals("attr(data-alpha number)", param.getCssText());
+		assertEquals("attr(data-alpha type(<number>))", param.getCssText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("oklab", lu.getFunctionName());
 		assertEquals(
-				"oklab(attr(data-l %) attr(data-a number) attr(data-b number)/attr(data-alpha number))",
+				"oklab(attr(data-l %) attr(data-a type(<number>)) attr(data-b type(<number>))/attr(data-alpha type(<number>)))",
 				lu.toString());
 	}
 
@@ -2451,7 +2451,7 @@ public class PropertyParserColorOKTest {
 	@Test
 	public void testParsePropertyValueOKLCHAttr() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-				"oklch(attr(data-l %) attr(data-c %) attr(data-hue angle)/attr(data-alpha number))");
+				"oklch(attr(data-l %) attr(data-c %) attr(data-hue type(<angle>))/attr(data-alpha type(<number>)))");
 		assertNotNull(lu);
 		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
@@ -2465,18 +2465,18 @@ public class PropertyParserColorOKTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		assertEquals("attr(data-hue angle)", param.getCssText());
+		assertEquals("attr(data-hue type(<angle>))", param.getCssText());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		assertEquals("attr(data-alpha number)", param.getCssText());
+		assertEquals("attr(data-alpha type(<number>))", param.getCssText());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("oklch", lu.getFunctionName());
 		assertEquals(
-				"oklch(attr(data-l %) attr(data-c %) attr(data-hue angle)/attr(data-alpha number))",
+				"oklch(attr(data-l %) attr(data-c %) attr(data-hue type(<angle>))/attr(data-alpha type(<number>)))",
 				lu.toString());
 	}
 

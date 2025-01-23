@@ -312,7 +312,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 	}
 
 	private boolean testImage(int i, Set<String> subp) {
-		if (isImage()) {
+		if (!isAttrTainted() && isImage()) {
 			lstImage.add(createCSSValue("mask-image", currentValue));
 			subp.remove("mask-image");
 			return true;

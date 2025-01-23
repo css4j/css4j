@@ -2933,14 +2933,14 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueCalcAttr() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(attr(start integer, 1) - 1)");
+		LexicalUnit lu = parsePropertyValue("calc(attr(start type(<integer>), 1) - 1)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
 		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		assertEquals("start integer, 1", param.getParameters().toString());
+		assertEquals("start type(<integer>), 1", param.getParameters().toString());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
@@ -2949,13 +2949,17 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
 		assertEquals(1, param.getIntegerValue());
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(attr(start integer, 1) - 1)", lu.toString());
+		assertEquals("calc(attr(start type(<integer>), 1) - 1)", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.TRUE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<number>#");
 		assertEquals(Match.TRUE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<number>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>#");
 		assertEquals(Match.TRUE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<length>");
 		assertEquals(Match.FALSE, lu.matches(syn));
@@ -2975,7 +2979,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueCalcAttr2() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(attr(start length, 8%) - 1.1px)");
+		LexicalUnit lu = parsePropertyValue("calc(attr(start type(<length>), 8%) - 1.1px)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
@@ -2989,8 +2993,8 @@ public class PropertyParserTest {
 		assertEquals("start", attrparam.getStringValue());
 		attrparam = attrparam.getNextLexicalUnit();
 		assertNotNull(attrparam);
-		assertEquals(LexicalType.IDENT, attrparam.getLexicalUnitType());
-		assertEquals("length", attrparam.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, attrparam.getLexicalUnitType());
+		assertEquals("length", attrparam.getParameters().getSyntax().getName());
 		attrparam = attrparam.getNextLexicalUnit();
 		assertNotNull(attrparam);
 		assertEquals(LexicalType.OPERATOR_COMMA, attrparam.getLexicalUnitType());
@@ -3008,9 +3012,10 @@ public class PropertyParserTest {
 		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
 		assertEquals(1.1f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(attr(start length, 8%) - 1.1px)", lu.toString());
+		assertEquals("calc(attr(start type(<length>), 8%) - 1.1px)", lu.toString());
 		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
+		CSSValueSyntax syn;
+		syn = syntaxParser.parseSyntax("<length-percentage>");
 		assertEquals(Match.TRUE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<length-percentage>#");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -3024,11 +3029,11 @@ public class PropertyParserTest {
 		assertEquals(Match.FALSE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<color>");
 		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length> | <percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<length> | <percentage>#");
 		assertEquals(Match.TRUE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<length> | <percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length> | <percentage>");
 		assertEquals(Match.TRUE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -3036,7 +3041,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueCalcAttr3() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(attr(start length, 8%) * 2)");
+		LexicalUnit lu = parsePropertyValue("calc(attr(start type(<length>), 8%) * 2)");
 		assertEquals("calc", lu.getFunctionName());
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
@@ -3050,8 +3055,8 @@ public class PropertyParserTest {
 		assertEquals("start", attrparam.getStringValue());
 		attrparam = attrparam.getNextLexicalUnit();
 		assertNotNull(attrparam);
-		assertEquals(LexicalType.IDENT, attrparam.getLexicalUnitType());
-		assertEquals("length", attrparam.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, attrparam.getLexicalUnitType());
+		assertEquals("length", attrparam.getParameters().getSyntax().getName());
 		attrparam = attrparam.getNextLexicalUnit();
 		assertNotNull(attrparam);
 		assertEquals(LexicalType.OPERATOR_COMMA, attrparam.getLexicalUnitType());
@@ -3069,9 +3074,10 @@ public class PropertyParserTest {
 		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
 		assertEquals(2, param.getIntegerValue());
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(attr(start length, 8%)*2)", lu.toString());
+		assertEquals("calc(attr(start type(<length>), 8%)*2)", lu.toString());
 		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
+		CSSValueSyntax syn;
+		syn = syntaxParser.parseSyntax("<length-percentage>");
 		assertEquals(Match.TRUE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<length-percentage>#");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -4312,7 +4318,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrPcnt() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-count percentage)");
+		LexicalUnit lu = parsePropertyValue("attr(data-count %)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 		LexicalUnit param = lu.getParameters();
@@ -4321,10 +4327,45 @@ public class PropertyParserTest {
 		assertEquals("data-count", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("percentage", param.getStringValue());
+		assertEquals(LexicalType.OPERATOR_MOD, param.getLexicalUnitType());
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("attr(data-count percentage)", lu.toString());
+		assertEquals("attr(data-count %)", lu.toString());
+		//
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<length-percentage>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueAttrPercentage() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("attr(data-count type(<percentage>))");
+		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
+		assertEquals("attr", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("data-count", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<percentage>", param.getParameters().getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("attr(data-count type(<percentage>))", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -4348,7 +4389,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrInteger() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a integer) attr(data-b number)");
+		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>)) attr(data-b type(<number>))");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 		LexicalUnit param = lu.getParameters();
@@ -4357,8 +4398,8 @@ public class PropertyParserTest {
 		assertEquals("data-a", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("integer", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<integer>", param.getParameters().getStringValue());
 		assertNull(param.getNextLexicalUnit());
 
 		LexicalUnit nlu = lu.getNextLexicalUnit();
@@ -4371,11 +4412,11 @@ public class PropertyParserTest {
 		assertEquals("data-b", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("number", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<number>", param.getParameters().getStringValue());
 		assertNull(param.getNextLexicalUnit());
 
-		assertEquals("attr(data-a integer) attr(data-b number)", lu.toString());
+		assertEquals("attr(data-a type(<integer>)) attr(data-b type(<number>))", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -4397,7 +4438,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrIntegerComma() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a integer),attr(data-b number)");
+		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>)),attr(data-b type(<number>))");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -4407,8 +4448,8 @@ public class PropertyParserTest {
 		assertEquals("data-a", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("integer", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<integer>", param.getParameters().getStringValue());
 		assertNull(param.getNextLexicalUnit());
 
 		LexicalUnit nlu = lu.getNextLexicalUnit();
@@ -4425,12 +4466,12 @@ public class PropertyParserTest {
 		assertEquals("data-b", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("number", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<number>", param.getParameters().getStringValue());
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a integer), attr(data-b number)", lu.toString());
+		assertEquals("attr(data-a type(<integer>)), attr(data-b type(<number>))", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>#");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -4452,7 +4493,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrIntegerFallbackComma() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a integer, auto),attr(data-b number, none)");
+		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>), auto),attr(data-b type(<number>), none)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -4462,8 +4503,8 @@ public class PropertyParserTest {
 		assertEquals("data-a", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("integer", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<integer>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -4487,8 +4528,8 @@ public class PropertyParserTest {
 		assertEquals("data-b", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("number", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<number>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -4499,7 +4540,7 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a integer, auto), attr(data-b number, none)", lu.toString());
+		assertEquals("attr(data-a type(<integer>), auto), attr(data-b type(<number>), none)", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>#");
 		assertEquals(Match.PENDING, lu.matches(syn));
@@ -4531,7 +4572,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrIntegerFallbackWSList() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a integer, auto) attr(data-b number, none)");
+		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>), auto) attr(data-b type(<number>), none)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -4541,8 +4582,8 @@ public class PropertyParserTest {
 		assertEquals("data-a", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("integer", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<integer>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -4562,8 +4603,8 @@ public class PropertyParserTest {
 		assertEquals("data-b", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("number", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<number>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -4574,7 +4615,7 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a integer, auto) attr(data-b number, none)", lu.toString());
+		assertEquals("attr(data-a type(<integer>), auto) attr(data-b type(<number>), none)", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
 		assertEquals(Match.PENDING, lu.matches(syn));
@@ -4604,7 +4645,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrIntegerFallbackWSList2() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a string, 1) attr(data-b integer, 'foo')");
+		LexicalUnit lu = parsePropertyValue("attr(data-a string, 1) attr(data-b type(<integer>), 'foo')");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -4635,8 +4676,8 @@ public class PropertyParserTest {
 		assertEquals("data-b", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("integer", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<integer>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -4647,16 +4688,17 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a string, 1) attr(data-b integer, 'foo')", lu.toString());
+		assertEquals("attr(data-a string, 1) attr(data-b type(<integer>), 'foo')", lu.toString());
 		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>+");
+		CSSValueSyntax syn;
+		syn = syntaxParser.parseSyntax("<string>+");
+		assertEquals(Match.PENDING, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<integer>+");
 		assertEquals(Match.PENDING, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<integer>#");
 		assertEquals(Match.FALSE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<string>#");
 		assertEquals(Match.FALSE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<string># | <integer>#");
@@ -4681,7 +4723,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrLengthPercentageFallbackWSList() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a length, 4%) attr(data-b percentage, 6px)");
+		LexicalUnit lu = parsePropertyValue("attr(data-a type(<length>), 4%) attr(data-b type(<percentage>), 6px)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -4691,8 +4733,8 @@ public class PropertyParserTest {
 		assertEquals("data-a", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("length", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("length", param.getParameters().getSyntax().getName());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -4712,8 +4754,8 @@ public class PropertyParserTest {
 		assertEquals("data-b", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("percentage", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<percentage>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -4725,9 +4767,10 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a length, 4%) attr(data-b percentage, 6px)", lu.toString());
+		assertEquals("attr(data-a type(<length>), 4%) attr(data-b type(<percentage>), 6px)", lu.toString());
 		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>+");
+		CSSValueSyntax syn;
+		syn = syntaxParser.parseSyntax("<length-percentage>+");
 		assertEquals(Match.TRUE, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("<length-percentage>#");
 		assertEquals(Match.FALSE, lu.matches(syn));
@@ -4746,7 +4789,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueAttrIntegerFallbackVarWSList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-				"attr(data-a integer, auto) attr(data-b number, var(--data-b-fb))");
+				"attr(data-a type(<integer>), auto) attr(data-b type(<number>), var(--data-b-fb))");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -4756,8 +4799,8 @@ public class PropertyParserTest {
 		assertEquals("data-a", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("integer", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<integer>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -4777,8 +4820,8 @@ public class PropertyParserTest {
 		assertEquals("data-b", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("number", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<number>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -4793,7 +4836,7 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a integer, auto) attr(data-b number, var(--data-b-fb))", lu.toString());
+		assertEquals("attr(data-a type(<integer>), auto) attr(data-b type(<number>), var(--data-b-fb))", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
 		assertEquals(Match.PENDING, lu.matches(syn));
@@ -4824,7 +4867,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueAttrIntegerFallbackVar2WSList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-				"attr(data-a integer, var(--data-a-fb)) attr(data-b number, var(--data-b-fb))");
+				"attr(data-a type(<integer>), var(--data-a-fb)) attr(data-b type(<number>), var(--data-b-fb))");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -4834,8 +4877,8 @@ public class PropertyParserTest {
 		assertEquals("data-a", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("integer", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<integer>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -4859,8 +4902,8 @@ public class PropertyParserTest {
 		assertEquals("data-b", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("number", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<number>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -4875,7 +4918,7 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a integer, var(--data-a-fb)) attr(data-b number, var(--data-b-fb))", lu.toString());
+		assertEquals("attr(data-a type(<integer>), var(--data-a-fb)) attr(data-b type(<number>), var(--data-b-fb))", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
 		assertEquals(Match.PENDING, lu.matches(syn));
@@ -4907,10 +4950,10 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrUnit() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-width length, 'default')");
+		LexicalUnit lu = parsePropertyValue("attr(data-width type(<length>), 'default')");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
-		assertEquals("attr(data-width length, 'default')", lu.toString());
+		assertEquals("attr(data-width type(<length>), 'default')", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<string> | <length>");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -4928,10 +4971,10 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrLengthPercentage() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-width length, 8%)");
+		LexicalUnit lu = parsePropertyValue("attr(data-width type(<length>), 8%)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
-		assertEquals("attr(data-width length, 8%)", lu.toString());
+		assertEquals("attr(data-width type(<length>), 8%)", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage> | <length>");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -4951,7 +4994,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrURL() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-img url)");
+		LexicalUnit lu = parsePropertyValue("attr(data-img type(<url>))");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 		LexicalUnit param = lu.getParameters();
@@ -4960,10 +5003,10 @@ public class PropertyParserTest {
 		assertEquals("data-img", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("url", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<url>", param.getParameters().getStringValue());
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("attr(data-img url)", lu.toString());
+		assertEquals("attr(data-img type(<url>))", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -4991,7 +5034,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrURLFallback() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-img url, 'foo.png')");
+		LexicalUnit lu = parsePropertyValue("attr(data-img type(<url>), 'foo.png')");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 		LexicalUnit param = lu.getParameters();
@@ -5000,8 +5043,8 @@ public class PropertyParserTest {
 		assertEquals("data-img", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("url", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<url>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -5010,7 +5053,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.STRING, param.getLexicalUnitType());
 		assertEquals("foo.png", param.getStringValue());
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("attr(data-img url, 'foo.png')", lu.toString());
+		assertEquals("attr(data-img type(<url>), 'foo.png')", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -5038,10 +5081,10 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrFlex() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-flex flex, 2fr)");
+		LexicalUnit lu = parsePropertyValue("attr(data-flex type(<flex>), 2fr)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
-		assertEquals("attr(data-flex flex, 2fr)", lu.toString());
+		assertEquals("attr(data-flex type(<flex>), 2fr)", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<flex>");
 		assertEquals(Match.TRUE, lu.matches(syn));
@@ -5102,7 +5145,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueAttrVarFallback() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-width length, var(--data-width))");
+		LexicalUnit lu = parsePropertyValue("attr(data-width type(<length>), var(--data-width))");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -5112,8 +5155,8 @@ public class PropertyParserTest {
 		assertEquals("data-width", param.getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("length", param.getStringValue());
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<length>", param.getParameters().getStringValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -5127,7 +5170,7 @@ public class PropertyParserTest {
 		assertNull(varparam.getNextLexicalUnit());
 		assertNull(param.getNextLexicalUnit());
 
-		assertEquals("attr(data-width length, var(--data-width))", lu.toString());
+		assertEquals("attr(data-width type(<length>), var(--data-width))", lu.toString());
 		//
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
 		assertEquals(Match.PENDING, lu.matches(syn));
@@ -5488,6 +5531,25 @@ public class PropertyParserTest {
 		assertEquals(Match.PENDING, lu.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueVarEmptyError() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("var()"));
+		assertEquals(5, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParsePropertyValueVarNoCustomError() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("var(width)"));
+		assertEquals(5, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParsePropertyValueVarNoPropertyError() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("var(1px)"));
 	}
 
 	@Test
