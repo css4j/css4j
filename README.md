@@ -159,7 +159,7 @@ and optional library packages are the following:
 ### Compile-time dependencies
 
 - The [jclf-text](https://jclf.sourceforge.io/api/io.sf.jclf.text/module-summary.html)
-  (5.0.0 or higher) and [jclf-linear3](https://jclf.sourceforge.io/api/io.sf.jclf.math.linear3/module-summary.html)
+  (5.0.2 or higher) and [jclf-linear3](https://jclf.sourceforge.io/api/io.sf.jclf.math.linear3/module-summary.html)
   (1.0.0 or higher) modules. See: https://sourceforge.net/projects/jclf
 
 - The [carte-util](https://github.com/css4j/carte-util) library; version 3.6.0
