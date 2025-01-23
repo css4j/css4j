@@ -462,12 +462,13 @@ public class StylableDocumentWrapperTest {
 	@Test
 	public void testLinkElement() {
 		CSSElement link = (CSSElement) xhtmlDoc.getElementsByTagName("link").item(0);
+
 		CSSStyleSheet sheet = ((LinkStyle<?>) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertTrue(sheet.getCssRules().getLength() > 0);
 		assertTrue(sheet.getOwnerNode() == link);
-		//
+
 		Attr href = link.getAttributeNode("href");
 		assertNotNull(href);
 		href.setValue("http://www.example.com/css/example.css");
@@ -475,7 +476,7 @@ public class StylableDocumentWrapperTest {
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		xhtmlDoc.getErrorHandler().reset();
-		//
+
 		link = (CSSElement) xhtmlDoc.getElementsByTagName("link").item(4);
 		sheet = ((LinkStyle<?>) link).getSheet();
 		assertNotNull(sheet);
@@ -484,6 +485,7 @@ public class StylableDocumentWrapperTest {
 		assertTrue(sheet.getCssRules().getLength() != 0);
 		assertTrue(sheet.getOwnerNode() == link);
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+
 		Attr media = link.getAttributeNode("media");
 		assertNotNull(media);
 		media.setValue("screen only and");

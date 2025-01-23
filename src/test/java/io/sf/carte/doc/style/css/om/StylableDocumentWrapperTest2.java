@@ -101,6 +101,7 @@ public class StylableDocumentWrapperTest2 {
 		assertNotNull(attr);
 		assertEquals("class", attr.getName());
 		assertEquals("foo", attr.getValue());
+		assertEquals("class=\"foo\"", attr.toString());
 		assertSame(attr, docElm.removeAttributeNode(attr));
 		assertFalse(docElm.hasAttribute("class"));
 

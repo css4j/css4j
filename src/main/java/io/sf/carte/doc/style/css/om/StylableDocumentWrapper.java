@@ -1122,9 +1122,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			if (len > 0) {
 				for (int i = 0; i < len; i++) {
 					Node node = nodeMap.item(i);
-					buf.append(' ');
-					buf.append(node.getNodeName()).append("='")
-						.append(node.getNodeValue());
+					buf.append(' ').append(node.toString());
 				}
 			}
 			if (hasChildNodes()) {
