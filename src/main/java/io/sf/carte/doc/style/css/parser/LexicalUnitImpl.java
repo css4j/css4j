@@ -170,12 +170,25 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			remove();
 			return 0;
 		}
-		if (replacementUnit.getLexicalUnitType() == LexicalType.EMPTY) {
-			remove();
-			return 1;
-		}
-		int counter = 0;
+		return countReplaceBy(replacementUnit, 0);
+	}
+
+	private int countReplaceBy(LexicalUnit replacementUnit, int counter) throws CSSBudgetException {
 		LexicalUnitImpl rlu = (LexicalUnitImpl) replacementUnit;
+		if (rlu.getLexicalUnitType() == LexicalType.EMPTY) {
+			counter++;
+			LexicalUnitImpl nrlu = rlu.nextLexicalUnit;
+			if (nrlu != null) {
+				nrlu.previousLexicalUnit = null;
+				counter = countReplaceBy(nrlu, counter);
+				if (counter >= LEXICAL_REPLACE_LIMIT) {
+					throw new CSSBudgetException("Exceeded limit of lexical units: " + LEXICAL_REPLACE_LIMIT);
+				}
+				return counter;
+			}
+			remove();
+			return counter;
+		}
 		if (rlu.ownerLexicalUnit != null) {
 			throw new IllegalArgumentException("Replacement unit is a parameter.");
 		}

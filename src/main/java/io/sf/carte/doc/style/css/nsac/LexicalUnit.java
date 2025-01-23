@@ -513,6 +513,10 @@ public interface LexicalUnit {
 	 * 
 	 * @param replacementUnit the lexical unit that replaces this one. If
 	 *                        {@code null}, this unit is replaced by the next one.
+	 *                        If {@link LexicalType#EMPTY EMPTY}, this unit is
+	 *                        replaced by the next non-empty unit in the parameter's
+	 *                        lexical chain or, if there is none, by the next unit
+	 *                        in this chain (same as if parameter was {@code null}).
 	 * @return the number of units that replace this one (<em>i.e.</em> the
 	 *         argument, or {@code 0} if the argument is {@code null}).
 	 * @throws IllegalArgumentException if the replacement unit is a parameter or
