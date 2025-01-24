@@ -1,3 +1,14 @@
+/*
+
+ Copyright (c) 2021-2025, C. Amengual.
+
+ Licensed under a BSD-style License. You can find the license here:
+ https://css4j.github.io/LICENSE.txt
+
+ */
+
+// SPDX-License-Identifier: BSD-3-Clause
+
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
