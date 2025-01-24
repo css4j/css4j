@@ -51,7 +51,7 @@ If your use case is negatively affected by this decision, please open an issue.
   or a	unicode range.
 - DOM wrapper: improved serialization of element nodes.
 - Gradle: use the assignment operator in the maven repo section.
-- Upgrade Gradle wrapper to 8.12.
+- Upgrade Gradle wrapper to 8.12.1.
 - Upgrade to JUnit 5.11.4.
 - Upgrade to Jazzer 0.23.0.
 - Upgrade to checkstyle 10.21.1.
