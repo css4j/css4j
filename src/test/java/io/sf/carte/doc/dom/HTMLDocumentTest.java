@@ -1428,18 +1428,21 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+
 		/*
 		 * attr() invalid value type (em vs color).
 		 */
-		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin type(<color>))");
+		elm.getOverrideStyle(null).setCssText("background-color:attr(leftmargin type(<color>))");
 		style = elm.getComputedStyle(null);
-		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+		CSSTypedValue value = (CSSTypedValue) style.getPropertyCSSValue("background-color");
+
 		// initial value
-		assertEquals(CSSValue.Type.NUMERIC, marginLeft.getPrimitiveType());
+		assertEquals(CSSValue.Type.COLOR, value.getPrimitiveType());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+
 		/*
 		 * attr() invalid value type (color), fallback.
 		 */
@@ -1655,6 +1658,7 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+
 		/*
 		 * attr() unit-value type (kHz).
 		 */
@@ -1665,6 +1669,7 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+
 		/*
 		 * attr() unknown unit-value type.
 		 */
@@ -1675,6 +1680,7 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+
 		/*
 		 * attr() unknown unit-value type (II).
 		 */
@@ -1687,22 +1693,24 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().getInlineStyleErrorHandler(elm).hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+
 		/*
-		 * attr() invalid value type (uri).
+		 * attr() value type (uri).
+		 */
+		elm.setAttribute("myuri", "url('https://www.example.com/foo')");
+		elm.getOverrideStyle(null).setCssText("foo-image:attr(myuri type(<url>))");
+		style = elm.getComputedStyle(null);
+		value = (CSSTypedValue) style.getPropertyCSSValue("foo-image");
+		assertEquals(CSSValue.Type.URI, value.getPrimitiveType());
+		assertEquals("https://www.example.com/foo", value.getStringValue());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+
+		/*
+		 * attr() forbidden value type (uri).
 		 */
 		elm.setAttribute("myuri", "https://www.example.com/foo");
-		elm.getOverrideStyle(null).setCssText("background-image:attr(myuri type(<url>))");
-		style = elm.getComputedStyle(null);
-		CSSTypedValue value = (CSSTypedValue) style.getPropertyCSSValue("background-image");
-		assertEquals(CSSValue.Type.IDENT, value.getPrimitiveType());
-		assertEquals("none", value.getStringValue());
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
-		/*
-		 * attr() invalid value type (relative uri).
-		 */
-		elm.setAttribute("myuri", "foo");
 		elm.getOverrideStyle(null).setCssText("background-image:attr(myuri type(<url>))");
 		style = elm.getComputedStyle(null);
 		value = (CSSTypedValue) style.getPropertyCSSValue("background-image");
@@ -1711,6 +1719,7 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+
 		/*
 		 * attr() missing url value, fallback.
 		 */
@@ -1722,6 +1731,7 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+
 		/*
 		 * attr() missing value, fallback is forbidden.
 		 */
@@ -1734,6 +1744,7 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasWarnings());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+
 		/*
 		 * attr() invalid value type (number).
 		 */
@@ -1747,6 +1758,7 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+
 		/*
 		 * attr() invalid value type (ident vs number), fallback.
 		 */
@@ -1758,6 +1770,7 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
+
 		/*
 		 * attr() percentage invalid value type.
 		 */
@@ -1771,6 +1784,7 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors(elm);
+
 		/*
 		 * attr() percentage invalid value type, fallback.
 		 */
@@ -1782,6 +1796,7 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors(elm);
+
 		/*
 		 * attr() percentage value type.
 		 */
@@ -1793,6 +1808,7 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+
 		/*
 		 * attr() percentage value type (II).
 		 */
@@ -1804,6 +1820,7 @@ public class HTMLDocumentTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
+
 		/*
 		 * attr() invalid percentage value type (III).
 		 */
@@ -1833,33 +1850,25 @@ public class HTMLDocumentTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors(elm);
+	}
+
+	@Test
+	public void testComputedStyleAttrVarRecursive() {
+		DOMElement elm = xhtmlDoc.getElementById("firstH3");
 
 		/*
-		 * attr() inside attr() via custom property in fallback (I).
+		 * attr() inside attr() via custom property in fallback.
 		 */
 		elm.getOverrideStyle(null)
-				.setCssText("margin-left:attr(noattr type(<length>),var(--foo));--foo:attr(noattr,var(--my-margin-left))");
-		style = elm.getComputedStyle(null);
-		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
+				.setCssText("margin-left:attr(noattr type(<length>),var(--foo));--foo:attr(noattr,var(--foo))");
+		ComputedCSSStyle style = elm.getComputedStyle(null);
+		CSSTypedValue marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertNotNull(marginLeft);
 		assertEquals(Type.NUMERIC, marginLeft.getPrimitiveType());
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 		xhtmlDoc.getErrorHandler().reset();
-
-		/*
-		 * attr() inside attr() via custom property in fallback (II).
-		 */
-		elm.getOverrideStyle(null)
-				.setCssText("margin-left:attr(noattr type(<length>),var(--foo));--foo:attr(noattr type(<length>))");
-		style = elm.getComputedStyle(null);
-		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
-		assertNotNull(marginLeft);
-		assertEquals(Type.NUMERIC, marginLeft.getPrimitiveType());
-		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
-		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
-		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 	}
 
 	@Test
