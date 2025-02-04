@@ -53,8 +53,7 @@ dependencies {
 	// ShorthandSetterTest requires JUnit 4
 	testImplementation 'org.junit.vintage:junit-vintage-engine:5.11.4'
 	// Jazzzer
-	testImplementation 'com.code-intelligence:jazzer-junit:0.23.0'
-	testImplementation 'com.code-intelligence:jazzer-api:0.23.0'
+	testImplementation 'com.code-intelligence:jazzer-junit:0.24.0'
 }
 
 repositories {
