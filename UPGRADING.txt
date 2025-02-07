@@ -1,6 +1,12 @@
 UPGRADING FROM PREVIOUS VERSIONS
 ================================
 
+Upgrading to 5.2 from 5.1
+-------------------------
+- CSSOM: `CSSMathFunctionValue.getFunction()` was deprecated, use
+  `getFunctionIndex()` instead.
+
+
 Upgrading to 5.1 from 5.0
 -------------------------
 - API: `CSSPropertyDefinition` now gives a `LexicalUnit` initial value.

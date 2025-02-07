@@ -155,6 +155,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 		} else if (primi.getCssValueType() != CssType.TYPED ||
 				(primi.getPrimitiveType() != Type.EXPRESSION
 				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+				&& primi.getPrimitiveType() != Type.FUNCTION
 				&& (primi.getPrimitiveType() != Type.IDENT
 						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue())))) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
@@ -201,11 +202,12 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 				typed.setSubproperty(true);
 				primi = typed;
 			}
-		} else if (primi.getCssValueType() != CssType.TYPED ||
-				(primi.getPrimitiveType() != Type.EXPRESSION
-				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
-				&& (primi.getPrimitiveType() != Type.IDENT
-						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue())))) {
+		} else if (primi.getCssValueType() != CssType.TYPED
+				|| (primi.getPrimitiveType() != Type.EXPRESSION
+						&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+						&& primi.getPrimitiveType() != Type.FUNCTION
+						&& (primi.getPrimitiveType() != Type.IDENT || !"none"
+								.equalsIgnoreCase(((TypedValue) primi).getStringValue())))) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Invalid color component: " + primi.getCssText());
 		}
@@ -236,6 +238,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 				&& (hue.getCssValueType() != CssType.TYPED
 						|| (hue.getPrimitiveType() != Type.EXPRESSION
 								&& hue.getPrimitiveType() != Type.MATH_FUNCTION
+								&& hue.getPrimitiveType() != Type.FUNCTION
 								&& (hue.getPrimitiveType() != Type.IDENT || !"none"
 										.equalsIgnoreCase(((TypedValue) hue).getStringValue()))))) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with hue.");
@@ -273,6 +276,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 				(primi.getCssValueType() != CssType.TYPED
 				|| (primi.getPrimitiveType() != Type.EXPRESSION
 						&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+						&& primi.getPrimitiveType() != Type.FUNCTION
 						&& (primi.getPrimitiveType() != Type.IDENT || !"none"
 								.equalsIgnoreCase(((TypedValue) primi).getStringValue()))))) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,

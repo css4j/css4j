@@ -99,7 +99,9 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 			return ParseHelper.isTransformFunction(functionName) ? Match.TRUE : Match.FALSE;
 		case image:
 			// Custom gradients and other image functions
-			return isImageFunction() ? Match.TRUE : Match.FALSE;
+			return isImageFunction() || getPrimitiveType() == Type.SRC ? Match.TRUE : Match.FALSE;
+		case url:
+			return getPrimitiveType() == Type.SRC ? Match.TRUE : Match.FALSE;
 		case universal:
 			return Match.TRUE;
 		default:

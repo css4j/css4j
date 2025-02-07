@@ -29,6 +29,7 @@ import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueList;
+import io.sf.carte.doc.style.css.MathFunctions;
 
 /**
  * Expression/Function evaluator.
@@ -42,6 +43,8 @@ import io.sf.carte.doc.style.css.CSSValueList;
  */
 public class Evaluator {
 
+	private static final FunctionEvaluator[] funcEvaluators = loadFunctionEvaluators();
+
 	private final short preferredUnit;
 
 	/**
@@ -49,6 +52,172 @@ public class Evaluator {
 	 */
 	public Evaluator() {
 		this(CSSUnit.CSS_PT);
+	}
+
+	private static FunctionEvaluator[] loadFunctionEvaluators() {
+		FunctionEvaluator[] evals = new FunctionEvaluator[MathFunctions.INDEX_COUNT];
+
+		evals[MathFunctions.ABS] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionAbs(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.CLAMP] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionClamp(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.MAX] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionMax(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.MIN] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionMin(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.HYPOT] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionHypot(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.HYPOT2] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionHypot2(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.SQRT] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionSqrt(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.POW] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionPow(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.SIGN] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionSign(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.SIN] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionSin(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.COS] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionCos(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.TAN] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionTan(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.ASIN] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionASin(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.ACOS] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionACos(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.ATAN] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionATan(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.ATAN2] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionATan2(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		return evals;
 	}
 
 	/**
@@ -59,6 +228,13 @@ public class Evaluator {
 	public Evaluator(short preferredUnit) {
 		super();
 		this.preferredUnit = preferredUnit;
+	}
+
+	interface FunctionEvaluator {
+
+		CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+				Unit resultUnit);
+
 	}
 
 	/**
@@ -76,15 +252,19 @@ public class Evaluator {
 	 */
 	public CSSNumberValue evaluateFunction(CSSMathFunctionValue function) throws DOMException {
 		Unit resultUnit = new Unit();
+
 		CSSNumberValue result = evaluateFunction(function, resultUnit);
+
 		int exp = resultUnit.getExponent();
 		if (exp > 1 || exp < 0) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Resulting unit is not valid CSS unit.");
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Resulting unit is not valid CSS unit.");
 		}
 
 		float fv = result.getFloatValue(result.getUnitType());
 		if (Float.isNaN(fv)) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Result is not a number (NaN).");
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"Result is not a number (NaN).");
 		}
 
 		if (function.isExpectingInteger()) {
@@ -105,59 +285,8 @@ public class Evaluator {
 	 */
 	CSSNumberValue evaluateFunction(CSSMathFunctionValue function, Unit resultUnit)
 			throws DOMException {
-		CSSNumberValue typed;
-		switch (function.getFunction()) {
-		case MAX:
-			typed = functionMax(function.getArguments(), resultUnit);
-			break;
-		case MIN:
-			typed = functionMin(function.getArguments(), resultUnit);
-			break;
-		case CLAMP:
-			typed = functionClamp(function.getArguments(), resultUnit);
-			break;
-		case SIN:
-			typed = functionSin(function.getArguments(), resultUnit);
-			break;
-		case COS:
-			typed = functionCos(function.getArguments(), resultUnit);
-			break;
-		case TAN:
-			typed = functionTan(function.getArguments(), resultUnit);
-			break;
-		case ASIN:
-			typed = functionASin(function.getArguments(), resultUnit);
-			break;
-		case ACOS:
-			typed = functionACos(function.getArguments(), resultUnit);
-			break;
-		case ATAN:
-			typed = functionATan(function.getArguments(), resultUnit);
-			break;
-		case ATAN2:
-			typed = functionATan2(function.getArguments(), resultUnit);
-			break;
-		case POW:
-			typed = functionPow(function.getArguments(), resultUnit);
-			break;
-		case SQRT:
-			typed = functionSqrt(function.getArguments(), resultUnit);
-			break;
-		case HYPOT:
-			typed = functionHypot(function.getArguments(), resultUnit);
-			break;
-		case ABS:
-			typed = functionAbs(function.getArguments(), resultUnit);
-			break;
-		case SIGN:
-			typed = functionSign(function.getArguments(), resultUnit);
-			break;
-		default:
-			// Perhaps the caller was compiled against a later version
-			// of this library
-			throw new IllegalStateException("Unknown math function: " + function.getFunctionName());
-		}
-		return typed;
+		return funcEvaluators[function.getFunctionIndex()].evaluateFunction(this,
+				function, resultUnit);
 	}
 
 	private CSSNumberValue functionMax(CSSValueList<? extends CSSValue> arguments,

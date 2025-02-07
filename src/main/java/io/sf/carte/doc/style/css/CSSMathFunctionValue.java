@@ -21,7 +21,10 @@ public interface CSSMathFunctionValue extends CSSFunctionValue, CSSMathValue {
 
 	/**
 	 * Enumeration of mathematical functions.
+	 * 
+	 * @deprecated see {@link MathFunctions}.
 	 */
+	@Deprecated
 	enum MathFunction {
 		/** {@code abs()} */
 		ABS,
@@ -73,8 +76,18 @@ public interface CSSMathFunctionValue extends CSSFunctionValue, CSSMathValue {
 	 * Get the function type.
 	 * 
 	 * @return the function type.
+	 * @deprecated see {@link #getFunctionIndex()}.
 	 */
+	@Deprecated
 	MathFunction getFunction();
+
+	/**
+	 * Gives the index of this mathematical function, according to
+	 * {@link io.sf.carte.doc.style.css.MathFunctions MathFunctions} .
+	 * 
+	 * @return the function index.
+	 */
+	int getFunctionIndex();
 
 	/**
 	 * Performs a dimensional analysis of this function and computes the unit type

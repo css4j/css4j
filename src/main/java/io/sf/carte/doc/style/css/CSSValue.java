@@ -208,6 +208,15 @@ public interface CSSValue extends Cloneable {
 		URI,
 
 		/**
+		 * {@code src()} function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue} or
+		 * {@link io.sf.carte.doc.style.css.property.FunctionValue FunctionValue}.
+		 * </p>
+		 */
+		SRC,
+
+		/**
 		 * {@code rect()} function.
 		 * <p>
 		 * Cast to {@link CSSRectValue} or

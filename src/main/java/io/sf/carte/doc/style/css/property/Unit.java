@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css.property;
 
+import org.w3c.dom.DOMException;
+
 import io.sf.carte.doc.style.css.CSSUnit;
 
 /**
@@ -113,8 +115,9 @@ class Unit {
 	 * @param value               the value to convert.
 	 * @param destinationUnitType the destination unit type.
 	 * @return the converted value.
+	 * @throws DOMException if the unit conversion could not be done.
 	 */
-	public float convert(float value, short destinationUnitType) {
+	public float convert(float value, short destinationUnitType) throws DOMException {
 		if (exponent != 0 && unitType != destinationUnitType) {
 			double factor = NumberValue.floatValueConversion(1f, unitType, destinationUnitType);
 			if (exponent > 1) {

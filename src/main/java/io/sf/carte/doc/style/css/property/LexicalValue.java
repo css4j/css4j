@@ -81,6 +81,9 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		case URI:
 			type = Type.URI;
 			break;
+		case SRC:
+			type = Type.SRC;
+			break;
 		case DIMENSION:
 		case PERCENTAGE:
 		case REAL:
@@ -107,11 +110,12 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 				type = Type.GRADIENT;
 			} else if ("env".equals(func)) {
 				type = Type.ENV;
-			} else if (MathFunctionHelper.getMathFunction(func) != null) {
-				type = Type.MATH_FUNCTION;
 			} else {
 				type = Type.FUNCTION;
 			}
+			break;
+		case MATH_FUNCTION:
+			type = Type.MATH_FUNCTION;
 			break;
 		case COLOR_MIX:
 			type = Type.COLOR_MIX;
@@ -239,6 +243,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 				// Hex notation
 				return cssText;
 			}
+		case MATH_FUNCTION:
 		case FUNCTION:
 		case CALC:
 		case RECT_FUNCTION:
@@ -256,6 +261,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		case COUNTERS_FUNCTION:
 		case CUBIC_BEZIER_FUNCTION:
 		case STEPS_FUNCTION:
+		case SRC:
 			buf = new StringBuilder();
 			buf.append(lexicalUnit.getFunctionName()).append('(');
 			LexicalUnit lu = lexicalUnit.getParameters();

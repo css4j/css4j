@@ -187,7 +187,7 @@ abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Se
 					TypedValue primi = (TypedValue) item;
 					Type pType = primi.getPrimitiveType();
 					LinkedCSSValueList args;
-					if (pType == Type.URI || pType == Type.STRING) {
+					if (pType == Type.URI || pType == Type.STRING || pType == Type.SRC) {
 						if (uri == null) {
 							uri = primi;
 							continue;
@@ -230,55 +230,14 @@ abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Se
 		Type pType = value.getPrimitiveType();
 		if (pType == Type.URI) {
 			String uri = value.getStringValue();
-			Node node = rule.getParentStyleSheet().getOwnerNode();
-			CSSDocument doc;
-			if (node.getNodeType() != Node.DOCUMENT_NODE) {
-				doc = (CSSDocument) node.getOwnerDocument();
-			} else {
-				doc = (CSSDocument) node;
-			}
-			URL url;
-			try {
-				url = doc.getURL(uri);
-			} catch (MalformedURLException e) {
-				doc.getErrorHandler().ioError(uri, e);
-				return false;
-			}
-			// Check URL safety
-			if (!doc.isAuthorizedOrigin(url)) {
-				doc.getErrorHandler().policyError(node, "Unauthorized URL: " + url.toExternalForm());
-				return false;
-			}
-			//
-			InputStream is = null;
-			try {
-				FontFormat fontFormat = null;
-				URLConnection conn = doc.openConnection(url);
-				conn.setConnectTimeout(AbstractCSSStyleSheet.CONNECT_TIMEOUT);
-				conn.connect();
-				String conType = conn.getContentType();
-				if (conType != null) {
-					int scidx = conType.indexOf(';');
-					if (scidx != -1) {
-						conType = conType.substring(0, scidx);
-					}
-					conType = conType.toLowerCase(Locale.ROOT);
-					fontFormat = fontFormatFromContentType(conType);
-				}
-				if (fontFormat == null && format != null) {
-					fontFormat = fontFormatFromRule(format.toLowerCase(Locale.ROOT));
-				}
-				is = conn.getInputStream();
-				loadFontFace(familyName, fontFormat, is, rule);
-				return true;
-			} catch (IOException e) {
-				doc.getErrorHandler().ioError(url.toExternalForm(), e);
-			} finally {
-				try {
-					if (is != null) {
-						is.close();
-					}
-				} catch (IOException e) {
+			return loadFont(familyName, format, rule, uri);
+		} else if (pType == Type.SRC) {
+			FunctionValue function = (FunctionValue) value;
+			if (function.getArguments().size() >= 1) {
+				StyleValue first = function.getArguments().getFirst();
+				if (first.getPrimitiveType() == Type.STRING) {
+					String uri = ((CSSTypedValue) first).getStringValue();
+					return loadFont(familyName, format, rule, uri);
 				}
 			}
 		} else if (pType == Type.FUNCTION) {
@@ -291,6 +250,65 @@ abstract public class AbstractStyleDatabase implements StyleDatabase, java.io.Se
 				}
 			}
 		}
+		return false;
+	}
+
+	private boolean loadFont(String familyName, String format, CSSFontFaceRule rule, String uri) {
+		Node node = rule.getParentStyleSheet().getOwnerNode();
+
+		CSSDocument doc;
+		if (node.getNodeType() != Node.DOCUMENT_NODE) {
+			doc = (CSSDocument) node.getOwnerDocument();
+		} else {
+			doc = (CSSDocument) node;
+		}
+
+		URL url;
+		try {
+			url = doc.getURL(uri);
+		} catch (MalformedURLException e) {
+			doc.getErrorHandler().ioError(uri, e);
+			return false;
+		}
+
+		// Check URL safety
+		if (!doc.isAuthorizedOrigin(url)) {
+			doc.getErrorHandler().policyError(node, "Unauthorized URL: " + url.toExternalForm());
+			return false;
+		}
+
+		InputStream is = null;
+		try {
+			FontFormat fontFormat = null;
+			URLConnection conn = doc.openConnection(url);
+			conn.setConnectTimeout(AbstractCSSStyleSheet.CONNECT_TIMEOUT);
+			conn.connect();
+			String conType = conn.getContentType();
+			if (conType != null) {
+				int scidx = conType.indexOf(';');
+				if (scidx != -1) {
+					conType = conType.substring(0, scidx);
+				}
+				conType = conType.toLowerCase(Locale.ROOT);
+				fontFormat = fontFormatFromContentType(conType);
+			}
+			if (fontFormat == null && format != null) {
+				fontFormat = fontFormatFromRule(format.toLowerCase(Locale.ROOT));
+			}
+			is = conn.getInputStream();
+			loadFontFace(familyName, fontFormat, is, rule);
+			return true;
+		} catch (IOException e) {
+			doc.getErrorHandler().ioError(url.toExternalForm(), e);
+		} finally {
+			try {
+				if (is != null) {
+					is.close();
+				}
+			} catch (IOException e) {
+			}
+		}
+
 		return false;
 	}
 

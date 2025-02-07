@@ -143,6 +143,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 		} else if (primi.getCssValueType() != CssType.PROXY
 				&& primi.getPrimitiveType() != Type.EXPRESSION
 				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+				&& primi.getPrimitiveType() != Type.FUNCTION
 				&& (primi.getPrimitiveType() != Type.IDENT
 						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue()))) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,

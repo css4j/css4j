@@ -61,8 +61,9 @@ public class CalcValue extends ExpressionValue {
 				if (primi.getPrimitiveType() == Type.NUMERIC) {
 					return lastlutype == LexicalType.SUB_EXPRESSION;
 				}
-				return lutype != LexicalType.CALC && lutype != LexicalType.FUNCTION
-						&& lutype != LexicalType.VAR && lutype != LexicalType.ATTR;
+				return lutype != LexicalType.CALC && lutype != LexicalType.MATH_FUNCTION
+						&& lutype != LexicalType.VAR && lutype != LexicalType.ATTR
+						&& lutype != LexicalType.FUNCTION;
 			}
 
 		};

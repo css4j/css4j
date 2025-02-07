@@ -452,7 +452,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	boolean isImage() {
 		LexicalType type = currentValue.getLexicalUnitType();
-		return type == LexicalType.URI
+		return type == LexicalType.URI || type == LexicalType.SRC
 			|| (type == LexicalType.FUNCTION && isImageFunctionOrGradientName())
 			|| type == LexicalType.ELEMENT_REFERENCE
 			|| currentValue.shallowClone().matches(imageSyntax) == Match.TRUE;

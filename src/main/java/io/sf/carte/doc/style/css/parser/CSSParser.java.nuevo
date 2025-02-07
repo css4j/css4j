@@ -1,6 +1,6 @@
 /*
 
- Copyright (c) 2005-2025, Carlos Amengual.
+ Copyright (c) 2005-2023, Carlos Amengual.
 
  SPDX-License-Identifier: BSD-3-Clause
 
@@ -44,8 +44,6 @@ import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.MediaQueryHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.UnitStringToId;
-import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
@@ -69,7 +67,6 @@ import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.Selector.SelectorType;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
-import io.sf.carte.doc.style.css.nsac.SheetContext;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.SupportsConditionFactory;
@@ -238,7 +235,7 @@ public class CSSParser implements Parser, Cloneable {
 		String conType = ucon.getContentType();
 
 		// Check that the content type is correct
-		if (CSSUtil.isInvalidCSSContentType(url, conType) && !isRedirect(ucon)) {
+		if (isInvalidContentType(url, conType) && !isRedirect(ucon)) {
 			// Report security error
 			String msg;
 			if (conType != null) {
@@ -248,7 +245,8 @@ public class CSSParser implements Parser, Cloneable {
 				msg = "Style sheet at " + url.toExternalForm() + " served with invalid type ("
 						+ conType + ").";
 			} else {
-				msg = "Style sheet at " + url.toExternalForm() + " has no valid content type.";
+				msg = "Style sheet at " + url.toExternalForm()
+						+ " has no content type nor ends with '.css' extension.";
 			}
 			try {
 				is.close();
@@ -256,6 +254,8 @@ public class CSSParser implements Parser, Cloneable {
 			}
 			throw new IOException(msg);
 		}
+
+		Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding, StandardCharsets.UTF_8);
 
 		NamespaceMap nsMap = null;
 		if (handler instanceof NamespaceMap) {
@@ -265,12 +265,29 @@ public class CSSParser implements Parser, Cloneable {
 		int[] allowInWords = { 45, 95 }; // -_
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
-
-		try (Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding,
-				StandardCharsets.UTF_8)) {
-			this.handler.parseStart(handler);
+		this.handler.parseStart(handler);
+		try {
 			tp.parse(re, "/*", "*/"); // We do not look for CDO-CDC comments here
+		} catch (IOException e) {
+			try {
+				re.close();
+			} catch (IOException e1) {
+				// Ignore e1
+			}
+			throw e;
 		}
+		re.close();
+	}
+
+	private boolean isInvalidContentType(URL url, String conType) {
+		if (conType != null) {
+			int sepidx = conType.indexOf(';');
+			if (sepidx != -1) {
+				conType = conType.substring(0, sepidx);
+			}
+			return !"text/css".equalsIgnoreCase(conType);
+		}
+		return false;
 	}
 
 	private boolean isRedirect(URLConnection ucon) {
@@ -304,7 +321,7 @@ public class CSSParser implements Parser, Cloneable {
 				return;
 			}
 			String charset = source.getEncoding();
-			if (charset == null) {
+			if ( charset == null) {
 				charset = "UTF-8";
 			}
 			re = new InputStreamReader(is, charset);
@@ -330,7 +347,7 @@ public class CSSParser implements Parser, Cloneable {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
+		DeclarationTokenHandler handler = new DeclarationTokenHandler();
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
@@ -342,7 +359,7 @@ public class CSSParser implements Parser, Cloneable {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
+		DeclarationTokenHandler handler = new DeclarationTokenHandler();
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		Reader reader = getReaderFromSource(source);
 		this.handler.parseStart(handler);
@@ -425,8 +442,7 @@ public class CSSParser implements Parser, Cloneable {
 			throw new IllegalStateException(
 				"Document handler needs to implement DeclarationRuleHandler.");
 		}
-		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(
-			ShorthandDatabase.getInstance());
+		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler();
 		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
@@ -582,7 +598,7 @@ public class CSSParser implements Parser, Cloneable {
 	 *                      <code>NOT_SUPPORTED_ERR</code> exceptions are always
 	 *                      thrown instead of being processed by the rule. Please
 	 *                      use
-	 *                      {@link #parseSupportsCondition(String, CSSRule, SheetContext)}
+	 *                      {@link #parseSupportsCondition(String, CSSRule, AbstractCSSStyleSheet)}
 	 *                      with a style sheet argument if you do not want to supply
 	 *                      a rule, otherwise namespace-related errors may be
 	 *                      produced.
@@ -593,7 +609,7 @@ public class CSSParser implements Parser, Cloneable {
 	 *                            handler.
 	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was
 	 *                            reached.
-	 * @see #parseSupportsCondition(String, CSSRule, SheetContext)
+	 * @see #parseSupportsCondition(String, CSSRule, AbstractCSSStyleSheet)
 	 */
 	public BooleanCondition parseSupportsCondition(String conditionText, CSSRule rule)
 			throws CSSParseException, CSSBudgetException {
@@ -608,13 +624,13 @@ public class CSSParser implements Parser, Cloneable {
 	 * Parse the condition text of a <code>{@literal @}supports</code> rule.
 	 * 
 	 * @param conditionText    the condition text.
-	 * @param rule             the rule that would process the error. If
+	 * @param rule             the rule that would process the error. if
 	 *                         <code>null</code>, a problem while parsing shall
 	 *                         result in an exception. Note that
 	 *                         <code>NOT_SUPPORTED_ERR</code> exceptions are always
 	 *                         thrown instead of being processed by the rule.
-	 * @param parentStyleSheet the parent style sheet context. It is necessary to
-	 *                         provide information related to namespaces, as well as
+	 * @param parentStyleSheet the parent style sheet. It is necessary to provide
+	 *                         information related to namespaces, as well as
 	 *                         customizing the serialization.
 	 * @return the <code>{@literal @}supports</code> condition, or <code>null</code>
 	 *         if a rule was specified to handle the errors, and an error was
@@ -625,7 +641,7 @@ public class CSSParser implements Parser, Cloneable {
 	 *                            reached.
 	 */
 	public BooleanCondition parseSupportsCondition(String conditionText, CSSRule rule,
-			SheetContext parentStyleSheet)
+			AbstractCSSStyleSheet parentStyleSheet)
 			throws CSSParseException, CSSBudgetException {
 		int[] allowInWords = { 45, 46 }; // -.
 		SupportsTokenHandler handler = new SupportsTokenHandler(rule, parentStyleSheet);
@@ -645,11 +661,11 @@ public class CSSParser implements Parser, Cloneable {
 	/**
 	 * Create a new factory for {@code @supports} conditions.
 	 * 
-	 * @param parentSheet the {@code @supports} rule's parent style sheet context.
+	 * @param parentSheet the {@code @supports} rule's parent style sheet.
 	 * @return the factory.
 	 */
 	protected io.sf.carte.doc.style.css.SupportsConditionFactory createSupportsConditionFactory(
-			SheetContext parentSheet) {
+			AbstractCSSStyleSheet parentSheet) {
 		return new SupportsConditionFactory(parentSheet);
 	}
 
@@ -1116,7 +1132,7 @@ public class CSSParser implements Parser, Cloneable {
 		private CSSParseException errorException = null;
 		private final CSSRule rule;
 
-		SupportsTokenHandler(CSSRule rule, SheetContext parentStyleSheet) {
+		SupportsTokenHandler(CSSRule rule, AbstractCSSStyleSheet parentStyleSheet) {
 			super(createSupportsConditionFactory(parentStyleSheet));
 			this.rule = rule;
 			setPredicateHandler(new SupportsDelegateHandler());
@@ -2195,7 +2211,6 @@ public class CSSParser implements Parser, Cloneable {
 		return handler.getTrimmedSelectorList();
 	}
 
-	@Override
 	public Condition parsePseudoElement(String pseudoElement) throws CSSException {
 		SelectorList peList = parseSelectors(pseudoElement);
 		Selector sel;
@@ -2637,7 +2652,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		abstract boolean processNestedSelector(int index);
 
-		abstract void endBlockList(int index);
+		abstract void endBlockList();
 
 		@Override
 		public void rightCurlyBracket(int index) {
@@ -2646,7 +2661,7 @@ public class CSSParser implements Parser, Cloneable {
 				if (curlyBracketDepth == 1) {
 					endBlock();
 				} else if (curlyBracketDepth == 0) {
-					endBlockList(index);
+					endBlockList();
 					stage = STAGE_END_BLOCK_LIST;
 				}
 				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
@@ -2659,7 +2674,7 @@ public class CSSParser implements Parser, Cloneable {
 		protected void handleRightCurlyBracket(int index) {
 			if (curlyBracketDepth == 0) {
 				// Body of rule ends
-				endBlockList(index);
+				endBlockList();
 				stage = STAGE_END_BLOCK_LIST;
 				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
 			} else if (curlyBracketDepth == 1 && stage == STAGE_NESTED_SELECTOR_ERROR) {
@@ -2710,7 +2725,6 @@ public class CSSParser implements Parser, Cloneable {
 						buffer.append(chars);
 						prevcp = codePoint;
 					} else {
-						buffer.setLength(0);
 						unexpectedCharError(index, codePoint, STAGE_NESTED_SELECTOR_ERROR);
 					}
 					return;
@@ -2760,11 +2774,11 @@ public class CSSParser implements Parser, Cloneable {
 					return;
 				}
 				handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of " + blockRuleName + " rule.");
-				endBlockList(len);
+				endBlockList();
 			} else if (stage != STAGE_END_BLOCK_LIST) {
 				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Malformed " + blockRuleName + " rule.",
 						STAGE_SELECTOR_ERROR);
-				endBlockList(len);
+				endBlockList();
 			}
 		}
 
@@ -2805,7 +2819,7 @@ public class CSSParser implements Parser, Cloneable {
 		private class NestedRuleDeclarationTokenHandler extends DeclarationTokenHandler {
 
 			private NestedRuleDeclarationTokenHandler() {
-				super(null);
+				super();
 			}
 
 			@Override
@@ -2854,7 +2868,7 @@ public class CSSParser implements Parser, Cloneable {
 			private final DeclarationTokenHandler nestedDeclarationHandler;
 
 			RootDeclarationTokenHandler(DeclarationTokenHandler nestedDeclarationHandler) {
-				super(ShorthandDatabase.getInstance());
+				super();
 				this.nestedDeclarationHandler = nestedDeclarationHandler;
 			}
 
@@ -2969,12 +2983,8 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		void endBlockList(int index) {
+		void endBlockList() {
 			if (getStage() != STAGE_SELECTOR_ERROR) {
-				if (buffer.length() > 0 || prevcp == TokenProducer.CHAR_COMMERCIAL_AT) {
-					buffer.setLength(0);
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Unexpected end of rule.");
-				}
 				handler.endPage(pageSelectorList);
 			}
 			pageSelectorList = null;
@@ -3060,7 +3070,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		void endBlockList(int index) {
+		void endBlockList() {
 			handler.endKeyframes();
 		}
 
@@ -3112,7 +3122,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		void endBlockList(int index) {
+		void endBlockList() {
 			handler.endFontFeatures();
 		}
 
@@ -3224,7 +3234,7 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			public void control(int index, int codepoint) {
 				RuleTokenHandler.this.control(index, codepoint);
-				this.foundControl = true;
+				this.foundControl  = true;
 			}
 
 			@Override
@@ -4148,7 +4158,7 @@ public class CSSParser implements Parser, Cloneable {
 		private class ViewportTokenHandler extends MyDeclarationRuleTokenHandler {
 
 			private ViewportTokenHandler() {
-				super(ShorthandDatabase.getInstance());
+				super();
 				setRuleName("viewport");
 				setStage(STAGE_RULE_NAME_SELECTOR);
 			}
@@ -4174,8 +4184,8 @@ public class CSSParser implements Parser, Cloneable {
 
 		private class MyDeclarationRuleTokenHandler extends DeclarationRuleTokenHandler {
 
-			MyDeclarationRuleTokenHandler(ShorthandDatabase propertyDatabase) {
-				super(propertyDatabase);
+			MyDeclarationRuleTokenHandler() {
+				super();
 				setStage(STAGE_RULE_NAME_SELECTOR);
 			}
 
@@ -4201,7 +4211,7 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			void skipDeclarationBlock() {
-				contextHandler = new MyIgnoredDeclarationTokenHandler();
+				contextHandler = new MyIgnoredDeclarationBlockTH();
 			}
 
 			@Override
@@ -4225,7 +4235,7 @@ public class CSSParser implements Parser, Cloneable {
 		private class CounterStyleTokenHandler extends MyDeclarationRuleTokenHandler {
 
 			private CounterStyleTokenHandler() {
-				super(ShorthandDatabase.getInstance());
+				super();
 				setRuleName("counter-style");
 				setStage(STAGE_RULE_NAME_SELECTOR);
 			}
@@ -4277,8 +4287,8 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			void endBlockList(int index) {
-				super.endBlockList(index);
+			void endBlockList() {
+				super.endBlockList();
 				endRuleBody();
 			}
 
@@ -4326,8 +4336,8 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			void endBlockList(int index) {
-				super.endBlockList(index);
+			void endBlockList() {
+				super.endBlockList();
 				endRuleBody();
 			}
 
@@ -4375,8 +4385,8 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			void endBlockList(int index) {
-				super.endBlockList(index);
+			void endBlockList() {
+				super.endBlockList();
 				endRuleBody();
 			}
 
@@ -4411,7 +4421,7 @@ public class CSSParser implements Parser, Cloneable {
 			private LexicalUnit initialValue = null;
 
 			private PropertyRuleTokenHandler() {
-				super(ShorthandDatabase.getInstance());
+				super();
 				setRuleName("property");
 				setStage(STAGE_RULE_NAME_SELECTOR);
 			}
@@ -4499,7 +4509,7 @@ public class CSSParser implements Parser, Cloneable {
 		private class MySupportsTokenHandler extends SupportsTokenHandler {
 
 			MySupportsTokenHandler() {
-				super(null, (SheetContext) handler.getStyleSheet());
+				super(null, (AbstractCSSStyleSheet) handler.getStyleSheet());
 			}
 
 			@Override
@@ -4619,7 +4629,7 @@ public class CSSParser implements Parser, Cloneable {
 			private void ignoreRule() {
 				selist.clear();
 				currentsel = null;
-				contextHandler = new MyIgnoredDeclarationTokenHandler();
+				contextHandler = new MyIgnoredDeclarationBlockTH();
 			}
 
 			@Override
@@ -4760,7 +4770,7 @@ public class CSSParser implements Parser, Cloneable {
 		private class MyDeclarationTokenHandler extends DeclarationTokenHandler {
 
 			MyDeclarationTokenHandler() {
-				super(ShorthandDatabase.getInstance());
+				super();
 			}
 
 			@Override
@@ -4841,6 +4851,11 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			protected TokenHandler2 createIgnoredDeclarationHandler() {
+				return new MyIgnoredDeclarationTokenHandler();
+			}
+
+			@Override
 			protected void endDeclarationList() {
 			}
 
@@ -4854,12 +4869,7 @@ public class CSSParser implements Parser, Cloneable {
 		private class MyIgnoredDeclarationTokenHandler extends IgnoredDeclarationTokenHandler {
 
 			MyIgnoredDeclarationTokenHandler() {
-				super();
-			}
-
-			@Override
-			protected void endDeclarationBlock() {
-				setSelectorHandler(125);
+				super(SheetTokenHandler.this);
 			}
 
 			@Override
@@ -4871,6 +4881,20 @@ public class CSSParser implements Parser, Cloneable {
 			public void endOfStream(int len) {
 				contextHandler = null; // avoid circular loop and help gc
 				SheetTokenHandler.this.endOfStream(len);
+			}
+
+		}
+
+		private class MyIgnoredDeclarationBlockTH extends MyIgnoredDeclarationTokenHandler {
+
+			MyIgnoredDeclarationBlockTH() {
+				super();
+			}
+
+			@Override
+			protected void endDeclarationBlock(int index) {
+				super.endDeclarationBlock(index);
+				setSelectorHandler(125);
 			}
 
 		}
@@ -6266,8 +6290,8 @@ public class CSSParser implements Parser, Cloneable {
 		static final byte STAGE_RULE_END = 4;
 		static final byte INVALID_RULE = 127;
 
-		DeclarationRuleTokenHandler(ShorthandDatabase propertyDatabase) {
-			super(propertyDatabase, 0);
+		DeclarationRuleTokenHandler() {
+			super(0);
 		}
 
 		void setRuleName(String ruleName) {
@@ -6402,11 +6426,11 @@ public class CSSParser implements Parser, Cloneable {
 		private class IgnoredDeclarationRuleTokenHandler extends IgnoredDeclarationTokenHandler {
 
 			IgnoredDeclarationRuleTokenHandler() {
-				super();
+				super(DeclarationRuleTokenHandler.this);
 			}
 
 			@Override
-			protected void endDeclarationBlock() {
+			protected void endDeclarationBlock(int index) {
 			}
 
 			@Override
@@ -6447,10 +6471,78 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	class PropertyTokenHandler extends DeclarationTokenHandler {
+	class EmptyControlTokenHandler extends ControlTokenHandler {
+
+		EmptyControlTokenHandler() {
+			super();
+		}
+
+		EmptyControlTokenHandler(int currentLine, int prevLineLength) {
+			super(currentLine, prevLineLength);
+		}
+
+		@Override
+		public void word(int index, CharSequence word) {
+		}
+
+		@Override
+		public void separator(int index, int codePoint) {
+		}
+
+		@Override
+		public void quoted(int index, CharSequence quoted, int quote) {
+		}
+
+		@Override
+		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+		}
+
+		@Override
+		public void leftParenthesis(int index) {
+		}
+
+		@Override
+		public void leftSquareBracket(int index) {
+		}
+
+		@Override
+		public void leftCurlyBracket(int index) {
+		}
+
+		@Override
+		public void rightParenthesis(int index) {
+		}
+
+		@Override
+		public void rightSquareBracket(int index) {
+		}
+
+		@Override
+		public void rightCurlyBracket(int index) {
+		}
+
+		@Override
+		public void character(int index, int codePoint) {
+		}
+
+		@Override
+		public void escaped(int index, int codePoint) {
+		}
+
+		@Override
+		public void endOfStream(int len) {
+		}
+
+	}
+
+	class PropertyTokenHandler extends EmptyControlTokenHandler {
+
+		private final String propertyName;
+
+		private ValueTokenHandler valueth = new PropertyValueTokenHandler(this);
+
 		PropertyTokenHandler() {
-			super(null);
-			this.propertyName = "";
+			this("");
 		}
 
 		PropertyTokenHandler(int currentLine, int prevLineLength) {
@@ -6459,39 +6551,26 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		PropertyTokenHandler(String propertyName) {
-			super(ShorthandDatabase.getInstance());
+			super(1, -1);
 			this.propertyName = propertyName;
 		}
 
-		@Override
-		protected void handleAtKeyword(int index) {
-			throw createException(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '@'");
+		LexicalUnit getLexicalUnit() {
+			return valueth.getLexicalUnit();
 		}
 
 		@Override
-		protected void endOfPropertyDeclaration(int index) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ';'");
-		}
-
-		@Override
-		protected boolean isDeclarationContext() {
-			return true;
+		public void tokenStart(TokenControl control) {
+			super.tokenStart(control);
+			getTokenControl().setTokenHandler(valueth);
+			valueth.prevcp = 32;
 		}
 
 		@Override
 		public void endOfStream(int len) {
-			if (parendepth != 0) {
-				handleError(len, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
-			} else {
-				processBuffer(len);
-				if (getLexicalUnit() == null) {
-					handleError(len, ParseHelper.ERR_EXPR_SYNTAX, "No value found");
-				}
+			if (!valueth.isInError() && getLexicalUnit() == null) {
+				handleError(len, ParseHelper.ERR_EXPR_SYNTAX, "No value found");
 			}
-		}
-
-		@Override
-		protected void endDeclarationList() {
 		}
 
 		@Override
@@ -6503,49 +6582,452 @@ public class CSSParser implements Parser, Cloneable {
 				throw createException(index, errCode, message);
 			}
 		}
+
+		private class PropertyValueTokenHandler extends ValueTokenHandler {
+
+			PropertyValueTokenHandler(ControlTokenHandler parentHandler) {
+				super(parentHandler);
+			}
+
+			@Override
+			String getPropertyName() {
+				return propertyName;
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				// Process buffer first, an error could be produced already
+				super.leftCurlyBracket(index);
+				unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+			}
+
+			@Override
+			public void rightCurlyBracket(int index) {
+				// We arent in declaration context
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
+			}
+
+			@Override
+			protected void handleDeclarationSemicolon(int index) {
+				unexpectedCharError(index, ';');
+			}
+
+		}
+
 	}
 
 	class DeclarationTokenHandler extends ControlTokenHandler {
 
+		String propertyName = null;
+		int curlyBracketDepth;
+
+		private final ValueTokenHandler valueth;
+
+		private TokenHandler2 currentHandler;
+
+		DeclarationTokenHandler() {
+			this(1);
+		}
+
+		DeclarationTokenHandler(int initialCurlyBracketDepth) {
+			super();
+			this.curlyBracketDepth = initialCurlyBracketDepth;
+			buffer = new StringBuilder(32);
+			valueth = new DeclValueTokenHandler(this);
+		}
+
+		int getCurlyBracketDepth() {
+			return curlyBracketDepth;
+		}
+
+		@Override
+		public void word(int index, CharSequence word) {
+			if (!parseError) {
+				addWord(index, word);
+			}
+			prevcp = 65; // A
+		}
+
+		void addWord(int index, CharSequence word) {
+			if (prevcp == '\\') {
+				buffer.append('\\');
+			}
+			buffer.append(word);
+		}
+
+		@Override
+		public void leftParenthesis(int index) {
+			parendepth++;
+			unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+			prevcp = TokenProducer.CHAR_LEFT_PAREN;
+		}
+
+		@Override
+		public void leftCurlyBracket(int index) {
+			curlyBracketDepth++;
+			handleLeftCurlyBracket(index);
+			prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
+		}
+
+		protected void handleLeftCurlyBracket(int index) {
+			unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+			skipDeclaration(index);
+		}
+
+		void skipDeclaration(int index) {
+			TokenHandler2 ignoreth = createIgnoredDeclarationHandler();
+			getTokenControl().setTokenHandler(ignoreth);
+			curlyBracketDepth--;
+		}
+
+		protected TokenHandler2 createIgnoredDeclarationHandler() {
+			return new IgnoredDeclarationTokenHandler(this);
+		}
+
+		@Override
+		public void leftSquareBracket(int index) {
+			unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+		}
+
+		@Override
+		public void rightParenthesis(int index) {
+			decrParenDepth(index);
+			unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+			prevcp = TokenProducer.CHAR_RIGHT_PAREN;
+		}
+
+		@Override
+		public void rightCurlyBracket(int index) {
+			curlyBracketDepth--;
+			prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
+			if (parendepth != 0) {
+				parseError = true;
+				parendepth = 0;
+			}
+			if (curlyBracketDepth == 0) {
+				endOfPropertyDeclaration(index);
+				handleRightCurlyBracket(index);
+			} else if (curlyBracketDepth == 1) {
+				int len = buffer.length();
+				if (len != 0) {
+					unexpectedTokenError(index - len, buffer);
+					buffer.setLength(0);
+				}
+			} else {
+				parseError = true;
+			}
+		}
+
+		protected void handleRightCurlyBracket(int index) {
+			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '}'");
+		}
+
+		@Override
+		public void rightSquareBracket(int index) {
+			unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+			prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
+		}
+
+		@Override
+		public void character(int index, int codepoint) {
+			if (!parseError) {
+				if (codepoint == TokenProducer.CHAR_HYPHEN_MINUS) { // -
+					// TokenProducer is supposed to send only isolated '-'
+					buffer.append('-');
+					codepoint = 65;
+				} else if (codepoint == TokenProducer.CHAR_LOW_LINE) { // _
+					// TokenProducer is supposed to send only isolated '_'
+					buffer.append('_');
+					codepoint = 65;
+				} else if (codepoint == TokenProducer.CHAR_COLON) { // :
+					// Here we should have the property name in buffer
+					if (propertyName == null) {
+						if (buffer.length() != 0) {
+							setPropertyName(index);
+							startValueHandling();
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+					} else if (buffer.length() == 0) {
+						startValueHandling();
+					} else {
+						unexpectedCharError(index, codepoint);
+					}
+					codepoint = 32;
+				} else if (codepoint == TokenProducer.CHAR_COMMERCIAL_AT) {
+					handleAtKeyword(index);
+				} else {
+					badPropertyName(index, codepoint);
+					return;
+				}
+			} else if (codepoint == TokenProducer.CHAR_SEMICOLON) {
+				resetHandler();
+			}
+			prevcp = codepoint;
+		}
+
+		private void setPropertyName(int index) {
+			String raw = buffer.toString();
+			if (escapedTokenIndex == -1) {
+				if (isNotForbiddenIdentStart(raw)
+						|| (raw.charAt(0) == '*' && CSSParser.this.parserFlags.contains(Flag.STARHACK))) {
+					propertyName = raw;
+					buffer.setLength(0);
+					return;
+				}
+			} else if (isNotForbiddenIdentStart(raw)) {
+				propertyName = unescapeBuffer(index);
+				if (!parseError && !isValidIdentifier(propertyName)) {
+					handleWarning(index - buffer.length(), ParseHelper.WARN_PROPERTY_NAME,
+							"Suspicious property name: " + raw);
+				}
+				return;
+			}
+			handleError(index - buffer.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
+					"Invalid property name: '" + raw + '\'');
+		}
+
+		void startValueHandling() {
+			currentHandler = (TokenHandler2) getTokenControl().getTokenHandler();
+			getTokenControl().setTokenHandler(valueth);
+			valueth.prevcp = 32;
+		}
+
+		protected void handleAtKeyword(int index) {
+			unexpectedCharError(index, 64);
+		}
+
+		protected void badPropertyName(int index, int codepoint) {
+			if (buffer.length() == 0 && codepoint == TokenProducer.CHAR_ASTERISK
+					&& parserFlags.contains(Flag.STARHACK)) {
+				// IE asterisk hack
+				if (errorHandler != null) {
+					errorHandler.warning(createException(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+							"Unexpected character: * (IE hack)"));
+				}
+				buffer.append('*');
+			} else {
+				unexpectedCharError(index, codepoint);
+			}
+		}
+
+		@Override
+		protected void recoverControl(int index) {
+			endOfPropertyDeclaration(index);
+			getTokenControl().setTokenHandler(currentHandler);
+		}
+
+		protected void endOfPropertyDeclaration(int index) {
+			if (propertyName != null) {
+				processBuffer(index);
+				if (!valueth.isInError()) {
+					LexicalUnitImpl lunit = valueth.getLexicalUnit();
+					if (!valueth.isCustomProperty()) {
+						if (lunit != null) {
+							handleProperty(index, propertyName, lunit, valueth.priorityImportant);
+						} else {
+							handleError(index, ParseHelper.ERR_EXPR_SYNTAX,
+									"Found property name (" + propertyName + ") but no value");
+						}
+					} else {
+						if (lunit == null) {
+							lunit = new LexicalUnitImpl(LexicalType.EMPTY);
+							lunit.value = "";
+						}
+						handleLexicalProperty(index, propertyName, lunit, valueth.priorityImportant);
+					}
+				}
+			} else if (buffer.length() != 0) {
+				unexpectedTokenError(index, buffer);
+			}
+			// Reset other state fields
+			resetHandler();
+		}
+
+		protected void handleProperty(int index, String propertyName, LexicalUnitImpl lunit,
+				boolean priorityImportant) {
+			setCurrentLocation(index);
+			handler.property(propertyName, lunit, priorityImportant);
+		}
+
+		void handleLexicalProperty(int index, String propertyName, LexicalUnitImpl lunit,
+				boolean priorityImportant) {
+			setCurrentLocation(index);
+			handler.lexicalProperty(propertyName, lunit, priorityImportant);
+		}
+
+		@Override
+		void resetHandler() {
+			super.resetHandler();
+			valueth.resetHandler();
+			buffer.setLength(0);
+			propertyName = null;
+		}
+
+		protected void processBuffer(int index) {
+			if (parseError) {
+				buffer.setLength(0);
+				return;
+			}
+			int buflen = buffer.length();
+			if (buflen != 0) {
+				if (propertyName == null) {
+					// Set the property name
+					setPropertyName(index);
+				} else {
+					unexpectedTokenError(index, buffer);
+				}
+			}
+		}
+
+		@Override
+		public void quoted(int index, CharSequence quoted, int quoteChar) {
+			char c = (char) quoteChar;
+			StringBuilder buf = new StringBuilder(quoted.length() + 2);
+			buf.append(c).append(quoted).append(c);
+			unexpectedTokenError(index, buf.toString());
+		}
+
+		@Override
+		public void quotedWithControl(int index, CharSequence quoted, int quoteChar) {
+				char c = (char) quoteChar;
+				StringBuilder buf = new StringBuilder(quoted.length() + 2);
+				buf.append(c).append(quoted).append(c);
+				unexpectedTokenError(index, buf.toString());
+		}
+
+		@Override
+		public void escaped(int index, int codepoint) {
+			// We add a backslash if is an hex, \ (0x5c), + (0x2b) , - (0x2d)
+			// or whitespace (0x20) to avoid confusions with numbers and
+			// operators
+			if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 0x5c || codepoint == 0x2b
+					|| codepoint == 0x2d || codepoint == 0x20) {
+				setEscapedTokenStart(index);
+				buffer.append('\\');
+			}
+			prevcp = 65;
+			bufferAppend(codepoint);
+		}
+
+		@Override
+		public void separator(int index, int codepoint) {
+			if (!parseError) {
+				if (escapedTokenIndex != -1 && bufferEndsWithEscapedChar(buffer)) {
+					buffer.append(' ');
+					return;
+				}
+				processBuffer(index);
+			}
+			setWhitespacePrevCp();
+		}
+
+		@Override
+		protected void highControl(int index, int codepoint) {
+			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected control: " + codepoint);
+		}
+
+		@Override
+		public void commented(int index, int commentType, String comment) {
+			if (!parseError && buffer.length() == 0 && curlyBracketDepth == 1 && parendepth == 0) {
+				super.commented(index, commentType, comment);
+				prevcp = 12;
+			} else {
+				separator(index, 32);
+				// The above call may have left prevcp as 10
+				prevcp = 32;
+			}
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			if (parendepth != 0) {
+				handleError(len, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
+			} else if (buffer.length() != 0) {
+				handleError(len, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token: " + buffer);
+			}
+			endDeclarationList();
+		}
+
+		protected void endDeclarationList() {
+			endDocument();
+		}
+
+		@Override
+		public void error(int index, byte errCode, CharSequence context) {
+			super.error(index, errCode, context);
+			valueth.resetHandler();
+		}
+
+		private class DeclValueTokenHandler extends ValueTokenHandler {
+
+			DeclValueTokenHandler(ControlTokenHandler parentHandler) {
+				super(parentHandler);
+			}
+
+			@Override
+			String getPropertyName() {
+				return propertyName;
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				super.leftCurlyBracket(index);
+				curlyBracketDepth++;
+				if (!parseError) {
+					handleLeftCurlyBracket(index);
+					if (!getParentHandler().parseError) {
+						endOfValueDeclaration(index);
+					} else {
+						parseError = true;
+					}
+				} else {
+					skipDeclaration(index);
+				}
+				prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
+			}
+
+			@Override
+			public void rightCurlyBracket(int index) {
+				super.rightCurlyBracket(index);
+				processBuffer(index);
+				getParentHandler().rightCurlyBracket(index);
+				parseError = parseError || getParentHandler().parseError;
+				endOfValueDeclaration(index);
+			}
+
+			@Override
+			protected void endOfValueDeclaration(int index) {
+				super.endOfValueDeclaration(index);
+				resetHandler();
+			}
+
+		}
+
+	}
+
+	abstract class ValueTokenHandler extends CallbackControlTokenHandler {
+
 		private LexicalUnitImpl lunit = null;
 		private LexicalUnitImpl currentlu = null;
-		String propertyName = null;
 		private final ShorthandDatabase propertyDatabase;
 		private boolean hexColor = false;
 		private boolean unicodeRange = false;
 		private boolean readPriority = false;
 		private boolean priorityImportant = false;
-		int curlyBracketDepth;
 		private int squareBracketDepth;
 		private boolean functionToken = false;
 		private final boolean flagIEValues;
 
-		DeclarationTokenHandler(ShorthandDatabase propertyDatabase) {
-			this(propertyDatabase, 1);
-		}
-
-		DeclarationTokenHandler(int currentLine, int prevLineLength) {
-			super(currentLine, prevLineLength);
-			this.curlyBracketDepth = 1;
+		ValueTokenHandler(ControlTokenHandler parentHandler) {
+			super(parentHandler);
 			flagIEValues = CSSParser.this.parserFlags.contains(Flag.IEVALUES);
 			buffer = new StringBuilder(128);
-			this.propertyDatabase = null;
+			this.propertyDatabase = ShorthandDatabase.getInstance();
 		}
 
-		DeclarationTokenHandler(ShorthandDatabase propertyDatabase, int initialCurlyBracketDepth) {
-			super();
-			this.curlyBracketDepth = initialCurlyBracketDepth;
-			flagIEValues = CSSParser.this.parserFlags.contains(Flag.IEVALUES);
-			buffer = new StringBuilder(128);
-			this.propertyDatabase = propertyDatabase;
-		}
-
-		LexicalUnit getLexicalUnit() {
+		LexicalUnitImpl getLexicalUnit() {
 			return parseError ? null : lunit;
-		}
-
-		int getCurlyBracketDepth() {
-			return curlyBracketDepth;
 		}
 
 		boolean allowSemicolonArgument() {
@@ -6596,68 +7078,60 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		private void newFunction(int index) {
-			if (functionToken && currentlu.getLexicalUnitType() == LexicalType.URI) {
-				// Special case
-
-				// "For legacy reasons, a url() can be written without quotation
-				// marks around the URL itself, in which case it is specially-parsed
-				// as a <url-token> [CSS-SYNTAX-3]. Because of this special parsing,
-				// url() is only able to specify its URL literally"
-
-				buffer.setLength(0);
-				escapedTokenIndex = -1;
-				unexpectedCharError(index, '(');
+			LexicalUnitImpl lu;
+			String raw = buffer.toString();
+			String name = unescapeBuffer(index);
+			String lcName = name.toLowerCase(Locale.ROOT);
+			if ("url".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.URI, true);
+				functionToken = true;
+				return;
+			} else if ("rgb".equals(lcName) || "rgba".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.RGBCOLOR, true);
+			} else if ("hsl".equals(lcName) || "hsla".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.HSLCOLOR, true);
+			} else if ("calc".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.CALC, true);
+			} else if ("attr".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.ATTR, true);
+			} else if ("var".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.VAR, true);
+			} else if ("lab".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.LABCOLOR, true);
+			} else if ("lch".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.LCHCOLOR, true);
+			} else if ("oklab".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.OKLABCOLOR, true);
+			} else if ("oklch".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.OKLCHCOLOR, true);
+			} else if ("hwb".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.HWBCOLOR, true);
+			} else if ("color".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.COLOR_FUNCTION, true);
+			} else if ("color-mix".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.COLOR_MIX, true);
+			} else if ("element".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.ELEMENT_REFERENCE, true);
+				functionToken = true;
+				return;
+			} else if ("rect".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.RECT_FUNCTION, true);
+			} else if ("counter".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.COUNTER_FUNCTION, true);
+			} else if ("counters".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.COUNTERS_FUNCTION, true);
+			} else if ("cubic-bezier".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.CUBIC_BEZIER_FUNCTION, true);
+			} else if ("steps".equals(lcName)) {
+				lu = newLexicalUnit(LexicalType.STEPS_FUNCTION, true);
+			} else if (isNotForbiddenIdentStart(raw)) {
+				lu = newLexicalUnit(LexicalType.FUNCTION, true);
+			} else {
+				handleError(index, ParseHelper.ERR_WRONG_VALUE, "Unexpected: " + raw);
 				return;
 			}
-
-			LexicalUnitImpl lu;
-			String raw;
-			String name = unescapeStringValue(index);
-			String lcName = name.toLowerCase(Locale.ROOT);
-
-			LexicalUnitFactory factory = FunctionFactories.getFactory(lcName);
-
-			if (factory == null) {
-				if (name.isEmpty()) {
-					handleError(index, ParseHelper.ERR_WRONG_VALUE, "Unexpected character '('.");
-					buffer.setLength(0);
-					escapedTokenIndex = -1;
-					return;
-				} else if (isNotForbiddenIdentStart(raw = buffer.toString())) {
-					lu = newLexicalUnit(LexicalType.FUNCTION, true);
-					lu.value = name;
-					functionToken = true;
-				} else {
-					handleError(index, ParseHelper.ERR_WRONG_VALUE, "Unexpected: " + raw);
-					buffer.setLength(0);
-					escapedTokenIndex = -1;
-					return;
-				}
-			} else {
-				lu = factory.createUnit();
-				if (functionToken) {
-					currentlu.addFunctionParameter(lu);
-					currentlu = lu;
-				} else {
-					if (currentlu != null) {
-						currentlu.nextLexicalUnit = lu;
-						lu.previousLexicalUnit = currentlu;
-					}
-					currentlu = lu;
-					if (lunit == null) {
-						lunit = lu;
-					}
-					functionToken = true;
-				}
-
-				if (lu.getLexicalUnitType() != LexicalType.URI
-						&& lu.getLexicalUnitType() != LexicalType.ELEMENT_REFERENCE) {
-					lu.value = name;
-				}
-			}
-
-			buffer.setLength(0);
-			escapedTokenIndex = -1;
+			lu.value = name;
+			functionToken = true;
 		}
 
 		@Override
@@ -6665,22 +7139,9 @@ public class CSSParser implements Parser, Cloneable {
 			// If we reach here expecting hexColor or unicodeRange, we are in error
 			if (hexColor || unicodeRange) {
 				unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
-			} else if (!parseError) {
-				handleLeftCurlyBracket(index);
 			} else {
-				skipDeclaration(index);
+				processBuffer(index);
 			}
-			prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
-		}
-
-		protected void handleLeftCurlyBracket(int index) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '{'");
-			skipDeclaration(index);
-		}
-
-		protected void skipDeclaration(int index) {
-			TokenHandler2 ignoreth = new CallbackIgnoredDeclarationTH(getTokenControl());
-			getTokenControl().setTokenHandler(ignoreth);
 		}
 
 		@Override
@@ -6690,13 +7151,9 @@ public class CSSParser implements Parser, Cloneable {
 			if (hexColor || unicodeRange) {
 				unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
 			} else if (!parseError) {
-				if (propertyName != null) {
-					processBuffer(index);
-					newLexicalUnit(LexicalType.LEFT_BRACKET, false);
-					prevcp = 32;
-				} else {
-					unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
-				}
+				processBuffer(index);
+				newLexicalUnit(LexicalType.LEFT_BRACKET, false);
+				prevcp = 32;
 			}
 		}
 
@@ -6728,14 +7185,6 @@ public class CSSParser implements Parser, Cloneable {
 			return lu;
 		}
 
-		private SyntaxUnitImpl newSyntaxUnit() {
-			assert functionToken;
-
-			SyntaxUnitImpl lu = new SyntaxUnitImpl();
-			currentlu.addFunctionParameter(lu);
-			return lu;
-		}
-
 		@Override
 		public void rightParenthesis(int index) {
 			processBuffer(index);
@@ -6753,17 +7202,10 @@ public class CSSParser implements Parser, Cloneable {
 
 		private void checkFunction(int index) {
 			LexicalType type = currentlu.getLexicalUnitType();
-			// We allow empty functions only for URI, ELEMENT_REFERENCE and FUNCTION
+			// We allow empty functions only for URI and FUNCTION
 			if (currentlu.parameters == null) {
-				switch (type) {
-				case FUNCTION:
-				case ELEMENT_REFERENCE:
-					break;
-				case URI:
-				if (currentlu.isParameter() || parendepth == 0) {
-					break;
-				}
-				default:
+				if (type != LexicalType.FUNCTION && type != LexicalType.URI
+						&& type != LexicalType.ELEMENT_REFERENCE) {
 					unexpectedCharError(index, ')');
 				}
 				return;
@@ -6819,14 +7261,6 @@ public class CSSParser implements Parser, Cloneable {
 				}
 				break;
 			case VAR:
-				String s = currentlu.parameters.getStringValue();
-				if (s == null) {
-					break;
-				}
-				if (s.length() < 3 || s.charAt(0) != '-' || s.charAt(1) != '-') {
-					index -= s.length();
-					break;
-				}
 				LexicalType lastType = findLastValue(currentlu.parameters).getLexicalUnitType();
 				if (lastType == LexicalType.OPERATOR_COMMA) {
 					LexicalUnitImpl empty = newLexicalUnit(LexicalType.EMPTY, false);
@@ -6861,11 +7295,6 @@ public class CSSParser implements Parser, Cloneable {
 		private boolean typeIsAlgebraicOperator(LexicalType type) {
 			return type == LexicalType.OPERATOR_PLUS || type == LexicalType.OPERATOR_MINUS
 					|| type == LexicalType.OPERATOR_MULTIPLY || type == LexicalType.OPERATOR_SLASH;
-		}
-
-		private boolean lastParamIsMultOrSlashOperator() {
-			LexicalType type = findLastValue(currentlu.parameters).getLexicalUnitType();
-			return type == LexicalType.OPERATOR_MULTIPLY || type == LexicalType.OPERATOR_SLASH;
 		}
 
 		private boolean isValidRGBColor(int index) {
@@ -6978,8 +7407,7 @@ public class CSSParser implements Parser, Cloneable {
 			return type == LexicalType.INTEGER || type == LexicalType.PERCENTAGE
 					|| type == LexicalType.REAL || type == LexicalType.VAR
 					|| type == LexicalType.CALC || type == LexicalType.IDENT
-					|| type == LexicalType.MATH_FUNCTION || type == LexicalType.FUNCTION
-					|| type == LexicalType.ATTR;
+					|| type == LexicalType.FUNCTION || type == LexicalType.ATTR;
 		}
 
 		private boolean isValidHSLColor(int index) {
@@ -6992,8 +7420,8 @@ public class CSSParser implements Parser, Cloneable {
 			do {
 				LexicalType type = lu.getLexicalUnitType();
 				if (type == LexicalType.PERCENTAGE
-						|| ((type == LexicalType.MATH_FUNCTION || type == LexicalType.FUNCTION
-								|| type == LexicalType.ATTR) && isPercentageUnit(lu))) {
+						|| ((type == LexicalType.FUNCTION || type == LexicalType.ATTR)
+								&& isPercentageUnit(lu))) {
 					if (lastType == LexicalType.UNKNOWN) {
 						// First type must be integer (includes calc()), real,
 						// angle or VAR, but not a percentage.
@@ -7121,8 +7549,8 @@ public class CSSParser implements Parser, Cloneable {
 							|| hasCommas) {
 						return false;
 					}
-				} else if (type == LexicalType.CALC || type == LexicalType.MATH_FUNCTION
-						|| type == LexicalType.FUNCTION || type == LexicalType.ATTR) {
+				} else if (type == LexicalType.CALC || type == LexicalType.FUNCTION
+						|| type == LexicalType.ATTR) {
 					if (lastType == LexicalType.UNKNOWN) {
 						// First type must be integer, real, angle or VAR
 						type = LexicalType.INTEGER;
@@ -7237,8 +7665,8 @@ public class CSSParser implements Parser, Cloneable {
 									"Color alpha has value over 1.");
 						}
 					}
-				} else if (type == LexicalType.CALC || type == LexicalType.MATH_FUNCTION
-						|| type == LexicalType.FUNCTION || type == LexicalType.ATTR) {
+				} else if (type == LexicalType.CALC || type == LexicalType.FUNCTION
+						|| type == LexicalType.ATTR) {
 					if (lastType == LexicalType.UNKNOWN) {
 						// First type must be integer, real, angle or VAR
 						type = LexicalType.INTEGER;
@@ -7340,9 +7768,8 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			} else if (type == LexicalType.VAR) {
 				hasVar = true;
-			} else if (type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
-					&& type != LexicalType.FUNCTION && type != LexicalType.ATTR
-					&& (type != LexicalType.IDENT
+			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION
+					&& type != LexicalType.ATTR && (type != LexicalType.IDENT
 							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				return false;
 			}
@@ -7365,7 +7792,6 @@ public class CSSParser implements Parser, Cloneable {
 				case REAL:
 				case INTEGER:
 				case CALC:
-				case MATH_FUNCTION:
 				case FUNCTION:
 				case ATTR:
 					numericValueCount++;
@@ -7469,9 +7895,8 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			} else if (type == LexicalType.VAR) {
 				hasVar = true;
-			} else if (type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
-					&& type != LexicalType.FUNCTION && type != LexicalType.ATTR
-					&& (type != LexicalType.IDENT
+			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION
+					&& type != LexicalType.ATTR && (type != LexicalType.IDENT
 							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				return false;
 			}
@@ -7516,9 +7941,8 @@ public class CSSParser implements Parser, Cloneable {
 								"Color component has value under 0.");
 					}
 				}
-			} else if (type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
-					&& type != LexicalType.FUNCTION && type != LexicalType.ATTR
-					&& (type != LexicalType.IDENT
+			} else if (type != LexicalType.CALC && type != LexicalType.FUNCTION
+					&& type != LexicalType.ATTR && (type != LexicalType.IDENT
 							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
@@ -7548,9 +7972,8 @@ public class CSSParser implements Parser, Cloneable {
 
 			type = lu.getLexicalUnitType();
 			if (type != LexicalType.REAL && type != LexicalType.INTEGER && !isAngleUnit(lu)
-					&& type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
-					&& type != LexicalType.FUNCTION && type != LexicalType.ATTR
-					&& (type != LexicalType.IDENT
+					&& type != LexicalType.CALC && type != LexicalType.FUNCTION
+					&& type != LexicalType.ATTR && (type != LexicalType.IDENT
 							|| !"none".equalsIgnoreCase(lu.getStringValue()))) {
 				if (type == LexicalType.VAR) {
 					hasVar = true;
@@ -7646,7 +8069,6 @@ public class CSSParser implements Parser, Cloneable {
 						return false;
 					}
 					return isValidAlpha(index, lu);
-				case MATH_FUNCTION:
 				case FUNCTION:
 				case ATTR:
 					LexicalUnit lunit;
@@ -7707,7 +8129,6 @@ public class CSSParser implements Parser, Cloneable {
 				break;
 			case VAR:
 			case CALC:
-			case MATH_FUNCTION:
 			case FUNCTION:
 			case ATTR:
 				break;
@@ -7813,8 +8234,7 @@ public class CSSParser implements Parser, Cloneable {
 
 			// Check the first color spec
 			LexicalType uType = lu.getLexicalUnitType();
-			if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC
-					|| uType == LexicalType.MATH_FUNCTION || uType == LexicalType.FUNCTION) {
+			if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC) {
 				// Could be % <color>
 				lu = lu.getNextLexicalUnit();
 				if (lu == null || cannotBeColor(lu, synColor)) {
@@ -7840,8 +8260,6 @@ public class CSSParser implements Parser, Cloneable {
 						hasVar = true;
 					case PERCENTAGE:
 					case CALC:
-					case MATH_FUNCTION:
-					case FUNCTION:
 					case ATTR:
 						lu = lu.getNextLexicalUnit();
 						break;
@@ -7860,16 +8278,14 @@ public class CSSParser implements Parser, Cloneable {
 			if (uType != LexicalType.OPERATOR_COMMA) {
 				// Assume the rest is right if we got the right type
 				return hasVar && (!cannotBeColor(lu, synColor) || uType == LexicalType.PERCENTAGE
-						|| uType == LexicalType.CALC || uType == LexicalType.MATH_FUNCTION
-						|| uType == LexicalType.FUNCTION || uType == LexicalType.VAR);
+						|| uType == LexicalType.CALC || uType == LexicalType.VAR);
 			} else {
 				lu = lu.getNextLexicalUnit();
 				uType = lu.getLexicalUnitType();
 			}
 
 			// Now examine the second color spec
-			if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC
-					|| uType == LexicalType.MATH_FUNCTION || uType == LexicalType.FUNCTION) {
+			if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC) {
 				// Could be % <color>
 				lu = lu.getNextLexicalUnit();
 				if (lu == null || cannotBeColor(lu, synColor)) {
@@ -7890,7 +8306,6 @@ public class CSSParser implements Parser, Cloneable {
 				}
 				uType = lu.getLexicalUnitType();
 				if (uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC
-						|| uType == LexicalType.MATH_FUNCTION || uType == LexicalType.FUNCTION
 						|| uType == LexicalType.VAR || uType == LexicalType.ATTR) {
 					lu = lu.getNextLexicalUnit();
 				} else {
@@ -7926,36 +8341,19 @@ public class CSSParser implements Parser, Cloneable {
 				parendepth = 0;
 				squareBracketDepth = 0;
 			}
-			if (curlyBracketDepth == 1) {
-				endOfPropertyDeclaration(index);
-				handleRightCurlyBracket(index);
-			} else if (curlyBracketDepth == 2) {
-				int len = buffer.length();
-				if (len != 0) {
-					unexpectedTokenError(index - len, buffer);
-					buffer.setLength(0);
-				}
-			} else {
-				parseError = true;
-			}
-			curlyBracketDepth--;
-			prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
 		}
 
-		protected void handleRightCurlyBracket(int index) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '}'");
+		protected void endOfValueDeclaration(int index) {
+			// notify declaration handler
+			getParentHandler().recoverControl(index);
 		}
 
 		@Override
 		public void rightSquareBracket(int index) {
 			squareBracketDepth--;
 			if (!parseError) {
-				if (propertyName != null) {
-					processBuffer(index);
-					newLexicalUnit(LexicalType.RIGHT_BRACKET, false);
-				} else {
-					unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
-				}
+				processBuffer(index);
+				newLexicalUnit(LexicalType.RIGHT_BRACKET, false);
 				prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
 			}
 		}
@@ -7980,30 +8378,7 @@ public class CSSParser implements Parser, Cloneable {
 			} else if (codepoint == TokenProducer.CHAR_SEMICOLON) {
 				handleSemicolon(index);
 			} else if (!parseError) {
-				if (propertyName == null) {
-					if (codepoint == TokenProducer.CHAR_HYPHEN_MINUS) { // -
-						// TokenProducer is supposed to send only isolated '-'
-						buffer.append('-');
-						codepoint = 65;
-					} else if (codepoint == TokenProducer.CHAR_LOW_LINE) { // _
-						// TokenProducer is supposed to send only isolated '_'
-						buffer.append('_');
-						codepoint = 65;
-					} else if (codepoint == TokenProducer.CHAR_COLON) { // :
-						// Here we should have the property name in buffer
-						if (buffer.length() != 0) {
-							setPropertyName(index);
-							codepoint = 32;
-						} else {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ':'");
-						}
-					} else if (codepoint == TokenProducer.CHAR_COMMERCIAL_AT) {
-						handleAtKeyword(index);
-					} else {
-						badPropertyName(index, codepoint);
-						return;
-					}
-				} else if (readPriority) {
+				if (readPriority) {
 					processBuffer(index);
 					String compatText;
 					// !
@@ -8072,35 +8447,20 @@ public class CSSParser implements Parser, Cloneable {
 							if (buffer.length() == 1 && ((c = buffer.charAt(0)) == 'U' || c == 'u')) {
 								buffer.setLength(0);
 								unicodeRange = true;
-							} else if (buffer.length() == 0
-									|| (c = buffer.charAt(buffer.length() - 1)) != 'E'
-											&& c != 'e') {
-								// No scientific notation
+							} else if (!isPrevCpWhitespace() && (buffer.length() == 0
+									|| (c = buffer.charAt(buffer.length() - 1)) != 'E' && c != 'e')) {
 								if (functionToken) {
 									processBuffer(index);
-									boolean prevCpWS = isPrevCpWhitespace();
-									if (((prevCpWS
-											&& currentlu.getLexicalUnitType() == LexicalType.CALC)
-											|| flagIEValues) && currentlu.parameters != null
-											&& !lastParamIsAlgebraicOperator()) {
-										// We are either in calc() plus operator context
-										// or in IE compatibility
+									if (currentlu.parameters == null
+										|| !lastParamIsAlgebraicOperator()) {
 										newLexicalUnit(LexicalType.OPERATOR_PLUS, false);
-									} else if (prevCpWS || currentlu.parameters == null
-											|| lastParamIsMultOrSlashOperator()) {
-										// We are in sign context
-										buffer.append('+');
-										codepoint = 65;
 									} else {
 										unexpectedCharError(index, codepoint);
 									}
-								} else if (isPrevCpWhitespace()) {
-									buffer.append('+');
-									codepoint = 65;
 								} else if (isCustomProperty()) {
 									processBuffer(index);
 									newCustomPropertyOperator(index, codepoint,
-											LexicalType.OPERATOR_PLUS);
+										LexicalType.OPERATOR_PLUS);
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
@@ -8125,15 +8485,9 @@ public class CSSParser implements Parser, Cloneable {
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
-							} else if (currentlu.getLexicalUnitType() == LexicalType.TYPE_FUNCTION) {
-								if (codepoint == TokenProducer.CHAR_LESS_THAN
-										|| codepoint == TokenProducer.CHAR_GREATER_THAN) {
-									bufferAppend(codepoint);
-								} else {
-									unexpectedCharError(index, codepoint);
-								}
 							} else if (codepoint == 61 && handleEqualsSignInsideFunction(index)) {
-								codepoint = 65;
+								prevcp = 65;
+								return;
 							} else {
 								unexpectedCharError(index, codepoint);
 							}
@@ -8163,27 +8517,6 @@ public class CSSParser implements Parser, Cloneable {
 			prevcp = codepoint;
 		}
 
-		private void setPropertyName(int index) {
-			String raw = buffer.toString();
-			if (escapedTokenIndex == -1) {
-				if (isNotForbiddenIdentStart(raw)
-						|| (raw.charAt(0) == '*' && CSSParser.this.parserFlags.contains(Flag.STARHACK))) {
-					propertyName = raw;
-					buffer.setLength(0);
-					return;
-				}
-			} else if (isNotForbiddenIdentStart(raw)) {
-				propertyName = unescapeBuffer(index);
-				if (!parseError && !isValidIdentifier(propertyName)) {
-					handleWarning(index - buffer.length(), ParseHelper.WARN_PROPERTY_NAME,
-							"Suspicious property name: " + raw);
-				}
-				return;
-			}
-			handleError(index - buffer.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
-					"Invalid property name: '" + raw + '\'');
-		}
-
 		private void newCustomPropertyOperator(int index, int codepoint, LexicalType operator) {
 			if (currentlu == null) {
 				newLexicalUnit(operator, false);
@@ -8208,7 +8541,7 @@ public class CSSParser implements Parser, Cloneable {
 			 * we are in 'expression' hack.
 			 * Note: propertyName has already been checked as not-null here.
 			 */
-			if (flagIEValues && (this.propertyName.length() == 0 || this.propertyName.endsWith("filter")
+			if (flagIEValues && (getPropertyName().length() == 0 || getPropertyName().endsWith("filter")
 					|| "expression".equalsIgnoreCase(currentlu.getFunctionName()))) {
 				if (prevcp == 65 || isPrevCpWhitespace() || prevcp == TokenProducer.CHAR_RIGHT_SQ_BRACKET) {
 					// Could be a MS gradient or expression
@@ -8258,7 +8591,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		private boolean isCustomProperty() {
-			return propertyName.startsWith("--");
+			return getPropertyName().startsWith("--");
 		}
 
 		/**
@@ -8347,21 +8680,27 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		private void handleSemicolon(int index) {
-			if (isDeclarationContext() && squareBracketDepth == 0) {
-				if (parendepth == 0) {
-					endOfPropertyDeclaration(index);
-					return;
-				} else if (parendepth == 1 && functionToken && allowSemicolonArgument()) {
-					processBuffer(index);
-					newLexicalUnit(LexicalType.OPERATOR_SEMICOLON, false);
-					return;
+			if (squareBracketDepth == 0 && parendepth >= 0) {
+				processBuffer(index);
+				if (parendepth > 0) {
+					if (!parseError) {
+						if (functionToken && allowSemicolonArgument()) {
+							newLexicalUnit(LexicalType.OPERATOR_SEMICOLON, false);
+							return;
+						} else {
+							unexpectedCharError(index, ';');
+						}
+					}
+				} else {
+					handleDeclarationSemicolon(index);
 				}
+			} else {
+				unexpectedCharError(index, ';');
 			}
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ';'");
+			endOfValueDeclaration(index);
 		}
 
-		protected boolean isDeclarationContext() {
-			return curlyBracketDepth == 1;
+		protected void handleDeclarationSemicolon(int index) {
 		}
 
 		protected void badPropertyName(int index, int codepoint) {
@@ -8378,45 +8717,6 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
-		protected void endOfPropertyDeclaration(int index) {
-			if (propertyName != null) {
-				processBuffer(index);
-				if (!parseError) {
-					if (!isCustomProperty()) {
-						if (lunit != null) {
-							handleProperty(index, propertyName, lunit, priorityImportant);
-						} else {
-							handleError(index, ParseHelper.ERR_EXPR_SYNTAX,
-									"Found property name (" + propertyName + ") but no value");
-						}
-					} else {
-						if (lunit == null) {
-							lunit = new LexicalUnitImpl(LexicalType.EMPTY);
-							lunit.value = "";
-						}
-						handleLexicalProperty(index, propertyName, lunit, priorityImportant);
-					}
-				}
-				propertyName = null;
-			} else if (buffer.length() != 0) {
-				unexpectedTokenError(index, buffer);
-			}
-			// Reset other state fields
-			resetHandler();
-		}
-
-		protected void handleProperty(int index, String propertyName, LexicalUnitImpl lunit,
-				boolean priorityImportant) {
-			setCurrentLocation(index);
-			handler.property(propertyName, lunit, priorityImportant);
-		}
-
-		void handleLexicalProperty(int index, String propertyName, LexicalUnitImpl lunit,
-				boolean priorityImportant) {
-			setCurrentLocation(index);
-			handler.lexicalProperty(propertyName, lunit, priorityImportant);
-		}
-
 		@Override
 		void resetHandler() {
 			super.resetHandler();
@@ -8427,6 +8727,7 @@ public class CSSParser implements Parser, Cloneable {
 			functionToken = false;
 			hexColor = false;
 			unicodeRange = false;
+			squareBracketDepth = 0;
 			buffer.setLength(0);
 		}
 
@@ -8437,10 +8738,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 			int buflen = buffer.length();
 			if (buflen != 0) {
-				if (this.propertyName == null) {
-					// Set the property name
-					setPropertyName(index);
-				} else if (readPriority) {
+				if (readPriority) {
 					String prio = unescapeBuffer(index);
 					if ("important".equalsIgnoreCase(prio)) {
 						priorityImportant = true;
@@ -8448,8 +8746,7 @@ public class CSSParser implements Parser, Cloneable {
 						checkIEPrioHack(index - buflen, prio);
 					}
 				} else if (functionToken) {
-					switch (currentlu.getLexicalUnitType()) {
-					case URI:
+					if (currentlu.getLexicalUnitType() == LexicalType.URI) {
 						// uri
 						if (currentlu.value == null) {
 							currentlu.value = rawBuffer();
@@ -8457,8 +8754,7 @@ public class CSSParser implements Parser, Cloneable {
 							handleError(index, ParseHelper.ERR_WRONG_VALUE,
 								"Unexpected token in url: '" + rawBuffer() + '\'');
 						}
-						break;
-					case ELEMENT_REFERENCE:
+					} else if (currentlu.getLexicalUnitType() == LexicalType.ELEMENT_REFERENCE) {
 						String s = unescapeStringValue(index);
 						if (s.length() > 1 && s.charAt(0) == '#') {
 							currentlu.value = s.substring(1);
@@ -8467,30 +8763,15 @@ public class CSSParser implements Parser, Cloneable {
 							functionToken = false;
 						}
 						buffer.setLength(0);
-						break;
-					case TYPE_FUNCTION:
-						String syn = unescapeStringValue(index);
-						buffer.setLength(0);
-						SyntaxUnitImpl synLU = newSyntaxUnit();
-						try {
-							synLU.syntax = new SyntaxParser().parseSyntax(syn);
-						} catch (CSSException e) {
-							handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE,
-									"Invalid syntax: " + syn);
-						}
-						break;
-					default:
-						if (escapedTokenIndex != -1 || !checkLastIdentCompat()) {
-							if (!hexColor) {
-								parseNonHexcolorValue(index);
-							} else {
-								if (!parseHexColor(buflen)) {
-									handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE,
-											"Wrong color value #" + buffer);
-								}
-								buffer.setLength(0);
-								hexColor = false;
+					} else if (escapedTokenIndex != -1 || !checkLastIdentCompat()) {
+						if (!hexColor) {
+							parseNonHexcolorValue(index);
+						} else {
+							if (!parseHexColor(buflen)) {
+								handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE, "Wrong color value #" + buffer);
 							}
+							buffer.setLength(0);
+							hexColor = false;
 						}
 					}
 				} else if (hexColor) {
@@ -8633,8 +8914,8 @@ public class CSSParser implements Parser, Cloneable {
 
 				// Unit
 				unit = s.substring(i);
-				unit = unit.trim().toLowerCase(Locale.ROOT);
-				short cssUnit = UnitStringToId.unitFromString(unit);
+				unit = unit.trim().toLowerCase(Locale.ROOT).intern();
+				short cssUnit = ParseHelper.unitFromString(unit);
 				final LexicalType unitType;
 				if (cssUnit == CSSUnit.CSS_PERCENTAGE) {
 					unitType = LexicalType.PERCENTAGE;
@@ -8726,18 +9007,18 @@ public class CSSParser implements Parser, Cloneable {
 				if (propertyDatabase != null) {
 					String lcident = ident.toLowerCase(Locale.ROOT);
 					if (lcident != ident) {
-						if (propertyDatabase.isShorthand(propertyName)) {
+						if (propertyDatabase.isShorthand(getPropertyName())) {
 							// Only if no Custom Ident was previously found.
 							if (!isPreviousValueCustomIdent()) {
 								String[] longhands = propertyDatabase
-									.getLonghandProperties(propertyName);
+									.getLonghandProperties(getPropertyName());
 								for (String longhand : longhands) {
 									if (isIdentifierValueOf(longhand, lcident)) {
 										ident = lcident;
 									}
 								}
 							}
-						} else if (isIdentifierValueOf(propertyName, lcident)) {
+						} else if (isIdentifierValueOf(getPropertyName(), lcident)) {
 							ident = lcident;
 						}
 					}
@@ -9022,7 +9303,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void quoted(int index, CharSequence quoted, int quoteChar) {
-			if (!hexColor && !unicodeRange && !readPriority && propertyName != null) {
+			if (!hexColor && !unicodeRange && !readPriority) {
 				processBuffer(index);
 				if (!parseError) {
 					String s = quoted.toString();
@@ -9048,7 +9329,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void quotedWithControl(int index, CharSequence quoted, int quoteChar) {
-			if (!hexColor && !unicodeRange && !readPriority && propertyName != null) {
+			if (!hexColor && !unicodeRange && !readPriority) {
 				processBuffer(index);
 				if (!parseError) {
 					String s = quoted.toString();
@@ -9132,7 +9413,7 @@ public class CSSParser implements Parser, Cloneable {
 			// (accept any 'non-ASCII code point')
 			// https://www.w3.org/TR/css-syntax-3/#non-ascii-code-point
 			if (!parseError) {
-				if (!hexColor && !unicodeRange && !readPriority && propertyName != null) {
+				if (!hexColor && !unicodeRange && !readPriority) {
 					bufferAppend(codepoint);
 				} else {
 					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected control: " + codepoint);
@@ -9142,32 +9423,21 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void commented(int index, int commentType, String comment) {
-			if (!parseError && buffer.length() == 0 && propertyName == null && curlyBracketDepth == 1 && parendepth == 0
-					&& squareBracketDepth == 0) {
-				super.commented(index, commentType, comment);
-				prevcp = 12;
-			} else {
-				separator(index, 32);
-				// The above call may have left prevcp as 10
-				prevcp = 32;
-			}
+			separator(index, 32);
+			// The above call may have left prevcp as 10
+			prevcp = 32;
 		}
 
 		@Override
 		public void endOfStream(int len) {
 			if (parendepth != 0) {
 				handleError(len, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
-			} else if (propertyName != null) {
+			} else {
 				processBuffer(len);
-				endOfPropertyDeclaration(len);
-			} else if (buffer.length() != 0) {
-				handleError(len, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token: " + buffer);
+				endOfValueDeclaration(len);
 			}
-			endDeclarationList();
-		}
 
-		protected void endDeclarationList() {
-			endDocument();
+			getParentHandler().endOfStream(len);
 		}
 
 		@Override
@@ -9176,20 +9446,19 @@ public class CSSParser implements Parser, Cloneable {
 			lunit = null;
 		}
 
-	}
-
-	interface LexicalUnitFactory {
-
-		LexicalUnitImpl createUnit();
+		abstract String getPropertyName();
 
 	}
 
-	abstract private class IgnoredDeclarationTokenHandler extends CSSTokenHandler {
+	private class IgnoredDeclarationTokenHandler extends CallbackControlTokenHandler {
+
+		private final ControlTokenHandler parent;
 
 		private int curlyBracketDepth = 1;
 
-		IgnoredDeclarationTokenHandler() {
-			super();
+		IgnoredDeclarationTokenHandler(ControlTokenHandler parentHandler) {
+			super(parentHandler);
+			this.parent = parentHandler;
 		}
 
 		@Override
@@ -9233,11 +9502,13 @@ public class CSSParser implements Parser, Cloneable {
 		public void rightCurlyBracket(int index) {
 			curlyBracketDepth--;
 			if (curlyBracketDepth == 0) {
-				endDeclarationBlock();
+				endDeclarationBlock(index);
 			}
 		}
 
-		abstract protected void endDeclarationBlock();
+		protected void endDeclarationBlock(int index) {
+			getTokenControl().setTokenHandler(parent);
+		}
 
 		@Override
 		public void character(int index, int codePoint) {
@@ -9247,32 +9518,66 @@ public class CSSParser implements Parser, Cloneable {
 		public void escaped(int index, int codePoint) {
 		}
 
-	}
-
-	private class CallbackIgnoredDeclarationTH extends IgnoredDeclarationTokenHandler {
-
-		private final TokenControl parserctl;
-		private final TokenHandler2 parent;
-
-		CallbackIgnoredDeclarationTH(TokenControl parserctl) {
-			super();
-			this.parserctl = parserctl;
-			this.parent = (TokenHandler2) parserctl.getTokenHandler();
-		}
-
-		@Override
-		protected void endDeclarationBlock() {
-			parserctl.setTokenHandler(parent);
-		}
-
 		@Override
 		public void control(int index, int codepoint) {
 			parent.control(index, codepoint);
 		}
 
+	}
+
+	abstract class CallbackControlTokenHandler extends CSSTokenHandler {
+
+		private ControlTokenHandler parentHandler;
+
+		CallbackControlTokenHandler(ControlTokenHandler parentHandler) {
+			super();
+			this.parentHandler = parentHandler;
+		}
+
+		/**
+		 * Get the parent Handler.
+		 * 
+		 * @return the parent Handler
+		 */
+		ControlTokenHandler getParentHandler() {
+			return parentHandler;
+		}
+
+		TokenControl getTokenControl() {
+			return parentHandler.getTokenControl();
+		}
+
+		@Override
+		public void control(int index, int codepoint) {
+			super.control(index, codepoint);
+			if (!parseError && codepoint < 0x80) {
+				parentHandler.control(index, codepoint);
+			}
+		}
+
 		@Override
 		public void endOfStream(int len) {
-			parent.endOfStream(len);
+			parentHandler.endOfStream(len);
+		}
+
+		@Override
+		public Locator createLocator() {
+			return parentHandler.createLocator();
+		}
+
+		@Override
+		int getCurrentLine() {
+			return parentHandler.getCurrentLine();
+		}
+
+		@Override
+		int getPrevLineLength() {
+			return parentHandler.getPrevLineLength();
+		}
+
+		@Override
+		void setCurrentLocation(int index) {
+			parentHandler.setCurrentLocation(index);
 		}
 
 	}
@@ -9296,6 +9601,10 @@ public class CSSParser implements Parser, Cloneable {
 
 		TokenControl getTokenControl() {
 			return parserctl;
+		}
+
+		protected void recoverControl(int index) {
+			getTokenControl().setTokenHandler(this);
 		}
 
 	}
@@ -9332,6 +9641,17 @@ public class CSSParser implements Parser, Cloneable {
 
 		boolean isTopLevel() {
 			return false;
+		}
+
+		/**
+		 * @return the parseError
+		 */
+		boolean isInError() {
+			return parseError;
+		}
+
+		void setParseError() {
+			this.parseError = true;
 		}
 
 		@Override

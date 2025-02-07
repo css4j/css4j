@@ -18,7 +18,6 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -99,8 +98,8 @@ public class ValueFactory implements CSSValueFactory {
 	}
 
 	private static boolean isFunctionType(LexicalType type) {
-		return type == LexicalType.FUNCTION || type == LexicalType.CALC || type == LexicalType.VAR
-				|| type == LexicalType.ATTR;
+		return type == LexicalType.MATH_FUNCTION || type == LexicalType.FUNCTION
+				|| type == LexicalType.CALC || type == LexicalType.VAR || type == LexicalType.ATTR;
 	}
 
 	/**
@@ -973,7 +972,6 @@ public class ValueFactory implements CSSValueFactory {
 				break;
 			case FUNCTION:
 				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-				CSSMathFunctionValue.MathFunction functionId;
 				if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")
 						|| func.endsWith("conic-gradient")) {
 					primi = new GradientValue();
@@ -1000,11 +998,13 @@ public class ValueFactory implements CSSValueFactory {
 					break;
 				} else if ("env".equals(func)) {
 					primi = new EnvVariableValue();
-				} else if ((functionId = MathFunctionHelper.getMathFunction(func)) != null) {
-					primi = new MathFunctionValue(functionId);
 				} else {
 					primi = new FunctionValue();
 				}
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case MATH_FUNCTION:
+				primi = new MathFunctionValue(lunit.getMathFunctionIndex());
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case COLOR_MIX:
@@ -1051,6 +1051,10 @@ public class ValueFactory implements CSSValueFactory {
 				break;
 			case ELEMENT_REFERENCE:
 				primi = new ElementReferenceValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case SRC:
+				primi = new FunctionValue(Type.SRC);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case OPERATOR_COMMA:

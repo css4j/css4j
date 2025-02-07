@@ -39,103 +39,6 @@ class DimensionalAnalyzer {
 		return attrPending;
 	}
 
-	/**
-	 * Compute the dimension of a mathematical function.
-	 * 
-	 * @param lexicalUnit the mathematical function.
-	 * @return the dimension, or {@code null} if it could not be computed.
-	 * @throws DOMException if the function is unknown or invalid.
-	 */
-	public Dimension mathFunctionDimension(LexicalUnitImpl lexicalUnit)
-			throws DOMException {
-		Dimension dim;
-		String fname = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
-		switch (fname) {
-		case "sin":
-		case "cos":
-		case "tan":
-		case "sign":
-			dim = new Dimension();
-			dim.category = Category.number;
-			break;
-		case "asin":
-		case "acos":
-		case "atan":
-		case "atan2":
-			dim = new Dimension();
-			dim.category = Category.angle;
-			dim.exponent = 1;
-			break;
-		case "abs":
-			dim = expressionDimension(lexicalUnit.parameters);
-			break;
-		case "clamp":
-		case "max":
-		case "min":
-		case "hypot":
-		case "hypot2":
-			LexicalUnitImpl first = lexicalUnit.parameters.shallowClone();
-			dim = expressionDimension(first);
-			if (dim != null) {
-				if (dim.category == Category.length || dim.category == Category.percentage) {
-					// Check for a length-percentage situation with the second argument
-					LexicalUnitImpl second = lexicalUnit.parameters.nextLexicalUnit;
-					if (second == null || (second = second.nextLexicalUnit) == null) {
-						throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-								"Function " + fname + " has only one argument.");
-					}
-					Dimension dim2 = expressionDimension(second);
-					if (dim2 != null && dim.category != dim2.category) {
-						if (!dim.sum(dim2)) {
-							throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-									"Function " + fname
-											+ " has arguments with different dimensions: "
-											+ dim.category.name() + " versus "
-											+ dim2.category.name() + '.');
-						}
-					}
-				}
-			} else {
-				LexicalUnitImpl second = lexicalUnit.parameters.nextLexicalUnit;
-				if (second == null || (second = second.nextLexicalUnit) == null) {
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-							"Function " + fname + " has only one argument.");
-				}
-				dim = expressionDimension(second);
-			}
-			break;
-		case "sqrt":
-			dim = expressionDimension(lexicalUnit.parameters);
-			if (dim != null) {
-				if (dim.exponent % 2 != 0) {
-					// Odd number
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-							"Invalid CSS unit in sqrt() function");
-				}
-				dim.exponent = dim.exponent / 2;
-			}
-			break;
-		case "pow":
-			dim = expressionDimension(lexicalUnit.parameters.shallowClone());
-			if (dim != null) {
-				if (dim.category == Category.number) {
-					// No matter the exponent, a number is a number
-					break;
-				}
-				LexicalUnitImpl expUnit = lexicalUnit.parameters.nextLexicalUnit.nextLexicalUnit;
-				if (expUnit.getLexicalUnitType() == LexicalType.INTEGER) {
-					dim.exponent = dim.exponent * expUnit.getIntegerValue();
-				} else if (expUnit.getLexicalUnitType() == LexicalType.REAL) {
-					dim.exponent = Math.round(dim.exponent * expUnit.getFloatValue());
-				}
-			}
-			break;
-		default:
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Unknown function");
-		}
-		return dim;
-	}
-
 	private enum Ops {
 		ADD, MULT, DIV;
 	}
@@ -226,8 +129,8 @@ class DimensionalAnalyzer {
 				break;
 			case VAR:
 				return null;
-			case FUNCTION:
-				Dimension funcdim = mathFunctionDimension(lunit);
+			case MATH_FUNCTION:
+				Dimension funcdim = ((MathFunctionUnitImpl) lunit).dimension(this);
 				if (funcdim == null) {
 					return null;
 				}

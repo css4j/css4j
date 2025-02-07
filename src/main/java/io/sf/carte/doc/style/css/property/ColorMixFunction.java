@@ -211,7 +211,8 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 
 		if (primi.getUnitType() != CSSUnit.CSS_PERCENTAGE
 				&& primi.getPrimitiveType() != Type.EXPRESSION
-				&& primi.getPrimitiveType() != Type.MATH_FUNCTION) {
+				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+				&& primi.getPrimitiveType() != Type.FUNCTION) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Type not compatible: " + primi.getCssText());
 		}

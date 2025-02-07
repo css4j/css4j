@@ -246,10 +246,16 @@ public interface LexicalUnit {
 		 * URI: <code>url(...)</code>.
 		 * 
 		 * Use {@link LexicalUnit#getStringValue() getStringValue()} to retrieve the
-		 * URL, or {@link LexicalUnit#getParameters() getParameters()} if the argument
-		 * is a {@code var()}.
+		 * URL.
 		 */
 		URI,
+
+		/**
+		 * SRC: <code>src(...)</code>.
+		 * 
+		 * Use {@link LexicalUnit#getParameters() getParameters()} to retrieve the URL.
+		 */
+		SRC,
 
 		/**
 		 * A unicode range.
@@ -361,6 +367,14 @@ public interface LexicalUnit {
 		 * @see LexicalUnit#getParameters
 		 */
 		RECT_FUNCTION,
+
+		/**
+		 * Mathematical function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		MATH_FUNCTION,
 
 		/**
 		 * A function.
@@ -623,6 +637,7 @@ public interface LexicalUnit {
 	 * @see LexicalType#COUNTER_FUNCTION
 	 * @see LexicalType#COUNTERS_FUNCTION
 	 * @see LexicalType#CUBIC_BEZIER_FUNCTION
+	 * @see LexicalType#MATH_FUNCTION
 	 * @see LexicalType#STEPS_FUNCTION
 	 * @see LexicalType#RECT_FUNCTION
 	 * @see LexicalType#RGBCOLOR
@@ -639,6 +654,18 @@ public interface LexicalUnit {
 	 * @see LexicalType#ATTR
 	 */
 	String getFunctionName();
+
+	/**
+	 * Gives the index of this unit as a mathematical function, according to
+	 * {@link io.sf.carte.doc.style.css.MathFunctions MathFunctions} .
+	 * 
+	 * @return the function index, or {@code -1} if this lexical unit is not a
+	 *         mathematical function ({@code MATH_FUNCTION}).
+	 * @see LexicalType#MATH_FUNCTION
+	 */
+	default int getMathFunctionIndex() {
+		return -1;
+	}
 
 	/**
 	 * The function parameters including operators (like the comma).

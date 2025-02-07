@@ -2454,7 +2454,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
-		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals(LexicalType.MATH_FUNCTION, param.getLexicalUnitType());
 		assertEquals("max", param.getFunctionName());
 		LexicalUnit subparams = param.getParameters();
 		// Subexpression
@@ -3329,7 +3329,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueMax() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("max(10em, 2%)");
 		assertEquals("max", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -3373,7 +3373,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueClamp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("clamp(10deg, 0.2rad, 25deg)");
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("clamp", lu.getFunctionName());
 
 		assertNull(lu.getNextLexicalUnit());
@@ -3429,7 +3429,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueClampVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("clamp(10deg, var(--angle), 25deg)");
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("clamp", lu.getFunctionName());
 
 		assertNull(lu.getNextLexicalUnit());
@@ -3481,7 +3481,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueFunctionTrigonometric() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("cos(30deg), tan(45deg)");
-		assertEquals(LexicalType.FUNCTION, lunit.getLexicalUnitType());
+		assertEquals(LexicalType.MATH_FUNCTION, lunit.getLexicalUnitType());
 		assertEquals("cos", lunit.getFunctionName());
 		LexicalUnit param = lunit.getParameters();
 		assertNotNull(param);
@@ -3496,7 +3496,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("tan", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
 		param = lu.getParameters();
@@ -3530,7 +3530,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueFunctionTrigonometricInverse() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("acos(.62), atan(0.965)");
-		assertEquals(LexicalType.FUNCTION, lunit.getLexicalUnitType());
+		assertEquals(LexicalType.MATH_FUNCTION, lunit.getLexicalUnitType());
 		assertEquals("acos", lunit.getFunctionName());
 		LexicalUnit param = lunit.getParameters();
 		assertNotNull(param);
@@ -3545,7 +3545,7 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("atan", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
 		param = lu.getParameters();
@@ -4094,11 +4094,50 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueURL_Var() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("url(var(--image))");
+	public void testParsePropertyValueURL_Quoteless() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("url(https://www.example.com/foo.png)");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
-		assertNull(lu.getStringValue());
-		assertEquals("url(var(--image))", lu.toString());
+		assertEquals("https://www.example.com/foo.png", lu.getStringValue());
+		assertEquals("url('https://www.example.com/foo.png')", lu.toString());
+
+		assertNull(lu.getParameters());
+
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<url>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<url>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<image>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<color>");
+		assertEquals(Match.FALSE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>#");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>+");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <url>");
+		assertEquals(Match.TRUE, lu.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, lu.matches(syn));
+	}
+
+	@Test
+	public void testParsePropertyValueURL_Var() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("url(var(--image))"));
+		assertEquals(8, ex.getColumnNumber());
+		assertEquals(1, ex.getLineNumber());
+	}
+
+	@Test
+	public void testParsePropertyValueSRC_Var() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("src(var(--image))");
+		assertEquals(LexicalType.SRC, lu.getLexicalUnitType());
+		assertEquals("src", lu.getStringValue());
+		assertEquals("src(var(--image))", lu.toString());
 
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalType.VAR, param.getLexicalUnitType());

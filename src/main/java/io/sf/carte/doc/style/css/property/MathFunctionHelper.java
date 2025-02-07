@@ -20,6 +20,7 @@ import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 /**
  * Helper for mathematical function values.
  */
+@Deprecated
 class MathFunctionHelper {
 
 	private static Map<String, MathFunction> map = new HashMap<>(16);

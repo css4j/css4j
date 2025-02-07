@@ -396,11 +396,13 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 				return identCssText;
 			}
 		case FUNCTION:
+		case MATH_FUNCTION:
 			return functionalSerialization(value);
 		case CALC:
 		case RECT_FUNCTION:
 		case VAR:
 		case ATTR:
+		case SRC:
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
@@ -647,6 +649,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case ATTR:
 			return matchAttr(lexicalUnit, rootSyntax, syntax);
 		case URI:
+		case SRC:
 			return matchBoolean(cat == Category.url || cat == Category.image);
 		case DIMENSION:
 			return matchBoolean(unitMatchesCategory(lexicalUnit.getCssUnit(), cat));
@@ -670,6 +673,18 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			return isNumericCategory(cat) ? matchExpression(lexicalUnit, rootSyntax, syntax) : Match.FALSE;
 		case FUNCTION:
 			return matchFunction(lexicalUnit, rootSyntax, syntax);
+		case MATH_FUNCTION:
+			if (isNumericCategory(cat)) {
+				DimensionalAnalyzer danal = new DimensionalAnalyzer();
+				Dimension dim;
+				try {
+					dim = ((MathFunctionUnitImpl) lexicalUnit).dimension(danal);
+				} catch (DOMException e) {
+					return Match.FALSE;
+				}
+				return dim != null ? dim.matches(syntax) : Match.PENDING;
+			}
+			return Match.FALSE;
 		case ELEMENT_REFERENCE:
 			return matchBoolean(cat == Category.image);
 		case VAR:
@@ -984,17 +999,9 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			return matchBoolean(cat == Category.image);
 		} else if (func.equals("env")) {
 			return Match.PENDING;
-		} else if (isNumericCategory(cat)) {
-			DimensionalAnalyzer danal = new DimensionalAnalyzer();
-			Dimension dim;
-			try {
-				dim = danal.mathFunctionDimension(lexicalUnit);
-			} catch (DOMException e) {
-				return Match.FALSE;
-			}
-			return dim != null ? dim.matches(syntax) : Match.PENDING;
 		} else {
-			return matchBoolean(ParseHelper.isTransformFunction(func));
+			return matchBoolean((cat == Category.transformFunction || cat == Category.transformList)
+					&& ParseHelper.isTransformFunction(func));
 		}
 	}
 

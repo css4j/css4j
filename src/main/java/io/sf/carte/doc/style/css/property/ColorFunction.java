@@ -280,6 +280,7 @@ class ColorFunction extends ColorValue {
 		if (!isComponentUnit(primi.getUnitType()) && (primi.getCssValueType() != CssType.TYPED
 				|| (primi.getPrimitiveType() != Type.EXPRESSION
 						&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+						&& primi.getPrimitiveType() != Type.FUNCTION
 						&& (primi.getPrimitiveType() != Type.IDENT || !"none"
 								.equalsIgnoreCase(((TypedValue) primi).getStringValue()))))) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,

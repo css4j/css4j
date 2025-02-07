@@ -548,7 +548,7 @@ abstract class ShorthandBuilder {
 	 */
 	static boolean isImagePrimitiveValue(TypedValue primi) {
 		Type type = primi.getPrimitiveType();
-		return type == Type.URI || type == Type.GRADIENT
+		return type == Type.URI || type == Type.SRC || type == Type.GRADIENT
 			|| (type == Type.FUNCTION && isImageFunction(primi)) || type == Type.ELEMENT_REFERENCE;
 	}
 
