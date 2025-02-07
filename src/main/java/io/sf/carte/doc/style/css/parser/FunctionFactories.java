@@ -23,7 +23,7 @@ class FunctionFactories {
 	private static final Map<String, LexicalUnitFactory> factories = createFactoryMap();
 
 	private static Map<String, LexicalUnitFactory> createFactoryMap() {
-		Map<String, LexicalUnitFactory> factories = new HashMap<>(40);
+		Map<String, LexicalUnitFactory> factories = new HashMap<>(45);
 
 		factories.put("calc", new LexicalUnitFactory() {
 
@@ -268,6 +268,33 @@ class FunctionFactories {
 
 		});
 
+		factories.put("round", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new RoundFunctionUnitImpl(MathFunctions.ROUND);
+			}
+
+		});
+
+		factories.put("mod", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new MultiArgScalingFunctionUnitImpl(MathFunctions.MOD);
+			}
+
+		});
+
+		factories.put("rem", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new MultiArgScalingFunctionUnitImpl(MathFunctions.REM);
+			}
+
+		});
+
 		factories.put("hypot", new LexicalUnitFactory() {
 
 			@Override
@@ -282,6 +309,24 @@ class FunctionFactories {
 			@Override
 			public LexicalUnitImpl createUnit() {
 				return new MultiArgScalingFunctionUnitImpl(MathFunctions.HYPOT2);
+			}
+
+		});
+
+		factories.put("log", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new UnitlessFunctionUnitImpl(MathFunctions.LOG);
+			}
+
+		});
+
+		factories.put("exp", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new UnitlessFunctionUnitImpl(MathFunctions.EXP);
 			}
 
 		});

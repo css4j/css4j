@@ -34,6 +34,7 @@ import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
+@SuppressWarnings("deprecation")
 public class EvaluatorTest {
 
 	private BaseCSSStyleDeclaration style;
@@ -1469,6 +1470,590 @@ public class EvaluatorTest {
 	}
 
 	@Test
+	public void testRound() {
+		style.setCssText("foo: round(7.65)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(8f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRound_2numbers() {
+		style.setCssText("foo: round(4 * 2, 3)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(9f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRound_Nearest_2numbers() {
+		style.setCssText("foo: round(Nearest, 120px * 2, 100px)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRoundUp() {
+		style.setCssText("foo: round(Up,7.15)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(8f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRound_Up_2numbers() {
+		// 90pt = 120px
+		style.setCssText("foo: round(up, 90pt * 2, 100px)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(300f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRound_Up_2numbers_neg() {
+		style.setCssText("foo: round(up, -140px * 2, 100px)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(-200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRoundDown() {
+		style.setCssText("foo: round(Down, 7.95)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(7f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRound_Down_2numbers() {
+		// 105pt = 140px
+		style.setCssText("foo: round(down, 105pt * 2, 100px)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRound_Down_2numbers_neg() {
+		style.setCssText("foo: round(down, -120px * 2, 100px)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(-300f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRoundToZero() {
+		style.setCssText("foo: round(to-zero,7.65)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(7f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRoundToZeroNeg() {
+		style.setCssText("foo: round(To-Zero,-7.65)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(-7f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRound_ToZero_2numbers() {
+		style.setCssText("foo: round(to-zero, 140px * 2, 100px)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRound_ToZero_2numbers_neg() {
+		style.setCssText("foo: round(to-zero, -140px * 2, 100px)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(-200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRound_ToZero_1number() {
+		style.setCssText("foo: round(to-zero, 1.987px)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(1f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRound_ToZero_1number_neg() {
+		style.setCssText("foo: round(to-zero, -1.987px)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(-1f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRoundInvalid() {
+		style.setCssText("foo: round(7.65,2pc)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.FALSE, val.matches(syn));
+	}
+
+	@Test
+	public void testMod() {
+		style.setCssText("foo: mod(4 * 2, 3)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(2f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testModNeg() {
+		style.setCssText("foo: mod(-4 * 2, 3)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(1f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testMod_deg() {
+		style.setCssText("foo: mod(135deg, -90deg)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_DEG, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(-45f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testMod_deg2() {
+		style.setCssText("foo: mod(-70deg, 20deg)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_DEG, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(10f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testModInvalid() {
+		style.setCssText("foo: mod(4, 3pt)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.FALSE, val.matches(syn));
+	}
+
+	@Test
+	public void testRem() {
+		style.setCssText("foo: rem(10 * 2, 1.7)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(1.3f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRemNeg() {
+		style.setCssText("foo: rem(-4 * 2, 3)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(-2f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRemVwNeg() {
+		style.setCssText("foo: rem(-18vw, 5vw)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_VW, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(-3f, typed.getFloatValue(CSSUnit.CSS_VW), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRem_deg() {
+		style.setCssText("foo: rem(140deg, -90deg)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_DEG, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(50f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRem_deg2() {
+		style.setCssText("foo: rem(-90deg, 20deg)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_DEG, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(-10f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testRemInvalid() {
+		style.setCssText("foo: rem(10, 1.7px)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.FALSE, val.matches(syn));
+	}
+
+	@Test
 	public void testSin() {
 		style.setCssText("foo: sin(1.2 * 5deg)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
@@ -2227,6 +2812,126 @@ public class EvaluatorTest {
 
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.FALSE, val.matches(syn));
+	}
+
+	@Test
+	public void testLog() {
+		style.setCssText("foo: log(4.2 * 3)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(2.533696814f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testLogBase10() {
+		style.setCssText("foo: log(24.2 * 3, 2*5)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(1.8609366207f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-7f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testLogArgInvalid() {
+		style.setCssText("foo: log(23pc, 5)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.FALSE, val.matches(syn));
+	}
+
+	@Test
+	public void testLogBaseInvalid() {
+		style.setCssText("foo: log(23, 5px)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.FALSE, val.matches(syn));
+	}
+
+	@Test
+	public void testExp() {
+		style.setCssText("foo: exp(3.2 * 2.1)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
+		assertEquals(Match.TRUE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<angle>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("*");
+		assertEquals(Match.TRUE, val.matches(syn));
+
+		NumberValue typed = (NumberValue) evaluator.evaluateFunction(val);
+		assertEquals(828.8175f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-3f);
+		assertTrue(typed.isCalculatedNumber());
+	}
+
+	@Test
+	public void testExpInvalid() {
+		style.setCssText("foo: exp(3.2ex)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
+
+		SyntaxParser syntaxParser = new SyntaxParser();
+		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
+		assertEquals(Match.FALSE, val.matches(syn));
+		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
 		assertEquals(Match.FALSE, val.matches(syn));
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.FALSE, val.matches(syn));

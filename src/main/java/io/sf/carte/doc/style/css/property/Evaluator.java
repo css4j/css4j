@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.util.Iterator;
+import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
@@ -97,6 +98,36 @@ public class Evaluator {
 
 		};
 
+		evals[MathFunctions.ROUND] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionRound(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.MOD] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionMod(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.REM] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionRem(function.getArguments(), resultUnit);
+			}
+
+		};
+
 		evals[MathFunctions.HYPOT] = new FunctionEvaluator() {
 
 			@Override
@@ -113,6 +144,26 @@ public class Evaluator {
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
 					Unit resultUnit) {
 				return eval.functionHypot2(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.LOG] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionLog(function.getArguments(), resultUnit);
+			}
+
+		};
+
+		evals[MathFunctions.EXP] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionExp(function.getArguments(), resultUnit);
 			}
 
 		};
@@ -429,6 +480,149 @@ public class Evaluator {
 		return createNumberValue(centralUnit, result, calculated);
 	}
 
+	private CSSNumberValue functionRound(CSSValueList<? extends CSSValue> arguments,
+			Unit resultUnit) throws DOMException {
+		int len = arguments.getLength();
+		if (len > 3 || len < 1) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "round() functions take up to three arguments");
+		}
+
+		String strategy;
+		CSSTypedValue argA, argB = null;
+
+		CSSValue arg0 = arguments.item(0);
+		if (arg0.getPrimitiveType() == Type.IDENT) {
+			strategy = ((CSSTypedValue) arg0).getStringValue().toLowerCase(Locale.ROOT);
+			if (len == 1) {
+				throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand in round() function");
+			}
+			argA = typedArgument(arguments, 1);
+			if (len == 3) {
+				argB = typedArgument(arguments, 2);
+			}
+		} else {
+			argA = typedArgument(arguments, 0);
+			if (len == 2) {
+				argB = typedArgument(arguments, 1);
+			}
+			strategy = "nearest";
+		}
+
+		argA = evaluate(argA, resultUnit);
+		float a = floatValue(argA, resultUnit);
+		short unit = resultUnit.getUnitType();
+
+		float b;
+
+		if (argB != null) {
+			int aexp = resultUnit.getExponent();
+			argB = evaluate(argB, resultUnit);
+			b = floatValue(argB, resultUnit);
+
+			if (aexp != resultUnit.getExponent()) {
+				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+						"round() arguments have incompatible dimensions.");
+			}
+
+			a = NumberValue.floatValueConversion(a, unit, resultUnit.getUnitType());
+			unit = resultUnit.getUnitType();
+		} else {
+			b = 1f;
+		}
+
+		float result = round(strategy, a, b);
+
+		return createNumberValue(unit, result, true);
+	}
+
+	private static float round(String strategy, double a, double b) {
+		double result;
+		switch (strategy) {
+		default:
+		case "nearest":
+			result = Math.round(a / b) * b;
+			break;
+		case "up":
+			result = Math.ceil(a / b) * b;
+			break;
+		case "down":
+			result = Math.floor(a / b) * b;
+			break;
+		case "to-zero":
+			result = ((long) (a / b)) * b;
+			break;
+		}
+		return (float) result;
+	}
+
+	private CSSNumberValue functionMod(CSSValueList<? extends CSSValue> arguments,
+			Unit resultUnit) throws DOMException {
+		if (arguments.getLength() != 2) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "mod() functions take two arguments");
+		}
+		CSSTypedValue arg = typedArgument(arguments, 0);
+		CSSTypedValue arg2 = typedArgument(arguments, 1);
+		short unit = arg.getUnitType();
+		resultUnit.setUnitType(unit);
+		float f1, f2;
+		if (CSSUnit.isRelativeLengthUnitType(unit)
+				&& CSSUnit.isRelativeLengthUnitType(arg2.getUnitType())) {
+			f1 = arg.getFloatValue(unit);
+			unit = arg2.getUnitType();
+			f2 = arg2.getFloatValue(unit);
+		} else {
+			Unit unit2 = new Unit();
+			f1 = evalValue(arg, resultUnit);
+			f2 = evalValue(arg2, unit2);
+			if (unit2.getExponent() != resultUnit.getExponent()) {
+				throw new DOMException(DOMException.SYNTAX_ERR,
+						"mod() arguments have different units");
+			}
+			unit = unit2.getUnitType();
+		}
+
+		f1 = NumberValue.floatValueConversion(f1, resultUnit.getUnitType(), unit);
+
+		float result = (float) (f1 - (Math.floor(f1 / f2) * f2));
+
+		return createNumberValue(unit, result, true);
+	}
+
+	private CSSNumberValue functionRem(CSSValueList<? extends CSSValue> arguments, Unit resultUnit)
+			throws DOMException {
+		if (arguments.getLength() != 2) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "rem() functions take two arguments");
+		}
+		CSSTypedValue arg = typedArgument(arguments, 0);
+		CSSTypedValue arg2 = typedArgument(arguments, 1);
+		short unit = arg.getUnitType();
+		resultUnit.setUnitType(unit);
+		float f1, f2;
+		if (CSSUnit.isRelativeLengthUnitType(unit)
+				&& CSSUnit.isRelativeLengthUnitType(arg2.getUnitType())) {
+			f1 = arg.getFloatValue(unit);
+			unit = arg2.getUnitType();
+			f2 = arg2.getFloatValue(unit);
+		} else {
+			Unit unit2 = new Unit();
+			f1 = evalValue(arg, resultUnit);
+			f2 = evalValue(arg2, unit2);
+			if (unit2.getExponent() != resultUnit.getExponent()) {
+				throw new DOMException(DOMException.SYNTAX_ERR,
+						"rem() arguments have different units");
+			}
+			unit = unit2.getUnitType();
+		}
+
+		f1 = NumberValue.floatValueConversion(f1, resultUnit.getUnitType(), unit);
+
+		float result;
+
+		result = (float) (f1 - (((int) (f1 / f2)) * f2));
+
+		return createNumberValue(unit, result, true);
+	}
+
 	private CSSNumberValue functionSin(CSSValueList<? extends CSSValue> arguments,
 			Unit resultUnit) throws DOMException {
 		if (arguments.getLength() != 1) {
@@ -561,6 +755,53 @@ public class Evaluator {
 		resultUnit.setExponent(1);
 
 		return createNumberValue(CSSUnit.CSS_RAD, result, true);
+	}
+
+	private CSSNumberValue functionExp(CSSValueList<? extends CSSValue> arguments,
+			Unit resultUnit) throws DOMException {
+		if (arguments.getLength() != 1) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "exp() functions take one argument");
+		}
+		CSSTypedValue arg = typedArgument(arguments, 0);
+
+		float f1 = evalValue(arg, resultUnit);
+		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "exp() argument must be dimensionless");
+		}
+
+		float result = (float) Math.exp(f1);
+
+		return createNumberValue(CSSUnit.CSS_NUMBER, result, true);
+	}
+
+	private CSSNumberValue functionLog(CSSValueList<? extends CSSValue> arguments,
+			Unit resultUnit) throws DOMException {
+		int len = arguments.getLength();
+		if (len > 2 || len < 1) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "log() functions take one or two arguments");
+		}
+		CSSTypedValue arg = typedArgument(arguments, 0);
+		float argument = evalValue(arg, resultUnit);
+		if (resultUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "log() argument must be dimensionless");
+		}
+
+		float result;
+		if (len == 2) {
+			CSSTypedValue arg2 = typedArgument(arguments, 1);
+			Unit expUnit = new Unit();
+			float base = evalValue(arg2, expUnit);
+			if (expUnit.getUnitType() != CSSUnit.CSS_NUMBER) {
+				throw new DOMException(DOMException.SYNTAX_ERR, "log() base cannot have a dimension");
+			}
+			result = (float) (Math.log(argument) / Math.log(base));
+		} else {
+			result = (float) Math.log(argument);
+		}
+
+		resultUnit.setUnitType(CSSUnit.CSS_NUMBER);
+
+		return createNumberValue(CSSUnit.CSS_NUMBER, result, true);
 	}
 
 	private CSSNumberValue functionPow(CSSValueList<? extends CSSValue> arguments,
