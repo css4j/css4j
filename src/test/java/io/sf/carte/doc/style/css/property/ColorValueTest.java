@@ -2153,7 +2153,7 @@ public class ColorValueTest {
 		assertNotNull(hslColor);
 		HSLColor hsl = hslColor.getColor();
 		assertNotNull(hsl);
-		assertEquals(234.947f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(234.947f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_DEG),
 				0.001f);
 		assertEquals(100f,
 				((CSSTypedValue) hsl.getSaturation()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
@@ -2223,7 +2223,7 @@ public class ColorValueTest {
 		assertNotNull(hslColor);
 		HSLColor hsl = hslColor.getColor();
 		assertNotNull(hsl);
-		assertEquals(91.429f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(91.429f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_DEG),
 				0.001f);
 		assertEquals(72.414f,
 				((CSSTypedValue) hsl.getSaturation()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
@@ -2292,7 +2292,7 @@ public class ColorValueTest {
 		assertNotNull(hslColor);
 		HSLColor hsl = hslColor.getColor();
 		assertNotNull(hsl);
-		assertEquals(240f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(240f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_DEG),
 				0.001f);
 		assertEquals(100f,
 				((CSSTypedValue) hsl.getSaturation()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
@@ -2366,7 +2366,7 @@ public class ColorValueTest {
 		assertNotNull(hslColor);
 		HSLColor hsl = hslColor.getColor();
 		assertNotNull(hsl);
-		assertEquals(244.286f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(244.286f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_DEG),
 				0.001f);
 		assertEquals(65.625f,
 				((CSSTypedValue) hsl.getSaturation()).getFloatValue(CSSUnit.CSS_PERCENTAGE),

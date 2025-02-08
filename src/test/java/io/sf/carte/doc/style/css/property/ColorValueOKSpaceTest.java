@@ -204,7 +204,7 @@ public class ColorValueOKSpaceTest {
 		HSLColor hsl = hslColor.getColor();
 		assertNotNull(hsl);
 		assertEquals("hsl(16.717, 30.5%, 65.12%)", hsl.toString());
-		assertEquals(16.72f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(16.72f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_DEG),
 				0.01f);
 		assertEquals(30.5f,
 				((CSSTypedValue) hsl.getSaturation()).getFloatValue(CSSUnit.CSS_PERCENTAGE), 0.01f);
@@ -1719,7 +1719,7 @@ public class ColorValueOKSpaceTest {
 		assertNotNull(hslColor);
 		HSLColor hsl = hslColor.getColor();
 		assertNotNull(hsl);
-		assertEquals(16.7f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(16.7f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_DEG),
 				0.1f);
 		assertEquals(30.528f,
 				((CSSTypedValue) hsl.getSaturation()).getFloatValue(CSSUnit.CSS_PERCENTAGE),

@@ -335,36 +335,26 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 	 */
 	@Override
 	public float getFloatValue(short unitType) throws DOMException {
-		if (unitType == getUnitType()) {
-			return realvalue;
-		} else if (unitType == CSSUnit.CSS_NUMBER && getUnitType() != CSSUnit.CSS_PERCENTAGE) {
-			return realvalue;
-		} else {
-			return floatValueConversion(realvalue, getUnitType(), unitType);
-		}
+		return floatValueConversion(realvalue, getUnitType(), unitType);
 	}
 
 	/**
 	 * Converts a float value, expressed in <code>declType</code> units, to
 	 * <code>unitType</code> units.
 	 * 
-	 * @param fvalue
-	 *            the float value to convert.
-	 * @param declType
-	 *            the declared type of the value.
-	 * @param unitType
-	 *            the desired unit type.
+	 * @param fvalue   the float value to convert.
+	 * @param declType the declared type of the value.
+	 * @param unitType the desired unit type. If the type is <code>CSS_OTHER</code>
+	 *                 the value shall be returned as is, regardless of the unit
+	 *                 that was set with.
 	 * @return the value converted to the <code>unitType</code> unit.
-	 * @throws DOMException
-	 *             if the unit conversion could not be done.
+	 * @throws DOMException if the unit conversion could not be done.
 	 */
 	public static float floatValueConversion(float fvalue, short declType, short unitType) throws DOMException {
-		if (fvalue == 0f) {
-			return 0;
-		}
 		if (declType == unitType) {
 			return fvalue;
 		}
+
 		switch (declType) {
 		case CSSUnit.CSS_PT:
 			if (unitType == CSSUnit.CSS_PX) {
@@ -595,6 +585,12 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 				return fvalue;
 			}
 		}
+
+		if (fvalue == 0f || unitType == CSSUnit.CSS_OTHER) {
+			return fvalue;
+		}
+
+		// Throw an exception
 		String unit = CSSUnit.dimensionUnitString(declType);
 		if (unit.length() == 0) {
 			unit = '<' + Integer.toString(declType) + '>';
@@ -608,6 +604,7 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 		} catch (DOMException e) {
 			requestedUnitStr = '<' + Integer.toString(unitType) + '>';
 		}
+
 		throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 				"Cannot transform unit " + unit + " to " + requestedUnitStr);
 	}

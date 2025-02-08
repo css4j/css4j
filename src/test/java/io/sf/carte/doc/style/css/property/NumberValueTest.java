@@ -13,9 +13,11 @@ package io.sf.carte.doc.style.css.property;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -40,7 +42,7 @@ public class NumberValueTest {
 		assertFalse(val.isCalculatedNumber());
 		assertFalse(val.isNumberZero());
 		assertFalse(val.isNegativeNumber());
-		//
+
 		val.setFloatValue(CSSUnit.CSS_NUMBER, 5f);
 		assertEquals("5", val.getCssText());
 		assertEquals("5", val.getMinifiedCssText(null));
@@ -48,7 +50,7 @@ public class NumberValueTest {
 		assertFalse(val.isCalculatedNumber());
 		assertFalse(val.isNumberZero());
 		assertFalse(val.isNegativeNumber());
-		//
+
 		val.setFloatValue(CSSUnit.CSS_PX, 0f);
 		assertEquals("0px", val.getCssText());
 		assertEquals("0", val.getMinifiedCssText(null));
@@ -56,28 +58,28 @@ public class NumberValueTest {
 		assertFalse(val.isCalculatedNumber());
 		assertTrue(val.isNumberZero());
 		assertFalse(val.isNegativeNumber());
-		//
+
 		val.setFloatValue(CSSUnit.CSS_PX, -5f);
 		assertEquals("-5px", val.getCssText());
 		assertEquals("-5px", val.getMinifiedCssText(null));
 		assertFalse(val.isCalculatedNumber());
 		assertFalse(val.isNumberZero());
 		assertTrue(val.isNegativeNumber());
-		//
+
 		val.setFloatValue(CSSUnit.CSS_PX, 0.1f);
 		assertEquals("0.1px", val.getCssText());
 		assertEquals(".1px", val.getMinifiedCssText(null));
 		assertFalse(val.isCalculatedNumber());
 		assertFalse(val.isNumberZero());
 		assertFalse(val.isNegativeNumber());
-		//
+
 		val.setFloatValue(CSSUnit.CSS_PX, -0.1f);
 		assertEquals("-0.1px", val.getCssText());
 		assertEquals("-.1px", val.getMinifiedCssText(null));
 		assertFalse(val.isCalculatedNumber());
 		assertFalse(val.isNumberZero());
 		assertTrue(val.isNegativeNumber());
-		//
+
 		val.setFloatValue(CSSUnit.CSS_NUMBER, 0.1f);
 		assertEquals("0.1", val.getCssText());
 		assertEquals(".1", val.getMinifiedCssText(null));
@@ -85,7 +87,7 @@ public class NumberValueTest {
 		assertFalse(val.isCalculatedNumber());
 		assertFalse(val.isNumberZero());
 		assertFalse(val.isNegativeNumber());
-		//
+
 		val.setFloatValue(CSSUnit.CSS_NUMBER, -0.1f);
 		assertEquals("-0.1", val.getCssText());
 		assertEquals("-.1", val.getMinifiedCssText(null));
@@ -131,19 +133,19 @@ public class NumberValueTest {
 		assertEquals(CssType.TYPED, cssval.getCssValueType());
 		assertEquals(Type.NUMERIC, cssval.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_VH, ((TypedValue) cssval).getUnitType());
-		//
+
 		style.setCssText("height: 5px");
 		assertEquals("5px", style.getPropertyValue("height"));
 		assertEquals("5px", style.getPropertyCSSValue("height").getMinifiedCssText(""));
-		//
+
 		style.setCssText("height: 5.666667px");
 		assertEquals("5.666667px", style.getPropertyValue("height"));
 		assertEquals("5.666667px", style.getPropertyCSSValue("height").getMinifiedCssText(""));
-		//
+
 		style.setCssText("margin-left: -5px");
 		assertEquals("-5px", style.getPropertyValue("margin-left"));
 		assertEquals("-5px", style.getPropertyCSSValue("margin-left").getMinifiedCssText(""));
-		//
+
 		style.setCssText("line-height: 5");
 		assertEquals("5", style.getPropertyValue("line-height"));
 		cssval = style.getPropertyCSSValue("line-height");
@@ -151,15 +153,15 @@ public class NumberValueTest {
 		assertEquals(CssType.TYPED, cssval.getCssValueType());
 		assertEquals(Type.NUMERIC, cssval.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_NUMBER, ((TypedValue) cssval).getUnitType());
-		//
+
 		style.setCssText("line-height: -5");
 		assertEquals("-5", style.getPropertyValue("line-height"));
 		assertEquals("-5", style.getPropertyCSSValue("line-height").getMinifiedCssText(""));
-		//
+
 		style.setCssText("height: 0px");
 		assertEquals("0px", style.getPropertyValue("height"));
 		assertEquals("0", style.getPropertyCSSValue("height").getMinifiedCssText(""));
-		//
+
 		style.setCssText("height: 0%");
 		assertEquals("0%", style.getPropertyValue("height"));
 		cssval = style.getPropertyCSSValue("height");
@@ -167,7 +169,7 @@ public class NumberValueTest {
 		assertEquals(CssType.TYPED, cssval.getCssValueType());
 		assertEquals(Type.NUMERIC, cssval.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, ((TypedValue) cssval).getUnitType());
-		//
+
 		style.setCssText("height: 10%");
 		assertEquals("10%", style.getPropertyValue("height"));
 		cssval = style.getPropertyCSSValue("height");
@@ -175,7 +177,7 @@ public class NumberValueTest {
 		assertEquals(CssType.TYPED, cssval.getCssValueType());
 		assertEquals(Type.NUMERIC, cssval.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, ((TypedValue) cssval).getUnitType());
-		//
+
 		style.setCssText("resolution: 300dpi");
 		assertEquals("300dpi", style.getPropertyValue("resolution"));
 		StyleValue value = style.getPropertyCSSValue("resolution");
@@ -193,6 +195,18 @@ public class NumberValueTest {
 		val.setFloatValue(CSSUnit.CSS_NUMBER, Float.NEGATIVE_INFINITY);
 		assertEquals("calc(-1/0)", val.getCssText());
 		assertEquals("calc(-1/0)", val.getMinifiedCssText(""));
+	}
+
+	@Test
+	public void testGetFloatValue() {
+		NumberValue val = new NumberValue();
+		val.setFloatValue(CSSUnit.CSS_PT, 3.5f);
+		assertEquals(3.5f, val.getFloatValue(CSSUnit.CSS_PT));
+		assertEquals(3.5f, val.getFloatValue(CSSUnit.CSS_OTHER));
+		assertEquals(4.666666f, val.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
+
+		DOMException ex = assertThrows(DOMException.class, () -> val.getFloatValue(CSSUnit.CSS_DEG));
+		assertEquals(DOMException.INVALID_ACCESS_ERR, ex.code);
 	}
 
 	@Test
@@ -228,7 +242,7 @@ public class NumberValueTest {
 		assertEquals(Match.TRUE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(syn));
-		//
+
 		value.setFloatValue(CSSUnit.CSS_DEG, 15f);
 		syn = syntaxParser.parseSyntax("<angle>");
 		assertEquals(Match.TRUE, value.matches(syn));
@@ -250,7 +264,7 @@ public class NumberValueTest {
 		assertEquals(Match.TRUE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(syn));
-		//
+
 		value.setFloatValue(CSSUnit.CSS_HZ, 50f);
 		syn = syntaxParser.parseSyntax("<frequency>");
 		assertEquals(Match.TRUE, value.matches(syn));
@@ -272,7 +286,7 @@ public class NumberValueTest {
 		assertEquals(Match.TRUE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(syn));
-		//
+
 		value.setFloatValue(CSSUnit.CSS_S, 2.1f);
 		syn = syntaxParser.parseSyntax("<time>");
 		assertEquals(Match.TRUE, value.matches(syn));
@@ -294,7 +308,7 @@ public class NumberValueTest {
 		assertEquals(Match.TRUE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(syn));
-		//
+
 		value.setFloatValue(CSSUnit.CSS_FR, 2.1f);
 		syn = syntaxParser.parseSyntax("<flex>");
 		assertEquals(Match.TRUE, value.matches(syn));
@@ -316,7 +330,7 @@ public class NumberValueTest {
 		assertEquals(Match.TRUE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(syn));
-		//
+
 		value.setIntegerValue(1);
 		syn = syntaxParser.parseSyntax("<integer>");
 		assertEquals(Match.TRUE, value.matches(syn));
@@ -486,7 +500,7 @@ public class NumberValueTest {
 				1e-6f);
 		assertEquals(4, NumberValue.floatValueConversion(3.77952756f, CSSUnit.CSS_PX,
 				CSSUnit.CSS_QUARTER_MM), 1e-6f);
-		//
+
 		assertEquals(100, NumberValue.floatValueConversion(75f, CSSUnit.CSS_PT, CSSUnit.CSS_PX),
 				1e-6f);
 		assertEquals(1, NumberValue.floatValueConversion(12f, CSSUnit.CSS_PT, CSSUnit.CSS_PC),
@@ -500,7 +514,7 @@ public class NumberValueTest {
 		assertEquals(101.6f,
 				NumberValue.floatValueConversion(72f, CSSUnit.CSS_PT, CSSUnit.CSS_QUARTER_MM),
 				1e-6f);
-		//
+
 		assertEquals(72f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_IN, CSSUnit.CSS_PT),
 				1e-6f);
 		assertEquals(6f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_IN, CSSUnit.CSS_PC),
@@ -514,7 +528,7 @@ public class NumberValueTest {
 		assertEquals(101.6f,
 				NumberValue.floatValueConversion(1f, CSSUnit.CSS_IN, CSSUnit.CSS_QUARTER_MM),
 				1e-5f);
-		//
+
 		assertEquals(72f, NumberValue.floatValueConversion(6f, CSSUnit.CSS_PC, CSSUnit.CSS_PT),
 				1e-5f);
 		assertEquals(1f, NumberValue.floatValueConversion(6f, CSSUnit.CSS_PC, CSSUnit.CSS_IN),
@@ -528,7 +542,7 @@ public class NumberValueTest {
 		assertEquals(101.6f,
 				NumberValue.floatValueConversion(6f, CSSUnit.CSS_PC, CSSUnit.CSS_QUARTER_MM),
 				1e-5f);
-		//
+
 		assertEquals(72f, NumberValue.floatValueConversion(2.54f, CSSUnit.CSS_CM, CSSUnit.CSS_PT),
 				1e-5f);
 		assertEquals(1f, NumberValue.floatValueConversion(2.54f, CSSUnit.CSS_CM, CSSUnit.CSS_IN),
@@ -542,7 +556,7 @@ public class NumberValueTest {
 		assertEquals(4f,
 				NumberValue.floatValueConversion(0.1f, CSSUnit.CSS_CM, CSSUnit.CSS_QUARTER_MM),
 				1e-6f);
-		//
+
 		assertEquals(72f, NumberValue.floatValueConversion(25.4f, CSSUnit.CSS_MM, CSSUnit.CSS_PT),
 				1e-5f);
 		assertEquals(1f, NumberValue.floatValueConversion(25.4f, CSSUnit.CSS_MM, CSSUnit.CSS_IN),
@@ -556,7 +570,7 @@ public class NumberValueTest {
 		assertEquals(4f,
 				NumberValue.floatValueConversion(1f, CSSUnit.CSS_MM, CSSUnit.CSS_QUARTER_MM),
 				1e-6f);
-		//
+
 		assertEquals(72f,
 				NumberValue.floatValueConversion(101.6f, CSSUnit.CSS_QUARTER_MM, CSSUnit.CSS_PT),
 				1e-5f);
@@ -575,17 +589,17 @@ public class NumberValueTest {
 		assertEquals(1f,
 				NumberValue.floatValueConversion(4f, CSSUnit.CSS_QUARTER_MM, CSSUnit.CSS_MM),
 				1e-6f);
-		//
+
 		assertEquals(1000f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_S, CSSUnit.CSS_MS),
 				1e-5f);
 		assertEquals(1f, NumberValue.floatValueConversion(1000f, CSSUnit.CSS_MS, CSSUnit.CSS_S),
 				1e-6f);
-		//
+
 		assertEquals(0.001f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_HZ, CSSUnit.CSS_KHZ),
 				1e-7f);
 		assertEquals(1000f, NumberValue.floatValueConversion(1f, CSSUnit.CSS_KHZ, CSSUnit.CSS_HZ),
 				1e-5f);
-		//
+
 		assertEquals(57.2957795f,
 				NumberValue.floatValueConversion(1f, CSSUnit.CSS_RAD, CSSUnit.CSS_DEG), 1e-5f);
 		assertEquals(200f,
@@ -594,7 +608,7 @@ public class NumberValueTest {
 		assertEquals(0.5f,
 				NumberValue.floatValueConversion(3.141593f, CSSUnit.CSS_RAD, CSSUnit.CSS_TURN),
 				1e-6f);
-		//
+
 		assertEquals(1f,
 				NumberValue.floatValueConversion(57.2957795f, CSSUnit.CSS_DEG, CSSUnit.CSS_RAD),
 				1e-6f);
@@ -602,35 +616,35 @@ public class NumberValueTest {
 				NumberValue.floatValueConversion(180f, CSSUnit.CSS_DEG, CSSUnit.CSS_GRAD), 1e-4f);
 		assertEquals(0.5f,
 				NumberValue.floatValueConversion(180f, CSSUnit.CSS_DEG, CSSUnit.CSS_TURN), 1e-6f);
-		//
+
 		assertEquals(3.14159265f,
 				NumberValue.floatValueConversion(200f, CSSUnit.CSS_GRAD, CSSUnit.CSS_RAD), 1e-6f);
 		assertEquals(180f,
 				NumberValue.floatValueConversion(200f, CSSUnit.CSS_GRAD, CSSUnit.CSS_DEG), 1e-5f);
 		assertEquals(0.5f,
 				NumberValue.floatValueConversion(200f, CSSUnit.CSS_GRAD, CSSUnit.CSS_TURN), 1e-6f);
-		//
+
 		assertEquals(3.1415927f,
 				NumberValue.floatValueConversion(0.5f, CSSUnit.CSS_TURN, CSSUnit.CSS_RAD), 1e-6f);
 		assertEquals(180f,
 				NumberValue.floatValueConversion(0.5f, CSSUnit.CSS_TURN, CSSUnit.CSS_DEG), 1e-5f);
 		assertEquals(200f,
 				NumberValue.floatValueConversion(0.5f, CSSUnit.CSS_TURN, CSSUnit.CSS_GRAD), 1e-5f);
-		//
+
 		assertEquals(37.7952766f,
 				NumberValue.floatValueConversion(96f, CSSUnit.CSS_DPI, CSSUnit.CSS_DPCM),
 				1e-6f);
 		assertEquals(1f,
 				NumberValue.floatValueConversion(96f, CSSUnit.CSS_DPI, CSSUnit.CSS_DPPX),
 				1e-6f);
-		//
+
 		assertEquals(76.2f,
 				NumberValue.floatValueConversion(30f, CSSUnit.CSS_DPCM, CSSUnit.CSS_DPI),
 				1e-6f);
 		assertEquals(1.00542f,
 				NumberValue.floatValueConversion(38f, CSSUnit.CSS_DPCM, CSSUnit.CSS_DPPX),
 				1e-5f);
-		//
+
 		assertEquals(96f,
 				NumberValue.floatValueConversion(1f, CSSUnit.CSS_DPPX, CSSUnit.CSS_DPI),
 				1e-6f);

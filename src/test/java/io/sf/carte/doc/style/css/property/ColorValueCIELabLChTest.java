@@ -182,7 +182,7 @@ public class ColorValueCIELabLChTest {
 		assertNotNull(hslColor);
 		HSLColor hsl = hslColor.getColor();
 		assertNotNull(hsl);
-		assertEquals(11.499f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(11.499f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_DEG),
 				0.001f);
 		assertEquals(38.48f,
 				((CSSTypedValue) hsl.getSaturation()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
@@ -1395,7 +1395,7 @@ public class ColorValueCIELabLChTest {
 		assertNotNull(hslColor);
 		HSLColor hsl = hslColor.getColor();
 		assertNotNull(hsl);
-		assertEquals(16.667f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(16.667f, ((CSSTypedValue) hsl.getHue()).getFloatValue(CSSUnit.CSS_DEG),
 				0.001f);
 		assertEquals(30.456f,
 				((CSSTypedValue) hsl.getSaturation()).getFloatValue(CSSUnit.CSS_PERCENTAGE),
@@ -2232,7 +2232,7 @@ public class ColorValueCIELabLChTest {
 				0.001f);
 		assertEquals(48.583f, ((CSSTypedValue) chroma).getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
 		assertEquals(Type.NUMERIC, hue.getPrimitiveType());
-		assertEquals(32.86f, ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
+		assertEquals(32.86f, ((CSSTypedValue) hue).getFloatValue(CSSUnit.CSS_DEG), 0.001f);
 		assertEquals(1f, ((CSSTypedValue) lch.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertEquals("lch(81.7395 48.583 32.86)", value.getCssText());
 		assertEquals("lch(81.7395 48.583 32.86)", lchColor.toString());
@@ -2398,7 +2398,7 @@ public class ColorValueCIELabLChTest {
 				0.001f);
 		assertEquals(75.19507f, ((CSSTypedValue) lch.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.001f);
-		assertEquals(81.88939f, ((CSSTypedValue) lch.getHue()).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(81.88939f, ((CSSTypedValue) lch.getHue()).getFloatValue(CSSUnit.CSS_DEG),
 				0.001f);
 		assertEquals(1f, ((CSSTypedValue) lab.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertEquals("lch(72.0796 75.195 81.889)", lchColor.getCssText());
