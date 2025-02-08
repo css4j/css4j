@@ -33,6 +33,7 @@ import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
+@SuppressWarnings("deprecation")
 public class MathFunctionValueTest {
 
 	CSSStyleDeclarationRule styleRule;

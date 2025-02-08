@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -61,17 +62,12 @@ public class PropertyParserCIELabLChColorTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lab", lu.getFunctionName());
 		assertEquals("lab(53.2% 42.4 57.76)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -434,7 +430,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.PERCENTAGE, subparam.getLexicalUnitType());
 		assertEquals(24f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
@@ -468,7 +464,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
 		assertEquals(21.6f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
@@ -502,7 +498,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
 		assertEquals(21.6f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lab", lu.getFunctionName());
 		assertEquals("lab(53.1% 42.4 calc(2*21.6))", lu.toString());
@@ -550,7 +546,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
 		assertEquals(21.6f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lab", lu.getFunctionName());
 		assertEquals("lab(calc(2*24%) calc(-2*31.3) calc(2*21.6))", lu.toString());
@@ -599,7 +595,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
 		assertEquals(21.6f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
@@ -615,7 +611,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
 		assertEquals(0.18f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lab", lu.getFunctionName());
 		assertEquals("lab(calc(2*24%) calc(-2*31.3) calc(2*21.6)/calc(2*0.18))", lu.toString());
@@ -640,17 +636,12 @@ public class PropertyParserCIELabLChColorTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lab", lu.getFunctionName());
 		assertEquals("lab(none 0.424 0.5776)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -672,17 +663,12 @@ public class PropertyParserCIELabLChColorTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lab", lu.getFunctionName());
 		assertEquals("lab(53.2% none 0.5776)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -704,17 +690,12 @@ public class PropertyParserCIELabLChColorTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lab", lu.getFunctionName());
 		assertEquals("lab(53.2% 0.424 none)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -795,17 +776,12 @@ public class PropertyParserCIELabLChColorTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lch", lu.getFunctionName());
 		assertEquals("lch(53.2% 42.4 57.76)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1096,6 +1072,12 @@ public class PropertyParserCIELabLChColorTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lch", lu.getFunctionName());
 		assertEquals("lch(var(--ligthness-chroma-hue))", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1116,6 +1098,12 @@ public class PropertyParserCIELabLChColorTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lch", lu.getFunctionName());
 		assertEquals("lch(var(--ligthness-chroma) 57.76)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1463,7 +1451,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.PERCENTAGE, subparam.getLexicalUnitType());
 		assertEquals(24f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
@@ -1497,7 +1485,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
 		assertEquals(21.6f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
@@ -1531,7 +1519,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
 		assertEquals(21.6f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lch", lu.getFunctionName());
 		assertEquals("lch(53.1% 42.4 calc(2*21.6))", lu.toString());
@@ -1579,7 +1567,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
 		assertEquals(21.6f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lch", lu.getFunctionName());
 		assertEquals("lch(calc(2*24%) calc(-2*31.3) calc(2*21.6))", lu.toString());
@@ -1628,7 +1616,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
 		assertEquals(21.6f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
@@ -1644,7 +1632,7 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
 		assertEquals(0.18f, subparam.getFloatValue(), 1e-5f);
 		assertNull(subparam.getNextLexicalUnit());
-		//
+
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("lch", lu.getFunctionName());
 		assertEquals("lch(calc(2*24%) calc(-2*31.3) calc(2*21.6)/calc(2*0.18))", lu.toString());
@@ -1772,6 +1760,11 @@ public class PropertyParserCIELabLChColorTest {
 		} catch (IOException e) {
 			return null;
 		}
+	}
+
+	private void assertMatch(Match match, LexicalUnit lu, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, lu.matches(syn));
 	}
 
 }

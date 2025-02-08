@@ -560,28 +560,24 @@ public class Evaluator {
 		if (arguments.getLength() != 2) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "mod() functions take two arguments");
 		}
+
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		CSSTypedValue arg2 = typedArgument(arguments, 1);
-		short unit = arg.getUnitType();
-		resultUnit.setUnitType(unit);
-		float f1, f2;
-		if (CSSUnit.isRelativeLengthUnitType(unit)
-				&& CSSUnit.isRelativeLengthUnitType(arg2.getUnitType())) {
-			f1 = arg.getFloatValue(unit);
-			unit = arg2.getUnitType();
-			f2 = arg2.getFloatValue(unit);
-		} else {
-			Unit unit2 = new Unit();
-			f1 = evalValue(arg, resultUnit);
-			f2 = evalValue(arg2, unit2);
-			if (unit2.getExponent() != resultUnit.getExponent()) {
-				throw new DOMException(DOMException.SYNTAX_ERR,
-						"mod() arguments have different units");
-			}
-			unit = unit2.getUnitType();
+
+		resultUnit.setUnitType(arg.getUnitType());
+		Unit unit2 = new Unit();
+		float f1 = evalValue(arg, resultUnit);
+		float f2 = evalValue(arg2, unit2);
+
+		if (unit2.getExponent() != resultUnit.getExponent()) {
+			throw new DOMException(DOMException.SYNTAX_ERR,
+					"mod() arguments have different units");
 		}
 
+		short unit = unit2.getUnitType();
+
 		f1 = NumberValue.floatValueConversion(f1, resultUnit.getUnitType(), unit);
+		resultUnit.setUnitType(unit);
 
 		float result = (float) (f1 - (Math.floor(f1 / f2) * f2));
 
@@ -593,28 +589,24 @@ public class Evaluator {
 		if (arguments.getLength() != 2) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "rem() functions take two arguments");
 		}
+
 		CSSTypedValue arg = typedArgument(arguments, 0);
 		CSSTypedValue arg2 = typedArgument(arguments, 1);
-		short unit = arg.getUnitType();
-		resultUnit.setUnitType(unit);
-		float f1, f2;
-		if (CSSUnit.isRelativeLengthUnitType(unit)
-				&& CSSUnit.isRelativeLengthUnitType(arg2.getUnitType())) {
-			f1 = arg.getFloatValue(unit);
-			unit = arg2.getUnitType();
-			f2 = arg2.getFloatValue(unit);
-		} else {
-			Unit unit2 = new Unit();
-			f1 = evalValue(arg, resultUnit);
-			f2 = evalValue(arg2, unit2);
-			if (unit2.getExponent() != resultUnit.getExponent()) {
-				throw new DOMException(DOMException.SYNTAX_ERR,
-						"rem() arguments have different units");
-			}
-			unit = unit2.getUnitType();
+
+		resultUnit.setUnitType(arg.getUnitType());
+		Unit unit2 = new Unit();
+		float f1 = evalValue(arg, resultUnit);
+		float f2 = evalValue(arg2, unit2);
+
+		if (unit2.getExponent() != resultUnit.getExponent()) {
+			throw new DOMException(DOMException.SYNTAX_ERR,
+					"rem() arguments have different units");
 		}
 
+		short unit = unit2.getUnitType();
+
 		f1 = NumberValue.floatValueConversion(f1, resultUnit.getUnitType(), unit);
+		resultUnit.setUnitType(unit);
 
 		float result;
 

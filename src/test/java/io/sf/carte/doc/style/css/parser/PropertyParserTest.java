@@ -58,11 +58,9 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INHERIT, lu.getLexicalUnitType());
 		assertEquals("inherit", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.PENDING, lu.matches(syn));
+
+		assertMatch(Match.PENDING, lu, "<length>#");
+		assertMatch(Match.PENDING, lu, "*");
 	}
 
 	@Test
@@ -71,11 +69,9 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INITIAL, lu.getLexicalUnitType());
 		assertEquals("initial", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.PENDING, lu.matches(syn));
+
+		assertMatch(Match.PENDING, lu, "<length>#");
+		assertMatch(Match.PENDING, lu, "*");
 	}
 
 	@Test
@@ -84,11 +80,9 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.UNSET, lu.getLexicalUnitType());
 		assertEquals("unset", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.PENDING, lu.matches(syn));
+
+		assertMatch(Match.PENDING, lu, "<length>#");
+		assertMatch(Match.PENDING, lu, "*");
 	}
 
 	@Test
@@ -97,11 +91,9 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.REVERT, lu.getLexicalUnitType());
 		assertEquals("revert", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.PENDING, lu.matches(syn));
+
+		assertMatch(Match.PENDING, lu, "<length>#");
+		assertMatch(Match.PENDING, lu, "*");
 	}
 
 	@Test
@@ -161,13 +153,10 @@ public class PropertyParserTest {
 		assertEquals("5px\t", lu.getStringValue());
 		assertEquals("\\35 px\\9 ", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<custom-ident>#");
+		assertMatch(Match.FALSE, lu, "<resolution>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -230,17 +219,12 @@ public class PropertyParserTest {
 		lu = lu.getNextLexicalUnit();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Roman", lu.getStringValue());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>#");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lunit.matches(syn));
+
+		assertMatch(Match.TRUE, lunit, "<custom-ident>+");
+		assertMatch(Match.FALSE, lunit, "<custom-ident>#");
+		assertMatch(Match.FALSE, lunit, "<custom-ident>");
+		assertMatch(Match.FALSE, lunit, "<resolution>");
+		assertMatch(Match.TRUE, lunit, "*");
 	}
 
 	@Test
@@ -263,17 +247,12 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, subv.getLexicalUnitType());
 		assertEquals(1046, subv.getIntegerValue());
 		assertNull(subv.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<unicode-range>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<unicode-range>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<unicode-range>");
+		assertMatch(Match.TRUE, lu, "<unicode-range>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<resolution>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -290,17 +269,12 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, subv.getLexicalUnitType());
 		assertEquals(255, subv.getIntegerValue());
 		assertNull(subv.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<unicode-range>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<unicode-range>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<unicode-range>");
+		assertMatch(Match.TRUE, lu, "<unicode-range>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<resolution>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -317,17 +291,12 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, subv.getLexicalUnitType());
 		assertEquals(255, subv.getIntegerValue());
 		assertNull(subv.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<unicode-range>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<unicode-range>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<unicode-range>");
+		assertMatch(Match.TRUE, lu, "<unicode-range>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<resolution>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -341,17 +310,12 @@ public class PropertyParserTest {
 		assertEquals("4??", subv.getStringValue());
 		assertNull(subv.getNextLexicalUnit());
 		assertEquals("4??", subv.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<unicode-range>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<unicode-range>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<unicode-range>");
+		assertMatch(Match.TRUE, lu, "<unicode-range>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<resolution>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -398,17 +362,12 @@ public class PropertyParserTest {
 		subv = lu.getSubValues();
 		assertEquals(LexicalType.INTEGER, subv.getLexicalUnitType());
 		assertEquals(65280, subv.getIntegerValue());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<unicode-range>#");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<unicode-range>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lunit.matches(syn));
+
+		assertMatch(Match.TRUE, lunit, "<unicode-range>#");
+		assertMatch(Match.FALSE, lunit, "<unicode-range>");
+		assertMatch(Match.FALSE, lunit, "<custom-ident>+");
+		assertMatch(Match.FALSE, lunit, "<resolution>");
+		assertMatch(Match.TRUE, lunit, "*");
 	}
 
 	@Test
@@ -421,17 +380,12 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.UNICODE_WILDCARD, subv.getLexicalUnitType());
 		assertEquals("???", subv.getStringValue());
 		assertNull(subv.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<unicode-range>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<unicode-range>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<unicode-range>");
+		assertMatch(Match.TRUE, lu, "<unicode-range>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<resolution>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -754,19 +708,13 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(1, lu.getIntegerValue());
 		assertEquals("1", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<integer>");
+		assertMatch(Match.TRUE, lu, "<integer>#");
+		assertMatch(Match.TRUE, lu, "<integer>+");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.FALSE, lu, "<resolution>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -775,19 +723,13 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(1, lu.getIntegerValue());
 		assertEquals("1", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<integer>");
+		assertMatch(Match.TRUE, lu, "<integer>#");
+		assertMatch(Match.TRUE, lu, "<integer>+");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.FALSE, lu, "<resolution>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -801,21 +743,14 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertEquals("auto", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<length> | <custom-ident>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>+ | <custom-ident>+");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lunit.matches(syn));
+
+		assertMatch(Match.FALSE, lunit, "<length>");
+		assertMatch(Match.FALSE, lunit, "<length>#");
+		assertMatch(Match.FALSE, lunit, "<length>+");
+		assertMatch(Match.FALSE, lunit, "<custom-ident>");
+		assertMatch(Match.FALSE, lunit, "<length> | <custom-ident>");
+		assertMatch(Match.FALSE, lunit, "<length>+ | <custom-ident>+");
+		assertMatch(Match.TRUE, lunit, "*");
 	}
 
 	@Test
@@ -862,11 +797,9 @@ public class PropertyParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("round", lu.getStringValue());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -874,19 +807,13 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("'foo'");
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("foo", lu.getStringValue());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <string>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<string>");
+		assertMatch(Match.TRUE, lu, "<string>#");
+		assertMatch(Match.TRUE, lu, "<string>+");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <string>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -994,19 +921,13 @@ public class PropertyParserTest {
 		assertEquals("px", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length># | <custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>+ | <custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>+ | <custom-ident>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length> | <custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "*");
+		assertMatch(Match.FALSE, lu, "<length># | <custom-ident>");
+		assertMatch(Match.FALSE, lu, "<length>+ | <custom-ident>");
+		assertMatch(Match.FALSE, lu, "<length>+ | <custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<length> | <custom-ident>");
+		assertMatch(Match.FALSE, lu, "<color>");
 	}
 
 	@Test
@@ -1016,27 +937,17 @@ public class PropertyParserTest {
 		assertEquals("em", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<flex>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<frequency>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "<length>#");
+		assertMatch(Match.TRUE, lu, "<length>+");
+		assertMatch(Match.FALSE, lu, "<flex>");
+		assertMatch(Match.FALSE, lu, "<number>");
+		assertMatch(Match.FALSE, lu, "<resolution>");
+		assertMatch(Match.FALSE, lu, "<angle>");
+		assertMatch(Match.FALSE, lu, "<frequency>");
+		assertMatch(Match.TRUE, lu, "<string> | <length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1046,27 +957,17 @@ public class PropertyParserTest {
 		assertEquals("em", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<flex>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<frequency>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "<length>#");
+		assertMatch(Match.TRUE, lu, "<length>+");
+		assertMatch(Match.FALSE, lu, "<flex>");
+		assertMatch(Match.FALSE, lu, "<number>");
+		assertMatch(Match.FALSE, lu, "<resolution>");
+		assertMatch(Match.FALSE, lu, "<angle>");
+		assertMatch(Match.FALSE, lu, "<frequency>");
+		assertMatch(Match.TRUE, lu, "<string> | <length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1106,27 +1007,20 @@ public class PropertyParserTest {
 		assertNull(clone.getNextLexicalUnit());
 		assertNull(clone.getPreviousLexicalUnit());
 		assertEquals(nlu, clone);
-		//
+
 		clone = lu.clone();
 		assertNull(clone.getPreviousLexicalUnit());
 		assertEquals(lu, clone);
 		assertEquals(nlu, clone.getNextLexicalUnit());
 		assertSame(clone, clone.getNextLexicalUnit().getPreviousLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <length>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<length>+");
+		assertMatch(Match.FALSE, lu, "<length>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.FALSE, lu, "<string> | <length>");
+		assertMatch(Match.TRUE, lu, "<string> | <length>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1154,21 +1048,14 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_HZ, lu.getCssUnit());
 		assertEquals("hz", lu.getDimensionUnitText());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<frequency>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<frequency>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<frequency>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <frequency>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <frequency>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<frequency>+");
+		assertMatch(Match.TRUE, lu, "<frequency>#");
+		assertMatch(Match.TRUE, lu, "<frequency>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <frequency>");
+		assertMatch(Match.TRUE, lu, "<string> | <frequency>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1178,21 +1065,14 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_KHZ, lu.getCssUnit());
 		assertEquals("khz", lu.getDimensionUnitText());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<frequency>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<frequency>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<frequency>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <frequency>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <frequency>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<frequency>+");
+		assertMatch(Match.TRUE, lu, "<frequency>#");
+		assertMatch(Match.TRUE, lu, "<frequency>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <frequency>");
+		assertMatch(Match.TRUE, lu, "<string> | <frequency>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1203,21 +1083,14 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_S, lu.getCssUnit());
 		assertNull(lu.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<time>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<time>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <time>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <time>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<time>+");
+		assertMatch(Match.TRUE, lu, "<time>#");
+		assertMatch(Match.TRUE, lu, "<time>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <time>");
+		assertMatch(Match.TRUE, lu, "<string> | <time>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1227,7 +1100,7 @@ public class PropertyParserTest {
 		assertEquals("s", lunit.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lunit.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_S, lunit.getCssUnit());
-		//
+
 		LexicalUnit lu = lunit.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(20f, lu.getFloatValue(), 1e-5f);
@@ -1235,23 +1108,15 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_MS, lu.getCssUnit());
 		assertNull(lu.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>+");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<time>#");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<time>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <time>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <time>#");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <time>+");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lunit.matches(syn));
+
+		assertMatch(Match.TRUE, lunit, "<time>+");
+		assertMatch(Match.FALSE, lunit, "<time>#");
+		assertMatch(Match.FALSE, lunit, "<time>");
+		assertMatch(Match.FALSE, lunit, "<color>");
+		assertMatch(Match.FALSE, lunit, "<string> | <time>");
+		assertMatch(Match.FALSE, lunit, "<string> | <time>#");
+		assertMatch(Match.TRUE, lunit, "<string> | <time>+");
+		assertMatch(Match.TRUE, lunit, "*");
 	}
 
 	@Test
@@ -1261,7 +1126,7 @@ public class PropertyParserTest {
 		assertEquals("s", lunit.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lunit.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_S, lunit.getCssUnit());
-		//
+
 		LexicalUnit lu = lunit.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
@@ -1272,23 +1137,15 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_MS, lu.getCssUnit());
 		assertNull(lu.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>#");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<time>+");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<time>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <time>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <time>+");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <time>#");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lunit.matches(syn));
+
+		assertMatch(Match.TRUE, lunit, "<time>#");
+		assertMatch(Match.FALSE, lunit, "<time>+");
+		assertMatch(Match.FALSE, lunit, "<time>");
+		assertMatch(Match.FALSE, lunit, "<color>");
+		assertMatch(Match.FALSE, lunit, "<string> | <time>");
+		assertMatch(Match.FALSE, lunit, "<string> | <time>+");
+		assertMatch(Match.TRUE, lunit, "<string> | <time>#");
+		assertMatch(Match.TRUE, lunit, "*");
 	}
 
 	@Test
@@ -1298,21 +1155,14 @@ public class PropertyParserTest {
 		assertEquals("ms", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_MS, lu.getCssUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<time>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<time>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <time>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <time>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<time>+");
+		assertMatch(Match.TRUE, lu, "<time>#");
+		assertMatch(Match.TRUE, lu, "<time>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <time>");
+		assertMatch(Match.TRUE, lu, "<string> | <time>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1322,21 +1172,14 @@ public class PropertyParserTest {
 		assertEquals("fr", lu.getDimensionUnitText());
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_FR, lu.getCssUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<flex>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<flex>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<flex>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <flex>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <flex>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<flex>");
+		assertMatch(Match.TRUE, lu, "<flex>#");
+		assertMatch(Match.TRUE, lu, "<flex>+");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <flex>");
+		assertMatch(Match.TRUE, lu, "<string> | <flex>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1359,29 +1202,20 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
 		assertEquals("0", lu.toString());
-		//
+
 		lu = parsePropertyValue(" 0 ");
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<frequency>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <integer>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <integer>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<integer>");
+		assertMatch(Match.TRUE, lu, "<integer>#");
+		assertMatch(Match.TRUE, lu, "<number>#");
+		assertMatch(Match.TRUE, lu, "<integer>+");
+		assertMatch(Match.FALSE, lu, "<frequency>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <integer>");
+		assertMatch(Match.TRUE, lu, "<string> | <integer>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	/*
@@ -1424,23 +1258,15 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("1.0");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(1f, lu.getFloatValue(), 1e-5f);
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<number>");
+		assertMatch(Match.TRUE, lu, "<number>#");
+		assertMatch(Match.TRUE, lu, "<number>+");
+		assertMatch(Match.FALSE, lu, "<integer>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1473,23 +1299,15 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(2.345678e-5, lu.getFloatValue(), 1e-11);
 		assertEquals("2.345678E-5", lu.getCssText());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<number>");
+		assertMatch(Match.TRUE, lu, "<number>#");
+		assertMatch(Match.TRUE, lu, "<number>+");
+		assertMatch(Match.FALSE, lu, "<integer>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1498,23 +1316,15 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(2.345678e+8, lu.getFloatValue(), 10f);
 		assertEquals("234567808", lu.getCssText());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<number>");
+		assertMatch(Match.TRUE, lu, "<number>#");
+		assertMatch(Match.TRUE, lu, "<number>+");
+		assertMatch(Match.FALSE, lu, "<integer>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1523,23 +1333,15 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(-2.345678e-5, lu.getFloatValue(), 1e-11);
 		assertEquals("-2.345678E-5", lu.getCssText());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<number>");
+		assertMatch(Match.TRUE, lu, "<number>#");
+		assertMatch(Match.TRUE, lu, "<number>+");
+		assertMatch(Match.FALSE, lu, "<integer>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1548,23 +1350,15 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(2.345678e+8, lu.getFloatValue(), 10f);
 		assertEquals("234567808", lu.getCssText());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<number>");
+		assertMatch(Match.TRUE, lu, "<number>#");
+		assertMatch(Match.TRUE, lu, "<number>+");
+		assertMatch(Match.FALSE, lu, "<integer>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1602,30 +1396,22 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue(".1234 5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(0.1234f, lu.getFloatValue(), 1e-6f);
-		//
+
 		LexicalUnit nlu = lu.getNextLexicalUnit();
 		assertNotNull(nlu);
 		assertEquals(LexicalType.INTEGER, nlu.getLexicalUnitType());
 		assertEquals(5, nlu.getIntegerValue());
-		//
+
 		assertEquals("0.1234 5", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<number>+");
+		assertMatch(Match.FALSE, lu, "<number>#");
+		assertMatch(Match.FALSE, lu, "<number>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>+");
+		assertMatch(Match.FALSE, lu, "<string> | <number>#");
+		assertMatch(Match.FALSE, lu, "<string> | <number>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1633,30 +1419,22 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue(".1234 +5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(0.1234f, lu.getFloatValue(), 1e-5f);
-		//
+
 		LexicalUnit nlu = lu.getNextLexicalUnit();
 		assertNotNull(nlu);
 		assertEquals(LexicalType.INTEGER, nlu.getLexicalUnitType());
 		assertEquals(5, nlu.getIntegerValue());
-		//
+
 		assertEquals("0.1234 5", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<number>+");
+		assertMatch(Match.FALSE, lu, "<number>#");
+		assertMatch(Match.FALSE, lu, "<number>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>+");
+		assertMatch(Match.FALSE, lu, "<string> | <number>#");
+		assertMatch(Match.FALSE, lu, "<string> | <number>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1664,30 +1442,22 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue(".1234 -5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(0.1234f, lu.getFloatValue(), 1e-5f);
-		//
+
 		LexicalUnit nlu = lu.getNextLexicalUnit();
 		assertNotNull(nlu);
 		assertEquals(LexicalType.INTEGER, nlu.getLexicalUnitType());
 		assertEquals(-5, nlu.getIntegerValue());
-		//
+
 		assertEquals("0.1234 -5", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<number>+");
+		assertMatch(Match.FALSE, lu, "<number>#");
+		assertMatch(Match.FALSE, lu, "<number>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>+");
+		assertMatch(Match.FALSE, lu, "<string> | <number>#");
+		assertMatch(Match.FALSE, lu, "<string> | <number>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1695,23 +1465,15 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue(".1234,5");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(0.1234f, lu.getFloatValue(), 1e-5f);
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<number>#");
+		assertMatch(Match.FALSE, lu, "<number>+");
+		assertMatch(Match.FALSE, lu, "<number>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <number>#");
+		assertMatch(Match.FALSE, lu, "<string> | <number>+");
+		assertMatch(Match.FALSE, lu, "<string> | <number>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1719,29 +1481,18 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("2 auto");
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(2, lu.getIntegerValue());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <number>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>+ | <custom-ident>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer> | <custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number> | <custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.FALSE, lu, "<number>");
+		assertMatch(Match.FALSE, lu, "<integer>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.FALSE, lu, "<string> | <number>+");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <integer>");
+		assertMatch(Match.FALSE, lu, "<integer>+ | <custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<integer> | <custom-ident>");
+		assertMatch(Match.FALSE, lu, "<number> | <custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1750,25 +1501,16 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("%", lu.getDimensionUnitText());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<percentage>");
+		assertMatch(Match.TRUE, lu, "<percentage>#");
+		assertMatch(Match.TRUE, lu, "<percentage>+");
+		assertMatch(Match.TRUE, lu, "<length-percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <percentage>");
+		assertMatch(Match.TRUE, lu, "<string> | <length-percentage>");
+		assertMatch(Match.TRUE, lu, "<string> | <percentage>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1777,25 +1519,16 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("%", lu.getDimensionUnitText());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<percentage>");
+		assertMatch(Match.TRUE, lu, "<percentage>#");
+		assertMatch(Match.TRUE, lu, "<percentage>+");
+		assertMatch(Match.TRUE, lu, "<length-percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <percentage>");
+		assertMatch(Match.TRUE, lu, "<string> | <length-percentage>");
+		assertMatch(Match.TRUE, lu, "<string> | <percentage>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1805,25 +1538,16 @@ public class PropertyParserTest {
 		assertEquals(-1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("%", lu.getDimensionUnitText());
 		assertEquals("-1%", lu.getCssText());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<percentage>");
+		assertMatch(Match.TRUE, lu, "<percentage>#");
+		assertMatch(Match.TRUE, lu, "<percentage>+");
+		assertMatch(Match.TRUE, lu, "<length-percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <percentage>");
+		assertMatch(Match.TRUE, lu, "<string> | <length-percentage>");
+		assertMatch(Match.TRUE, lu, "<string> | <percentage>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1839,19 +1563,13 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(1f, lu.getFloatValue(), 1e-5f);
 		assertEquals("%", lu.getDimensionUnitText());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage># | <length>#");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lunit.matches(syn));
+
+		assertMatch(Match.TRUE, lunit, "<length-percentage>#");
+		assertMatch(Match.FALSE, lunit, "<percentage># | <length>#");
+		assertMatch(Match.FALSE, lunit, "<length-percentage>+");
+		assertMatch(Match.FALSE, lunit, "<length-percentage>");
+		assertMatch(Match.FALSE, lunit, "<color>");
+		assertMatch(Match.TRUE, lunit, "*");
 	}
 
 	@Test
@@ -1881,25 +1599,16 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.IDENT, next.getLexicalUnitType());
 		assertEquals("bar", next.getStringValue());
 		assertTrue(lu.getNextLexicalUnit().getPreviousLexicalUnit() == lu);
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<custom-ident>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.FALSE, lu, "<string> | <custom-ident>#");
+		assertMatch(Match.TRUE, lu, "<string> | <custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<string> | <custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1922,29 +1631,18 @@ public class PropertyParserTest {
 		assertEquals("Yellow", lu.getStringValue());
 		assertEquals("Yellow", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <color>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<custom-ident>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident>");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<string> | <custom-ident>#");
+		assertMatch(Match.TRUE, lu, "<string> | <custom-ident>+");
+		assertMatch(Match.TRUE, lu, "<string> | <custom-ident>");
+		assertMatch(Match.TRUE, lu, "<string> | <color>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1954,35 +1652,21 @@ public class PropertyParserTest {
 		assertEquals("Foo", lu.getStringValue());
 		assertEquals("Foo", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("Foo");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("Foo+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("Foo#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("foo");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | Foo+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<custom-ident>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "Foo");
+		assertMatch(Match.TRUE, lu, "Foo+");
+		assertMatch(Match.TRUE, lu, "Foo#");
+		assertMatch(Match.FALSE, lu, "foo");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<string> | <custom-ident>#");
+		assertMatch(Match.TRUE, lu, "<string> | <custom-ident>+");
+		assertMatch(Match.TRUE, lu, "<string> | <custom-ident>");
+		assertMatch(Match.TRUE, lu, "<string> | Foo+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1991,35 +1675,21 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Foo", lu.getStringValue());
 		assertEquals("Foo Foo", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("Foo");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("Foo+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("Foo#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("foo");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <custom-ident>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | Foo+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<custom-ident>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.FALSE, lu, "Foo");
+		assertMatch(Match.TRUE, lu, "Foo+");
+		assertMatch(Match.FALSE, lu, "Foo#");
+		assertMatch(Match.FALSE, lu, "foo");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.FALSE, lu, "<string> | <custom-ident>#");
+		assertMatch(Match.TRUE, lu, "<string> | <custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<string> | <custom-ident>");
+		assertMatch(Match.TRUE, lu, "<string> | Foo+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -2071,17 +1741,12 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
 		assertEquals("counters(section, '.') ' '", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.FALSE, lu, "<length-percentage>");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <length-percentage>#");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -2101,1497 +1766,6 @@ public class PropertyParserTest {
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
 			assertEquals(9, e.getColumnNumber());
-		}
-	}
-
-	@Test
-	public void testParsePropertyValueCalc() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(100% - 3em)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
-		assertEquals(100f, param.getFloatValue(), 1e-5f);
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(3f, param.getFloatValue(), 1e-5f);
-		assertEquals("em", param.getDimensionUnitText());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(100% - 3em)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalcNegative() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(-3em)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(-3f, param.getFloatValue(), 1e-5f);
-		assertEquals("em", param.getDimensionUnitText());
-		assertEquals("calc(-3em)", lu.toString());
-		assertNull(param.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalcNumber() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(-2*3.4)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(-2, param.getIntegerValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
-		assertEquals(3.4f, param.getFloatValue(), 1e-5f);
-		assertEquals("", param.getDimensionUnitText());
-		assertEquals("calc(-2*3.4)", lu.toString());
-		assertNull(param.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, lu.matches(syn)); // calc() clamps to integer
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalc2() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(10em - 2%)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(10f, param.getFloatValue(), 1e-5f);
-		assertEquals("em", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
-		assertEquals(2f, param.getFloatValue(), 1e-5f);
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(10em - 2%)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalc3() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(100vh - 2em)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_VH, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 1e-5f);
-		assertEquals("vh", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(2f, param.getFloatValue(), 1e-5f);
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(100vh - 2em)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalc4() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc((10em + 2%) * 3)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.SUB_EXPRESSION, param.getLexicalUnitType());
-		LexicalUnit subvalues = param.getSubValues();
-		// Subexpression
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, subvalues.getCssUnit());
-		assertEquals(10f, subvalues.getFloatValue(), 1e-5f);
-		assertEquals("em", subvalues.getDimensionUnitText());
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.OPERATOR_PLUS, subvalues.getLexicalUnitType());
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.PERCENTAGE, subvalues.getLexicalUnitType());
-		assertEquals(2f, subvalues.getFloatValue(), 1e-5f);
-		assertNull(subvalues.getNextLexicalUnit());
-		// End of subvalue checking
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(3, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc((10em + 2%)*3)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalc5() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(100%/3 - 2*1em - 2*1px)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
-		assertEquals(100f, param.getFloatValue(), 1e-5f);
-		assertEquals("%", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(3, param.getIntegerValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(2, param.getIntegerValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(1f, param.getFloatValue(), 1e-5f);
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(2, param.getIntegerValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
-		assertEquals(1f, param.getFloatValue(), 1e-5f);
-		assertEquals("px", param.getDimensionUnitText());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(100%/3 - 2*1em - 2*1px)", lu.toString());
-	}
-
-	@Test
-	public void testParsePropertyValueCalc6() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(0ex + max(10em, 2%) * 3)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EX, param.getCssUnit());
-		assertEquals(0f, param.getFloatValue(), 1e-5f);
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.MATH_FUNCTION, param.getLexicalUnitType());
-		assertEquals("max", param.getFunctionName());
-		LexicalUnit subparams = param.getParameters();
-		// Subexpression
-		assertNotNull(subparams);
-		assertEquals(LexicalType.DIMENSION, subparams.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, subparams.getCssUnit());
-		assertEquals(10f, subparams.getFloatValue(), 1e-5f);
-		assertEquals("em", subparams.getDimensionUnitText());
-		subparams = subparams.getNextLexicalUnit();
-		assertNotNull(subparams);
-		assertEquals(LexicalType.OPERATOR_COMMA, subparams.getLexicalUnitType());
-		subparams = subparams.getNextLexicalUnit();
-		assertNotNull(subparams);
-		assertEquals(LexicalType.PERCENTAGE, subparams.getLexicalUnitType());
-		assertEquals(2f, subparams.getFloatValue(), 1e-5f);
-		assertNull(subparams.getNextLexicalUnit());
-		// End of subvalue checking
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(3, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(0ex + max(10em, 2%)*3)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalc7() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(1em + (0.4vw + 0.25vh)/2)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(1f, param.getFloatValue(), 1e-5f);
-		assertEquals("em", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.SUB_EXPRESSION, param.getLexicalUnitType());
-		LexicalUnit subvalues = param.getSubValues();
-		// Subexpression
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_VW, subvalues.getCssUnit());
-		assertEquals(0.4f, subvalues.getFloatValue(), 1e-5f);
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.OPERATOR_PLUS, subvalues.getLexicalUnitType());
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_VH, subvalues.getCssUnit());
-		assertEquals(0.25f, subvalues.getFloatValue(), 1e-5f);
-		assertNull(subvalues.getNextLexicalUnit());
-		// End of subvalue checking
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(2, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(1em + (0.4vw + 0.25vh)/2)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalcVarSubexpression() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc((var(--subexp)) * 3)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.SUB_EXPRESSION, param.getLexicalUnitType());
-		LexicalUnit subvalues = param.getSubValues();
-		// Subexpression
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.VAR, subvalues.getLexicalUnitType());
-		assertNull(subvalues.getNextLexicalUnit());
-		//
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(3, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc((var(--subexp))*3)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalcNegDenom() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(1em + (0.4vw + 0.25vh)/-2)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(1f, param.getFloatValue(), 1e-5f);
-		assertEquals("em", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.SUB_EXPRESSION, param.getLexicalUnitType());
-		LexicalUnit subvalues = param.getSubValues();
-		// Subexpression
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_VW, subvalues.getCssUnit());
-		assertEquals(0.4f, subvalues.getFloatValue(), 1e-5f);
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.OPERATOR_PLUS, subvalues.getLexicalUnitType());
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_VH, subvalues.getCssUnit());
-		assertEquals(0.25f, subvalues.getFloatValue(), 1e-5f);
-		assertNull(subvalues.getNextLexicalUnit());
-		// End of subvalue checking
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(-2, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(1em + (0.4vw + 0.25vh)/-2)", lu.toString());
-	}
-
-	@Test
-	public void testParsePropertyValueCalcNegDenom2() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc((75vw*9/16 - 100vh)/-2)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.SUB_EXPRESSION, param.getLexicalUnitType());
-		LexicalUnit subvalues = param.getSubValues();
-		// Subexpression
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_VW, subvalues.getCssUnit());
-		assertEquals(75f, subvalues.getFloatValue(), 1e-5f);
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.OPERATOR_MULTIPLY, subvalues.getLexicalUnitType());
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.INTEGER, subvalues.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_NUMBER, subvalues.getCssUnit());
-		assertEquals(9, subvalues.getIntegerValue());
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.OPERATOR_SLASH, subvalues.getLexicalUnitType());
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.INTEGER, subvalues.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_NUMBER, subvalues.getCssUnit());
-		assertEquals(16, subvalues.getIntegerValue());
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.OPERATOR_MINUS, subvalues.getLexicalUnitType());
-		subvalues = subvalues.getNextLexicalUnit();
-		assertNotNull(subvalues);
-		assertEquals(LexicalType.DIMENSION, subvalues.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_VH, subvalues.getCssUnit());
-		assertEquals(100f, subvalues.getFloatValue(), 1e-5f);
-		assertNull(subvalues.getNextLexicalUnit());
-		// End of subvalue checking
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
-		assertEquals(-2, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc((75vw*9/16 - 100vh)/-2)", lu.toString());
-	}
-
-	@Test
-	public void testParsePropertyValueCalcPlusNegValue() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(100vh + -2em)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_VH, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 1e-5f);
-		assertEquals("vh", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(-2f, param.getFloatValue(), 1e-5f);
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(100vh + -2em)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalcPlusZerolessNegValue() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(100vh + -.2em)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_VH, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 1e-5f);
-		assertEquals("vh", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(-0.2f, param.getFloatValue(), 1e-5f);
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(100vh + -0.2em)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalcMinusPosValue() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(100vh - +2em)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_VH, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 1e-5f);
-		assertEquals("vh", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(2f, param.getFloatValue(), 1e-5f);
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(100vh - 2em)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalcMinusZerolessPosValue() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(100vh - +.2em)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_VH, param.getCssUnit());
-		assertEquals(100f, param.getFloatValue(), 1e-5f);
-		assertEquals("vh", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(0.2f, param.getFloatValue(), 1e-5f);
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(100vh - 0.2em)", lu.toString());
-	}
-
-	@Test
-	public void testParsePropertyValueCalcInsideCalc() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(calc(2.1 * 3px) - 1pt)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
-		//
-		LexicalUnit subparam = param.getParameters();
-		assertNotNull(subparam);
-		assertEquals(LexicalType.REAL, subparam.getLexicalUnitType());
-		assertEquals(2.1f, subparam.getFloatValue(), 1e-6f);
-		subparam = subparam.getNextLexicalUnit();
-		assertNotNull(subparam);
-		assertEquals(LexicalType.OPERATOR_MULTIPLY, subparam.getLexicalUnitType());
-		subparam = subparam.getNextLexicalUnit();
-		assertNotNull(subparam);
-		assertEquals(LexicalType.DIMENSION, subparam.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_PX, subparam.getCssUnit());
-		assertEquals(3f, subparam.getFloatValue(), 1e-6f);
-		assertNull(subparam.getNextLexicalUnit());
-		//
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_PT, param.getCssUnit());
-		assertEquals(1f, param.getFloatValue(), 1e-6f);
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(calc(2.1*3px) - 1pt)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalcAttr() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(attr(start type(<integer>), 1) - 1)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		assertEquals("start type(<integer>), 1", param.getParameters().toString());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(1, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(attr(start type(<integer>), 1) - 1)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalcAttr2() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(attr(start type(<length>), 8%) - 1.1px)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-
-		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		LexicalUnit attrparam = param.getParameters();
-		assertNotNull(attrparam);
-		assertEquals(LexicalType.IDENT, attrparam.getLexicalUnitType());
-		assertEquals("start", attrparam.getStringValue());
-		attrparam = attrparam.getNextLexicalUnit();
-		assertNotNull(attrparam);
-		assertEquals(LexicalType.TYPE_FUNCTION, attrparam.getLexicalUnitType());
-		assertEquals("length", attrparam.getParameters().getSyntax().getName());
-		attrparam = attrparam.getNextLexicalUnit();
-		assertNotNull(attrparam);
-		assertEquals(LexicalType.OPERATOR_COMMA, attrparam.getLexicalUnitType());
-		attrparam = attrparam.getNextLexicalUnit();
-		assertNotNull(attrparam);
-		assertEquals(LexicalType.PERCENTAGE, attrparam.getLexicalUnitType());
-		assertEquals(8f, attrparam.getFloatValue(), 1e-5f);
-
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
-		assertEquals(1.1f, param.getFloatValue(), 1e-5f);
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(attr(start type(<length>), 8%) - 1.1px)", lu.toString());
-		//
-		CSSValueSyntax syn;
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length> | <percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length> | <percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length> | <percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalcAttr3() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(attr(start type(<length>), 8%) * 2)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-
-		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
-		LexicalUnit attrparam = param.getParameters();
-		assertNotNull(attrparam);
-		assertEquals(LexicalType.IDENT, attrparam.getLexicalUnitType());
-		assertEquals("start", attrparam.getStringValue());
-		attrparam = attrparam.getNextLexicalUnit();
-		assertNotNull(attrparam);
-		assertEquals(LexicalType.TYPE_FUNCTION, attrparam.getLexicalUnitType());
-		assertEquals("length", attrparam.getParameters().getSyntax().getName());
-		attrparam = attrparam.getNextLexicalUnit();
-		assertNotNull(attrparam);
-		assertEquals(LexicalType.OPERATOR_COMMA, attrparam.getLexicalUnitType());
-		attrparam = attrparam.getNextLexicalUnit();
-		assertNotNull(attrparam);
-		assertEquals(LexicalType.PERCENTAGE, attrparam.getLexicalUnitType());
-		assertEquals(8f, attrparam.getFloatValue(), 1e-5f);
-
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
-		assertEquals(2, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(attr(start type(<length>), 8%)*2)", lu.toString());
-		//
-		CSSValueSyntax syn;
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length> | <percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length> | <percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length> | <percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueCalcCustom() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("calc(var(--foo, 1%) * 3)");
-		assertEquals("calc", lu.getFunctionName());
-		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
-		assertEquals("var", param.getFunctionName());
-		LexicalUnit subparams = param.getParameters();
-		// Subexpression
-		assertNotNull(subparams);
-		assertEquals(LexicalType.IDENT, subparams.getLexicalUnitType());
-		assertEquals("--foo", subparams.getStringValue());
-		subparams = subparams.getNextLexicalUnit();
-		assertNotNull(subparams);
-		assertEquals(LexicalType.OPERATOR_COMMA, subparams.getLexicalUnitType());
-		subparams = subparams.getNextLexicalUnit();
-		assertNotNull(subparams);
-		assertEquals(LexicalType.PERCENTAGE, subparams.getLexicalUnitType());
-		assertEquals(1f, subparams.getFloatValue(), 1e-5f);
-		assertNull(subparams.getNextLexicalUnit());
-		// End of subvalue checking
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(3, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("calc(var(--foo, 1%)*3)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyBadCalc() throws CSSException {
-		try {
-			parsePropertyValue("calc(100% - 3em");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc3() throws CSSException {
-		try {
-			parsePropertyValue("calc(100% -");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc4() throws CSSException {
-		try {
-			parsePropertyValue("calc(100% -)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc5() throws CSSException {
-		try {
-			parsePropertyValue("calc(100%-)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc6() throws CSSException {
-		try {
-			parsePropertyValue("calc(100%+)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc7() throws CSSException {
-		try {
-			parsePropertyValue("calc(100%-2em)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc8() throws CSSException {
-		try {
-			parsePropertyValue("calc(100% -!important");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(12, e.getColumnNumber());
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc9() throws CSSException {
-		try {
-			parsePropertyValue("calc(100% + - 2em)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc10() throws CSSException {
-		try {
-			parsePropertyValue("calc(100% - + 2em)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc11() throws CSSException {
-		try {
-			parsePropertyValue("calc(100% + + 2em)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc12() throws CSSException {
-		try {
-			parsePropertyValue("calc(100% + * 2em)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc13() throws CSSException {
-		try {
-			parsePropertyValue("calc(100% * + 2em)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc14() throws CSSException {
-		try {
-			parsePropertyValue("calc(100% * - 2em)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalc15() throws CSSException {
-		try {
-			parsePropertyValue("calc(100% * * 2em)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalcSignedSubexpression() throws CSSException {
-		try {
-			parsePropertyValue("calc(+(2em * 1))");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadCalcSignedSubexpression2() throws CSSException {
-		try {
-			parsePropertyValue("calc(-(2em * 1))");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadExpression() throws CSSException {
-		try {
-			parsePropertyValue("3em*2");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadExpression2() throws CSSException {
-		try {
-			parsePropertyValue("calc(1)*2");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyBadExpression3() throws CSSException {
-		try {
-			parsePropertyValue("calc(1)+2");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyValueMax() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("max(10em, 2%)");
-		assertEquals("max", lu.getFunctionName());
-		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
-		assertEquals(10f, param.getFloatValue(), 1e-5f);
-		assertEquals("em", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
-		assertEquals(2f, param.getFloatValue(), 1e-5f);
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("max(10em, 2%)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueClamp() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("clamp(10deg, 0.2rad, 25deg)");
-		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
-		assertEquals("clamp", lu.getFunctionName());
-
-		assertNull(lu.getNextLexicalUnit());
-
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
-		assertEquals(10f, param.getFloatValue(), 1e-5f);
-		assertEquals("deg", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_RAD, param.getCssUnit());
-		assertEquals(0.2f, param.getFloatValue(), 1e-5f);
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
-		assertEquals(25f, param.getFloatValue(), 1e-5f);
-		assertNull(param.getNextLexicalUnit());
-
-		assertEquals("clamp(10deg, 0.2rad, 25deg)", lu.toString());
-
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage> | <angle>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueClampVar() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("clamp(10deg, var(--angle), 25deg)");
-		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
-		assertEquals("clamp", lu.getFunctionName());
-
-		assertNull(lu.getNextLexicalUnit());
-
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
-		assertEquals(10f, param.getFloatValue(), 1e-5f);
-		assertEquals("deg", param.getDimensionUnitText());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
-		assertEquals(25f, param.getFloatValue(), 1e-5f);
-		assertNull(param.getNextLexicalUnit());
-
-		assertEquals("clamp(10deg, var(--angle), 25deg)", lu.toString());
-
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage> | <angle>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueFunctionTrigonometric() throws CSSException {
-		LexicalUnit lunit = parsePropertyValue("cos(30deg), tan(45deg)");
-		assertEquals(LexicalType.MATH_FUNCTION, lunit.getLexicalUnitType());
-		assertEquals("cos", lunit.getFunctionName());
-		LexicalUnit param = lunit.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
-		assertEquals(30f, param.getFloatValue(), 1e-5f);
-		assertEquals("deg", param.getDimensionUnitText());
-		assertNull(param.getNextLexicalUnit());
-		//
-		LexicalUnit lu = lunit.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
-		assertEquals("tan", lu.getFunctionName());
-		assertNull(lu.getNextLexicalUnit());
-		param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
-		assertEquals(45f, param.getFloatValue(), 1e-5f);
-		assertEquals("deg", param.getDimensionUnitText());
-		assertNull(param.getNextLexicalUnit());
-		//
-		assertEquals("cos(30deg), tan(45deg)", lunit.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>#");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueFunctionTrigonometricInverse() throws CSSException {
-		LexicalUnit lunit = parsePropertyValue("acos(.62), atan(0.965)");
-		assertEquals(LexicalType.MATH_FUNCTION, lunit.getLexicalUnitType());
-		assertEquals("acos", lunit.getFunctionName());
-		LexicalUnit param = lunit.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
-		assertEquals(0.62f, param.getFloatValue(), 1e-5f);
-		assertEquals("", param.getDimensionUnitText());
-		assertNull(param.getNextLexicalUnit());
-		//
-		LexicalUnit lu = lunit.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
-		lu = lu.getNextLexicalUnit();
-		assertNotNull(lu);
-		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
-		assertEquals("atan", lu.getFunctionName());
-		assertNull(lu.getNextLexicalUnit());
-		param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
-		assertEquals(0.965f, param.getFloatValue(), 1e-5f);
-		assertNull(param.getNextLexicalUnit());
-		//
-		assertEquals("acos(0.62), atan(0.965)", lunit.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>#");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>+");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>#");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>+");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		assertMatch(Match.FALSE, lu, "<transform-list>");
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueMaxBad() throws CSSException {
-		try {
-			parsePropertyValue("max(10em, 2%");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
-	}
-
-	@Test
-	public void testParsePropertyValueMaxBad2() throws CSSException {
-		try {
-			parsePropertyValue("max(10em, 2%!important");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(13, e.getColumnNumber());
 		}
 	}
 
@@ -3826,23 +2000,15 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("translate(-10px, -20px) scale(2) rotate(45deg)");
 		assertEquals("translate", lu.getFunctionName());
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<transform-function>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<transform-list>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<transform-function>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <transform-list>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <transform-function>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <transform-function>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<transform-function>+");
+		assertMatch(Match.TRUE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<transform-function>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <transform-list>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <transform-function>+");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <transform-function>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -3851,23 +2017,15 @@ public class PropertyParserTest {
 				"translate(-10px, -20px) scale(2) rotate(45deg), rotate(15deg) scale(2) translate(20px)");
 		assertEquals("translate", lu.getFunctionName());
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<transform-list>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<transform-list>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<transform-function>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <transform-list>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <transform-function>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <transform-function>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<transform-list>#");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<transform-function>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <transform-list>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <transform-function>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <transform-function>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -3982,29 +2140,17 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyBadFunction() throws CSSException {
-		try {
-			parsePropertyValue("foo(,+)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("foo(,+)"));
 	}
 
 	@Test
 	public void testParsePropertyBadFunction2() throws CSSException {
-		try {
-			parsePropertyValue("foo(2,+)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("foo(2,+)"));
 	}
 
 	@Test
 	public void testParsePropertyBadFunction3() throws CSSException {
-		try {
-			parsePropertyValue("foo(2,+3,bar*)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("foo(2,+3,bar*)"));
 	}
 
 	@Test
@@ -4013,27 +2159,17 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("imag/image.png", lu.getStringValue());
 		assertEquals("url('imag/image.png')", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<url>");
+		assertMatch(Match.TRUE, lu, "<url>#");
+		assertMatch(Match.TRUE, lu, "<url>+");
+		assertMatch(Match.TRUE, lu, "<image>");
+		assertMatch(Match.TRUE, lu, "<image>#");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -4102,26 +2238,16 @@ public class PropertyParserTest {
 
 		assertNull(lu.getParameters());
 
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+		assertMatch(Match.TRUE, lu, "<url>");
+		assertMatch(Match.TRUE, lu, "<url>#");
+		assertMatch(Match.TRUE, lu, "<url>+");
+		assertMatch(Match.TRUE, lu, "<image>");
+		assertMatch(Match.TRUE, lu, "<image>#");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -4143,26 +2269,16 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
 		assertEquals("var", param.getFunctionName());
 
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+		assertMatch(Match.TRUE, lu, "<url>");
+		assertMatch(Match.TRUE, lu, "<url>#");
+		assertMatch(Match.TRUE, lu, "<url>+");
+		assertMatch(Match.TRUE, lu, "<image>");
+		assertMatch(Match.TRUE, lu, "<image>#");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -4171,27 +2287,17 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertNull(lu.getStringValue());
 		assertEquals("url()", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<url>");
+		assertMatch(Match.TRUE, lu, "<url>#");
+		assertMatch(Match.TRUE, lu, "<url>+");
+		assertMatch(Match.TRUE, lu, "<image>");
+		assertMatch(Match.TRUE, lu, "<image>#");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -4250,1000 +2356,6 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttr() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-count)");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-count", param.getStringValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("attr(data-count)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <string>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <string>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <string>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrFallback() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-count, 'default')");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-count", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.STRING, param.getLexicalUnitType());
-		assertEquals("default", param.getStringValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("attr(data-count, 'default')", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<string>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <string>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <string>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <string>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrListFallback() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-radius %, / 10%)");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-radius", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MOD, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
-		assertEquals(10f, param.getFloatValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("attr(data-radius %,/10%)", lu.toString());
-
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrPcnt() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-count %)");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-count", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_MOD, param.getLexicalUnitType());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("attr(data-count %)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrPercentage() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-count type(<percentage>))");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-count", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<percentage>", param.getParameters().getStringValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("attr(data-count type(<percentage>))", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrInteger() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>)) attr(data-b type(<number>))");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-a", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<integer>", param.getParameters().getStringValue());
-		assertNull(param.getNextLexicalUnit());
-
-		LexicalUnit nlu = lu.getNextLexicalUnit();
-		assertNotNull(nlu);
-		assertEquals(LexicalType.ATTR, nlu.getLexicalUnitType());
-		assertEquals("attr", nlu.getFunctionName());
-		param = nlu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-b", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<number>", param.getParameters().getStringValue());
-		assertNull(param.getNextLexicalUnit());
-
-		assertEquals("attr(data-a type(<integer>)) attr(data-b type(<number>))", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrIntegerComma() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>)),attr(data-b type(<number>))");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-a", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<integer>", param.getParameters().getStringValue());
-		assertNull(param.getNextLexicalUnit());
-
-		LexicalUnit nlu = lu.getNextLexicalUnit();
-		assertNotNull(nlu);
-		assertEquals(LexicalType.OPERATOR_COMMA, nlu.getLexicalUnitType());
-
-		nlu = nlu.getNextLexicalUnit();
-		assertNotNull(nlu);
-		assertEquals(LexicalType.ATTR, nlu.getLexicalUnitType());
-		assertEquals("attr", nlu.getFunctionName());
-		param = nlu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-b", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<number>", param.getParameters().getStringValue());
-		assertNull(param.getNextLexicalUnit());
-		assertNull(nlu.getNextLexicalUnit());
-
-		assertEquals("attr(data-a type(<integer>)), attr(data-b type(<number>))", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrIntegerFallbackComma() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>), auto),attr(data-b type(<number>), none)");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-a", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<integer>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("auto", param.getStringValue());
-		assertNull(param.getNextLexicalUnit());
-
-		LexicalUnit nlu = lu.getNextLexicalUnit();
-		assertNotNull(nlu);
-		assertEquals(LexicalType.OPERATOR_COMMA, nlu.getLexicalUnitType());
-
-		nlu = nlu.getNextLexicalUnit();
-		assertNotNull(nlu);
-		assertEquals(LexicalType.ATTR, nlu.getLexicalUnitType());
-		assertEquals("attr", nlu.getFunctionName());
-		param = nlu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-b", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<number>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("none", param.getStringValue());
-		assertNull(param.getNextLexicalUnit());
-		assertNull(nlu.getNextLexicalUnit());
-
-		assertEquals("attr(data-a type(<integer>), auto), attr(data-b type(<number>), none)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident># | <number>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident># | <number>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+ | <number>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrIntegerFallbackWSList() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>), auto) attr(data-b type(<number>), none)");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-a", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<integer>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("auto", param.getStringValue());
-		assertNull(param.getNextLexicalUnit());
-
-		LexicalUnit nlu = lu.getNextLexicalUnit();
-		assertNotNull(nlu);
-		assertEquals(LexicalType.ATTR, nlu.getLexicalUnitType());
-		assertEquals("attr", nlu.getFunctionName());
-		param = nlu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-b", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<number>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("none", param.getStringValue());
-		assertNull(param.getNextLexicalUnit());
-		assertNull(nlu.getNextLexicalUnit());
-
-		assertEquals("attr(data-a type(<integer>), auto) attr(data-b type(<number>), none)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident># | <number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+ | <number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+ | <number>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrIntegerFallbackWSList2() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a string, 1) attr(data-b type(<integer>), 'foo')");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-a", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("string", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(1, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-
-		LexicalUnit nlu = lu.getNextLexicalUnit();
-		assertNotNull(nlu);
-		assertEquals(LexicalType.ATTR, nlu.getLexicalUnitType());
-		assertEquals("attr", nlu.getFunctionName());
-		param = nlu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-b", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<integer>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.STRING, param.getLexicalUnitType());
-		assertEquals("foo", param.getStringValue());
-		assertNull(param.getNextLexicalUnit());
-		assertNull(nlu.getNextLexicalUnit());
-
-		assertEquals("attr(data-a string, 1) attr(data-b type(<integer>), 'foo')", lu.toString());
-		//
-		CSSValueSyntax syn;
-		syn = syntaxParser.parseSyntax("<string>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string># | <integer>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>+ | <integer>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string># | <integer>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>+ | <integer>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string>+ | <integer>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <integer>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <integer>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrLengthPercentageFallbackWSList() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a type(<length>), 4%) attr(data-b type(<percentage>), 6px)");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-a", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("length", param.getParameters().getSyntax().getName());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
-		assertEquals(4f, param.getFloatValue());
-		assertNull(param.getNextLexicalUnit());
-
-		LexicalUnit nlu = lu.getNextLexicalUnit();
-		assertNotNull(nlu);
-		assertEquals(LexicalType.ATTR, nlu.getLexicalUnitType());
-		assertEquals("attr", nlu.getFunctionName());
-		param = nlu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-b", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<percentage>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
-		assertEquals(6f, param.getFloatValue());
-		assertNull(param.getNextLexicalUnit());
-		assertNull(nlu.getNextLexicalUnit());
-
-		assertEquals("attr(data-a type(<length>), 4%) attr(data-b type(<percentage>), 6px)", lu.toString());
-		//
-		CSSValueSyntax syn;
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrIntegerFallbackVarWSList() throws CSSException {
-		LexicalUnit lu = parsePropertyValue(
-				"attr(data-a type(<integer>), auto) attr(data-b type(<number>), var(--data-b-fb))");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-a", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<integer>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("auto", param.getStringValue());
-		assertNull(param.getNextLexicalUnit());
-
-		LexicalUnit nlu = lu.getNextLexicalUnit();
-		assertNotNull(nlu);
-		assertEquals(LexicalType.ATTR, nlu.getLexicalUnitType());
-		assertEquals("attr", nlu.getFunctionName());
-		param = nlu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-b", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<number>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
-		LexicalUnit varparam = param.getParameters();
-		assertNotNull(varparam);
-		assertEquals(LexicalType.IDENT, varparam.getLexicalUnitType());
-		assertEquals("--data-b-fb", varparam.getStringValue());
-		assertNull(varparam.getNextLexicalUnit());
-		assertNull(param.getNextLexicalUnit());
-		assertNull(nlu.getNextLexicalUnit());
-
-		assertEquals("attr(data-a type(<integer>), auto) attr(data-b type(<number>), var(--data-b-fb))", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident># | <number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+ | <number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+ | <number>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrIntegerFallbackVar2WSList() throws CSSException {
-		LexicalUnit lu = parsePropertyValue(
-				"attr(data-a type(<integer>), var(--data-a-fb)) attr(data-b type(<number>), var(--data-b-fb))");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-a", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<integer>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
-		LexicalUnit varparam = param.getParameters();
-		assertNotNull(varparam);
-		assertEquals(LexicalType.IDENT, varparam.getLexicalUnitType());
-		assertEquals("--data-a-fb", varparam.getStringValue());
-		assertNull(varparam.getNextLexicalUnit());
-		assertNull(param.getNextLexicalUnit());
-
-		LexicalUnit nlu = lu.getNextLexicalUnit();
-		assertNotNull(nlu);
-		assertEquals(LexicalType.ATTR, nlu.getLexicalUnitType());
-		assertEquals("attr", nlu.getFunctionName());
-		param = nlu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-b", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<number>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
-		varparam = param.getParameters();
-		assertNotNull(varparam);
-		assertEquals(LexicalType.IDENT, varparam.getLexicalUnitType());
-		assertEquals("--data-b-fb", varparam.getStringValue());
-		assertNull(varparam.getNextLexicalUnit());
-		assertNull(param.getNextLexicalUnit());
-		assertNull(nlu.getNextLexicalUnit());
-
-		assertEquals("attr(data-a type(<integer>), var(--data-a-fb)) attr(data-b type(<number>), var(--data-b-fb))", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident># | <number>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+ | <number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>+ | <number>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrUnit() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-width type(<length>), 'default')");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-		assertEquals("attr(data-width type(<length>), 'default')", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<string> | <length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrLengthPercentage() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-width type(<length>), 8%)");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-		assertEquals("attr(data-width type(<length>), 8%)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage> | <length>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <length-percentage>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrURL() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-img type(<url>))");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-img", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<url>", param.getParameters().getStringValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("attr(data-img type(<url>))", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrURLFallback() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-img type(<url>), 'foo.png')");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-img", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<url>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.STRING, param.getLexicalUnitType());
-		assertEquals("foo.png", param.getStringValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("attr(data-img type(<url>), 'foo.png')", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<url>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <url>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrFlex() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-flex type(<flex>), 2fr)");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-		assertEquals("attr(data-flex type(<flex>), 2fr)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<flex>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<flex>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <flex>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrVar() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-width var(--data-type), 5%)");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-width", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
-		LexicalUnit varparam = param.getParameters();
-		assertNotNull(varparam);
-		assertEquals(LexicalType.IDENT, varparam.getLexicalUnitType());
-		assertEquals("--data-type", varparam.getStringValue());
-		assertNull(varparam.getNextLexicalUnit());
-
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
-		assertEquals(5f, param.getFloatValue());
-		assertNull(param.getNextLexicalUnit());
-
-		assertEquals("attr(data-width var(--data-type), 5%)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrVarFallback() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-width type(<length>), var(--data-width))");
-		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
-		assertEquals("attr", lu.getFunctionName());
-
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("data-width", param.getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
-		assertEquals("<length>", param.getParameters().getStringValue());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
-		LexicalUnit varparam = param.getParameters();
-		assertNotNull(varparam);
-		assertEquals(LexicalType.IDENT, varparam.getLexicalUnitType());
-		assertEquals("--data-width", varparam.getStringValue());
-		assertNull(varparam.getNextLexicalUnit());
-		assertNull(param.getNextLexicalUnit());
-
-		assertEquals("attr(data-width type(<length>), var(--data-width))", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<string> | <length>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
-	}
-
-	@Test
-	public void testParsePropertyValueAttrError() throws CSSException {
-		try {
-			parsePropertyValue("attr()");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(6, e.getColumnNumber());
-		}
-	}
-
-	@Test
-	public void testParsePropertyValueAttrError2() throws CSSException {
-		try {
-			parsePropertyValue("attr(-)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(7, e.getColumnNumber());
-		}
-	}
-
-	@Test
 	public void testParsePropertyValueEnv() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("env(safe-area-inset-top, 20px)");
 		assertEquals("env", lu.getFunctionName());
@@ -5260,17 +2372,12 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("env(safe-area-inset-top, 20px)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.PENDING, lu, "<length>");
+		assertMatch(Match.PENDING, lu, "<image>#");
+		assertMatch(Match.PENDING, lu, "<image>+");
+		assertMatch(Match.PENDING, lu, "<custom-ident> | <image>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5295,18 +2402,12 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("var(--data-radius,/10%)", lu.toString());
 
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+		assertMatch(Match.PENDING, lu, "<percentage>");
+		assertMatch(Match.PENDING, lu, "<length-percentage>");
+		assertMatch(Match.PENDING, lu, "<percentage>#");
+		assertMatch(Match.PENDING, lu, "<percentage>+");
+		assertMatch(Match.PENDING, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5331,18 +2432,12 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("var(--data-factor,*10)", lu.toString());
 
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+		assertMatch(Match.PENDING, lu, "<percentage>");
+		assertMatch(Match.PENDING, lu, "<length-percentage>");
+		assertMatch(Match.PENDING, lu, "<percentage>#");
+		assertMatch(Match.PENDING, lu, "<percentage>+");
+		assertMatch(Match.PENDING, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5367,18 +2462,12 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("var(--data-add, + 10)", lu.toString());
 
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+		assertMatch(Match.PENDING, lu, "<percentage>");
+		assertMatch(Match.PENDING, lu, "<length-percentage>");
+		assertMatch(Match.PENDING, lu, "<percentage>#");
+		assertMatch(Match.PENDING, lu, "<percentage>+");
+		assertMatch(Match.PENDING, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5403,18 +2492,12 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("var(--data-subtract, - 10)", lu.toString());
 
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+		assertMatch(Match.PENDING, lu, "<percentage>");
+		assertMatch(Match.PENDING, lu, "<length-percentage>");
+		assertMatch(Match.PENDING, lu, "<percentage>#");
+		assertMatch(Match.PENDING, lu, "<percentage>+");
+		assertMatch(Match.PENDING, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5436,18 +2519,12 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("var(--data-radius,)", lu.toString());
 
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+		assertMatch(Match.PENDING, lu, "<percentage>");
+		assertMatch(Match.PENDING, lu, "<length-percentage>");
+		assertMatch(Match.PENDING, lu, "<percentage>#");
+		assertMatch(Match.PENDING, lu, "<percentage>+");
+		assertMatch(Match.PENDING, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5460,21 +2537,14 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("var", lu.getFunctionName());
 		assertEquals("var(--foo) 12.3px", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.PENDING, lu, "<length>+");
+		assertMatch(Match.PENDING, lu, "<length>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<image>+");
+		assertMatch(Match.PENDING, lu, "<custom-ident> | <length>+");
+		assertMatch(Match.PENDING, lu, "<custom-ident> | <length>#");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5482,21 +2552,14 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("6pt var(--foo) 12.3px");
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals("6pt var(--foo) 12.3px", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.PENDING, lu, "<length>+");
+		assertMatch(Match.PENDING, lu, "<length>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<image>+");
+		assertMatch(Match.PENDING, lu, "<custom-ident> | <length>+");
+		assertMatch(Match.PENDING, lu, "<custom-ident> | <length>#");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5504,21 +2567,14 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("6pt var(--foo), 12.3px");
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals("6pt var(--foo), 12.3px", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.PENDING, lu, "<length>#");
+		assertMatch(Match.FALSE, lu, "<length>+");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<image>+");
+		assertMatch(Match.PENDING, lu, "<custom-ident> | <length>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <length>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5526,21 +2582,14 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("6pt var(--foo) 12.3px 2vw");
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals("6pt var(--foo) 12.3px 2vw", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>+");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>#");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.PENDING, lu, "<length>+");
+		assertMatch(Match.FALSE, lu, "<length>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<image>+");
+		assertMatch(Match.PENDING, lu, "<custom-ident> | <length>+");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <length>#");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5559,17 +2608,12 @@ public class PropertyParserTest {
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("var", lu.getFunctionName());
 		assertEquals("var(--foo, element(#bar))", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>+");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.PENDING, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.PENDING, lu, "<image>");
+		assertMatch(Match.PENDING, lu, "<image>#");
+		assertMatch(Match.PENDING, lu, "<image>+");
+		assertMatch(Match.PENDING, lu, "<custom-ident> | <image>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5620,23 +2664,15 @@ public class PropertyParserTest {
 		assertEquals("fooid", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("element(#fooid)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>#");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>+");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<image>");
+		assertMatch(Match.TRUE, lu, "<image>#");
+		assertMatch(Match.TRUE, lu, "<image>+");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <image>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <image>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <image>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -5720,23 +2756,15 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.INTEGER, params.getLexicalUnitType());
 		assertEquals(159, params.getIntegerValue());
 		assertNull(params.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>+");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>#");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>+");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, lunit.matches(syn));
+
+		assertMatch(Match.TRUE, lunit, "<image>");
+		assertMatch(Match.TRUE, lunit, "<image>#");
+		assertMatch(Match.TRUE, lunit, "<image>+");
+		assertMatch(Match.FALSE, lunit, "<color>");
+		assertMatch(Match.TRUE, lunit, "<custom-ident> | <image>#");
+		assertMatch(Match.TRUE, lunit, "<custom-ident> | <image>+");
+		assertMatch(Match.TRUE, lunit, "<custom-ident> | <image>");
+		assertMatch(Match.TRUE, lunit, "*");
 	}
 
 	@Test
@@ -5745,33 +2773,33 @@ public class PropertyParserTest {
 			"url(https://www.example.com/foo.svg) no-repeat center/1.3128205128ex .8ex");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("https://www.example.com/foo.svg", lu.getStringValue());
-		//
+
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("no-repeat", lu.getStringValue());
-		//
+
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("center", lu.getStringValue());
-		//
+
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.OPERATOR_SLASH, lu.getLexicalUnitType());
-		//
+
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EX, lu.getCssUnit());
 		assertEquals(1.3128205128f, lu.getFloatValue(), 1e-8);
-		//
+
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EX, lu.getCssUnit());
 		assertEquals(0.8f, lu.getFloatValue(), 1e-8);
-		//
+
 		assertNull(lu.getNextLexicalUnit());
 	}
 

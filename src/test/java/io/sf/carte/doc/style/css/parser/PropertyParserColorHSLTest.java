@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -58,17 +59,12 @@ public class PropertyParserColorHSLTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("hsl", lu.getFunctionName());
 		assertEquals("hsl(12 25% 48%)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -986,6 +982,11 @@ public class PropertyParserColorHSLTest {
 		} catch (IOException e) {
 			return null;
 		}
+	}
+
+	private void assertMatch(Match match, LexicalUnit lu, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, lu.matches(syn));
 	}
 
 }

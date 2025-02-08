@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -208,17 +209,12 @@ public class PropertyParserColorRGBTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgb", lu.getFunctionName());
 		assertEquals("rgb(0 0 0)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -422,6 +418,12 @@ public class PropertyParserColorRGBTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgba", lu.getFunctionName());
 		assertEquals("rgba(1, var(--foo))", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -559,6 +561,12 @@ public class PropertyParserColorRGBTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgb", lu.getFunctionName());
 		assertEquals("rgb(1 2 3/var(--foo))", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1066,6 +1074,12 @@ public class PropertyParserColorRGBTest {
 		assertEquals("rgb", lu.getFunctionName());
 		assertEquals("rgb(attr(data-red type(<percentage>)) attr(data-green type(<percentage>)) attr(data-blue %)/attr(data-alpha %))",
 				lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1682,6 +1696,12 @@ public class PropertyParserColorRGBTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgb", lu.getFunctionName());
 		assertEquals("rgb(none 48% 27%/0.1)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1773,13 +1793,10 @@ public class PropertyParserColorRGBTest {
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(51, lu.getIntegerValue());
 		assertNull(lu.getNextLexicalUnit());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lunit.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lunit, "<color>");
+		assertMatch(Match.FALSE, lunit, "<length>");
+		assertMatch(Match.TRUE, lunit, "*");
 	}
 
 	@Test
@@ -1862,6 +1879,11 @@ public class PropertyParserColorRGBTest {
 		} catch (IOException e) {
 			return null;
 		}
+	}
+
+	private void assertMatch(Match match, LexicalUnit lu, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, lu.matches(syn));
 	}
 
 }

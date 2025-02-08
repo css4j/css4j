@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -104,17 +105,12 @@ public class PropertyParserColorMixTest {
 		assertEquals(
 				"color-mix(in rec2020, color(display-p3 0.42053 0.97978 0.00579), lch(88.423 142.708 128.211))",
 				lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	/**
@@ -162,16 +158,11 @@ public class PropertyParserColorMixTest {
 		assertEquals("color-mix(in lch longer, hwb(144.48 0.8% 15%), lch(78.745 123.946 106.33))",
 				lu.toString());
 
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -287,17 +278,12 @@ public class PropertyParserColorMixTest {
 		assertEquals(
 				"color-mix(in rec2020, color(display-p3 0.42053 0.97978 0.00579) 40%, lch(88.423 142.708 128.211))",
 				lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -334,17 +320,12 @@ public class PropertyParserColorMixTest {
 
 		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals("color-mix(in display-p3, #0200fa 10%, white)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -381,17 +362,12 @@ public class PropertyParserColorMixTest {
 
 		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals("color-mix(in display-p3, 20% #0200fa, white)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -409,17 +385,12 @@ public class PropertyParserColorMixTest {
 
 		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals("color-mix(var(--color-args))", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -441,17 +412,12 @@ public class PropertyParserColorMixTest {
 
 		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals("color-mix(in var(--color-args))", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -483,17 +449,12 @@ public class PropertyParserColorMixTest {
 
 		assertEquals("Color-Mix", lu.getFunctionName());
 		assertEquals("color-mix(In rec2020, var(--color-args))", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -523,17 +484,12 @@ public class PropertyParserColorMixTest {
 
 		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals("color-mix(in var(--color-args), #10aa40)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -560,17 +516,12 @@ public class PropertyParserColorMixTest {
 
 		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals("color-mix(in var(--color-args) #10aa40)", lu.toString());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -612,16 +563,11 @@ public class PropertyParserColorMixTest {
 		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals("color-mix(in display-p3, #0200fa var(--pcnt), white)", lu.toString());
 
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -663,16 +609,11 @@ public class PropertyParserColorMixTest {
 		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals("color-mix(in display-p3, var(--color) 10%, white)", lu.toString());
 
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -714,16 +655,11 @@ public class PropertyParserColorMixTest {
 		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals("color-mix(in display-p3, #0200fa, white var(--pcnt))", lu.toString());
 
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>#");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(CSSValueSyntax.Match.FALSE, lu.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(CSSValueSyntax.Match.TRUE, lu.matches(syn));
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -767,6 +703,11 @@ public class PropertyParserColorMixTest {
 		} catch (IOException e) {
 			return null;
 		}
+	}
+
+	private void assertMatch(Match match, LexicalUnit lu, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, lu.matches(syn));
 	}
 
 }
