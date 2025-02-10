@@ -202,10 +202,11 @@ public class NumberValueTest {
 		NumberValue val = new NumberValue();
 		val.setFloatValue(CSSUnit.CSS_PT, 3.5f);
 		assertEquals(3.5f, val.getFloatValue(CSSUnit.CSS_PT));
-		assertEquals(3.5f, val.getFloatValue(CSSUnit.CSS_OTHER));
+		assertEquals(3.5f, val.getFloatValue());
 		assertEquals(4.666666f, val.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
 
-		DOMException ex = assertThrows(DOMException.class, () -> val.getFloatValue(CSSUnit.CSS_DEG));
+		DOMException ex = assertThrows(DOMException.class,
+				() -> val.getFloatValue(CSSUnit.CSS_DEG));
 		assertEquals(DOMException.INVALID_ACCESS_ERR, ex.code);
 	}
 

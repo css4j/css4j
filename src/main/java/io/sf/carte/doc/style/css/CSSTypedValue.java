@@ -37,9 +37,7 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	/**
 	 * If this is a number, get its float value in the requested unit.
 	 * 
-	 * @param unitType the requested unit type. If the type is
-	 *                 <code>CSS_OTHER</code>, the value shall be returned as is,
-	 *                 regardless of the unit that was set with.
+	 * @param unitType the requested unit type.
 	 * @return the float value in the requested unit.
 	 * @throws DOMException INVALID_ACCESS_ERR if this value is not a number value
 	 *                      or it could not be transformed to the desired unit (for
@@ -47,6 +45,19 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	 *                      for which a context is needed).
 	 */
 	float getFloatValue(short unitType) throws DOMException;
+
+	/**
+	 * If this is a number, get its float value in the current unit.
+	 * 
+	 * @return The float value.
+	 * @throws DOMException INVALID_ACCESS_ERR if this value is not a number value
+	 *                      or it could not be transformed to the desired unit (for
+	 *                      example a relative value converted to an absolute one,
+	 *                      for which a context is needed).
+	 */
+	default float getFloatValue() {
+		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not a float value.");
+	}
 
 	/**
 	 * If this value is a string, identifier, URI, unicode wildcard or element

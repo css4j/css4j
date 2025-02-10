@@ -322,13 +322,21 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 	}
 
 	/**
+	 * Gets the float value in the current unit.
+	 * 
+	 * @return The float value.
+	 */
+	@Override
+	public float getFloatValue() {
+		return realvalue;
+	}
+
+	/**
 	 * Gets a float value in a specified unit.
 	 * 
 	 * @param unitType A unit code to get the float value, like
 	 *                 <code>CSS_NUMBER</code>, <code>CSS_PERCENTAGE</code>,
-	 *                 <code>CSS_PT</code> or <code>CSS_EX</code>. If the type is
-	 *                 <code>CSS_OTHER</code>, the value shall be returned as is,
-	 *                 regardless of the unit that was set with.
+	 *                 <code>CSS_PT</code> or <code>CSS_EX</code>.
 	 * @return The float value in the specified unit.
 	 * @throws DOMException INVALID_ACCESS_ERR if the CSS value can't be converted
 	 *                      into the specified unit.
@@ -344,9 +352,7 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 	 * 
 	 * @param fvalue   the float value to convert.
 	 * @param declType the declared type of the value.
-	 * @param unitType the desired unit type. If the type is <code>CSS_OTHER</code>
-	 *                 the value shall be returned as is, regardless of the unit
-	 *                 that was set with.
+	 * @param unitType the desired unit type.
 	 * @return the value converted to the <code>unitType</code> unit.
 	 * @throws DOMException if the unit conversion could not be done.
 	 */
@@ -586,7 +592,8 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 			}
 		}
 
-		if (fvalue == 0f || unitType == CSSUnit.CSS_OTHER) {
+		// Zero always converts to zero
+		if (fvalue == 0f) {
 			return fvalue;
 		}
 
