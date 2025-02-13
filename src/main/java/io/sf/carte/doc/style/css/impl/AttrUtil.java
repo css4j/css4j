@@ -61,18 +61,26 @@ public class AttrUtil {
 		LexicalType type = nextParam.getLexicalUnitType();
 		if (type != LexicalType.OPERATOR_COMMA) {
 			// Obtain the attribute type
-			if (type == LexicalType.IDENT) {
+			switch (type) {
+			case IDENT:
 				String attrUnit = nextParam.getStringValue().toLowerCase(Locale.ROOT);
 				if (!"string".equals(attrUnit)) {
 					unit = UnitStringToId.unitFromString(attrUnit);
 				} else {
 					attrSyntax = SyntaxParser.createSimpleSyntax("string");
 				}
-			} else if (type == LexicalType.OPERATOR_MOD) {
+				break;
+			case OPERATOR_MOD:
 				unit = CSSUnit.CSS_PERCENTAGE;
-			} else if (type == LexicalType.TYPE_FUNCTION) {
-				attrSyntax = nextParam.getParameters().getSyntax();
-			} else {
+				break;
+			case TYPE_FUNCTION:
+				try {
+					attrSyntax = nextParam.getParameters().getSyntax();
+					break;
+				} catch (IllegalStateException e) {
+				}
+				// fall-through
+			default:
 				// Probably error
 				return Type.UNKNOWN;
 			}

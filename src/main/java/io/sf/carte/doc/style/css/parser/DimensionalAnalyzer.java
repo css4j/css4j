@@ -219,10 +219,16 @@ class DimensionalAnalyzer {
 			} catch (DOMException e) {
 				return dim;
 			}
+
 			if (dimfb != null) {
 				if (dim.category != dimfb.category) {
 					// Sum the dimensions, so length-percentage can merge
 					attrPending = dim.sum(dimfb);
+
+					// Do not consider lengths and percentages
+					// as explicitly processed.
+					dim.lengthProcessed = false;
+					dim.percentageProcessed = false;
 				}
 			}
 
@@ -282,8 +288,10 @@ class DimensionalAnalyzer {
 		dim.exponent = 1;
 		if (CSSUnit.isLengthUnitType(unit)) {
 			dim.category = Category.length;
+			dim.lengthProcessed = true;
 		} else if (unit == CSSUnit.CSS_PERCENTAGE) {
 			dim.category = Category.percentage;
+			dim.percentageProcessed = true;
 		} else if (CSSUnit.isAngleUnitType(unit)) {
 			dim.category = Category.angle;
 		} else if (CSSUnit.isTimeUnitType(unit)) {

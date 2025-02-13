@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +35,14 @@ import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class GradientValueTest {
 
+	private static SyntaxParser syntaxParser;
+
 	BaseCSSStyleDeclaration style;
+
+	@BeforeAll
+	static void setUpBeforeAll() throws Exception {
+		syntaxParser = new SyntaxParser();
+	}
 
 	@BeforeEach
 	public void setUp() {
@@ -58,19 +66,12 @@ public class GradientValueTest {
 		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
 		// Match
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<url> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<image>");
+		assertMatch(Match.TRUE, val, "<image>#");
+		assertMatch(Match.TRUE, val, "<url> | <image>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <image>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 		//
 		style.setCssText("background-image: linear-gradient(yellow, blue 20%, #0f0); ");
 		cssval = style.getPropertyCSSValue("background-image");
@@ -176,19 +177,12 @@ public class GradientValueTest {
 		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		// Match
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<url> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<image>");
+		assertMatch(Match.TRUE, val, "<image>#");
+		assertMatch(Match.TRUE, val, "<url> | <image>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <image>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -207,19 +201,12 @@ public class GradientValueTest {
 		assertEquals(CSSGradientValue.GradientType.LINEAR_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
 		// Match
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<url> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<image>");
+		assertMatch(Match.TRUE, val, "<image>#");
+		assertMatch(Match.TRUE, val, "<url> | <image>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <image>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -586,19 +573,12 @@ public class GradientValueTest {
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
 		// Match
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<url> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<image>");
+		assertMatch(Match.TRUE, val, "<image>#");
+		assertMatch(Match.TRUE, val, "<url> | <image>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <image>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -709,19 +689,12 @@ public class GradientValueTest {
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
 		// Match
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<url> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<image>");
+		assertMatch(Match.TRUE, val, "<image>#");
+		assertMatch(Match.TRUE, val, "<url> | <image>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <image>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 		//
 		style.setCssText("background-image: radial-gradient(yellow, green); ");
 		cssval = style.getPropertyCSSValue("background-image");
@@ -1066,19 +1039,12 @@ public class GradientValueTest {
 		assertEquals(CSSGradientValue.GradientType.CONIC_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
 		// Match
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<url> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<image>");
+		assertMatch(Match.TRUE, val, "<image>#");
+		assertMatch(Match.TRUE, val, "<url> | <image>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <image>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 		//
 		style.setCssText("background-image: conic-gradient(at 50% 50%, #f06, gold); ");
 		cssval = style.getPropertyCSSValue("background-image");
@@ -1505,19 +1471,12 @@ public class GradientValueTest {
 		assertEquals(CSSGradientValue.GradientType.REPEATING_CONIC_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
 		// Match
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<image>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<url> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <image>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<image>");
+		assertMatch(Match.TRUE, val, "<image>#");
+		assertMatch(Match.TRUE, val, "<url> | <image>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <image>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 		//
 		style.setCssText("background-image: repeating-conic-gradient(gold, #f06 20deg); ");
 		cssval = style.getPropertyCSSValue("background-image");
@@ -1624,6 +1583,11 @@ public class GradientValueTest {
 		assertEquals(value.getStringValue(), clon.getStringValue());
 		assertEquals(value.getArguments(), clon.getArguments());
 		assertEquals(value.getCssText(), clon.getCssText());
+	}
+
+	private void assertMatch(Match match, CSSValue value, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, value.matches(syn));
 	}
 
 }

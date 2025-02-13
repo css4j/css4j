@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,8 +37,15 @@ import io.sf.carte.doc.style.css.parser.SyntaxParser;
 @SuppressWarnings("deprecation")
 public class MathFunctionValueTest {
 
+	private static SyntaxParser syntaxParser;
+
 	CSSStyleDeclarationRule styleRule;
 	BaseCSSStyleDeclaration style;
+
+	@BeforeAll
+	static void setUpBeforeAll() throws Exception {
+		syntaxParser = new SyntaxParser();
+	}
 
 	@BeforeEach
 	public void setUp() {
@@ -71,23 +79,14 @@ public class MathFunctionValueTest {
 		assertNotNull(val);
 		assertEquals(CssType.LIST, val.getCssValueType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<integer>+");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>+");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>+");
+		assertMatch(Match.FALSE, val, "<number>#");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -97,23 +96,14 @@ public class MathFunctionValueTest {
 		assertNotNull(val);
 		assertEquals(CssType.LIST, val.getCssValueType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.FALSE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -137,6 +127,15 @@ public class MathFunctionValueTest {
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*-0.5", calc.getExpression().getCssText());
 		assertEquals("1.2*-.5", calc.getExpression().getMinifiedCssText());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -160,6 +159,14 @@ public class MathFunctionValueTest {
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*-0.5rad", calc.getExpression().getCssText());
 		assertEquals("1.2*-.5rad", calc.getExpression().getMinifiedCssText());
+
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>+");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -183,6 +190,485 @@ public class MathFunctionValueTest {
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*-0.5", calc.getExpression().getCssText());
 		assertEquals("1.2*-.5", calc.getExpression().getMinifiedCssText());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testMax_Length() {
+		style.setCssText("foo: max(1.2em * -.5, .94px)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("max", val.getStringValue());
+		assertEquals("max", val.getFunctionName());
+
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		assertEquals("max(1.2em*-0.5, 0.94px)", val.getCssText());
+		assertEquals("max(1.2em*-.5,.94px)", val.getMinifiedCssText(""));
+
+		assertEquals(2, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>+");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testMax_LengthPcnt() {
+		style.setCssText("foo: max(4%,2vw)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("max", val.getStringValue());
+		assertEquals("max", val.getFunctionName());
+
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		assertEquals("max(4%, 2vw)", val.getCssText());
+		assertEquals("max(4%,2vw)", val.getMinifiedCssText(""));
+
+		assertEquals(2, val.getArguments().size());
+
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>#");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testMax_LengthPcnt_Nested() {
+		style.setCssText("foo: max(1.2em * -.5, min(2%,abs(.94ex)))");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("max", val.getStringValue());
+		assertEquals("max", val.getFunctionName());
+
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		assertEquals("max(1.2em*-0.5, min(2%, abs(0.94ex)))", val.getCssText());
+		assertEquals("max(1.2em*-.5,min(2%,abs(.94ex)))", val.getMinifiedCssText(""));
+
+		assertEquals(2, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>#");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testClamp() {
+		style.setCssText("foo: clamp(abs(1.2 * -.5), 6.94, sqrt(15.9))");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("clamp", val.getStringValue());
+		assertEquals("clamp", val.getFunctionName());
+
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		assertEquals("clamp(abs(1.2*-0.5), 6.94, sqrt(15.9))", val.getCssText());
+		assertEquals("clamp(abs(1.2*-.5),6.94,sqrt(15.9))", val.getMinifiedCssText(""));
+
+		assertEquals(3, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.MATH_FUNCTION, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testClampLengthPcnt() {
+		style.setCssText("foo: clamp(abs(.2vw * -.5), 6.94%, sqrt(3.5pt*2.8px))");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("clamp", val.getStringValue());
+		assertEquals("clamp", val.getFunctionName());
+
+		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
+
+		assertEquals("clamp(abs(0.2vw*-0.5), 6.94%, sqrt(3.5pt*2.8px))", val.getCssText());
+		assertEquals("clamp(abs(.2vw*-.5),6.94%,sqrt(3.5pt*2.8px))", val.getMinifiedCssText(""));
+
+		assertEquals(3, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.MATH_FUNCTION, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>#");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>#");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testClampInvalid() {
+		style.setCssText("foo: clamp(abs(1.2mm * -.5), 6.94deg, sqrt(3.8pt * 2.5px))");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("clamp", val.getStringValue());
+		assertEquals("clamp", val.getFunctionName());
+
+		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
+
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "*");
+	}
+
+	@Test
+	public void testExp() {
+		style.setCssText("foo: exp(4.2s * .94Hz)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("exp", val.getFunctionName());
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		assertEquals("exp(4.2s*0.94hz)", val.getCssText());
+		assertEquals("exp(4.2s*.94hz)", val.getMinifiedCssText(""));
+
+		assertEquals(1, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testLog() {
+		style.setCssText("foo: log(4.2 * .94)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("log", val.getFunctionName());
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		assertEquals("log(4.2*0.94)", val.getCssText());
+		assertEquals("log(4.2*.94)", val.getMinifiedCssText(""));
+
+		assertEquals(1, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testSqrt() {
+		style.setCssText("foo: sqrt(4.2 * .94)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("sqrt", val.getFunctionName());
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		assertEquals("sqrt(4.2*0.94)", val.getCssText());
+		assertEquals("sqrt(4.2*.94)", val.getMinifiedCssText(""));
+
+		assertEquals(1, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testSqrt_Length() {
+		style.setCssText("foo: sqrt(4.2em * .94px)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("sqrt", val.getFunctionName());
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		assertEquals("sqrt(4.2em*0.94px)", val.getCssText());
+		assertEquals("sqrt(4.2em*.94px)", val.getMinifiedCssText(""));
+
+		assertEquals(1, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>+");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testRem() {
+		style.setCssText("foo: rem(4.2, .94)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("rem", val.getFunctionName());
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		assertEquals("rem(4.2, 0.94)", val.getCssText());
+		assertEquals("rem(4.2,.94)", val.getMinifiedCssText(""));
+
+		assertEquals(2, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.NUMERIC, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testRem_Length() {
+		style.setCssText("foo: rem(4.2em, abs(.94px))");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("rem", val.getFunctionName());
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		assertEquals("rem(4.2em, abs(0.94px))", val.getCssText());
+		assertEquals("rem(4.2em,abs(.94px))", val.getMinifiedCssText(""));
+
+		assertEquals(2, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.NUMERIC, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>+");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testMod() {
+		style.setCssText("foo: mod(4.2, .94)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("mod", val.getFunctionName());
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		assertEquals("mod(4.2, 0.94)", val.getCssText());
+		assertEquals("mod(4.2,.94)", val.getMinifiedCssText(""));
+
+		assertEquals(2, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.NUMERIC, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testMod_Length() {
+		style.setCssText("foo: mod(4.2em, .94px)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("mod", val.getFunctionName());
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		assertEquals("mod(4.2em, 0.94px)", val.getCssText());
+		assertEquals("mod(4.2em,.94px)", val.getMinifiedCssText(""));
+
+		assertEquals(2, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.NUMERIC, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>+");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testRound() {
+		style.setCssText("foo: round(Up, 4.2, .94)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("round", val.getFunctionName());
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		assertEquals("round(Up, 4.2, 0.94)", val.getCssText());
+		assertEquals("round(Up,4.2,.94)", val.getMinifiedCssText(""));
+
+		assertEquals(3, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.IDENT, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testRound_Length() {
+		style.setCssText("foo: round(Up, 4.2em, .94px)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("round", val.getFunctionName());
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		assertEquals("round(Up, 4.2em, 0.94px)", val.getCssText());
+		assertEquals("round(Up,4.2em,.94px)", val.getMinifiedCssText(""));
+
+		assertEquals(3, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.IDENT, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>+");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testPow_Length() {
+		style.setCssText("foo: sqrt(pow(pow(4.2em, 4), 0.5))");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("sqrt", val.getFunctionName());
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		assertEquals("sqrt(pow(pow(4.2em, 4), 0.5))", val.getCssText());
+		assertEquals("sqrt(pow(pow(4.2em,4),.5))", val.getMinifiedCssText(""));
+
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>+");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testSign() {
+		style.setCssText("foo: sign(1.2 * -.5rad)");
+		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("sign", val.getStringValue());
+		assertEquals("sign", val.getFunctionName());
+
+		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
+
+		assertEquals("sign(1.2*-0.5rad)", val.getCssText());
+		assertEquals("sign(1.2*-.5rad)", val.getMinifiedCssText(""));
+
+		assertEquals(1, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -205,6 +691,15 @@ public class MathFunctionValueTest {
 		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*5deg", calc.getExpression().getCssText());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -227,6 +722,15 @@ public class MathFunctionValueTest {
 		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*5deg", calc.getExpression().getCssText());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -249,6 +753,15 @@ public class MathFunctionValueTest {
 		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*5deg", calc.getExpression().getCssText());
+
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -272,6 +785,14 @@ public class MathFunctionValueTest {
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*0.5", calc.getExpression().getCssText());
 		assertEquals("1.2*.5", calc.getExpression().getMinifiedCssText());
+
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>+");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -295,6 +816,14 @@ public class MathFunctionValueTest {
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*0.5", calc.getExpression().getCssText());
 		assertEquals("1.2*.5", calc.getExpression().getMinifiedCssText());
+
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>+");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -318,6 +847,14 @@ public class MathFunctionValueTest {
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("1.2*0.5", calc.getExpression().getCssText());
 		assertEquals("1.2*.5", calc.getExpression().getMinifiedCssText());
+
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>+");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -344,6 +881,14 @@ public class MathFunctionValueTest {
 		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("0.2*2", calc.getExpression().getCssText());
+
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>+");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -391,6 +936,11 @@ public class MathFunctionValueTest {
 		assertEquals(args, clonargs);
 		assertEquals(value.getCssText(), clon.getCssText());
 		assertTrue(value.equals(clon));
+	}
+
+	private void assertMatch(Match match, CSSValue value, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, value.matches(syn));
 	}
 
 }

@@ -58,4 +58,10 @@ abstract class MathFunctionUnitImpl extends LexicalUnitImpl {
 	 */
 	public abstract Dimension dimension(DimensionalAnalyzer analyzer) throws DOMException;
 
+	/*
+	 * Do an abstract override so implementations do not forget to override.
+	 */
+	@Override
+	abstract MathFunctionUnitImpl instantiateLexicalUnit();
+
 }

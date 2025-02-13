@@ -32,7 +32,7 @@ class UnitlessFunctionUnitImpl extends MathFunctionUnitImpl {
 	}
 
 	@Override
-	LexicalUnitImpl instantiateLexicalUnit() {
+	UnitlessFunctionUnitImpl instantiateLexicalUnit() {
 		return new UnitlessFunctionUnitImpl(getMathFunctionIndex());
 	}
 

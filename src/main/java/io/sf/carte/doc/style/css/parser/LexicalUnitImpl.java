@@ -762,7 +762,11 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 					break;
 				case TYPE_FUNCTION:
 					LexicalUnit typeParam = param.getParameters();
-					attrSyntax = typeParam.getSyntax();
+					try {
+						attrSyntax = typeParam.getSyntax();
+					} catch (IllegalStateException e) {
+						return Match.FALSE; // Error
+					}
 					break;
 				case IDENT:
 					// We got a data type spec

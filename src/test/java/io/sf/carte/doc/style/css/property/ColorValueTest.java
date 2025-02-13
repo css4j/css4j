@@ -55,6 +55,9 @@ import io.sf.carte.util.BufferSimpleWriter;
 public class ColorValueTest {
 
 	static AbstractCSSStyleSheet sheet;
+
+	private static SyntaxParser syntaxParser;
+
 	CSSStyleDeclarationRule parentStyleRule;
 	AbstractCSSStyleDeclaration style;
 
@@ -62,6 +65,7 @@ public class ColorValueTest {
 	public static void setUpBeforeAll() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		sheet = factory.createStyleSheet(null, null);
+		syntaxParser = new SyntaxParser();
 	}
 
 	@BeforeEach
@@ -535,17 +539,11 @@ public class ColorValueTest {
 		assertEquals(4, rgb.getLength());
 		assertNull(rgb.item(4));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <color>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<color>");
+		assertMatch(Match.TRUE, val, "<color>+");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <color>+");
+		assertMatch(Match.FALSE, val, "<custom-ident>");
+		assertMatch(Match.TRUE, val, "*");
 
 		val.setCssText("#abc4");
 		rgb = val.toRGBColor();
@@ -885,7 +883,6 @@ public class ColorValueTest {
 		assertEquals(0f, colorValue.deltaE2000(labValue), 0.001f);
 
 		// Match
-		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
 		assertEquals(Match.TRUE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("<color>+");
@@ -1347,7 +1344,6 @@ public class ColorValueTest {
 		assertEquals(0f, hwb.deltaEOK(rgb), 1e-6f);
 
 		// Match
-		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<color>");
 		assertEquals(Match.TRUE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("<color>+");
@@ -2403,6 +2399,11 @@ public class ColorValueTest {
 		RGBAColor rgb = val.toRGBColor();
 		assertNotNull(rgb);
 		assertEquals("rgb(0 0 0 / 0)", rgb.toString());
+	}
+
+	private void assertMatch(Match match, CSSValue value, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, value.matches(syn));
 	}
 
 }

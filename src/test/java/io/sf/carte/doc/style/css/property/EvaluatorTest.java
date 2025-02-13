@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
@@ -25,6 +26,7 @@ import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
@@ -37,8 +39,15 @@ import io.sf.carte.doc.style.css.parser.SyntaxParser;
 @SuppressWarnings("deprecation")
 public class EvaluatorTest {
 
+	private static SyntaxParser syntaxParser;
+
 	private BaseCSSStyleDeclaration style;
 	private Evaluator evaluator;
+
+	@BeforeAll
+	static void setUpBeforeAll() throws Exception {
+		syntaxParser = new SyntaxParser();
+	}
 
 	@BeforeEach
 	public void setUp() {
@@ -198,15 +207,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 
 		Unit unit = new Unit();
@@ -238,15 +242,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		Unit unit = new Unit();
 		assertEquals(8.1f,
@@ -549,15 +548,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_HZ, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<frequency>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <frequency>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<frequency>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <frequency>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		Unit unit = new Unit();
 		assertEquals(0.39840954f,
@@ -615,15 +609,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_S, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <time>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<time>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <time>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		Unit unit = new Unit();
 		assertEquals(0.33333f,
@@ -639,15 +628,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_S, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <time>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<time>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <time>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		Unit unit = new Unit();
 		assertEquals(0.39840954f,
@@ -663,15 +647,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_MS, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <time>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<time>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <time>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		Unit unit = new Unit();
 		assertEquals(3.33333e-4,
@@ -687,15 +666,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		Unit unit = new Unit();
 		assertEquals(2.078461f,
@@ -712,15 +686,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_HZ, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<frequency>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <frequency>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<frequency>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <frequency>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		Unit unit = new Unit();
 		assertEquals(3.775712f,
@@ -750,15 +719,10 @@ public class EvaluatorTest {
 		ExpressionValue val = (ExpressionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateExpression(val));
 		assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
@@ -770,15 +734,10 @@ public class EvaluatorTest {
 		StyleValue val = style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -789,15 +748,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.MIN, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(3.6f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -811,15 +765,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(MathFunction.MIN, val.getFunction());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(3f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -833,17 +782,11 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(MathFunction.MIN, val.getFunction());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(1.2f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -857,17 +800,11 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(MathFunction.MIN, val.getFunction());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(3f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -881,15 +818,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(MathFunction.MIN, val.getFunction());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(2f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -904,15 +836,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.MIN, val.getFunction());
 		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(2.7f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
@@ -927,15 +854,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.MIN, val.getFunction());
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(2.25f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
@@ -948,19 +870,13 @@ public class EvaluatorTest {
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(MathFunction.MIN, val.getFunction());
-		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
+		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.TRUE, val, "*");
 
 		assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 	}
@@ -972,15 +888,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException ex = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.INVALID_ACCESS_ERR, ex.code);
@@ -994,15 +905,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.MAX, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(3.6f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1017,15 +923,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.MAX, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(3.6f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1040,15 +941,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.MAX, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(3.6f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1063,17 +959,11 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.MAX, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(4f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1088,17 +978,11 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.MAX, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(5f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1112,15 +996,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(3f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
@@ -1134,15 +1013,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_MM, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(3.543308f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
@@ -1154,19 +1028,13 @@ public class EvaluatorTest {
 		style.setCssText("foo: max(1.2px * 3, 2%, 3pt)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
+		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.TRUE, val, "*");
 
 		assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 	}
@@ -1181,15 +1049,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException ex = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.INVALID_ACCESS_ERR, ex.code);
@@ -1205,15 +1068,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException ex = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.INVALID_ACCESS_ERR, ex.code);
@@ -1227,15 +1085,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.CLAMP, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(5.656854f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1250,17 +1103,11 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.CLAMP, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(12f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1275,17 +1122,11 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.CLAMP, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(8f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1300,17 +1141,11 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.CLAMP, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(16f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1325,15 +1160,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.CLAMP, val.getFunction());
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(5.656854f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
@@ -1347,15 +1177,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(6.80315f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
@@ -1369,15 +1194,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(7.5f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
@@ -1389,19 +1209,13 @@ public class EvaluatorTest {
 		style.setCssText("foo: clamp(0.4mm * 4, 8% * sin(45deg), 20px/2)");
 		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
-		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "*");
 
 		assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 	}
@@ -1413,15 +1227,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException ex = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.INVALID_ACCESS_ERR, ex.code);
@@ -1434,15 +1243,26 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
+
+		DOMException ex = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
+		assertEquals(DOMException.INVALID_ACCESS_ERR, ex.code);
+	}
+
+	@Test
+	public void testClampBadUnits3() {
+		style.setCssText("foo: clamp(0.4mm * 4, 8pt * sin(45deg), 20deg)");
+		CSSMathFunctionValue val = (CSSMathFunctionValue) style.getPropertyCSSValue("foo");
+		assertNotNull(val);
+		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
+
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException ex = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.INVALID_ACCESS_ERR, ex.code);
@@ -1455,15 +1275,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -1476,15 +1291,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(8f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1498,15 +1308,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(9f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
@@ -1520,15 +1325,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(9f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1542,15 +1342,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
@@ -1564,15 +1359,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(8f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1587,15 +1377,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(300f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
@@ -1609,15 +1394,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(-200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
@@ -1631,15 +1411,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(7f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1654,15 +1429,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
@@ -1676,15 +1446,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(-300f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
@@ -1698,15 +1463,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(7f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1720,15 +1480,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(-7f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1742,15 +1497,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
@@ -1764,15 +1514,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(-200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
@@ -1786,15 +1531,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(1f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
@@ -1808,15 +1548,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(-1f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
@@ -1830,15 +1565,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -1848,15 +1578,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(2f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1870,15 +1595,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(1f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1892,15 +1612,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_DEG, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(-45f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
@@ -1914,15 +1629,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_DEG, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(10f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
@@ -1936,15 +1646,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -1954,15 +1659,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(1.3f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1976,15 +1676,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(-2f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -1998,15 +1693,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(-3f, typed.getFloatValue(CSSUnit.CSS_VW), 1e-5f);
@@ -2020,15 +1710,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_DEG, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(50f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
@@ -2042,15 +1727,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_DEG, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(-10f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
@@ -2064,15 +1744,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -2083,15 +1758,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.SIN, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(0.1045285f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -2105,15 +1775,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(0.5f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-7f);
@@ -2127,15 +1792,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(1f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -2149,15 +1809,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(1f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -2174,15 +1829,10 @@ public class EvaluatorTest {
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -2195,15 +1845,10 @@ public class EvaluatorTest {
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -2213,15 +1858,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -2235,15 +1875,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.COS, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(0.994522f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -2258,15 +1893,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.COS, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(-1f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-3f);
@@ -2280,15 +1910,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(0.86604482f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -2324,15 +1949,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -2346,15 +1966,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.TAN, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(0.105104f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -2368,15 +1983,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(1.17580979f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-7f);
@@ -2393,15 +2003,10 @@ public class EvaluatorTest {
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -2414,15 +2019,10 @@ public class EvaluatorTest {
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -2432,15 +2032,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -2454,15 +2049,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.ASIN, val.getFunction());
 		assertEquals(CSSUnit.CSS_RAD, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(23.578178f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
@@ -2476,15 +2066,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -2497,15 +2082,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -2519,15 +2099,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.ACOS, val.getFunction());
 		assertEquals(CSSUnit.CSS_RAD, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(66.421822f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
@@ -2542,15 +2117,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.ACOS, val.getFunction());
 		assertEquals(CSSUnit.CSS_RAD, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(2.0944f, typed.getFloatValue(CSSUnit.CSS_RAD), 1e-4f);
@@ -2575,15 +2145,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -2596,15 +2161,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -2618,15 +2178,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.ATAN, val.getFunction());
 		assertEquals(CSSUnit.CSS_RAD, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(21.80141f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
@@ -2640,15 +2195,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_RAD, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(26.565051f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
@@ -2662,15 +2212,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -2683,15 +2228,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -2705,15 +2245,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.ATAN2, val.getFunction());
 		assertEquals(CSSUnit.CSS_RAD, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(-75.06858f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
@@ -2727,15 +2262,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_RAD, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(165.068588f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
@@ -2749,15 +2279,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -2770,15 +2295,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -2792,15 +2312,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.POW, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(46.656f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-3f);
@@ -2815,13 +2330,9 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.POW, val.getFunction());
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -2832,13 +2343,9 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.POW, val.getFunction());
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -2848,15 +2355,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(2.533696814f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
@@ -2870,15 +2372,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(1.8609366207f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-7f);
@@ -2892,15 +2389,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -2910,15 +2402,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -2928,15 +2415,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(828.8175f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-3f);
@@ -2950,15 +2432,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -2969,15 +2446,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.SQRT, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(1.897367f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
@@ -2991,15 +2463,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(0.579673f, typed.getFloatValue(CSSUnit.CSS_MM), 1e-5f);
@@ -3014,15 +2481,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.SQRT, val.getFunction());
 		assertEquals(CSSUnit.CSS_RAD, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertEquals(0.687398f, typed.getFloatValue(CSSUnit.CSS_RAD), 1e-5f);
@@ -3047,15 +2509,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException ex = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.INVALID_ACCESS_ERR, ex.code);
@@ -3068,15 +2525,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -3112,15 +2564,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
@@ -3134,17 +2581,11 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.SIGN, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertTrue(1f == typed.getFloatValue(CSSUnit.CSS_NUMBER));
@@ -3158,17 +2599,11 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertTrue(-1f == typed.getFloatValue(CSSUnit.CSS_NUMBER));
@@ -3182,15 +2617,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		assertTrue(0f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
@@ -3213,15 +2643,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		assertTrue(1f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
@@ -3233,15 +2658,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		assertTrue(-1f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
@@ -3253,17 +2673,11 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		assertTrue(0f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER));
 	}
@@ -3275,15 +2689,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.NOT_SUPPORTED_ERR, e.code);
@@ -3296,15 +2705,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -3318,17 +2722,11 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.ABS, val.getFunction());
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertTrue(1.2f == typed.getFloatValue(CSSUnit.CSS_NUMBER));
@@ -3342,17 +2740,11 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertTrue(2f == typed.getFloatValue(CSSUnit.CSS_NUMBER));
@@ -3371,17 +2763,11 @@ public class EvaluatorTest {
 		assertEquals(0, Float.floatToIntBits(fval));
 		assertFalse(typed.isCalculatedNumber());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -3404,15 +2790,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		float fval = typed.getFloatValue(CSSUnit.CSS_PT);
@@ -3427,15 +2808,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		assertTrue(2f == typed.getFloatValue(CSSUnit.CSS_PT));
@@ -3449,15 +2825,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
 		float fval = typed.getFloatValue(CSSUnit.CSS_PT);
@@ -3472,15 +2843,10 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "*");
 
 		DOMException e = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.SYNTAX_ERR, e.code);
@@ -3492,15 +2858,10 @@ public class EvaluatorTest {
 		StyleValue val = style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -3511,15 +2872,10 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.SQRT, val.getFunction());
 		assertEquals(CSSUnit.CSS_INVALID, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 
 		DOMException ex = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
 		assertEquals(DOMException.INVALID_ACCESS_ERR, ex.code);
@@ -3533,6 +2889,11 @@ public class EvaluatorTest {
 		unit.setExponent(2);
 		assertEquals(1f, unit.convert(1f, CSSUnit.CSS_PT), 1e-5f);
 		assertEquals(1.777777f, unit.convert(1f, CSSUnit.CSS_PX), 1e-5f);
+	}
+
+	private void assertMatch(Match match, CSSValue value, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, value.matches(syn));
 	}
 
 }

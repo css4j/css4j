@@ -796,8 +796,8 @@ public class Evaluator {
 		return createNumberValue(CSSUnit.CSS_NUMBER, result, true);
 	}
 
-	private CSSNumberValue functionPow(CSSValueList<? extends CSSValue> arguments,
-			Unit resultUnit) throws DOMException {
+	private CSSNumberValue functionPow(CSSValueList<? extends CSSValue> arguments, Unit resultUnit)
+			throws DOMException {
 		if (arguments.getLength() != 2) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "pow() functions take two arguments");
 		}
@@ -808,10 +808,17 @@ public class Evaluator {
 		Unit expUnit = new Unit();
 		float exponent = evalValue(arg2, expUnit);
 		if (expUnit.getExponent() != 0) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "pow() exponent cannot have a dimension");
+			throw new DOMException(DOMException.SYNTAX_ERR,
+					"pow() exponent cannot have a dimension");
 		}
 		float result = (float) Math.pow(base, exponent);
-		resultUnit.setExponent(resultUnit.getExponent() * Math.round(exponent));
+		float resultExp = resultUnit.getExponent() * exponent;
+		int exp = Math.round(resultExp);
+		if (Math.abs(resultExp - exp) > 0.06f) {
+			throw new DOMException(DOMException.SYNTAX_ERR,
+					"Result with fractional dimension not supported in pow().");
+		}
+		resultUnit.setExponent(exp);
 
 		return createNumberValue(resultUnit.getUnitType(), result, true);
 	}

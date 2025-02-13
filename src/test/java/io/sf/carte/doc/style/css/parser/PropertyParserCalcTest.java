@@ -1427,6 +1427,32 @@ public class PropertyParserCalcTest {
 	}
 
 	@Test
+	public void testParsePropertyValuePowMix() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("sqrt(pow(pow(4.2em, 4), 0.5))");
+		assertEquals("sqrt", lu.getFunctionName());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.MATH_FUNCTION, param.getLexicalUnitType());
+		assertEquals("pow", param.getFunctionName());
+		assertEquals("sqrt(pow(pow(4.2em, 4), 0.5))", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "<length>#");
+		assertMatch(Match.TRUE, lu, "<length>+");
+		assertMatch(Match.TRUE, lu, "<length-percentage>");
+		assertMatch(Match.TRUE, lu, "<length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<length-percentage>+");
+		assertMatch(Match.FALSE, lu, "<percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length>+");
+		assertMatch(Match.TRUE, lu, "<percentage> | <length>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
 	public void testParsePropertyValueFunctionTrigonometric() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("cos(30deg), tan(45deg)");
 		assertEquals(LexicalType.MATH_FUNCTION, lunit.getLexicalUnitType());

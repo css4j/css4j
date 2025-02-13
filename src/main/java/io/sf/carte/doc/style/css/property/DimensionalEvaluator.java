@@ -19,7 +19,6 @@ import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
-import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
@@ -27,13 +26,8 @@ import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
-import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueList;
-import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
-import io.sf.carte.doc.style.css.UnitStringToId;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 
 /**
  * Determine the dimension of an expression.
@@ -43,6 +37,12 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
  */
 class DimensionalEvaluator extends Evaluator {
 
+	/**
+	 * Whether the value involves &lt;percentage&gt;.
+	 * <p>
+	 * Should be ignored if dimension isn't &lt;length-percentage&gt;.
+	 * </p>
+	 */
 	private transient boolean hasPercentage;
 
 	private transient Random random = null;
@@ -124,8 +124,7 @@ class DimensionalEvaluator extends Evaluator {
 
 		short unit = resultUnit.getUnitType();
 		int exp = resultUnit.getExponent();
-		if (exp > 1 || exp < 0 || (hasPercentage && unit != CSSUnit.CSS_PERCENTAGE
-				&& unit != CSSUnit.CSS_NUMBER)) {
+		if (exp > 1 || exp < 0) {
 			unit = CSSUnit.CSS_INVALID;
 		}
 
@@ -152,6 +151,7 @@ class DimensionalEvaluator extends Evaluator {
 			// In case we got a sign()-like function
 			// with a % argument
 			hasPercentage = false;
+			// fall-through
 		case 1:
 			unit = resultUnit.getUnitType();
 			break;
@@ -200,86 +200,6 @@ class DimensionalEvaluator extends Evaluator {
 	}
 
 	@Override
-	protected CSSValue absoluteProxyValue(CSSPrimitiveValue partialValue) {
-		if (partialValue.getPrimitiveType() == Type.LEXICAL) {
-			checkRandom();
-			LexicalUnit var = ((CSSLexicalValue) partialValue).getLexicalUnit();
-			if (var.getLexicalUnitType() == LexicalType.ATTR) {
-				// We do not have the attribute value, so let's produce a random number
-				// with the correct dimension.
-				LexicalUnit param = var.getParameters();
-				param = param.getNextLexicalUnit();
-				if (param != null) {
-					short unit;
-					switch (param.getLexicalUnitType()) {
-					case TYPE_FUNCTION:
-						CSSValueSyntax attrSyntax = param.getParameters().getSyntax();
-						unit = categoryDefaultUnit(attrSyntax.getCategory());
-						if (unit == CSSUnit.CSS_OTHER) {
-							return super.absoluteProxyValue(partialValue);
-						}
-						break;
-					case OPERATOR_MOD:
-						unit = CSSUnit.CSS_PERCENTAGE;
-						break;
-					case IDENT:
-						unit = UnitStringToId.unitFromString(param.getStringValue());
-						if (unit != CSSUnit.CSS_OTHER) {
-							break;
-						}
-					default:
-						return super.absoluteProxyValue(partialValue);
-					}
-					return NumberValue.createCSSNumberValue(unit, random.nextFloat() + 1.1f);
-				}
-			}
-		}
-		return super.absoluteProxyValue(partialValue);
-	}
-
-	/**
-	 * Obtain the default unit for a given syntax category.
-	 * 
-	 * @param cat the category.
-	 * @return the default unit.
-	 */
-	private static short categoryDefaultUnit(Category cat) {
-		short unit;
-		switch (cat) {
-		case length:
-		case lengthPercentage:
-			unit = CSSUnit.CSS_PX;
-			break;
-		case number:
-		case integer:
-			unit = CSSUnit.CSS_NUMBER;
-			break;
-		case percentage:
-			unit = CSSUnit.CSS_PERCENTAGE;
-			break;
-		case angle:
-			unit = CSSUnit.CSS_DEG;
-			break;
-		case flex:
-			unit = CSSUnit.CSS_FR;
-			break;
-		case frequency:
-			unit = CSSUnit.CSS_HZ;
-			break;
-		case resolution:
-			unit = CSSUnit.CSS_DPI;
-			break;
-		case time:
-			unit = CSSUnit.CSS_S;
-			break;
-		default:
-			unit = CSSUnit.CSS_INVALID;
-			break;
-		}
-		return unit;
-	}
-
-	@Override
 	protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
 		short unit = partialValue.getUnitType();
 		if (CSSUnit.isRelativeLengthUnitType(unit)) {
@@ -308,6 +228,12 @@ class DimensionalEvaluator extends Evaluator {
 	@Override
 	protected float percentage(CSSTypedValue value, short resultType) throws DOMException {
 		hasPercentage = true;
+		if (resultType != CSSUnit.CSS_PERCENTAGE && resultType != CSSUnit.CSS_NUMBER
+				&& !CSSUnit.isLengthUnitType(resultType)) {
+			// Do not know how to interpret a %
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Do not know how to convert a % to "
+					+ CSSUnit.dimensionUnitString(resultType));
+		}
 		return value.getFloatValue(CSSUnit.CSS_PERCENTAGE);
 	}
 

@@ -29,9 +29,21 @@ class Dimension {
 
 	private Dimension nextDimension = null;
 
-	private transient boolean lengthProcessed;
+	/**
+	 * Whether &lt;length&gt; was explicitly processed.
+	 * <p>
+	 * Should be ignored if dimension isn't &lt;length-percentage&gt;.
+	 * </p>
+	 */
+	transient boolean lengthProcessed;
 
-	private transient boolean percentageProcessed;
+	/**
+	 * Whether &lt;percentage&gt; was explicitly processed.
+	 * <p>
+	 * Should be ignored if dimension isn't &lt;length-percentage&gt;.
+	 * </p>
+	 */
+	transient boolean percentageProcessed;
 
 	/**
 	 * 
@@ -128,19 +140,35 @@ class Dimension {
 	 */
 	public boolean sumDimension(Dimension newdim) {
 		if (category == newdim.category) {
+			if (category == Category.lengthPercentage) {
+				lengthProcessed = lengthProcessed || newdim.lengthProcessed;
+				percentageProcessed = percentageProcessed || newdim.percentageProcessed;
+			}
 			return true;
 		}
 
 		switch (category) {
 		case length:
-			if (newdim.category == Category.lengthPercentage || newdim.category == Category.percentage) {
+			if (newdim.category == Category.lengthPercentage) {
 				category = Category.lengthPercentage;
+				percentageProcessed = percentageProcessed || newdim.percentageProcessed;
+				break;
+			}
+			if (newdim.category == Category.percentage) {
+				category = Category.lengthPercentage;
+				percentageProcessed = true;
 				break;
 			}
 			return false;
 		case percentage:
-			if (newdim.category == Category.lengthPercentage || newdim.category == Category.length) {
+			if (newdim.category == Category.lengthPercentage) {
 				category = Category.lengthPercentage;
+				lengthProcessed = lengthProcessed || newdim.lengthProcessed;
+				break;
+			}
+			if (newdim.category == Category.length) {
+				category = Category.lengthPercentage;
+				lengthProcessed = true;
 				break;
 			}
 			return false;
@@ -368,19 +396,23 @@ class Dimension {
 			return unit == CSSUnit.CSS_NUMBER;
 		case length:
 			if (CSSUnit.isLengthUnitType(unit)) {
+				lengthProcessed = true;
 				break;
 			}
 			if (unit == CSSUnit.CSS_PERCENTAGE) {
 				category = Category.lengthPercentage;
+				percentageProcessed = true;
 				break;
 			}
 			return false;
 		case percentage:
 			if (unit == CSSUnit.CSS_PERCENTAGE) {
+				percentageProcessed = true;
 				break;
 			}
 			if (CSSUnit.isLengthUnitType(unit)) {
 				category = Category.lengthPercentage;
+				lengthProcessed = true;
 				break;
 			}
 			return false;

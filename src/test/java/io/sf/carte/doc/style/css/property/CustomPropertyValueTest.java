@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
@@ -34,7 +35,14 @@ import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class CustomPropertyValueTest {
 
+	private static SyntaxParser syntaxParser;
+
 	private BaseCSSStyleDeclaration style;
+
+	@BeforeAll
+	static void setUpBeforeAll() throws Exception {
+		syntaxParser = new SyntaxParser();
+	}
 
 	@BeforeEach
 	public void setUp() {
@@ -77,11 +85,8 @@ public class CustomPropertyValueTest {
 		assertEquals("var(--my-identifier)", val.getCssText());
 		assertEquals("--my-identifier", val.getLexicalUnit().getParameters().getCssText());
 		// Syntax matching
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>");
-		assertEquals(Match.PENDING, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.PENDING, val, "<custom-ident>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -267,6 +272,11 @@ public class CustomPropertyValueTest {
 		assertEquals(value.getLexicalUnit(), clon.getLexicalUnit());
 		assertEquals(value.getCssText(), clon.getCssText());
 		assertTrue(value.equals(clon));
+	}
+
+	private void assertMatch(Match match, CSSValue value, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, value.matches(syn));
 	}
 
 }

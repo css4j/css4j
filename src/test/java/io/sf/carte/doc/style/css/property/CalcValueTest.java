@@ -42,6 +42,9 @@ import io.sf.carte.doc.style.css.parser.SyntaxParser;
 public class CalcValueTest {
 
 	static AbstractCSSStyleSheet sheet;
+
+	private static SyntaxParser syntaxParser;
+
 	CSSStyleDeclarationRule parentStyleRule;
 	AbstractCSSStyleDeclaration style;
 
@@ -49,6 +52,7 @@ public class CalcValueTest {
 	public static void setUpBeforeAll() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		sheet = factory.createStyleSheet(null, null);
+		syntaxParser = new SyntaxParser();
 	}
 
 	@BeforeEach
@@ -92,19 +96,12 @@ public class CalcValueTest {
 		assertEquals("calc(80% - 3em)", val.getCssText());
 		assertEquals("calc(80% - 3em)", val.getMinifiedCssText("width"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -139,23 +136,14 @@ public class CalcValueTest {
 		assertEquals("calc(100%/3 - 2*1em - 2*1px)", val.getCssText());
 		assertEquals("calc(100%/3 - 2*1em - 2*1px)", val.getMinifiedCssText("width"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "<length-percentage>#");
+		assertMatch(Match.TRUE, val, "<length-percentage>+");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -195,21 +183,13 @@ public class CalcValueTest {
 		assertEquals("calc(1em + (0.4vw + 0.25vh)/2)", val.getCssText());
 		assertEquals("calc(1em + (.4vw + .25vh)/2)", val.getMinifiedCssText("font-size"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<length>#");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -249,19 +229,12 @@ public class CalcValueTest {
 		assertEquals("calc(1em - (0.4vw + 0.25vh)/2)", val.getCssText());
 		assertEquals("calc(1em - (.4vw + .25vh)/2)", val.getMinifiedCssText("font-size"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -381,25 +354,15 @@ public class CalcValueTest {
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_NUMBER, ((ExpressionValue) val).computeUnitType());
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer> | <length>");
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<integer>+");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -409,23 +372,14 @@ public class CalcValueTest {
 		assertNotNull(val);
 		assertEquals(CssType.LIST, val.getCssValueType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<integer>+");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>+");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>+");
+		assertMatch(Match.FALSE, val, "<number>#");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -435,23 +389,14 @@ public class CalcValueTest {
 		assertNotNull(val);
 		assertEquals(CssType.LIST, val.getCssValueType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<integer>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>#");
+		assertMatch(Match.FALSE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -463,23 +408,14 @@ public class CalcValueTest {
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_NUMBER, ((ExpressionValue) val).computeUnitType());
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<integer>+");
+		assertMatch(Match.TRUE, val, "<number>+");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -491,25 +427,15 @@ public class CalcValueTest {
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_PX, ((ExpressionValue) val).computeUnitType());
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <integer>");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<length>+");
+		assertMatch(Match.TRUE, val, "<length>#");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -519,23 +445,14 @@ public class CalcValueTest {
 		assertNotNull(val);
 		assertEquals(CssType.LIST, val.getCssValueType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>+");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>+");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>+");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <integer>+");
+		assertMatch(Match.TRUE, val, "<length-percentage>+");
+		assertMatch(Match.FALSE, val, "<length>#");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -545,23 +462,14 @@ public class CalcValueTest {
 		assertNotNull(val);
 		assertEquals(CssType.LIST, val.getCssValueType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>#");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>+");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>#");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>#");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <integer>#");
+		assertMatch(Match.TRUE, val, "<length-percentage>#");
+		assertMatch(Match.FALSE, val, "<length>+");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -572,27 +480,16 @@ public class CalcValueTest {
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <integer>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "<length-percentage>+");
+		assertMatch(Match.TRUE, val, "<length-percentage>#");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -603,27 +500,16 @@ public class CalcValueTest {
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <integer>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>+");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>#");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.FALSE, val, "<custom-ident> | <integer>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<percentage>+");
+		assertMatch(Match.TRUE, val, "<percentage>#");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -633,19 +519,12 @@ public class CalcValueTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PERCENTAGE, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.TRUE, val, "<percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -655,19 +534,12 @@ public class CalcValueTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PERCENTAGE, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.TRUE, val, "<percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -677,17 +549,11 @@ public class CalcValueTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -699,21 +565,13 @@ public class CalcValueTest {
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_DEG, ((ExpressionValue) val).computeUnitType());
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<angle> | <length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle> | <length>");
+		assertMatch(Match.FALSE, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -725,21 +583,13 @@ public class CalcValueTest {
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_S, ((ExpressionValue) val).computeUnitType());
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<time> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <time> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<time>");
+		assertMatch(Match.TRUE, val, "<time> | <length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <time> | <length>");
+		assertMatch(Match.FALSE, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -751,21 +601,13 @@ public class CalcValueTest {
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_DPI, ((ExpressionValue) val).computeUnitType());
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<resolution>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<resolution> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <resolution> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<resolution>");
+		assertMatch(Match.TRUE, val, "<resolution> | <length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <resolution> | <length>");
+		assertMatch(Match.FALSE, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -778,19 +620,12 @@ public class CalcValueTest {
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_INVALID, ((ExpressionValue) val).computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle> | <length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.FALSE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<angle> | <length>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.FALSE, val, "*");
 	}
 
 	@Test
@@ -827,13 +662,9 @@ public class CalcValueTest {
 		CalcValue calc = (CalcValue) val;
 		assertEquals(CSSUnit.CSS_NUMBER, calc.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -847,13 +678,9 @@ public class CalcValueTest {
 		CalcValue calc = (CalcValue) val;
 		assertEquals(CSSUnit.CSS_NUMBER, calc.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -876,19 +703,12 @@ public class CalcValueTest {
 		assertEquals("calc(var(--bar, 0.3rem))", val.getCssText());
 		assertEquals("calc(var(--bar,0.3rem))", val.getMinifiedCssText("margin-left"));
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.PENDING, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage> | <length>");
-		assertEquals(Match.PENDING, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.PENDING, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.PENDING, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.PENDING, val, "<length>");
+		assertMatch(Match.PENDING, val, "<percentage> | <length>");
+		assertMatch(Match.PENDING, val, "<percentage>");
+		assertMatch(Match.PENDING, val, "<length-percentage>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -1070,19 +890,12 @@ public class CalcValueTest {
 		assertEquals("calc(attr(start type(<integer>), 1) - 1)", val.getCssText());
 		assertEquals("calc(attr(start type(<integer>),1) - 1)", val.getMinifiedCssText("line-height"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -1095,20 +908,12 @@ public class CalcValueTest {
 		assertEquals("calc(attr(data-lh type(<number>), 1) + 1)", val.getCssText());
 		assertEquals("calc(attr(data-lh type(<number>),1) + 1)", val.getMinifiedCssText("line-height"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn;
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <number>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<integer>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -1121,19 +926,12 @@ public class CalcValueTest {
 		assertEquals("calc(attr(data-lh type(<length>), 1em) + 1ex)", val.getCssText());
 		assertEquals("calc(attr(data-lh type(<length>),1em) + 1ex)", val.getMinifiedCssText("line-height"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
+		assertMatch(Match.FALSE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -1146,19 +944,12 @@ public class CalcValueTest {
 		assertEquals("calc(attr(data-lh ex, 1em) + 1ex)", val.getCssText());
 		assertEquals("calc(attr(data-lh ex,1em) + 1ex)", val.getMinifiedCssText("line-height"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.FALSE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -1171,23 +962,35 @@ public class CalcValueTest {
 		assertEquals("calc(attr(data-lh %, 1em) + 1ex)", val.getCssText());
 		assertEquals("calc(attr(data-lh %,1em) + 1ex)", val.getMinifiedCssText("line-height"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.PENDING, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.PENDING, val, "<length>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
-	public void testSetCssTextSubExpressionAttributeLengthPercentage2() {
+	public void testSetCssTextSubExpressionAttributeLengthPercentageMixPcnt() {
+		style.setCssText("line-height: calc(attr(data-lh %, 1em) + 1.1%);");
+		StyleValue val = style.getPropertyCSSValue("line-height");
+		assertNotNull(val);
+		assertEquals(CssType.PROXY, val.getCssValueType());
+		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
+		assertEquals("calc(attr(data-lh %, 1em) + 1.1%)", val.getCssText());
+		assertEquals("calc(attr(data-lh %,1em) + 1.1%)", val.getMinifiedCssText("line-height"));
+
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
+	public void testSetCssTextSubExpressionAttributeLengthPercentagePcntUnit() {
 		style.setCssText("line-height: calc(attr(data-lh %, 1%) + 2%);");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
@@ -1196,23 +999,17 @@ public class CalcValueTest {
 		assertEquals("calc(attr(data-lh %, 1%) + 2%)", val.getCssText());
 		assertEquals("calc(attr(data-lh %,1%) + 2%)", val.getMinifiedCssText("line-height"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.TRUE, val, "<percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
-	public void testSetCssTextSubExpressionAttributeLengthPercentage3() {
+	public void testSetCssTextSubExpressionAttributeLengthPercentagePcnt() {
 		style.setCssText("line-height: calc(attr(data-lh type(<percentage>), 1%) + 2%);");
 		StyleValue val = style.getPropertyCSSValue("line-height");
 		assertNotNull(val);
@@ -1222,19 +1019,13 @@ public class CalcValueTest {
 		assertEquals("calc(attr(data-lh type(<percentage>),1%) + 2%)",
 				val.getMinifiedCssText("line-height"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.TRUE, val, "<percentage>");
+		assertMatch(Match.FALSE, val, "<length>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -1248,19 +1039,12 @@ public class CalcValueTest {
 		assertEquals("calc(attr(data-az type(<angle>),1rad) + 25deg)",
 				val.getMinifiedCssText("azimuth"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <angle>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<angle>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <angle>");
+		assertMatch(Match.FALSE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -1274,19 +1058,12 @@ public class CalcValueTest {
 		assertEquals("calc(attr(data-pause type(<time>),1s) + 2/1hz)",
 				val.getMinifiedCssText("pause-after"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<time>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <time>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<integer>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<time>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <time>");
+		assertMatch(Match.FALSE, val, "<integer>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -1300,19 +1077,12 @@ public class CalcValueTest {
 		assertEquals("calc(attr(data-pitch type(<frequency>),1hz) + 1/25ms)",
 				val.getMinifiedCssText("pitch"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<frequency>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <frequency>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<time>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<frequency>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <frequency>");
+		assertMatch(Match.FALSE, val, "<time>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -1326,19 +1096,12 @@ public class CalcValueTest {
 		assertEquals("calc(1/attr(data-pitch type(<time>),1ms) + 1/0.0025s)",
 				val.getMinifiedCssText("pitch"));
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<frequency>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <frequency>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<time>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<color>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<frequency>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <frequency>");
+		assertMatch(Match.FALSE, val, "<time>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -1477,6 +1240,11 @@ public class CalcValueTest {
 		assertEquals(sum.getLength(), clonesum.getLength());
 		assertEquals(value.getCssText(), clon.getCssText());
 		assertTrue(value.equals(clon));
+	}
+
+	private void assertMatch(Match match, CSSValue value, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, value.matches(syn));
 	}
 
 }

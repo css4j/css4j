@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -42,8 +43,15 @@ import io.sf.carte.util.BufferSimpleWriter;
 
 public class FunctionValueTest {
 
+	private static SyntaxParser syntaxParser;
+
 	CSSStyleDeclarationRule styleRule;
 	BaseCSSStyleDeclaration style;
+
+	@BeforeAll
+	static void setUpBeforeAll() throws Exception {
+		syntaxParser = new SyntaxParser();
+	}
 
 	@BeforeEach
 	public void setUp() {
@@ -98,7 +106,6 @@ public class FunctionValueTest {
 		assertFalse(value.equals(value2));
 		assertFalse(value.hashCode() == value2.hashCode());
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<transform-function>");
 		assertEquals(Match.TRUE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("<transform-list>");
@@ -133,15 +140,10 @@ public class FunctionValueTest {
 		} catch (NullPointerException e) {
 		}
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<transform-function>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<transform-function>");
+		assertMatch(Match.FALSE, val, "<number>#");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -156,15 +158,10 @@ public class FunctionValueTest {
 		assertEquals("bar(-0.42, -0.3, -1, -0.01)", val.getCssText());
 		assertEquals("bar(-.42,-.3,-1,-.01)", val.getMinifiedCssText("foo"));
 		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<transform-function>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>#");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.FALSE, val, "<transform-function>");
+		assertMatch(Match.FALSE, val, "<number>#");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -404,6 +401,11 @@ public class FunctionValueTest {
 		assertEquals(args, clonargs);
 		assertEquals(value.getCssText(), clon.getCssText());
 		assertTrue(value.equals(clon));
+	}
+
+	private void assertMatch(Match match, CSSValue value, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, value.matches(syn));
 	}
 
 }

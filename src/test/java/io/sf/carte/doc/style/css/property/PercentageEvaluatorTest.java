@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
@@ -30,17 +31,19 @@ import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
+public class PercentageEvaluatorTest {
 
-class PercentageEvaluatorTest {
+	private static SyntaxParser syntaxParser;
 
 	private static AbstractCSSStyleSheet sheet;
 	private BaseCSSStyleDeclaration style;
 	private PercentageEvaluator evaluator;
 
 	@BeforeAll
-	static void setUpBeforeClass() throws Exception {
+	static void setUpBeforeAll() throws Exception {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		sheet = factory.createStyleSheet(null, null);
+		syntaxParser = new SyntaxParser();
 	}
 
 	@BeforeEach
@@ -72,15 +75,10 @@ class PercentageEvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PERCENTAGE, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <percentage>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "*");
 
 		assertTrue(1.2f == evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PERCENTAGE));
 	}
@@ -92,17 +90,11 @@ class PercentageEvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PERCENTAGE, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <percentage>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "*");
 
 		assertEquals(3.6f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5f);
 	}
@@ -114,17 +106,11 @@ class PercentageEvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_PERCENTAGE, val.computeUnitType());
 
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<custom-ident> | <percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<number>");
-		assertEquals(Match.FALSE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("<length-percentage>");
-		assertEquals(Match.TRUE, val.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, val.matches(syn));
+		assertMatch(Match.TRUE, val, "<percentage>");
+		assertMatch(Match.TRUE, val, "<custom-ident> | <percentage>");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "*");
 
 		assertEquals(3f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_PERCENTAGE), 1e-5f);
 	}
@@ -137,6 +123,11 @@ class PercentageEvaluatorTest {
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
 		assertEquals(1f, evaluator.evaluateFunction(val).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
+	}
+
+	private void assertMatch(Match match, CSSValue value, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, value.matches(syn));
 	}
 
 }
