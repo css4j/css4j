@@ -60,6 +60,7 @@ public final class ShorthandDatabase {
 	 * load files from classpath.
 	 * 
 	 * @param loader the loader.
+	 * @deprecated See {@link #getInstance(ClassLoader)}
 	 */
 	public ShorthandDatabase(ClassLoader loader) {
 		super();
@@ -91,6 +92,16 @@ public final class ShorthandDatabase {
 	 */
 	public static ShorthandDatabase getInstance() {
 		return singleton;
+	}
+
+	/**
+	 * Gets an instance of this class that uses the given classloader.
+	 * 
+	 * @param loader the loader.
+	 * @return an instance of ShorthandDatabase.
+	 */
+	public static ShorthandDatabase getInstance(ClassLoader loader) {
+		return new ShorthandDatabase(loader);
 	}
 
 	/**
