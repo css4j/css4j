@@ -684,7 +684,8 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		return propValue;
 	}
 
-	private static class CSSFontFeatureValuesMapImpl implements CSSFontFeatureValuesMap, java.io.Serializable {
+	private static class CSSFontFeatureValuesMapImpl
+			implements CSSFontFeatureValuesMap, Cloneable, java.io.Serializable {
 
 		private static final long serialVersionUID = 1L;
 
