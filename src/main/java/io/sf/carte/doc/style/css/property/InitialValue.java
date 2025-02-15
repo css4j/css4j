@@ -29,7 +29,7 @@ public class InitialValue extends KeywordValue {
 	 * Must access instance through static method.
 	 *
 	 */
-	protected InitialValue() {
+	private InitialValue() {
 		super();
 	}
 

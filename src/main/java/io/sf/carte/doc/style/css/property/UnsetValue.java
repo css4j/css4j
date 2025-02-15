@@ -29,7 +29,7 @@ public class UnsetValue extends KeywordValue {
 	 * Must access instance through static method.
 	 *
 	 */
-	protected UnsetValue() {
+	private UnsetValue() {
 		super();
 	}
 

@@ -29,7 +29,7 @@ public class RevertValue extends KeywordValue {
 	 * Must access instance through static method.
 	 *
 	 */
-	protected RevertValue() {
+	private RevertValue() {
 		super();
 	}
 

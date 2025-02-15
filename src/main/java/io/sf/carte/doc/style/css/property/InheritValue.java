@@ -29,7 +29,7 @@ public class InheritValue extends KeywordValue {
 	 * Must access instance through static method.
 	 *
 	 */
-	protected InheritValue() {
+	private InheritValue() {
 		super();
 	}
 

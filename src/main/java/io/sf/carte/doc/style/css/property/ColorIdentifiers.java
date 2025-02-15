@@ -31,7 +31,7 @@ public class ColorIdentifiers {
 	private final Map<String, String> colorKeywords = new HashMap<>(147);
 	private final HashSet<String> systemColors = new HashSet<>();
 
-	public ColorIdentifiers() {
+	private ColorIdentifiers() {
 		super();
 		colorKeywords.put("aliceblue", "#f0f8ff");
 		colorKeywords.put("antiquewhite", "#faebd7");

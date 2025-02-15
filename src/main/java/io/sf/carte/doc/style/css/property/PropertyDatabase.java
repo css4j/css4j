@@ -39,7 +39,7 @@ public final class PropertyDatabase {
 	/**
 	 * Construct a property database.
 	 */
-	PropertyDatabase() {
+	private PropertyDatabase() {
 		super();
 		/*
 		 * Inherited properties
