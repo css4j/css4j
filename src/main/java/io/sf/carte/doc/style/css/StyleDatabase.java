@@ -163,21 +163,24 @@ public interface StyleDatabase {
 	/**
 	 * Gets the size corresponding to the given identifier (thin, thick, medium), in
 	 * typographic points.
+	 * <p>
+	 * See CSSWG issue #7254.
+	 * </p>
 	 *
 	 * @param widthIdentifier the CSS width identifier.
 	 * @param fontSize        the font size used by the box, in typographic points.
 	 * @return the size.
 	 * @throws DOMException if the identifier is unknown.
+	 * @deprecated Since May 2022 the identifiers have a fixed value (CSSWG issue #7254).
 	 */
+	@Deprecated
 	default float getWidthSize(String widthIdentifier, float fontSize) throws DOMException {
-		// Normalize to device resolution
-		float factor = Math.max(0.62f, getDeviceWidth() / 595f);
 		if ("thin".equalsIgnoreCase(widthIdentifier)) {
-			return 1f + factor;
+			return 0.75f; // 1px
 		} else if ("thick".equalsIgnoreCase(widthIdentifier)) {
-			return 1f + 4f * factor;
+			return 3.75f; // 5px
 		} else if ("medium".equalsIgnoreCase(widthIdentifier)) {
-			return 1f + 2f * factor;
+			return 2.25f; // 3px
 		} else {
 			throw new DOMException(DOMException.SYNTAX_ERR,
 				"Unknown identifier " + widthIdentifier);

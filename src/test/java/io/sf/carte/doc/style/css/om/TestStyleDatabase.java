@@ -134,20 +134,6 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 	}
 
 	@Override
-	public float getWidthSize(String widthIdentifier, float fontSize) throws DOMException {
-		float factor = 0.62f;
-		if ("thin".equals(widthIdentifier)) {
-			return 0.5f * factor;
-		} else if ("thick".equals(widthIdentifier)) {
-			return 2f * factor;
-		} else if ("medium".equals(widthIdentifier)) {
-			return 1f * factor;
-		} else {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Unknown identifier " + widthIdentifier);
-		}
-	}
-
-	@Override
 	public short getNaturalUnit() {
 		return CSSUnit.CSS_PT;
 	}

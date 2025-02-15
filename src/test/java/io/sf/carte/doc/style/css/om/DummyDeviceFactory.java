@@ -119,19 +119,6 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
-		public float getWidthSize(String widthIdentifier, float fontSize) throws DOMException {
-			if ("thin".equals(widthIdentifier)) {
-				return 0.5f;
-			} else if ("thick".equals(widthIdentifier)) {
-				return 2f;
-			} else if ("medium".equals(widthIdentifier)) {
-				return 1f;
-			} else {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Unknown identifier " + widthIdentifier);
-			}
-		}
-
-		@Override
 		public int getColorDepth() {
 			return 24;
 		}
