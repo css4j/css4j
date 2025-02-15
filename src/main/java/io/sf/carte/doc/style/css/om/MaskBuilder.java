@@ -17,11 +17,7 @@ import java.util.Set;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
-import io.sf.carte.doc.style.css.CSSValueSyntax;
-import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.DeclarationFormattingContext;
-import io.sf.carte.doc.style.css.parser.SyntaxParser;
-import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -31,9 +27,6 @@ import io.sf.carte.util.BufferSimpleWriter;
  * Build a mask shorthand from individual properties.
  */
 class MaskBuilder extends ShorthandBuilder {
-
-	private static CSSValueSyntax lengthPercentage = new SyntaxParser()
-		.parseSyntax("<length-percentage>");
 
 	private StyleValue mskimage;
 	private StyleValue mskposition;
@@ -153,6 +146,7 @@ class MaskBuilder extends ShorthandBuilder {
 		if (isCssValueOfType(keyword, mskmode)) {
 			ucount++;
 		}
+
 		switch (ucount) {
 		case 0:
 			return 0;
@@ -174,9 +168,11 @@ class MaskBuilder extends ShorthandBuilder {
 
 	private boolean appendLayered(StringBuilder buf, Set<String> declaredSet, int listlen) {
 		int szm1 = listlen - 1;
+
 		if (!appendLayer(buf, declaredSet, 0, szm1)) {
 			return false;
 		}
+
 		for (int i = 1; i <= szm1; i++) {
 			appended = false;
 			buf.append(',');
@@ -184,6 +180,7 @@ class MaskBuilder extends ShorthandBuilder {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -193,6 +190,7 @@ class MaskBuilder extends ShorthandBuilder {
 				&& !appendImage(buf, ((ValueList) mskimage).item(index))) {
 			return false;
 		}
+
 		ValueList list = (ValueList) mskposition;
 		StyleValue posval;
 		if (declaredSet.contains("mask-position")) {
@@ -200,19 +198,23 @@ class MaskBuilder extends ShorthandBuilder {
 		} else {
 			posval = null;
 		}
+
 		StyleValue sizeval;
 		if (declaredSet.contains("mask-size")) {
 			sizeval = ((ValueList) msksize).item(index);
 		} else {
 			sizeval = null;
 		}
+
 		if (!appendPositionSize(buf, posval, sizeval)) {
 			return false;
 		}
+
 		if (declaredSet.contains("mask-repeat")
 			&& !appendRepeat(buf, ((ValueList) mskrepeat).item(index))) {
 			return false;
 		}
+
 		boolean bcset = declaredSet.contains("mask-clip");
 		if (declaredSet.contains("mask-origin") || bcset) {
 			StyleValue origin = ((ValueList) mskorigin).item(index);
@@ -226,22 +228,26 @@ class MaskBuilder extends ShorthandBuilder {
 				return false;
 			}
 		}
+
 		if (declaredSet.contains("mask-composite")) {
 			list = (ValueList) mskcomposite;
 			if (!appendNonInheritedPty(buf, list.item(index), "mask-composite")) {
 				return false;
 			}
 		}
+
 		if (declaredSet.contains("mask-mode")) {
 			list = (ValueList) mskmode;
 			if (!appendNonInheritedPty(buf, list.item(index), "mask-mode")) {
 				return false;
 			}
 		}
+
 		int buflen = buf.length();
 		if (buflen == 5 || buf.charAt(buflen - 1) == ',') {
 			buf.append("none");
 		}
+
 		return true;
 	}
 
@@ -252,19 +258,23 @@ class MaskBuilder extends ShorthandBuilder {
 		} else {
 			posval = null;
 		}
+
 		StyleValue sizeval;
 		if (declaredSet.contains("mask-size")) {
 			sizeval = valueOrFirstItem(msksize);
 		} else {
 			sizeval = null;
 		}
+
 		if (!appendPositionSize(buf, posval, sizeval)) {
 			return false;
 		}
+
 		if (declaredSet.contains("mask-repeat")
 			&& !appendRepeat(buf, valueOrFirstItem(mskrepeat))) {
 			return false;
 		}
+
 		boolean bcset = declaredSet.contains("mask-clip");
 		if (declaredSet.contains("mask-origin") || bcset) {
 			StyleValue origin = valueOrFirstItem(mskorigin);
@@ -278,14 +288,17 @@ class MaskBuilder extends ShorthandBuilder {
 				return false;
 			}
 		}
+
 		if (declaredSet.contains("mask-composite")
 			&& !appendNonInheritedPty(buf, valueOrFirstItem(mskcomposite), "mask-composite")) {
 			return false;
 		}
+
 		if (declaredSet.contains("mask-mode")
 			&& !appendNonInheritedPty(buf, valueOrFirstItem(mskmode), "mask-mode")) {
 			return false;
 		}
+
 		return true;
 	}
 
@@ -329,10 +342,7 @@ class MaskBuilder extends ShorthandBuilder {
 		} else if (category == CssType.KEYWORD) {
 			return true;
 		}
-		if (value.getPrimitiveType() == Type.LEXICAL
-			&& ((LexicalValue) value).getFinalType() == Type.GRADIENT) {
-			return true;
-		}
+
 		return false;
 	}
 
@@ -361,14 +371,18 @@ class MaskBuilder extends ShorthandBuilder {
 					}
 					appended = true;
 				}
+			} else if (type == CssType.PROXY) {
+				return false;
 			}
 		}
+
 		// Background-size
 		if (sizevalue != null) {
-			if (!isRevertValue(sizevalue) && !isUnknownIdentifier("mask-size", sizevalue)) {
+			if (!isRevertValue(sizevalue) && !isUnknownIdentifier("mask-size", sizevalue)
+					&& sizevalue.getCssValueType() != CssType.PROXY) {
 				String text = sizevalue.getMinifiedCssText("mask-size").toLowerCase(Locale.ROOT);
 				if (!"auto".equals(text) && !"auto auto".equals(text) && !"initial".equals(text)
-					&& !"unset".equals(text)) {
+						&& !"unset".equals(text)) {
 					if (!appended) {
 						if (posvalue == null) {
 							posvalue = getCSSValue("mask-position");
@@ -382,9 +396,11 @@ class MaskBuilder extends ShorthandBuilder {
 				return false;
 			}
 		}
+
 		if (appended) {
 			this.appended = true;
 		}
+
 		return true;
 	}
 
@@ -425,13 +441,12 @@ class MaskBuilder extends ShorthandBuilder {
 	}
 
 	private boolean appendNonInheritedPty(StringBuilder buf, StyleValue value,
-		String propertyName) {
+			String propertyName) {
 		if (!isRevertValue(value) && !isUnknownIdentifier(propertyName, value)
-			&& (value.getCssValueType() != CSSValue.CssType.PROXY
-				|| value.matches(lengthPercentage) == Match.TRUE)) {
+				&& value.getCssValueType() != CSSValue.CssType.PROXY) {
 			String text = value.getMinifiedCssText(propertyName).toLowerCase(Locale.ROOT);
 			if (isNotInitialValue(value, propertyName) && !"initial".equals(text)
-				&& !"unset".equals(text)) {
+					&& !"unset".equals(text)) {
 				appendText(buf, text);
 			}
 		} else {
@@ -447,36 +462,67 @@ class MaskBuilder extends ShorthandBuilder {
 		 * the second mask-clip."
 		 */
 		boolean clipIsInitial;
-		String cliptext = null;
+		String clipText;
 		if (clip == null) {
 			clipIsInitial = true;
+			clipText = "border-box";
 		} else {
-			cliptext = clip.getMinifiedCssText("mask-clip").toLowerCase(Locale.ROOT);
-			if ("border-box".equals(cliptext) || "initial".equals(cliptext)
-				|| "unset".equals(cliptext)) {
-				clipIsInitial = true;
+			if (clip.getCssValueType() == CssType.KEYWORD) {
+				switch (clip.getPrimitiveType()) {
+				case INITIAL:
+				case UNSET:
+					clipIsInitial = true;
+					// Use a canonical initial value
+					clipText = "border-box";
+					break;
+				default:
+					// inherit, revert
+					return false;
+				}
 			} else {
-				clipIsInitial = false;
+				clipText = clip.getMinifiedCssText().toLowerCase(Locale.ROOT);
+				clipIsInitial = "border-box".equals(clipText);
 			}
 		}
-		String originText = origin.getCssText().toLowerCase(Locale.ROOT);
-		if (isIdentOrKeyword(origin) && !isRevertValue(origin)
-			&& !isUnknownIdentifier("mask-origin", origin)) {
-			if ((clip != null && !clipIsInitial) || (!"border-box".equals(originText)
-				&& !"initial".equals(originText) && !"unset".equals(originText))) {
+
+		boolean originIsInitial;
+		String originText;
+		if (origin == null) {
+			originIsInitial = true;
+			originText = "border-box";
+		} else {
+			if (origin.getCssValueType() == CssType.KEYWORD) {
+				switch (origin.getPrimitiveType()) {
+				case INITIAL:
+				case UNSET:
+					originIsInitial = true;
+					// Use a canonical initial value
+					originText = "border-box";
+					break;
+				default:
+					// inherit, revert
+					return false;
+				}
+			} else {
+				originText = origin.getMinifiedCssText().toLowerCase(Locale.ROOT);
+				originIsInitial = "border-box".equals(originText);
+			}
+		}
+
+		if (!originIsInitial || !clipIsInitial) {
+			if (getShorthandDatabase().isIdentifierValue("mask-origin", originText)
+					&& getShorthandDatabase().isIdentifierValue("mask-clip", clipText)) {
+				// origin always first
 				appendText(buf, originText);
+				if (!originText.equals(clipText)) {
+					// append clip if different from origin
+					appendText(buf, clipText);
+				}
+			} else {
+				return false;
 			}
-		} else {
-			return false;
 		}
-		if (isIdentOrKeyword(clip) && !isRevertValue(clip)
-			&& !isUnknownIdentifier("mask-clip", clip)) {
-			if (!clipIsInitial && !originText.equalsIgnoreCase(cliptext)) {
-				appendText(buf, cliptext);
-			}
-		} else {
-			return false;
-		}
+
 		return true;
 	}
 

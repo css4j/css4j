@@ -2709,6 +2709,46 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
+	public void testBackgroundVarSize() {
+		emptyStyleDecl.setCssText(
+				"background: url('bkg.png') 40%/var(--width,10em) gray round fixed border-box");
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals(
+				"background: url('bkg.png') 40%/var(--width, 10em) gray round fixed border-box; ",
+				emptyStyleDecl.getCssText());
+		assertEquals(
+				"background:url('bkg.png') 40%/var(--width,10em) gray round fixed border-box;",
+				emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testBackgroundVarColor() {
+		emptyStyleDecl.setCssText(
+				"background:url('bkg.png') 40%/10em var(--my-color,gray) round fixed border-box;");
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-size"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-color"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-origin"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-clip"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-attachment"));
+		assertEquals("", emptyStyleDecl.getPropertyValue("background-repeat"));
+		assertEquals(
+				"background: url('bkg.png') 40%/10em var(--my-color, gray) round fixed border-box; ",
+				emptyStyleDecl.getCssText());
+		assertEquals(
+				"background:url('bkg.png') 40%/10em var(--my-color,gray) round fixed border-box;",
+				emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
 	public void testBackgroundBad() {
 		emptyStyleDecl.setCssText("background: url('bkg.png') 40% / 10em gray round fixed border-box, url('foo.png');");
 		assertEquals("", emptyStyleDecl.getPropertyValue("background-image"));

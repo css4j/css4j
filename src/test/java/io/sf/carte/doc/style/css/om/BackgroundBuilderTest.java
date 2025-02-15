@@ -46,7 +46,7 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundLayeredMixVar() {
 		assertShorthandText(
-				"background:linear-gradient(to right,currentColor var(--foo,0),transparent var(--foo,0)) 0 0;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:linear-gradient(to right,currentColor var(--foo,0),transparent var(--foo,0));background-origin:padding-box;background-position:0 0;background-repeat:repeat;background-size:auto auto;",
 				"background: 0 0;background-image: linear-gradient(to right, currentColor var(--foo, 0), transparent var(--foo, 0))");
 	}
 
@@ -148,9 +148,100 @@ public class BackgroundBuilderTest {
 	}
 
 	@Test
+	public void testBackgroundContentB() {
+		assertShorthandText("background:url('bkg.png') calc(2*2%) calc(3*1%) no-repeat content-box;",
+				"background: url('bkg.png') calc(2*2%) calc(3*1%) content-box no-repeat no-repeat;");
+	}
+
+	@Test
+	public void testBackgroundPaddingB() {
+		assertShorthandText("background:url('bkg.png') space padding-box;",
+				"background: url('bkg.png') 0% 0% padding-box space space;");
+	}
+
+	@Test
+	public void testBackgroundContentBPaddingB() {
+		assertShorthandText("background:url('bkg.png') top round content-box padding-box;",
+				"background: url('bkg.png') top Center content-box padding-box round round;");
+	}
+
+	@Test
+	public void testBackgroundBorderBBorderB() {
+		assertShorthandText("background:url('bkg.png') 25% repeat-x border-box;",
+				"background: url('bkg.png') 25% border-box border-box repeat no-repeat;");
+	}
+
+	@Test
+	public void testBackgroundBorderBPaddingB() {
+		assertShorthandText("background:url('bkg.png') top right 5px repeat-y border-box padding-box;",
+				"background: url('bkg.png') top right 5px border-box padding-box no-repeat repeat;");
+	}
+
+	@Test
+	public void testBackgroundPaddingBBorderB() {
+		assertShorthandText("background:url('bkg.png') round space local;",
+				"background: url('bkg.png') left top round space padding-box border-box local;");
+	}
+
+	@Test
+	public void testBackgroundBorderBText() {
+		assertShorthandText("background:url('bkg.png') bottom 1px right 2px border-box text;",
+				"background: url('bkg.png') bottom 1px right 2px repeat repeat border-box text scroll rgba(0,0,0,0);");
+	}
+
+	@Test
+	public void testBackgroundBorderPos3Items() {
+		assertShorthandText("background:url('bkg.png') bottom 1px right repeat-x border-box text;",
+				"background: url('bkg.png') bottom 1px right repeat-x border-box text;");
+	}
+
+	@Test
+	public void testBackgroundVarImage() {
+		assertShorthandText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:var(--my-value);background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
+				"background: url('bkg.png');background-image:var(--my-value)");
+	}
+
+	@Test
+	public void testBackgroundVarAttachment() {
+		assertShorthandText(
+				"background-attachment:var(--my-value);background-clip:border-box;background-color:transparent;background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
+				"background: url('bkg.png');background-attachment:var(--my-value)");
+	}
+
+	@Test
+	public void testBackgroundVarRepeat() {
+		assertShorthandText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:var(--my-value);background-size:auto auto;",
+				"background: url('bkg.png');background-repeat:var(--my-value)");
+	}
+
+	@Test
+	public void testBackgroundVarPosition() {
+		assertShorthandText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('bkg.png');background-origin:padding-box;background-position:var(--value);background-repeat:repeat;background-size:auto auto;",
+				"background: url('bkg.png');background-position:var(--value)");
+	}
+
+	@Test
+	public void testBackgroundVarClip() {
+		assertShorthandText(
+				"background-attachment:scroll;background-clip:var(--my-value);background-color:transparent;background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
+				"background: url('bkg.png');background-clip:var(--my-value)");
+	}
+
+	@Test
 	public void testBackgroundVarSize() {
-		assertShorthandText("background:url('bkg.png') 40%/var(--width,10em) gray round fixed border-box;",
-				"background: url('bkg.png') 40% / var(--width,10em) gray round fixed border-box;");
+		assertShorthandText(
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:var(--width);",
+				"background: url('bkg.png');background-size:var(--width)");
+	}
+
+	@Test
+	public void testBackgroundVarColor() {
+		assertShorthandText(
+				"background-attachment:scroll;background-clip:border-box;background-color:var(--my-color);background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
+				"background: url('bkg.png');background-color:var(--my-color)");
 	}
 
 	@Test

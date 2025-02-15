@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Locale;
 import java.util.Set;
 
-import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
@@ -22,11 +21,8 @@ import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.DeclarationFormattingContext;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
-import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -133,6 +129,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		if (check == 2) {
 			return 2;
 		}
+
 		if (isInherit(bcolor)) {
 			if (check == 0) {
 				return 2;
@@ -140,6 +137,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		} else if (check == 1) {
 			return 2;
 		}
+
 		return check;
 	}
 
@@ -167,6 +165,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		if (isInherit(borigin)) {
 			count++;
 		}
+
 		switch (count) {
 		case 0:
 			return 0;
@@ -219,6 +218,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		if (isCssValueOfType(keyword, getCSSValue("background-color"))) {
 			ucount++;
 		}
+
 		switch (ucount) {
 		case 0:
 			return 0;
@@ -253,6 +253,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		if (isCssValueOfType(keyword, ((ValueList) bgorigin).item(layerIdx))) {
 			ucount++;
 		}
+
 		final byte fullset;
 		if (layerIdx != lastIndex) {
 			fullset = 6;
@@ -262,6 +263,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 				ucount++;
 			}
 		}
+
 		if (ucount == 0) {
 			return 0;
 		} else if (ucount == fullset) {
@@ -286,9 +288,11 @@ class BackgroundBuilder extends ShorthandBuilder {
 
 	private boolean appendLayeredBackground(StringBuilder buf, Set<String> declaredSet, int listlen) {
 		int szm1 = listlen - 1;
+
 		if (!appendLayer(buf, declaredSet, 0, szm1)) {
 			return false;
 		}
+
 		for (int i = 1; i <= szm1; i++) {
 			appended = false;
 			buf.append(',');
@@ -296,6 +300,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -307,6 +312,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		} else if (check == 2) {
 			return false;
 		}
+
 		check = checkForRevert(index, lastIndex);
 		if (check == 1) {
 			appendText(buf, "revert");
@@ -314,10 +320,12 @@ class BackgroundBuilder extends ShorthandBuilder {
 		} else if (check == 2) {
 			return false;
 		}
+
 		if (declaredSet.contains("background-image")
 				&& !appendBackgroundImage(buf, ((ValueList) bgimage).item(index))) {
 			return false;
 		}
+
 		ValueList list = (ValueList) bgposition;
 		StyleValue posval;
 		if (declaredSet.contains("background-position")) {
@@ -325,25 +333,30 @@ class BackgroundBuilder extends ShorthandBuilder {
 		} else {
 			posval = null;
 		}
+
 		StyleValue sizeval;
 		if (declaredSet.contains("background-size")) {
 			sizeval = ((ValueList) bgsize).item(index);
 		} else {
 			sizeval = null;
 		}
+
 		if (!appendBackgroundPositionSize(buf, posval, sizeval)) {
 			return false;
 		}
+
 		if (declaredSet.contains("background-repeat")
 				&& !appendBackgroundRepeat(buf, ((ValueList) bgrepeat).item(index))) {
 			return false;
 		}
+
 		if (declaredSet.contains("background-attachment")) {
 			list = (ValueList) bgattachment;
 			if (!appendBackgroundAttachment(buf, list.item(index))) {
 				return false;
 			}
 		}
+
 		boolean bcset = declaredSet.contains("background-clip");
 		if (declaredSet.contains("background-origin") || bcset) {
 			StyleValue origin = ((ValueList) bgorigin).item(index);
@@ -357,14 +370,17 @@ class BackgroundBuilder extends ShorthandBuilder {
 				return false;
 			}
 		}
+
 		if (declaredSet.contains("background-color") && index == lastIndex
 				&& !appendBackgroundColor(buf, getCSSValue("background-color"))) {
 			return false;
 		}
+
 		int buflen = buf.length();
 		if (buflen == 11 || buf.charAt(buflen - 1) == ',') {
 			buf.append("none");
 		}
+
 		return true;
 	}
 
@@ -375,21 +391,26 @@ class BackgroundBuilder extends ShorthandBuilder {
 		} else {
 			posval = null;
 		}
+
 		StyleValue sizeval;
 		if (declaredSet.contains("background-size")) {
 			sizeval = valueOrFirstItem(bgsize);
 		} else {
 			sizeval = null;
 		}
+
 		if (!appendBackgroundPositionSize(buf, posval, sizeval)) {
 			return false;
 		}
+
 		if (declaredSet.contains("background-repeat") && !appendBackgroundRepeat(buf, valueOrFirstItem(bgrepeat))) {
 			return false;
 		}
+
 		if (declaredSet.contains("background-attachment") && !appendBackgroundAttachment(buf, valueOrFirstItem(bgattachment))) {
 			return false;
 		}
+
 		boolean bcset = declaredSet.contains("background-clip");
 		if (declaredSet.contains("background-origin") || bcset) {
 			StyleValue origin = valueOrFirstItem(bgorigin);
@@ -403,6 +424,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 				return false;
 			}
 		}
+
 		if (declaredSet.contains("background-color")) {
 			StyleValue value = getCSSValue("background-color");
 			if (value.getCssValueType() == CssType.LIST) {
@@ -410,6 +432,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 			}
 			return appendBackgroundColor(buf, value);
 		}
+
 		return true;
 	}
 
@@ -445,10 +468,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		} else if (category == CssType.KEYWORD) {
 			return true;
 		}
-		if (value.getPrimitiveType() == Type.LEXICAL
-				&& ((LexicalValue) value).getFinalType() == Type.GRADIENT) {
-			return true;
-		}
+
 		return false;
 	}
 
@@ -475,13 +495,15 @@ class BackgroundBuilder extends ShorthandBuilder {
 					return false;
 				}
 				if (!"0% 0%".equals(text) && !"left top".equals(text) && !"top left".equals(text)) {
-					if (list.getLength() != 2 || !"center".equals(list.item(1).getCssText())) {
+					if (list.getLength() != 2 || !"center".equalsIgnoreCase(list.item(1).getCssText())) {
 						appendText(buf, text);
 					} else {
 						appendText(buf, list.item(0).getCssText());
 					}
 					appended = true;
 				}
+			} else if (type == CssType.PROXY) {
+				return false;
 			}
 		}
 
@@ -489,18 +511,17 @@ class BackgroundBuilder extends ShorthandBuilder {
 		if (sizevalue != null) {
 			// Sanity check
 			if (isRevertValue(sizevalue) || isUnknownIdentifier("background-size", sizevalue)
-				|| (sizevalue.getCssValueType() == CSSValue.CssType.PROXY
-					&& sizevalue.matches(lengthPercentage) != Match.TRUE)) {
+				|| sizevalue.getCssValueType() == CSSValue.CssType.PROXY) {
 				return false;
 			}
-			String text = sizevalue.getMinifiedCssText("background-size").toLowerCase(Locale.ROOT);
+			String text = sizevalue.getMinifiedCssText().toLowerCase(Locale.ROOT);
 			if (!"auto".equals(text) && !"auto auto".equals(text) && !"initial".equals(text)
 				&& !"unset".equals(text)) {
 				if (!appended) {
 					if (posvalue == null) {
 						posvalue = getCSSValue("background-position");
 					}
-					appendText(buf, posvalue.getMinifiedCssText("background-position"));
+					appendText(buf, posvalue.getMinifiedCssText());
 				}
 				buf.append('/').append(text);
 				appended = true;
@@ -551,7 +572,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 	private boolean appendBackgroundAttachment(StringBuilder buf, StyleValue value) {
 		if (isIdentOrKeyword(value) && !isRevertValue(value)
 			&& !isUnknownIdentifier("background-attachment", value)) {
-			String text = value.getMinifiedCssText("background-attachment")
+			String text = value.getMinifiedCssText()
 				.toLowerCase(Locale.ROOT);
 			if (!"scroll".equals(text) && !"initial".equals(text) && !"unset".equals(text)) {
 				appendText(buf, text);
@@ -563,51 +584,72 @@ class BackgroundBuilder extends ShorthandBuilder {
 	}
 
 	private boolean appendBackgroundOriginClip(StringBuilder buf, StyleValue origin,
-		StyleValue clip) {
+			StyleValue clip) {
 		/*
 		 * "If one <box> value is present then it sets both background-origin and
 		 * background-clip to that value. If two values are present, then the first sets
 		 * background-origin and the second background-clip."
 		 */
 		boolean clipIsInitial;
-		String clipText = null;
+		String clipText;
 		if (clip == null) {
 			clipIsInitial = true;
+			clipText = "border-box";
 		} else {
-			clipText = clip.getMinifiedCssText("background-clip").toLowerCase(Locale.ROOT);
-			if ("border-box".equals(clipText) || "initial".equals(clipText)
-				|| "unset".equals(clipText)) {
-				clipIsInitial = true;
+			if (clip.getCssValueType() == CssType.KEYWORD) {
+				switch (clip.getPrimitiveType()) {
+				case INITIAL:
+				case UNSET:
+					clipIsInitial = true;
+					// Use a canonical initial value
+					clipText = "border-box";
+					break;
+				default:
+					// inherit, revert
+					return false;
+				}
 			} else {
-				clipIsInitial = false;
+				clipText = clip.getMinifiedCssText().toLowerCase(Locale.ROOT);
+				clipIsInitial = "border-box".equals(clipText);
 			}
 		}
 
 		boolean originIsInitial;
-		String originText = "";
+		String originText;
 		if (origin == null) {
 			originIsInitial = true;
+			originText = "padding-box";
 		} else {
-			originText = origin.getMinifiedCssText("background-origin").toLowerCase(Locale.ROOT);
-			if ("padding-box".equals(originText) || "initial".equals(originText)
-				|| "unset".equals(originText)) {
-				originIsInitial = true;
+			if (origin.getCssValueType() == CssType.KEYWORD) {
+				switch (origin.getPrimitiveType()) {
+				case INITIAL:
+				case UNSET:
+					originIsInitial = true;
+					// Use a canonical initial value
+					originText = "padding-box";
+					break;
+				default:
+					// inherit, revert
+					return false;
+				}
 			} else {
-				originIsInitial = false;
+				originText = origin.getMinifiedCssText().toLowerCase(Locale.ROOT);
+				originIsInitial = "padding-box".equals(originText);
 			}
 		}
 
-		if (isIdentOrKeyword(origin) && !isRevertValue(origin)
-			&& !isUnknownIdentifier("background-origin", origin) && isIdentOrKeyword(clip)
-			&& !isRevertValue(clip) && !isUnknownIdentifier("background-clip", clip)) {
-			if (!originIsInitial || !clipIsInitial) {
+		if (!originIsInitial || !clipIsInitial) {
+			if (getShorthandDatabase().isIdentifierValue("background-origin", originText)
+					&& getShorthandDatabase().isIdentifierValue("background-clip", clipText)) {
+				// origin always first
 				appendText(buf, originText);
-				if (!originText.equalsIgnoreCase(clipText)) {
+				if (!originText.equals(clipText)) {
+					// append clip if different from origin
 					appendText(buf, clipText);
 				}
+			} else {
+				return false;
 			}
-		} else {
-			return false;
 		}
 
 		return true;
@@ -624,7 +666,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 				context.writeMinifiedValue(wri, "background-color", value);
 				text = sb.toString().toLowerCase(Locale.ROOT);
 			} catch (Exception e) {
-				text = value.getMinifiedCssText("background-color").toLowerCase(Locale.ROOT);
+				text = value.getMinifiedCssText().toLowerCase(Locale.ROOT);
 			}
 			if (!"transparent".equals(text) && !"rgba(0,0,0,0)".equals(text)
 				&& !"rgb(0 0 0/0)".equals(text) && !"initial".equals(text)
@@ -648,16 +690,6 @@ class BackgroundBuilder extends ShorthandBuilder {
 			if (ptype == Type.IDENT) {
 				String s = primi.getStringValue().toLowerCase(Locale.ROOT);
 				return ColorIdentifiers.getInstance().isColorIdentifier(s);
-			} else if (ptype == Type.LEXICAL) {
-				LexicalUnit var = ((CSSLexicalValue) primi).getLexicalUnit();
-				if (var.getLexicalUnitType() == LexicalType.VAR) {
-					LexicalUnit param = var.getParameters();
-					param = param.getNextLexicalUnit();
-					if (param != null && param.getLexicalUnitType() == LexicalType.OPERATOR_COMMA
-							&& (param = param.getNextLexicalUnit()) != null) {
-						return BaseCSSStyleDeclaration.testColor(param);
-					}
-				}
 			}
 		} else {
 			return value.getCssValueType() == CssType.KEYWORD;

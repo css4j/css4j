@@ -45,7 +45,7 @@ public class MaskBuilderTest {
 	@Test
 	public void testMaskLayeredMixVar() {
 		assertShorthandText(
-			"mask:linear-gradient(to right,currentColor var(--foo,0),no-repeat center var(--foo,0)) 0 0;",
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:linear-gradient(to right,currentColor var(--foo,0),no-repeat center var(--foo,0));mask-mode:match-source;mask-origin:border-box;mask-position:0 0;mask-repeat:repeat;mask-size:auto auto;",
 			"mask: 0 0;mask-image: linear-gradient(to right, currentColor var(--foo, 0), no-repeat center var(--foo, 0))");
 	}
 
@@ -372,10 +372,93 @@ public class MaskBuilderTest {
 	}
 
 	@Test
+	public void testMaskImageRepeat() {
+		assertShorthandText("mask:url('bkg.png') repeat-x;", "mask: url('bkg.png') repeat-x;");
+	}
+
+	@Test
+	public void testMaskImageOriginClipFBBB() {
+		assertShorthandText("mask:url('bkg.png') fill-box border-box;",
+				"mask: url('bkg.png') fill-box border-box;");
+	}
+
+	@Test
+	public void testMaskImageBorderBox() {
+		assertShorthandText("mask:url('bkg.png');", "mask: url('bkg.png') border-box;");
+	}
+
+	@Test
+	public void testMaskImageFillBox() {
+		assertShorthandText("mask:url('bkg.png') fill-box;", "mask: url('bkg.png') fill-box;");
+	}
+
+	@Test
+	public void testMaskImageStrokeBoxBorderBox() {
+		assertShorthandText("mask:url('bkg.png') round space stroke-box border-box;",
+				"mask: url('bkg.png') stroke-box border-box round space;");
+	}
+
+	@Test
 	public void testMaskImageVar() {
 		assertShorthandText(
 			"mask:linear-gradient(to bottom,var(--white) 0%,var(--grey) 66%,var(--black) 100%);",
 			"mask: linear-gradient(to bottom, var(--white) 0%, var(--grey) 66%, var(--black) 100%)");
+	}
+
+	@Test
+	public void testMaskVarImage() {
+		assertShorthandText(
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:var(--my-value);mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
+			"mask:url('bkg.png');mask-image:var(--my-value);");
+	}
+
+	@Test
+	public void testMaskVarOrigin() {
+		assertShorthandText(
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url('bkg.png');mask-mode:match-source;mask-origin:var(--my-value);mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
+			"mask:url('bkg.png');mask-origin:var(--my-value);");
+	}
+
+	@Test
+	public void testMaskVarClip() {
+		assertShorthandText(
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:var(--my-value);mask-composite:add;mask-image:url('bkg.png');mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
+			"mask:url('bkg.png');mask-clip:var(--my-value);");
+	}
+
+	@Test
+	public void testMaskVarComposite() {
+		assertShorthandText(
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:var(--my-value);mask-image:url('bkg.png');mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
+			"mask:url('bkg.png');mask-composite:var(--my-value);");
+	}
+
+	@Test
+	public void testMaskVarRepeat() {
+		assertShorthandText(
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url('bkg.png');mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:var(--my-value);mask-size:auto auto;",
+			"mask:url('bkg.png');mask-repeat:var(--my-value);");
+	}
+
+	@Test
+	public void testMaskVarMode() {
+		assertShorthandText(
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url('bkg.png');mask-mode:var(--my-value);mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
+			"mask:url('bkg.png');mask-mode:var(--my-value);");
+	}
+
+	@Test
+	public void testMaskVarPosition() {
+		assertShorthandText(
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url('bkg.png');mask-mode:match-source;mask-origin:border-box;mask-position:var(--my-value);mask-repeat:repeat;mask-size:auto auto;",
+			"mask:url('bkg.png');mask-position:var(--my-value);");
+	}
+
+	@Test
+	public void testMaskVarSize() {
+		assertShorthandText(
+			"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url('bkg.png');mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:var(--my-value);",
+			"mask:url('bkg.png');mask-size:var(--my-value);");
 	}
 
 	private void assertShorthandText(String expected, String original) {
