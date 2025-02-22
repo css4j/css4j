@@ -174,3 +174,10 @@ script. Commit the change and look for the completion of that project's CI.
 
 20) If there is a [Github milestone](https://github.com/css4j/css4j/milestones)
 about this release, close it.
+
+21) Once the release is considered finished and the various packages are available
+on the repositories, bump the `version` in the [`build.gradle`](build.gradle)
+file and add the `-SNAPSHOT` suffix. If the major version was bumped, make sure
+to change the `CSS4J_MAJOR_VERSION` constant located in [`AbstractUserAgent`](https://github.com/css4j/css4j/blob/master/src/main/java/io/sf/carte/doc/agent/AbstractUserAgent.java).
+Commit the result to the Git repository with the "Start new development cycle"
+description.

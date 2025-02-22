@@ -49,6 +49,10 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	private static final String HEADER_AGENT = "User-agent";
 
+	private static final String CSS4J_MAJOR_VERSION = "5";
+
+	private static final String DEFAULT_USER_AGENT_STRING = userAgentString();
+
 	private OriginPolicy originPolicy = null;
 
 	private final EnumSet<Parser.Flag> parserFlags = EnumSet.noneOf(Parser.Flag.class);
@@ -64,13 +68,52 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	private final Map<String, Set<AuthenticationCredentials>> credentialMap = new HashMap<>();
 
-	private String userAgentId = System.getProperty("http.agent", "Mozilla/4.0 (compatible; CSS4J)");
+	private String userAgentId = DEFAULT_USER_AGENT_STRING;
 
 	private int timeout = 15000; // Connection timeout
 
 	protected AbstractUserAgent(EnumSet<Parser.Flag> parserFlags) {
 		super();
 		this.parserFlags.addAll(parserFlags);
+	}
+
+	private static String defaultUserAgent() {
+		return "Mozilla/5.0 CSS4J/" + CSS4J_MAJOR_VERSION;
+	}
+
+	private static String userAgentString() {
+		String agentId;
+
+		try {
+			agentId = System.getProperty("http.agent");
+		} catch (SecurityException e) {
+			return defaultUserAgent();
+		}
+
+		if (agentId == null) {
+			String osname;
+			try {
+				osname = System.getProperty("os.name");
+			} catch (SecurityException e) {
+				osname = null;
+			}
+			if (osname == null) {
+				return defaultUserAgent();
+			}
+			StringBuilder buf = new StringBuilder(osname.length() + 30);
+			buf.append("Mozilla/5.0 (").append(osname);
+			try {
+				String osarch = System.getProperty("os.arch");
+				if (osarch != null) {
+					buf.append("; ").append(osarch);
+				}
+			} catch (SecurityException e) {
+			}
+			buf.append(") CSS4J/").append(CSS4J_MAJOR_VERSION);
+			agentId = buf.toString();
+		}
+
+		return agentId;
 	}
 
 	protected OriginPolicy getOriginPolicy() {
