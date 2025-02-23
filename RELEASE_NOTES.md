@@ -1,58 +1,51 @@
-# css4j version 5.1 Release Notes
+# css4j version 5.2 Release Notes
 
-### January 24, 2025
+### February 23, 2025
 
 <br/>
 
 ## Highlights
 
-### Advanced attr() values
+### Better handling of mathematical functions
 
-The advanced `attr()` support now follows the current Values Level 5 specification.
+The handling of mathematical functions is now much faster, and the `round`, `mod`, `rem`, `log` and `exp` functions from Values 4 were implemented.
 
-Although this library has supported the advanced `attr()` value for years now,
-it was implementing an old version of the specification which is substantially
-different to the current one. The new spec is so recent that the old one is
-still used by at least one CSS specification (CSS Lists 3) in their sample style
-sheet for HTML.
+The library is now on parity with the CSS numeric functions supported by modern web browsers.
 
-This library should be compatible with the `attr()` which is shipped with the
-forthcoming Google Chrome 133.
+### `src()` values
 
-The old `CSSAttrValue` and `AttrValue` classes were removed, as the API is
-incompatible with the new specification that is being implemented by browsers.
+The `src()` function is now considered a valid URL value, and therefore matches `<url>` and `<image>`.
 
-### More compliant registered custom properties
+### Update of `background` and `mask` shorthands
 
-Also, the handling of registered custom properties is now closer to the Google
-Chrome behaviour: registered initial values take precedence over the fallbacks.
+Both shorthand properties now behave according to the latest specification, supporting all the new identifiers in `background-clip` and `mask-clip`.
 
-#### Circularity behaviour changed
+### Values of `border-width` identifiers
 
-On the other hand, when `var()` circularities (and other apparent DoS attacks)
-are found, it is no longer attempted to use the supplied property fallbacks.
+The main browsers consistently use the same figures for the computed values of border-width's `thin`, `thick` and `medium` identifiers, which were subsequently defined in May 2022.
 
-It has been found that some websites send content with, for example,
-`--foo:var(--foo,fallback)` circularities to non-browser user agents, in what
-could be a strategy against web crawlers. Due to the kind of use cases that this
-library has, it was determined that it is preferable to just report the
-circularity and invalidate the whole value.
-
-If your use case is negatively affected by this decision, please open an issue.
+This leads to the deprecation of `StyleDatabase.getWidthSize`.
 
 <br/>
 
 ## Detail of changes
 
-- The advanced `attr()` support now follows the current Values Level 5 
-  specification.
-- NSAC: drop `EMPTY` units in `countReplaceBy()`.
-- NSAC: have `getParameters()` return the sub-values if this is an expression 
-  or a	unicode range.
-- DOM wrapper: improved serialization of element nodes.
-- Gradle: use the assignment operator in the maven repo section.
-- Upgrade Gradle wrapper to 8.12.1.
-- Upgrade to JUnit 5.11.4.
-- Upgrade to Jazzer 0.23.0.
-- Upgrade to checkstyle 10.21.1.
-- Bump year to 2025 in copyrights.
+- NSAC,CSSOM: support the `round`, `mod`, `rem`, `log` and `exp` functions from Values 4.
+- NSAC,CSSOM: more efficient handling of functions.
+- NSAC,CSSOM: support `src()` values.
+- CSSOM: add method `getFloatValue()` to `CSSTypedValue`, to retrieve raw value.
+- CSSOM: implement `Cloneable` in `StringList` and `CSSFontFeatureValuesMap` implementation.
+- CSSOM: add `ShorthandDatabase.getInstance(ClassLoader)`.
+- CSSOM: deprecate `StyleDatabase.getWidthSize`. The `thin`, `thick` and `medium` identifiers have fixed values since May 2022, see CSSWG issue 7254.
+- CSSOM: support `text` and `border-area` as `background-clip` values.
+- CSSOM: support `border`, `padding`, `content` and `text` as `mask-clip` values.
+- CSSOM: ignore case when optimizing `background-position` in `getPropertyValue("background")`.
+- CSSOM: avoid unlikely NPE when optimizing `getPropertyValue("background")` of a declared style when `background-origin` is not set.
+- CSSOM: avoid unlikely NPE when optimizing `getPropertyValue("mask")` of a declared style when `mask-origin` is not set.
+- CSSOM: other updates to `background` and `mask` shorthands.
+- CSSOM: use private constructors in a few singleton classes.
+- Agent: use a more modern user agent identification string.
+- Tests: clean up HTMLDocumentTest.
+- Upgrade Jazzer to 0.24.0.
+- Upgrade to checkstyle 10.21.2.
+- README: use the assignment operator in the Gradle example.
