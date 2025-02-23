@@ -143,20 +143,20 @@ tasks.register('copyJars', Copy) {
 }
 
 tasks.register('lineEndingConversion', CRLFConvert) {
-	description 'Convert top-level files to Windows line endings'
+	description = 'Convert top-level files to Windows line endings'
 	file "$rootDir/RELEASE_NOTES.md"
 	file "$rootDir/UPGRADING.txt"
 	file "$rootDir/CHANGES.txt"
 }
 
 tasks.register('lineEndingConvCopy', CRLFConvertCopy) {
-	description 'Convert LICENSE and NOTICE to Windows line endings'
+	description = 'Convert LICENSE and NOTICE to Windows line endings'
 	from "$rootDir/LICENSE.txt"
 	from "$rootDir/NOTICE.txt"
 }
 
 tasks.register('testLineEndingConvCopy', CRLFConvertCopy) {
-	description 'Convert test NOTICE to Windows line endings'
+	description = 'Convert test NOTICE to Windows line endings'
 	dependsOn testClasses
 	from "$rootDir/src/test/resources/NOTICE.txt"
 	prefix = 'test/'
