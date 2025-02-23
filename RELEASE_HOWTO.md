@@ -31,21 +31,31 @@ git clone git@github.com:css4j/css4j.git
 
 For reference, let your copy of the css4j release code be at `/path/to/css4j`.
 
-2) In the `master` branch of your local copy of the css4j Git repository, bump
+2) Use `changes.sh <new-version>` to create a `CHANGES.txt` file with the
+changes from the latest tag. For example if you are releasing `5.2.1`:
+
+```shell
+./changes.sh 5.2.1
+```
+
+Edit the resulting `CHANGES.txt` as convenient, then update the Release Notes
+using it as the basis for the detailed list of changes.
+
+3) In the `master` branch of your local copy of the css4j Git repository, bump
 the `version` in the [`build.gradle`](build.gradle) file or remove the
 `-SNAPSHOT` suffix as necessary. Commit the change to the Git repository.
 
-3) If there is an issue tracking the release, close it (you could do it later as
+4) If there is an issue tracking the release, close it (you could do it later as
 well).
 
-4) To check that everything is fine, build the code:
+5) To check that everything is fine, build the code:
 
 ```shell
 cd /path/to/css4j
 ./gradlew build
 ```
 
-5) Now copy the produced _jar_ files into a new `jar` directory:
+6) Now copy the produced _jar_ files into a new `jar` directory:
 
 ```shell
 ./gradlew copyJars
@@ -53,17 +63,6 @@ cd /path/to/css4j
 
 Manually copy there the current compatible _jar_ files for the `css4j-agent`,
 `css4j-awt` and `css4j-dom4j` modules.
-
-6) Use `changes.sh <new-version>` to create a `CHANGES.txt` file with the
-changes from the latest tag. For example if you are releasing `5.2.1`:
-
-```shell
-./changes.sh 5.2.1
-```
-
-Edit the resulting `CHANGES.txt` as convenient, to use it as the basis for the
-detailed list of changes when you create the Release Notes and the new release
-in Github.
 
 7) Clone the `git@github.com:css4j/css4j.github.io.git` repository (which
 contains a bare-bones Maven repository) and let `/path/to/css4j.github.io` be
