@@ -1204,13 +1204,32 @@ public class ParseHelper {
 	}
 
 	/**
+	 * Create a {@code PERCENTAGE} lexical unit with the given value.
+	 * 
+	 * @param value the value.
+	 * @return the lexical unit.
+	 */
+	public static LexicalUnit createPercentageLexicalUnit(float value) {
+		LexicalUnitImpl lu = new LexicalUnitImpl(LexicalType.PERCENTAGE);
+		lu.floatValue = value;
+		lu.setCssUnit(CSSUnit.CSS_PERCENTAGE);
+		lu.dimensionUnitText = "%";
+		return lu;
+	}
+
+	/**
 	 * Create a {@code DIMENSION} lexical unit with the given dimension and value.
 	 * 
 	 * @param unit  the unit according to {@code CSSUnit}.
 	 * @param value the value.
 	 * @return the lexical unit.
+	 * @throws IllegalArgumentException if the unit is invalid.
 	 */
-	public static LexicalUnit createDimensionLexicalUnit(short unit, float value) {
+	public static LexicalUnit createDimensionLexicalUnit(short unit, float value)
+			throws IllegalArgumentException {
+		if (unit == CSSUnit.CSS_INVALID) {
+			throw new IllegalArgumentException("Invalid unit.");
+		}
 		LexicalUnitImpl lu = new LexicalUnitImpl(LexicalType.DIMENSION);
 		lu.floatValue = value;
 		lu.setCssUnit(unit);

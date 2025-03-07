@@ -46,6 +46,16 @@ class Dimension {
 	transient boolean percentageProcessed;
 
 	/**
+	 * The dimension exponent may not be known accurately.
+	 * <ul>
+	 * <li>0 - Known accurately.</li>
+	 * <li>1 - Known approximately, numeric errors are possible.</li>
+	 * <li>2 - Pending substitution.</li>
+	 * </ul>
+	 */
+	transient short exponentAccuracy;
+
+	/**
 	 * 
 	 * @return the first dimension in the chain.
 	 */
@@ -144,7 +154,7 @@ class Dimension {
 				lengthProcessed = lengthProcessed || newdim.lengthProcessed;
 				percentageProcessed = percentageProcessed || newdim.percentageProcessed;
 			}
-			return true;
+			return checkExponent(newdim);
 		}
 
 		switch (category) {
@@ -196,6 +206,20 @@ class Dimension {
 			return false;
 		}
 
+		return checkExponent(newdim);
+	}
+
+	private boolean checkExponent(Dimension newdim) {
+		if (exponent != newdim.exponent) {
+			if (exponentAccuracy == 0) {
+				if (newdim.exponentAccuracy == 0) {
+					return false;
+				}
+			} else if (newdim.exponentAccuracy == 0) {
+				exponent = newdim.exponent;
+			}
+		}
+
 		return true;
 	}
 
@@ -233,6 +257,10 @@ class Dimension {
 	private boolean multiplyDimension(Dimension otherdim) {
 		if (category == otherdim.category) {
 			exponent += otherdim.exponent;
+			return true;
+		}
+
+		if (otherdim.category == Category.number || otherdim.category == Category.integer) {
 			return true;
 		}
 
@@ -321,6 +349,10 @@ class Dimension {
 	private boolean divideDimension(Dimension otherdim) {
 		if (category == otherdim.category) {
 			exponent -= otherdim.exponent;
+			return true;
+		}
+
+		if (otherdim.category == Category.number || otherdim.category == Category.integer) {
 			return true;
 		}
 
@@ -488,24 +520,23 @@ class Dimension {
 				dim = nextdim;
 			} while (true);
 		} else if (unit == CSSUnit.CSS_PERCENTAGE) {
-			do {
+			pcntLoop: do {
 				switch (dim.category) {
 				case lengthPercentage:
 					percentageProcessed = true;
 				case percentage:
 					dim = dim.incrExponent();
-					break;
-				default:
-					break;
-				}
-				if (dim.category == Category.length) {
+					break pcntLoop;
+				case length:
 					dim.category = Category.lengthPercentage;
 					dim = dim.incrExponent();
-					break;
-				}
-				if (dim.category == Category.number || dim.category == Category.integer) {
+					break pcntLoop;
+				case number:
+				case integer:
 					dim.exponent = 1;
 					dim.category = Category.percentage;
+					break pcntLoop;
+				default:
 					break;
 				}
 				Dimension nextdim = dim.getNext();
@@ -672,24 +703,22 @@ class Dimension {
 				dim = nextdim;
 			} while (true);
 		} else if (unit == CSSUnit.CSS_PERCENTAGE) {
-			do {
+			pcntLoop: do {
 				switch (dim.category) {
+				case length:
+					dim.category = Category.lengthPercentage;
 				case lengthPercentage:
 					percentageProcessed = true;
 				case percentage:
 					dim = dim.decrExponent();
-					break;
-				default:
-					break;
-				}
-				if (dim.category == Category.length) {
-					dim.category = Category.lengthPercentage;
-					dim = dim.decrExponent();
-					break;
-				}
-				if (dim.category == Category.number || dim.category == Category.integer) {
+					break pcntLoop;
+				case number:
+				case integer:
 					dim.exponent = -1;
 					dim.category = Category.percentage;
+					// if <number>, there are no further units
+					break pcntLoop;
+				default:
 					break;
 				}
 				Dimension nextdim = dim.getNext();
@@ -854,19 +883,24 @@ class Dimension {
 	 * @return {@code true} if this dimension represents a valid CSS unit.
 	 */
 	public boolean isCSS() {
-		return nextDimension == null && (exponent == 1 || exponent == 0);
+		return nextDimension == null && (exponent == 1 || exponent == 0 || exponentAccuracy != 0);
 	}
 
 	public Match matches(CSSValueSyntax syntax) {
 		if (nextDimension == null) {
 			Category cat = syntax.getCategory();
-			if (category == cat
+			if ((category == cat
 					|| (category == Category.length && cat == Category.lengthPercentage)
 					|| (category == Category.percentage && cat == Category.lengthPercentage)
 					|| (category == Category.integer && cat == Category.number)
 					// If the lexical unit is a calc() parameter, <number> is rounded to <integer>
-					|| (category == Category.number && cat == Category.integer)) {
-				return Match.TRUE;
+					|| (category == Category.number && cat == Category.integer)) && nextDimension == null) {
+				if (exponentAccuracy == 2) {
+					return Match.PENDING;
+				}
+				if (exponent == 1 || exponent == 0 || exponentAccuracy == 1) {
+					return Match.TRUE;
+				}
 			}
 		}
 		return Match.FALSE;

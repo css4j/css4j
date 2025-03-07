@@ -20,7 +20,7 @@ class BorderColorShorthandSetter extends BoxShorthandSetter {
 
 	@Override
 	boolean isValueOfType(LexicalUnit value) {
-		return BaseCSSStyleDeclaration.testColor(value);
+		return testColor(value);
 	}
 
 	@Override

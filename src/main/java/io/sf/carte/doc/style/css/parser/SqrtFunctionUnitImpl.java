@@ -27,10 +27,13 @@ class SqrtFunctionUnitImpl extends MathFunctionUnitImpl {
 		if (dim != null) {
 			if (dim.exponent % 2 != 0) {
 				// Odd number
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-						"Invalid CSS unit in sqrt() function");
+				if (dim.exponentAccuracy == 0) {
+					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+							"Invalid CSS unit in sqrt() function");
+				}
+			} else {
+				dim.exponent = dim.exponent / 2;
 			}
-			dim.exponent = dim.exponent / 2;
 		}
 		return dim;
 	}

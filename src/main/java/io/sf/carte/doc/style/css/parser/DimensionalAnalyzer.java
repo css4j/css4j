@@ -109,6 +109,11 @@ class DimensionalAnalyzer {
 					break;
 				}
 				break;
+			case FUNCTION: // e.g. -webkit-calc()
+				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
+				if (func.charAt(0) != '-' || !func.endsWith("-calc")) {
+					throw createInvalidUnitException(lunit);
+				}
 			case CALC:
 			case SUB_EXPRESSION:
 				Dimension expdim = expressionDimension(lunit.parameters);
@@ -179,8 +184,7 @@ class DimensionalAnalyzer {
 				}
 				break;
 			default:
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-						"Invalid unit in expression: " + lunit.getCssText());
+				throw createInvalidUnitException(lunit);
 			}
 
 			lunit = lunit.nextLexicalUnit;
@@ -196,6 +200,11 @@ class DimensionalAnalyzer {
 		}
 
 		return sum;
+	}
+
+	private static DOMException createInvalidUnitException(LexicalUnitImpl lunit) {
+		return new DOMException(DOMException.INVALID_ACCESS_ERR,
+				"Invalid unit in expression: " + lunit.getCssText());
 	}
 
 	private Dimension attrDimension(LexicalUnitImpl param)

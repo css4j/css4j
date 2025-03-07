@@ -77,7 +77,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 					}
 				}
 			}
-			if (flexBasisUnset && ValueFactory.isSizeSACUnit(currentValue)) {
+			if (flexBasisUnset && ValueFactory.isLengthPercentageSACUnit(currentValue)) {
 				TypedValue value = (TypedValue) createCSSValue("flex-basis",
 						currentValue);
 				if (value.isNumberZero()) {

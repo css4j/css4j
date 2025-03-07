@@ -1682,8 +1682,14 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						// Guaranteed-invalid
 						throw new DOMException(DOMException.TYPE_MISMATCH_ERR, message);
 					}
-					if (unitConv != CSSUnit.CSS_NUMBER) {
-						// Must convert to unit
+					// Must convert to unit if necessary
+					switch (unitConv) {
+					case CSSUnit.CSS_NUMBER:
+						break;
+					case CSSUnit.CSS_PERCENTAGE:
+						substValue = ParseHelper.createPercentageLexicalUnit(f);
+						break;
+					default:
 						substValue = ParseHelper.createDimensionLexicalUnit(unitConv, f);
 					}
 					return substValue;

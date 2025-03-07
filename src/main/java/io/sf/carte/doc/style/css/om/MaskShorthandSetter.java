@@ -327,7 +327,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 
 	private boolean testPosition(ValueList posList) {
 		if ((currentValue.getLexicalUnitType() == LexicalType.IDENT
-			&& testIdentifiers("mask-position")) || ValueFactory.isSizeSACUnit(currentValue)) {
+			&& testIdentifiers("mask-position")) || ValueFactory.isLengthPercentageSACUnit(currentValue)) {
 			ValueList list = ValueList.createWSValueList();
 			StyleValue value = createCSSValue("mask-position", currentValue);
 			list.add(value);
@@ -336,7 +336,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 			while (nlu != null && count < 4) { // Up to 4 values per layer
 				if ((nlu.getLexicalUnitType() == LexicalType.IDENT && getShorthandDatabase()
 					.isIdentifierValue("mask-position", nlu.getStringValue()))
-					|| ValueFactory.isSizeSACUnit(nlu)) {
+					|| ValueFactory.isLengthPercentageSACUnit(nlu)) {
 					value = createCSSValue("mask-position", nlu);
 					list.add(value);
 					count++;
@@ -393,7 +393,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 
 	private boolean testSize(int i, Set<String> subp) {
 		if ((currentValue.getLexicalUnitType() == LexicalType.IDENT && testIdentifiers("mask-size"))
-			|| ValueFactory.isSizeSACUnit(currentValue)) {
+			|| ValueFactory.isLengthPercentageSACUnit(currentValue)) {
 			ValueList list = ValueList.createWSValueList();
 			StyleValue value = createCSSValue("mask-size", currentValue);
 			list.add(value);
@@ -402,7 +402,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 			LexicalUnit nlu = currentValue.getNextLexicalUnit();
 			if (nlu != null && ((nlu.getLexicalUnitType() == LexicalType.IDENT
 					&& getShorthandDatabase().isIdentifierValue("mask-size", nlu.getStringValue()))
-					|| ValueFactory.isSizeSACUnit(nlu))) {
+					|| ValueFactory.isLengthPercentageSACUnit(nlu))) {
 				value = createCSSValue("mask-size", nlu);
 				list.add(value);
 				nextCurrentValue();

@@ -25,7 +25,7 @@ class ColumnRuleShorthandSetter extends ShorthandSetter {
 	protected boolean assignSubproperty(String subproperty) {
 		if ("column-rule-width".equals(subproperty)) {
 			if ((LexicalType.IDENT == currentValue.getLexicalUnitType() && testIdentifiers(subproperty))
-					|| ValueFactory.isSizeSACUnit(currentValue)) {
+					|| ValueFactory.isLengthSACUnit(currentValue)) {
 				StyleValue cssValue = createCSSValue("column-rule-width", currentValue);
 				setSubpropertyValue(subproperty, cssValue);
 				nextCurrentValue();
@@ -39,7 +39,7 @@ class ColumnRuleShorthandSetter extends ShorthandSetter {
 				nextCurrentValue();
 				return true;
 			}
-		} else if ("column-rule-color".equals(subproperty) && BaseCSSStyleDeclaration.testColor(currentValue)) {
+		} else if ("column-rule-color".equals(subproperty) && testColor(currentValue)) {
 			StyleValue cssValue = createCSSValue("column-rule-color", currentValue);
 			setSubpropertyValue(subproperty, cssValue);
 			nextCurrentValue();

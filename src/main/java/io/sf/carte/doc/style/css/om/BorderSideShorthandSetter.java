@@ -36,7 +36,7 @@ class BorderSideShorthandSetter extends ShorthandSetter {
 	protected boolean assignSubproperty(String subproperty) {
 		if (pnameWidth.equals(subproperty)) {
 			if ((LexicalUnit.LexicalType.IDENT == currentValue.getLexicalUnitType()
-					&& testIdentifiers("border-width")) || ValueFactory.isSizeSACUnit(currentValue)) {
+					&& testIdentifiers("border-width")) || ValueFactory.isLengthSACUnit(currentValue)) {
 				StyleValue cssValue = createCSSValue(subproperty, currentValue);
 				setSubpropertyValue(subproperty, cssValue);
 				nextCurrentValue();
@@ -50,7 +50,7 @@ class BorderSideShorthandSetter extends ShorthandSetter {
 				nextCurrentValue();
 				return true;
 			}
-		} else if (pnameColor.equals(subproperty) && BaseCSSStyleDeclaration.testColor(currentValue)) {
+		} else if (pnameColor.equals(subproperty) && testColor(currentValue)) {
 			StyleValue cssValue = createCSSValue(subproperty, currentValue);
 			setSubpropertyValue(subproperty, cssValue);
 			// border-side-color must be last

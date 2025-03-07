@@ -21,8 +21,6 @@ import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
-import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
-import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 /**
  * Implementation of a gradient value.
@@ -96,25 +94,6 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		}
 		GradientValue other = (GradientValue) obj;
 		return gradientType == other.gradientType;
-	}
-
-	private static LexicalUnit findCustomPropertyFallback(LexicalUnit lunit) {
-		LexicalUnit lu = lunit.getParameters();
-		if (lu != null) {
-			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
-				lu = lu.getNextLexicalUnit();
-				if (lu != null) {
-					if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
-						lu = lu.getNextLexicalUnit();
-					} else {
-						lu = null;
-					}
-				}
-			} else {
-				lu = null;
-			}
-		}
-		return lu;
 	}
 
 	@Override
@@ -202,7 +181,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				}
 			} while (colorStopLU != null);
 			if (colorStopCount < 2) {
-				throw createDOMSyntaxException("Expected at least 2 color stops, found only one.");
+				reportSyntaxWarning("Expected at least 2 color stops, found only one.");
 			}
 		}
 
@@ -266,17 +245,18 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			// <linear-color-stop> = <color> && <color-stop-length>?
 			// <color-stop-length> = <length-percentage>{1,2}
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
-			if (canBeColor(lu)) {
+			if (isColorUnit(lu)) {
 				return true;
 			} else {
-				return lu2 != null && canBeColor(lu2) && canBeSizeOrPercentage(lu);
+				return lu2 != null && isColorUnit(lu2)
+						&& ValueFactory.isLengthPercentageSACUnit(lu);
 			}
 		}
 
 		private LexicalUnit processLinearColorStop(LexicalUnit lu, ValueFactory factory) {
 			LexicalUnit finalLU = null;
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
-			if (canBeColor(lu)) {
+			if (isColorUnit(lu)) {
 				PrimitiveValue color;
 				try {
 					color = factory.createCSSPrimitiveValue(lu, true);
@@ -286,13 +266,13 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					color = item.getCSSValue();
 				}
 				// Do we have a <length-percentage> now?
-				if (lu2 != null && canBeSizeOrPercentage(lu2)) {
+				if (lu2 != null && ValueFactory.isLengthPercentageSACUnit(lu2)) {
 					ValueList list = ValueList.createWSValueList();
 					list.add(color);
 					list.add(factory.createCSSPrimitiveValue(lu2, true));
 					getArguments().add(list);
 					lu2 = lu2.getNextLexicalUnit();
-					if (lu2 != null && canBeSizeOrPercentage(lu2)) {
+					if (lu2 != null && ValueFactory.isLengthPercentageSACUnit(lu2)) {
 						list.add(factory.createCSSPrimitiveValue(lu2, true));
 						lu2 = lu2.getNextLexicalUnit();
 					}
@@ -300,12 +280,12 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					getArguments().add(color);
 				}
 				finalLU = lu2;
-			} else if (canBeSizeOrPercentage(lu)) {
+			} else if (ValueFactory.isLengthPercentageSACUnit(lu)) {
 				/*
 				 * Could be a color hint or a color stop with inverted values
 				 * (<length-percentage> && <color>
 				 */
-				if (lu2 != null && canBeColor(lu2)) {
+				if (lu2 != null && isColorUnit(lu2)) {
 					ValueList list = ValueList.createWSValueList();
 					PrimitiveValue color;
 					try {
@@ -341,56 +321,13 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		}
 
 		/**
-		 * Test whether the value could represent a color.
+		 * Test whether the value represents a color.
 		 * 
 		 * @param lunit the lexical unit to test.
-		 * @return true if the value could be a color.
+		 * @return true if the value is a color.
 		 */
-		private boolean canBeColor(LexicalUnit lunit) {
-			if (BaseCSSStyleDeclaration.testColor(lunit)) {
-				return true;
-			} else if (LexicalType.VAR == lunit.getLexicalUnitType()) {
-				LexicalUnit lu = findCustomPropertyFallback(lunit);
-				if (lu != null) {
-					if (BaseCSSStyleDeclaration.testColor(lu)) {
-						return true;
-					}
-				} else {
-					throw new CSSLexicalProcessingException("var() without fallback found.");
-				}
-			}
-			return LexicalType.ATTR == lunit.getLexicalUnitType()
-					&& (lunit = lunit.getParameters().getNextLexicalUnit()) != null
-					&& lunit.getLexicalUnitType() == LexicalType.IDENT
-					&& "color".equalsIgnoreCase(lunit.getStringValue());
-		}
-
-		/**
-		 * Test whether the value could represent a size or a percentage.
-		 * 
-		 * @param lunit the lexical unit to test.
-		 * @return true if the value could be a size or a percentage.
-		 */
-		private boolean canBeSizeOrPercentage(LexicalUnit lunit) {
-			return lunit.getLexicalUnitType() == LexicalType.PERCENTAGE
-					|| ValueFactory.isSizeSACUnit(lunit)
-					|| (LexicalType.VAR == lunit.getLexicalUnitType()
-							&& isSizeOrPercentageVar(lunit))
-					|| (LexicalType.ATTR == lunit.getLexicalUnitType()
-							&& lunit.shallowClone().matches(SyntaxParser
-									.createSimpleSyntax("length-percentage")) != Match.FALSE);
-		}
-
-		private boolean isSizeOrPercentageVar(LexicalUnit lunit) {
-			LexicalUnit lu = findCustomPropertyFallback(lunit);
-			if (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalType.PERCENTAGE || ValueFactory.isSizeSACUnit(lu)) {
-					return true;
-				}
-			} else {
-				throw new CSSLexicalProcessingException("var() without fallback found.");
-			}
-			return false;
+		private boolean isColorUnit(LexicalUnit lunit) {
+			return ValueFactory.isColorSACUnit(lunit);
 		}
 
 		private void setRadialGradient(LexicalUnit lu, ValueFactory factory) {
@@ -420,7 +357,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				}
 			} while (colorStopLU != null);
 			if (colorStopCount < 2) {
-				throw createDOMSyntaxException("Expected at least 2 color stops, found only one.");
+				reportSyntaxWarning("Expected at least 2 color stops, found only one.");
 			}
 		}
 
@@ -493,7 +430,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				}
 			} while (colorStopLU != null);
 			if (colorStopCount < 2) {
-				throw createDOMSyntaxException("Expected at least 2 color stops, found only one.");
+				reportSyntaxWarning("Expected at least 2 color stops, found only one.");
 			}
 		}
 
@@ -502,10 +439,10 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			// <color-stop-angle> = <angle-percentage>{1,2}
 			// <angle-percentage> = [ <angle> | <percentage> ]
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
-			if (canBeColor(lu)) {
+			if (isColorUnit(lu)) {
 				return true;
 			} else {
-				return lu2 != null && canBeColor(lu2) && canBeAngleOrPercentage(lu);
+				return lu2 != null && isColorUnit(lu2) && canBeAngleOrPercentage(lu);
 			}
 		}
 
@@ -514,30 +451,11 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 		 * 
 		 * @param lunit the lexical unit to test.
 		 * @return true if the value could be an angle or a percentage.
+		 * @throws CSSLexicalProcessingException if a {@code PROXY} value was found.
 		 */
-		private boolean canBeAngleOrPercentage(LexicalUnit lunit) {
-			LexicalUnit luc;
-			return ValueFactory.isAngleSACUnit(lunit)
-					|| lunit.getLexicalUnitType() == LexicalType.PERCENTAGE
-					|| (LexicalType.VAR == lunit.getLexicalUnitType()
-							&& isAngleOrPercentageVar(lunit))
-					|| (LexicalType.ATTR == lunit.getLexicalUnitType()
-							&& ((luc = lunit.shallowClone()).matches(
-									SyntaxParser.createSimpleSyntax("angle")) != Match.FALSE
-									|| luc.matches(SyntaxParser
-											.createSimpleSyntax("percentage")) != Match.FALSE));
-		}
-
-		private boolean isAngleOrPercentageVar(LexicalUnit lunit) {
-			LexicalUnit lu = findCustomPropertyFallback(lunit);
-			if (lu != null) {
-				if (ValueFactory.isAngleSACUnit(lu) || lu.getLexicalUnitType() == LexicalType.PERCENTAGE) {
-					return true;
-				}
-			} else {
-				throw new CSSLexicalProcessingException("var() without fallback found.");
-			}
-			return false;
+		private boolean canBeAngleOrPercentage(LexicalUnit lunit)
+				throws CSSLexicalProcessingException {
+			return ValueFactory.isAngleOrPercentageSACUnit(lunit);
 		}
 
 		private LexicalUnit processAngularColorStop(LexicalUnit lu, ValueFactory factory) {
@@ -546,7 +464,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			// <angular-color-hint> = <angle-percentage>
 			LexicalUnit finalLU = null;
 			LexicalUnit lu2 = lu.getNextLexicalUnit();
-			if (canBeColor(lu)) {
+			if (isColorUnit(lu)) {
 				PrimitiveValue color;
 				try {
 					color = factory.createCSSPrimitiveValue(lu, true);
@@ -569,7 +487,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					getArguments().add(color);
 				}
 				finalLU = lu2;
-			} else if (lu2 != null && canBeColor(lu2) && canBeAngleOrPercentage(lu)) {
+			} else if (lu2 != null && isColorUnit(lu2) && canBeAngleOrPercentage(lu)) {
 				ValueList list = ValueList.createWSValueList();
 				PrimitiveValue color;
 				try {

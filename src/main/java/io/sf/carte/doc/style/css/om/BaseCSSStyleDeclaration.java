@@ -39,8 +39,6 @@ import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueList;
-import io.sf.carte.doc.style.css.CSSValueSyntax;
-import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDatabase;
@@ -50,7 +48,6 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.LexicalValue;
@@ -1968,17 +1965,6 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			}
 		}
 
-	}
-
-	/**
-	 * Test if the value is a color.
-	 * 
-	 * @param lunit the lexical unit to test.
-	 * @return true if the value is a color.
-	 */
-	public static boolean testColor(LexicalUnit lunit) {
-		CSSValueSyntax syn = SyntaxParser.createSimpleSyntax("color");
-		return lunit.shallowClone().matches(syn) == Match.TRUE;
 	}
 
 	@Override

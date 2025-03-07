@@ -55,162 +55,418 @@ public class ValueFactory implements CSSValueFactory {
 	}
 
 	/**
-	 * Tests whether the unit type of the given NSAC lexical unit can apply to size (e.g.
-	 * block size).
+	 * Tests whether the unit type of the given NSAC lexical unit can apply to size
+	 * (e.g. block size).
 	 * 
-	 * @param unit
-	 *            the NSAC lexical unit.
-	 * @return <code>true</code> if it is a size type (including percentage and unknown dimension), false
-	 *         otherwise.
+	 * @param unit the NSAC lexical unit.
+	 * @return <code>true</code> if it is a size type, false otherwise.
+	 * @deprecated Use {@link #isLengthPercentageSACUnit(LexicalUnit)} instead.
 	 */
+	@Deprecated
 	public static boolean isSizeSACUnit(LexicalUnit unit) {
-		return sizeSACUnit(unit) != CSSUnit.CSS_INVALID;
-	}
-
-	/**
-	 * Finds the unit type of the given NSAC lexical unit that can apply to size (e.g.
-	 * block size).
-	 * 
-	 * @param unit
-	 *            the NSAC lexical unit.
-	 * @return the CSS unit type if it is a size type (including percentage),
-	 *         CSS_INVALID otherwise.
-	 */
-	private static short sizeSACUnit(LexicalUnit unit) {
-		LexicalType type = unit.getLexicalUnitType();
-		short cssUnit;
-		if (isFunctionType(type)) {
-			cssUnit = functionDimensionArgumentUnit(unit);
-		} else if (type == LexicalType.SUB_EXPRESSION) {
-			cssUnit = subexpressionDimensionUnit(unit);
-		} else {
-			cssUnit = unit.getCssUnit();
-		}
-
-		if (CSSUnit.isLengthUnitType(cssUnit) || cssUnit == CSSUnit.CSS_PERCENTAGE) {
-			return cssUnit;
-		}
-		if (type == LexicalType.INTEGER && unit.getIntegerValue() == 0) {
-			return CSSUnit.CSS_NUMBER;
-		}
-
-		return CSSUnit.CSS_INVALID;
-	}
-
-	private static boolean isFunctionType(LexicalType type) {
-		return type == LexicalType.MATH_FUNCTION || type == LexicalType.FUNCTION
-				|| type == LexicalType.CALC || type == LexicalType.VAR || type == LexicalType.ATTR;
-	}
-
-	/**
-	 * Tests whether the unit type of the given NSAC lexical unit is a resolution unit.
-	 * 
-	 * @param unit
-	 *            the NSAC lexical unit value.
-	 * @return <code>true</code> if it is a resolution type, <code>false</code> otherwise.
-	 */
-	public static boolean isResolutionSACUnit(LexicalUnit unit) {
-		LexicalType type = unit.getLexicalUnitType();
-		short cssUnit;
-		if (isFunctionType(type)) {
-			unit = firstDimensionArgument(unit);
-			return unit != null && isResolutionSACUnit(unit);
-		} else {
-			cssUnit = unit.getCssUnit();
-		}
-
-		return CSSUnit.isResolutionUnitType(cssUnit);
-	}
-
-	/**
-	 * Tests whether the given NSAC value could represent a size greater than zero
-	 * (e.g. font size).
-	 * 
-	 * @param unit the lexical value.
-	 * @return <code>true</code> if it is a size type (including percentage and
-	 *         unknown dimension), false otherwise.
-	 */
-	public static boolean isPositiveSizeSACUnit(LexicalUnit unit) {
-		final LexicalType utype = unit.getLexicalUnitType();
-		short cssUnit;
-		boolean function;
-		if (isFunctionType(utype)) {
-			cssUnit = functionDimensionArgumentUnit(unit);
-			function = true;
-		} else {
-			cssUnit = unit.getCssUnit();
-			function = false;
-		}
-
-		return (CSSUnit.isLengthUnitType(cssUnit) || cssUnit == CSSUnit.CSS_PERCENTAGE
-			|| cssUnit == CSSUnit.CSS_OTHER) && (function || unit.getFloatValue() > 0f);
-	}
-
-	/**
-	 * Tests whether the given NSAC unit type is a size or numeric unit (or a
-	 * unknown unit).
-	 * 
-	 * @param unit the lexical value.
-	 * @return <code>true</code> if it is a size or numeric type (including
-	 *         percentage), false otherwise.
-	 */
-	public static boolean isSizeOrNumberSACUnit(LexicalUnit unit) {
-		LexicalType type = unit.getLexicalUnitType();
-		short cssUnit;
-		if (isFunctionType(type)) {
-			cssUnit = functionDimensionArgumentUnit(unit);
-		} else if (type == LexicalType.INTEGER || type == LexicalType.REAL) {
-			return true;
-		} else {
-			cssUnit = unit.getCssUnit();
-		}
-
-		return CSSUnit.isLengthUnitType(cssUnit) || cssUnit == CSSUnit.CSS_PERCENTAGE
-			|| cssUnit == CSSUnit.CSS_OTHER;
-	}
-
-	/**
-	 * Tests whether the given NSAC unit type is a plain number (real or integer) or a percentage.
-	 * 
-	 * @param unit
-	 *            the lexical value.
-	 * @return <code>true</code> if is a plain number or a percentage, <code>false</code> otherwise.
-	 */
-	public static boolean isPlainNumberOrPercentSACUnit(LexicalUnit unit) {
-		LexicalType type = unit.getLexicalUnitType();
-		switch (type) {
-		case PERCENTAGE:
-		case INTEGER:
-		case REAL:
-			return true;
-		default:
+		try {
+			return isLengthPercentageSACUnit(unit);
+		} catch (CSSLexicalProcessingException e) {
 			return false;
 		}
 	}
 
 	/**
-	 * Tests whether the given NSAC unit type is an angle unit.
+	 * Test whether the value represents a non-negative length.
 	 * 
-	 * @param unit
-	 *            the lexical value.
-	 * @return <code>true</code> if is an angle type, <code>false</code> otherwise.
+	 * @param lunit the lexical unit to test.
+	 * @return <code>true</code> if the value is a length in the [0-&#x221E;]
+	 *         interval.
+	 * @throws CSSLexicalProcessingException if a {@code PROXY} value was found.
 	 */
-	public static boolean isAngleSACUnit(LexicalUnit unit) {
-		LexicalType type = unit.getLexicalUnitType();
-		short cssunit;
-		if (isFunctionType(type)) {
-			if (isGradientFunction(unit)) {
+	public static boolean isLengthSACUnit(LexicalUnit lunit)
+			throws CSSLexicalProcessingException {
+		switch (lunit.getLexicalUnitType()) {
+		case DIMENSION:
+			short unit = lunit.getCssUnit();
+			if (!CSSUnit.isLengthUnitType(unit) && unit != CSSUnit.CSS_OTHER) {
 				return false;
 			}
-			unit = firstDimensionArgument(unit);
-			return unit != null && isAngleSACUnit(unit);
-		} else if (type == LexicalType.INTEGER) {
-			return unit.getIntegerValue() == 0;
-		} else {
-			cssunit = unit.getCssUnit();
+			return lunit.getFloatValue() >= 0f;
+		case CALC:
+		case MATH_FUNCTION:
+		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
+		case SUB_EXPRESSION:
+			LexicalUnit lu;
+			if (lunit.getNextLexicalUnit() != null) {
+				lu = lunit.shallowClone();
+			} else {
+				lu = lunit;
+			}
+
+			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("length");
+			switch (lu.matches(syntax)) {
+			case TRUE:
+				throwOnProxy(lu.getParameters());
+				return true;
+			case FALSE:
+				return false;
+			case PENDING:
+			}
+		case VAR:
+		case ATTR:
+			throw new CSSLexicalProcessingException("PROXY value found.");
+		case INTEGER:
+			return lunit.getIntegerValue() == 0;
+		case REAL:
+			return lunit.getFloatValue() == 0f;
+		default:
 		}
 
-		return CSSUnit.isAngleUnitType(cssunit);
+		return false;
+	}
+
+	/**
+	 * Test whether the value represents a length or a percentage.
+	 * <p>
+	 * The value can be positive or negative.
+	 * </p>
+	 * 
+	 * @param lunit the lexical unit to test.
+	 * @return <code>true</code> if the value is a length or a percentage.
+	 * @throws CSSLexicalProcessingException if a {@code PROXY} value was found.
+	 */
+	public static boolean isLengthPercentageSACUnit(LexicalUnit lunit)
+			throws CSSLexicalProcessingException {
+		short unit = lunit.getCssUnit();
+		if (CSSUnit.isLengthUnitType(unit) || unit == CSSUnit.CSS_PERCENTAGE) {
+			return true;
+		}
+
+		switch (lunit.getLexicalUnitType()) {
+		case CALC:
+		case MATH_FUNCTION:
+		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
+		case SUB_EXPRESSION:
+			LexicalUnit lu;
+			if (lunit.getNextLexicalUnit() != null) {
+				lu = lunit.shallowClone();
+			} else {
+				lu = lunit;
+			}
+
+			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("length-percentage");
+			switch (lu.matches(syntax)) {
+			case TRUE:
+				throwOnProxy(lu.getParameters());
+				return true;
+			case FALSE:
+				return false;
+			case PENDING:
+			}
+		case VAR:
+		case ATTR:
+			throw new CSSLexicalProcessingException("PROXY value found.");
+		case INTEGER:
+			return lunit.getIntegerValue() == 0;
+		case REAL:
+			return lunit.getFloatValue() == 0f;
+		default:
+		}
+
+		return false;
+	}
+
+	/**
+	 * Tests whether the given NSAC value represents a length (including unknown
+	 * units) or percentage greater or equal to zero (e.g. {@code font-size} or
+	 * {@code column-width}).
+	 * 
+	 * @param lunit the lexical value.
+	 * @return <code>true</code> if it is a non-negative {@code <length-percentage>}
+	 *         type, <code>false</code> otherwise.
+	 * @throws CSSLexicalProcessingException if a {@code PROXY} value was found.
+	 */
+	public static boolean isPositiveSizeSACUnit(LexicalUnit lunit)
+			throws CSSLexicalProcessingException {
+		switch (lunit.getLexicalUnitType()) {
+		case DIMENSION:
+			short unit = lunit.getCssUnit();
+			if (!CSSUnit.isLengthUnitType(unit) && unit != CSSUnit.CSS_OTHER) {
+				return false;
+			}
+		case PERCENTAGE:
+			return lunit.getFloatValue() >= 0f;
+		case CALC:
+		case MATH_FUNCTION:
+		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
+		case SUB_EXPRESSION:
+			LexicalUnit lu;
+			if (lunit.getNextLexicalUnit() != null) {
+				lu = lunit.shallowClone();
+			} else {
+				lu = lunit;
+			}
+
+			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("length-percentage");
+			switch (lu.matches(syntax)) {
+			case TRUE:
+				throwOnProxy(lu.getParameters());
+				return true;
+			case FALSE:
+				return false;
+			case PENDING:
+			}
+		case VAR:
+		case ATTR:
+			throw new CSSLexicalProcessingException("PROXY value found.");
+		case INTEGER:
+			return lunit.getIntegerValue() == 0;
+		case REAL:
+			return lunit.getFloatValue() == 0f;
+		default:
+		}
+
+		return false;
+	}
+
+	/**
+	 * Tests whether the given NSAC unit type is a non-negative {@code <length>} or
+	 * {@code <number>} unit (or a unknown unit).
+	 * 
+	 * @param lunit the lexical value.
+	 * @return <code>true</code> if it is a size or numeric type (including
+	 *         percentage) in the [0-&#x221E;] interval, <code>false</code>
+	 *         otherwise.
+	 * @throws CSSLexicalProcessingException if a {@code PROXY} value was found.
+	 */
+	public static boolean isLengthOrNumberSACUnit(LexicalUnit lunit)
+			throws CSSLexicalProcessingException {
+		switch (lunit.getLexicalUnitType()) {
+		case INTEGER:
+			return lunit.getIntegerValue() >= 0;
+		case DIMENSION:
+			short unit = lunit.getCssUnit();
+			if (!CSSUnit.isLengthUnitType(unit) && unit != CSSUnit.CSS_OTHER) {
+				return false;
+			}
+		case REAL:
+			return lunit.getFloatValue() >= 0f;
+		case CALC:
+		case MATH_FUNCTION:
+		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
+		case SUB_EXPRESSION:
+			LexicalUnit lu;
+			if (lunit.getNextLexicalUnit() != null) {
+				lu = lunit.shallowClone();
+			} else {
+				lu = lunit;
+			}
+
+			CSSValueSyntax syntax = new SyntaxParser().parseSyntax("<length> | <number>");
+			switch (lu.matches(syntax)) {
+			case TRUE:
+				throwOnProxy(lu.getParameters());
+				return true;
+			case FALSE:
+				return false;
+			case PENDING:
+			}
+		case VAR:
+		case ATTR:
+			throw new CSSLexicalProcessingException("PROXY value found.");
+		default:
+		}
+
+		return false;
+	}
+
+	/**
+	 * Tests whether the given NSAC unit type is a non-negative
+	 * {@code <length-percentage>} or {@code <number>} unit (or a unknown unit).
+	 * 
+	 * @param lunit the lexical value.
+	 * @return <code>true</code> if it is a size or numeric type (including
+	 *         percentage) in the [0-&#x221E;] interval, <code>false</code>
+	 *         otherwise.
+	 * @throws CSSLexicalProcessingException if a {@code PROXY} value was found.
+	 */
+	public static boolean isSizeOrNumberSACUnit(LexicalUnit lunit)
+			throws CSSLexicalProcessingException {
+		switch (lunit.getLexicalUnitType()) {
+		case INTEGER:
+			return lunit.getIntegerValue() >= 0;
+		case DIMENSION:
+			short unit = lunit.getCssUnit();
+			if (!CSSUnit.isLengthUnitType(unit) && unit != CSSUnit.CSS_OTHER) {
+				return false;
+			}
+		case REAL:
+		case PERCENTAGE:
+			return lunit.getFloatValue() >= 0f;
+		case CALC:
+		case MATH_FUNCTION:
+		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
+		case SUB_EXPRESSION:
+			LexicalUnit lu;
+			if (lunit.getNextLexicalUnit() != null) {
+				lu = lunit.shallowClone();
+			} else {
+				lu = lunit;
+			}
+
+			CSSValueSyntax syntax = new SyntaxParser().parseSyntax("<length-percentage> | <number>");
+			switch (lu.matches(syntax)) {
+			case TRUE:
+				throwOnProxy(lu.getParameters());
+				return true;
+			case FALSE:
+				return false;
+			case PENDING:
+			}
+		case VAR:
+		case ATTR:
+			throw new CSSLexicalProcessingException("PROXY value found.");
+		default:
+		}
+
+		return false;
+	}
+
+	/**
+	 * Tests whether the given NSAC unit type is a non-negative number (real or
+	 * integer) or a percentage.
+	 * <p>
+	 * Useful to check for {@code border-image-slice}.
+	 * </p>
+	 * 
+	 * @param lunit the lexical value.
+	 * @return <code>true</code> if is a number or a percentage in the [0-&#x221E;]
+	 *         interval, <code>false</code> otherwise.
+	 */
+	public static boolean isPercentageOrNumberSACUnit(LexicalUnit lunit) {
+		switch (lunit.getLexicalUnitType()) {
+		case INTEGER:
+			return lunit.getIntegerValue() >= 0;
+		case REAL:
+		case PERCENTAGE:
+			return lunit.getFloatValue() >= 0f;
+		case CALC:
+		case MATH_FUNCTION:
+		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
+		case SUB_EXPRESSION:
+			LexicalUnit lu;
+			if (lunit.getNextLexicalUnit() != null) {
+				lu = lunit.shallowClone();
+			} else {
+				lu = lunit;
+			}
+
+			CSSValueSyntax syntax = new SyntaxParser().parseSyntax("<percentage> | <number>");
+			switch (lu.matches(syntax)) {
+			case TRUE:
+				throwOnProxy(lu.getParameters());
+				return true;
+			case FALSE:
+				return false;
+			case PENDING:
+			}
+		case VAR:
+		case ATTR:
+			throw new CSSLexicalProcessingException("PROXY value found.");
+		default:
+		}
+
+		return false;
+	}
+
+	/**
+	 * Tests whether the unit type of the given NSAC lexical unit is a resolution unit.
+	 * 
+	 * @param lunit
+	 *            the NSAC lexical unit value.
+	 * @return <code>true</code> if it is a resolution type, <code>false</code> otherwise.
+	 * @throws CSSLexicalProcessingException if a {@code PROXY} value was found.
+	 */
+	public static boolean isResolutionSACUnit(LexicalUnit lunit)
+			throws CSSLexicalProcessingException {
+		if (CSSUnit.isResolutionUnitType(lunit.getCssUnit())) {
+			return true;
+		}
+
+		switch (lunit.getLexicalUnitType()) {
+		case CALC:
+		case MATH_FUNCTION:
+		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
+		case SUB_EXPRESSION:
+			LexicalUnit lu;
+			if (lunit.getNextLexicalUnit() != null) {
+				lu = lunit.shallowClone();
+			} else {
+				lu = lunit;
+			}
+
+			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("resolution");
+			switch (lu.matches(syntax)) {
+			case TRUE:
+				throwOnProxy(lu.getParameters());
+				return true;
+			case FALSE:
+				return false;
+			case PENDING:
+			}
+		case VAR:
+		case ATTR:
+			throw new CSSLexicalProcessingException("PROXY value found.");
+		default:
+		}
+
+		return false;
+	}
+
+	/**
+	 * Tests whether the given NSAC unit type is an angle or percentage unit (or
+	 * zero, which is to be interpreted as length 0).
+	 * <p>
+	 * This is useful for checking color stops in gradients.
+	 * </p>
+	 * 
+	 * @param unit the lexical value.
+	 * @return <code>true</code> if is an angle or percentage type,
+	 *         <code>false</code> otherwise.
+	 * @throws CSSLexicalProcessingException if a {@code PROXY} value was found.
+	 */
+	public static boolean isAngleOrPercentageSACUnit(LexicalUnit unit)
+			throws CSSLexicalProcessingException {
+		LexicalType type;
+		if (CSSUnit.isAngleUnitType(unit.getCssUnit())
+				|| (type = unit.getLexicalUnitType()) == LexicalType.PERCENTAGE
+				|| (type == LexicalType.INTEGER && unit.getIntegerValue() == 0)) {
+			return true;
+		}
+
+		switch (type) {
+		case CALC:
+		case MATH_FUNCTION:
+		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
+		case SUB_EXPRESSION:
+			LexicalUnit lu;
+			if (unit.getNextLexicalUnit() != null) {
+				lu = unit.shallowClone();
+			} else {
+				lu = unit;
+			}
+			CSSValueSyntax syntax = new SyntaxParser().parseSyntax("<angle> | <percentage>");
+			switch (lu.matches(syntax)) {
+			case TRUE:
+				ValueFactory.throwOnProxy(lu.getParameters());
+				return true;
+			case FALSE:
+				return false;
+			default:
+			}
+		case VAR:
+		case ATTR:
+			throw new CSSLexicalProcessingException("PROXY value found.");
+		default:
+		}
+
+		return false;
 	}
 
 	/**
@@ -219,94 +475,84 @@ public class ValueFactory implements CSSValueFactory {
 	 * @param unit
 	 *            the lexical value.
 	 * @return <code>true</code> if is a time type, <code>false</code> otherwise.
+	 * @throws CSSLexicalProcessingException if a {@code PROXY} value was found.
 	 */
-	public static boolean isTimeSACUnit(LexicalUnit unit) {
-		LexicalType type = unit.getLexicalUnitType();
-		short cssunit;
-		if (isFunctionType(type)) {
-			unit = firstDimensionArgument(unit);
-			return unit != null && isTimeSACUnit(unit);
-		} else if (type == LexicalType.INTEGER) {
-			return unit.getIntegerValue() == 0;
-		} else {
-			cssunit = unit.getCssUnit();
+	public static boolean isTimeSACUnit(LexicalUnit unit)
+			throws CSSLexicalProcessingException {
+		if (CSSUnit.isTimeUnitType(unit.getCssUnit())) {
+			return true;
 		}
 
-		return CSSUnit.isTimeUnitType(cssunit);
+		switch (unit.getLexicalUnitType()) {
+		case CALC:
+		case MATH_FUNCTION:
+		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
+		case SUB_EXPRESSION:
+			LexicalUnit lu;
+			if (unit.getNextLexicalUnit() != null) {
+				lu = unit.shallowClone();
+			} else {
+				lu = unit;
+			}
+			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("time");
+			switch (lu.matches(syntax)) {
+			case TRUE:
+				throwOnProxy(lu.getParameters());
+				return true;
+			case FALSE:
+				return false;
+			default:
+			}
+		case VAR:
+		case ATTR:
+			throw new CSSLexicalProcessingException("PROXY value found.");
+		default:
+		}
+
+		return false;
 	}
 
 	/**
-	 * If the supplied value represents a function and not a gradient, get the unit
-	 * type of the first dimension argument found.
+	 * Test whether the value represents a color.
 	 * 
-	 * @param lunit the lexical value.
-	 * @return the unit type of the first dimension argument found, or -1 if the
-	 *         value has no dimension arguments or is not a function.
+	 * @param lunit the lexical unit to test.
+	 * @return true if the value is a color.
+	 * @throws CSSLexicalProcessingException if a {@code PROXY} value was found.
 	 */
-	static short functionDimensionArgumentUnit(LexicalUnit lunit) {
-		if (isGradientFunction(lunit)) {
-			return -1;
-		}
-		LexicalUnit lu = lunit.getParameters();
-		while (lu != null) {
-			short type = sizeSACUnit(lu);
-			if (type != CSSUnit.CSS_INVALID) {
-				return type;
+	public static boolean isColorSACUnit(LexicalUnit lunit)
+			throws CSSLexicalProcessingException {
+		LexicalType type = lunit.getLexicalUnitType();
+		// ATTR may match <color>, so we check for it first
+		if (type != LexicalType.ATTR) {
+			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("color");
+			LexicalUnit lu;
+			if (lunit.getNextLexicalUnit() != null) {
+				lu = lunit.shallowClone();
+			} else {
+				lu = lunit;
 			}
-			lu = lu.getNextLexicalUnit();
-			if (lu != null && lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
-				lu = lu.getNextLexicalUnit();
+			switch (lu.matches(syntax)) {
+			case TRUE:
+				throwOnProxy(lu.getParameters());
+				return true;
+			case FALSE:
+				return false;
+			case PENDING:
 			}
 		}
-		return -1;
+
+		throw new CSSLexicalProcessingException("PROXY value found.");
 	}
 
-	/**
-	 * Get the unit type of the first dimension sub-value found.
-	 * 
-	 * @param lunit
-	 *            the lexical value.
-	 * @return the unit type of the first dimension sub-value found, or -1 if the value has no
-	 *         dimension sub-values.
-	 */
-	static short subexpressionDimensionUnit(LexicalUnit lunit) {
-		LexicalUnit lu = lunit.getSubValues();
-		while (lu != null) {
-			short type = sizeSACUnit(lu);
-			if (type != CSSUnit.CSS_INVALID) {
-				return type;
+	static void throwOnProxy(LexicalUnit param) throws CSSLexicalProcessingException {
+		while (param != null) {
+			LexicalType type = param.getLexicalUnitType();
+			if (type == LexicalType.VAR || type == LexicalType.ATTR) {
+				throw new CSSLexicalProcessingException("PROXY value found.");
 			}
-			lu = lu.getNextLexicalUnit();
-			if (lu != null && lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
-				lu = lu.getNextLexicalUnit();
-			}
+			throwOnProxy(param.getParameters());
+			param = param.getNextLexicalUnit();
 		}
-		return -1;
-	}
-
-	/**
-	 * If the supplied value represents a function, get the first argument that has
-	 * an explicit dimension.
-	 * 
-	 * @param lunit the lexical value.
-	 * @return the first dimension argument, null if the value has no dimension
-	 *         arguments.
-	 */
-	private static LexicalUnit firstDimensionArgument(LexicalUnit lunit) {
-		LexicalUnit lu = lunit.getParameters();
-		while (lu != null) {
-			LexicalType sacType = lu.getLexicalUnitType();
-			if (sacType == LexicalType.DIMENSION) {
-				return lu;
-			}
-			lu = lu.getNextLexicalUnit();
-		}
-		return null;
-	}
-
-	private static boolean isGradientFunction(LexicalUnit lunit) {
-		String name = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-		return name.endsWith("-gradient");
 	}
 
 	/**

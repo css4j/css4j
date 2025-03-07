@@ -131,6 +131,19 @@ public class BorderImageBuilderTest {
 	}
 
 	@Test
+	public void testBorderImageCalc() {
+		assertShorthandText(
+				"border-image:url('/img/border.png') calc(2*10%) calc(2*15%)/calc(4pt*.5) round;",
+				"border-image: url('/img/border.png') calc(2*10%) calc(2*15%) / calc(4pt*0.5) round;");
+	}
+
+	@Test
+	public void testBorderImageCalcSlice() {
+		assertShorthandText("border-image:url('foo.png') calc(5 + 3) repeat;border-width:8px;",
+				"border-width: 8px; border-image: url('foo.png') calc(5 + 3) repeat;");
+	}
+
+	@Test
 	public void testBorderImageImportant() {
 		assertShorthandText("border-image:url('/img/border.png') 25% 30% 12% 20% fill/2pt/1 round!important;",
 				"border-image: url('/img/border.png') 25% 30% 12% 20% fill / 2pt / 1 round ! important;");

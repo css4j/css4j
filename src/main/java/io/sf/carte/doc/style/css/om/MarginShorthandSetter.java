@@ -12,7 +12,9 @@
 package io.sf.carte.doc.style.css.om;
 
 class MarginShorthandSetter extends BoxShorthandSetter {
+
 	MarginShorthandSetter(BaseCSSStyleDeclaration style) {
 		super(style, "margin");
 	}
+
 }

@@ -433,6 +433,149 @@ public class PropertyParserCalcTest {
 	}
 
 	@Test
+	public void testParsePropertyValueCalcTime() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"calc(2s*1 + 100*2ms + 1/2Hz + 2s*3s/2s - 5ms/2ms*0.8s)");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<time>");
+		assertMatch(Match.TRUE, lu, "<time>#");
+		assertMatch(Match.TRUE, lu, "<time>+");
+		assertMatch(Match.FALSE, lu, "<frequency>");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <time>#");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueCalcFrequency() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"calc(2Hz*11 + 1.01*2kHz + 1/2s + 100Hz/1khz*2hz + 1Hz*2khz/50hz)");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<frequency>");
+		assertMatch(Match.TRUE, lu, "<frequency>#");
+		assertMatch(Match.TRUE, lu, "<frequency>+");
+		assertMatch(Match.FALSE, lu, "<time>");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <frequency>#");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueCalcSin() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("calc(2em*sin(45deg))");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "<length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<length-percentage>+");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueWebkitCalcAtan() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("-webkit-calc(2*atan(0.7))");
+		assertEquals("-webkit-calc", lu.getFunctionName());
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<angle>");
+		assertMatch(Match.TRUE, lu, "<angle>#");
+		assertMatch(Match.TRUE, lu, "<angle>+");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <angle>#");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueCalcPow() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("calc(2*sqrt(pow(2em,attr(data-exp type(<number>)))))");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "<length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<length-percentage>+");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueSqrtPow() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("sqrt(pow(2em,attr(data-exp type(<number>))))");
+		assertEquals("sqrt", lu.getFunctionName());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "<length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<length-percentage>+");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueSqrtPowWebkitCalc() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("sqrt(pow(2em,-webkit-calc(1 + 1)))");
+		assertEquals("sqrt", lu.getFunctionName());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "<length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<length-percentage>+");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueCalcInvalidUnit() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("calc(1em*1px)");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
+		assertEquals("calc(1em*1px)", lu.toString());
+
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<length>#");
+		assertMatch(Match.FALSE, lu, "<length>+");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <length-percentage>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <length-percentage>+");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <length-percentage>");
+	}
+
+	@Test
 	public void testParsePropertyValueCalcVarSubexpression() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("calc((var(--subexp)) * 3)");
 		assertEquals("calc", lu.getFunctionName());
@@ -1025,6 +1168,26 @@ public class PropertyParserCalcTest {
 	}
 
 	@Test
+	public void testParsePropertyValueAbs() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("abs(10em + 2% *1.2 - 1px/2)");
+		assertEquals("abs", lu.getFunctionName());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("abs(10em + 2%*1.2 - 1px/2)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<length-percentage>");
+		assertMatch(Match.TRUE, lu, "<length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<length-percentage>+");
+		assertMatch(Match.FALSE, lu, "<percentage>");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
+		assertMatch(Match.TRUE, lu, "<percentage> | <length-percentage>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
 	public void testParsePropertyValueMax() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("max(10em, 2%)");
 		assertEquals("max", lu.getFunctionName());
@@ -1450,6 +1613,114 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length>+");
 		assertMatch(Match.TRUE, lu, "<percentage> | <length>");
 		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValuePowAttr() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("sqrt(pow(3ex, attr(data-exp type(<integer>))))");
+		assertEquals("sqrt", lu.getFunctionName());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("sqrt(pow(3ex, attr(data-exp type(<integer>))))", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "<length>#");
+		assertMatch(Match.TRUE, lu, "<length>+");
+		assertMatch(Match.TRUE, lu, "<length-percentage>");
+		assertMatch(Match.TRUE, lu, "<length-percentage>#");
+		assertMatch(Match.TRUE, lu, "<length-percentage>+");
+		assertMatch(Match.FALSE, lu, "<percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <length>+");
+		assertMatch(Match.TRUE, lu, "<percentage> | <length>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValuePowAttrInvalidExponent() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("sqrt(pow(3ex, attr(data-exp type(<length>))))");
+		assertEquals("sqrt", lu.getFunctionName());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("sqrt(pow(3ex, attr(data-exp type(<length>))))", lu.toString());
+
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <length>#");
+	}
+
+	@Test
+	public void testParsePropertyValuePowVarBase() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("sqrt(pow(var(--my-exp),2))");
+		assertEquals("sqrt", lu.getFunctionName());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("sqrt(pow(var(--my-exp), 2))", lu.toString());
+
+		assertMatch(Match.PENDING, lu, "<number>");
+		assertMatch(Match.PENDING, lu, "<length>");
+		assertMatch(Match.PENDING, lu, "<percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValuePowNumberVarExp() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("sqrt(pow(3, var(--my-exp)))");
+		assertEquals("sqrt", lu.getFunctionName());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("sqrt(pow(3, var(--my-exp)))", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<number>");
+		assertMatch(Match.TRUE, lu, "<number>#");
+		assertMatch(Match.TRUE, lu, "<number>+");
+		assertMatch(Match.FALSE, lu, "<percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <number>#");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValuePowLengthVarExp() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("sqrt(pow(3ex, var(--my-exp)))");
+		assertEquals("sqrt", lu.getFunctionName());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("sqrt(pow(3ex, var(--my-exp)))", lu.toString());
+
+		assertMatch(Match.PENDING, lu, "<length>");
+		assertMatch(Match.PENDING, lu, "<length>#");
+		assertMatch(Match.FALSE, lu, "<percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+	}
+
+	@Test
+	public void testParsePropertyValuePowLengthFuncExpVar() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("sqrt(pow(3ex, abs(var(--my-exp))))");
+		assertEquals("sqrt", lu.getFunctionName());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("sqrt(pow(3ex, abs(var(--my-exp))))", lu.toString());
+
+		assertMatch(Match.PENDING, lu, "<length>");
+		assertMatch(Match.PENDING, lu, "<length>#");
+		assertMatch(Match.FALSE, lu, "<color>");
+	}
+
+	@Test
+	public void testParsePropertyValuePowLengthFuncExpVar2() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("sqrt(pow(3ex, pow(2em,var(--my-exp))/2px))");
+		assertEquals("sqrt", lu.getFunctionName());
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("sqrt(pow(3ex, pow(2em, var(--my-exp))/2px))", lu.toString());
+
+		assertMatch(Match.PENDING, lu, "<length>");
+		assertMatch(Match.PENDING, lu, "<length>#");
+		assertMatch(Match.FALSE, lu, "<color>");
 	}
 
 	@Test

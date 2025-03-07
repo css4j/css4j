@@ -35,7 +35,7 @@ class OrderedTwoLPIShorthandSetter extends OrderedTwoIdentifierShorthandSetter {
 				}
 				return true;
 			}
-		} else if (ValueFactory.isSizeSACUnit(currentValue)) {
+		} else if (ValueFactory.isLengthPercentageSACUnit(currentValue)) {
 			cssval = createCSSValue(subparray[0], currentValue);
 			setSubpropertyValue(subparray[0], cssval);
 			if (currentValue.getNextLexicalUnit() == null) {
@@ -56,7 +56,7 @@ class OrderedTwoLPIShorthandSetter extends OrderedTwoIdentifierShorthandSetter {
 				setSubpropertyValue(subparray[1], cssval);
 				return true;
 			}
-		} else if (ValueFactory.isSizeSACUnit(currentValue)) {
+		} else if (ValueFactory.isLengthPercentageSACUnit(currentValue)) {
 			cssval = createCSSValue(subparray[1], currentValue);
 			setSubpropertyValue(subparray[1], cssval);
 			return true;

@@ -669,10 +669,14 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case COLOR_FUNCTION:
 		case COLOR_MIX:
 			return matchBoolean(cat == Category.color);
+		case FUNCTION:
+			String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
+			if (func.charAt(0) != '-' || !func.endsWith("-calc")) {
+				return matchFunction(func, rootSyntax, syntax);
+			}
+			// browser-prefixed calc()
 		case CALC:
 			return isNumericCategory(cat) ? matchExpression(lexicalUnit, rootSyntax, syntax) : Match.FALSE;
-		case FUNCTION:
-			return matchFunction(lexicalUnit, rootSyntax, syntax);
 		case MATH_FUNCTION:
 			if (isNumericCategory(cat)) {
 				DimensionalAnalyzer danal = new DimensionalAnalyzer();
@@ -945,7 +949,9 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			}
 
 			if (match == Match.TRUE) {
-				return Match.TRUE;
+				if (dim.isCSS()) {
+					return Match.TRUE;
+				}
 			} else if (expected != Match.PENDING) {
 				expected = match;
 			}
@@ -994,10 +1000,9 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 				&& lexicalUnit.getPreviousLexicalUnit() == null;
 	}
 
-	private static Match matchFunction(LexicalUnitImpl lexicalUnit, CSSValueSyntax rootSyntax,
+	private static Match matchFunction(String func, CSSValueSyntax rootSyntax,
 			CSSValueSyntax syntax) {
 		Category cat = syntax.getCategory();
-		String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
 		if (func.endsWith("-gradient") || func.equals("image") || func.equals("image-set")
 				|| func.equals("cross-fade")) {
 			return matchBoolean(cat == Category.image);

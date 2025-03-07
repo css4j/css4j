@@ -690,19 +690,33 @@ public class CompatInlineDeclarationTest {
 		emptyStyleDecl.setCssText("margin-top: 10px;");
 		emptyStyleDecl.addStyle(style);
 		assertEquals("margin: 8px; ", emptyStyleDecl.getCssText());
+
 		emptyStyleDecl.setCssText("margin: 8px;");
 		style.setCssText("margin-top: 10px; margin-right: 11px; margin-bottom: 12px; margin-left: 13px; ");
 		emptyStyleDecl.addStyle(style);
 		assertEquals("margin-top: 10px; margin-right: 11px; margin-bottom: 12px; margin-left: 13px; ",
 				emptyStyleDecl.getCssText());
+
 		emptyStyleDecl.setCssText("margin: 8px ! important");
 		style.setCssText("margin-top: 10px; margin-right: 11px; margin-bottom: 12px; margin-left: 13px; ");
 		emptyStyleDecl.addStyle(style);
 		assertEquals("margin: 8px ! important; ", emptyStyleDecl.getCssText());
-		emptyStyleDecl.setCssText("border: 10%");
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+
 		style.setCssText("border: 8px white; border-color: yellow ; ");
+		// Set a wrong border
+		emptyStyleDecl.setCssText("border: 10%");
 		emptyStyleDecl.addStyle(style);
 		assertEquals("border: 8px white; border-color: yellow; ", emptyStyleDecl.getCssText());
+		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
+		getStyleDeclarationErrorHandler().reset();
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+
+		style.setCssText("border: 1%; border-top-color: #122");
+		emptyStyleDecl.setCssText("margin: 2px;");
+		emptyStyleDecl.addStyle(style);
+		assertEquals("margin: 2px; border-top-color: #122; ", emptyStyleDecl.getCssText());
+		// Errors aren't added
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 	}
 

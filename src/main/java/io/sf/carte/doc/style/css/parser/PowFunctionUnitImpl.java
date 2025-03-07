@@ -30,7 +30,7 @@ class PowFunctionUnitImpl extends MathFunctionUnitImpl {
 		}
 		Dimension dim = analyzer.expressionDimension(parameters.shallowClone());
 		if (dim != null) {
-			if (dim.category != Category.number) {
+			if (dim.category != Category.number && dim.category != Category.integer) {
 				LexicalUnitImpl comma = parameters.nextLexicalUnit;
 				if (comma == null || comma.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
 					throw new DOMException(DOMException.SYNTAX_ERR,
@@ -41,10 +41,38 @@ class PowFunctionUnitImpl extends MathFunctionUnitImpl {
 					throw new DOMException(DOMException.SYNTAX_ERR,
 							"Missing argument in pow() function.");
 				}
-				if (expUnit.getLexicalUnitType() == LexicalType.INTEGER) {
+				switch (expUnit.getLexicalUnitType()) {
+				case INTEGER:
 					dim.exponent = dim.exponent * expUnit.getIntegerValue();
-				} else if (expUnit.getLexicalUnitType() == LexicalType.REAL) {
+					break;
+				case REAL:
 					dim.exponent = Math.round(dim.exponent * expUnit.getFloatValue());
+					dim.exponentAccuracy = 1; // Just in case
+					break;
+				case VAR:
+					dim.exponentAccuracy = 2;
+					break;
+				case FUNCTION:
+				case ATTR:
+				case CALC:
+				case SUB_EXPRESSION:
+				case MATH_FUNCTION:
+					Dimension dimexp = analyzer.expressionDimension(expUnit);
+					if (dimexp == null) {
+						dim.exponentAccuracy = 2;
+						break;
+					}
+					if (dimexp.category == Category.number || dimexp.category == Category.integer) {
+						if (dimexp.exponentAccuracy == 2) {
+							dim.exponentAccuracy = 2;
+						} else {
+							dim.exponentAccuracy = 1;
+						}
+						break;
+					}
+				default:
+					throw new DOMException(DOMException.SYNTAX_ERR,
+							"Invalid argument in pow() function: " + expUnit.getCssText());
 				}
 			} // No matter the exponent, a number is a number
 		}

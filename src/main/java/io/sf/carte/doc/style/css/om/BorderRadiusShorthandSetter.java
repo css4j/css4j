@@ -80,7 +80,7 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 		} else {
 			if (currentValue.getLexicalUnitType() == LexicalType.OPERATOR_SLASH) {
 				return defval;
-			} else if (ValueFactory.isSizeSACUnit(currentValue) || isCustomProperty()) {
+			} else if (ValueFactory.isPositiveSizeSACUnit(currentValue) || isCustomProperty()) {
 				StyleValue value = createCSSValue(getShorthandName(), currentValue);
 				nextCurrentValue();
 				return value;

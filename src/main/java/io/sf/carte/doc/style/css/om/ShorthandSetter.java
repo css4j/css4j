@@ -160,7 +160,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 					if (property.endsWith("-color")) {
 						LexicalUnit param = lu.getParameters();
 						while (param != null) {
-							if (BaseCSSStyleDeclaration.testColor(param)) {
+							if (testColor(param)) {
 								setSubpropertyValue(property, createCSSValue(property, lu));
 								it.remove();
 								continue valueloop;
@@ -283,6 +283,17 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	protected String[] getShorthandSubproperties() {
 		return getShorthandDatabase().getShorthandSubproperties(getShorthandName());
+	}
+
+	/**
+	 * Test if the value is a color.
+	 * 
+	 * @param lunit the lexical unit to test.
+	 * @return true if the value is a color.
+	 */
+	static boolean testColor(LexicalUnit lunit) {
+		CSSValueSyntax syn = SyntaxParser.createSimpleSyntax("color");
+		return lunit.shallowClone().matches(syn) == Match.TRUE;
 	}
 
 	protected void nextCurrentValue() {
@@ -437,11 +448,11 @@ class ShorthandSetter extends BaseShorthandSetter {
 			return true;
 		}
 		if (subproperty.endsWith("-color")) {
-			if (BaseCSSStyleDeclaration.testColor(currentValue)) {
+			if (testColor(currentValue)) {
 				return setCurrentValue(subproperty);
 			}
 		} else if (subproperty.endsWith("-width")) {
-			if (ValueFactory.isSizeSACUnit(currentValue)) {
+			if (ValueFactory.isLengthSACUnit(currentValue)) {
 				return setCurrentValue(subproperty);
 			}
 		} else if (subproperty.endsWith("-image") && isImage()) {

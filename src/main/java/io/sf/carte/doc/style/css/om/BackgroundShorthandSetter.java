@@ -280,7 +280,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	 */
 	private byte assignLayerValue(int i, Set<String> subp) {
 		byte retVal;
-		if (subp.contains("background-color") && BaseCSSStyleDeclaration.testColor(currentValue)) {
+		if (subp.contains("background-color") && testColor(currentValue)) {
 			StyleValue cssValue = createCSSValue("background-color", currentValue);
 			setSubpropertyValue("background-color", cssValue);
 			subp.remove("background-color");
@@ -430,7 +430,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 
 	private boolean testBackgroundPosition(ValueList posList) {
 		if ((currentValue.getLexicalUnitType() == LexicalType.IDENT && testIdentifiers("background-position"))
-				|| ValueFactory.isSizeSACUnit(currentValue)) {
+				|| ValueFactory.isLengthPercentageSACUnit(currentValue)) {
 			ValueList list = ValueList.createWSValueList();
 			StyleValue value = createCSSValue("background-position", currentValue);
 			list.add(value);
@@ -439,7 +439,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			while (nlu != null && count < 4) { // Up to 4 values per layer
 				if ((nlu.getLexicalUnitType() == LexicalType.IDENT
 						&& getShorthandDatabase().isIdentifierValue("background-position", nlu.getStringValue()))
-						|| ValueFactory.isSizeSACUnit(nlu) || nlu.matches(lengthPercentage) == Match.TRUE) {
+						|| ValueFactory.isLengthPercentageSACUnit(nlu) || nlu.matches(lengthPercentage) == Match.TRUE) {
 					value = createCSSValue("background-position", nlu);
 					list.add(value);
 					count++;
@@ -492,7 +492,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 
 	private boolean testBackgroundSize(int i, Set<String> subp) {
 		if ((currentValue.getLexicalUnitType() == LexicalType.IDENT && testIdentifiers("background-size"))
-				|| ValueFactory.isSizeSACUnit(currentValue)) {
+				|| ValueFactory.isLengthPercentageSACUnit(currentValue)) {
 			ValueList list = ValueList.createWSValueList();
 			StyleValue value = createCSSValue("background-size", currentValue);
 			list.add(value);
@@ -502,7 +502,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			if (nlu != null) {
 				if ((nlu.getLexicalUnitType() == LexicalType.IDENT
 						&& getShorthandDatabase().isIdentifierValue("background-size", nlu.getStringValue()))
-						|| ValueFactory.isSizeSACUnit(nlu) || nlu.matches(lengthPercentage) == Match.TRUE) {
+						|| ValueFactory.isLengthPercentageSACUnit(nlu) || nlu.matches(lengthPercentage) == Match.TRUE) {
 					value = createCSSValue("background-size", nlu);
 					list.add(value);
 					nextCurrentValue();

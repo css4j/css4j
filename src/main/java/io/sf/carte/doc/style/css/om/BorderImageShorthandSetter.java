@@ -74,7 +74,8 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 				}
 				nextCurrentValue();
 				continue;
-			} else if (ValueFactory.isPlainNumberOrPercentSACUnit(currentValue)) {
+			} else if (ValueFactory.isPercentageOrNumberSACUnit(currentValue)) {
+				// slice is positive <percentage> | <number>
 				// slice / width / outset
 				ValueList list = ValueList.createWSValueList();
 				do {
@@ -108,7 +109,8 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 						if (lut == LexicalType.OPERATOR_SLASH) {
 							// Empty width: set outset
 							nextCurrentValue();
-							if (!ValueFactory.isSizeOrNumberSACUnit(currentValue)) {
+							// outset is positive <length> | <number>
+							if (!ValueFactory.isLengthOrNumberSACUnit(currentValue)) {
 								// Report error
 								StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
 								if (errHandler != null) {
@@ -123,7 +125,7 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 							list = ValueList.createWSValueList();
 							byte c = 0;
 							do {
-								if (!ValueFactory.isSizeOrNumberSACUnit(currentValue)) {
+								if (!ValueFactory.isLengthOrNumberSACUnit(currentValue)) {
 									break;
 								}
 								list.add(createCSSValue("border-image-outset", currentValue));
@@ -137,6 +139,7 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 							continue;
 						} else {
 							// width / outset
+							// width is <length-percentage> | <number> | auto
 							if (lut == LexicalType.IDENT) {
 								// auto
 								if (!"auto".equalsIgnoreCase(currentValue.getStringValue())) {
@@ -147,6 +150,7 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 								biwidthUnset = false;
 								nextCurrentValue();
 							} else {
+								// check <length-percentage> | <number>
 								byte c = 0;
 								list = ValueList.createWSValueList();
 								do {
@@ -173,7 +177,8 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 										break;
 									}
 									list = ValueList.createWSValueList();
-									while (ValueFactory.isSizeOrNumberSACUnit(currentValue) && c < 4) {
+									// outset is positive <length> | <number>
+									while (ValueFactory.isLengthOrNumberSACUnit(currentValue) && c < 4) {
 										list.add(createCSSValue("border-image-outset", currentValue));
 										nextCurrentValue();
 										if (currentValue == null) {

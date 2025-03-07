@@ -175,7 +175,7 @@ class BoxShorthandSetter extends ShorthandSetter {
 	}
 
 	boolean isValueOfType(LexicalUnit value) {
-		return ValueFactory.isSizeSACUnit(value);
+		return ValueFactory.isLengthPercentageSACUnit(value);
 	}
 
 	boolean isIdentifierValue(String lcIdent) {
