@@ -1089,38 +1089,15 @@ abstract class SimpleBoxModel {
 			}
 			if (cssval != null) {
 				if (cssval.getCssValueType() != CssType.TYPED) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected border-width value: " + cssval.getCssText());
+					throw new DOMException(DOMException.SYNTAX_ERR,
+							"Unexpected border-width value: " + cssval.getCssText());
 				}
-				float fval;
 				CSSTypedValue cssprim = (CSSTypedValue) cssval;
+				float fval;
 				if (cssprim.getPrimitiveType() == Type.IDENT) {
-					short declType;
-					if (getStyleDatabase() == null) {
-						if (getComplianceMode() != CSSDocument.ComplianceMode.QUIRKS) {
-							StyleDatabaseRequiredException pve = new StyleDatabaseRequiredException(
-									"No style database, and " + propertyName + " value is an identifier.");
-							pve.setValueText(cssval.getCssText());
-							throw pve;
-						} else {
-							float sz = getComputedStyle().getComputedFontSize();
-							String sv = cssprim.getStringValue();
-							if (sv.equalsIgnoreCase("thin")) {
-								fval = (float) Math.floor(1d + sz * 0.05d);
-							} else if (sv.equalsIgnoreCase("thick")) {
-								fval = (float) Math.floor(4d + sz * 0.15d);
-							} else {
-								// Otherwise assume medium (default)
-								fval = (float) Math.floor(2d + sz * 0.1d);
-							}
-							declType = CSSUnit.CSS_PT;
-						}
-					} else {
-						declType = getStyleDatabase().getNaturalUnit();
-						fval = getStyleDatabase().getWidthSize(cssprim.getStringValue(),
-								styledecl.getComputedFontSize());
-					}
-					if (unitType != declType) {
-						fval = NumberValue.floatValueConversion(fval, declType, unitType);
+					fval = getWidthSizePt(cssprim.getStringValue());
+					if (unitType != CSSUnit.CSS_PT) {
+						fval = NumberValue.floatValueConversion(fval, CSSUnit.CSS_PT, unitType);
 					}
 				} else {
 					fval = findNumericBoxProperty(styledecl, propertyName, cssprim, unitType);
@@ -1131,15 +1108,14 @@ abstract class SimpleBoxModel {
 		return 0f;
 	}
 
-	private CSSDocument.ComplianceMode getComplianceMode() {
-		Node node = getComputedStyle().getOwnerNode();
-		if (node != null) { // Probably unneeded check
-			CSSDocument document = (CSSDocument) node.getOwnerDocument();
-			if (document != null) {
-				return document.getComplianceMode();
-			}
+	private float getWidthSizePt(String widthIdentifier) {
+		if ("thin".equalsIgnoreCase(widthIdentifier)) {
+			return 0.75f; // 1px
+		} else if ("thick".equalsIgnoreCase(widthIdentifier)) {
+			return 3.75f; // 5px
+		} else {
+			return 2.25f; // 3px
 		}
-		return CSSDocument.ComplianceMode.STRICT;
 	}
 
 	private float findNumericBoxProperty(ComputedCSSStyle styledecl, String propertyName, CSSTypedValue cssprim,
