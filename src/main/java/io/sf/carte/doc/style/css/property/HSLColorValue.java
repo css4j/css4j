@@ -92,7 +92,12 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 
 	@Override
 	public RGBAColor toRGBColor() throws DOMException {
-		double[] rgb = hslColor.toSRGB(false);
+		return toRGBColor(true);
+	}
+
+	@Override
+	public RGBAColor toRGBColor(boolean clamp) throws DOMException {
+		double[] rgb = hslColor.toSRGB(clamp);
 		CSSRGBColor color = new CSSRGBColor();
 		color.setColorComponents(rgb);
 		color.setAlpha(hslColor.alpha.clone());
