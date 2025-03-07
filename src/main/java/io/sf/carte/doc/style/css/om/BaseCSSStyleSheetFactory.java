@@ -361,7 +361,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 			return classLoader.getResourceAsStream(
 					resourcePath(BaseCSSStyleSheetFactory.class.getPackage().getName(), cssFilename));
 		} else {
-			return this.getClass().getResourceAsStream(cssFilename);
+			return BaseCSSStyleSheetFactory.class.getResourceAsStream(cssFilename);
 		}
 	}
 
