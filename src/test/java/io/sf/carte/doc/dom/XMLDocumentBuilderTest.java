@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -262,7 +262,8 @@ public class XMLDocumentBuilderTest {
 	public void testParseInputSourceOnlySystem() throws SAXException, IOException {
 		HTMLDocument document = (HTMLDocument) parseDocument("entities-systemdtd.xhtml");
 		assertNotNull(document);
-		assertEquals("http://www.example.com/xml/entities-systemdtd.xhtml", document.getDocumentURI());
+		assertEquals("http://www.example.com/xml/entities-systemdtd.xhtml",
+				document.getDocumentURI());
 		assertEquals("http://www.example.com/", document.getBaseURI());
 		Node node = document.getFirstChild();
 		assertNotNull(node);
@@ -274,7 +275,8 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(node);
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 		assertEquals(" Last comment before the DOCTYPE ", ((Comment) node).getData());
-		assertEquals("<!DOCTYPE html SYSTEM \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
+		assertEquals(
+				"<!DOCTYPE html SYSTEM \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
 				docType.toString());
 		node = docType.getNextSibling();
 		assertNotNull(node);
@@ -314,7 +316,8 @@ public class XMLDocumentBuilderTest {
 		domImpl.setXmlOnly(true);
 		DOMDocument document = parseDocument("entities-systemdtd.xhtml");
 		assertNotNull(document);
-		assertEquals("http://www.example.com/xml/entities-systemdtd.xhtml", document.getDocumentURI());
+		assertEquals("http://www.example.com/xml/entities-systemdtd.xhtml",
+				document.getDocumentURI());
 		assertEquals("http://www.example.com/xml/entities-systemdtd.xhtml", document.getBaseURI());
 		Node node = document.getFirstChild();
 		assertNotNull(node);
@@ -326,7 +329,8 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(node);
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 		assertEquals(" Last comment before the DOCTYPE ", ((Comment) node).getData());
-		assertEquals("<!DOCTYPE html SYSTEM \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
+		assertEquals(
+				"<!DOCTYPE html SYSTEM \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
 				docType.toString());
 		node = docType.getNextSibling();
 		assertNotNull(node);
@@ -361,16 +365,18 @@ public class XMLDocumentBuilderTest {
 
 	@Test
 	@Timeout(value = 1000, unit = TimeUnit.MILLISECONDS)
-	public void testParseInputSourceNoEntityResolver() throws SAXException, ParserConfigurationException, IOException {
+	public void testParseInputSourceNoEntityResolver()
+			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
 		try {
-			builder.getSAXParserFactory().setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-					false);
+			builder.getSAXParserFactory().setFeature(
+					"http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 		} catch (SAXException e) {
 		}
 		HTMLDocument document = (HTMLDocument) parseDocument("entities-fulldtd.xhtml");
 		assertNotNull(document);
-		assertEquals("http://www.example.com/xml/entities-fulldtd.xhtml", document.getDocumentURI());
+		assertEquals("http://www.example.com/xml/entities-fulldtd.xhtml",
+				document.getDocumentURI());
 		assertEquals("http://www.example.com/", document.getBaseURI());
 		Node node = document.getFirstChild();
 		assertNotNull(node);
@@ -424,15 +430,16 @@ public class XMLDocumentBuilderTest {
 			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
 		try {
-			builder.getSAXParserFactory().setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-					false);
+			builder.getSAXParserFactory().setFeature(
+					"http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 		} catch (SAXException e) {
 		}
 		domImpl.setXmlOnly(true);
 		DOMDocument document = parseDocument("entities-fulldtd.xhtml");
 		assertNotNull(document);
 		assertFalse(document instanceof HTMLDocument);
-		assertEquals("http://www.example.com/xml/entities-fulldtd.xhtml", document.getDocumentURI());
+		assertEquals("http://www.example.com/xml/entities-fulldtd.xhtml",
+				document.getDocumentURI());
 		assertEquals("http://www.example.com/", document.getBaseURI());
 		Node node = document.getFirstChild();
 		assertNotNull(node);
@@ -478,13 +485,14 @@ public class XMLDocumentBuilderTest {
 			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
 		try {
-			builder.getSAXParserFactory().setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-					false);
+			builder.getSAXParserFactory().setFeature(
+					"http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 		} catch (SAXException e) {
 		}
 		HTMLDocument document = (HTMLDocument) parseDocument("entities-systemdtd.xhtml");
 		assertNotNull(document);
-		assertEquals("http://www.example.com/xml/entities-systemdtd.xhtml", document.getDocumentURI());
+		assertEquals("http://www.example.com/xml/entities-systemdtd.xhtml",
+				document.getDocumentURI());
 		assertEquals("http://www.example.com/", document.getBaseURI());
 		Node node = document.getFirstChild();
 		assertNotNull(node);
@@ -496,7 +504,8 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(node);
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 		assertEquals(" Last comment before the DOCTYPE ", ((Comment) node).getData());
-		assertEquals("<!DOCTYPE html SYSTEM \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
+		assertEquals(
+				"<!DOCTYPE html SYSTEM \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
 				docType.toString());
 		node = docType.getNextSibling();
 		assertNotNull(node);
@@ -538,14 +547,15 @@ public class XMLDocumentBuilderTest {
 		domImpl.setXmlOnly(true);
 		builder.setEntityResolver(null);
 		try {
-			builder.getSAXParserFactory().setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-					false);
+			builder.getSAXParserFactory().setFeature(
+					"http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
 		} catch (SAXException e) {
 		}
 		DOMDocument document = parseDocument("entities-systemdtd.xhtml");
 		assertNotNull(document);
 		assertFalse(document instanceof HTMLDocument);
-		assertEquals("http://www.example.com/xml/entities-systemdtd.xhtml", document.getDocumentURI());
+		assertEquals("http://www.example.com/xml/entities-systemdtd.xhtml",
+				document.getDocumentURI());
 		assertEquals("http://www.example.com/xml/entities-systemdtd.xhtml", document.getBaseURI());
 		Node node = document.getFirstChild();
 		assertNotNull(node);
@@ -557,7 +567,8 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(node);
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 		assertEquals(" Last comment before the DOCTYPE ", ((Comment) node).getData());
-		assertEquals("<!DOCTYPE html SYSTEM \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
+		assertEquals(
+				"<!DOCTYPE html SYSTEM \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">",
 				docType.toString());
 		node = docType.getNextSibling();
 		assertNotNull(node);
@@ -586,58 +597,72 @@ public class XMLDocumentBuilderTest {
 
 	@Test
 	@Timeout(value = 900, unit = TimeUnit.MILLISECONDS)
-	public void testParseInputSourceNoEntityResolverFullDTDFail() throws SAXException, ParserConfigurationException, IOException {
+	public void testParseInputSourceNoEntityResolverFullDTDFail()
+			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
-		try {
-			parseDocument("entities-fulldtd.xhtml");
-			fail("Must throw exception");
-		} catch (SAXParseException e) {
-		}
+		assertThrows(SAXParseException.class, () -> parseDocument("entities-fulldtd.xhtml"));
 	}
 
 	@Test
 	@Timeout(value = 900, unit = TimeUnit.MILLISECONDS)
-	public void testParseInputSourceNoEntityResolverSystemDTDFail() throws SAXException, ParserConfigurationException, IOException {
+	public void testParseInputSourceNoEntityResolverSystemDTDFail()
+			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
-		try {
-			parseDocument("entities-systemdtd.xhtml");
-			fail("Must throw exception");
-		} catch (SAXParseException e) {
-		}
+		assertThrows(SAXParseException.class, () -> parseDocument("entities-systemdtd.xhtml"));
 	}
 
 	@Test
-	public void testParseInputSourceXXE() throws SAXException, ParserConfigurationException, IOException {
+	public void testParseInputSourceNoER_XXE()
+			throws SAXException, ParserConfigurationException, IOException {
+		builder.setEntityResolver(null);
+		String text = "<!DOCTYPE foo SYSTEM \"http://www.example.com/etc/fakepasswd\"><foo>xxx&yyy;zzz</foo>";
+		assertThrows(SAXParseException.class,
+				() -> builder.parse(new InputSource(new StringReader(text))));
+	}
+
+	@Test
+	public void testParseInputSourceXXE()
+			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(new TestEntityResolver());
 		String text = "<!DOCTYPE foo SYSTEM \"http://www.example.com/etc/fakepasswd\"><foo>xxx&yyy;zzz</foo>";
-		try {
-			builder.parse(new InputSource(new StringReader(text)));
-			fail("Must throw exception");
-		} catch (SAXException e) {
-		}
+		assertThrows(SAXException.class,
+				() -> builder.parse(new InputSource(new StringReader(text))));
 	}
 
 	@Test
-	public void testParseInputSourceXXE2() throws SAXException, ParserConfigurationException, IOException {
+	public void testParseInputSourceNoER_XXE2()
+			throws SAXException, ParserConfigurationException, IOException {
+		builder.setEntityResolver(null);
+		String text = "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY yyy SYSTEM \"http://www.example.com/etc/fakepasswd\">]><foo>xxx&yyy;zzz</foo>";
+		Document document = builder.parse(new InputSource(new StringReader(text)));
+		assertNotNull(document);
+		DocumentType dtype = document.getDoctype();
+		assertNotNull(dtype);
+		assertEquals("foo", dtype.getName());
+		assertNull(dtype.getSystemId());
+		assertNull(dtype.getEntities());
+		org.w3c.dom.Element element = document.getDocumentElement();
+		assertNotNull(element);
+		assertEquals("xxxzzz", element.getTextContent());
+	}
+
+	@Test
+	public void testParseInputSourceXXE2()
+			throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(new TestEntityResolver());
 		String text = "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY yyy SYSTEM \"http://www.example.com/etc/fakepasswd\">]><foo>xxx&yyy;zzz</foo>";
-		try {
-			builder.parse(new InputSource(new StringReader(text)));
-			fail("Must throw exception");
-		} catch (SAXException e) {
-		}
+		assertThrows(SAXException.class,
+				() -> builder.parse(new InputSource(new StringReader(text))));
 	}
 
 	@Test
-	public void testParseInputSourceFileNotFound() throws SAXException, ParserConfigurationException, IOException {
+	public void testParseInputSourceFileNotFound()
+			throws SAXException, ParserConfigurationException, IOException {
 		TestEntityResolver resolver = new TestEntityResolver();
 		builder.setEntityResolver(resolver);
 		String text = "<!DOCTYPE foo SYSTEM \"https://www.example.com/does/not/exist\"><foo>xxx&yyy;zzz</foo>";
-		try {
-			builder.parse(new InputSource(new StringReader(text)));
-			fail("Must throw exception");
-		} catch (FileNotFoundException e) {
-		}
+		assertThrows(FileNotFoundException.class,
+				() -> builder.parse(new InputSource(new StringReader(text))));
 	}
 
 	@Test
@@ -692,12 +717,11 @@ public class XMLDocumentBuilderTest {
 
 	@Test
 	public void testParseInputSourceBadVoidChild() throws SAXException, IOException {
-		try {
-			parseDocument(new StringReader("<!DOCTYPE html><html><body><br id='brid'>foo</br></body></html>"),
-					"badvoidchild.xhtml");
-			fail("Must throw exception");
-		} catch (SAXParseException e) {
-		}
+		assertThrows(SAXParseException.class,
+				() -> parseDocument(
+						new StringReader(
+								"<!DOCTYPE html><html><body><br id='brid'>foo</br></body></html>"),
+						"badvoidchild.xhtml"));
 	}
 
 	@Test
