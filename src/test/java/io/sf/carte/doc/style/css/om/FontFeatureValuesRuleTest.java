@@ -79,8 +79,7 @@ public class FontFeatureValuesRuleTest {
 		assertTrue(rule.getStyleset() == rule.getFeatureValuesMap("styleset"));
 		assertTrue(rule.getStylistic() == rule.getFeatureValuesMap("stylistic"));
 		//
-		NumberValue number;
-		number = new NumberValue();
+		NumberValue number = new NumberValue();
 		number.setIntegerValue(4);
 		CSSFontFeatureValuesMap annot = rule.getAnnotation();
 		annot.set("boxed", number);

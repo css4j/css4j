@@ -62,6 +62,7 @@ public final class ShorthandDatabase {
 	 * @param loader the loader.
 	 * @deprecated See {@link #getInstance(ClassLoader)}
 	 */
+	@Deprecated
 	public ShorthandDatabase(ClassLoader loader) {
 		super();
 		/*

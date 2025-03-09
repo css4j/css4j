@@ -166,8 +166,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 			SimpleSelector desc = ((CombinatorSelector) selector).getSecondSelector();
 			if (matches(desc)) {
 				Selector ancestor = ((CombinatorSelector) selector).getSelector();
-				SelectorMatcher parentSM;
-				parentSM = getParentSelectorMatcher();
+				SelectorMatcher parentSM = getParentSelectorMatcher();
 				if (parentSM != null && parentSM.matches(ancestor)) {
 					return true;
 				}

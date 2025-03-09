@@ -51,7 +51,6 @@ import io.sf.carte.doc.DocumentException;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
-import io.sf.carte.doc.style.css.CSSFontFeatureValuesRule;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -212,7 +211,7 @@ public class StylableDocumentWrapperTest {
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
 		assertEquals(CssType.TYPED, ffval.getCssValueType());
 		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
-		assertTrue(((CSSFontFeatureValuesRule) sheet.getCssRules().item(2)).getMinifiedCssText()
+		assertTrue(sheet.getCssRules().item(2).getMinifiedCssText()
 				.startsWith("@font-feature-values Foo Sans,Bar"));
 
 		assertTrue(it.hasNext());

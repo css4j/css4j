@@ -319,7 +319,7 @@ public class Evaluator {
 		}
 
 		if (function.isExpectingInteger()) {
-			((CSSNumberValue) result).roundToInteger();
+			result.roundToInteger();
 		}
 
 		return result;
@@ -608,9 +608,7 @@ public class Evaluator {
 		f1 = NumberValue.floatValueConversion(f1, resultUnit.getUnitType(), unit);
 		resultUnit.setUnitType(unit);
 
-		float result;
-
-		result = (float) (f1 - (((int) (f1 / f2)) * f2));
+		float result = f1 - (((int) (f1 / f2)) * f2);
 
 		return createNumberValue(unit, result, true);
 	}

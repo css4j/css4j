@@ -155,6 +155,7 @@ public class CSSValueMediaQueryFactory implements MediaQueryFactory {
 			super();
 		}
 
+		@Override
 		protected MediaQueryImpl createMediaQuery() {
 			return new MediaQueryImpl() {
 

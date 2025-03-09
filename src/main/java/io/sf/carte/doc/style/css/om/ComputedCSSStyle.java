@@ -1146,7 +1146,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 						}
 					}
 					try {
-						typed2.setComponent(i, (StyleValue) mathFunction);
+						typed2.setComponent(i, mathFunction);
 					} catch (RuntimeException e1) {
 						// Probably the problem already reported, ignore
 					}

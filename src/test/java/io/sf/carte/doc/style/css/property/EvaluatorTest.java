@@ -753,7 +753,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(3.6f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -770,7 +770,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(3f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -788,7 +788,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(1.2f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -806,7 +806,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(3f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -823,7 +823,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(2f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -841,7 +841,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(2.7f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -859,7 +859,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(2.25f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -910,7 +910,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(3.6f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -928,7 +928,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(3.6f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -946,7 +946,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(3.6f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -965,7 +965,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(4f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -984,7 +984,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(5f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -1001,7 +1001,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(3f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -1018,7 +1018,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(3.543308f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1090,7 +1090,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(5.656854f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1109,7 +1109,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(12f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -1128,7 +1128,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(8f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -1147,7 +1147,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(16f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -1165,7 +1165,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(5.656854f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1182,7 +1182,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(6.80315f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1199,7 +1199,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(7.5f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1296,7 +1296,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(8f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1313,7 +1313,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(9f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1330,7 +1330,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(9f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1347,7 +1347,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1364,7 +1364,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(8f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1382,7 +1382,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(300f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1399,7 +1399,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(-200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1416,7 +1416,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(7f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1434,7 +1434,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1451,7 +1451,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(-300f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1468,7 +1468,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(7f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1485,7 +1485,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(-7f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1502,7 +1502,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1519,7 +1519,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(-200f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1536,7 +1536,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(1f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1553,7 +1553,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(-1f, typed.getFloatValue(CSSUnit.CSS_PX), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1583,7 +1583,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(2f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1600,7 +1600,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(1f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1617,7 +1617,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(-45f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1634,7 +1634,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(10f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1664,7 +1664,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(1.3f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1681,7 +1681,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(-2f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1698,7 +1698,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(-3f, typed.getFloatValue(CSSUnit.CSS_VW), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1715,7 +1715,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(50f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1732,7 +1732,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(-10f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1763,7 +1763,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(0.1045285f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1780,7 +1780,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(0.5f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-7f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1797,7 +1797,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(1f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1814,7 +1814,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(1f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1880,7 +1880,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(0.994522f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1898,7 +1898,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(-1f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-3f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1915,7 +1915,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(0.86604482f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1971,7 +1971,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(0.105104f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -1988,7 +1988,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(1.17580979f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-7f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2054,7 +2054,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(23.578178f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2104,7 +2104,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(66.421822f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2122,7 +2122,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(2.0944f, typed.getFloatValue(CSSUnit.CSS_RAD), 1e-4f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2183,7 +2183,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(21.80141f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2200,7 +2200,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(26.565051f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2250,7 +2250,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(-75.06858f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2267,7 +2267,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(165.068588f, typed.getFloatValue(CSSUnit.CSS_DEG), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2317,7 +2317,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(46.656f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-3f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2360,7 +2360,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(2.533696814f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2377,7 +2377,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(1.8609366207f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-7f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2420,7 +2420,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(828.8175f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-3f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2451,7 +2451,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(1.897367f, typed.getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2468,7 +2468,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(0.579673f, typed.getFloatValue(CSSUnit.CSS_MM), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2486,7 +2486,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<number>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(0.687398f, typed.getFloatValue(CSSUnit.CSS_RAD), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2542,7 +2542,7 @@ public class EvaluatorTest {
 		assertEquals(MathFunction.HYPOT, val.getFunction());
 		assertEquals(CSSUnit.CSS_PT, val.computeUnitType());
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertEquals(4.819568f, typed.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2587,7 +2587,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertTrue(1f == typed.getFloatValue(CSSUnit.CSS_NUMBER));
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -2605,7 +2605,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertTrue(-1f == typed.getFloatValue(CSSUnit.CSS_NUMBER));
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -2728,7 +2728,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertTrue(1.2f == typed.getFloatValue(CSSUnit.CSS_NUMBER));
 		assertFalse(typed.isCalculatedNumber());
 	}
@@ -2746,7 +2746,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertTrue(2f == typed.getFloatValue(CSSUnit.CSS_NUMBER));
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2758,7 +2758,7 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		float fval = typed.getFloatValue(CSSUnit.CSS_NUMBER);
 		assertEquals(0, Float.floatToIntBits(fval));
 		assertFalse(typed.isCalculatedNumber());
@@ -2777,7 +2777,7 @@ public class EvaluatorTest {
 		assertNotNull(val);
 		assertEquals(CSSUnit.CSS_NUMBER, val.computeUnitType());
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		float fval = typed.getFloatValue(CSSUnit.CSS_NUMBER);
 		assertEquals(0, Float.floatToIntBits(fval));
 		assertTrue(typed.isCalculatedNumber());
@@ -2795,7 +2795,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		float fval = typed.getFloatValue(CSSUnit.CSS_PT);
 		assertTrue(1.2f == fval);
 		assertFalse(typed.isCalculatedNumber());
@@ -2813,7 +2813,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		assertTrue(2f == typed.getFloatValue(CSSUnit.CSS_PT));
 		assertTrue(typed.isCalculatedNumber());
 	}
@@ -2830,7 +2830,7 @@ public class EvaluatorTest {
 		assertMatch(Match.FALSE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "*");
 
-		CSSTypedValue typed = (CSSTypedValue) evaluator.evaluateFunction(val);
+		CSSTypedValue typed = evaluator.evaluateFunction(val);
 		float fval = typed.getFloatValue(CSSUnit.CSS_PT);
 		assertEquals(0, Float.floatToIntBits(fval));
 		assertFalse(typed.isCalculatedNumber());

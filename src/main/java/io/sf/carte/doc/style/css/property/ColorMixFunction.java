@@ -948,10 +948,10 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 		LABColorImpl lab = (LABColorImpl) labColor.getColor();
 		switch (color.getColorModel()) {
 		case RGB:
-			((ProfiledRGBColor) color).toLABColor(lab);
+			color.toLABColor(lab);
 			break;
 		case XYZ:
-			((XYZColorImpl) color).toLABColor(lab);
+			color.toLABColor(lab);
 			break;
 		default:
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,

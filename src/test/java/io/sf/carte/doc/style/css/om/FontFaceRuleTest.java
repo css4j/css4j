@@ -126,7 +126,7 @@ public class FontFaceRuleTest {
 		CSSValue src = ffrule.getStyle().getPropertyCSSValue("src");
 		assertEquals(CssType.LIST, src.getCssValueType());
 		assertEquals(2, ((ValueList) src).getLength());
-		assertEquals(CSSValue.Type.URI, ((CSSTypedValue) ((ValueList) src).item(0)).getPrimitiveType());
+		assertEquals(CSSValue.Type.URI, ((ValueList) src).item(0).getPrimitiveType());
 		assertEquals(CssType.TYPED, ((ValueList) src).item(1).getCssValueType());
 		CSSTypedValue format = (CSSTypedValue) ((ValueList) src).item(1);
 		assertEquals(CSSValue.Type.FUNCTION, format.getPrimitiveType());
@@ -161,7 +161,7 @@ public class FontFaceRuleTest {
 		CSSValue src = ffrule.getStyle().getPropertyCSSValue("src");
 		assertEquals(CssType.LIST, src.getCssValueType());
 		assertEquals(2, ((ValueList) src).getLength());
-		assertEquals(CSSValue.Type.URI, ((CSSTypedValue) ((ValueList) src).item(0)).getPrimitiveType());
+		assertEquals(CSSValue.Type.URI, ((ValueList) src).item(0).getPrimitiveType());
 		assertEquals(CssType.TYPED, ((ValueList) src).item(1).getCssValueType());
 		CSSTypedValue format = (CSSTypedValue) ((ValueList) src).item(1);
 		assertEquals(CSSValue.Type.FUNCTION, format.getPrimitiveType());
