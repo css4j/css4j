@@ -38,22 +38,23 @@ configurations {
 }
 
 dependencies {
-	api 'io.sf.carte:carte-util:[3.6.0,)'
-	implementation 'io.sf.carte:tokenproducer:[3.0,)'
-	implementation 'io.sf.jclf:jclf-text:[5.0.2,)'
-	implementation 'io.sf.jclf:jclf-linear3:[1.0.0,)'
-	xmldtdImplementation 'io.sf.carte:xml-dtd:[4.3,)'
+	api "io.sf.carte:carte-util:${carteUtilVersion}"
+	implementation "io.sf.carte:tokenproducer:${tokenproducerVersion}"
+	implementation "io.sf.jclf:jclf-text:${jclfVersion}"
+	implementation "io.sf.jclf:jclf-linear3:${jclfLinear3Version}"
+	xmldtdImplementation "io.sf.carte:xml-dtd:${xmlDtdVersion}"
+	// slf4j is better to be specified by downstream apps, just leave an interval
 	loggingImplementation 'org.slf4j:slf4j-api:[1.7.28,)'
 
 	testImplementation 'org.slf4j:slf4j-simple:[1.7.28,)'
-	testImplementation 'nu.validator:htmlparser:1.4.16'
+	testImplementation "nu.validator:htmlparser:${htmlparserVersion}"
 	// JUnit
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.12.0'
+	testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	// ShorthandSetterTest requires JUnit 4
-	testImplementation 'org.junit.vintage:junit-vintage-engine:5.12.0'
+	testImplementation "org.junit.vintage:junit-vintage-engine:${junitVersion}"
 	// Jazzzer
-	testImplementation 'com.code-intelligence:jazzer-junit:0.24.0'
+	testImplementation "com.code-intelligence:jazzer-junit:${jazzerVersion}"
 }
 
 repositories {
@@ -87,7 +88,7 @@ test {
 }
 
 checkstyle {
-	toolVersion = '10.21.2'
+	toolVersion = "${checkstyleVersion}"
 }
 
 tasks.compileJava {
