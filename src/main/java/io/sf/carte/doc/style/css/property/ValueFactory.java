@@ -1288,8 +1288,32 @@ public class ValueFactory implements CSSValueFactory {
 				primi = new FunctionValue(Type.SRC);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			case CIRCLE_FUNCTION:
+				primi = new ShapeFunction(Type.CIRCLE);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case ELLIPSE_FUNCTION:
+				primi = new ShapeFunction(Type.ELLIPSE);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case INSET_FUNCTION:
+				primi = new ShapeFunction(Type.INSET);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
 			case PATH_FUNCTION:
 				primi = new PathValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case POLYGON_FUNCTION:
+				primi = new ShapeFunction(Type.POLYGON);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case SHAPE_FUNCTION:
+				primi = new ShapeFunction(Type.SHAPE);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case XYWH_FUNCTION:
+				primi = new ShapeFunction(Type.XYWH);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case OPERATOR_COMMA:

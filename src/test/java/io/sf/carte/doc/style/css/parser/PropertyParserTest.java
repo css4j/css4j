@@ -1770,6 +1770,188 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueCircleFunction() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("circle(50px)");
+		assertEquals("circle", lu.getFunctionName());
+		assertEquals(LexicalType.CIRCLE_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(50f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("circle(50px)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<basic-shape>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueCircleFunctionAt() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("circle(5vw at right center)");
+		assertEquals("circle", lu.getFunctionName());
+		assertEquals(LexicalType.CIRCLE_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_VW, param.getCssUnit());
+		assertEquals(5f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("at", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("right", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("center", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("circle(5vw at right center)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<basic-shape>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueEllipseFunctionAt() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("ellipse(5em 50% at right center)");
+		assertEquals("ellipse", lu.getFunctionName());
+		assertEquals(LexicalType.ELLIPSE_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(5f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(50f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("at", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("right", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("center", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("ellipse(5em 50% at right center)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<basic-shape>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueInsetFunction() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("inset(25px 75px 15px 0 round 90px)");
+		assertEquals("inset", lu.getFunctionName());
+		assertEquals(LexicalType.INSET_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(75f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(15f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("round", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(90f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("inset(25px 75px 15px 0 round 90px)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<basic-shape>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValuePolygonFunction() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("polygon(0px 0px, 100px 50px, 0px 100px)");
+		assertEquals("polygon", lu.getFunctionName());
+		assertEquals(LexicalType.POLYGON_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(0f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(0f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(50f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(0f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(100f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("polygon(0px 0px, 100px 50px, 0px 100px)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<basic-shape>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
 	public void testParsePropertyValuePathFunction() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 				"path('M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80')");
@@ -1805,6 +1987,118 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("path(evenodd, 'M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80')",
 				lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<basic-shape>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueShapeFunctionLineTo() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("shape(nonzero from 0 0, line to 50em 80px)");
+		assertEquals("shape", lu.getFunctionName());
+		assertEquals(LexicalType.SHAPE_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("nonzero", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("line", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("to", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(50f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(80f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("shape(nonzero from 0 0, line to 50em 80px)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<basic-shape>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueXYWHFunction() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("xywh(0 2% 5px 6% round 0 3px 4% 7px)");
+		assertEquals("xywh", lu.getFunctionName());
+		assertEquals(LexicalType.XYWH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
+		assertEquals(2f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(5f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
+		assertEquals(6f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("round", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(3f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PERCENTAGE, param.getCssUnit());
+		assertEquals(4f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(7f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("xywh(0 2% 5px 6% round 0 3px 4% 7px)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<basic-shape>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test

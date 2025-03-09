@@ -299,6 +299,36 @@ public interface CSSValue extends Cloneable {
 		MATH_FUNCTION,
 
 		/**
+		 * {@code circle()} function (see
+		 * <a href="https://www.w3.org/TR/css-shapes-1/#funcdef-basic-shape-circle">CSS
+		 * Shapes Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		CIRCLE,
+
+		/**
+		 * {@code ellipse()} function (see
+		 * <a href="https://www.w3.org/TR/css-shapes-1/#funcdef-basic-shape-ellipse">CSS
+		 * Shapes Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		ELLIPSE,
+
+		/**
+		 * {@code inset()} function (see
+		 * <a href="https://www.w3.org/TR/css-shapes-1/#funcdef-basic-shape-inset">CSS
+		 * Shapes Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		INSET,
+
+		/**
 		 * {@code path()} function (see
 		 * <a href="https://www.w3.org/TR/css-shapes-1/#funcdef-basic-shape-path">CSS
 		 * Shapes Level 1</a>).
@@ -307,6 +337,36 @@ public interface CSSValue extends Cloneable {
 		 * </p>
 		 */
 		PATH,
+
+		/**
+		 * {@code polygon()} function (see
+		 * <a href="https://www.w3.org/TR/css-shapes-1/#funcdef-basic-shape-polygon">CSS
+		 * Shapes Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		POLYGON,
+
+		/**
+		 * {@code shape()} function (see
+		 * <a href="https://drafts.csswg.org/css-shapes-2/#shape-function">CSS
+		 * Shapes Level 2</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		SHAPE,
+
+		/**
+		 * {@code xywh()} function (see
+		 * <a href="https://www.w3.org/TR/css-shapes-1/#funcdef-basic-shape-xywh">CSS
+		 * Shapes Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		XYWH,
 
 		/**
 		 * Unicode range. See {@link CSSUnicodeRangeValue}.

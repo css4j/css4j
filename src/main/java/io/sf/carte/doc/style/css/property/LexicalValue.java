@@ -126,17 +126,29 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		case STEPS_FUNCTION:
 			type = Type.STEPS;
 			break;
-		case UNICODE_RANGE:
-			type = Type.UNICODE_RANGE;
-			break;
-		case UNICODE_WILDCARD:
-			type = Type.UNICODE_WILDCARD;
-			break;
 		case RECT_FUNCTION:
 			type = Type.RECT;
 			break;
+		case CIRCLE_FUNCTION:
+			type = Type.CIRCLE;
+			break;
+		case ELLIPSE_FUNCTION:
+			type = Type.ELLIPSE;
+			break;
+		case INSET_FUNCTION:
+			type = Type.INSET;
+			break;
 		case PATH_FUNCTION:
 			type = Type.PATH;
+			break;
+		case POLYGON_FUNCTION:
+			type = Type.POLYGON;
+			break;
+		case SHAPE_FUNCTION:
+			type = Type.SHAPE;
+			break;
+		case XYWH_FUNCTION:
+			type = Type.XYWH;
 			break;
 		case COUNTER_FUNCTION:
 			type = Type.COUNTER;
@@ -246,12 +258,19 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 				// Hex notation
 				return cssText;
 			}
+		case VAR:
+		case ATTR:
 		case MATH_FUNCTION:
 		case FUNCTION:
 		case CALC:
 		case RECT_FUNCTION:
-		case VAR:
-		case ATTR:
+		case CIRCLE_FUNCTION:
+		case ELLIPSE_FUNCTION:
+		case INSET_FUNCTION:
+		case POLYGON_FUNCTION:
+		case PATH_FUNCTION:
+		case XYWH_FUNCTION:
+		case SHAPE_FUNCTION:
 		case HSLCOLOR:
 		case LABCOLOR:
 		case LCHCOLOR:
@@ -282,16 +301,6 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			}
 			buf.append(')');
 			return buf;
-		case URI:
-			LexicalUnit param = lexicalUnit.getParameters();
-			if (param != null) {
-				CharSequence pserial = serializeMinified(param);
-				buf = new StringBuilder(pserial.length() + 5);
-				buf.append("url(");
-				buf.append(pserial);
-				buf.append(')');
-				return buf;
-			}
 		default:
 		}
 		return lexicalUnit.getCssText();

@@ -398,7 +398,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case FUNCTION:
 		case MATH_FUNCTION:
 		case CALC:
-		case RECT_FUNCTION:
 		case VAR:
 		case ATTR:
 		case SRC:
@@ -415,7 +414,14 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case CUBIC_BEZIER_FUNCTION:
 		case STEPS_FUNCTION:
 		case TYPE_FUNCTION:
+		case CIRCLE_FUNCTION:
+		case ELLIPSE_FUNCTION:
+		case INSET_FUNCTION:
+		case POLYGON_FUNCTION:
 		case PATH_FUNCTION:
+		case RECT_FUNCTION:
+		case XYWH_FUNCTION:
+		case SHAPE_FUNCTION:
 			return functionalSerialization(value);
 		case SUB_EXPRESSION:
 			buf = new StringBuilder();
@@ -693,7 +699,13 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case COUNTERS_FUNCTION:
 			return matchBoolean(cat == Category.counter);
 		case RECT_FUNCTION:
+		case CIRCLE_FUNCTION:
+		case ELLIPSE_FUNCTION:
+		case INSET_FUNCTION:
+		case POLYGON_FUNCTION:
 		case PATH_FUNCTION:
+		case XYWH_FUNCTION:
+		case SHAPE_FUNCTION:
 			return matchBoolean(cat == Category.basicShape);
 		case UNICODE_RANGE:
 		case UNICODE_WILDCARD:

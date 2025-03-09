@@ -28,10 +28,10 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 
 	private static final long serialVersionUID = 1L;
 
-	private PrimitiveValue top = null;
-	private PrimitiveValue right = null;
-	private PrimitiveValue bottom = null;
-	private PrimitiveValue left = null;
+	private TypedValue top = null;
+	private TypedValue right = null;
+	private TypedValue bottom = null;
+	private TypedValue left = null;
 
 	RectValue() {
 		super(Type.RECT);
@@ -45,7 +45,7 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 		this.bottom = copied.bottom;
 	}
 
-	public void setTop(PrimitiveValue top) {
+	public void setTop(TypedValue top) {
 		if (top == null) {
 			throw new NullPointerException();
 		}
@@ -53,11 +53,11 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 	}
 
 	@Override
-	public PrimitiveValue getTop() {
+	public TypedValue getTop() {
 		return top;
 	}
 
-	public void setRight(PrimitiveValue right) {
+	public void setRight(TypedValue right) {
 		if (right == null) {
 			throw new NullPointerException();
 		}
@@ -65,11 +65,11 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 	}
 
 	@Override
-	public PrimitiveValue getRight() {
+	public TypedValue getRight() {
 		return right;
 	}
 
-	public void setBottom(PrimitiveValue bottom) {
+	public void setBottom(TypedValue bottom) {
 		if (bottom == null) {
 			throw new NullPointerException();
 		}
@@ -77,11 +77,11 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 	}
 
 	@Override
-	public PrimitiveValue getBottom() {
+	public TypedValue getBottom() {
 		return bottom;
 	}
 
-	public void setLeft(PrimitiveValue left) {
+	public void setLeft(TypedValue left) {
 		if (left == null) {
 			throw new NullPointerException();
 		}
@@ -89,7 +89,7 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 	}
 
 	@Override
-	public PrimitiveValue getLeft() {
+	public TypedValue getLeft() {
 		return left;
 	}
 
@@ -113,7 +113,7 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 		if (component == null) {
 			throw new NullPointerException();
 		}
-		PrimitiveValue primi = (PrimitiveValue) component;
+		TypedValue primi = (TypedValue) component;
 		switch (index) {
 		case 0:
 			top = primi;
@@ -148,7 +148,7 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 			LexicalUnit lu = lunit.getParameters();
 			// top
 			checkProxyValue(lu);
-			PrimitiveValue dimens = factory.createCSSPrimitiveValue(lu, true);
+			TypedValue dimens = (TypedValue) factory.createCSSPrimitiveValue(lu, true);
 			setTop(dimens);
 			// comma
 			lu = lu.getNextLexicalUnit();
@@ -158,7 +158,7 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 			}
 			// right
 			checkProxyValue(lu);
-			dimens = factory.createCSSPrimitiveValue(lu, true);
+			dimens = (TypedValue) factory.createCSSPrimitiveValue(lu, true);
 			setRight(dimens);
 			// comma
 			lu = lu.getNextLexicalUnit();
@@ -174,7 +174,7 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 			}
 			// bottom
 			checkProxyValue(lu);
-			dimens = factory.createCSSPrimitiveValue(lu, true);
+			dimens = (TypedValue) factory.createCSSPrimitiveValue(lu, true);
 			setBottom(dimens);
 			// comma
 			lu = lu.getNextLexicalUnit();
@@ -187,7 +187,7 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 			}
 			// left
 			checkProxyValue(lu);
-			dimens = factory.createCSSPrimitiveValue(lu, true);
+			dimens = (TypedValue) factory.createCSSPrimitiveValue(lu, true);
 			setLeft(dimens);
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}

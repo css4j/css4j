@@ -27,7 +27,7 @@ abstract class FunctionFactories {
 	private final Map<String, LexicalUnitFactory> factories = createFactoryMap();
 
 	private Map<String, LexicalUnitFactory> createFactoryMap() {
-		Map<String, LexicalUnitFactory> factories = new HashMap<>(46);
+		Map<String, LexicalUnitFactory> factories = new HashMap<>(52);
 
 		factories.put("calc", new LexicalUnitFactory() {
 
@@ -111,6 +111,33 @@ abstract class FunctionFactories {
 
 		});
 
+		factories.put("circle", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.CIRCLE_FUNCTION);
+			}
+
+		});
+
+		factories.put("ellipse", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.ELLIPSE_FUNCTION);
+			}
+
+		});
+
+		factories.put("inset", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.INSET_FUNCTION);
+			}
+
+		});
+
 		factories.put("path", new LexicalUnitFactory() {
 
 			@Override
@@ -120,11 +147,38 @@ abstract class FunctionFactories {
 
 		});
 
+		factories.put("polygon", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.POLYGON_FUNCTION);
+			}
+
+		});
+
 		factories.put("rect", new LexicalUnitFactory() {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
 				return new LexicalUnitImpl(LexicalType.RECT_FUNCTION);
+			}
+
+		});
+
+		factories.put("shape", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.SHAPE_FUNCTION);
+			}
+
+		});
+
+		factories.put("xywh", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.XYWH_FUNCTION);
 			}
 
 		});

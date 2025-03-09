@@ -22,27 +22,27 @@ public interface CSSRectValue extends CSSShapeValue {
 	 * 
 	 * @return the top of the rectangle.
 	 */
-	CSSPrimitiveValue getTop();
+	CSSTypedValue getTop();
 
 	/**
 	 * The right of the rectangle.
 	 * 
 	 * @return the right of the rectangle.
 	 */
-	CSSPrimitiveValue getRight();
+	CSSTypedValue getRight();
 
 	/**
 	 * The bottom of the rectangle.
 	 * 
 	 * @return the bottom of the rectangle.
 	 */
-	CSSPrimitiveValue getBottom();
+	CSSTypedValue getBottom();
 
 	/**
 	 * The left of the rectangle.
 	 * 
 	 * @return the left of the rectangle.
 	 */
-	CSSPrimitiveValue getLeft();
+	CSSTypedValue getLeft();
 
 }

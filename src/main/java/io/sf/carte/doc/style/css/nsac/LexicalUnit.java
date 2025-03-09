@@ -369,12 +369,60 @@ public interface LexicalUnit {
 		RECT_FUNCTION,
 
 		/**
+		 * {@code circle()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		CIRCLE_FUNCTION,
+
+		/**
+		 * {@code ellipse()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		ELLIPSE_FUNCTION,
+
+		/**
+		 * {@code inset()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		INSET_FUNCTION,
+
+		/**
 		 * {@code path()} function.
 		 * 
 		 * @see LexicalUnit#getFunctionName
 		 * @see LexicalUnit#getParameters
 		 */
 		PATH_FUNCTION,
+
+		/**
+		 * {@code polygon()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		POLYGON_FUNCTION,
+
+		/**
+		 * {@code shape()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		SHAPE_FUNCTION,
+
+		/**
+		 * {@code xywh()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		XYWH_FUNCTION,
 
 		/**
 		 * Mathematical function.

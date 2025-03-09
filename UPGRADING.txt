@@ -1,6 +1,12 @@
 UPGRADING FROM PREVIOUS VERSIONS
 ================================
 
+Upgrading to 5.3 from 5.2
+-------------------------
+- `CSSRectValue` now returns typed values instead of primitives, due to the new
+  handling of PROXY values in 5.x.
+
+
 Upgrading to 5.2 from 5.1
 -------------------------
 - CSSOM: `CSSMathFunctionValue.getFunction()` was deprecated, use

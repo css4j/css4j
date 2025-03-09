@@ -108,8 +108,26 @@ public class LexicalValueTest {
 		value.setCssText("src(var(--myURI))");
 		assertEquals(Type.SRC, value.getFinalType());
 
+		value.setCssText("circle(5px var(--foo))");
+		assertEquals(Type.CIRCLE, value.getFinalType());
+
+		value.setCssText("ellipse(5px 30% var(--foo))");
+		assertEquals(Type.ELLIPSE, value.getFinalType());
+
+		value.setCssText("inset(5px var(--foo))");
+		assertEquals(Type.INSET, value.getFinalType());
+
+		value.setCssText("polygon(0px 0px, var(--foo))");
+		assertEquals(Type.POLYGON, value.getFinalType());
+
 		value.setCssText("rect(2px 12em 3em var(--foo))");
 		assertEquals(Type.RECT, value.getFinalType());
+
+		value.setCssText("shape(nonzero from 0 0, var(--foo))");
+		assertEquals(Type.SHAPE, value.getFinalType());
+
+		value.setCssText("xywh(0 var(--foo))");
+		assertEquals(Type.XYWH, value.getFinalType());
 
 		value.setCssText("element(var(--foo))");
 		assertEquals(Type.ELEMENT_REFERENCE, value.getFinalType());
@@ -326,27 +344,41 @@ public class LexicalValueTest {
 	@Test
 	public void testRect_Var() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
-		style.setCssText("clip-path:rect(2px var(--rect));");
+		style.setCssText("clip-path:rect(8vmax var(--rect));");
 		StyleValue cssval = style.getPropertyCSSValue("clip-path");
-		assertEquals("rect(2px var(--rect))", cssval.getCssText());
+		assertEquals("rect(8vmax var(--rect))", cssval.getCssText());
 
 		assertEquals(CssType.PROXY, cssval.getCssValueType());
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
-		assertEquals("rect(2px var(--rect))", cssval.getMinifiedCssText());
+		assertEquals("rect(8vmax var(--rect))", cssval.getMinifiedCssText());
 
 		assertEquals(Type.RECT, ((CSSLexicalValue) cssval).getFinalType());
 	}
 
 	@Test
-	public void testPath_Var() {
+	public void testCircle_Var() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
-		style.setCssText("d:path(var(--path));");
-		StyleValue cssval = style.getPropertyCSSValue("d");
-		assertEquals("path(var(--path))", cssval.getCssText());
+		style.setCssText("clip-path:circle(5vw at var(--pos));");
+		StyleValue cssval = style.getPropertyCSSValue("clip-path");
+		assertEquals("circle(5vw at var(--pos))", cssval.getCssText());
 
 		assertEquals(CssType.PROXY, cssval.getCssValueType());
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
-		assertEquals("path(var(--path))", cssval.getMinifiedCssText());
+		assertEquals("circle(5vw at var(--pos))", cssval.getMinifiedCssText());
+
+		assertEquals(Type.CIRCLE, ((CSSLexicalValue) cssval).getFinalType());
+	}
+
+	@Test
+	public void testPath_Var() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("d:path(evenodd, var(--path));");
+		StyleValue cssval = style.getPropertyCSSValue("d");
+		assertEquals("path(evenodd, var(--path))", cssval.getCssText());
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+		assertEquals("path(evenodd,var(--path))", cssval.getMinifiedCssText());
 
 		assertEquals(Type.PATH, ((CSSLexicalValue) cssval).getFinalType());
 	}
