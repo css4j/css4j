@@ -94,7 +94,7 @@ public class CustomPropertyValueTest {
 		style.setCssText("foo: Var(--My-Identifier); ");
 		assertEquals("var(--My-Identifier)", style.getPropertyValue("foo"));
 		assertEquals("foo: var(--My-Identifier); ", style.getCssText());
-		assertEquals("foo:Var(--My-Identifier)", style.getMinifiedCssText());
+		assertEquals("foo:var(--My-Identifier)", style.getMinifiedCssText());
 		StyleValue cssval = style.getPropertyCSSValue("foo");
 		assertNotNull(cssval);
 		assertEquals(CSSValue.Type.LEXICAL, cssval.getPrimitiveType());

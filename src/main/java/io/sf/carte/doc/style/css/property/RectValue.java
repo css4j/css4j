@@ -24,7 +24,7 @@ import io.sf.carte.util.SimpleWriter;
  * Rect function.
  * 
  */
-public class RectValue extends TypedValue implements CSSRectValue {
+public class RectValue extends ShapeValue implements CSSRectValue {
 
 	private static final long serialVersionUID = 1L;
 

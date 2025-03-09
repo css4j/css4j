@@ -1544,7 +1544,7 @@ public class PropertyParserCalcTest {
 	@Test
 	public void testParsePropertyValueExp() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("Exp(18)");
-		assertEquals("Exp", lu.getFunctionName());
+		assertEquals("exp", lu.getFunctionName());
 		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
@@ -1552,7 +1552,7 @@ public class PropertyParserCalcTest {
 		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
 		assertEquals(18, param.getIntegerValue());
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("Exp(18)", lu.toString());
+		assertEquals("exp(18)", lu.toString());
 
 		assertMatch(Match.TRUE, lu, "<number>");
 		assertMatch(Match.TRUE, lu, "<number>#");
@@ -1568,7 +1568,7 @@ public class PropertyParserCalcTest {
 	@Test
 	public void testParsePropertyValueSign() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("Sign(-18)");
-		assertEquals("Sign", lu.getFunctionName());
+		assertEquals("sign", lu.getFunctionName());
 		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
@@ -1576,7 +1576,7 @@ public class PropertyParserCalcTest {
 		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
 		assertEquals(-18, param.getIntegerValue());
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("Sign(-18)", lu.toString());
+		assertEquals("sign(-18)", lu.toString());
 
 		assertMatch(Match.TRUE, lu, "<number>");
 		assertMatch(Match.TRUE, lu, "<number>#");

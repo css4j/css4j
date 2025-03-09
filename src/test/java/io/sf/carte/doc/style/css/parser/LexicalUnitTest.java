@@ -529,8 +529,8 @@ public class LexicalUnitTest {
 		assertNotEquals(lu, lu2);
 		//
 		lu2 = parsePropertyValue("c\\41 lc(2)");
-		assertNotEquals(lu, lu2);
-		assertNotEquals(lu.hashCode(), lu2.hashCode());
+		assertEquals(lu, lu2);
+		assertEquals(lu.hashCode(), lu2.hashCode());
 	}
 
 	@Test

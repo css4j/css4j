@@ -369,6 +369,14 @@ public interface LexicalUnit {
 		RECT_FUNCTION,
 
 		/**
+		 * {@code path()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		PATH_FUNCTION,
+
+		/**
 		 * Mathematical function.
 		 * 
 		 * @see LexicalUnit#getFunctionName

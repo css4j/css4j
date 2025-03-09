@@ -194,6 +194,14 @@ public interface CSSValueSyntax {
 		counter,
 
 		/**
+		 * Matches a basic shape ({@code rect()}, {@code path()}, etc.)
+		 * <p>
+		 * <code>&lt;basic-shape&gt;</code>
+		 * </p>
+		 */
+		basicShape,
+
+		/**
 		 * Matches any valid custom identifier.
 		 * <p>
 		 * <code>&lt;custom-ident&gt;</code>

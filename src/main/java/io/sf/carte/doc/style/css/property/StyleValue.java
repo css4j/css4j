@@ -161,6 +161,12 @@ abstract public class StyleValue implements CSSValue, Cloneable, java.io.Seriali
 	abstract public String getCssText();
 
 	@Override
-	abstract public StyleValue clone();
+	public StyleValue clone() {
+		try {
+			return (StyleValue) super.clone();
+		} catch (CloneNotSupportedException e) {
+			return null;
+		}
+	}
 
 }

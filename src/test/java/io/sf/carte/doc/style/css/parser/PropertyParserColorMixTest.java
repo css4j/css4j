@@ -101,7 +101,7 @@ public class PropertyParserColorMixTest {
 		assertEquals(128.211f, lchparam.getFloatValue(), 1e-5f);
 		assertNull(lchparam.getNextLexicalUnit());
 
-		assertEquals("Color-Mix", lu.getFunctionName());
+		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals(
 				"color-mix(in rec2020, color(display-p3 0.42053 0.97978 0.00579), lch(88.423 142.708 128.211))",
 				lu.toString());
@@ -154,7 +154,7 @@ public class PropertyParserColorMixTest {
 		assertEquals(LexicalType.LCHCOLOR, param.getLexicalUnitType());
 		assertEquals("lch(78.745 123.946 106.33)", param.toString());
 
-		assertEquals("Color-Mix", lu.getFunctionName());
+		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals("color-mix(in lch longer, hwb(144.48 0.8% 15%), lch(78.745 123.946 106.33))",
 				lu.toString());
 
@@ -205,7 +205,7 @@ public class PropertyParserColorMixTest {
 		assertEquals(LexicalType.LCHCOLOR, param.getLexicalUnitType());
 		assertEquals("lch(78.745 123.946 106.33)", param.toString());
 
-		assertEquals("Color-Mix", lu.getFunctionName());
+		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals(
 				"color-mix(in lch decreasing hue, hwb(144.48 0.8% 15%), lch(78.745 123.946 106.33))",
 				lu.toString());
@@ -274,7 +274,7 @@ public class PropertyParserColorMixTest {
 		assertEquals(128.211f, lchparam.getFloatValue(), 1e-5f);
 		assertNull(lchparam.getNextLexicalUnit());
 
-		assertEquals("Color-Mix", lu.getFunctionName());
+		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals(
 				"color-mix(in rec2020, color(display-p3 0.42053 0.97978 0.00579) 40%, lch(88.423 142.708 128.211))",
 				lu.toString());
@@ -447,7 +447,7 @@ public class PropertyParserColorMixTest {
 		assertNull(varparam.getNextLexicalUnit());
 		assertNull(param.getNextLexicalUnit());
 
-		assertEquals("Color-Mix", lu.getFunctionName());
+		assertEquals("color-mix", lu.getFunctionName());
 		assertEquals("color-mix(In rec2020, var(--color-args))", lu.toString());
 
 		assertMatch(Match.TRUE, lu, "<color>");
@@ -695,6 +695,12 @@ public class PropertyParserColorMixTest {
 	public void testParsePropertyValueColorMixBadDoublePcnt2() throws CSSException {
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("color-mix(in rec2020, #001 10%, #ff0 80% 90%)"));
+	}
+
+	@Test
+	public void testParsePropertyValueColorMixBadSlash() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parsePropertyValue(
+				"color-mix(in hsl, hsl(200 50 80), coral 80%/)"));
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {

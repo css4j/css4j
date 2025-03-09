@@ -135,6 +135,9 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		case RECT_FUNCTION:
 			type = Type.RECT;
 			break;
+		case PATH_FUNCTION:
+			type = Type.PATH;
+			break;
 		case COUNTER_FUNCTION:
 			type = Type.COUNTER;
 			break;

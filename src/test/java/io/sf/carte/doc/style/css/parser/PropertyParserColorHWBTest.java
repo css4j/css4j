@@ -80,7 +80,7 @@ public class PropertyParserColorHWBTest {
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
 		assertEquals(48f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("HWB", lu.getFunctionName());
+		assertEquals("hwb", lu.getFunctionName());
 		assertEquals("hwb(12 25% 48%)", lu.toString());
 
 		assertMatch(Match.TRUE, lu, "<color>");
@@ -715,6 +715,11 @@ public class PropertyParserColorHWBTest {
 	@Test
 	public void testParsePropertyValueHWBBadSlashAlphaSlash() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48% 91%/0.1/)"));
+	}
+
+	@Test
+	public void testParsePropertyValueHWBBadSlashNoAlpha() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48% 31%/)"));
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {

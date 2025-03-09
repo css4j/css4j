@@ -299,6 +299,16 @@ public interface CSSValue extends Cloneable {
 		MATH_FUNCTION,
 
 		/**
+		 * {@code path()} function (see
+		 * <a href="https://www.w3.org/TR/css-shapes-1/#funcdef-basic-shape-path">CSS
+		 * Shapes Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSPathValue}.
+		 * </p>
+		 */
+		PATH,
+
+		/**
 		 * Unicode range. See {@link CSSUnicodeRangeValue}.
 		 */
 		UNICODE_RANGE,

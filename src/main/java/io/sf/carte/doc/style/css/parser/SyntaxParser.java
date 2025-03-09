@@ -29,7 +29,7 @@ public class SyntaxParser {
 	private static final HashMap<String,Category> catMap;
 
 	static {
-		catMap = new HashMap<>(21);
+		catMap = new HashMap<>(22);
 		catMap.put("angle", Category.angle);
 		catMap.put("color", Category.color);
 		catMap.put("custom-ident", Category.customIdent);
@@ -49,6 +49,7 @@ public class SyntaxParser {
 		catMap.put("counter", Category.counter);
 		catMap.put("frequency", Category.frequency);
 		catMap.put("flex", Category.flex);
+		catMap.put("basic-shape", Category.basicShape);
 	}
 
 	private final static CSSValueSyntax universal = new SyntaxComponent("*", Category.universal);

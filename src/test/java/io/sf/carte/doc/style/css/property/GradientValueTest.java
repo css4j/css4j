@@ -507,18 +507,28 @@ public class GradientValueTest {
 	}
 
 	@Test
-	public void testLinearBadTrailingComma2() {
+	public void testLinearOneStopTrailingComma() {
 		style.setCssText("background-image: linear-gradient(to top right,red,);");
-		assertNull(style.getPropertyCSSValue("background-image"));
-		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
-		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
+		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
+		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
+		assertEquals("linear-gradient(to top right, red)",
+				style.getPropertyValue("background-image"));
+
+		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(style.getStyleDeclarationErrorHandler().hasWarnings());
 	}
 
 	@Test
-	public void testLinearBadTrailingComma3() {
+	public void testLinearThreeStopsTrailingComma() {
 		style.setCssText("background-image: linear-gradient(to top right, red, white, blue,);");
-		assertNull(style.getPropertyCSSValue("background-image"));
-		assertTrue(style.getStyleDeclarationErrorHandler().hasErrors());
+		StyleValue cssval = style.getPropertyCSSValue("background-image");
+		assertNotNull(cssval);
+		assertEquals(CSSValue.Type.GRADIENT, cssval.getPrimitiveType());
+		assertEquals("linear-gradient(to top right, red, white, blue)",
+				style.getPropertyValue("background-image"));
+
+		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
 	}
 

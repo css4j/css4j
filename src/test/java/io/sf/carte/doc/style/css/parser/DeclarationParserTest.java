@@ -2412,7 +2412,7 @@ public class DeclarationParserTest {
 		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
-		assertEquals("caLc", lu.getFunctionName());
+		assertEquals("calc", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -2627,7 +2627,7 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("animation-timing-function:st\\45ps(2, start)");
 		assertEquals("animation-timing-function", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals("stEps", lu.getFunctionName());
+		assertEquals("steps", lu.getFunctionName());
 		assertEquals(LexicalType.STEPS_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
@@ -3329,7 +3329,7 @@ public class DeclarationParserTest {
 		assertEquals("color", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
-		assertEquals("vAr", lu.getFunctionName());
+		assertEquals("var", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);

@@ -299,6 +299,29 @@ public class FunctionValueTest {
 	}
 
 	@Test
+	public void testSRC() {
+		style.setCssText("background-image:SRC('https://www.example.com/foo.svg' format(svg))");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("background-image");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.SRC, val.getPrimitiveType());
+		assertEquals("src", val.getStringValue());
+		assertEquals("src", val.getFunctionName());
+		assertEquals("src('https://www.example.com/foo.svg' format(svg))", val.getCssText());
+		assertEquals(1, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.LIST, arg.getCssValueType());
+
+		StyleValue url = ((ValueList) arg).item(0);
+		assertEquals(CssType.TYPED, url.getCssValueType());
+		assertEquals(CSSValue.Type.STRING, url.getPrimitiveType());
+		assertEquals("https://www.example.com/foo.svg", ((CSSTypedValue) url).getStringValue());
+
+		StyleValue modifier = ((ValueList) arg).item(1);
+		assertEquals(CssType.TYPED, modifier.getCssValueType());
+		assertEquals(CSSValue.Type.FUNCTION, modifier.getPrimitiveType());
+	}
+
+	@Test
 	public void testSteps() {
 		style.setCssText("animation-timing-function:steps(6, start)");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("animation-timing-function");

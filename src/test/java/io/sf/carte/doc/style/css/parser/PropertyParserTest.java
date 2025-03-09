@@ -1770,6 +1770,44 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValuePathFunction() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"path('M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80')");
+		assertEquals("path", lu.getFunctionName());
+		assertEquals(LexicalType.PATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.STRING, param.getLexicalUnitType());
+		assertEquals("M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("path('M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80')", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValuePathFunctionFillRule() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"path(evenodd, 'M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80')");
+		assertEquals("path", lu.getFunctionName());
+		assertEquals(LexicalType.PATH_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("evenodd", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.STRING, param.getLexicalUnitType());
+		assertEquals("M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("path(evenodd, 'M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80')",
+				lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueFunction() throws CSSException {
 		LexicalUnit pre = parsePropertyValue("bar foo(0.1, calc((0.5% - 2em)*2.2), 1.0)");
 		assertEquals(LexicalType.IDENT, pre.getLexicalUnitType());
@@ -2259,6 +2297,29 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueSRC_String() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("Src('https://www.example.com/')");
+		assertEquals(LexicalType.SRC, lu.getLexicalUnitType());
+		assertEquals("src", lu.getStringValue());
+		assertEquals("src('https://www.example.com/')", lu.toString());
+
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.STRING, param.getLexicalUnitType());
+		assertEquals("https://www.example.com/", param.getStringValue());
+
+		assertMatch(Match.TRUE, lu, "<url>");
+		assertMatch(Match.TRUE, lu, "<url>#");
+		assertMatch(Match.TRUE, lu, "<url>+");
+		assertMatch(Match.TRUE, lu, "<image>");
+		assertMatch(Match.TRUE, lu, "<image>#");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
 	public void testParsePropertyValueSRC_Var() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("src(var(--image))");
 		assertEquals(LexicalType.SRC, lu.getLexicalUnitType());
@@ -2302,57 +2363,59 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyBadUrl() throws CSSException {
-		try {
-			parsePropertyValue(" url(http://www.example.com/");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(29, e.getColumnNumber());
-		}
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue(" url(http://www.example.com/"));
+		assertEquals(29, ex.getColumnNumber());
 	}
 
 	@Test
 	public void testParsePropertyBadUrl3() throws CSSException {
-		try {
-			parsePropertyValue("url(");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("url("));
+		assertEquals(5, ex.getColumnNumber());
 	}
 
 	@Test
 	public void testParsePropertyBadUrl4() throws CSSException {
-		try {
-			parsePropertyValue("url('a' 'b')");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("url('a' 'b')"));
+		assertEquals(9, ex.getColumnNumber());
 	}
 
 	@Test
 	public void testParsePropertyBadUrl5() throws CSSException {
-		try {
-			parsePropertyValue("url(a 'b')");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("url(a 'b')"));
+		assertEquals(7, ex.getColumnNumber());
 	}
 
 	@Test
 	public void testParsePropertyBadUrl6() throws CSSException {
-		try {
-			parsePropertyValue("url('a' b)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("url('a' b)"));
 	}
 
 	@Test
 	public void testParsePropertyBadUrl7() throws CSSException {
-		try {
-			parsePropertyValue("url(a b)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-		}
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("url(a b)"));
+	}
+
+	@Test
+	public void testParsePropertyValuePath_Var() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("path(var(--path))");
+		assertEquals(LexicalType.PATH_FUNCTION, lu.getLexicalUnitType());
+		assertEquals("path", lu.getStringValue());
+		assertEquals("path(var(--path))", lu.toString());
+
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var", param.getFunctionName());
+
+		assertMatch(Match.TRUE, lu, "<basic-shape>");
+		assertMatch(Match.TRUE, lu, "<basic-shape>#");
+		assertMatch(Match.TRUE, lu, "<basic-shape>+");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <basic-shape>#");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -2637,23 +2700,16 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueProgidError() throws CSSException {
-		try {
-			parsePropertyValue(
-					"progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(7, e.getColumnNumber());
-		}
+		CSSParseException ex = assertThrows(CSSParseException.class, () -> parsePropertyValue(
+				"progid:DXImageTransform.Microsoft.gradient(startColorstr='#bd0afa', endColorstr='#d0df9f')"));
+		assertEquals(7, ex.getColumnNumber());
 	}
 
 	@Test
 	public void testParsePropertyValueIEExpressionError() throws CSSException {
-		try {
-			parsePropertyValue("expression(iequirk = (document.body.scrollTop) + \"px\" )");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(20, e.getColumnNumber());
-		}
+		CSSParseException ex = assertThrows(CSSParseException.class, () -> parsePropertyValue(
+				"expression(iequirk = (document.body.scrollTop) + \"px\" )"));
+		assertEquals(20, ex.getColumnNumber());
 	}
 
 	@Test
@@ -2673,6 +2729,20 @@ public class PropertyParserTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <image>+");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <image>");
 		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueElementReferenceEmpty() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("element()"));
+		assertEquals(9, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParsePropertyValueElementReferenceNoID() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("element(#)"));
+		assertEquals(9, ex.getColumnNumber());
 	}
 
 	@Test

@@ -1020,7 +1020,7 @@ public class ValueFactory implements CSSValueFactory {
 				return createCSSPrimitiveValueItem(lunit, !subproperty, subproperty);
 			} catch (CSSLexicalProcessingException e) {
 				// Contains a var() that should be processed as a lexical value.
-				if (!isNotListLexicalUnit(lunit)) {
+				if (!isIsolatedLexicalUnit(lunit)) {
 					throw e;
 				}
 				LexicalSetter item = new LexicalValue().newLexicalSetter();
@@ -1121,7 +1121,7 @@ public class ValueFactory implements CSSValueFactory {
 	 *                      CSS primitive.
 	 */
 	LexicalSetter createCSSPrimitiveValueItem(LexicalUnit lunit, boolean ratioContext, boolean subp)
-			throws DOMException {
+			throws CSSLexicalProcessingException, DOMException {
 		LexicalType unitType = lunit.getLexicalUnitType();
 		PrimitiveValue primi;
 		LexicalSetter setter;
@@ -1138,14 +1138,7 @@ public class ValueFactory implements CSSValueFactory {
 			case URI:
 				primi = new URIValue(flags);
 				setter = primi.newLexicalSetter();
-				try {
-					setter.setLexicalUnit(lunit);
-				} catch (CSSLexicalProcessingException e) {
-					// Contains a var() that should be processed as a lexical value.
-					primi = new LexicalValue();
-					setter = primi.newLexicalSetter();
-					setter.setLexicalUnit(lunit);
-				}
+				setter.setLexicalUnit(lunit);
 				break;
 			case PERCENTAGE:
 				primi = new PercentageValue();
@@ -1224,14 +1217,6 @@ public class ValueFactory implements CSSValueFactory {
 					setter = primi.newLexicalSetter();
 					try {
 						setter.setLexicalUnit(lunit);
-					} catch (CSSLexicalProcessingException e) {
-						// Contains a var() that should be processed as a lexical value.
-						if (!isNotListLexicalUnit(lunit)) {
-							throw e;
-						}
-						primi = new LexicalValue();
-						setter = primi.newLexicalSetter();
-						setter.setLexicalUnit(lunit);
 					} catch (RuntimeException e) {
 						if (func.charAt(0) == '-') {
 							primi = new FunctionValue();
@@ -1303,6 +1288,10 @@ public class ValueFactory implements CSSValueFactory {
 				primi = new FunctionValue(Type.SRC);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
+			case PATH_FUNCTION:
+				primi = new PathValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
 			case OPERATOR_COMMA:
 			case OPERATOR_SEMICOLON:
 				throw new DOMException(DOMException.SYNTAX_ERR,
@@ -1344,11 +1333,6 @@ public class ValueFactory implements CSSValueFactory {
 
 	private boolean isIsolatedLexicalUnit(LexicalUnit lunit) {
 		return !lunit.isParameter() && lunit.getNextLexicalUnit() == null
-				&& lunit.getPreviousLexicalUnit() == null;
-	}
-
-	private boolean isNotListLexicalUnit(LexicalUnit lunit) {
-		return lunit.getNextLexicalUnit() == null
 				&& lunit.getPreviousLexicalUnit() == null;
 	}
 

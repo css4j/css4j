@@ -63,7 +63,7 @@ public class PropertyParserColorTest {
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
 		assertEquals(0.00579f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("Color", lu.getFunctionName());
+		assertEquals("color", lu.getFunctionName());
 		assertEquals("color(rec2020 0.42053 0.97978 0.00579)", lu.toString());
 
 		assertMatch(Match.TRUE, lu, "<color>");
@@ -154,7 +154,7 @@ public class PropertyParserColorTest {
 		assertNull(varparam.getNextLexicalUnit());
 		assertNull(param.getNextLexicalUnit());
 
-		assertEquals("Color", lu.getFunctionName());
+		assertEquals("color", lu.getFunctionName());
 		assertEquals("color(rec2020 var(--color-args))", lu.toString());
 
 		assertMatch(Match.TRUE, lu, "<color>");
@@ -216,7 +216,7 @@ public class PropertyParserColorTest {
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
 		assertEquals(0.00579f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("Color", lu.getFunctionName());
+		assertEquals("color", lu.getFunctionName());
 		assertEquals("color(rec2020 none 0.97978 0.00579)", lu.toString());
 
 		assertMatch(Match.TRUE, lu, "<color>");
@@ -247,7 +247,7 @@ public class PropertyParserColorTest {
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
 		assertEquals(0.00579f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("Color", lu.getFunctionName());
+		assertEquals("color", lu.getFunctionName());
 		assertEquals("color(--my-profile none 0.97978 0.00579)", lu.toString());
 
 		assertMatch(Match.TRUE, lu, "<color>");

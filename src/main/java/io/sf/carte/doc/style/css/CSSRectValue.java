@@ -15,7 +15,7 @@ package io.sf.carte.doc.style.css;
 /**
  * Interface representing a {@code rect()} function.
  */
-public interface CSSRectValue {
+public interface CSSRectValue extends CSSShapeValue {
 
 	/**
 	 * The top of the rectangle.

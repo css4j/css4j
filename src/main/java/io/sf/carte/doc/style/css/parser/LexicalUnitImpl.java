@@ -397,7 +397,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			}
 		case FUNCTION:
 		case MATH_FUNCTION:
-			return functionalSerialization(value);
 		case CALC:
 		case RECT_FUNCTION:
 		case VAR:
@@ -416,7 +415,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case CUBIC_BEZIER_FUNCTION:
 		case STEPS_FUNCTION:
 		case TYPE_FUNCTION:
-			return functionalSerialization(value.toLowerCase(Locale.ROOT));
+		case PATH_FUNCTION:
+			return functionalSerialization(value);
 		case SUB_EXPRESSION:
 			buf = new StringBuilder();
 			buf.append('(');
@@ -436,8 +436,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 				quri = identCssText;
 			} else if (value != null) {
 				quri = ParseHelper.quote(value, '\'');
-			} else if (parameters != null) {
-				quri = parameters.getCssText();
 			} else {
 				quri = "";
 			}
@@ -689,16 +687,19 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 				return dim != null ? dim.matches(syntax) : Match.PENDING;
 			}
 			return Match.FALSE;
-		case ELEMENT_REFERENCE:
-			return matchBoolean(cat == Category.image);
 		case VAR:
 			return Match.PENDING;
 		case COUNTER_FUNCTION:
 		case COUNTERS_FUNCTION:
 			return matchBoolean(cat == Category.counter);
+		case RECT_FUNCTION:
+		case PATH_FUNCTION:
+			return matchBoolean(cat == Category.basicShape);
 		case UNICODE_RANGE:
 		case UNICODE_WILDCARD:
 			return matchBoolean(cat == Category.unicodeRange);
+		case ELEMENT_REFERENCE:
+			return matchBoolean(cat == Category.image);
 		default:
 		}
 		return Match.FALSE;

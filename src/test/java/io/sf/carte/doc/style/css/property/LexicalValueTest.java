@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -323,6 +324,34 @@ public class LexicalValueTest {
 	}
 
 	@Test
+	public void testRect_Var() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("clip-path:rect(2px var(--rect));");
+		StyleValue cssval = style.getPropertyCSSValue("clip-path");
+		assertEquals("rect(2px var(--rect))", cssval.getCssText());
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+		assertEquals("rect(2px var(--rect))", cssval.getMinifiedCssText());
+
+		assertEquals(Type.RECT, ((CSSLexicalValue) cssval).getFinalType());
+	}
+
+	@Test
+	public void testPath_Var() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("d:path(var(--path));");
+		StyleValue cssval = style.getPropertyCSSValue("d");
+		assertEquals("path(var(--path))", cssval.getCssText());
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+		assertEquals("path(var(--path))", cssval.getMinifiedCssText());
+
+		assertEquals(Type.PATH, ((CSSLexicalValue) cssval).getFinalType());
+	}
+
+	@Test
 	public void testSRC_Var() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("background-image:src(var(--myURI));");
@@ -373,7 +402,7 @@ public class LexicalValueTest {
 		assertEquals(Match.TRUE, value.matches(synUniv));
 		assertEquals(Match.FALSE, value.matches(synPcnt));
 
-		LexicalValue lexval = (LexicalValue) value;
+		CSSLexicalValue lexval = (CSSLexicalValue) value;
 		assertEquals(Type.COLOR, lexval.getFinalType());
 
 		LexicalUnit lunit = lexval.getLexicalUnit();

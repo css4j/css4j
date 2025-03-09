@@ -1472,6 +1472,11 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
+	public void testParsePropertyValueRGBBadSlashNoAlpha() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 0 0/)"));
+	}
+
+	@Test
 	public void testParsePropertyValueRGBBadVar() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(1,var(--foo)/0.2)"));
 	}

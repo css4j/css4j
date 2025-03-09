@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -35,6 +36,13 @@ import io.sf.carte.doc.style.css.parser.SyntaxParser;
 public class RectValueTest {
 
 	BaseCSSStyleDeclaration style;
+
+	private static SyntaxParser syntaxParser;
+
+	@BeforeAll
+	public static void setUpBeforeClass() {
+		syntaxParser = new SyntaxParser();
+	}
 
 	@BeforeEach
 	public void setUp() {
@@ -109,12 +117,12 @@ public class RectValueTest {
 		value.setComponent(3, number);
 		value.setComponent(4, number);
 		assertEquals("rect(2pc, 2pc, 2pc, 2pc)", value.getCssText());
-		//
-		SyntaxParser syntaxParser = new SyntaxParser();
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>");
-		assertEquals(Match.FALSE, value.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, value.matches(syn));
+
+		assertMatch(Match.TRUE, value, "<basic-shape>");
+		assertMatch(Match.TRUE, value, "<basic-shape>#");
+		assertMatch(Match.FALSE, value, "<length>");
+		assertMatch(Match.FALSE, value, "<color>");
+		assertMatch(Match.TRUE, value, "*");
 	}
 
 	@Test
@@ -126,7 +134,13 @@ public class RectValueTest {
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
 		assertEquals(value.getCssText(), clon.getCssText());
+		assertEquals(value.getTop(), clon.getTop());
 		assertTrue(value.equals(clon));
+	}
+
+	private void assertMatch(Match match, CSSValue value, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, value.matches(syn));
 	}
 
 }
