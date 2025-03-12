@@ -6,6 +6,8 @@ Upgrading to 5.3 from 5.2
 - `CSSRectValue` now returns typed values instead of primitives, due to the new
   handling of PROXY values in 5.x.
 
+- The `env()` fallback in `CSSEnvVariableValue` is now a `LexicalUnit`.
+
 
 Upgrading to 5.2 from 5.1
 -------------------------

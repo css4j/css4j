@@ -28,8 +28,12 @@ import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.CSSValueList;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.DeclarationFormattingContext;
+import io.sf.carte.doc.style.css.impl.CSSUtil;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.PropertyDatabase;
@@ -547,15 +551,14 @@ abstract class ShorthandBuilder {
 	 *         proxy that could be an image but not necessarily.
 	 */
 	static boolean isImagePrimitiveValue(TypedValue primi) {
-		Type type = primi.getPrimitiveType();
-		return type == Type.URI || type == Type.SRC || type == Type.GRADIENT
-			|| (type == Type.FUNCTION && isImageFunction(primi)) || type == Type.ELEMENT_REFERENCE;
+		CSSValueSyntax syn = SyntaxParser.createSimpleSyntax("image");
+		return primi.matches(syn) == Match.TRUE
+				|| (primi.getPrimitiveType() == Type.FUNCTION && isImageFunction(primi));
 	}
 
 	private static boolean isImageFunction(TypedValue primi) {
-		String name = primi.getStringValue();
-		return "image".equalsIgnoreCase(name) || "image-set".equalsIgnoreCase(name)
-				|| "cross-fade".equalsIgnoreCase(name);
+		String name = primi.getStringValue().toLowerCase(Locale.ROOT);
+		return CSSUtil.isUnimplementedImageFunction(name);
 	}
 
 	boolean valueEquals(StyleValue value1, StyleValue value2) {

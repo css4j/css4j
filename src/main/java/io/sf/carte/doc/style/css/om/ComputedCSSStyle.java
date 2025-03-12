@@ -83,6 +83,7 @@ import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.URIValue;
 import io.sf.carte.doc.style.css.property.URIValueWrapper;
+import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueList;
 import io.sf.carte.doc.style.css.property.WrappedValue;
 import io.sf.carte.util.SimpleWriter;
@@ -1702,15 +1703,31 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	private StyleValue computeEnv(String propertyName, EnvVariableValue env) {
+		/*
+		 * In web browsers, env() is substituted at parse time. Given the multiplicity
+		 * of use cases for this library, the substitution is done at computed-value
+		 * time.
+		 */
 		if (getStyleDatabase() != null) {
 			StyleValue envValue = (StyleValue) getStyleDatabase().getEnvValue(env.getName());
 			if (envValue != null) {
 				return envValue;
 			}
 		}
-		StyleValue fallback = env.getFallback();
-		if (fallback == null) {
-			computedStyleError(propertyName, env.getCssText(), "Unable to evaluate env() value for: " + env.getName());
+
+		StyleValue fallback = null;
+		LexicalUnit lu = env.getFallback();
+		if (lu == null) {
+			computedStyleError(propertyName, env.getCssText(),
+					"Unable to evaluate env() value for: " + env.getName());
+		} else {
+			ValueFactory factory = new ValueFactory();
+			try {
+				fallback = factory.createCSSValue(lu, this);
+			} catch (DOMException e) {
+				computedStyleError(propertyName, lu.toString(),
+						"Unable to evaluate env() fallback: " + env.getCssText());
+			}
 		}
 		return fallback;
 	}

@@ -56,7 +56,7 @@ class FontShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		if (currentValue == null) {
 			// font: normal
 			List<String> subp = super.subpropertyList();
@@ -68,29 +68,30 @@ class FontShorthandSetter extends ShorthandSetter {
 			flush();
 			getValueItemBuffer().append("normal");
 			getValueItemBufferMini().append("normal");
-			return true;
+			return 0;
 		}
 
-		if (draftSubproperties()) {
+		short result = draftSubproperties();
+		if (result == 0) {
 			if (getUnassignedProperties().contains("font-family")) {
 				// No font family
 				if (!getUnassignedProperties().contains("font-size")) {
 					reportMissingPropertySyntaxError("font-family");
-					return false;
+					return 2;
 				}
 				if (!getUnassignedProperties().contains("font-stretch")) {
 					reportMissingPropertySyntaxError("font-family");
-					return false;
+					return 2;
 				}
 			} else if (getUnassignedProperties().contains("font-size")) {
 				reportMissingPropertySyntaxError("font-size");
-				return false;
+				return 2;
 			}
 			flush();
-			return true;
+			return 0;
 		}
 
-		return false;
+		return result;
 	}
 
 	private void reportMissingPropertySyntaxError(String missedProperty) {

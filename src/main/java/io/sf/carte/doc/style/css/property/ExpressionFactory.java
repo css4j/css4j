@@ -59,8 +59,9 @@ public class ExpressionFactory {
 	 * 
 	 * @param calcParams the lexical unit(s) of the operands.
 	 * @return the expression.
+	 * @throws DOMException if an error was found.
 	 */
-	public CSSExpression createExpression(LexicalUnit calcParams) {
+	public CSSExpression createExpression(LexicalUnit calcParams) throws DOMException {
 		return createExpression(calcParams, getCSSValueFactory());
 	}
 
@@ -73,7 +74,8 @@ public class ExpressionFactory {
 		return new ValueFactory();
 	}
 
-	private StyleExpression createExpression(LexicalUnit lu, CSSValueFactory factory) {
+	private StyleExpression createExpression(LexicalUnit lu, CSSValueFactory factory)
+			throws DOMException {
 		StyleExpression expression = null;
 		LexicalType lastlutype = LexicalType.UNKNOWN;
 		while (lu != null) {
@@ -100,11 +102,8 @@ public class ExpressionFactory {
 					expression.nextOperandInverse = inverse;
 				} else { // product
 					// Sanity check
-					if (lastlutype != LexicalType.DIMENSION
-							&& lastlutype != LexicalType.SUB_EXPRESSION) {
-						throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
-					}
-					//
+					sanityCheck(lastlutype);
+
 					StyleExpression parent = expression.getParentExpression();
 					if (parent == null) {
 						operation = new SumExpression();
@@ -130,11 +129,8 @@ public class ExpressionFactory {
 					expression = operation;
 				} else if (expression.getPartType() == AlgebraicPart.SUM) {
 					// Sanity check
-					if (lastlutype != LexicalType.DIMENSION
-							&& lastlutype != LexicalType.SUB_EXPRESSION) {
-						throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
-					}
-					//
+					sanityCheck(lastlutype);
+
 					operation = new ProductExpression();
 					if (lastlutype != LexicalType.SUB_EXPRESSION) {
 						expression.replaceLastExpression(operation);
@@ -145,11 +141,8 @@ public class ExpressionFactory {
 					expression = operation;
 				} else {
 					// Sanity check
-					if (lastlutype != LexicalType.DIMENSION
-							&& lastlutype != LexicalType.SUB_EXPRESSION) {
-						throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
-					}
-					//
+					sanityCheck(lastlutype);
+
 					expression.nextOperandInverse = inverse;
 				}
 				break;
@@ -226,19 +219,29 @@ public class ExpressionFactory {
 			lastlutype = lutype;
 			lu = lu.getNextLexicalUnit();
 		}
+
 		// Sanity check
 		if (isOperatorType(lastlutype)) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
 		}
-		//
+
 		if (expression.getParentExpression() != null) {
 			expression = expression.getParentExpression();
 		}
+
 		return expression;
 	}
 
+	private static void sanityCheck(LexicalType lastlutype) throws DOMException {
+		if (lastlutype != LexicalType.DIMENSION && lastlutype != LexicalType.REAL
+				&& lastlutype != LexicalType.INTEGER && lastlutype != LexicalType.SUB_EXPRESSION
+				&& lastlutype != LexicalType.ENV) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
+		}
+	}
+
 	private static StyleExpression addOperand(StyleExpression expression,
-			OperandExpression operand) {
+			OperandExpression operand) throws DOMException {
 		if (expression == null) {
 			expression = operand;
 		} else {

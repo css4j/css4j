@@ -26,7 +26,7 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		// Check whether value is 'normal' or 'none'.
 		if (currentValue.getLexicalUnitType() == LexicalType.IDENT) {
 			String text = currentValue.getStringValue();
@@ -47,7 +47,7 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 					}
 					initValueString();
 					appendValueItemString(text);
-					return true;
+					return 0;
 				} else {
 					// 'normal' or 'none' mixed with other values
 					StyleDeclarationErrorHandler errHandler = styleDeclaration
@@ -56,7 +56,7 @@ class FontVariantShorthandSetter extends ShorthandSetter {
 						errHandler.shorthandError(getShorthandName(),
 								"Found '" + text + "' keyword mixed with other values");
 					}
-					return false;
+					return 2;
 				}
 			}
 		}

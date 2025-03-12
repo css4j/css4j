@@ -29,7 +29,7 @@ public class SyntaxParser {
 	private static final HashMap<String,Category> catMap;
 
 	static {
-		catMap = new HashMap<>(22);
+		catMap = new HashMap<>(23);
 		catMap.put("angle", Category.angle);
 		catMap.put("color", Category.color);
 		catMap.put("custom-ident", Category.customIdent);
@@ -42,6 +42,7 @@ public class SyntaxParser {
 		catMap.put("resolution", Category.resolution);
 		catMap.put("time", Category.time);
 		catMap.put("unicode-range", Category.unicodeRange);
+		catMap.put("easing-function", Category.easingFunction);
 		catMap.put("transform-function", Category.transformFunction);
 		catMap.put("transform-list", Category.transformList);
 		catMap.put("url", Category.url);

@@ -489,10 +489,10 @@ public class PropertyParserCalcTest {
 	}
 
 	@Test
-	public void testParsePropertyValueWebkitCalcAtan() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("-webkit-calc(2*atan(0.7))");
-		assertEquals("-webkit-calc", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+	public void testParsePropertyValueCalcAtan() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("calc(2*atan(0.7))");
+		assertEquals("calc", lu.getFunctionName());
+		assertEquals(LexicalType.CALC, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 
 		assertMatch(Match.TRUE, lu, "<angle>");
@@ -502,6 +502,21 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.FALSE, lu, "<color>");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <angle>#");
 		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueWebkitCalcAtan() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("-webkit-calc(2*atan(0.7))");
+		assertEquals("-webkit-calc", lu.getFunctionName());
+		assertEquals(LexicalType.PREFIXED_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertMatch(Match.FALSE, lu, "<angle>");
+		assertMatch(Match.FALSE, lu, "<angle>#");
+		assertMatch(Match.FALSE, lu, "<angle>+");
+		assertMatch(Match.FALSE, lu, "<string>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <angle>#");
 	}
 
 	@Test
@@ -547,15 +562,8 @@ public class PropertyParserCalcTest {
 		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 
-		assertMatch(Match.TRUE, lu, "<length>");
-		assertMatch(Match.TRUE, lu, "<length-percentage>#");
-		assertMatch(Match.TRUE, lu, "<length-percentage>+");
+		assertMatch(Match.FALSE, lu, "<length>");
 		assertMatch(Match.FALSE, lu, "<string>");
-		assertMatch(Match.FALSE, lu, "<color>");
-		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>#");
-		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
-		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>");
-		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1314,7 +1322,196 @@ public class PropertyParserCalcTest {
 	}
 
 	@Test
+	public void testParsePropertyValueClampArgExpr() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("clamp(4rem/0.5, 8px + 4px - 1px, 2*3em)");
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertEquals("clamp", lu.getFunctionName());
+
+		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_REM, param.getCssUnit());
+		assertEquals(4f, param.getFloatValue(), 1e-5f);
+		assertEquals("rem", param.getDimensionUnitText());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.5f, param.getFloatValue(), 1e-5f);
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(8f, param.getFloatValue(), 1e-5f);
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_PLUS, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(4f, param.getFloatValue(), 1e-5f);
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MINUS, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals(1f, param.getFloatValue(), 1e-5f);
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(2, param.getIntegerValue());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals(3f, param.getFloatValue(), 1e-5f);
+
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("clamp(4rem/0.5, 8px + 4px - 1px, 2*3em)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "<length>#");
+		assertMatch(Match.TRUE, lu, "<length>+");
+		assertMatch(Match.FALSE, lu, "<number>");
+		assertMatch(Match.FALSE, lu, "<percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueClampSubexpr() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("clamp((4rem/0.5), (8px + 4px - 1px), (2*3em))");
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertEquals("clamp", lu.getFunctionName());
+
+		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.SUB_EXPRESSION, param.getLexicalUnitType());
+		LexicalUnit expp = param.getParameters();
+		assertEquals(LexicalType.DIMENSION, expp.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_REM, expp.getCssUnit());
+		assertEquals(4f, expp.getFloatValue(), 1e-5f);
+		assertEquals("rem", expp.getDimensionUnitText());
+		expp = expp.getNextLexicalUnit();
+		assertNotNull(expp);
+		assertEquals(LexicalType.OPERATOR_SLASH, expp.getLexicalUnitType());
+		expp = expp.getNextLexicalUnit();
+		assertNotNull(expp);
+		assertEquals(LexicalType.REAL, expp.getLexicalUnitType());
+		assertEquals(0.5f, expp.getFloatValue(), 1e-5f);
+		assertNull(expp.getNextLexicalUnit());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+
+		assertEquals(LexicalType.SUB_EXPRESSION, param.getLexicalUnitType());
+		expp = param.getParameters();
+		assertEquals(LexicalType.DIMENSION, expp.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, expp.getCssUnit());
+		assertEquals(8f, expp.getFloatValue(), 1e-5f);
+		expp = expp.getNextLexicalUnit();
+		assertNotNull(expp);
+		assertEquals(LexicalType.OPERATOR_PLUS, expp.getLexicalUnitType());
+		expp = expp.getNextLexicalUnit();
+		assertNotNull(expp);
+		assertEquals(CSSUnit.CSS_PX, expp.getCssUnit());
+		assertEquals(4f, expp.getFloatValue(), 1e-5f);
+		expp = expp.getNextLexicalUnit();
+		assertNotNull(expp);
+		assertEquals(LexicalType.OPERATOR_MINUS, expp.getLexicalUnitType());
+		expp = expp.getNextLexicalUnit();
+		assertNotNull(expp);
+		assertEquals(CSSUnit.CSS_PX, expp.getCssUnit());
+		assertEquals(1f, expp.getFloatValue(), 1e-5f);
+		assertNull(expp.getNextLexicalUnit());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.SUB_EXPRESSION, param.getLexicalUnitType());
+		expp = param.getParameters();
+		assertEquals(LexicalType.INTEGER, expp.getLexicalUnitType());
+		assertEquals(2, expp.getIntegerValue());
+		expp = expp.getNextLexicalUnit();
+		assertNotNull(expp);
+		assertEquals(LexicalType.OPERATOR_MULTIPLY, expp.getLexicalUnitType());
+		expp = expp.getNextLexicalUnit();
+		assertNotNull(expp);
+		assertEquals(LexicalType.DIMENSION, expp.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, expp.getCssUnit());
+		assertEquals(3f, expp.getFloatValue(), 1e-5f);
+		assertNull(expp.getNextLexicalUnit());
+
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("clamp(4rem/0.5, 8px + 4px - 1px, 2*3em)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "<length>#");
+		assertMatch(Match.TRUE, lu, "<length>+");
+		assertMatch(Match.FALSE, lu, "<number>");
+		assertMatch(Match.FALSE, lu, "<percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
 	public void testParsePropertyValueClampVar() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("clamp(var(--angle), 10deg, 25deg)");
+		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
+		assertEquals("clamp", lu.getFunctionName());
+
+		assertNull(lu.getNextLexicalUnit());
+
+		assertEquals("clamp(var(--angle), 10deg, 25deg)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<angle>");
+		assertMatch(Match.TRUE, lu, "<angle>#");
+		assertMatch(Match.TRUE, lu, "<angle>+");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <angle>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <angle>+");
+		assertMatch(Match.TRUE, lu, "<percentage> | <angle>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueClampVar2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("clamp(10deg, var(--angle), 25deg)");
 		assertEquals(LexicalType.MATH_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("clamp", lu.getFunctionName());

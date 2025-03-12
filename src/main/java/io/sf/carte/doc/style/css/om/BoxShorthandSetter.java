@@ -53,10 +53,10 @@ class BoxShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		// Separately handle the case of property: inherit
 		if (scanForInherited(currentValue)) {
-			return true;
+			return 0;
 		}
 
 		// Get the array of shorthand sub-properties (longhands)
@@ -73,7 +73,7 @@ class BoxShorthandSetter extends ShorthandSetter {
 			if (errHandler != null && !hasCompatValue()) {
 				errHandler.wrongSubpropertyCount(getShorthandName(), vcount);
 			}
-			return false;
+			return 2;
 		}
 
 		// Set values according to value count
@@ -131,7 +131,7 @@ class BoxShorthandSetter extends ShorthandSetter {
 			initValueString();
 		}
 
-		return true;
+		return 0;
 	}
 
 	/**
@@ -158,9 +158,6 @@ class BoxShorthandSetter extends ShorthandSetter {
 			} else if (lutype == LexicalType.INHERIT || lutype == LexicalType.INITIAL
 					|| lutype == LexicalType.UNSET || lutype == LexicalType.REVERT) {
 				nonmixed = false;
-				valueCount++;
-				continue;
-			} else if (value.getLexicalUnitType() == LexicalType.VAR) {
 				valueCount++;
 				continue;
 			}

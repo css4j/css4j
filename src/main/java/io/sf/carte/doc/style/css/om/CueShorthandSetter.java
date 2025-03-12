@@ -18,9 +18,9 @@ class CueShorthandSetter extends SequenceShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		if (isAttrTainted()) {
-			return false;
+			return 2;
 		}
 		return super.assignSubproperties();
 	}

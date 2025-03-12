@@ -10,44 +10,30 @@
  */
 
 package io.sf.carte.doc.style.css.property;
-
-import java.io.IOException;
-
-import io.sf.carte.doc.style.css.CSSShapeValue;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
-import io.sf.carte.util.BufferSimpleWriter;
 
 /**
- * Basic shape.
+ * Easing function.
  * 
  */
-abstract class ShapeValue extends TypedValue implements CSSShapeValue {
+class TransformFunction extends FunctionValue {
 
 	private static final long serialVersionUID = 1L;
 
-	ShapeValue(Type type) {
+	TransformFunction(Type type) {
 		super(type);
 	}
 
-	protected ShapeValue(ShapeValue copied) {
+	protected TransformFunction(TransformFunction copied) {
 		super(copied);
-	}
-
-	@Override
-	public String getCssText() {
-		BufferSimpleWriter sw = new BufferSimpleWriter(32);
-		try {
-			writeCssText(sw);
-		} catch (IOException e) {
-		}
-		return sw.toString();
 	}
 
 	@Override
 	Match matchesComponent(CSSValueSyntax syntax) {
 		switch (syntax.getCategory()) {
-		case basicShape:
+		case transformFunction:
+		case transformList:
 		case universal:
 			return Match.TRUE;
 		default:
@@ -56,6 +42,8 @@ abstract class ShapeValue extends TypedValue implements CSSShapeValue {
 	}
 
 	@Override
-	public abstract ShapeValue clone();
+	public TransformFunction clone() {
+		return new TransformFunction(this);
+	}
 
 }

@@ -2115,7 +2115,7 @@ public class PropertyParserTest {
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.1f, param.getFloatValue(), 0.001);
+		assertEquals(0.1f, param.getFloatValue(), 0.001f);
 		assertNotNull(param.getNextLexicalUnit());
 		assertTrue(param.getNextLexicalUnit().getPreviousLexicalUnit() == param);
 		param = param.getNextLexicalUnit();
@@ -2130,7 +2130,7 @@ public class PropertyParserTest {
 		LexicalUnit calcsub = calcparam.getSubValues();
 		assertNotNull(calcsub);
 		assertEquals(LexicalType.PERCENTAGE, calcsub.getLexicalUnitType());
-		assertEquals(0.5f, calcsub.getFloatValue(), 0.001);
+		assertEquals(0.5f, calcsub.getFloatValue(), 0.001f);
 		calcsub = calcsub.getNextLexicalUnit();
 		assertNotNull(calcsub);
 		assertEquals(LexicalType.OPERATOR_MINUS, calcsub.getLexicalUnitType());
@@ -2138,7 +2138,7 @@ public class PropertyParserTest {
 		assertNotNull(calcsub);
 		assertEquals(LexicalType.DIMENSION, calcsub.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, calcsub.getCssUnit());
-		assertEquals(2f, calcsub.getFloatValue(), 0.001);
+		assertEquals(2f, calcsub.getFloatValue(), 0.001f);
 		assertNull(calcsub.getNextLexicalUnit());
 		calcparam = calcparam.getNextLexicalUnit();
 		assertNotNull(calcparam);
@@ -2146,7 +2146,7 @@ public class PropertyParserTest {
 		calcparam = calcparam.getNextLexicalUnit();
 		assertNotNull(calcparam);
 		assertEquals(LexicalType.REAL, calcparam.getLexicalUnitType());
-		assertEquals(2.2f, calcparam.getFloatValue(), 0.001);
+		assertEquals(2.2f, calcparam.getFloatValue(), 0.001f);
 		assertNull(calcparam.getNextLexicalUnit());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
@@ -2155,7 +2155,7 @@ public class PropertyParserTest {
 		assertTrue(param.getNextLexicalUnit().getPreviousLexicalUnit() == param);
 		param = param.getNextLexicalUnit();
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(1f, param.getFloatValue(), 0.001);
+		assertEquals(1f, param.getFloatValue(), 0.001f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("bar foo(0.1, calc((0.5% - 2em)*2.2), 1)", pre.toString());
 
@@ -2163,102 +2163,22 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyValueFunctionBezier() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("cubic-bezier(0.33, 0.1, 0.5, 1)");
-		assertEquals("cubic-bezier", lu.getFunctionName());
-		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+	public void testParsePropertyValueFunctionNegativeArg() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("foo(-.33,-.1,-1,-1.02)");
+		assertEquals("foo", lu.getFunctionName());
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.33f, param.getFloatValue(), 0.001);
+		assertEquals(-0.33f, param.getFloatValue(), 0.001f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.1f, param.getFloatValue(), 0.001);
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.5f, param.getFloatValue(), 0.001);
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(1, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("cubic-bezier(0.33, 0.1, 0.5, 1)", lu.toString());
-	}
-
-	@Test
-	public void testParsePropertyValueFunctionBezierMini() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("cubic-bezier(.33, .1, .5, 1)");
-		assertEquals("cubic-bezier", lu.getFunctionName());
-		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.33f, param.getFloatValue(), 0.001);
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.1f, param.getFloatValue(), 0.001);
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.5f, param.getFloatValue(), 0.001);
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(1, param.getIntegerValue());
-		assertNull(param.getNextLexicalUnit());
-		assertEquals("cubic-bezier(0.33, 0.1, 0.5, 1)", lu.toString());
-	}
-
-	@Test
-	public void testParsePropertyValueFunctionBezierBackslashError() throws CSSException {
-		try {
-			parsePropertyValue("cubic-bezier(0.33, 0.1, 0.5, 1\\9)");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(30, e.getColumnNumber());
-		}
-	}
-
-	@Test
-	public void testParsePropertyValueFunctionBezierNegativeArg() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("cubic-bezier(-.33, -.1, -1, -1.02)");
-		assertEquals("cubic-bezier", lu.getFunctionName());
-		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
-		assertNull(lu.getNextLexicalUnit());
-		LexicalUnit param = lu.getParameters();
-		assertNotNull(param);
-		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(-0.33f, param.getFloatValue(), 0.001);
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
-		param = param.getNextLexicalUnit();
-		assertNotNull(param);
-		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(-0.1f, param.getFloatValue(), 0.001);
+		assertEquals(-0.1f, param.getFloatValue(), 0.001f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -2272,19 +2192,504 @@ public class PropertyParserTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(-1.02f, param.getFloatValue(), 0.001);
+		assertEquals(-1.02f, param.getFloatValue(), 0.001f);
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("cubic-bezier(-0.33, -0.1, -1, -1.02)", lu.toString());
+		assertEquals("foo(-0.33, -0.1, -1, -1.02)", lu.toString());
 
 		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<number>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezier() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("cubic-bezier(0.33, 0.1, 0.5, 1)");
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.5f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("cubic-bezier(0.33, 0.1, 0.5, 1)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.TRUE, lu, "<easing-function>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezierMini() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("cubic-bezier(.33, .1, .5, 1)");
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.5f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("cubic-bezier(0.33, 0.1, 0.5, 1)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezierBackslashError() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("cubic-bezier(0.33, 0.1, 0.5, 1\\9)"));
+		assertEquals(30, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezierNegativeArg() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("cubic-bezier(.33, -.1, 1, -1.02)");
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(-0.1f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(-1.02f, param.getFloatValue(), 0.001f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("cubic-bezier(0.33, -0.1, 1, -1.02)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezierAttr() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"cubic-bezier(attr(data-x1 type(<number>)), attr(data-y1 type(<number>)), attr(data-x2 type(<number>)), attr(data-y2 type(<number>)))");
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("data-x1", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("data-y1", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("data-x2", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.ATTR, param.getLexicalUnitType());
+		assertEquals("data-y2", param.getParameters().getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals(
+				"cubic-bezier(attr(data-x1 type(<number>)), attr(data-y1 type(<number>)), attr(data-x2 type(<number>)), attr(data-y2 type(<number>)))",
+				lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezierVar() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("cubic-bezier(var(--x1y1-x2y2))");
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertNull(param.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezierVarCommaY1X2Y2() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("cubic-bezier(0.33 var(--comma-y1-x2y2))");
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertNull(param.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezierVarY1X2Y2() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("cubic-bezier(0.33, var(--y1-x2y2))");
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertNull(param.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezierVarCommaX2Y2() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("cubic-bezier(0.33, 0.1 var(--comma-x2y2))");
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertNull(param.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezierVarX2Y2() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("cubic-bezier(0.33, 0.1, var(--x2y2))");
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertNull(param.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezierVarCommaY2() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("cubic-bezier(0.33, 0.1, 0.5 var(--y2))");
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.5f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertNull(param.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionBezierVarY2() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("cubic-bezier(0.33, 0.1, 0.5, var(--y2))");
+		assertEquals("cubic-bezier", lu.getFunctionName());
+		assertEquals(LexicalType.CUBIC_BEZIER_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.1f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.5f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertNull(param.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueLinear() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("linear");
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("linear", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.TRUE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionLinear() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("linear(0, 0.5 25% 75%, 1)");
+		assertEquals("linear", lu.getFunctionName());
+		assertEquals(LexicalType.LINEAR_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.5f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(75f, param.getFloatValue(), 0.001f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+
+		assertNull(param.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.TRUE, lu, "<easing-function>#");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionSteps() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("steps(2, end)");
+		assertEquals("steps", lu.getFunctionName());
+		assertEquals(LexicalType.STEPS_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(2, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("end", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<easing-function>");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "<custom-ident>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
 	public void testParsePropertyValueFunctionImageSet() throws CSSException {
+		final LexicalUnit lu = parsePropertyValue(
+				"image-set(url(//www.example.com/path/to/img.png) 1x, url(//www2.example.com/path2/to2/img2.png) 2x)");
+		assertNotNull(lu);
+		assertEquals(LexicalType.IMAGE_SET, lu.getLexicalUnitType());
+		assertEquals("image-set", lu.getFunctionName());
+		// parameters
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.URI, param.getLexicalUnitType());
+		assertEquals("//www.example.com/path/to/img.png", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(1f, param.getFloatValue(), 1e-5f);
+		assertEquals("x", param.getDimensionUnitText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.URI, param.getLexicalUnitType());
+		assertEquals("//www2.example.com/path2/to2/img2.png", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(2f, param.getFloatValue(), 1e-5f);
+		assertEquals("x", param.getDimensionUnitText());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals(
+				"image-set(url('//www.example.com/path/to/img.png') 1x, url('//www2.example.com/path2/to2/img2.png') 2x)",
+				lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<image>");
+		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueFunctionPrefixedImageSet() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 				"-webkit-image-set(url(//www.example.com/path/to/img.png) 1x, url(//www2.example.com/path2/to2/img2.png) 2x) foo(bar)");
 		assertNotNull(lu);
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.PREFIXED_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("-webkit-image-set", lu.getFunctionName());
 		// parameters
 		LexicalUnit param = lu.getParameters();
@@ -2331,7 +2736,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueFunctionTransformList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("translate(-10px, -20px) scale(2) rotate(45deg)");
 		assertEquals("translate", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.TRANSLATE_FUNCTION, lu.getLexicalUnitType());
 
 		assertMatch(Match.TRUE, lu, "<transform-function>+");
 		assertMatch(Match.TRUE, lu, "<transform-list>");
@@ -2348,7 +2753,7 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue(
 				"translate(-10px, -20px) scale(2) rotate(45deg), rotate(15deg) scale(2) translate(20px)");
 		assertEquals("translate", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.TRANSLATE_FUNCTION, lu.getLexicalUnitType());
 
 		assertMatch(Match.TRUE, lu, "<transform-list>#");
 		assertMatch(Match.FALSE, lu, "<transform-list>");
@@ -2364,7 +2769,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueFunctionCustom() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-webkit-linear-gradient(transparent, #fff)");
 		assertEquals("-webkit-linear-gradient", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.PREFIXED_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -2396,7 +2801,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueFunctionCustomNoWS() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("-foo(transparent,green,#fff)");
 		assertEquals("-foo", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.PREFIXED_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -2716,7 +3121,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueEnv() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("env(safe-area-inset-top, 20px)");
 		assertEquals("env", lu.getFunctionName());
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.ENV, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
 		assertEquals("safe-area-inset-top", param.getStringValue());
@@ -2730,10 +3135,10 @@ public class PropertyParserTest {
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("env(safe-area-inset-top, 20px)", lu.toString());
 
-		assertMatch(Match.PENDING, lu, "<length>");
-		assertMatch(Match.PENDING, lu, "<image>#");
-		assertMatch(Match.PENDING, lu, "<image>+");
-		assertMatch(Match.PENDING, lu, "<custom-ident> | <image>");
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<image>#");
+		assertMatch(Match.FALSE, lu, "<image>+");
+		assertMatch(Match.FALSE, lu, "<custom-ident> | <image>");
 		assertMatch(Match.TRUE, lu, "*");
 	}
 
@@ -3043,7 +3448,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueGradient() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue(
 				"linear-gradient(linear, left top, left bottom, from(#bd0afa), to(#d0df9f))");
-		assertEquals(LexicalType.FUNCTION, lunit.getLexicalUnitType());
+		assertEquals(LexicalType.GRADIENT, lunit.getLexicalUnitType());
 		assertEquals("linear-gradient", lunit.getFunctionName());
 		assertEquals("linear-gradient(linear, left top, left bottom, from(#bd0afa), to(#d0df9f))", lunit.toString());
 		LexicalUnit lu = lunit.getParameters();

@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
@@ -104,15 +103,11 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			type = Type.EXPRESSION;
 			break;
 		case FUNCTION:
-			String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
-			if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")
-					|| func.endsWith("conic-gradient")) {
-				type = Type.GRADIENT;
-			} else if ("env".equals(func)) {
-				type = Type.ENV;
-			} else {
-				type = Type.FUNCTION;
-			}
+		case PREFIXED_FUNCTION:
+			type = Type.FUNCTION;
+			break;
+		case GRADIENT:
+			type = Type.GRADIENT;
 			break;
 		case MATH_FUNCTION:
 			type = Type.MATH_FUNCTION;
@@ -156,6 +151,9 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		case COUNTERS_FUNCTION:
 			type = Type.COUNTERS;
 			break;
+		case ENV:
+			type = Type.ENV;
+			break;
 		case ELEMENT_REFERENCE:
 			type = Type.ELEMENT_REFERENCE;
 			break;
@@ -168,7 +166,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 
 	private boolean isRatioCompUnit(LexicalType lutype) {
 		return lutype == LexicalType.INTEGER || lutype == LexicalType.REAL || lutype == LexicalType.CALC
-				|| lutype == LexicalType.FUNCTION;
+				|| lutype == LexicalType.MATH_FUNCTION;
 	}
 
 	@Override
@@ -250,58 +248,36 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 	}
 
 	private static CharSequence serializeMinified(LexicalUnit lexicalUnit) {
-		StringBuilder buf;
-		switch (lexicalUnit.getLexicalUnitType()) {
-		case RGBCOLOR:
-			String cssText = lexicalUnit.getCssText();
-			if (cssText.length() < 10) {
-				// Hex notation
-				return cssText;
+		if (lexicalUnit.getParameters() != null) {
+			StringBuilder buf;
+			switch (lexicalUnit.getLexicalUnitType()) {
+			case RGBCOLOR:
+				String cssText = lexicalUnit.getCssText();
+				if (cssText.length() < 10) {
+					// Hex notation
+					return cssText;
+				}
+			default:
+				buf = new StringBuilder();
+				buf.append(lexicalUnit.getFunctionName()).append('(');
+				LexicalUnit lu = lexicalUnit.getParameters();
+				if (lu != null) {
+					buf.append(serializeMinifiedSequence(lu));
+				}
+				buf.append(')');
+				return buf;
+			case SUB_EXPRESSION:
+				buf = new StringBuilder();
+				buf.append('(');
+				lu = lexicalUnit.getSubValues();
+				if (lu != null) {
+					buf.append(serializeMinifiedSequence(lu));
+				}
+				buf.append(')');
+				return buf;
+			case ELEMENT_REFERENCE:
+				break;
 			}
-		case VAR:
-		case ATTR:
-		case MATH_FUNCTION:
-		case FUNCTION:
-		case CALC:
-		case RECT_FUNCTION:
-		case CIRCLE_FUNCTION:
-		case ELLIPSE_FUNCTION:
-		case INSET_FUNCTION:
-		case POLYGON_FUNCTION:
-		case PATH_FUNCTION:
-		case XYWH_FUNCTION:
-		case SHAPE_FUNCTION:
-		case HSLCOLOR:
-		case LABCOLOR:
-		case LCHCOLOR:
-		case OKLABCOLOR:
-		case OKLCHCOLOR:
-		case HWBCOLOR:
-		case COLOR_FUNCTION:
-		case COLOR_MIX:
-		case COUNTER_FUNCTION:
-		case COUNTERS_FUNCTION:
-		case CUBIC_BEZIER_FUNCTION:
-		case STEPS_FUNCTION:
-		case SRC:
-			buf = new StringBuilder();
-			buf.append(lexicalUnit.getFunctionName()).append('(');
-			LexicalUnit lu = lexicalUnit.getParameters();
-			if (lu != null) {
-				buf.append(serializeMinifiedSequence(lu));
-			}
-			buf.append(')');
-			return buf;
-		case SUB_EXPRESSION:
-			buf = new StringBuilder();
-			buf.append('(');
-			lu = lexicalUnit.getSubValues();
-			if (lu != null) {
-				buf.append(serializeMinifiedSequence(lu));
-			}
-			buf.append(')');
-			return buf;
-		default:
 		}
 		return lexicalUnit.getCssText();
 	}

@@ -82,7 +82,7 @@ public class PropertyParserCompatTest {
 	public void testParsePropertyCustomFunction() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
 		LexicalUnit lu = parsePropertyValue("--my-function(foo=bar)");
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.PREFIXED_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("--my-function", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
 		lu = lu.getParameters();

@@ -17,7 +17,6 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSRectValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -191,16 +190,6 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 			setLeft(dimens);
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
-	}
-
-	@Override
-	public String getCssText() {
-		BufferSimpleWriter sw = new BufferSimpleWriter(32);
-		try {
-			writeCssText(sw);
-		} catch (IOException e) {
-		}
-		return sw.toString();
 	}
 
 	@Override

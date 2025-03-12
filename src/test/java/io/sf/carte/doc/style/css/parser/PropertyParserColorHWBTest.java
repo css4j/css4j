@@ -155,7 +155,7 @@ public class PropertyParserColorHWBTest {
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(12.76, param.getFloatValue(), 1e-5);
+		assertEquals(12.76, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
 		assertEquals(25.7f, param.getFloatValue(), 1e-5f);

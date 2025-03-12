@@ -32,10 +32,13 @@ interface SubpropertySetter {
 	/**
 	 * Attempt to assign the shorthand to its longhand subproperties.
 	 * 
-	 * @return <code>true</code> if the shorthand was successfully parsed into longhands,
-	 *         <code>false</code> otherwise.
+	 * @return <code>0</code> if the shorthand was successfully parsed into
+	 *         longhands and should be processed normally, <code>1</code> if the
+	 *         shorthand had a special handling and should not be further processed,
+	 *         <code>2</code> if an error was found and an exception should be
+	 *         thrown.
 	 */
-	boolean assignSubproperties();
+	short assignSubproperties();
 
 	/**
 	 * Get a string representation of the shorthand.

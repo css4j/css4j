@@ -25,12 +25,12 @@ class SequenceShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
-			return true;
+			return 0;
 		} else if (kwscan == 2) {
-			return false;
+			return 2;
 		}
 
 		String[] subparray = getShorthandSubproperties();
@@ -44,12 +44,12 @@ class SequenceShorthandSetter extends ShorthandSetter {
 			setSubpropertyValue(subparray[0], cssval);
 			setSubpropertyValue(subparray[1], cssval);
 		} else {
-			return false;
+			return 2;
 		}
 
 		flush();
 
-		return true;
+		return 0;
 	}
 
 	private int countValues() {

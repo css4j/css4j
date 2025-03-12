@@ -23,9 +23,21 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 
 class DimensionalAnalyzer {
 
+	private LexicalUnitImpl lunit = null;
+
 	private boolean attrPending;
 
 	public DimensionalAnalyzer() {
+	}
+
+	/**
+	 * Get the next lexical unit that should be processed.
+	 * 
+	 * @return the next unit, or {@code null} if the end of the lexical chain was
+	 *         reached.
+	 */
+	public LexicalUnitImpl getNextLexicalUnit() {
+		return lunit;
 	}
 
 	/**
@@ -46,12 +58,14 @@ class DimensionalAnalyzer {
 	/**
 	 * Compute the dimension of the given expression parameters.
 	 * 
-	 * @param lunit the lexical chain of the expression parameters.
+	 * @param unit the lexical chain of the expression parameters.
 	 * @return the dimension, or {@code null} if it is pending substitution (var()).
 	 * @throws DOMException if an error was found.
 	 */
-	public Dimension expressionDimension(LexicalUnitImpl lunit)
+	public Dimension expressionDimension(final LexicalUnitImpl unit)
 			throws DOMException {
+		lunit = unit;
+
 		// The current sum dimension
 		Dimension sum = null;
 
@@ -60,7 +74,7 @@ class DimensionalAnalyzer {
 
 		Ops operation = Ops.ADD;
 
-		while (lunit != null) {
+		topLoop: while (lunit != null) {
 			LexicalType sacType = lunit.getLexicalUnitType();
 			switch (sacType) {
 			case DIMENSION:
@@ -116,10 +130,17 @@ class DimensionalAnalyzer {
 				}
 			case CALC:
 			case SUB_EXPRESSION:
-				Dimension expdim = expressionDimension(lunit.parameters);
+				DimensionalAnalyzer calcAnal = new DimensionalAnalyzer();
+				Dimension expdim = calcAnal.expressionDimension(lunit.parameters);
+				attrPending = attrPending || calcAnal.isAttrPending();
+
 				if (expdim == null) {
-					return null;
+					dim = sum;
+					sum = null;
+					lunit = lunit.nextLexicalUnit;
+					break topLoop;
 				}
+
 				switch (operation) {
 				case ADD:
 					dim = expdim;
@@ -133,12 +154,20 @@ class DimensionalAnalyzer {
 				}
 				break;
 			case VAR:
+				lunit = lunit.nextLexicalUnit;
 				return null;
 			case MATH_FUNCTION:
-				Dimension funcdim = ((MathFunctionUnitImpl) lunit).dimension(this);
+				DimensionalAnalyzer funcAnal = new DimensionalAnalyzer();
+				Dimension funcdim = ((MathFunctionUnitImpl) lunit).dimension(funcAnal);
+				attrPending = attrPending || funcAnal.isAttrPending();
+
 				if (funcdim == null) {
-					return null;
+					dim = sum;
+					sum = null;
+					lunit = lunit.nextLexicalUnit;
+					break topLoop;
 				}
+
 				switch (operation) {
 				case ADD:
 					dim = funcdim;
@@ -166,11 +195,17 @@ class DimensionalAnalyzer {
 			case OPERATOR_SLASH:
 				operation = Ops.DIV;
 				break;
+			case OPERATOR_COMMA:
+				break topLoop;
 			case ATTR:
 				Dimension attrdim = attrDimension(lunit.parameters);
 				if (attrdim == null) {
-					return null;
+					dim = sum;
+					sum = null;
+					lunit = lunit.nextLexicalUnit;
+					break topLoop;
 				}
+
 				switch (operation) {
 				case ADD:
 					dim = attrdim;
@@ -222,9 +257,11 @@ class DimensionalAnalyzer {
 				return dim;
 			}
 
+			DimensionalAnalyzer fbAnal = new DimensionalAnalyzer();
 			Dimension dimfb;
 			try {
-				dimfb = expressionDimension(lunit);
+				dimfb = fbAnal.expressionDimension(lunit);
+				attrPending = attrPending || fbAnal.isAttrPending();
 			} catch (DOMException e) {
 				return dim;
 			}

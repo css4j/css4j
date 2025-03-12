@@ -12,11 +12,20 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSEnvVariableValue;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -28,7 +37,10 @@ public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue 
 	private static final long serialVersionUID = 1L;
 
 	private String name = null;
-	private StyleValue fallback = null;
+
+	private int[] indices = null;
+
+	private LexicalUnit fallback = null;
 
 	EnvVariableValue() {
 		super(Type.ENV);
@@ -37,6 +49,9 @@ public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue 
 	protected EnvVariableValue(EnvVariableValue copied) {
 		super(copied);
 		this.name = copied.name;
+		if (copied.indices != null) {
+			this.indices = copied.indices.clone();
+		}
 		if (copied.fallback != null) {
 			this.fallback = copied.fallback.clone();
 		}
@@ -44,21 +59,29 @@ public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue 
 
 	@Override
 	public String getCssText() {
-		StringBuilder buf = new StringBuilder();
-		buf.append("env(").append(name);
-		if (fallback != null) {
-			buf.append(", ").append(fallback.getCssText());
+		if (name == null) {
+			return "";
 		}
-		buf.append(')');
-		return buf.toString();
+		BufferSimpleWriter sw = new BufferSimpleWriter(42);
+		try {
+			writeCssText(sw);
+		} catch (IOException e) {
+		}
+		return sw.toString();
 	}
 
 	@Override
 	public String getMinifiedCssText(String propertyName) {
 		StringBuilder buf = new StringBuilder();
 		buf.append("env(").append(name);
+		if (indices != null) {
+			for (int index : indices) {
+				buf.append(' ');
+				buf.append(Integer.toString(index));
+			}
+		}
 		if (fallback != null) {
-			buf.append(',').append(fallback.getMinifiedCssText(propertyName));
+			buf.append(',').append(LexicalValue.serializeMinifiedSequence(fallback));
 		}
 		buf.append(')');
 		return buf.toString();
@@ -68,9 +91,15 @@ public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue 
 	public void writeCssText(SimpleWriter wri) throws IOException {
 		wri.write("env(");
 		wri.write(name);
+		if (indices != null) {
+			for (int index : indices) {
+				wri.write(' ');
+				wri.write(Integer.toString(index));
+			}
+		}
 		if (fallback != null) {
 			wri.write(", ");
-			fallback.writeCssText(wri);
+			wri.write(fallback.toString());
 		}
 		wri.write(')');
 	}
@@ -92,8 +121,8 @@ public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue 
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((fallback == null) ? 0 : fallback.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + Arrays.hashCode(indices);
+		result = prime * result + Objects.hash(fallback, name);
 		return result;
 	}
 
@@ -109,18 +138,8 @@ public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue 
 			return false;
 		}
 		EnvVariableValue other = (EnvVariableValue) obj;
-		if (fallback == null) {
-			if (other.fallback != null) {
-				return false;
-			}
-		} else if (!fallback.equals(other.fallback)) {
-			return false;
-		}
-		if (name == null) {
-			return other.name == null;
-		} else {
-			return name.equals(other.name);
-		}
+		return name.equals(other.name) && Arrays.equals(indices, other.indices)
+				&& Objects.equals(fallback, other.fallback);
 	}
 
 	@Override
@@ -134,19 +153,46 @@ public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue 
 		void setLexicalUnit(LexicalUnit lunit) {
 			LexicalUnit lu = lunit.getParameters();
 			if (lu == null || lu.getLexicalUnitType() != LexicalUnit.LexicalType.IDENT) {
-				throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Variable name must be an identifier");
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+						"Variable name must be an identifier");
 			}
+
 			name = lu.getStringValue();
-			lu = lu.getNextLexicalUnit();
-			if (lu != null) {
-				LexicalUnit.LexicalType type = lu.getLexicalUnitType();
+			indices = null;
+
+			LinkedList<Integer> indexList = null;
+
+			do {
 				lu = lu.getNextLexicalUnit();
-				if (type != LexicalUnit.LexicalType.OPERATOR_COMMA || lu == null) {
-					throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Unexpected character");
+				if (lu == null) {
+					fallback = null;
+					break;
 				}
-				ValueFactory factory = new ValueFactory();
-				fallback = factory.createCSSValue(lu);
+				LexicalType type = lu.getLexicalUnitType();
+				if (type == LexicalType.OPERATOR_COMMA) {
+					fallback = lu.getNextLexicalUnit();
+					if (fallback != null) {
+						fallback = fallback.clone();
+					}
+					break;
+				} else if (type == LexicalType.INTEGER) {
+					if (indexList == null) {
+						indexList = new LinkedList<>();
+					}
+					indexList.add(lu.getIntegerValue());
+				} else {
+					throw new DOMException(DOMException.SYNTAX_ERR,
+							"Unexpected token: " + lu.getCssText());
+				}
+			} while (true);
+
+			if (indexList != null) {
+				indices = new int[indexList.size()];
+				for (int i = 0; i < indices.length; i++) {
+					indices[i] = indexList.get(i);
+				}
 			}
+
 			this.nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
 	}
@@ -156,9 +202,43 @@ public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue 
 		return name;
 	}
 
+	/**
+	 * Get the indices.
+	 * 
+	 * @return the indices, or {@code null} if none.
+	 */
 	@Override
-	public StyleValue getFallback() {
+	public int[] getIndices() {
+		return indices;
+	}
+
+	@Override
+	public LexicalUnit getFallback() {
 		return fallback;
+	}
+
+	@Override
+	public Match matches(CSSValueSyntax syntax) {
+		CSSValueSyntax rootSyntax = syntax;
+		if (syntax != null) {
+			if (syntax.getCategory() == Category.universal) {
+				return Match.TRUE;
+			}
+			do {
+				Match result;
+				if ((result = CSSUtil.matchEnv(rootSyntax, syntax, name,
+						fallback)) != Match.FALSE) {
+					return result;
+				}
+				syntax = syntax.getNext();
+			} while (syntax != null);
+		}
+		return Match.FALSE;
+	}
+
+	@Override
+	Match matchesComponent(CSSValueSyntax syntax) {
+		return CSSUtil.matchEnv(syntax, syntax, name, fallback);
 	}
 
 	@Override

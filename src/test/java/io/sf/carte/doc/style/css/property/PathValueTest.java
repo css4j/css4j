@@ -111,6 +111,20 @@ public class PathValueTest {
 	@Test
 	public void testClone() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("d: path(nonzero,'M2,5 S2,-2 4,5 S7,8 8,4')");
+		PathValue value = (PathValue) style.getPropertyCSSValue("d");
+		PathValue clon = value.clone();
+		assertEquals(value.getCssValueType(), clon.getCssValueType());
+		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());
+		assertEquals(value.getPath(), clon.getPath());
+		assertEquals(value.getFillRule(), clon.getFillRule());
+		assertEquals(value.getCssText(), clon.getCssText());
+		assertTrue(value.equals(clon));
+	}
+
+	@Test
+	public void testCloneNoFill() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
 		style.setCssText("d: path('M2,5 S2,-2 4,5 S7,8 8,4')");
 		PathValue value = (PathValue) style.getPropertyCSSValue("d");
 		PathValue clon = value.clone();

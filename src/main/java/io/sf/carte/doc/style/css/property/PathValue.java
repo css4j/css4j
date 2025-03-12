@@ -21,7 +21,6 @@ import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
-import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -116,14 +115,9 @@ class PathValue extends ShapeValue implements CSSPathValue {
 		}
 	}
 
-	@Override
-	public String getCssText() {
-		BufferSimpleWriter sw = new BufferSimpleWriter(32);
-		try {
-			writeCssText(sw);
-		} catch (IOException e) {
-		}
-		return sw.toString();
+	private DOMException createUnexpectedArgumentTypeException(LexicalUnit lu) {
+		return new DOMException(DOMException.TYPE_MISMATCH_ERR,
+				"Unexpected argument in path(): " + lu.getCssText());
 	}
 
 	@Override
@@ -164,6 +158,9 @@ class PathValue extends ShapeValue implements CSSPathValue {
 			return true;
 		}
 		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		PathValue other = (PathValue) obj;

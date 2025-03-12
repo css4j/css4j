@@ -586,7 +586,7 @@ public class GradientValueTest {
 	}
 
 	@Test
-	public void testLinearNonStandard() {
+	public void testLinearPrefixed() {
 		style.setCssText(
 				"background-image: -moz-linear-gradient(center top, rgb(51, 153, 51) 0%, rgb(51, 119, 51) 100%);");
 		StyleValue cssval = style.getPropertyCSSValue("background-image");
@@ -602,13 +602,10 @@ public class GradientValueTest {
 		assertEquals(3, val.getArguments().getLength());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
+
 		// Match
-		assertMatch(Match.TRUE, val, "<image>");
-		assertMatch(Match.TRUE, val, "<image>#");
-		assertMatch(Match.TRUE, val, "<url> | <image>");
-		assertMatch(Match.TRUE, val, "<custom-ident> | <image>");
+		assertMatch(Match.FALSE, val, "<image>"); // This is not Firefox, so FALSE
 		assertMatch(Match.FALSE, val, "<color>");
-		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -637,9 +634,9 @@ public class GradientValueTest {
 	@Test
 	public void testLinearNonStandard3() {
 		style.setCssText("background-image: -webkit-linear-gradient(transparent, #fff);");
-		GradientValue val = (GradientValue) style.getPropertyCSSValue("background-image");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("background-image");
 		assertNotNull(val);
-		assertEquals(CSSValue.Type.GRADIENT, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
 		assertEquals("-webkit-linear-gradient(transparent, #fff)",
 				style.getPropertyValue("background-image"));
 		assertEquals("background-image: -webkit-linear-gradient(transparent, #fff); ",
@@ -648,7 +645,6 @@ public class GradientValueTest {
 				style.getMinifiedCssText());
 		assertEquals(2, val.getArguments().getLength());
 		assertEquals("#fff", val.getArguments().item(1).getCssText());
-		assertEquals(CSSGradientValue.GradientType.OTHER_GRADIENT, val.getGradientType());
 		assertTrue(val.equals(val.clone()));
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());

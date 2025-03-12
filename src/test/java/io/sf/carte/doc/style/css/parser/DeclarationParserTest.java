@@ -1507,7 +1507,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_CAP, lu.getCssUnit());
-		assertEquals(60, lu.getFloatValue(), 0.001);
+		assertEquals(60, lu.getFloatValue(), 0.001f);
 		assertEquals("cap", lu.getDimensionUnitText());
 		assertEquals("60cap", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
@@ -1529,7 +1529,7 @@ public class DeclarationParserTest {
 		lu = handler.lexicalValues.get(1);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
-		assertEquals(600, lu.getFloatValue(), 0.001);
+		assertEquals(600, lu.getFloatValue(), 0.001f);
 		assertEquals("px", lu.getDimensionUnitText());
 		assertEquals("600px", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
@@ -2088,7 +2088,7 @@ public class DeclarationParserTest {
 		parseStyleDeclaration("background-image: linear-gradient(35deg);");
 		assertEquals("background-image", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.GRADIENT, lu.getLexicalUnitType());
 		assertEquals("linear-gradient", lu.getFunctionName());
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -2116,7 +2116,7 @@ public class DeclarationParserTest {
 			"background-image: linear-gradient(180deg,transparent,99%,rgba(0,0,0,.5));");
 		assertEquals("background-image", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.GRADIENT, lu.getLexicalUnitType());
 		assertEquals("linear-gradient", lu.getFunctionName());
 
 		LexicalUnit param = lu.getParameters();
@@ -2164,7 +2164,7 @@ public class DeclarationParserTest {
 			"background-image: -o-linear-gradient(top,transparent,99%,rgba(0,0,0,0.5));");
 		assertEquals("background-image", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.PREFIXED_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("-o-linear-gradient", lu.getFunctionName());
 
 		LexicalUnit param = lu.getParameters();
@@ -2494,21 +2494,21 @@ public class DeclarationParserTest {
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.33f, param.getFloatValue(), 0.001);
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.1f, param.getFloatValue(), 0.001);
+		assertEquals(0.1f, param.getFloatValue(), 0.001f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.5f, param.getFloatValue(), 0.001);
+		assertEquals(0.5f, param.getFloatValue(), 0.001f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -2533,21 +2533,21 @@ public class DeclarationParserTest {
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.33f, param.getFloatValue(), 0.001);
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.1f, param.getFloatValue(), 0.001);
+		assertEquals(0.1f, param.getFloatValue(), 0.001f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.5f, param.getFloatValue(), 0.001);
+		assertEquals(0.5f, param.getFloatValue(), 0.001f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
@@ -2562,7 +2562,7 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBezierNegativeArg() throws CSSException {
-		parseStyleDeclaration("foo:cubic-bezier(-.33, -.1, -1, -.02)");
+		parseStyleDeclaration("foo:cubic-bezier(.33, -.1, 1, -.02)");
 		assertEquals("foo", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals("cubic-bezier", lu.getFunctionName());
@@ -2571,30 +2571,30 @@ public class DeclarationParserTest {
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(-0.33f, param.getFloatValue(), 0.001);
+		assertEquals(0.33f, param.getFloatValue(), 0.001f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(-0.1f, param.getFloatValue(), 0.001);
+		assertEquals(-0.1f, param.getFloatValue(), 0.001f);
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
-		assertEquals(-1, param.getIntegerValue());
+		assertEquals(1, param.getIntegerValue());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(-0.02f, param.getFloatValue(), 0.001);
+		assertEquals(-0.02f, param.getFloatValue(), 0.001f);
 		assertNull(param.getNextLexicalUnit());
-		assertEquals("cubic-bezier(-0.33, -0.1, -1, -0.02)", lu.toString());
+		assertEquals("cubic-bezier(0.33, -0.1, 1, -0.02)", lu.toString());
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -3430,7 +3430,7 @@ public class DeclarationParserTest {
 		assertEquals("filter", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.PREFIXED_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("--my-function", lu.getFunctionName());
 		assertEquals("--my-function(min-color=5)", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
@@ -3463,7 +3463,7 @@ public class DeclarationParserTest {
 		assertEquals("filter", handler.propertyNames.getFirst());
 		assertEquals(1, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.PREFIXED_FUNCTION, lu.getLexicalUnitType());
 		assertEquals("--my-function", lu.getFunctionName());
 		assertEquals("--my-function(min-color=5)", lu.toString());
 		assertNull(lu.getNextLexicalUnit());

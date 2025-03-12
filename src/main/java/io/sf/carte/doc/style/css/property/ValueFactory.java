@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.property;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
@@ -92,17 +91,10 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
-			LexicalUnit lu;
-			if (lunit.getNextLexicalUnit() != null) {
-				lu = lunit.shallowClone();
-			} else {
-				lu = lunit;
-			}
-
 			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("length");
-			switch (lu.matches(syntax)) {
+			switch (lunit.shallowMatch(syntax)) {
 			case TRUE:
-				throwOnProxy(lu.getParameters());
+				throwOnProxy(lunit.getParameters());
 				return true;
 			case FALSE:
 				return false;
@@ -143,17 +135,10 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
-			LexicalUnit lu;
-			if (lunit.getNextLexicalUnit() != null) {
-				lu = lunit.shallowClone();
-			} else {
-				lu = lunit;
-			}
-
 			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("length-percentage");
-			switch (lu.matches(syntax)) {
+			switch (lunit.shallowMatch(syntax)) {
 			case TRUE:
-				throwOnProxy(lu.getParameters());
+				throwOnProxy(lunit.getParameters());
 				return true;
 			case FALSE:
 				return false;
@@ -196,17 +181,10 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
-			LexicalUnit lu;
-			if (lunit.getNextLexicalUnit() != null) {
-				lu = lunit.shallowClone();
-			} else {
-				lu = lunit;
-			}
-
 			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("length-percentage");
-			switch (lu.matches(syntax)) {
+			switch (lunit.shallowMatch(syntax)) {
 			case TRUE:
-				throwOnProxy(lu.getParameters());
+				throwOnProxy(lunit.getParameters());
 				return true;
 			case FALSE:
 				return false;
@@ -251,17 +229,10 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
-			LexicalUnit lu;
-			if (lunit.getNextLexicalUnit() != null) {
-				lu = lunit.shallowClone();
-			} else {
-				lu = lunit;
-			}
-
 			CSSValueSyntax syntax = new SyntaxParser().parseSyntax("<length> | <number>");
-			switch (lu.matches(syntax)) {
+			switch (lunit.shallowMatch(syntax)) {
 			case TRUE:
-				throwOnProxy(lu.getParameters());
+				throwOnProxy(lunit.getParameters());
 				return true;
 			case FALSE:
 				return false;
@@ -303,17 +274,10 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
-			LexicalUnit lu;
-			if (lunit.getNextLexicalUnit() != null) {
-				lu = lunit.shallowClone();
-			} else {
-				lu = lunit;
-			}
-
 			CSSValueSyntax syntax = new SyntaxParser().parseSyntax("<length-percentage> | <number>");
-			switch (lu.matches(syntax)) {
+			switch (lunit.shallowMatch(syntax)) {
 			case TRUE:
-				throwOnProxy(lu.getParameters());
+				throwOnProxy(lunit.getParameters());
 				return true;
 			case FALSE:
 				return false;
@@ -350,17 +314,10 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
-			LexicalUnit lu;
-			if (lunit.getNextLexicalUnit() != null) {
-				lu = lunit.shallowClone();
-			} else {
-				lu = lunit;
-			}
-
 			CSSValueSyntax syntax = new SyntaxParser().parseSyntax("<percentage> | <number>");
-			switch (lu.matches(syntax)) {
+			switch (lunit.shallowMatch(syntax)) {
 			case TRUE:
-				throwOnProxy(lu.getParameters());
+				throwOnProxy(lunit.getParameters());
 				return true;
 			case FALSE:
 				return false;
@@ -394,17 +351,10 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
-			LexicalUnit lu;
-			if (lunit.getNextLexicalUnit() != null) {
-				lu = lunit.shallowClone();
-			} else {
-				lu = lunit;
-			}
-
 			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("resolution");
-			switch (lu.matches(syntax)) {
+			switch (lunit.shallowMatch(syntax)) {
 			case TRUE:
-				throwOnProxy(lu.getParameters());
+				throwOnProxy(lunit.getParameters());
 				return true;
 			case FALSE:
 				return false;
@@ -445,16 +395,10 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
-			LexicalUnit lu;
-			if (unit.getNextLexicalUnit() != null) {
-				lu = unit.shallowClone();
-			} else {
-				lu = unit;
-			}
 			CSSValueSyntax syntax = new SyntaxParser().parseSyntax("<angle> | <percentage>");
-			switch (lu.matches(syntax)) {
+			switch (unit.shallowMatch(syntax)) {
 			case TRUE:
-				ValueFactory.throwOnProxy(lu.getParameters());
+				ValueFactory.throwOnProxy(unit.getParameters());
 				return true;
 			case FALSE:
 				return false;
@@ -488,16 +432,10 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
-			LexicalUnit lu;
-			if (unit.getNextLexicalUnit() != null) {
-				lu = unit.shallowClone();
-			} else {
-				lu = unit;
-			}
 			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("time");
-			switch (lu.matches(syntax)) {
+			switch (unit.shallowMatch(syntax)) {
 			case TRUE:
-				throwOnProxy(lu.getParameters());
+				throwOnProxy(unit.getParameters());
 				return true;
 			case FALSE:
 				return false;
@@ -525,15 +463,9 @@ public class ValueFactory implements CSSValueFactory {
 		// ATTR may match <color>, so we check for it first
 		if (type != LexicalType.ATTR) {
 			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("color");
-			LexicalUnit lu;
-			if (lunit.getNextLexicalUnit() != null) {
-				lu = lunit.shallowClone();
-			} else {
-				lu = lunit;
-			}
-			switch (lu.matches(syntax)) {
+			switch (lunit.shallowMatch(syntax)) {
 			case TRUE:
-				throwOnProxy(lu.getParameters());
+				throwOnProxy(lunit.getParameters());
 				return true;
 			case FALSE:
 				return false;
@@ -1209,31 +1141,6 @@ public class ValueFactory implements CSSValueFactory {
 				primi = new ColorFunction();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case FUNCTION:
-				String func = lunit.getFunctionName().toLowerCase(Locale.ROOT);
-				if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")
-						|| func.endsWith("conic-gradient")) {
-					primi = new GradientValue();
-					setter = primi.newLexicalSetter();
-					try {
-						setter.setLexicalUnit(lunit);
-					} catch (RuntimeException e) {
-						if (func.charAt(0) == '-') {
-							primi = new FunctionValue();
-							setter = primi.newLexicalSetter();
-							setter.setLexicalUnit(lunit);
-						} else {
-							throw e;
-						}
-					}
-					break;
-				} else if ("env".equals(func)) {
-					primi = new EnvVariableValue();
-				} else {
-					primi = new FunctionValue();
-				}
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
 			case MATH_FUNCTION:
 				primi = new MathFunctionValue(lunit.getMathFunctionIndex());
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
@@ -1251,13 +1158,23 @@ public class ValueFactory implements CSSValueFactory {
 				primi = new LexicalValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case UNICODE_RANGE:
-				primi = new UnicodeRangeValue();
+			case ENV:
+				primi = new EnvVariableValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			// The next one is included for completeness, but won't happen in normal workflows
-			case UNICODE_WILDCARD:
-				primi = new UnicodeWildcardValue();
+			case GRADIENT:
+				String func = lunit.getFunctionName();
+				if (func.endsWith("linear-gradient") || func.endsWith("radial-gradient")
+						|| func.endsWith("conic-gradient")) {
+					primi = new GradientValue();
+					setter = primi.newLexicalSetter();
+					setter.setLexicalUnit(lunit);
+					break;
+				}
+				// pass-through
+			case FUNCTION:
+			case PREFIXED_FUNCTION:
+				primi = new FunctionValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case RECT_FUNCTION:
@@ -1273,15 +1190,15 @@ public class ValueFactory implements CSSValueFactory {
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case CUBIC_BEZIER_FUNCTION:
-				primi = new FunctionValue(Type.CUBIC_BEZIER);
+				primi = new CubicBezierFunction();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case LINEAR_FUNCTION:
+				primi = new EasingFunction(Type.LINEAR);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case STEPS_FUNCTION:
-				primi = new FunctionValue(Type.STEPS);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case ELEMENT_REFERENCE:
-				primi = new ElementReferenceValue();
+				primi = new EasingFunction(Type.STEPS);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case SRC:
@@ -1314,6 +1231,103 @@ public class ValueFactory implements CSSValueFactory {
 				break;
 			case XYWH_FUNCTION:
 				primi = new ShapeFunction(Type.XYWH);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case MATRIX_FUNCTION:
+				primi = new TransformFunction(Type.MATRIX);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case PERSPECTIVE_FUNCTION:
+				primi = new TransformFunction(Type.PERSPECTIVE);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case TRANSLATE_FUNCTION:
+				primi = new TransformFunction(Type.TRANSLATE);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case TRANSLATE_3D_FUNCTION:
+				primi = new TransformFunction(Type.TRANSLATE_3D);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case TRANSLATE_X_FUNCTION:
+				primi = new TransformFunction(Type.TRANSLATE_X);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case TRANSLATE_Y_FUNCTION:
+				primi = new TransformFunction(Type.TRANSLATE_Y);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case TRANSLATE_Z_FUNCTION:
+				primi = new TransformFunction(Type.TRANSLATE_Z);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case SCALE_FUNCTION:
+				primi = new TransformFunction(Type.SCALE);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case SCALE_3D_FUNCTION:
+				primi = new TransformFunction(Type.SCALE_3D);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case SCALE_X_FUNCTION:
+				primi = new TransformFunction(Type.SCALE_X);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case SCALE_Y_FUNCTION:
+				primi = new TransformFunction(Type.SCALE_Y);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case SCALE_Z_FUNCTION:
+				primi = new TransformFunction(Type.SCALE_Z);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case ROTATE_FUNCTION:
+				primi = new TransformFunction(Type.ROTATE);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case ROTATE_3D_FUNCTION:
+				primi = new TransformFunction(Type.ROTATE_3D);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case ROTATE_X_FUNCTION:
+				primi = new TransformFunction(Type.ROTATE_X);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case ROTATE_Y_FUNCTION:
+				primi = new TransformFunction(Type.ROTATE_Y);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case ROTATE_Z_FUNCTION:
+				primi = new TransformFunction(Type.ROTATE_Z);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case SKEW_FUNCTION:
+				primi = new TransformFunction(Type.SKEW);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case SKEW_X_FUNCTION:
+				primi = new TransformFunction(Type.SKEW_X);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case SKEW_Y_FUNCTION:
+				primi = new TransformFunction(Type.SKEW_Y);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case IMAGE_SET:
+				primi = new FunctionValue(Type.IMAGE_SET);
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case ELEMENT_REFERENCE:
+				primi = new ElementReferenceValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			case UNICODE_RANGE:
+				primi = new UnicodeRangeValue();
+				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
+				break;
+			// The next one is included for completeness, but won't happen in normal workflows
+			case UNICODE_WILDCARD:
+				primi = new UnicodeWildcardValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case OPERATOR_COMMA:
@@ -1390,10 +1404,9 @@ public class ValueFactory implements CSSValueFactory {
 		LexicalUnit nextu = lunit.getNextLexicalUnit();
 		if (prevu != null && nextu != null && !lunit.isParameter()) {
 			CSSValueSyntax synpre = (new SyntaxParser())
-				.parseSyntax("<string> | <counter> | <image> | <custom-ident>");
-			CSSValueSyntax synafter = (new SyntaxParser()).parseSyntax("<string> | <counter>");
-			return prevu.shallowClone().matches(synpre) != Match.FALSE
-				&& nextu.matches(synafter) != Match.FALSE;
+					.parseSyntax("<string> | <counter> | <image> | <custom-ident>");
+			return prevu.shallowMatch(synpre) != Match.FALSE && nextu.shallowMatch(
+					(new SyntaxParser()).parseSyntax("<string> | <counter>")) != Match.FALSE;
 		}
 		return false;
 	}

@@ -138,7 +138,7 @@ public class PropertyParserColorHSLTest {
 		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
 		param = param.getNextLexicalUnit();
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(0.5f, param.getFloatValue(), 1e-5);
+		assertEquals(0.5f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("hsl", lu.getFunctionName());
 		assertEquals("hsl(240 80 50/0.5)", lu.toString());

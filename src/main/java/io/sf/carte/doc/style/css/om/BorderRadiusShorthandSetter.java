@@ -27,20 +27,27 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
-			return true;
+			return 0;
 		} else if (kwscan == 2) {
-			return false;
+			return 2;
 		}
+
 		StyleValue topLeftValue = createBorderRadiusValue(null);
 		StyleValue topRightValue = createBorderRadiusValue(topLeftValue);
 		StyleValue bottomRightValue = createBorderRadiusValue(topLeftValue);
 		StyleValue bottomLeftValue = createBorderRadiusValue(topRightValue);
 		if (topRightValue == null || bottomRightValue == null || bottomLeftValue == null) {
-			return false;
+			if (!hasPrefixedValue()) {
+				return 2;
+			} else {
+				flush();
+				return 1;
+			}
 		}
+
 		if (currentValue != null) {
 			if (currentValue.getLexicalUnitType() == LexicalType.OPERATOR_SLASH) {
 				nextCurrentValue();
@@ -49,22 +56,29 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 				StyleValue bottomRightValue2 = createBorderRadiusValue(topLeftValue2);
 				StyleValue bottomLeftValue2 = createBorderRadiusValue(topRightValue2);
 				if (topRightValue2 == null || bottomRightValue2 == null || bottomLeftValue2 == null) {
-					return false;
+					if (!hasPrefixedValue()) {
+						return 2;
+					} else {
+						flush();
+						return 1;
+					}
 				}
 				topLeftValue = valuesToList(topLeftValue, topLeftValue2);
 				topRightValue = valuesToList(topRightValue, topRightValue2);
 				bottomRightValue = valuesToList(bottomRightValue, bottomRightValue2);
 				bottomLeftValue = valuesToList(bottomLeftValue, bottomLeftValue2);
 			} else {
-				return false;
+				return 2;
 			}
 		}
+
 		setSubpropertyValue("border-top-left-radius", topLeftValue);
 		setSubpropertyValue("border-top-right-radius", topRightValue);
 		setSubpropertyValue("border-bottom-right-radius", bottomRightValue);
 		setSubpropertyValue("border-bottom-left-radius", bottomLeftValue);
+
 		flush();
-		return true;
+		return 0;
 	}
 
 	private StyleValue valuesToList(StyleValue value, StyleValue value2) {
@@ -80,10 +94,12 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 		} else {
 			if (currentValue.getLexicalUnitType() == LexicalType.OPERATOR_SLASH) {
 				return defval;
-			} else if (ValueFactory.isPositiveSizeSACUnit(currentValue) || isCustomProperty()) {
+			} else if (ValueFactory.isPositiveSizeSACUnit(currentValue)) {
 				StyleValue value = createCSSValue(getShorthandName(), currentValue);
 				nextCurrentValue();
 				return value;
+			} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
+				setPrefixedValue(currentValue);
 			} else {
 				StyleDeclarationErrorHandler errHandler = styleDeclaration
 						.getStyleDeclarationErrorHandler();
@@ -94,10 +110,6 @@ class BorderRadiusShorthandSetter extends ShorthandSetter {
 			}
 		}
 		return null;
-	}
-
-	private boolean isCustomProperty() {
-		return currentValue.getLexicalUnitType() == LexicalType.VAR;
 	}
 
 }

@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
@@ -21,9 +22,9 @@ import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
-import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -94,13 +95,14 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 	@Override
 	Match matchesComponent(CSSValueSyntax syntax) {
 		switch (syntax.getCategory()) {
-		case transformFunction:
-		case transformList:
-			return ParseHelper.isTransformFunction(functionName) ? Match.TRUE : Match.FALSE;
 		case image:
-			// Custom gradients and other image functions
-			return isImageFunction() || getPrimitiveType() == Type.SRC ? Match.TRUE : Match.FALSE;
+			// Image functions or SRC function
+			return getPrimitiveType() == Type.SRC
+					|| CSSUtil.isUnimplementedImageFunction(functionName.toLowerCase(Locale.ROOT))
+							? Match.TRUE
+							: Match.FALSE;
 		case url:
+			// SRC function
 			return getPrimitiveType() == Type.SRC ? Match.TRUE : Match.FALSE;
 		case universal:
 			return Match.TRUE;
@@ -109,19 +111,12 @@ public class FunctionValue extends TypedValue implements CSSFunctionValue {
 		}
 	}
 
-	private boolean isImageFunction() {
-		// Custom gradients and other image functions
-		return functionName.endsWith("-gradient") || functionName.equalsIgnoreCase("image")
-				|| functionName.equalsIgnoreCase("image-set")
-				|| functionName.equalsIgnoreCase("cross-fade");
-	}
-
 	@Override
 	LexicalSetter newLexicalSetter() {
-		return new MyLexicalSetter();
+		return new FunctionLexicalSetter();
 	}
 
-	class MyLexicalSetter extends LexicalSetter {
+	class FunctionLexicalSetter extends LexicalSetter {
 
 		@Override
 		void setLexicalUnit(LexicalUnit lunit) {

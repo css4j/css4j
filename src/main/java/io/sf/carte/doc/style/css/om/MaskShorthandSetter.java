@@ -86,7 +86,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		layerBuffer = new StringBuilder(64);
 		miniLayerBuffer = new StringBuilder(64);
 
@@ -95,12 +95,12 @@ class MaskShorthandSetter extends ShorthandSetter {
 
 		int i = 0;
 		while (i < layerCount && currentValue != null) {
-			boolean validLayer = false;
+			short layerStatus = 2;
 			subp.clear();
 			Collections.addAll(subp, subparray);
 			valueLoop: while (currentValue != null) {
 				if (currentValue.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
-					if (validLayer) {
+					if (layerStatus == 0) {
 						i++;
 						appendToValueBuffer(layerBuffer, miniLayerBuffer);
 						layerBuffer.setLength(0);
@@ -121,7 +121,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 				if (lutype == LexicalType.INHERIT || lutype == LexicalType.INITIAL
 					|| lutype == LexicalType.UNSET || lutype == LexicalType.REVERT) {
 					if (layerCount != 1 || i != 0 || currentValue.getNextLexicalUnit() != null) {
-						validLayer = false;
+						layerStatus = 2;
 						break valueLoop;
 					}
 					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true)
@@ -133,16 +133,20 @@ class MaskShorthandSetter extends ShorthandSetter {
 					// Done with the layer
 					layerBuffer.setLength(0);
 					miniLayerBuffer.setLength(0);
-					return true;
+					return 0;
 				}
 				// Classify the current lexical value
-				validLayer = assignLayerValue(i, subp);
-				if (!validLayer) {
+				layerStatus = assignLayerValue(i, subp);
+				if (layerStatus != 0) {
+					if (layerStatus == 1) {
+						flush();
+						return 1;
+					}
 					reportUnknownValue(subp);
 					break valueLoop;
 				}
 			}
-			if (!validLayer) {
+			if (layerStatus != 0) {
 				layerBuffer.setLength(0);
 				miniLayerBuffer.setLength(0);
 				StringBuilder msgbuf = new StringBuilder(64);
@@ -151,11 +155,13 @@ class MaskShorthandSetter extends ShorthandSetter {
 					msgbuf.append(' ').append(currentValue.toString());
 				}
 				reportDeclarationError("mask", msgbuf.toString());
-				return false;
+				return 2;
 			}
+
 			// Now set the remaining properties
 			assignPendingValues(i, subp);
-			if (subp.size() > 0) {
+
+			if (!subp.isEmpty()) {
 				// Reset subproperties not set by this shorthand at this layer
 				resetUnsetProperties(subp);
 			}
@@ -179,7 +185,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 		// flush the properties
 		flush();
 
-		return true;
+		return 0;
 	}
 
 	/**
@@ -187,23 +193,30 @@ class MaskShorthandSetter extends ShorthandSetter {
 	 * 
 	 * @param i
 	 * @param subp
-	 * @return true if the value was successfully assigned.
+	 * @return <code>0</code> if the layer was successfully assigned and should be
+	 *         processed normally, <code>1</code> if the layer had a special
+	 *         handling and should not be further processed, <code>2</code> if an
+	 *         error was found and an exception should be thrown.
 	 */
-	private boolean assignLayerValue(int i, Set<String> subp) {
-		boolean retVal = false;
+	private short assignLayerValue(int i, Set<String> subp) {
+		short retVal = 2;
+
 		if (subp.contains("mask-image") && testImage(i, subp)) {
 			nextCurrentValue();
-			retVal = true;
+			retVal = 0;
 		} else if (subp.contains("mask-position") && testPosition(lstPosition)) {
 			subp.remove("mask-position");
 			nextCurrentValue();
-			retVal = true;
+			retVal = 0;
 			if (currentValue != null
 				&& LexicalType.OPERATOR_SLASH == currentValue.getLexicalUnitType()) {
 				// Size
 				currentValue = currentValue.getNextLexicalUnit();
 				if (currentValue != null && testSize(i, subp)) {
 					nextCurrentValue();
+				} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
+					setPrefixedValue(currentValue);
+					retVal = 1;
 				} else {
 					// Report error: size not found after slash.
 					StyleDeclarationErrorHandler eh = styleDeclaration
@@ -211,22 +224,22 @@ class MaskShorthandSetter extends ShorthandSetter {
 					if (eh != null) {
 						eh.shorthandSyntaxError("mask", "Size not found after slash");
 					}
-					retVal = false;
+					retVal = 2;
 				}
 			}
 		} else if (subp.contains("mask-mode")
 			&& testIdentifierProperty(i, subp, "mask-mode", lstMode)) {
 			nextCurrentValue();
 			subp.remove("mask-mode");
-			retVal = true;
+			retVal = 0;
 		} else if (subp.contains("mask-composite")
 			&& testIdentifierProperty(i, subp, "mask-composite", lstComposite)) {
 			nextCurrentValue();
 			subp.remove("mask-composite");
-			retVal = true;
+			retVal = 0;
 		} else if (subp.contains("mask-repeat") && testRepeat(lstRepeat)) {
 			subp.remove("mask-repeat");
-			retVal = true;
+			retVal = 0;
 		} else if (subp.contains("mask-origin")
 			&& testIdentifierProperty(i, subp, "mask-origin", lstOrigin)) {
 			/*
@@ -242,15 +255,21 @@ class MaskShorthandSetter extends ShorthandSetter {
 			geometryBox = currentValue;
 			nextCurrentValue();
 			subp.remove("mask-origin");
-			retVal = true;
+			retVal = 0;
 		} else if (subp.contains("mask-clip")
 			&& testIdentifierProperty(i, subp, "mask-clip", lstClip)) {
 			// If we got here, mask-origin must have been set already
 			nextCurrentValue();
 			subp.remove("mask-clip");
 			geometryBox = null;
-			retVal = true;
+			retVal = 0;
+		} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION
+				|| (currentValue.getLexicalUnitType() == LexicalType.IDENT
+						&& isPrefixedIdentValue())) {
+			setPrefixedValue(currentValue);
+			retVal = 1;
 		}
+
 		return retVal;
 	}
 

@@ -20,12 +20,12 @@ class ListStyleShorthandSetter extends ShorthandSetter {
 		}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
-			return true;
+			return 0;
 		} else if (kwscan == 2) {
-			return false;
+			return 2;
 		}
 
 		setPropertyToDefault("list-style-image");
@@ -60,26 +60,34 @@ class ListStyleShorthandSetter extends ShorthandSetter {
 					// Assume counter-style
 					setSubpropertyValue("list-style-type", createCSSValue("list-style-type", currentValue));
 					styleTypeUnset = false;
+				} else if (isPrefixedIdentValue()) {
+					setPrefixedValue(currentValue);
+					flush();
+					return 1;
 				} else {
-					return false;
+					return 2;
 				}
 			} else if (styleTypeUnset) {
 				if (lut == LexicalType.STRING || (lut == LexicalType.FUNCTION
 						&& "symbols".equalsIgnoreCase(currentValue.getFunctionName()))) {
 					setSubpropertyValue("list-style-type", createCSSValue("list-style-type", currentValue));
 					styleTypeUnset = false;
+				} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
+					setPrefixedValue(currentValue);
+					flush();
+					return 1;
 				} else {
-					return false;
+					return 2;
 				}
 			} else {
-				return false;
+				return 2;
 			}
 			nextCurrentValue();
 		}
 
 		flush();
 
-		return true;
+		return 0;
 	}
 
 }

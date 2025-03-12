@@ -29,12 +29,12 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
-			return true;
+			return 0;
 		} else if (kwscan == 2) {
-			return false;
+			return 2;
 		}
 
 		boolean errorFound = false;
@@ -64,6 +64,10 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 					// border-image-width: should not be found here
 					setSubpropertyValue("border-image-width", createCSSValue("border-image-width", currentValue));
 					biwidthUnset = false;
+				} else if (isPrefixedIdentValue()) {
+					setPrefixedValue(currentValue);
+					flush();
+					return 1;
 				} else {
 					// report error
 					StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
@@ -111,6 +115,11 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 							nextCurrentValue();
 							// outset is positive <length> | <number>
 							if (!ValueFactory.isLengthOrNumberSACUnit(currentValue)) {
+								if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
+									setPrefixedValue(currentValue);
+									flush();
+									return 1;
+								}
 								// Report error
 								StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
 								if (errHandler != null) {
@@ -195,6 +204,10 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 						}
 					}
 				}
+			} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
+				setPrefixedValue(currentValue);
+				flush();
+				return 1;
 			} else {
 				StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
 				if (errHandler != null) {
@@ -203,6 +216,7 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 				errorFound = true;
 				break;
 			}
+
 			if (!bisourceUnset && !bisliceUnset && !biwidthUnset && !bioutsetUnset
 					&& !birepeatUnset && currentValue != null) {
 				StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
@@ -215,7 +229,7 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 		}
 
 		if (errorFound) {
-			return false;
+			return 2;
 		}
 
 		// Unset properties set to defaults
@@ -237,6 +251,6 @@ class BorderImageShorthandSetter extends ShorthandSetter {
 
 		flush();
 
-		return true;
+		return 0;
 	}
 }

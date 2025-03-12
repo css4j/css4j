@@ -14,10 +14,7 @@ package io.sf.carte.doc.style.css.property;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.util.List;
@@ -78,75 +75,6 @@ public class FunctionValueTest {
 	}
 
 	@Test
-	public void testEqualsCubicBezier() {
-		style.setCssText("transition-timing-function: cubic-bezier(0.42, 0, 1, 1); ");
-		FunctionValue value = (FunctionValue) style.getPropertyCSSValue("transition-timing-function");
-		assertTrue(value.equals(value));
-		style.setCssText("transition-timing-function: cubic-bezier(0.42, 0, 1, 1); ");
-		FunctionValue value2 = (FunctionValue) style.getPropertyCSSValue("transition-timing-function");
-		assertTrue(value.equals(value2));
-		assertEquals(value.hashCode(), value2.hashCode());
-		style.setCssText("transition-timing-function: cubic-bezier(0.43, 0, 1, 1);");
-		value2 = (FunctionValue) style.getPropertyCSSValue("transition-timing-function");
-		assertFalse(value.equals(value2));
-		assertFalse(value.hashCode() == value2.hashCode());
-	}
-
-	@Test
-	public void testEqualsTransform() {
-		style.setCssText("transform: translateX(0%);");
-		FunctionValue value = (FunctionValue) style.getPropertyCSSValue("transform");
-		assertTrue(value.equals(value));
-		style.setCssText("transform: translateX(0%)");
-		FunctionValue value2 = (FunctionValue) style.getPropertyCSSValue("transform");
-		assertTrue(value.equals(value2));
-		assertEquals(value.hashCode(), value2.hashCode());
-		style.setCssText("transform: translateX(0.1%)");
-		value2 = (FunctionValue) style.getPropertyCSSValue("transform");
-		assertFalse(value.equals(value2));
-		assertFalse(value.hashCode() == value2.hashCode());
-		//
-		CSSValueSyntax syn = syntaxParser.parseSyntax("<transform-function>");
-		assertEquals(Match.TRUE, value.matches(syn));
-		syn = syntaxParser.parseSyntax("<transform-list>");
-		assertEquals(Match.TRUE, value.matches(syn));
-		syn = syntaxParser.parseSyntax("<percentage>");
-		assertEquals(Match.FALSE, value.matches(syn));
-		syn = syntaxParser.parseSyntax("*");
-		assertEquals(Match.TRUE, value.matches(syn));
-	}
-
-	@Test
-	public void testCubicBezier() {
-		style.setCssText("transition-timing-function: cubic-bezier(0.42, 0, 1, 1); ");
-		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transition-timing-function");
-		assertNotNull(val);
-		assertEquals(CSSValue.Type.CUBIC_BEZIER, val.getPrimitiveType());
-		assertEquals("cubic-bezier(0.42, 0, 1, 1)", style.getPropertyValue("transition-timing-function"));
-		assertEquals("transition-timing-function: cubic-bezier(0.42, 0, 1, 1); ", style.getCssText());
-		assertEquals(4, val.getArguments().size());
-		assertEquals("cubic-bezier(0.42, 0, 1, 1)", val.getCssText());
-		assertEquals("cubic-bezier(.42,0,1,1)", val.getMinifiedCssText("transition-timing-function"));
-		//
-		NumberValue number = new NumberValue();
-		number.setFloatValue(CSSUnit.CSS_NUMBER, 0.27f);
-		val.setComponent(0, number);
-		assertSame(val.getArguments().get(0), val.getComponent(0));
-		val.setComponent(100, number);
-		assertNull(val.getComponent(100));
-		try {
-			val.setComponent(0, null);
-			fail("Must throw exception.");
-		} catch (NullPointerException e) {
-		}
-		//
-		assertMatch(Match.FALSE, val, "<transform-function>");
-		assertMatch(Match.FALSE, val, "<number>#");
-		assertMatch(Match.FALSE, val, "<percentage>");
-		assertMatch(Match.TRUE, val, "*");
-	}
-
-	@Test
 	public void testGetCssTextNegativeArg() {
 		style.setCssText("foo: bar(-.42, -.3, -1, -.01); ");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
@@ -157,7 +85,7 @@ public class FunctionValueTest {
 		assertEquals(4, val.getArguments().size());
 		assertEquals("bar(-0.42, -0.3, -1, -0.01)", val.getCssText());
 		assertEquals("bar(-.42,-.3,-1,-.01)", val.getMinifiedCssText("foo"));
-		//
+
 		assertMatch(Match.FALSE, val, "<transform-function>");
 		assertMatch(Match.FALSE, val, "<number>#");
 		assertMatch(Match.FALSE, val, "<percentage>");
@@ -280,12 +208,10 @@ public class FunctionValueTest {
 
 	@Test
 	public void testGetCssTextCalcArgument() {
-		style.setCssText("transform: translateY(calc(3% - 1.2 * 5px));");
-		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transform");
+		style.setCssText("foo: bar(calc(3% - 1.2 * 5px));");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("foo");
 		assertNotNull(val);
 		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
-		assertEquals("translateY(calc(3% - 1.2*5px))", style.getPropertyValue("transform"));
-		assertEquals("transform: translateY(calc(3% - 1.2*5px)); ", style.getCssText());
 		assertEquals(1, val.getArguments().size());
 		StyleValue arg = val.getArguments().get(0);
 		assertEquals(CssType.TYPED, arg.getCssValueType());
@@ -293,8 +219,8 @@ public class FunctionValueTest {
 		ExpressionValue calc = (ExpressionValue) arg;
 		assertEquals("3% - 1.2*5px", calc.getExpression().getCssText());
 		assertEquals("calc(3% - 1.2*5px)", calc.getCssText());
-		assertEquals("translateY(calc(3% - 1.2*5px))", val.getCssText());
-		assertEquals("translateY(calc(3% - 1.2*5px))", val.getMinifiedCssText(""));
+		assertEquals("bar(calc(3% - 1.2*5px))", val.getCssText());
+		assertEquals("bar(calc(3% - 1.2*5px))", val.getMinifiedCssText(""));
 		assertTrue(val.equals(val.clone()));
 	}
 
@@ -319,40 +245,12 @@ public class FunctionValueTest {
 		StyleValue modifier = ((ValueList) arg).item(1);
 		assertEquals(CssType.TYPED, modifier.getCssValueType());
 		assertEquals(CSSValue.Type.FUNCTION, modifier.getPrimitiveType());
-	}
 
-	@Test
-	public void testSteps() {
-		style.setCssText("animation-timing-function:steps(6, start)");
-		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("animation-timing-function");
-		assertNotNull(val);
-		assertEquals(CSSValue.Type.STEPS, val.getPrimitiveType());
-		assertEquals("steps", val.getStringValue());
-		assertEquals("steps", val.getFunctionName());
-		assertEquals("steps(6, start)", style.getPropertyValue("animation-timing-function"));
-		assertEquals(2, val.getArguments().size());
-		StyleValue arg = val.getArguments().get(0);
-		assertEquals(CssType.TYPED, arg.getCssValueType());
-		assertEquals(CSSValue.Type.NUMERIC, arg.getPrimitiveType());
-		assertEquals(6f, ((CSSTypedValue) arg).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
-	}
-
-	@Test
-	public void testStepsCalc() {
-		style.setCssText("animation-timing-function:steps(calc(2*3), start)");
-		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("animation-timing-function");
-		assertNotNull(val);
-		assertEquals(CSSValue.Type.STEPS, val.getPrimitiveType());
-		assertEquals("steps", val.getStringValue());
-		assertEquals("steps", val.getFunctionName());
-		assertEquals("steps(calc(2*3), start)", style.getPropertyValue("animation-timing-function"));
-		assertEquals(2, val.getArguments().size());
-		StyleValue arg = val.getArguments().get(0);
-		assertEquals(CssType.TYPED, arg.getCssValueType());
-		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
-		ExpressionValue calc = (ExpressionValue) arg;
-		assertEquals("calc(2*3)", calc.getCssText());
-		assertEquals("2*3", calc.getExpression().getCssText());
+		assertMatch(Match.TRUE, val, "<url>");
+		assertMatch(Match.TRUE, val, "<url>#");
+		assertMatch(Match.TRUE, val, "<image>");
+		assertMatch(Match.FALSE, val, "<transform-function>");
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
@@ -364,7 +262,7 @@ public class FunctionValueTest {
 		assertEquals("-prefixed-rgb", val.getStringValue());
 		assertEquals("-prefixed-rgb", val.getFunctionName());
 		assertEquals("-prefixed-rgb(from olive 6% g b)", style.getPropertyValue("color"));
-		//
+
 		assertEquals(1, val.getArguments().size());
 		StyleValue arg = val.getArguments().get(0);
 		assertEquals(CssType.LIST, arg.getCssValueType());
@@ -407,13 +305,15 @@ public class FunctionValueTest {
 		assertEquals(2, val.getArguments().size());
 		assertEquals("[line1 line2 line3] 200px", val.getArguments().get(1).getCssText());
 		assertTrue(val.equals(val.clone()));
+
+		assertMatch(Match.TRUE, val, "*");
 	}
 
 	@Test
 	public void testClone() {
 		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
-		style.setCssText("transition-timing-function: cubic-bezier(0.42, 0, 1, 1); ");
-		FunctionValue value = (FunctionValue) style.getPropertyCSSValue("transition-timing-function");
+		style.setCssText("foo: bar(0.42, 0, 1, 1); ");
+		FunctionValue value = (FunctionValue) style.getPropertyCSSValue("foo");
 		FunctionValue clon = value.clone();
 		assertEquals(value.getCssValueType(), clon.getCssValueType());
 		assertEquals(value.getPrimitiveType(), clon.getPrimitiveType());

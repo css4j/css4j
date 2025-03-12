@@ -12,6 +12,8 @@
 
 package io.sf.carte.doc.style.css;
 
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+
 /**
  * A CSS environment variable value.
  */
@@ -25,11 +27,18 @@ public interface CSSEnvVariableValue extends CSSPrimitiveValue {
 	String getName();
 
 	/**
+	 * Get the indices.
+	 * 
+	 * @return the indices, or {@code null} if none.
+	 */
+	int[] getIndices();
+
+	/**
 	 * Get the fallback value to be used if the referenced variable name is not known.
 	 * 
 	 * @return the fallback value, or null if there is no fallback value.
 	 */
-	CSSValue getFallback();
+	LexicalUnit getFallback();
 
 	@Override
 	CSSEnvVariableValue clone();

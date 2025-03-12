@@ -21,7 +21,6 @@ import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
-import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.RGBAColor;
@@ -140,12 +139,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 					typed.setFloatValue(CSSUnit.CSS_PERCENTAGE, 100f);
 				}
 			}
-		} else if (primi.getCssValueType() != CssType.PROXY
-				&& primi.getPrimitiveType() != Type.EXPRESSION
-				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
-				&& primi.getPrimitiveType() != Type.FUNCTION
-				&& (primi.getPrimitiveType() != Type.IDENT
-						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue()))) {
+		} else if (isInvalidComponentType(primi)) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Type not compatible with color component.");
 		}

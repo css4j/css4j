@@ -27,7 +27,7 @@ abstract class FunctionFactories {
 	private final Map<String, LexicalUnitFactory> factories = createFactoryMap();
 
 	private Map<String, LexicalUnitFactory> createFactoryMap() {
-		Map<String, LexicalUnitFactory> factories = new HashMap<>(52);
+		Map<String, LexicalUnitFactory> factories = new HashMap<>(86);
 
 		factories.put("calc", new LexicalUnitFactory() {
 
@@ -84,6 +84,15 @@ abstract class FunctionFactories {
 
 		});
 
+		factories.put("env", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.ENV);
+			}
+
+		});
+
 		factories.put("url", new LexicalUnitFactory() {
 
 			@Override
@@ -93,11 +102,288 @@ abstract class FunctionFactories {
 
 		});
 
+		factories.put("matrix", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.MATRIX_FUNCTION);
+			}
+
+		});
+
+		factories.put("perspective", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.PERSPECTIVE_FUNCTION);
+			}
+
+		});
+
+		factories.put("translate", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.TRANSLATE_FUNCTION);
+			}
+
+		});
+
+		factories.put("translate3d", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.TRANSLATE_3D_FUNCTION);
+			}
+
+		});
+
+		LexicalUnitFactory translatex = new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.TRANSLATE_X_FUNCTION);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return "translateX";
+			}
+
+		};
+
+		factories.put("translatex", translatex);
+		factories.put("translateX", translatex);
+
+		LexicalUnitFactory translatey = new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.TRANSLATE_Y_FUNCTION);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return "translateY";
+			}
+
+		};
+
+		factories.put("translatey", translatey);
+		factories.put("translateY", translatey);
+
+		LexicalUnitFactory translatez = new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.TRANSLATE_Z_FUNCTION);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return "translateZ";
+			}
+
+		};
+
+		factories.put("translatez", translatez);
+		factories.put("translateZ", translatez);
+
+		factories.put("scale", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.SCALE_FUNCTION);
+			}
+
+		});
+
+		factories.put("scale3d", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.SCALE_3D_FUNCTION);
+			}
+
+		});
+
+		LexicalUnitFactory scalex = new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.SCALE_X_FUNCTION);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return "scaleX";
+			}
+
+		};
+
+		factories.put("scalex", scalex);
+		factories.put("scaleX", scalex);
+
+		LexicalUnitFactory scaley = new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.SCALE_Y_FUNCTION);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return "scaleY";
+			}
+
+		};
+
+		factories.put("scaley", scaley);
+		factories.put("scaleY", scaley);
+
+		LexicalUnitFactory scalez = new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.SCALE_Z_FUNCTION);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return "scaleZ";
+			}
+
+		};
+
+		factories.put("scalez", scalez);
+		factories.put("scaleZ", scalez);
+
+		factories.put("rotate", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.ROTATE_FUNCTION);
+			}
+
+		});
+
+		factories.put("rotate3d", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.ROTATE_3D_FUNCTION);
+			}
+
+		});
+
+		LexicalUnitFactory rotatex = new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.ROTATE_X_FUNCTION);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return "rotateX";
+			}
+
+		};
+
+		factories.put("rotatex", rotatex);
+		factories.put("rotateX", rotatex);
+
+		LexicalUnitFactory rotatey = new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.ROTATE_Y_FUNCTION);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return "rotateY";
+			}
+
+		};
+
+		factories.put("rotatey", rotatey);
+		factories.put("rotateY", rotatey);
+
+		LexicalUnitFactory rotatez = new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.ROTATE_Z_FUNCTION);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return "rotateZ";
+			}
+
+		};
+
+		factories.put("rotatez", rotatez);
+		factories.put("rotateZ", rotatez);
+
+		factories.put("skew", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.SKEW_FUNCTION);
+			}
+
+		});
+
+		LexicalUnitFactory skewx = new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.SKEW_X_FUNCTION);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return "skewX";
+			}
+
+		};
+
+		factories.put("skewx", skewx);
+		factories.put("skewX", skewx);
+
+		LexicalUnitFactory skewy = new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.SKEW_Y_FUNCTION);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return "skewY";
+			}
+
+		};
+
+		factories.put("skewy", skewy);
+		factories.put("skewY", skewy);
+
 		factories.put("src", new LexicalUnitFactory() {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
 				return new LexicalUnitImpl(LexicalType.SRC);
+			}
+
+		});
+
+		factories.put("image-set", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.IMAGE_SET);
 			}
 
 		});
@@ -210,6 +496,15 @@ abstract class FunctionFactories {
 			@Override
 			public LexicalUnitImpl createUnit() {
 				return new LexicalUnitImpl(LexicalType.CUBIC_BEZIER_FUNCTION);
+			}
+
+		});
+
+		factories.put("linear", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new LexicalUnitImpl(LexicalType.LINEAR_FUNCTION);
 			}
 
 		});
@@ -1262,15 +1557,9 @@ abstract class FunctionFactories {
 			case MATH_FUNCTION:
 			case FUNCTION:
 			case ATTR:
-				LexicalUnit lunit;
-				if (lu.getNextLexicalUnit() == null) {
-					lunit = lu;
-				} else {
-					lunit = lu.shallowClone();
-				}
 				CSSValueSyntax syn = new SyntaxParser()
 						.parseSyntax("<number> | <percentage>");
-				foundNumericValue = lunit.matches(syn) != Match.FALSE;
+				foundNumericValue = lu.shallowMatch(syn) != Match.FALSE;
 				break;
 			default:
 				return false;
@@ -1537,35 +1826,17 @@ abstract class FunctionFactories {
 			if (lu.getLexicalUnitType() == LexicalType.VAR) {
 				return false;
 			}
-			LexicalUnit lunit;
-			if (lu.getNextLexicalUnit() == null) {
-				lunit = lu;
-			} else {
-				lunit = lu.shallowClone();
-			}
-			return lunit.matches(SyntaxParser.createSimpleSyntax("angle")) == Match.TRUE;
+			return lu.shallowMatch(SyntaxParser.createSimpleSyntax("angle")) == Match.TRUE;
 		}
 		return true;
 	}
 
 	private static boolean isPercentageUnit(LexicalUnit unit) {
-		LexicalUnit lunit;
-		if (unit.getNextLexicalUnit() == null) {
-			lunit = unit;
-		} else {
-			lunit = unit.shallowClone();
-		}
-		return lunit.matches(SyntaxParser.createSimpleSyntax("percentage")) == Match.TRUE;
+		return unit.shallowMatch(SyntaxParser.createSimpleSyntax("percentage")) == Match.TRUE;
 	}
 
 	private static boolean cannotBeColor(LexicalUnit lu, CSSValueSyntax syn) {
-		LexicalUnit lunit;
-		if (lu.getNextLexicalUnit() == null) {
-			lunit = lu;
-		} else {
-			lunit = lu.shallowClone();
-		}
-		return lunit.matches(syn) == Match.FALSE;
+		return lu.shallowMatch(syn) == Match.FALSE;
 	}
 
 	/**

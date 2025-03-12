@@ -18,13 +18,13 @@ class GridTemplateShorthandSetter extends BaseGridShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		// Keyword scan
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
-			return true;
+			return 0;
 		} else if (kwscan == 2) {
-			return false;
+			return 2;
 		}
 
 		String[] subparray = getShorthandDatabase().getShorthandSubproperties(getShorthandName());
@@ -36,9 +36,9 @@ class GridTemplateShorthandSetter extends BaseGridShorthandSetter {
 		if (isTemplateAreasSyntax()) {
 			if (templateSyntax(true)) {
 				flush();
-				return true;
+				return 0;
 			} else {
-				return false;
+				return 2;
 			}
 		}
 
@@ -46,15 +46,16 @@ class GridTemplateShorthandSetter extends BaseGridShorthandSetter {
 		if (isNoneDeclaration()) {
 			appendValueItemString("none");
 			flush();
-			return true;
+			return 0;
 		}
 
 		// Syntax must be <‘grid-template-rows’> / <‘grid-template-columns’>
 		if (templateSyntax(false)) {
 			flush();
-			return true;
+			return 0;
 		}
-		return false;
+
+		return 2;
 	}
 
 }

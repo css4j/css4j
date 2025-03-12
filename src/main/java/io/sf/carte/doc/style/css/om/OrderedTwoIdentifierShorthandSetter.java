@@ -25,12 +25,12 @@ class OrderedTwoIdentifierShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
-			return true;
+			return 0;
 		} else if (kwscan == 2) {
-			return false;
+			return 2;
 		}
 
 		setPropertyToDefault(subparray[0]);
@@ -45,17 +45,21 @@ class OrderedTwoIdentifierShorthandSetter extends ShorthandSetter {
 					if (setSecondValue()) {
 						break;
 					}
-					return false;
+					if (isPrefixedIdentValue()) {
+						setPrefixedValue(currentValue);
+						return 1;
+					}
+					return 2;
 				}
 			} else {
-				return false;
+				return 2;
 			}
 			nextCurrentValue();
 		}
 
 		flush();
 
-		return true;
+		return 0;
 	}
 
 	boolean setFirstValue() {

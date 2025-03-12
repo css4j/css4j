@@ -212,6 +212,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 		if (primi.getUnitType() != CSSUnit.CSS_PERCENTAGE
 				&& primi.getPrimitiveType() != Type.EXPRESSION
 				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
+				&& primi.getPrimitiveType() != Type.ENV
 				&& primi.getPrimitiveType() != Type.FUNCTION) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Type not compatible: " + primi.getCssText());
@@ -537,7 +538,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 					}
 				} else {
 					CSSValueSyntax syn = SyntaxParser.createSimpleSyntax("custom-ident");
-					if (lu.shallowClone().matches(syn) != Match.TRUE) {
+					if (lu.shallowMatch(syn) != Match.TRUE) {
 						wrongValueSyntax(lunit);
 						return;
 					}

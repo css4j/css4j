@@ -22,12 +22,12 @@ class GridAreaShorthandSetter extends GridPlacementShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
-			return true;
+			return 0;
 		} else if (kwscan == 2) {
-			return false;
+			return 2;
 		}
 
 		setPropertyToDefault(subparray[0]);
@@ -42,14 +42,14 @@ class GridAreaShorthandSetter extends GridPlacementShorthandSetter {
 			if (value != null) {
 				gridLines.add(value);
 			} else {
-				return false;
+				return 2;
 			}
 			if (currentValue == null) {
 				break;
 			}
 			nextCurrentValue();
 			if (currentValue == null) {
-				return false;
+				return 2;
 			}
 		}
 		//
@@ -85,12 +85,12 @@ class GridAreaShorthandSetter extends GridPlacementShorthandSetter {
 			setSubpropertyValue(subparray[3], gridLines.item(3));
 			break;
 		default:
-			return false;
+			return 2;
 		}
 
 		flush();
 
-		return true;
+		return 0;
 	}
 
 	private StyleValue omittedValue(StyleValue cssval) {

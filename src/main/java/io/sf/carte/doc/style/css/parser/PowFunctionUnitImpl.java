@@ -28,10 +28,10 @@ class PowFunctionUnitImpl extends MathFunctionUnitImpl {
 		if (parameters == null) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Missing argument in pow() function.");
 		}
-		Dimension dim = analyzer.expressionDimension(parameters.shallowClone());
+		Dimension dim = analyzer.expressionDimension(parameters);
 		if (dim != null) {
 			if (dim.category != Category.number && dim.category != Category.integer) {
-				LexicalUnitImpl comma = parameters.nextLexicalUnit;
+				LexicalUnitImpl comma = analyzer.getNextLexicalUnit();
 				if (comma == null || comma.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
 					throw new DOMException(DOMException.SYNTAX_ERR,
 							"Expected comma in pow() function.");
@@ -57,7 +57,13 @@ class PowFunctionUnitImpl extends MathFunctionUnitImpl {
 				case CALC:
 				case SUB_EXPRESSION:
 				case MATH_FUNCTION:
-					Dimension dimexp = analyzer.expressionDimension(expUnit);
+					DimensionalAnalyzer subAnal = new DimensionalAnalyzer();
+					Dimension dimexp = subAnal.expressionDimension(expUnit);
+					if (subAnal.getNextLexicalUnit() != null) {
+						throw new DOMException(DOMException.SYNTAX_ERR,
+								"Unexpected argument in pow() function: "
+										+ subAnal.getNextLexicalUnit().toString());
+					}
 					if (dimexp == null) {
 						dim.exponentAccuracy = 2;
 						break;

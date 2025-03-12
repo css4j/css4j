@@ -42,6 +42,17 @@ public class ParseHelperTest {
 	}
 
 	@Test
+	public void testEndsWithIgnoreCase() {
+		assertTrue(ParseHelper.endsWithIgnoreCase("", ""));
+		assertTrue(ParseHelper.endsWithIgnoreCase("foo", ""));
+		assertFalse(ParseHelper.endsWithIgnoreCase("", "bar"));
+		assertFalse(ParseHelper.endsWithIgnoreCase("foo", "bar"));
+		assertFalse(ParseHelper.endsWithIgnoreCase("bar", "fbar"));
+		assertTrue(ParseHelper.endsWithIgnoreCase("foo", "oo"));
+		assertTrue(ParseHelper.endsWithIgnoreCase("foo", "foo"));
+	}
+
+	@Test
 	public void testEqualsIgnoreCase() {
 		assertTrue(ParseHelper.equalsIgnoreCase("", ""));
 		assertTrue(ParseHelper.equalsIgnoreCase("a", "a"));

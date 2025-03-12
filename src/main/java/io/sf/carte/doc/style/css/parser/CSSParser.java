@@ -6643,7 +6643,21 @@ public class CSSParser implements Parser, Cloneable {
 					escapedTokenIndex = -1;
 					return;
 				} else if (isNotForbiddenIdentStart(raw = buffer.toString())) {
-					lu = newLexicalUnit(LexicalType.FUNCTION, true);
+					LexicalType type;
+					if (name.charAt(0) == '-' && name.length() > 3) {
+						/*
+						 * If CSS Functions & Mixins is implemented, should check for
+						 * custom functions (and add a CUSTOM_FUNCTION type).
+						 */
+						// Prefixed function or calc() (for example -o-calc())
+						type = LexicalType.PREFIXED_FUNCTION;
+					} else if (lcName.endsWith("-gradient")) {
+						type = LexicalType.GRADIENT;
+						name = lcName;
+					} else {
+						type = LexicalType.FUNCTION;
+					}
+					lu = newLexicalUnit(type, true);
 					lu.value = name;
 					functionToken = true;
 				} else {
@@ -6671,7 +6685,7 @@ public class CSSParser implements Parser, Cloneable {
 
 				if (lu.getLexicalUnitType() != LexicalType.URI
 						&& lu.getLexicalUnitType() != LexicalType.ELEMENT_REFERENCE) {
-					lu.value = lcName;
+					lu.value = factory.canonicalName(lcName);
 				}
 			}
 
@@ -8093,6 +8107,16 @@ public class CSSParser implements Parser, Cloneable {
 	interface LexicalUnitFactory {
 
 		LexicalUnitImpl createUnit();
+
+		/**
+		 * Get the name of the function with a canonical capitalization.
+		 * 
+		 * @param lcName the lower case name.
+		 * @return the canonical name.
+		 */
+		default String canonicalName(String lcName) {
+			return lcName;
+		}
 
 		/**
 		 * Validate the given function lexical unit.

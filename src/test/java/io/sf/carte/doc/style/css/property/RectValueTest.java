@@ -104,6 +104,14 @@ public class RectValueTest {
 	public void testRectComponents() {
 		style.setCssText("clip: rect(2px 12em 3em 2pt); ");
 		RectValue value = (RectValue) style.getPropertyCSSValue("clip");
+
+		assertEquals(4, value.getComponentCount());
+
+		assertSame(value.getTop(), value.getComponent(0));
+		assertSame(value.getRight(), value.getComponent(1));
+		assertSame(value.getBottom(), value.getComponent(2));
+		assertSame(value.getLeft(), value.getComponent(3));
+
 		NumberValue number = new NumberValue();
 		number.setFloatValue(CSSUnit.CSS_PT, 3f);
 		value.setTop(number);

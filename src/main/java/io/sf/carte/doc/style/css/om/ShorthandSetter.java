@@ -26,6 +26,7 @@ import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
@@ -68,6 +69,8 @@ class ShorthandSetter extends BaseShorthandSetter {
 
 	private transient boolean attrTainted;
 
+	private transient LexicalUnit prefixedValue = null;
+
 	/**
 	 * The values in the shorthand are attempted to set subproperty values in a certain order.
 	 * The properties that failed to be set to the tested value are stored here.
@@ -99,11 +102,35 @@ class ShorthandSetter extends BaseShorthandSetter {
 	}
 
 	/**
+	 * This shorthand contains prefixed values (for example
+	 * {@code -webkit-cross-fade()}).
+	 * 
+	 * @return {@code true} if the shorthand contains one or more prefixed values.
+	 */
+	protected boolean hasPrefixedValue() {
+		return prefixedValue != null;
+	}
+
+	/**
+	 * Set a prefixed value that was found.
+	 * 
+	 * @param prefixedValue the prefixed value.
+	 */
+	protected void setPrefixedValue(LexicalUnit prefixedValue) {
+		this.prefixedValue = prefixedValue;
+	}
+
+	/**
 	 * @param attrTainted {@code true} if the shorthand is attr()-tainted.
 	 */
 	@Override
 	public void setAttrTainted(boolean attrTainted) {
 		this.attrTainted = attrTainted;
+	}
+
+	boolean isPrefixedIdentValue() {
+		String s = currentValue.getStringValue();
+		return s.charAt(0) == '-' && s.length() > 3;
 	}
 
 	/**
@@ -293,7 +320,7 @@ class ShorthandSetter extends BaseShorthandSetter {
 	 */
 	static boolean testColor(LexicalUnit lunit) {
 		CSSValueSyntax syn = SyntaxParser.createSimpleSyntax("color");
-		return lunit.shallowClone().matches(syn) == Match.TRUE;
+		return lunit.shallowMatch(syn) == Match.TRUE;
 	}
 
 	protected void nextCurrentValue() {
@@ -390,21 +417,22 @@ class ShorthandSetter extends BaseShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
-		boolean result = draftSubproperties();
-		if (result) {
+	public short assignSubproperties() {
+		short result = draftSubproperties();
+		if (result != 2) {
 			flush();
 		}
 		return result;
 	}
 
-	boolean draftSubproperties() {
+	short draftSubproperties() {
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
-			return true;
+			return 0;
 		} else if (kwscan == 2) {
-			return false;
+			return 2;
 		}
+
 		LinkedList<LexicalUnit> unassignedValues = new LinkedList<>();
 		List<String> subp = subpropertyList();
 		while (currentValue != null) {
@@ -419,10 +447,14 @@ class ShorthandSetter extends BaseShorthandSetter {
 				}
 			}
 			if (!assigned) {
+				if (checkPrefixedValue()) {
+					return 1;
+				}
 				unassignedValues.add(currentValue);
 				nextCurrentValue();
 			}
 		}
+
 		if (!subp.isEmpty()) {
 			// Add remaining unassigned properties
 			Iterator<String> it = subp.iterator();
@@ -430,12 +462,24 @@ class ShorthandSetter extends BaseShorthandSetter {
 				addUnassignedProperty(it.next());
 			}
 		}
+
 		if (!unassignedValues.isEmpty() && !scanUnassigned(unassignedValues)) {
-			return false;
+			return 2;
 		}
+
 		// Reset subproperties not set by this shorthand
 		resetSubproperties();
-		return true;
+		return 0;
+	}
+
+	boolean checkPrefixedValue() {
+		LexicalType type = currentValue.getLexicalUnitType();
+		if (type == LexicalType.PREFIXED_FUNCTION || (type == LexicalType.IDENT
+				&& currentValue.getStringValue().charAt(0) == '-')) {
+			prefixedValue = currentValue;
+			return true;
+		}
+		return false;
 	}
 
 	boolean isNotValidIdentifier(LexicalUnit lu) {
@@ -462,17 +506,14 @@ class ShorthandSetter extends BaseShorthandSetter {
 	}
 
 	boolean isImage() {
-		LexicalType type = currentValue.getLexicalUnitType();
-		return type == LexicalType.URI || type == LexicalType.SRC
-			|| (type == LexicalType.FUNCTION && isImageFunctionOrGradientName())
-			|| type == LexicalType.ELEMENT_REFERENCE
-			|| currentValue.shallowClone().matches(imageSyntax) == Match.TRUE;
+		return currentValue.shallowMatch(imageSyntax) == Match.TRUE
+				|| (currentValue.getLexicalUnitType() == LexicalType.FUNCTION
+						&& isUnimplementedImageFunction());
 	}
 
-	private boolean isImageFunctionOrGradientName() {
-		String lcfn = currentValue.getFunctionName().toLowerCase(Locale.ROOT);
-		return lcfn.endsWith("-gradient") || lcfn.equals("image") || lcfn.equals("image-set")
-				|| lcfn.equals("cross-fade");
+	private boolean isUnimplementedImageFunction() {
+		String fn = currentValue.getFunctionName().toLowerCase(Locale.ROOT);
+		return CSSUtil.isUnimplementedImageFunction(fn);
 	}
 
 	boolean setCurrentValue(String subproperty) {
@@ -553,14 +594,34 @@ class ShorthandSetter extends BaseShorthandSetter {
 	}
 
 	void flush() {
-		int i = 0;
-		for (String myproperty : mypropertyList) {
-			styleDeclaration.setProperty(myproperty, mypropValue.get(myproperty), mypriorities.get(i));
-			i++;
+		if (prefixedValue == null) {
+			int i = 0;
+			for (String myproperty : mypropertyList) {
+				styleDeclaration.setProperty(myproperty, mypropValue.get(myproperty),
+						mypriorities.get(i));
+				i++;
+			}
+		} else {
+			addPrefixedValue();
 		}
+
 		mypropertyList.clear();
 		mypriorities.clear();
 		mypropValue.clear();
+	}
+
+	private void addPrefixedValue() {
+		// Obtain the first in the chain
+		LexicalUnit lu;
+		do {
+			lu = prefixedValue;
+			prefixedValue = prefixedValue.getPreviousLexicalUnit();
+		} while (prefixedValue != null);
+		// Create a shorthand
+		ShorthandValue prefVal = createCSSShorthandValue(lu);
+		String css = lu.toString();
+		prefVal.setShorthandText(css, css);
+		styleDeclaration.addPrefixedValue(getShorthandName(), prefVal, isPriorityImportant());
 	}
 
 	/**

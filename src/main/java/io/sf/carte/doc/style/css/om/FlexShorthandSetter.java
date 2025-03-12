@@ -12,7 +12,9 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -26,12 +28,12 @@ class FlexShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
-			return true;
+			return 0;
 		} else if (kwscan == 2) {
-			return false;
+			return 2;
 		}
 
 		setPropertyToDefault("flex-grow");
@@ -43,38 +45,43 @@ class FlexShorthandSetter extends ShorthandSetter {
 		int count = 0;
 		while (currentValue != null) {
 			if (count == 2) {
-				return false;
+				return 2;
 			}
 			LexicalType lut = currentValue.getLexicalUnitType();
 			if (flexGrowUnset) {
 				if (lut == LexicalType.INTEGER) {
 					int intValue = currentValue.getIntegerValue();
 					if (intValue < 0) {
-						return false;
+						return 2;
 					}
 					setFlexGrow(intValue);
 					flexGrowUnset = false;
 					count++;
 					byte ret = checkFlexShrink();
 					if (ret == -1) {
-						return false;
+						return 2;
 					} else {
 						continue;
 					}
 				} else if (lut == LexicalType.REAL) {
 					float floatValue = currentValue.getFloatValue();
 					if (floatValue < 0f) {
-						return false;
+						return 2;
 					}
 					setFlexGrow(floatValue);
 					flexGrowUnset = false;
 					count++;
 					byte ret = checkFlexShrink();
 					if (ret == -1) {
-						return false;
+						return 2;
 					} else {
 						continue;
 					}
+				} else if (currentValue
+						.shallowMatch(SyntaxParser.createSimpleSyntax("number")) == Match.TRUE) {
+					setSubpropertyValue("flex-grow", createCSSValue("flex-grow", currentValue));
+					flexGrowUnset = false;
+					count++;
 				}
 			}
 			if (flexBasisUnset && ValueFactory.isLengthPercentageSACUnit(currentValue)) {
@@ -112,18 +119,26 @@ class FlexShorthandSetter extends ShorthandSetter {
 					setSubpropertyValue("flex-basis", createCSSValue("flex-basis", currentValue));
 					count++;
 					flexBasisUnset = false;
+				} else if (isPrefixedIdentValue()) {
+					setPrefixedValue(currentValue);
+					flush();
+					return 1;
 				} else {
-					return false;
+					return 2;
 				}
+			} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
+				setPrefixedValue(currentValue);
+				flush();
+				return 1;
 			} else {
-				return false;
+				return 2;
 			}
 			nextCurrentValue();
 		}
 
 		flush();
 
-		return true;
+		return 0;
 	}
 
 	private void setFlexGrow(int grow) {

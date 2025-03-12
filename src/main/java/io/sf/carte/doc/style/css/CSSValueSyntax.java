@@ -157,6 +157,18 @@ public interface CSSValueSyntax {
 		unicodeRange,
 
 		/**
+		 * Matches any easing function, like {@code linear()} or {@code cubic-bezier()}.
+		 * <p>
+		 * <code>&lt;easing-function&gt;</code>
+		 * </p>
+		 * <p>
+		 * See <a href="https://www.w3.org/TR/css-easing-1/#easing-functions">CSS Easing
+		 * Functions Level 1</a>.
+		 * </p>
+		 */
+		easingFunction,
+
+		/**
 		 * Matches any transform function, like {@code translate()} or {@code scale()}.
 		 * <p>
 		 * <code>&lt;transform-function&gt;</code>

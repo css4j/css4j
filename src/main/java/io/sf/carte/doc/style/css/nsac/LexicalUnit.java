@@ -275,22 +275,6 @@ public interface LexicalUnit {
 		UNICODE_WILDCARD,
 
 		/**
-		 * An element reference.
-		 * <p>
-		 * For example: <code>element(#someId)</code>.
-		 * <p>
-		 * <p>
-		 * If the element Id is a string, use {@link LexicalUnit#getStringValue()
-		 * getStringValue()}, otherwise use {@link LexicalUnit#getParameters()
-		 * getParameters()} if it contains a {@code var()} or {@code attr()}.
-		 * </p>
-		 *
-		 * @see LexicalUnit#getStringValue
-		 * @see LexicalUnit#getParameters
-		 */
-		ELEMENT_REFERENCE,
-
-		/**
 		 * Custom property value: <code>var(...)</code>.
 		 * <p>
 		 * See {@link #getParameters()} for the custom property name and eventually the
@@ -305,6 +289,13 @@ public interface LexicalUnit {
 		 * @see LexicalUnit#getParameters
 		 */
 		ATTR,
+
+		/**
+		 * <code>env()</code> function.
+		 * 
+		 * @see LexicalUnit#getParameters
+		 */
+		ENV,
 
 		/**
 		 * The {@code type()} function inside {@code attr()}.
@@ -351,6 +342,14 @@ public interface LexicalUnit {
 		 * @see LexicalUnit#getParameters
 		 */
 		CUBIC_BEZIER_FUNCTION,
+
+		/**
+		 * <code>linear()</code> easing function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		LINEAR_FUNCTION,
 
 		/**
 		 * <code>steps()</code> easing function.
@@ -425,6 +424,166 @@ public interface LexicalUnit {
 		XYWH_FUNCTION,
 
 		/**
+		 * {@code matrix()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		MATRIX_FUNCTION,
+
+		/**
+		 * {@code perspective()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		PERSPECTIVE_FUNCTION,
+
+		/**
+		 * {@code translate()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		TRANSLATE_FUNCTION,
+
+		/**
+		 * {@code translate3d()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		TRANSLATE_3D_FUNCTION,
+
+		/**
+		 * {@code translateX()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		TRANSLATE_X_FUNCTION,
+
+		/**
+		 * {@code translateY()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		TRANSLATE_Y_FUNCTION,
+
+		/**
+		 * {@code translateZ()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		TRANSLATE_Z_FUNCTION,
+
+		/**
+		 * {@code scale()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		SCALE_FUNCTION,
+
+		/**
+		 * {@code scale3d()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		SCALE_3D_FUNCTION,
+
+		/**
+		 * {@code scaleX()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		SCALE_X_FUNCTION,
+
+		/**
+		 * {@code scaleY()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		SCALE_Y_FUNCTION,
+
+		/**
+		 * {@code scaleZ()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		SCALE_Z_FUNCTION,
+
+		/**
+		 * {@code rotate()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		ROTATE_FUNCTION,
+
+		/**
+		 * {@code rotate3d()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		ROTATE_3D_FUNCTION,
+
+		/**
+		 * {@code rotateX()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		ROTATE_X_FUNCTION,
+
+		/**
+		 * {@code rotateY()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		ROTATE_Y_FUNCTION,
+
+		/**
+		 * {@code rotateZ()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		ROTATE_Z_FUNCTION,
+
+		/**
+		 * {@code skew()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		SKEW_FUNCTION,
+
+		/**
+		 * {@code skewX()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		SKEW_X_FUNCTION,
+
+		/**
+		 * {@code skewY()} function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		SKEW_Y_FUNCTION,
+
+		/**
 		 * Mathematical function.
 		 * 
 		 * @see LexicalUnit#getFunctionName
@@ -441,11 +600,51 @@ public interface LexicalUnit {
 		FUNCTION,
 
 		/**
+		 * A prefixed function (_e.g._ {@code -webkit-cross-fade()}).
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		PREFIXED_FUNCTION,
+
+		/**
 		 * Sub-expressions <code>(a)</code> <code>(a + b)</code>
 		 * 
 		 * @see LexicalUnit#getSubValues
 		 */
 		SUB_EXPRESSION,
+
+		/**
+		 * Any function whose name ends with {@code -gradient}.
+		 *
+		 * @see LexicalUnit#getFunctionName()
+		 * @see LexicalUnit#getParameters
+		 */
+		GRADIENT,
+
+		/**
+		 * The {@code image-set()} function.
+		 *
+		 * @see LexicalUnit#getFunctionName()
+		 * @see LexicalUnit#getParameters
+		 */
+		IMAGE_SET,
+
+		/**
+		 * An element reference.
+		 * <p>
+		 * For example: <code>element(#someId)</code>.
+		 * <p>
+		 * <p>
+		 * If the element Id is a string, use {@link LexicalUnit#getStringValue()
+		 * getStringValue()}, otherwise use {@link LexicalUnit#getParameters()
+		 * getParameters()} if it contains a {@code var()} or {@code attr()}.
+		 * </p>
+		 *
+		 * @see LexicalUnit#getStringValue
+		 * @see LexicalUnit#getParameters
+		 */
+		ELEMENT_REFERENCE,
 
 		/**
 		 * [
@@ -825,6 +1024,10 @@ public interface LexicalUnit {
 	 * than a {@code FALSE}.
 	 * </p>
 	 * <p>
+	 * This method takes into account the next units in the lexical chain, if you do
+	 * not want that please use {@link #shallowMatch(CSSValueSyntax)} instead.
+	 * </p>
+	 * <p>
 	 * Here are some examples of matching:
 	 * </p>
 	 * <table style="border:1px solid;border-collapse:collapse;">
@@ -898,7 +1101,8 @@ public interface LexicalUnit {
 	 * commas and start and end with one.</li>
 	 * </ol>
 	 * <p>
-	 * See also: {@link io.sf.carte.doc.style.css.parser.SyntaxParser SyntaxParser}.
+	 * See also: {@link io.sf.carte.doc.style.css.parser.SyntaxParser SyntaxParser},
+	 * {@link #shallowMatch(CSSValueSyntax)}.
 	 * </p>
 	 * <br/>
 	 * 
@@ -906,6 +1110,24 @@ public interface LexicalUnit {
 	 * @return the matching for the syntax.
 	 */
 	Match matches(CSSValueSyntax syntax);
+
+	/**
+	 * Verify whether this lexical unit matches the given grammar, ignoring further
+	 * units in the lexical chain.
+	 * <p>
+	 * This method is intended for use during shorthand decompositions, gradient
+	 * processing, etc.
+	 * </p>
+	 * <p>
+	 * See also: {@link io.sf.carte.doc.style.css.parser.SyntaxParser SyntaxParser},
+	 * {@link #matches(CSSValueSyntax)}.
+	 * </p>
+	 * <br/>
+	 * 
+	 * @param syntax the syntax.
+	 * @return the matching for the syntax.
+	 */
+	Match shallowMatch(CSSValueSyntax syntax);
 
 	/**
 	 * Creates a deep copy of this lexical unit and the next ones, unlinked to any

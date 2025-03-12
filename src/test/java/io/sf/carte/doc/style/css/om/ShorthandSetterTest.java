@@ -2977,11 +2977,29 @@ public class ShorthandSetterTest {
 	public void testBackgroundImageGradientCustom() {
 		emptyStyleDecl.setCssText("background: -webkit-radial-gradient(top center);");
 		assertEquals("-webkit-radial-gradient(top center)",
-				emptyStyleDecl.getPropertyValue("background-image"));
+				emptyStyleDecl.getPropertyValue("background"));
 		assertEquals("background: -webkit-radial-gradient(top center); ",
 				emptyStyleDecl.getCssText());
-		assertEquals("background:-webkit-radial-gradient(top center);",
+		assertEquals("background:-webkit-radial-gradient(top center)",
 				emptyStyleDecl.getMinifiedCssText());
+
+		assertEquals("", emptyStyleDecl.removeProperty("background"));
+		assertEquals(0, emptyStyleDecl.getLength());
+	}
+
+	@Test
+	public void testBackgroundImageGradientStdPlusCustom() {
+		emptyStyleDecl
+				.setCssText("background:navy;background: -webkit-radial-gradient(top center);");
+		assertEquals("navy", emptyStyleDecl.getPropertyValue("background"));
+		assertEquals("background: navy; background: -webkit-radial-gradient(top center); ",
+				emptyStyleDecl.getCssText());
+		assertEquals("background:navy;background:-webkit-radial-gradient(top center)",
+				emptyStyleDecl.getMinifiedCssText());
+
+		assertEquals("navy", emptyStyleDecl.removeProperty("background"));
+		assertEquals(0, emptyStyleDecl.getLength());
+		assertEquals(0, emptyStyleDecl.getCssText().length());
 	}
 
 	@Test
@@ -5189,9 +5207,9 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 
 		emptyStyleDecl.setCssText("columns: 0; ");
-		assertEquals("", emptyStyleDecl.getPropertyValue("column-width"));
-		assertEquals("", emptyStyleDecl.getPropertyValue("column-count"));
-		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
+		assertEquals("0", emptyStyleDecl.getPropertyValue("column-width"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("column-count"));
+		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 
 		emptyStyleDecl.setCssText("columns: -2; ");
 		assertEquals("", emptyStyleDecl.getPropertyValue("column-width"));
@@ -7176,13 +7194,26 @@ public class ShorthandSetterTest {
 
 	@Test
 	public void testOutlineCustom() {
-		emptyStyleDecl.setCssText("outline: 5.0px auto -webkit-focus-ring-color; ");
-		assertEquals("auto", emptyStyleDecl.getPropertyValue("outline-style"));
-		assertEquals("5px", emptyStyleDecl.getPropertyValue("outline-width"));
-		assertEquals("-webkit-focus-ring-color", emptyStyleDecl.getPropertyValue("outline-color"));
+		emptyStyleDecl.setCssText("outline: 5.0px auto -webkit-focus-ring-color");
+		assertEquals("5px auto -webkit-focus-ring-color",
+				emptyStyleDecl.getPropertyValue("outline"));
 		assertEquals("outline: 5px auto -webkit-focus-ring-color; ", emptyStyleDecl.getCssText());
-		assertEquals("outline:5px auto -webkit-focus-ring-color;",
+		assertEquals("outline:5px auto -webkit-focus-ring-color",
 				emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
+	public void testOutlineStandardPlusCustom() {
+		emptyStyleDecl
+				.setCssText("outline: dashed blue; outline: 5.0px auto -webkit-focus-ring-color");
+		assertEquals("dashed blue", emptyStyleDecl.getPropertyValue("outline"));
+		assertEquals("outline: dashed blue; outline: 5px auto -webkit-focus-ring-color; ",
+				emptyStyleDecl.getCssText());
+		assertEquals("outline:dashed blue;outline:5px auto -webkit-focus-ring-color",
+				emptyStyleDecl.getMinifiedCssText());
+
+		assertEquals("dashed blue", emptyStyleDecl.removeProperty("outline"));
+		assertEquals(0, emptyStyleDecl.getLength());
 	}
 
 	@Test

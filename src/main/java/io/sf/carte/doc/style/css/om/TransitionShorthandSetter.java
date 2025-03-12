@@ -12,9 +12,11 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.property.ValueItem;
@@ -121,7 +123,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		int i = 0;
 		toploop : while (i < transitionsCount && currentValue != null) {
 			boolean tpropUnset = true;
@@ -135,19 +137,21 @@ class TransitionShorthandSetter extends ShorthandSetter {
 					nextCurrentValue();
 					break;
 				}
+
 				// If a css-wide keyword is found, set the entire layer to it
 				LexicalType lutype = currentValue.getLexicalUnitType();
 				if (lutype == LexicalType.INHERIT || lutype == LexicalType.REVERT) {
 					if (i != 0 || !tpropUnset || !tdurUnset || !ttfUnset || !tdelayUnset
 							|| currentValue.getNextLexicalUnit() != null) {
 						reportDeclarationError("transition", "Found 'inherit' or 'revert' mixed with other values.");
-						return false;
+						return 2;
 					}
 					StyleValue keyword = valueFactory.createCSSValueItem(currentValue, true).getCSSValue();
 					addSingleValueLayer(keyword);
 					appendValueItemString(keyword);
 					break toploop;
 				}
+
 				// If initial/unset keyword is found, set the entire layer to it
 				if (lutype == LexicalType.INITIAL || lutype == LexicalType.UNSET) {
 					LexicalUnit nlu;
@@ -155,11 +159,12 @@ class TransitionShorthandSetter extends ShorthandSetter {
 							|| ((nlu = currentValue.getNextLexicalUnit()) != null
 									&& nlu.getLexicalUnitType() != LexicalType.OPERATOR_COMMA)) {
 						reportDeclarationError("transition", "Found a keyword mixed with other values.");
-						return false;
+						return 2;
 					}
 					nextCurrentValue();
 					continue;
 				}
+
 				if ((tdurUnset || tdelayUnset) && ValueFactory.isTimeSACUnit(currentValue)) {
 					if (tdurUnset) {
 						StyleValue value = createCSSValue("transition-duration", currentValue);
@@ -179,6 +184,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 						}
 					}
 				}
+
 				if (ttfUnset) {
 					if (LexicalType.IDENT == lut) {
 						if (testIdentifiers("transition-timing-function")) {
@@ -188,7 +194,8 @@ class TransitionShorthandSetter extends ShorthandSetter {
 							nextCurrentValue();
 							continue;
 						}
-					} else if (lut == LexicalType.CUBIC_BEZIER_FUNCTION || lut == LexicalType.STEPS_FUNCTION) {
+					} else if (currentValue.shallowMatch(
+							SyntaxParser.createSimpleSyntax("easing-function")) == Match.TRUE) {
 						// transition-timing-function
 						StyleValue value = createCSSValue("transition-timing-function", currentValue);
 						if (value != null) {
@@ -199,6 +206,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 						}
 					}
 				}
+
 				if (tpropUnset && (lut == LexicalType.IDENT || lut == LexicalType.STRING)) {
 					// Assume a property
 					StyleValue value = createCSSValue("transition-property", currentValue);
@@ -209,9 +217,16 @@ class TransitionShorthandSetter extends ShorthandSetter {
 						continue;
 					} else {
 						reportDeclarationError("transition", "Found 'none' in a multiple declaration.");
-						return false;
+						return 2;
 					}
 				}
+
+				if (lut == LexicalType.PREFIXED_FUNCTION
+						|| (lut == LexicalType.IDENT && isPrefixedIdentValue())) {
+					setPrefixedValue(currentValue);
+					return 1;
+				}
+
 				// Report error
 				StyleDeclarationErrorHandler errHandler = styleDeclaration.getStyleDeclarationErrorHandler();
 				if (errHandler != null) {
@@ -222,8 +237,10 @@ class TransitionShorthandSetter extends ShorthandSetter {
 						errHandler.unassignedShorthandValue("transition", val.getCssText());
 					}
 				}
-				return false;
+
+				return 2;
 			}
+
 			// Reset subproperties not set by this shorthand at this layer
 			if (tpropUnset) {
 				lstProperty.add(defaultPropertyValue("transition-property"));
@@ -274,7 +291,7 @@ class TransitionShorthandSetter extends ShorthandSetter {
 
 		flush();
 
-		return true;
+		return 0;
 	}
 
 	private void addSingleValueLayer(StyleValue keyword) {

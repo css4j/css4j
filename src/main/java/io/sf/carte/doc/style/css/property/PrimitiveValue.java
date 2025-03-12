@@ -93,7 +93,7 @@ abstract public class PrimitiveValue extends StyleValue implements CSSPrimitiveV
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (!(obj instanceof PrimitiveValue)) {
 			return false;
 		}
 		PrimitiveValue other = (PrimitiveValue) obj;

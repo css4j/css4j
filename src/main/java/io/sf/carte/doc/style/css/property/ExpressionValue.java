@@ -17,6 +17,8 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
+import io.sf.carte.doc.style.css.CSSOperandExpression;
+import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
@@ -94,7 +96,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 	@Override
 	public String getCssText() {
 		String s = expression.getCssText();
-		if (expression.getPartType() != CSSExpression.AlgebraicPart.OPERAND) {
+		if (isStandAloneExpression()) {
 			return s;
 		}
 		StringBuilder buf = new StringBuilder(s.length() + 2);
@@ -105,12 +107,28 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 	@Override
 	public String getMinifiedCssText(String propertyName) {
 		String s = expression.getMinifiedCssText();
-		if (expression.getPartType() != CSSExpression.AlgebraicPart.OPERAND) {
+		if (isStandAloneExpression()) {
 			return s;
 		}
 		StringBuilder buf = new StringBuilder(s.length() + 2);
 		buf.append('(').append(s).append(')');
 		return buf.toString();
+	}
+
+	private boolean isStandAloneExpression() {
+		/*
+		 * We want to check for non-numeric string operands, for legacy IE
+		 * compatibility.
+		 */
+		return expression.getPartType() != CSSExpression.AlgebraicPart.OPERAND
+				|| ((CSSOperandExpression) expression).getOperand().getPrimitiveType() != Type.IDENT
+				|| isNumericConstant(
+						((CSSTypedValue) ((CSSOperandExpression) expression).getOperand())
+								.getStringValue());
+	}
+
+	private static boolean isNumericConstant(String s) {
+		return "pi".equalsIgnoreCase(s) || "e".equalsIgnoreCase(s);
 	}
 
 	@Override
@@ -163,7 +181,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 		if (syntax == null) {
 			return Match.FALSE;
 		}
-		//
+
 		return dimensionalAnalysis(syntax, true);
 	}
 
@@ -183,11 +201,12 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 			}
 			return Match.FALSE;
 		}
+
 		// Universal match (after checking the expression correctness)
 		if (syntax.getCategory() == Category.universal) {
 			return Match.TRUE;
 		}
-		//
+
 		boolean lengthPercentageL = false, lengthPercentageP = false;
 		do {
 			Category cat = syntax.getCategory();
@@ -215,6 +234,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 				}
 			}
 		} while (followComponents && (syntax = syntax.getNext()) != null);
+
 		return Match.FALSE;
 	}
 

@@ -152,17 +152,32 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 				typed.setSubproperty(true);
 				primi = typed;
 			}
-		} else if (primi.getCssValueType() != CssType.TYPED ||
-				(primi.getPrimitiveType() != Type.EXPRESSION
-				&& primi.getPrimitiveType() != Type.MATH_FUNCTION
-				&& primi.getPrimitiveType() != Type.FUNCTION
-				&& (primi.getPrimitiveType() != Type.IDENT
-						|| !"none".equalsIgnoreCase(((TypedValue) primi).getStringValue())))) {
+		} else if (isInvalidComponentType(primi)) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Invalid color component: " + primi.getCssText());
 		}
 
 		return primi;
+	}
+
+	static boolean isInvalidComponentType(CSSPrimitiveValue primi) {
+		switch (primi.getCssValueType()) {
+		case TYPED:
+			switch (primi.getPrimitiveType()) {
+			case EXPRESSION:
+			case MATH_FUNCTION:
+			case FUNCTION: // Possibly an unimplemented math function
+				return false;
+			case IDENT:
+				return !"none".equalsIgnoreCase(((CSSTypedValue) primi).getStringValue());
+			default:
+			}
+			break;
+		case PROXY: // env()
+			return false;
+		default:
+		}
+		return true;
 	}
 
 	static PrimitiveValue enforcePcntOrNumberComponent(PrimitiveValue primi) throws DOMException {
@@ -202,12 +217,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 				typed.setSubproperty(true);
 				primi = typed;
 			}
-		} else if (primi.getCssValueType() != CssType.TYPED
-				|| (primi.getPrimitiveType() != Type.EXPRESSION
-						&& primi.getPrimitiveType() != Type.MATH_FUNCTION
-						&& primi.getPrimitiveType() != Type.FUNCTION
-						&& (primi.getPrimitiveType() != Type.IDENT || !"none"
-								.equalsIgnoreCase(((TypedValue) primi).getStringValue())))) {
+		} else if (isInvalidComponentType(primi)) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Invalid color component: " + primi.getCssText());
 		}
@@ -234,17 +244,34 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			}
 		}
 
-		if (hue.getUnitType() != CSSUnit.CSS_NUMBER && !CSSUnit.isAngleUnitType(hue.getUnitType())
-				&& (hue.getCssValueType() != CssType.TYPED
-						|| (hue.getPrimitiveType() != Type.EXPRESSION
-								&& hue.getPrimitiveType() != Type.MATH_FUNCTION
-								&& hue.getPrimitiveType() != Type.FUNCTION
-								&& (hue.getPrimitiveType() != Type.IDENT || !"none"
-										.equalsIgnoreCase(((TypedValue) hue).getStringValue()))))) {
+		if (isInvalidHueType(hue)) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Type not compatible with hue.");
 		}
 
 		return hue;
+	}
+
+	static boolean isInvalidHueType(CSSPrimitiveValue hue) {
+		if (hue.getUnitType() == CSSUnit.CSS_NUMBER || CSSUnit.isAngleUnitType(hue.getUnitType())) {
+			return false;
+		}
+		switch (hue.getCssValueType()) {
+		case TYPED:
+			switch (hue.getPrimitiveType()) {
+			case EXPRESSION:
+			case MATH_FUNCTION:
+			case FUNCTION: // Possibly an unimplemented math function
+				return false;
+			case IDENT:
+				return !"none".equalsIgnoreCase(((CSSTypedValue) hue).getStringValue());
+			default:
+			}
+			break;
+		case PROXY: // env()
+			return false;
+		default:
+		}
+		return true;
 	}
 
 	static PrimitiveValue normalizePcntToNumber(PrimitiveValue primi, float factor,
@@ -272,13 +299,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			number.setSpecified(spec);
 			number.setMaximumFractionDigits(maxFractionDigits);
 			primi = number;
-		} else if (primi.getUnitType() != CSSUnit.CSS_NUMBER &&
-				(primi.getCssValueType() != CssType.TYPED
-				|| (primi.getPrimitiveType() != Type.EXPRESSION
-						&& primi.getPrimitiveType() != Type.MATH_FUNCTION
-						&& primi.getPrimitiveType() != Type.FUNCTION
-						&& (primi.getPrimitiveType() != Type.IDENT || !"none"
-								.equalsIgnoreCase(((TypedValue) primi).getStringValue()))))) {
+		} else if (primi.getUnitType() != CSSUnit.CSS_NUMBER && isInvalidComponentType(primi)) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Type not compatible: " + primi.getCssText());
 		}

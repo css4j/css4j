@@ -85,6 +85,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	private ArrayList<String> shorthandSet;
 
 	/**
+	 * List of prefixed values: property name, value and priority.
+	 */
+	private LinkedList<Object> prefValues = null;
+
+	/**
 	 * Constructor with parent CSS rule argument.
 	 * 
 	 * @param parentRule
@@ -172,7 +177,32 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				sb.append(';');
 			}
 		}
+
+		// Prefixed declarations, if any
+		if (prefValues != null) {
+			minifiedPrefixedDeclaration(sb);
+		}
+
 		return sb.toString();
+	}
+
+	private void minifiedPrefixedDeclaration(StringBuilder sb) {
+		int len = sb.length();
+		if (len > 0 && sb.charAt(len - 1) != ';') {
+			sb.append(';');
+		}
+		Iterator<Object> it = prefValues.iterator();
+		while (true) {
+			String property = (String) it.next();
+			StyleValue value = (StyleValue) it.next();
+			boolean important = ((Boolean) it.next()).booleanValue();
+			appendLonghandMinifiedCssText(sb, property, value, important);
+			if (it.hasNext()) {
+				sb.append(';');
+			} else {
+				break;
+			}
+		}
 	}
 
 	protected void appendShorthandMinifiedCssText(StringBuilder sb, String shorthandName, ShorthandValue shval) {
@@ -250,6 +280,11 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			StyleValue ptyvalue = getCSSValue(ptyname);
 			writeLonghandCssText(wri, context, ptyname, ptyvalue, important);
 		}
+
+		// Prefixed declarations, if any
+		if (prefValues != null) {
+			writePrefixedDeclaration(wri, context);
+		}
 	}
 
 	protected void writeShorthandCssText(SimpleWriter wri, StyleFormattingContext context, String shorthandName,
@@ -276,6 +311,25 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 		context.writeSemiColon(wri);
 		context.endPropertyDeclaration(wri);
+	}
+
+	private void writePrefixedDeclaration(SimpleWriter wri, StyleFormattingContext context)
+			throws IOException {
+		Iterator<Object> it = prefValues.iterator();
+		while (it.hasNext()) {
+			String property = (String) it.next();
+			StyleValue value = (StyleValue) it.next();
+			boolean important = ((Boolean) it.next()).booleanValue();
+			context.startPropertyDeclaration(wri);
+			wri.write(property);
+			context.writeColon(wri);
+			context.writeValue(wri, property, value);
+			if (important) {
+				context.writeImportantPriority(wri);
+			}
+			context.writeSemiColon(wri);
+			context.endPropertyDeclaration(wri);
+		}
 	}
 
 	String getComputedPlainCssText() {
@@ -555,6 +609,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	@Override
 	public String getPropertyValue(String propertyName) {
+		String result;
 		propertyName = getCanonicalPropertyName(propertyName);
 		StyleValue value = getCSSValue(propertyName);
 		if (value != null) {
@@ -568,9 +623,14 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					&& ((ShorthandValue) value).getLonghands().size() < getLonghandPropertyCount(propertyName)) {
 				return "";
 			}
-			return value.getCssText();
+			result = value.getCssText();
+		} else if (prefValues != null && prefValues.contains(propertyName)) {
+			int idx = prefValues.lastIndexOf(propertyName);
+			result = prefValues.get(idx + 1).toString();
+		} else {
+			result = "";
 		}
-		return "";
+		return result;
 	}
 
 	private int getLonghandPropertyCount(String propertyName) {
@@ -695,11 +755,15 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 */
 	@Override
 	public String removeProperty(String propertyName) {
+		if (propertyName == null) {
+			return "";
+		}
+		String oldcsstext = "";
 		ShorthandDatabase sdb;
 		propertyName = getCanonicalPropertyName(propertyName);
 		int idx = propertyList.indexOf(propertyName);
 		if (idx >= 0 && !propValue.get(propertyName).isSubproperty()) {
-			String oldcsstext = propValue.remove(propertyName).getCssText();
+			oldcsstext = propValue.remove(propertyName).getCssText();
 			// Is an explicitly-set longhand property.
 			propertyList.remove(idx);
 			priorities.remove(idx);
@@ -708,19 +772,39 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			if (!shorthandSet.isEmpty() && (sdb = ShorthandDatabase.getInstance()).isShorthandSubproperty(propertyName)) {
 				resetFromShorthand(propertyName, sdb);
 			}
-			return oldcsstext;
 		} else if (shorthandSet.contains(propertyName)) {
 			ShorthandValue shval = (ShorthandValue) propValue.get(propertyName);
 			propValue.remove(propertyName);
 			shorthandSet.remove(propertyName);
-			String text = shval.getCssText();
+			oldcsstext = shval.getCssText();
 			sdb = ShorthandDatabase.getInstance();
 			// Remove all sub-properties
 			removeSubproperties(shval, sdb);
-			return text;
-		} else {
-			return "";
 		}
+
+		// Remove prefixed values, if any
+		if (prefValues != null) {
+			Iterator<Object> it = prefValues.iterator();
+			while (it.hasNext()) {
+				String property = (String) it.next();
+				if (property.equals(propertyName)) {
+					it.remove();
+					it.next(); // value
+					it.remove();
+					it.next(); // priority
+					it.remove();
+					break;
+				} else {
+					it.next(); // value
+					it.next(); // priority
+				}
+			}
+			if (prefValues.isEmpty()) {
+				prefValues = null;
+			}
+		}
+
+		return oldcsstext;
 	}
 
 	private boolean resetFromShorthand(String propertyName, ShorthandDatabase sdb) {
@@ -739,11 +823,13 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				}
 			}
 		}
+
 		if (shidx != -1) {
 			ShorthandValue shval = (ShorthandValue) propValue.get(shorthand);
 			// Reset sub-property
 			shval.getLonghands().add(propertyName);
 			BaseCSSStyleDeclaration copy = new BaseCSSStyleDeclaration();
+			// No need to check for return value of setSubproperties()
 			copy.setSubproperties(shorthand, shval.getLexicalUnit(), shval.isImportant(),
 					shval.isAttrTainted());
 			propValue.put(propertyName, copy.propValue.get(propertyName));
@@ -751,6 +837,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			propertyList.add(shidx, propertyName);
 			return true;
 		}
+
 		return false;
 	}
 
@@ -882,6 +969,10 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		try {
 			SubpropertySetter shorthandSetter = setSubproperties(propertyName, value, important,
 					attrTainted);
+			if (shorthandSetter == null) {
+				// Prefixed value found
+				return false;
+			}
 			String shorthandText = shorthandSetter.getCssText();
 			if (!shorthandText.isEmpty()) {
 				ShorthandValue shVal = shorthandSetter.createCSSShorthandValue(value);
@@ -1210,6 +1301,16 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		}
 	}
 
+	void addPrefixedValue(String propertyName, StyleValue prefVal, boolean importantPriority) {
+		if (prefValues == null) {
+			prefValues = new LinkedList<>();
+		}
+
+		prefValues.add(propertyName);
+		prefValues.add(prefVal);
+		prefValues.add(importantPriority);
+	}
+
 	boolean addCompatProperty(String propertyName, StyleValue cssValue, String priority) {
 		if (cssValue.getCssValueType() == CssType.SHORTHAND) {
 			// We got a CSSShorthandValue
@@ -1360,6 +1461,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		propertyList.clear();
 		priorities.clear();
 		shorthandSet.clear();
+		prefValues = null;
 		StyleDeclarationErrorHandler errHandler = getStyleDeclarationErrorHandler();
 		if (errHandler != null) {
 			errHandler.reset();
@@ -1720,13 +1822,15 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			}
 			setter.init(value, important);
 			setter.setAttrTainted(attrTainted);
-			if (!setter.assignSubproperties()) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Invalid property declaration: " + value.toString());
+			short result = setter.assignSubproperties();
+			if (result == 2) {
+				throw new DOMException(DOMException.SYNTAX_ERR,
+						"Invalid property declaration: " + value.toString());
+			} else if (result == 0) {
+				return setter;
 			}
-			return setter;
-		} else {
-			return null;
 		}
+		return null;
 	}
 
 	private static boolean isOrContainsProxy(LexicalUnit lunit) {

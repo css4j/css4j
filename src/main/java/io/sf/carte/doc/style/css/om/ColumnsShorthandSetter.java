@@ -11,7 +11,10 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
@@ -22,13 +25,15 @@ class ColumnsShorthandSetter extends ShorthandSetter {
 		}
 
 		@Override
-		public boolean assignSubproperties() {
+		public short assignSubproperties() {
 			byte kwscan = scanForCssWideKeywords(currentValue);
 			if (kwscan == 1) {
-				return true;
+				return 0;
 			} else if (kwscan == 2) {
-				return false;
+				return 2;
 			}
+
+			CSSValueSyntax syntaxInteger = SyntaxParser.createSimpleSyntax("integer");
 
 			setPropertyToDefault("column-width");
 			setPropertyToDefault("column-count");
@@ -38,13 +43,18 @@ class ColumnsShorthandSetter extends ShorthandSetter {
 			byte count = 0;
 			while (currentValue != null) {
 				if (count == 2) {
-					return false;
+					return 2;
 				}
-				LexicalType lut = currentValue.getLexicalUnitType();
-				if (columnCountUnset && lut == LexicalType.INTEGER) {
+
+				LexicalType lut;
+				if (columnWidthUnset && ValueFactory.isPositiveSizeSACUnit(currentValue)) {
+					setSubpropertyValue("column-width", createCSSValue("column-width", currentValue));
+					count++;
+					columnWidthUnset = false;
+				} else if (columnCountUnset && currentValue.getLexicalUnitType() == LexicalType.INTEGER) {
 					int intValue = currentValue.getIntegerValue();
 					if (intValue < 1) {
-						return false;
+						return 2;
 					}
 					NumberValue number = new NumberValue();
 					number.setIntegerValue(intValue);
@@ -52,26 +62,35 @@ class ColumnsShorthandSetter extends ShorthandSetter {
 					setSubpropertyValue("column-count", number);
 					count++;
 					columnCountUnset = false;
-				} else if (columnWidthUnset && ValueFactory.isPositiveSizeSACUnit(currentValue)) {
-					setSubpropertyValue("column-width", createCSSValue("column-width", currentValue));
-					count++;
-					columnWidthUnset = false;
-				} else if (lut == LexicalType.IDENT) {
+				} else if ((lut = currentValue.getLexicalUnitType()) == LexicalType.IDENT) {
 					// Only 'auto' is acceptable
 					String ident = currentValue.getStringValue();
 					if (!"auto".equalsIgnoreCase(ident)) {
-						return false;
+						if (isPrefixedIdentValue()) {
+							setPrefixedValue(currentValue);
+							flush();
+							return 1;
+						}
+						return 2;
 					}
 					count++;
+				} else if (columnCountUnset && currentValue.shallowMatch(syntaxInteger) == Match.TRUE) {
+					setSubpropertyValue("column-count", createCSSValue("column-count", currentValue));
+					count++;
+					columnCountUnset = false;
+				} else if (lut == LexicalType.PREFIXED_FUNCTION) {
+					setPrefixedValue(currentValue);
+					flush();
+					return 1;
 				} else {
-					return false;
+					return 2;
 				}
 				nextCurrentValue();
 			}
 
 			flush();
 
-			return true;
+			return 0;
 		}
 
 }

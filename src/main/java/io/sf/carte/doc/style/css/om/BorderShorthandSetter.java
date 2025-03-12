@@ -25,12 +25,12 @@ class BorderShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
-		if (super.assignSubproperties()) {
+	public short assignSubproperties() {
+		short result = super.assignSubproperties();
+		if (result == 0) {
 			styleDeclaration.getShorthandSet().remove("border-image");
-			return true;
 		}
-		return false;
+		return result;
 	}
 
 	@Override

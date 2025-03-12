@@ -27,12 +27,12 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
-			return true;
+			return 0;
 		} else if (kwscan == 2) {
-			return false;
+			return 2;
 		}
 
 		setPropertyToDefault(subparray[0]);
@@ -48,7 +48,7 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 					if (secondValue != null && currentValue == null) {
 						setSubpropertyValue(subparray[1], secondValue);
 						flush();
-						return true;
+						return 0;
 					}
 				}
 			} else {
@@ -56,11 +56,11 @@ class GridPlacementShorthandSetter extends ShorthandSetter {
 					setSubpropertyValue(subparray[1], firstValue);
 				}
 				flush();
-				return true;
+				return 0;
 			}
 		}
 
-		return false;
+		return 2;
 	}
 
 	StyleValue gridLine() {

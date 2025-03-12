@@ -277,12 +277,7 @@ class ColorFunction extends ColorValue {
 
 	private static void checkComponentValidity(PrimitiveValue primi, LexicalUnit lunit)
 			throws DOMException {
-		if (!isComponentUnit(primi.getUnitType()) && (primi.getCssValueType() != CssType.TYPED
-				|| (primi.getPrimitiveType() != Type.EXPRESSION
-						&& primi.getPrimitiveType() != Type.MATH_FUNCTION
-						&& primi.getPrimitiveType() != Type.FUNCTION
-						&& (primi.getPrimitiveType() != Type.IDENT || !"none"
-								.equalsIgnoreCase(((TypedValue) primi).getStringValue()))))) {
+		if (!isComponentUnit(primi.getUnitType()) && BaseColor.isInvalidComponentType(primi)) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Type not compatible with a color component: "
 							+ (lunit != null ? lunit.getCssText() : primi.getCssText()));

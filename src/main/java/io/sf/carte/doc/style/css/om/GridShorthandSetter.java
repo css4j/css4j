@@ -11,11 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import io.sf.carte.doc.style.css.CSSValueSyntax;
-import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
-import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory.ListValueItem;
@@ -36,13 +33,13 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		// Keyword scan
 		byte kwscan = scanForCssWideKeywords(currentValue);
 		if (kwscan == 1) {
-			return true;
+			return 0;
 		} else if (kwscan == 2) {
-			return false;
+			return 2;
 		}
 
 		setSubpropertiesToDefault();
@@ -56,11 +53,11 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 			if (fullSyntax()) {
 				flush();
 			} else {
-				return false;
+				return 2;
 			}
 		}
 
-		return true;
+		return 0;
 	}
 
 	@Override
@@ -176,22 +173,6 @@ class GridShorthandSetter extends BaseGridShorthandSetter {
 							+ BaseCSSStyleDeclaration.lexicalUnitToString(fullValue));
 				}
 				return false;
-			case ATTR:
-				LexicalUnit currentClone = currentValue.shallowClone();
-				CSSValueSyntax syn = SyntaxParser.createSimpleSyntax("string");
-				if (currentClone.matches(syn) == Match.TRUE) {
-					// Same as normal strings
-					if (lasttype == LexicalType.STRING) {
-						gridTemplateRows.add(createAutoValue());
-					}
-					setTemplateAreas = true;
-					lineNames = null;
-					value = createCSSValue();
-					gridTemplateAreas.add(value);
-					appendValueItemString(value);
-					lasttype = type;
-					break;
-				}
 			default:
 				if (setTemplateAreas && type == LexicalType.FUNCTION
 						&& "repeat".equalsIgnoreCase(currentValue.getFunctionName())) {

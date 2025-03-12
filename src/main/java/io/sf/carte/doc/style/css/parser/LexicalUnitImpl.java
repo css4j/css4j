@@ -21,6 +21,7 @@ import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Multiplier;
 import io.sf.carte.doc.style.css.UnitStringToId;
+import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -375,6 +376,10 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 	}
 
 	CharSequence currentToString() {
+		if (parameters != null) {
+			return serializeUnitWithParam();
+		}
+
 		switch (unitType) {
 		case INTEGER:
 			return Integer.toString(intValue);
@@ -390,47 +395,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			if (dimensionUnitText != null) {
 				buf.append(dimensionUnitText);
 			}
-			return buf;
-		case RGBCOLOR:
-			if (identCssText != null) {
-				return identCssText;
-			}
-		case FUNCTION:
-		case MATH_FUNCTION:
-		case CALC:
-		case VAR:
-		case ATTR:
-		case SRC:
-		case HSLCOLOR:
-		case LABCOLOR:
-		case LCHCOLOR:
-		case OKLABCOLOR:
-		case OKLCHCOLOR:
-		case HWBCOLOR:
-		case COLOR_FUNCTION:
-		case COLOR_MIX:
-		case COUNTER_FUNCTION:
-		case COUNTERS_FUNCTION:
-		case CUBIC_BEZIER_FUNCTION:
-		case STEPS_FUNCTION:
-		case TYPE_FUNCTION:
-		case CIRCLE_FUNCTION:
-		case ELLIPSE_FUNCTION:
-		case INSET_FUNCTION:
-		case POLYGON_FUNCTION:
-		case PATH_FUNCTION:
-		case RECT_FUNCTION:
-		case XYWH_FUNCTION:
-		case SHAPE_FUNCTION:
-			return functionalSerialization(value);
-		case SUB_EXPRESSION:
-			buf = new StringBuilder();
-			buf.append('(');
-			LexicalUnit lu = this.parameters;
-			if (lu != null) {
-				buf.append(lu.toString());
-			}
-			buf.append(')');
 			return buf;
 		case IDENT:
 			return identCssText != null ? identCssText : value;
@@ -456,35 +420,11 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			return "revert";
 		case ELEMENT_REFERENCE:
 			if (value == null) {
-				if (parameters == null) {
-					return "element(#)";
-				} else {
-					return functionalSerialization("element");
-				}
+				return "element(#)";
 			}
 			int len = value.length();
 			buf = new StringBuilder(len + 10);
 			buf.append("element(#").append(value).append(')');
-			return buf;
-		case UNICODE_RANGE:
-			buf = new StringBuilder();
-			lu = this.parameters;
-			if (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalType.INTEGER) {
-					buf.append("U+").append(Integer.toHexString(lu.getIntegerValue()));
-				} else {
-					buf.append("U+").append(lu.getStringValue());
-				}
-				lu = lu.getNextLexicalUnit();
-				if (lu != null) {
-					buf.append('-');
-					if (lu.getLexicalUnitType() == LexicalType.INTEGER) {
-						buf.append(Integer.toHexString(lu.getIntegerValue()));
-					} else {
-						buf.append(lu.getStringValue());
-					}
-				}
-			}
 			return buf;
 		case UNICODE_WILDCARD:
 			return getStringValue();
@@ -526,6 +466,58 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		return "";
 	}
 
+	private CharSequence serializeUnitWithParam() {
+		StringBuilder buf;
+		switch (unitType) {
+		case RGBCOLOR:
+			if (identCssText != null) {
+				return identCssText;
+			}
+			break;
+		case SUB_EXPRESSION:
+			buf = new StringBuilder();
+			boolean saExpr = (previousLexicalUnit == null
+					|| previousLexicalUnit.getLexicalUnitType() == LexicalType.OPERATOR_COMMA)
+					&& (nextLexicalUnit == null
+							|| nextLexicalUnit.getLexicalUnitType() == LexicalType.OPERATOR_COMMA);
+			if (!saExpr) {
+				buf.append('(');
+			}
+			LexicalUnit lu = this.parameters;
+			if (lu != null) {
+				buf.append(lu.toString());
+			}
+			if (!saExpr) {
+				buf.append(')');
+			}
+			return buf;
+		case ELEMENT_REFERENCE:
+			return functionalSerialization("element");
+		case UNICODE_RANGE:
+			buf = new StringBuilder();
+			lu = this.parameters;
+			if (lu != null) {
+				if (lu.getLexicalUnitType() == LexicalType.INTEGER) {
+					buf.append("U+").append(Integer.toHexString(lu.getIntegerValue()));
+				} else {
+					buf.append("U+").append(lu.getStringValue());
+				}
+				lu = lu.getNextLexicalUnit();
+				if (lu != null) {
+					buf.append('-');
+					if (lu.getLexicalUnitType() == LexicalType.INTEGER) {
+						buf.append(Integer.toHexString(lu.getIntegerValue()));
+					} else {
+						buf.append(lu.getStringValue());
+					}
+				}
+			}
+			return buf;
+		default:
+		}
+		return functionalSerialization(value);
+	}
+
 	private CharSequence functionalSerialization(String fname) {
 		StringBuilder buf = new StringBuilder();
 		buf.append(fname).append('(');
@@ -550,10 +542,9 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			default:
 				break;
 			}
-			//
+
 			CSSValueSyntax comp = syntax;
 			do {
-				//
 				Multiplier mult = comp.getMultiplier();
 				Category cat = comp.getCategory();
 				if (cat == Category.universal) {
@@ -569,14 +560,15 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 				}
 				comp = comp.getNext();
 			} while (comp != null);
-
 		}
+
 		return Match.FALSE;
 	}
 
 	private Match matchesComponent(CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
 		LexicalUnitImpl lu = this;
 		Match prevmatch = Match.FALSE;
+
 		do {
 			Match match = matchesComponent(lu, rootSyntax, syntax);
 			if (match == Match.FALSE) {
@@ -585,12 +577,12 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			if (prevmatch != Match.PENDING) {
 				prevmatch = match;
 			}
-			//
+
 			lu = lu.nextLexicalUnit;
 			if (lu == null) {
 				break;
 			}
-			//
+
 			if (syntax.getMultiplier() == Multiplier.NUMBER) {
 				if (lu.unitType == LexicalType.OPERATOR_COMMA) {
 					lu = lu.nextLexicalUnit;
@@ -603,6 +595,24 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 				}
 			}
 		} while (true);
+
+		return prevmatch;
+	}
+
+	@Override
+	public Match shallowMatch(CSSValueSyntax syntax) {
+		Match prevmatch = Match.FALSE;
+		CSSValueSyntax comp = syntax;
+		do {
+			Match match = matchesComponent(this, syntax, comp);
+			if (match == Match.TRUE) {
+				prevmatch = Match.TRUE;
+				break;
+			}
+			if (prevmatch != Match.PENDING) {
+				prevmatch = match;
+			}
+		} while ((comp = comp.getNext()) != null);
 		return prevmatch;
 	}
 
@@ -611,109 +621,170 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		LexicalType type = lexicalUnit.getLexicalUnitType();
 		switch (type) {
 		case OPERATOR_COMMA:
-			if (syntax.getMultiplier() != Multiplier.NUMBER || lexicalUnit.nextLexicalUnit == null) {
+			if (syntax.getMultiplier() != Multiplier.NUMBER
+					|| lexicalUnit.nextLexicalUnit == null) {
 				return Match.FALSE;
 			}
 			// Unlikely to reach this (unless consecutive commas when testing a # multiplier)
 			return Match.TRUE;
-		case INHERIT:
-		case INITIAL:
-		case UNSET:
-		case REVERT:
-		case OPERATOR_SEMICOLON:
-		case OPERATOR_PLUS:
-		case OPERATOR_MINUS:
-		case OPERATOR_MULTIPLY:
-		case OPERATOR_SLASH:
-		case OPERATOR_MOD:
-		case OPERATOR_EXP:
-		case OPERATOR_LT:
-		case OPERATOR_GT:
-		case OPERATOR_LE:
-		case OPERATOR_GE:
-		case OPERATOR_TILDE:
-			return Match.FALSE;
+		case ATTR:
+			return matchAttr(lexicalUnit, rootSyntax, syntax);
+		case VAR:
+			return Match.PENDING;
 		default:
 			break;
 		}
-		//
+
 		Category cat = syntax.getCategory();
-		if (cat == Category.universal) {
+		switch (cat) {
+		case universal:
 			return Match.TRUE;
-		}
-		//
-		switch (type) {
+		case integer:
+			if (type == LexicalType.REAL) {
+				break;
+			}
+			// pass-through
+		case number:
+			switch (type) {
+			case REAL:
+				return Match.TRUE;
+			case INTEGER:
+				return Match.TRUE;
+			case CALC:
+			case SUB_EXPRESSION:
+				return matchExpression(lexicalUnit, rootSyntax, syntax);
+			case MATH_FUNCTION:
+				return matchMathFunction(lexicalUnit, rootSyntax, syntax);
+			default:
+				break;
+			}
+			break;
+		case percentage:
+		case lengthPercentage:
+			if (type == LexicalType.PERCENTAGE) {
+				return Match.TRUE;
+			}
+			// pass-through
+		case length:
+		case angle:
+		case time:
+		case frequency:
+		case resolution:
+		case flex:
+			// Dimension
+			switch (type) {
+			case DIMENSION:
+				return matchBoolean(unitMatchesCategory(lexicalUnit.getCssUnit(), cat));
+			case CALC:
+			case SUB_EXPRESSION:
+				return matchExpression(lexicalUnit, rootSyntax, syntax);
+			case MATH_FUNCTION:
+				return matchMathFunction(lexicalUnit, rootSyntax, syntax);
+			case ENV:
+				return matchEnv(lexicalUnit, rootSyntax, syntax);
+			default:
+				break;
+			}
+			break;
+		case color:
+			switch (type) {
+			case RGBCOLOR:
+			case HSLCOLOR:
+			case LABCOLOR:
+			case LCHCOLOR:
+			case OKLABCOLOR:
+			case OKLCHCOLOR:
+			case HWBCOLOR:
+			case COLOR_FUNCTION:
+			case COLOR_MIX:
+				return Match.TRUE;
+			case IDENT:
+				return matchBoolean(ColorIdentifiers.getInstance()
+						.isColorIdentifier(lexicalUnit.getStringValue().toLowerCase(Locale.ROOT)));
+			default:
+				break;
+			}
+			break;
 		case IDENT:
-			return matchBoolean(cat == Category.customIdent
-					|| (cat == Category.IDENT && syntax.getName().equals(lexicalUnit.getStringValue()))
-					|| (cat == Category.color && ColorIdentifiers.getInstance()
-							.isColorIdentifier(lexicalUnit.getStringValue().toLowerCase(Locale.ROOT))));
-		case STRING:
-			return matchBoolean(cat == Category.string);
-		case ATTR:
-			return matchAttr(lexicalUnit, rootSyntax, syntax);
-		case URI:
-		case SRC:
-			return matchBoolean(cat == Category.url || cat == Category.image);
-		case DIMENSION:
-			return matchBoolean(unitMatchesCategory(lexicalUnit.getCssUnit(), cat));
-		case PERCENTAGE:
-			return matchBoolean(cat == Category.percentage || cat == Category.lengthPercentage);
-		case REAL:
-			return matchBoolean(cat == Category.number);
-		case INTEGER:
-			return matchBoolean(cat == Category.integer || cat == Category.number);
-		case RGBCOLOR:
-		case HSLCOLOR:
-		case LABCOLOR:
-		case LCHCOLOR:
-		case OKLABCOLOR:
-		case OKLCHCOLOR:
-		case HWBCOLOR:
-		case COLOR_FUNCTION:
-		case COLOR_MIX:
-			return matchBoolean(cat == Category.color);
-		case FUNCTION:
-			String func = lexicalUnit.getFunctionName().toLowerCase(Locale.ROOT);
-			if (func.charAt(0) != '-' || !func.endsWith("-calc")) {
-				return matchFunction(func, rootSyntax, syntax);
+			return matchBoolean(syntax.getName().equals(lexicalUnit.getStringValue()));
+		case customIdent:
+			return matchBoolean(type == LexicalType.IDENT);
+		case image:
+			if (type == LexicalType.GRADIENT || type == LexicalType.IMAGE_SET
+					|| (type == LexicalType.FUNCTION && CSSUtil.isUnimplementedImageFunction(
+							lexicalUnit.getStringValue().toLowerCase(Locale.ROOT)))
+					|| type == LexicalType.ELEMENT_REFERENCE) {
+				return Match.TRUE;
 			}
-			// browser-prefixed calc()
-		case CALC:
-			return isNumericCategory(cat) ? matchExpression(lexicalUnit, rootSyntax, syntax) : Match.FALSE;
-		case MATH_FUNCTION:
-			if (isNumericCategory(cat)) {
-				DimensionalAnalyzer danal = new DimensionalAnalyzer();
-				Dimension dim;
-				try {
-					dim = ((MathFunctionUnitImpl) lexicalUnit).dimension(danal);
-				} catch (DOMException e) {
-					return Match.FALSE;
-				}
-				return dim != null ? dim.matches(syntax) : Match.PENDING;
+			// pass-through
+		case url:
+			return matchBoolean(type == LexicalType.URI || type == LexicalType.SRC);
+		case easingFunction:
+			switch (type) {
+			case IDENT:
+				return matchBoolean("linear".equalsIgnoreCase(lexicalUnit.getStringValue()));
+			case CUBIC_BEZIER_FUNCTION:
+			case LINEAR_FUNCTION:
+			case STEPS_FUNCTION:
+				return Match.TRUE;
+			default:
+				break;
 			}
-			return Match.FALSE;
-		case VAR:
-			return Match.PENDING;
-		case COUNTER_FUNCTION:
-		case COUNTERS_FUNCTION:
-			return matchBoolean(cat == Category.counter);
-		case RECT_FUNCTION:
-		case CIRCLE_FUNCTION:
-		case ELLIPSE_FUNCTION:
-		case INSET_FUNCTION:
-		case POLYGON_FUNCTION:
-		case PATH_FUNCTION:
-		case XYWH_FUNCTION:
-		case SHAPE_FUNCTION:
-			return matchBoolean(cat == Category.basicShape);
-		case UNICODE_RANGE:
-		case UNICODE_WILDCARD:
-			return matchBoolean(cat == Category.unicodeRange);
-		case ELEMENT_REFERENCE:
-			return matchBoolean(cat == Category.image);
+			break;
+		case basicShape:
+			switch (type) {
+			case RECT_FUNCTION:
+			case CIRCLE_FUNCTION:
+			case ELLIPSE_FUNCTION:
+			case INSET_FUNCTION:
+			case POLYGON_FUNCTION:
+			case PATH_FUNCTION:
+			case XYWH_FUNCTION:
+			case SHAPE_FUNCTION:
+				return Match.TRUE;
+			default:
+				break;
+			}
+			break;
+		case counter:
+			return matchBoolean(
+					type == LexicalType.COUNTER_FUNCTION || type == LexicalType.COUNTERS_FUNCTION);
+		case string:
+			return matchBoolean(type == LexicalType.STRING);
+		case transformFunction:
+		case transformList:
+			switch (type) {
+			case MATRIX_FUNCTION:
+			case PERSPECTIVE_FUNCTION:
+			case TRANSLATE_FUNCTION:
+			case TRANSLATE_3D_FUNCTION:
+			case TRANSLATE_X_FUNCTION:
+			case TRANSLATE_Y_FUNCTION:
+			case TRANSLATE_Z_FUNCTION:
+			case SCALE_FUNCTION:
+			case SCALE_3D_FUNCTION:
+			case SCALE_X_FUNCTION:
+			case SCALE_Y_FUNCTION:
+			case SCALE_Z_FUNCTION:
+			case ROTATE_FUNCTION:
+			case ROTATE_3D_FUNCTION:
+			case ROTATE_X_FUNCTION:
+			case ROTATE_Y_FUNCTION:
+			case ROTATE_Z_FUNCTION:
+			case SKEW_FUNCTION:
+			case SKEW_X_FUNCTION:
+			case SKEW_Y_FUNCTION:
+				return Match.TRUE;
+			default:
+				break;
+			}
+			break;
+		case unicodeRange:
+			return matchBoolean(
+					type == LexicalType.UNICODE_RANGE || type == LexicalType.UNICODE_WILDCARD);
 		default:
 		}
+
 		return Match.FALSE;
 	}
 
@@ -978,6 +1049,38 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		return expected;
 	}
 
+	private static Match matchMathFunction(LexicalUnitImpl lexicalUnit, CSSValueSyntax rootSyntax,
+			CSSValueSyntax syntax) {
+		DimensionalAnalyzer danal = new DimensionalAnalyzer();
+		Dimension dim;
+		try {
+			dim = ((MathFunctionUnitImpl) lexicalUnit).dimension(danal);
+		} catch (DOMException e) {
+			return Match.FALSE;
+		}
+		return dim != null ? dim.matches(syntax) : Match.PENDING;
+	}
+
+	private static Match matchEnv(LexicalUnitImpl lexicalUnit, CSSValueSyntax rootSyntax,
+			CSSValueSyntax syntax) {
+		LexicalUnitImpl param = lexicalUnit.parameters;
+		String name = param.getStringValue();
+		LexicalUnitImpl fallback;
+		do {
+			param = param.nextLexicalUnit;
+			if (param == null) {
+				fallback = null;
+				break;
+			}
+			if (param.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
+				fallback = param.nextLexicalUnit;
+				break;
+			}
+		} while (true);
+
+		return CSSUtil.matchEnv(rootSyntax, syntax, name, fallback);
+	}
+
 	/**
 	 * Match the syntax category of a type with a given category.
 	 * 
@@ -1011,39 +1114,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 	private static boolean hasNoSiblings(LexicalUnit lexicalUnit) {
 		return lexicalUnit.getNextLexicalUnit() == null
 				&& lexicalUnit.getPreviousLexicalUnit() == null;
-	}
-
-	private static Match matchFunction(String func, CSSValueSyntax rootSyntax,
-			CSSValueSyntax syntax) {
-		Category cat = syntax.getCategory();
-		if (func.endsWith("-gradient") || func.equals("image") || func.equals("image-set")
-				|| func.equals("cross-fade")) {
-			return matchBoolean(cat == Category.image);
-		} else if (func.equals("env")) {
-			return Match.PENDING;
-		} else {
-			return matchBoolean((cat == Category.transformFunction || cat == Category.transformList)
-					&& ParseHelper.isTransformFunction(func));
-		}
-	}
-
-	private static boolean isNumericCategory(Category cat) {
-		switch (cat) {
-		case number:
-		case integer:
-		case length:
-		case percentage:
-		case lengthPercentage:
-		case angle:
-		case time:
-		case frequency:
-		case resolution:
-		case flex:
-			return true;
-		default:
-			break;
-		}
-		return false;
 	}
 
 	@Override

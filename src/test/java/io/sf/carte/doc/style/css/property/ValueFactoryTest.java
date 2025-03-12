@@ -285,7 +285,7 @@ public class ValueFactoryTest {
 		assertFalse(ValueFactory.isLengthSACUnit(lunit));
 
 		lunit = parsePropertyValue("-webkit-calc(100px - 6rem)");
-		assertTrue(ValueFactory.isLengthSACUnit(lunit));
+		assertFalse(ValueFactory.isLengthSACUnit(lunit));
 
 		lunit = parsePropertyValue("3s");
 		assertFalse(ValueFactory.isLengthSACUnit(lunit));
@@ -348,7 +348,7 @@ public class ValueFactoryTest {
 		assertTrue(ValueFactory.isLengthPercentageSACUnit(lunit));
 
 		lunit = parsePropertyValue("-webkit-calc(100% - 16px)");
-		assertTrue(ValueFactory.isLengthPercentageSACUnit(lunit));
+		assertFalse(ValueFactory.isLengthPercentageSACUnit(lunit));
 
 		lunit = parsePropertyValue("3s");
 		assertFalse(ValueFactory.isLengthPercentageSACUnit(lunit));
@@ -401,7 +401,7 @@ public class ValueFactoryTest {
 		assertTrue(ValueFactory.isResolutionSACUnit(lunit));
 
 		lunit = parsePropertyValue("-o-calc(2*3dpi)");
-		assertTrue(ValueFactory.isResolutionSACUnit(lunit));
+		assertFalse(ValueFactory.isResolutionSACUnit(lunit));
 
 		lunit = parsePropertyValue("2px");
 		assertFalse(ValueFactory.isResolutionSACUnit(lunit));
@@ -461,7 +461,7 @@ public class ValueFactoryTest {
 		assertTrue(ValueFactory.isPositiveSizeSACUnit(lunit));
 
 		lunit = parsePropertyValue("-o-calc(300px - 2vw)");
-		assertTrue(ValueFactory.isPositiveSizeSACUnit(lunit));
+		assertFalse(ValueFactory.isPositiveSizeSACUnit(lunit));
 
 		lunit = parsePropertyValue("sqrt(1px*2em)");
 		assertTrue(ValueFactory.isPositiveSizeSACUnit(lunit));
@@ -512,7 +512,7 @@ public class ValueFactoryTest {
 		assertTrue(ValueFactory.isLengthOrNumberSACUnit(lunit));
 
 		lunit = parsePropertyValue("-o-calc(3px)");
-		assertTrue(ValueFactory.isLengthOrNumberSACUnit(lunit));
+		assertFalse(ValueFactory.isLengthOrNumberSACUnit(lunit));
 
 		lunit = parsePropertyValue("calc(300px - 2vw)");
 		assertTrue(ValueFactory.isLengthOrNumberSACUnit(lunit));
@@ -575,7 +575,7 @@ public class ValueFactoryTest {
 		assertTrue(ValueFactory.isSizeOrNumberSACUnit(lunit));
 
 		lunit = parsePropertyValue("-o-calc(3px)");
-		assertTrue(ValueFactory.isSizeOrNumberSACUnit(lunit));
+		assertFalse(ValueFactory.isSizeOrNumberSACUnit(lunit));
 
 		lunit = parsePropertyValue("calc(300px - 2%)");
 		assertTrue(ValueFactory.isSizeOrNumberSACUnit(lunit));
@@ -694,8 +694,11 @@ public class ValueFactoryTest {
 		lunit = parsePropertyValue("calc(2*3deg + 4rad/2rad*7deg - 2rad*3rad/4rad)");
 		assertTrue(ValueFactory.isAngleOrPercentageSACUnit(lunit));
 
-		lunit = parsePropertyValue("-o-calc(3deg*2 - 1/2rad*1grad*0.1turn)");
+		lunit = parsePropertyValue("calc(3deg*2 - 1/2rad*1grad*0.1turn)");
 		assertTrue(ValueFactory.isAngleOrPercentageSACUnit(lunit));
+
+		lunit = parsePropertyValue("-o-calc(3deg*2 - 1/2rad*1grad*0.1turn)");
+		assertFalse(ValueFactory.isAngleOrPercentageSACUnit(lunit));
 
 		lunit = parsePropertyValue("calc(3px)");
 		assertFalse(ValueFactory.isAngleOrPercentageSACUnit(lunit));
@@ -764,7 +767,7 @@ public class ValueFactoryTest {
 		assertTrue(ValueFactory.isTimeSACUnit(lunit));
 
 		lunit = parsePropertyValue("-o-calc(1/50Hz)");
-		assertTrue(ValueFactory.isTimeSACUnit(lunit));
+		assertFalse(ValueFactory.isTimeSACUnit(lunit));
 
 		lunit = parsePropertyValue("foo(3px)");
 		assertFalse(ValueFactory.isTimeSACUnit(lunit));

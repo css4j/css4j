@@ -18,12 +18,9 @@ import java.util.List;
 import java.util.Set;
 
 import io.sf.carte.doc.style.css.CSSValue.Type;
-import io.sf.carte.doc.style.css.CSSValueSyntax;
-import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
-import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
@@ -33,9 +30,6 @@ import io.sf.carte.doc.style.css.property.ValueList;
  * Shorthand setter for the <code>background</code> property.
  */
 class BackgroundShorthandSetter extends ShorthandSetter {
-
-	private static CSSValueSyntax lengthPercentage = new SyntaxParser()
-		.parseSyntax("<length-percentage>");
 
 	private StringBuilder layerBuffer = null, miniLayerBuffer = null;
 	private int layerCount = 0;
@@ -92,7 +86,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		List<LexicalUnit> unknownValues = null;
 
 		layerBuffer = new StringBuilder(64);
@@ -127,6 +121,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 					currentValue = currentValue.getNextLexicalUnit();
 					break;
 				}
+
 				// If a css-wide keyword is found, set the entire layer to it
 				LexicalType lutype = currentValue.getLexicalUnitType();
 				if (lutype == LexicalType.INHERIT || lutype == LexicalType.INITIAL || lutype == LexicalType.UNSET
@@ -162,6 +157,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 					}
 					continue topLoop;
 				}
+
 				// try to assign the current lexical value to an individual
 				// property ...and see the result
 				switch (assignLayerValue(i, subp)) {
@@ -182,12 +178,17 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 				case 3:
 					validLayer = false;
 					break valueLoop;
+				case 4:
+					flush();
+					return 1;
 				}
 			}
+
 			if (unknownValues != null) {
 				handleLayerUnknownValues(subp, unknownValues);
 				unknownValues = null; // help gc
 			}
+
 			if (!validLayer) {
 				layerBuffer.setLength(0);
 				miniLayerBuffer.setLength(0);
@@ -197,8 +198,9 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 					msgbuf.append(' ').append(currentValue.toString());
 				}
 				reportDeclarationError("background", msgbuf.toString());
-				return false;
+				return 2;
 			}
+
 			// Now set the remaining properties
 			assignPendingValues(i, subp);
 			if (subp.size() > 0) {
@@ -227,7 +229,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 		// flush the properties
 		flush();
 
-		return true;
+		return 0;
 	}
 
 	private void clearLayer(Set<String> subp, int i) {
@@ -276,7 +278,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	 * @param subp
 	 * @return 0 if the value was successfully assigned, 1 if the assigned property was
 	 *         'background-color', 2 if the current value could not be assigned, 3 if a valid
-	 *         size value was not found after a slash.
+	 *         size value was not found after a slash, 4 if a prefixed value was found.
 	 */
 	private byte assignLayerValue(int i, Set<String> subp) {
 		byte retVal;
@@ -299,6 +301,9 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 				currentValue = currentValue.getNextLexicalUnit();
 				if (currentValue != null && testBackgroundSize(i, subp)) {
 					nextCurrentValue();
+				} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
+					setPrefixedValue(currentValue);
+					retVal = 4;
 				} else {
 					// Report error: size not found after slash.
 					StyleDeclarationErrorHandler eh = styleDeclaration.getStyleDeclarationErrorHandler();
@@ -334,6 +339,9 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			subp.remove("background-clip");
 			geometryBox = null;
 			retVal = 0;
+		} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
+			setPrefixedValue(currentValue);
+			retVal = 4;
 		} else {
 			retVal = 2;
 		}
@@ -439,7 +447,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			while (nlu != null && count < 4) { // Up to 4 values per layer
 				if ((nlu.getLexicalUnitType() == LexicalType.IDENT
 						&& getShorthandDatabase().isIdentifierValue("background-position", nlu.getStringValue()))
-						|| ValueFactory.isLengthPercentageSACUnit(nlu) || nlu.matches(lengthPercentage) == Match.TRUE) {
+						|| ValueFactory.isLengthPercentageSACUnit(nlu)) {
 					value = createCSSValue("background-position", nlu);
 					list.add(value);
 					count++;
@@ -502,7 +510,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			if (nlu != null) {
 				if ((nlu.getLexicalUnitType() == LexicalType.IDENT
 						&& getShorthandDatabase().isIdentifierValue("background-size", nlu.getStringValue()))
-						|| ValueFactory.isLengthPercentageSACUnit(nlu) || nlu.matches(lengthPercentage) == Match.TRUE) {
+						|| ValueFactory.isLengthPercentageSACUnit(nlu)) {
 					value = createCSSValue("background-size", nlu);
 					list.add(value);
 					nextCurrentValue();

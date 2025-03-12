@@ -132,6 +132,12 @@ public class LexicalValueTest {
 		value.setCssText("element(var(--foo))");
 		assertEquals(Type.ELEMENT_REFERENCE, value.getFinalType());
 
+		value.setCssText("conic-gradient(from 45deg, #21a, var(--foo))");
+		assertEquals(Type.GRADIENT, value.getFinalType());
+
+		value.setCssText("-o-conic-gradient(from 45deg, #21a, var(--foo))");
+		assertEquals(Type.FUNCTION, value.getFinalType());
+
 		value.setCssText("foo(0.42, 0, 1, var(--arg4))");
 		assertEquals(Type.FUNCTION, value.getFinalType());
 
@@ -339,6 +345,39 @@ public class LexicalValueTest {
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
 		assertEquals("--foo: ;\n", style.getCssText());
 		assertEquals("--foo:", style.getMinifiedCssText());
+	}
+
+	@Test
+	public void testCubicBezier_Attr() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText(
+				"animation-timing-function:cubic-bezier(attr(data-x1 type(<number>)), attr(data-y1 type(<number>)), attr(data-x2 type(<number>)), attr(data-y2 type(<number>)))");
+		StyleValue cssval = style.getPropertyCSSValue("animation-timing-function");
+		assertEquals(
+				"cubic-bezier(attr(data-x1 type(<number>)), attr(data-y1 type(<number>)), attr(data-x2 type(<number>)), attr(data-y2 type(<number>)))",
+				cssval.getCssText());
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+		assertEquals(
+				"cubic-bezier(attr(data-x1 type(<number>)),attr(data-y1 type(<number>)),attr(data-x2 type(<number>)),attr(data-y2 type(<number>)))",
+				cssval.getMinifiedCssText());
+
+		assertEquals(Type.CUBIC_BEZIER, ((CSSLexicalValue) cssval).getFinalType());
+	}
+
+	@Test
+	public void testCubicBezier_Var() {
+		BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration();
+		style.setCssText("animation-timing-function:cubic-bezier(0.33, var(--y1-x2y2))");
+		StyleValue cssval = style.getPropertyCSSValue("animation-timing-function");
+		assertEquals("cubic-bezier(0.33, var(--y1-x2y2))", cssval.getCssText());
+
+		assertEquals(CssType.PROXY, cssval.getCssValueType());
+		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
+		assertEquals("cubic-bezier(0.33,var(--y1-x2y2))", cssval.getMinifiedCssText());
+
+		assertEquals(Type.CUBIC_BEZIER, ((CSSLexicalValue) cssval).getFinalType());
 	}
 
 	@Test

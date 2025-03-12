@@ -15,10 +15,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueList;
@@ -27,6 +29,10 @@ import io.sf.carte.doc.style.css.property.ValueList;
  * Shorthand setter for the <code>animation</code> property.
  */
 class AnimationShorthandSetter extends ShorthandSetter {
+
+	private final CSSValueSyntax syntaxEasing = SyntaxParser.createSimpleSyntax("easing-function");
+	private final CSSValueSyntax syntaxNumber = SyntaxParser.createSimpleSyntax("number");
+	private final CSSValueSyntax syntaxTime = SyntaxParser.createSimpleSyntax("time");
 
 	private StringBuilder layerBuffer = null, miniLayerBuffer = null;
 	private int layerCount = 0;
@@ -82,14 +88,14 @@ class AnimationShorthandSetter extends ShorthandSetter {
 	}
 
 	@Override
-	public boolean assignSubproperties() {
+	public short assignSubproperties() {
 		IdentifierValue normalIdent = new IdentifierValue("normal");
 		normalIdent.setSubproperty(true);
 		StyleValue rangeValue = normalIdent;
-		//
+
 		layerBuffer = new StringBuilder(64);
 		miniLayerBuffer = new StringBuilder(64);
-		//
+
 		String[] subparray = getShorthandSubproperties();
 		int i = 0;
 		topLoop: while (i < layerCount && currentValue != null) {
@@ -128,7 +134,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 							eh.shorthandSyntaxError(getShorthandName(),
 									"Keyword found mixed with other values.");
 						}
-						return false;
+						return 2;
 					}
 					// Add a single keyword value
 					addSingleValueLayer(keyword);
@@ -140,12 +146,17 @@ class AnimationShorthandSetter extends ShorthandSetter {
 				}
 				// try to assign the current lexical value to an individual
 				// property ...and see the result
-				if (assignLayerValue(subp)) {
+				switch (assignLayerValue(subp)) {
+				case 0:
 					validLayer = true;
-				} else {
+					break;
+				case 1:
 					reportUnknownValue(subp, currentValue);
 					validLayer = false;
 					break valueLoop;
+				case 2:
+					flush();
+					return 1;
 				}
 			}
 			if (!validLayer) {
@@ -157,8 +168,8 @@ class AnimationShorthandSetter extends ShorthandSetter {
 					msgbuf.append(' ').append(currentValue.toString());
 				}
 				reportDeclarationError("animation", msgbuf.toString());
-				return false;
-			} else if (subp.size() > 0) {
+				return 2;
+			} else if (!subp.isEmpty()) {
 				// Reset subproperties not set by this shorthand at this single
 				// animation
 				resetUnsetProperties(subp);
@@ -183,7 +194,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 		// flush the properties
 		flush();
 
-		return true;
+		return 0;
 	}
 
 	private void addSingleValueLayer(StyleValue keyword) {
@@ -203,56 +214,12 @@ class AnimationShorthandSetter extends ShorthandSetter {
 	 * 
 	 * @param i
 	 * @param subp
-	 * @return <code>true</code> if the value was successfully assigned.
+	 * @return <code>0</code> if the value was successfully assigned, <code>1</code>
+	 *         if error, <code>2</code> if a prefixed value was found.
 	 */
-	private boolean assignLayerValue(Set<String> subp) {
-		short cssunit = currentValue.getCssUnit();
-		LexicalType type;
-		if (cssunit == CSSUnit.CSS_S || cssunit == CSSUnit.CSS_MS) {
-			ValueList list;
-			String property = "animation-duration";
-			if (!subp.contains(property)) {
-				property = "animation-delay";
-				if (!subp.contains(property)) {
-					return false;
-				}
-				list = lstDelay;
-			} else {
-				list = lstDuration;
-			}
-			list.add(createCSSValue(property, currentValue));
-			subp.remove(property);
-			nextCurrentValue();
-		} else if ((type = currentValue.getLexicalUnitType()) == LexicalType.INTEGER) {
-			int ivalue = currentValue.getIntegerValue();
-			if (ivalue < 0) {
-				return false;
-			}
-			return setIterationCountValue(subp);
-		} else if (type == LexicalType.REAL) {
-			float fvalue = currentValue.getFloatValue();
-			if (fvalue < 0f) {
-				return false;
-			}
-			return setIterationCountValue(subp);
-		} else if (type == LexicalType.CUBIC_BEZIER_FUNCTION
-				|| type == LexicalType.STEPS_FUNCTION) {
-			if (!subp.contains("animation-timing-function")) {
-				return false;
-			}
-			lstTimingFunction.add(createCSSValue("animation-timing-function", currentValue));
-			subp.remove("animation-timing-function");
-			nextCurrentValue();
-		} else if (type == LexicalType.FUNCTION) {
-			if (!subp.contains("animation-timeline")
-					|| (!"scroll".equalsIgnoreCase(currentValue.getFunctionName())
-							&& !"view".equalsIgnoreCase(currentValue.getFunctionName()))) {
-				return false;
-			}
-			lstTimeline.add(createCSSValue("animation-timeline", currentValue));
-			subp.remove("animation-timeline");
-			nextCurrentValue();
-		} else if (type == LexicalType.IDENT) {
+	private short assignLayerValue(Set<String> subp) {
+		LexicalType type = currentValue.getLexicalUnitType();
+		if (type == LexicalType.IDENT) {
 			if (subp.contains("animation-timing-function")
 					&& testIdentifiers("transition-timing-function")) {
 				lstTimingFunction.add(createCSSValue("animation-timing-function", currentValue));
@@ -260,6 +227,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 				subp.remove("animation-timing-function");
 			} else if (subp.contains("animation-iteration-count")
 					&& testIdentifiers("animation-iteration-count")) {
+				// infinite
 				lstIterationCount.add(createCSSValue("animation-iteration-count", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-iteration-count");
@@ -289,30 +257,94 @@ class AnimationShorthandSetter extends ShorthandSetter {
 				lstTimeline.add(createCSSValue("animation-timeline", currentValue));
 				nextCurrentValue();
 				subp.remove("animation-timeline");
+			} else if (subp.contains("animation-duration")
+					&& "auto".equalsIgnoreCase(currentValue.getStringValue())) {
+				lstDuration.add(createCSSValue("animation-duration", currentValue));
+				nextCurrentValue();
+				subp.remove("animation-duration");
+			} else if (isPrefixedIdentValue()) {
+				setPrefixedValue(currentValue);
+				return 2;
 			} else {
-				return false;
+				return 1;
 			}
+		} else if (type == LexicalType.INTEGER) {
+			int ivalue = currentValue.getIntegerValue();
+			if (ivalue < 0) {
+				return 1;
+			}
+			return setIterationCountValue(subp);
+		} else if (type == LexicalType.REAL) {
+			float fvalue = currentValue.getFloatValue();
+			if (fvalue < 0f) {
+				return 1;
+			}
+			return setIterationCountValue(subp);
+		} else if (currentValue.shallowMatch(syntaxNumber) == Match.TRUE) {
+			return setIterationCountValue(subp);
+		} else if (type == LexicalType.FUNCTION) {
+			if (!subp.contains("animation-timeline")
+					|| (!"scroll".equals(currentValue.getFunctionName())
+							&& !"view".equals(currentValue.getFunctionName()))) {
+				return 1;
+			}
+			lstTimeline.add(createCSSValue("animation-timeline", currentValue));
+			subp.remove("animation-timeline");
+			nextCurrentValue();
+		} else if (currentValue.shallowMatch(syntaxTime) == Match.TRUE) {
+			ValueList list;
+			String property = "animation-duration";
+			if (!subp.contains(property)) {
+				property = "animation-delay";
+				if (!subp.contains(property)) {
+					return 1;
+				}
+				list = lstDelay;
+			} else {
+				list = lstDuration;
+			}
+			list.add(createCSSValue(property, currentValue));
+			subp.remove(property);
+			nextCurrentValue();
+		} else if (currentValue.shallowMatch(syntaxEasing) == Match.TRUE) {
+			if (!subp.contains("animation-timing-function")) {
+				return 1;
+			}
+			lstTimingFunction.add(createCSSValue("animation-timing-function", currentValue));
+			subp.remove("animation-timing-function");
+			nextCurrentValue();
 		} else if (type == LexicalType.STRING) {
 			if (!subp.contains("animation-name")) {
-				return false;
+				return 1;
 			}
 			lstName.add(createCSSValue("animation-name", currentValue));
 			nextCurrentValue();
 			subp.remove("animation-name");
+		} else if (type == LexicalType.PREFIXED_FUNCTION) {
+			setPrefixedValue(currentValue);
+			return 2;
 		} else {
-			return false;
+			return 1;
 		}
-		return true;
+
+		return 0;
 	}
 
-	private boolean setIterationCountValue(Set<String> subp) {
+	/**
+	 * Set the animation-iteration-count value.
+	 * 
+	 * @param subp the set of remaining longhand properties.
+	 * @return <code>0</code> if the value was successfully assigned, <code>1</code>
+	 *         if error.
+	 */
+	private short setIterationCountValue(Set<String> subp) {
 		if (!subp.contains("animation-iteration-count")) {
-			return false;
+			return 1;
 		}
 		lstIterationCount.add(createCSSValue("animation-iteration-count", currentValue));
 		subp.remove("animation-iteration-count");
 		nextCurrentValue();
-		return true;
+		return 0;
 	}
 
 	private void reportUnknownValue(Set<String> subp, LexicalUnit unknownValue) {

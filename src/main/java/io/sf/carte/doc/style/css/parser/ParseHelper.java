@@ -1130,7 +1130,7 @@ public class ParseHelper {
 	 * @return {@code true} if the character sequence represented by the second
 	 *         argument is a prefix of the character sequence in the first argument;
 	 */
-	public static boolean startsWithIgnoreCase(CharSequence seq, String lcString) {
+	public static boolean startsWithIgnoreCase(CharSequence seq, CharSequence lcString) {
 		int seqLen = seq.length();
 		int len = lcString.length();
 
@@ -1142,6 +1142,36 @@ public class ParseHelper {
 			char c = seq.charAt(i);
 			char lc = lcString.charAt(i);
 			if (c != lc && (Character.isLowerCase(c) || Character.toLowerCase(c) != lc)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Tests if the given {@code CharSequence} ends with the specified lower case
+	 * string, but ignoring the case of the first argument.
+	 * 
+	 * @param seq      the non-{@code null} sequence to check.
+	 * @param lcString the non-{@code null} lower case suffix that should be
+	 *                 matched.
+	 * @return {@code true} if the character sequence represented by the second
+	 *         argument is a suffix of the character sequence in the first argument;
+	 */
+	public static boolean endsWithIgnoreCase(CharSequence seq, CharSequence lcString) {
+		int seqLen = seq.length();
+		int len = lcString.length();
+
+		int minidx = seqLen - len;
+
+		if (minidx < 0) {
+			return false;
+		}
+
+		for (int i = len - 1; i >= minidx; i--) {
+			char c = seq.charAt(i);
+			char lc = lcString.charAt(i);
+			if (c != lc && Character.toLowerCase(c) != lc) {
 				return false;
 			}
 		}
@@ -1235,22 +1265,6 @@ public class ParseHelper {
 		lu.setCssUnit(unit);
 		lu.dimensionUnitText = CSSUnit.dimensionUnitString(unit);
 		return lu;
-	}
-
-	/**
-	 * For internal use by the library, may be removed in the future.
-	 * <p>
-	 * Determine if the name is a transform function.
-	 * </p>
-	 * 
-	 * @param functionName the function name.
-	 * @return true if the name is a transform function.
-	 */
-	public static boolean isTransformFunction(String functionName) {
-		return functionName.equals("matrix") || functionName.equals("translate") || functionName.equals("translateX")
-				|| functionName.equals("translateY") || functionName.equals("scale") || functionName.equals("scaleX")
-				|| functionName.equals("scaleY") || functionName.equals("rotate") || functionName.equals("skew")
-				|| functionName.equals("skewX") || functionName.equals("skewY");
 	}
 
 }

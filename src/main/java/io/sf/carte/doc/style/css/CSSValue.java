@@ -117,10 +117,10 @@ public interface CSSValue extends Cloneable {
 		/**
 		 * Numeric type (excludes {@code calc()} which is an {@link #EXPRESSION}).
 		 * <p>
-		 * Casting to {@link CSSTypedValue} or
-		 * {@link io.sf.carte.doc.style.css.property.TypedValue TypedValue} should give
-		 * you what you need (like the numeric value via
-		 * {@link CSSTypedValue#getFloatValue(short) getFloatValue}). If it does not,
+		 * Cast to {@link CSSNumberValue}, although {@link CSSTypedValue} or
+		 * {@link io.sf.carte.doc.style.css.property.TypedValue TypedValue} may give you
+		 * what you need (like the numeric value via
+		 * {@link CSSTypedValue#getFloatValue(short) getFloatValue}). If neither do,
 		 * please look at {@link io.sf.carte.doc.style.css.property.NumberValue
 		 * NumberValue}.
 		 * </p>
@@ -266,6 +266,14 @@ public interface CSSValue extends Cloneable {
 		CUBIC_BEZIER,
 
 		/**
+		 * <code>linear()</code> easing function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		LINEAR,
+
+		/**
 		 * <code>steps()</code> easing function.
 		 * <p>
 		 * Cast to {@link CSSFunctionValue}.
@@ -369,6 +377,188 @@ public interface CSSValue extends Cloneable {
 		XYWH,
 
 		/**
+		 * {@code matrix()} function (see
+		 * <a href="https://www.w3.org/TR/css-transforms-1/#typedef-transform-function">CSS
+		 * Transforms Module Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		MATRIX,
+
+		/**
+		 * {@code perspective()} function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		PERSPECTIVE,
+
+		/**
+		 * {@code translate()} function (see
+		 * <a href="https://www.w3.org/TR/css-transforms-1/#typedef-transform-function">CSS
+		 * Transforms Module Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		TRANSLATE,
+
+		/**
+		 * {@code translate3d()} function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		TRANSLATE_3D,
+
+		/**
+		 * {@code translateX()} function (see
+		 * <a href="https://www.w3.org/TR/css-transforms-1/#typedef-transform-function">CSS
+		 * Transforms Module Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		TRANSLATE_X,
+
+		/**
+		 * {@code translateY()} function (see
+		 * <a href="https://www.w3.org/TR/css-transforms-1/#typedef-transform-function">CSS
+		 * Transforms Module Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		TRANSLATE_Y,
+
+		/**
+		 * {@code translateZ()} function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		TRANSLATE_Z,
+
+		/**
+		 * {@code scale()} function (see
+		 * <a href="https://www.w3.org/TR/css-transforms-1/#typedef-transform-function">CSS
+		 * Transforms Module Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		SCALE,
+
+		/**
+		 * {@code scale3d()} function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		SCALE_3D,
+
+		/**
+		 * {@code scaleX()} function (see
+		 * <a href="https://www.w3.org/TR/css-transforms-1/#typedef-transform-function">CSS
+		 * Transforms Module Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		SCALE_X,
+
+		/**
+		 * {@code scaleY()} function (see
+		 * <a href="https://www.w3.org/TR/css-transforms-1/#typedef-transform-function">CSS
+		 * Transforms Module Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		SCALE_Y,
+
+		/**
+		 * {@code scaleZ()} function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		SCALE_Z,
+
+		/**
+		 * {@code rotate()} function (see
+		 * <a href="https://www.w3.org/TR/css-transforms-1/#typedef-transform-function">CSS
+		 * Transforms Module Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		ROTATE,
+
+		/**
+		 * {@code rotate3d()} function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		ROTATE_3D,
+
+		/**
+		 * {@code rotateX()} function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		ROTATE_X,
+
+		/**
+		 * {@code rotateY()} function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		ROTATE_Y,
+
+		/**
+		 * {@code rotateZ()} function.
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		ROTATE_Z,
+
+		/**
+		 * {@code skew()} function (see
+		 * <a href="https://www.w3.org/TR/css-transforms-1/#typedef-transform-function">CSS
+		 * Transforms Module Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		SKEW,
+
+		/**
+		 * {@code skewX()} function (see
+		 * <a href="https://www.w3.org/TR/css-transforms-1/#typedef-transform-function">CSS
+		 * Transforms Module Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		SKEW_X,
+
+		/**
+		 * {@code skewY()} function (see
+		 * <a href="https://www.w3.org/TR/css-transforms-1/#typedef-transform-function">CSS
+		 * Transforms Module Level 1</a>).
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		SKEW_Y,
+
+		/**
 		 * Unicode range. See {@link CSSUnicodeRangeValue}.
 		 */
 		UNICODE_RANGE,
@@ -382,6 +572,14 @@ public interface CSSValue extends Cloneable {
 		 * Unicode wildcard. See {@link CSSUnicodeRangeValue}.
 		 */
 		UNICODE_WILDCARD,
+
+		/**
+		 * {@code image-set()}
+		 * <p>
+		 * Cast to {@link CSSFunctionValue}.
+		 * </p>
+		 */
+		IMAGE_SET,
 
 		/**
 		 * Element reference.
