@@ -171,10 +171,10 @@ class ColorFunction extends ColorValue {
 		LABColorImpl labColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
 		switch (this.color.getColorModel()) {
 		case RGB:
-			((ProfiledRGBColor) this.color).toLABColor(labColor);
+			this.color.toLABColor(labColor);
 			break;
 		case XYZ:
-			((XYZColorImpl) this.color).toLABColor(labColor);
+			this.color.toLABColor(labColor);
 			break;
 		default:
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Color space is not supported.");
@@ -336,10 +336,10 @@ class ColorFunction extends ColorValue {
 		LABColorImpl lab = (LABColorImpl) labColor.getColor();
 		switch (color.getColorModel()) {
 		case RGB:
-			((ProfiledRGBColor) color).toLABColor(lab);
+			color.toLABColor(lab);
 			break;
 		case XYZ:
-			((XYZColorImpl) color).toLABColor(lab);
+			color.toLABColor(lab);
 			break;
 		default:
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Custom profiles are not suported.");

@@ -426,7 +426,7 @@ public class XHTMLDocumentTest {
 		assertEquals(1, tablelist.getLength());
 		DOMElement elem = tablelist.item(0);
 		assertEquals("table", elem.getNodeName());
-		ElementList list = ((HTMLElement) elem.getElementsByTagName("tr").item(0))
+		ElementList list = elem.getElementsByTagName("tr").item(0)
 				.getElementsByClassName("tablecclass");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());

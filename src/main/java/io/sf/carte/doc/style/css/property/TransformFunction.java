@@ -14,7 +14,7 @@ import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 
 /**
- * Easing function.
+ * Transform function.
  * 
  */
 class TransformFunction extends FunctionValue {
