@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 
 /**
@@ -20,8 +21,8 @@ class AngleFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	private static final long serialVersionUID = 1L;
 
-	public AngleFunctionUnitImpl(int functionIndex) {
-		super(functionIndex);
+	public AngleFunctionUnitImpl(MathFunction functionID) {
+		super(functionID);
 	}
 
 	@Override
@@ -34,7 +35,7 @@ class AngleFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	@Override
 	AngleFunctionUnitImpl instantiateLexicalUnit() {
-		return new AngleFunctionUnitImpl(getMathFunctionIndex());
+		return new AngleFunctionUnitImpl(getMathFunction());
 	}
 
 }

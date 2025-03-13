@@ -13,14 +13,15 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 
 class PowFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	private static final long serialVersionUID = 1L;
 
-	public PowFunctionUnitImpl(int functionIndex) {
-		super(functionIndex);
+	public PowFunctionUnitImpl(MathFunction functionID) {
+		super(functionID);
 	}
 
 	@Override
@@ -87,7 +88,7 @@ class PowFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	@Override
 	PowFunctionUnitImpl instantiateLexicalUnit() {
-		return new PowFunctionUnitImpl(getMathFunctionIndex());
+		return new PowFunctionUnitImpl(getMathFunction());
 	}
 
 }

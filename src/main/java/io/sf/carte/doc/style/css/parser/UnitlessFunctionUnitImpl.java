@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 
@@ -20,8 +21,8 @@ class UnitlessFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	CSSValueSyntax syntax;
 
-	public UnitlessFunctionUnitImpl(int functionIndex) {
-		super(functionIndex);
+	public UnitlessFunctionUnitImpl(MathFunction functionID) {
+		super(functionID);
 	}
 
 	@Override
@@ -33,7 +34,7 @@ class UnitlessFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	@Override
 	UnitlessFunctionUnitImpl instantiateLexicalUnit() {
-		return new UnitlessFunctionUnitImpl(getMathFunctionIndex());
+		return new UnitlessFunctionUnitImpl(getMathFunction());
 	}
 
 }

@@ -21,6 +21,7 @@ import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
+import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
@@ -30,7 +31,6 @@ import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueList;
-import io.sf.carte.doc.style.css.MathFunctions;
 
 /**
  * Expression/Function evaluator.
@@ -56,9 +56,9 @@ public class Evaluator {
 	}
 
 	private static FunctionEvaluator[] loadFunctionEvaluators() {
-		FunctionEvaluator[] evals = new FunctionEvaluator[MathFunctions.INDEX_COUNT];
+		FunctionEvaluator[] evals = new FunctionEvaluator[MathFunction.OTHER.ordinal()];
 
-		evals[MathFunctions.ABS] = new FunctionEvaluator() {
+		evals[MathFunction.ABS.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -68,7 +68,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.CLAMP] = new FunctionEvaluator() {
+		evals[MathFunction.CLAMP.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -78,7 +78,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.MAX] = new FunctionEvaluator() {
+		evals[MathFunction.MAX.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -88,7 +88,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.MIN] = new FunctionEvaluator() {
+		evals[MathFunction.MIN.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -98,7 +98,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.ROUND] = new FunctionEvaluator() {
+		evals[MathFunction.ROUND.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -108,7 +108,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.MOD] = new FunctionEvaluator() {
+		evals[MathFunction.MOD.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -118,7 +118,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.REM] = new FunctionEvaluator() {
+		evals[MathFunction.REM.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -128,7 +128,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.HYPOT] = new FunctionEvaluator() {
+		evals[MathFunction.HYPOT.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -138,7 +138,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.HYPOT2] = new FunctionEvaluator() {
+		evals[MathFunction.HYPOT2.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -148,7 +148,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.LOG] = new FunctionEvaluator() {
+		evals[MathFunction.LOG.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -158,7 +158,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.EXP] = new FunctionEvaluator() {
+		evals[MathFunction.EXP.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -168,7 +168,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.SQRT] = new FunctionEvaluator() {
+		evals[MathFunction.SQRT.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -178,7 +178,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.POW] = new FunctionEvaluator() {
+		evals[MathFunction.POW.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -188,7 +188,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.SIGN] = new FunctionEvaluator() {
+		evals[MathFunction.SIGN.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -198,7 +198,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.SIN] = new FunctionEvaluator() {
+		evals[MathFunction.SIN.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -208,7 +208,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.COS] = new FunctionEvaluator() {
+		evals[MathFunction.COS.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -218,7 +218,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.TAN] = new FunctionEvaluator() {
+		evals[MathFunction.TAN.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -228,7 +228,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.ASIN] = new FunctionEvaluator() {
+		evals[MathFunction.ASIN.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -238,7 +238,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.ACOS] = new FunctionEvaluator() {
+		evals[MathFunction.ACOS.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -248,7 +248,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.ATAN] = new FunctionEvaluator() {
+		evals[MathFunction.ATAN.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
@@ -258,7 +258,7 @@ public class Evaluator {
 
 		};
 
-		evals[MathFunctions.ATAN2] = new FunctionEvaluator() {
+		evals[MathFunction.ATAN2.ordinal()] = new FunctionEvaluator() {
 
 			@Override
 			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,

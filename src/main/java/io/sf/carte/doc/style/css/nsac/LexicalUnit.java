@@ -14,6 +14,7 @@
 package io.sf.carte.doc.style.css.nsac;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 
@@ -911,11 +912,22 @@ public interface LexicalUnit {
 	String getFunctionName();
 
 	/**
-	 * Gives the index of this unit as a mathematical function, according to
-	 * {@link io.sf.carte.doc.style.css.MathFunctions MathFunctions} .
+	 * Gives the ID of this unit as a mathematical function, according to
+	 * {@link MathFunction}.
 	 * 
-	 * @return the function index, or {@code -1} if this lexical unit is not a
+	 * @return the function enum, or {@code null} if this lexical unit is not a
 	 *         mathematical function ({@code MATH_FUNCTION}).
+	 * @see LexicalType#MATH_FUNCTION
+	 */
+	default MathFunction getMathFunction() {
+		return null;
+	}
+
+	/**
+	 * Gives the index of this unit as a mathematical function.
+	 * 
+	 * @return the zero-based function index, or {@code -1} if this lexical unit is
+	 *         not a mathematical function ({@code MATH_FUNCTION}).
 	 * @see LexicalType#MATH_FUNCTION
 	 */
 	default int getMathFunctionIndex() {

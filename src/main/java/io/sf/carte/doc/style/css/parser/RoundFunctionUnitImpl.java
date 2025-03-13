@@ -13,12 +13,14 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
+
 class RoundFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	private static final long serialVersionUID = 1L;
 
-	public RoundFunctionUnitImpl(int functionIndex) {
-		super(functionIndex);
+	public RoundFunctionUnitImpl(MathFunction functionID) {
+		super(functionID);
 	}
 
 	@Override
@@ -50,7 +52,7 @@ class RoundFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	@Override
 	RoundFunctionUnitImpl instantiateLexicalUnit() {
-		return new RoundFunctionUnitImpl(getMathFunctionIndex());
+		return new RoundFunctionUnitImpl(getMathFunction());
 	}
 
 }

@@ -586,7 +586,7 @@ public class ValueFactory implements CSSValueFactory {
 		if (!isOperatorType(lunit.getLexicalUnitType())) {
 			css = new UnknownValue();
 			css.setCssText(value);
-			((PrimitiveValue) css).newLexicalSetter().setLexicalUnit(lunit);
+			css.newLexicalSetter().setLexicalUnit(lunit);
 		} else {
 			css = null;
 		}
@@ -1142,7 +1142,7 @@ public class ValueFactory implements CSSValueFactory {
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case MATH_FUNCTION:
-				primi = new MathFunctionValue(lunit.getMathFunctionIndex());
+				primi = new MathFunctionValue(lunit.getMathFunction());
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case COLOR_MIX:

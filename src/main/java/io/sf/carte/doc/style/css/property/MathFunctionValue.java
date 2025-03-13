@@ -26,35 +26,33 @@ public class MathFunctionValue extends FunctionValue implements CSSMathFunctionV
 
 	private static final long serialVersionUID = 1L;
 
-	private final int functionIndex;
+	private final MathFunction functionType;
 
 	private boolean roundResult = false;
 
-	MathFunctionValue(int functionIndex) {
+	MathFunctionValue(MathFunction functionIndex) {
 		super(Type.MATH_FUNCTION);
-		this.functionIndex = functionIndex;
+		this.functionType = functionIndex;
 	}
 
 	MathFunctionValue(MathFunctionValue copied) {
 		super(copied);
-		this.functionIndex = copied.functionIndex;
+		this.functionType = copied.functionType;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public MathFunction getFunction() {
-		return MathFunctionHelper.getMathFunction(getFunctionName());
+		return functionType;
 	}
 
 	/**
-	 * Gives the index of this mathematical function, according to
-	 * {@link io.sf.carte.doc.style.css.MathFunctions MathFunctions} .
+	 * Gives the index of this mathematical function.
 	 * 
 	 * @return the function index.
 	 */
 	@Override
 	public int getFunctionIndex() {
-		return functionIndex;
+		return functionType.ordinal();
 	}
 
 	@Override
@@ -151,7 +149,7 @@ public class MathFunctionValue extends FunctionValue implements CSSMathFunctionV
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + functionIndex;
+		result = prime * result + functionType.hashCode();
 		return result;
 	}
 
@@ -167,7 +165,7 @@ public class MathFunctionValue extends FunctionValue implements CSSMathFunctionV
 			return false;
 		}
 		MathFunctionValue other = (MathFunctionValue) obj;
-		return functionIndex == other.functionIndex;
+		return functionType == other.functionType;
 	}
 
 	@Override

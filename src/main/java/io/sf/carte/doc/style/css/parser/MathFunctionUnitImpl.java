@@ -13,28 +13,40 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 abstract class MathFunctionUnitImpl extends LexicalUnitImpl {
 
 	private static final long serialVersionUID = 1L;
 
-	private final int functionIndex;
+	private final MathFunction functionID;
 
-	public MathFunctionUnitImpl(int functionIndex) {
+	public MathFunctionUnitImpl(MathFunction functionID) {
 		super(LexicalType.MATH_FUNCTION);
-		this.functionIndex = functionIndex;
+		this.functionID = functionID;
+	}
+
+	/**
+	 * Gives the ID of this unit as a mathematical function, according to
+	 * {@link MathFunction}.
+	 * 
+	 * @return the function enum.
+	 */
+	@Override
+	public MathFunction getMathFunction() {
+		return functionID;
 	}
 
 	/**
 	 * Gives the index of this mathematical function, according to
-	 * {@link io.sf.carte.doc.style.css.MathFunctions MathFunctions} .
+	 * {@link MathFunction}.
 	 * 
 	 * @return the function index.
 	 */
 	@Override
 	public int getMathFunctionIndex() {
-		return functionIndex;
+		return functionID.ordinal();
 	}
 
 	@Override
@@ -47,6 +59,27 @@ abstract class MathFunctionUnitImpl extends LexicalUnitImpl {
 		}
 		buf.append(')');
 		return buf;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + functionID.hashCode();
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		// super.equals implies MathFunctionUnitImpl instance
+		MathFunctionUnitImpl other = (MathFunctionUnitImpl) obj;
+		return functionID == other.functionID;
 	}
 
 	/**

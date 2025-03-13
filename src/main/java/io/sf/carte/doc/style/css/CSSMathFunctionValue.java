@@ -21,69 +21,131 @@ public interface CSSMathFunctionValue extends CSSFunctionValue, CSSMathValue {
 
 	/**
 	 * Enumeration of mathematical functions.
-	 * 
-	 * @deprecated see {@link MathFunctions}.
 	 */
-	@Deprecated
 	enum MathFunction {
-		/** {@code abs()} */
+		/**
+		 * {@code abs()} function.
+		 */
 		ABS,
 
-		/** {@code max()} */
-		MAX,
-
-		/** {@code min()} */
-		MIN,
-
-		/** {@code clamp()} */
+		/**
+		 * {@code clamp()} function.
+		 */
 		CLAMP,
 
-		/** {@code sign()} */
-		SIGN,
+		/**
+		 * {@code max()} function.
+		 */
+		MAX,
 
-		/** {@code sin()} */
-		SIN,
+		/**
+		 * {@code min()} function.
+		 */
+		MIN,
 
-		/** {@code cos()} */
-		COS,
+		/**
+		 * {@code round()} function.
+		 */
+		ROUND,
 
-		/** {@code tan()} */
-		TAN,
+		/**
+		 * {@code mod()} function.
+		 */
+		MOD,
 
-		/** {@code asin()} */
-		ASIN,
+		/**
+		 * {@code rem()} function.
+		 */
+		REM,
 
-		/** {@code acos()} */
-		ACOS,
+		/**
+		 * {@code hypot()} function.
+		 */
+		HYPOT,
 
-		/** {@code atan()} */
-		ATAN,
+		/**
+		 * {@code hypot2()} function.
+		 */
+		HYPOT2,
 
-		/** {@code atan2()} */
-		ATAN2,
+		/**
+		 * {@code log()} function.
+		 */
+		LOG,
 
-		/** {@code pow()} */
-		POW,
+		/**
+		 * {@code exp()} function.
+		 */
+		EXP,
 
-		/** {@code sqrt()} */
+		/**
+		 * {@code sqrt()} function.
+		 */
 		SQRT,
 
-		/** {@code hypot()} */
-		HYPOT
+		/**
+		 * {@code pow()} function.
+		 */
+		POW,
+
+		/**
+		 * {@code sign()} function.
+		 */
+		SIGN,
+
+		/**
+		 * {@code sin()} function.
+		 */
+		SIN,
+
+		/**
+		 * {@code cos()} function.
+		 */
+		COS,
+
+		/**
+		 * {@code tan()} function.
+		 */
+		TAN,
+
+		/**
+		 * {@code asin()} function.
+		 */
+		ASIN,
+
+		/**
+		 * {@code acos()} function.
+		 */
+		ACOS,
+
+		/**
+		 * {@code atan()} function.
+		 */
+		ATAN,
+
+		/**
+		 * {@code atan2()} function.
+		 */
+		ATAN2,
+
+		/**
+		 * Mainly used to know the number of functions via the ordinal.
+		 * <p>
+		 * Must always be the last declared constant.
+		 * </p>
+		 */
+		OTHER;
 	}
 
 	/**
 	 * Get the function type.
 	 * 
 	 * @return the function type.
-	 * @deprecated see {@link #getFunctionIndex()}.
 	 */
-	@Deprecated
 	MathFunction getFunction();
 
 	/**
-	 * Gives the index of this mathematical function, according to
-	 * {@link io.sf.carte.doc.style.css.MathFunctions MathFunctions} .
+	 * Gives the index of this mathematical function.
 	 * 
 	 * @return the function index.
 	 */

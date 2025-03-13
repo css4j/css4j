@@ -14,9 +14,9 @@ package io.sf.carte.doc.style.css.parser;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
-import io.sf.carte.doc.style.css.MathFunctions;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
@@ -662,7 +662,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new ScalingFunctionUnitImpl(MathFunctions.ABS);
+				return new ScalingFunctionUnitImpl(MathFunction.ABS);
 			}
 
 		});
@@ -671,7 +671,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new MultiArgScalingFunctionUnitImpl(MathFunctions.CLAMP);
+				return new MultiArgScalingFunctionUnitImpl(MathFunction.CLAMP);
 			}
 
 		});
@@ -680,7 +680,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new MultiArgScalingFunctionUnitImpl(MathFunctions.MAX);
+				return new MultiArgScalingFunctionUnitImpl(MathFunction.MAX);
 			}
 
 		});
@@ -689,7 +689,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new MultiArgScalingFunctionUnitImpl(MathFunctions.MIN);
+				return new MultiArgScalingFunctionUnitImpl(MathFunction.MIN);
 			}
 
 		});
@@ -698,7 +698,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new RoundFunctionUnitImpl(MathFunctions.ROUND);
+				return new RoundFunctionUnitImpl(MathFunction.ROUND);
 			}
 
 		});
@@ -707,7 +707,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new MultiArgScalingFunctionUnitImpl(MathFunctions.MOD);
+				return new MultiArgScalingFunctionUnitImpl(MathFunction.MOD);
 			}
 
 		});
@@ -716,7 +716,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new MultiArgScalingFunctionUnitImpl(MathFunctions.REM);
+				return new MultiArgScalingFunctionUnitImpl(MathFunction.REM);
 			}
 
 		});
@@ -725,7 +725,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new MultiArgScalingFunctionUnitImpl(MathFunctions.HYPOT);
+				return new MultiArgScalingFunctionUnitImpl(MathFunction.HYPOT);
 			}
 
 		});
@@ -734,7 +734,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new MultiArgScalingFunctionUnitImpl(MathFunctions.HYPOT2);
+				return new MultiArgScalingFunctionUnitImpl(MathFunction.HYPOT2);
 			}
 
 		});
@@ -743,7 +743,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new UnitlessFunctionUnitImpl(MathFunctions.LOG);
+				return new UnitlessFunctionUnitImpl(MathFunction.LOG);
 			}
 
 		});
@@ -752,7 +752,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new UnitlessFunctionUnitImpl(MathFunctions.EXP);
+				return new UnitlessFunctionUnitImpl(MathFunction.EXP);
 			}
 
 		});
@@ -761,7 +761,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new SqrtFunctionUnitImpl(MathFunctions.SQRT);
+				return new SqrtFunctionUnitImpl(MathFunction.SQRT);
 			}
 
 		});
@@ -770,7 +770,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new PowFunctionUnitImpl(MathFunctions.POW);
+				return new PowFunctionUnitImpl(MathFunction.POW);
 			}
 
 		});
@@ -779,7 +779,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new UnitlessFunctionUnitImpl(MathFunctions.SIGN);
+				return new UnitlessFunctionUnitImpl(MathFunction.SIGN);
 			}
 
 		});
@@ -788,7 +788,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new UnitlessFunctionUnitImpl(MathFunctions.SIN);
+				return new UnitlessFunctionUnitImpl(MathFunction.SIN);
 			}
 
 		});
@@ -797,7 +797,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new UnitlessFunctionUnitImpl(MathFunctions.COS);
+				return new UnitlessFunctionUnitImpl(MathFunction.COS);
 			}
 
 		});
@@ -806,7 +806,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new UnitlessFunctionUnitImpl(MathFunctions.TAN);
+				return new UnitlessFunctionUnitImpl(MathFunction.TAN);
 			}
 
 		});
@@ -815,7 +815,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new AngleFunctionUnitImpl(MathFunctions.ASIN);
+				return new AngleFunctionUnitImpl(MathFunction.ASIN);
 			}
 
 		});
@@ -824,7 +824,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new AngleFunctionUnitImpl(MathFunctions.ACOS);
+				return new AngleFunctionUnitImpl(MathFunction.ACOS);
 			}
 
 		});
@@ -833,7 +833,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new AngleFunctionUnitImpl(MathFunctions.ATAN);
+				return new AngleFunctionUnitImpl(MathFunction.ATAN);
 			}
 
 		});
@@ -842,7 +842,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new AngleFunctionUnitImpl(MathFunctions.ATAN2);
+				return new AngleFunctionUnitImpl(MathFunction.ATAN2);
 			}
 
 		});

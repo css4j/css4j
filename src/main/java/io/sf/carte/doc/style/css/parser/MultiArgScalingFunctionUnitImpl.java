@@ -13,14 +13,15 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 
 class MultiArgScalingFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	private static final long serialVersionUID = 1L;
 
-	public MultiArgScalingFunctionUnitImpl(int functionIndex) {
-		super(functionIndex);
+	public MultiArgScalingFunctionUnitImpl(MathFunction functionID) {
+		super(functionID);
 	}
 
 	@Override
@@ -55,7 +56,7 @@ class MultiArgScalingFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	@Override
 	MultiArgScalingFunctionUnitImpl instantiateLexicalUnit() {
-		return new MultiArgScalingFunctionUnitImpl(getMathFunctionIndex());
+		return new MultiArgScalingFunctionUnitImpl(getMathFunction());
 	}
 
 }

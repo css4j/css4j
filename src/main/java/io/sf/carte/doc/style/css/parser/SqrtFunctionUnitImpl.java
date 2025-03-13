@@ -13,12 +13,14 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
+
 class SqrtFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	private static final long serialVersionUID = 1L;
 
-	public SqrtFunctionUnitImpl(int functionIndex) {
-		super(functionIndex);
+	public SqrtFunctionUnitImpl(MathFunction functionID) {
+		super(functionID);
 	}
 
 	@Override
@@ -40,7 +42,7 @@ class SqrtFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	@Override
 	SqrtFunctionUnitImpl instantiateLexicalUnit() {
-		return new SqrtFunctionUnitImpl(getMathFunctionIndex());
+		return new SqrtFunctionUnitImpl(getMathFunction());
 	}
 
 }

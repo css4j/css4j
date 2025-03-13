@@ -11,12 +11,14 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
+
 class ScalingFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	private static final long serialVersionUID = 1L;
 
-	public ScalingFunctionUnitImpl(int functionIndex) {
-		super(functionIndex);
+	public ScalingFunctionUnitImpl(MathFunction functionID) {
+		super(functionID);
 	}
 
 	@Override
@@ -26,7 +28,7 @@ class ScalingFunctionUnitImpl extends MathFunctionUnitImpl {
 
 	@Override
 	ScalingFunctionUnitImpl instantiateLexicalUnit() {
-		return new ScalingFunctionUnitImpl(getMathFunctionIndex());
+		return new ScalingFunctionUnitImpl(getMathFunction());
 	}
 
 }
