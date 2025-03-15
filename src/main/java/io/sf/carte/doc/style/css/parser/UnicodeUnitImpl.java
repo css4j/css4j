@@ -13,37 +13,39 @@ package io.sf.carte.doc.style.css.parser;
 
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
-import io.sf.carte.doc.style.css.MediaQueryPredicate;
 
-/**
- * Media type predicate lexical unit.
- */
-class MediaPredicateUnit extends BooleanConditionUnit.Predicate implements MediaQueryPredicate {
+abstract class UnicodeUnitImpl extends LexicalUnitImpl {
 
 	private static final long serialVersionUID = 1L;
 
-	MediaPredicateUnit(String medium) {
-		super(medium);
-	}
-
-	@Override
-	public int getPredicateType() {
-		return MediaQueryPredicate.MEDIA_TYPE;
+	public UnicodeUnitImpl(LexicalType type) {
+		super(type);
 	}
 
 	@Override
 	Match typeMatch(CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
-		Match match;
 		switch (syntax.getCategory()) {
-		case IDENT:
+		case unicodeRange:
 		case universal:
-			match = Match.TRUE;
-			break;
+			return Match.TRUE;
 		default:
-			match = Match.FALSE;
-			break;
+			return Match.FALSE;
 		}
-		return match;
 	}
+
+	@Override
+	public Match matches(CSSValueSyntax syntax) {
+		if (syntax != null) {
+			return matchSyntaxChain(syntax);
+		}
+
+		return Match.FALSE;
+	}
+
+	/*
+	 * Do an abstract override so implementations do not forget to override.
+	 */
+	@Override
+	abstract UnicodeUnitImpl instantiateLexicalUnit();
 
 }

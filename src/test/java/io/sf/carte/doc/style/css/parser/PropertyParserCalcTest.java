@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -486,6 +487,10 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -502,6 +507,10 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.FALSE, lu, "<color>");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <angle>#");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -517,6 +526,10 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.FALSE, lu, "<string>");
 		assertMatch(Match.FALSE, lu, "<color>");
 		assertMatch(Match.FALSE, lu, "<custom-ident> | <angle>#");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -535,6 +548,10 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -553,6 +570,10 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -564,6 +585,10 @@ public class PropertyParserCalcTest {
 
 		assertMatch(Match.FALSE, lu, "<length>");
 		assertMatch(Match.FALSE, lu, "<string>");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -581,6 +606,10 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.FALSE, lu, "<custom-ident> | <length-percentage>#");
 		assertMatch(Match.FALSE, lu, "<custom-ident> | <length-percentage>+");
 		assertMatch(Match.FALSE, lu, "<custom-ident> | <length-percentage>");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -623,6 +652,10 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.PENDING, lu, "<custom-ident> | <length-percentage>+");
 		assertMatch(Match.PENDING, lu, "<custom-ident> | <length-percentage>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -670,6 +703,10 @@ public class PropertyParserCalcTest {
 		assertEquals(-2, param.getIntegerValue());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("calc(1em + (0.4vw + 0.25vh)/-2)", lu.toString());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -1193,6 +1230,10 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
 		assertMatch(Match.TRUE, lu, "<percentage> | <length-percentage>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -1228,6 +1269,10 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
 		assertMatch(Match.TRUE, lu, "<percentage> | <length-percentage>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -1263,6 +1308,8 @@ public class PropertyParserCalcTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("min(10em, 2%)", lu.toString());
 
+		assertTrue(lu.getContextIndex() >= 0);
+
 		assertMatch(Match.TRUE, lu, "<length-percentage>");
 		assertMatch(Match.TRUE, lu, "<length-percentage>#");
 		assertMatch(Match.TRUE, lu, "<length-percentage>+");
@@ -1273,6 +1320,10 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length-percentage>+");
 		assertMatch(Match.TRUE, lu, "<percentage> | <length-percentage>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -1319,6 +1370,9 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <angle>+");
 		assertMatch(Match.TRUE, lu, "<percentage> | <angle>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
 	}
 
 	@Test
@@ -1487,6 +1541,12 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.FALSE, lu, "<percentage>");
 		assertMatch(Match.FALSE, lu, "<color>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+
+		assertMatch(Match.TRUE, clone, "<length>");
 	}
 
 	@Test
@@ -1508,6 +1568,12 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <angle>+");
 		assertMatch(Match.TRUE, lu, "<percentage> | <angle>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+
+		assertMatch(Match.TRUE, clone, "<angle>");
 	}
 
 	@Test
@@ -1588,6 +1654,12 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length>+");
 		assertMatch(Match.TRUE, lu, "<percentage> | <length>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+
+		assertMatch(Match.TRUE, clone, "<length>");
 	}
 
 	@Test
@@ -1667,6 +1739,12 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length>+");
 		assertMatch(Match.TRUE, lu, "<percentage> | <length>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+
+		assertMatch(Match.TRUE, clone, "<length>");
 	}
 
 	@Test
@@ -1704,6 +1782,12 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length>+");
 		assertMatch(Match.TRUE, lu, "<percentage> | <length>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+
+		assertMatch(Match.TRUE, clone, "<length>");
 	}
 
 	@Test
@@ -1736,6 +1820,12 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <number>#");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <number>+");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+
+		assertMatch(Match.TRUE, clone, "<number>");
 	}
 
 	@Test
@@ -1760,6 +1850,12 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <number>#");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <number>+");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+
+		assertMatch(Match.TRUE, clone, "<number>");
 	}
 
 	@Test
@@ -1784,6 +1880,12 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <number>#");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <number>+");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+
+		assertMatch(Match.TRUE, clone, "<number>");
 	}
 
 	@Test
@@ -1810,6 +1912,12 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length>+");
 		assertMatch(Match.TRUE, lu, "<percentage> | <length>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+
+		assertMatch(Match.TRUE, clone, "<length>");
 	}
 
 	@Test
@@ -1832,6 +1940,12 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <length>+");
 		assertMatch(Match.TRUE, lu, "<percentage> | <length>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+
+		assertMatch(Match.TRUE, clone, "<length>");
 	}
 
 	@Test
@@ -1959,6 +2073,12 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.FALSE, lunit, "<custom-ident> | <number>+");
 		assertMatch(Match.FALSE, lunit, "<custom-ident> | <number>");
 		assertMatch(Match.TRUE, lunit, "*");
+
+		LexicalUnit clone = lunit.clone();
+		assertEquals(lunit, clone);
+		assertEquals(lunit.hashCode(), clone.hashCode());
+
+		assertMatch(Match.TRUE, clone, "<number>#");
 	}
 
 	@Test
@@ -2035,6 +2155,10 @@ public class PropertyParserCalcTest {
 		assertMatch(Match.TRUE, lunit, "<custom-ident> | <angle>");
 		assertMatch(Match.FALSE, lunit, "<transform-list>");
 		assertMatch(Match.TRUE, lunit, "*");
+
+		LexicalUnit clone = lunit.clone();
+		assertEquals(lunit, clone);
+		assertEquals(lunit.hashCode(), clone.hashCode());
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {

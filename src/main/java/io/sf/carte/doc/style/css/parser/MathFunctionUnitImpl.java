@@ -14,9 +14,11 @@ package io.sf.carte.doc.style.css.parser;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 
-abstract class MathFunctionUnitImpl extends LexicalUnitImpl {
+abstract class MathFunctionUnitImpl extends FunctionUnitImpl {
 
 	private static final long serialVersionUID = 1L;
 
@@ -50,15 +52,37 @@ abstract class MathFunctionUnitImpl extends LexicalUnitImpl {
 	}
 
 	@Override
-	CharSequence currentToString() {
-		StringBuilder buf = new StringBuilder(32);
-		buf.append(value).append('(');
-		LexicalUnit lu = this.parameters;
-		if (lu != null) {
-			buf.append(lu.toString());
+	Match typeMatch(CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
+		Category cat = syntax.getCategory();
+		switch (cat) {
+		case integer:
+		case number:
+		case percentage:
+		case lengthPercentage:
+		case length:
+		case angle:
+		case time:
+		case frequency:
+		case resolution:
+		case flex:
+			return dimensionalMatch(rootSyntax, syntax);
+		case universal:
+			return Match.TRUE;
+		default:
 		}
-		buf.append(')');
-		return buf;
+		return Match.FALSE;
+	}
+
+	private Match dimensionalMatch(CSSValueSyntax rootSyntax,
+			CSSValueSyntax syntax) {
+		DimensionalAnalyzer danal = new DimensionalAnalyzer();
+		Dimension dim;
+		try {
+			dim = dimension(danal);
+		} catch (DOMException e) {
+			return Match.FALSE;
+		}
+		return dim != null ? dim.matches(syntax) : Match.PENDING;
 	}
 
 	@Override

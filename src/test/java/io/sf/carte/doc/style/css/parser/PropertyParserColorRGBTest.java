@@ -237,6 +237,9 @@ public class PropertyParserColorRGBTest {
 		assertEquals(0, param.getIntegerValue());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgb", lu.getFunctionName());
+
+		assertEquals(0, lu.getContextIndex());
+
 		assertEquals("rgb(0 0 0/0)", lu.toString());
 	}
 
@@ -264,7 +267,14 @@ public class PropertyParserColorRGBTest {
 		assertEquals(0.45f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgba", lu.getFunctionName());
+
+		assertEquals(0, lu.getContextIndex());
+
 		assertEquals("rgba(1, 2, 3, 0.45)", lu.toString());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -292,6 +302,10 @@ public class PropertyParserColorRGBTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgba", lu.getFunctionName());
 		assertEquals("rgba(0, 0, 0, 0)", lu.toString());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -567,6 +581,10 @@ public class PropertyParserColorRGBTest {
 		assertMatch(Match.TRUE, lu, "<color>#");
 		assertMatch(Match.FALSE, lu, "<length>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -1730,6 +1748,10 @@ public class PropertyParserColorRGBTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgb", lu.getFunctionName());
 		assertEquals("rgb(12% none 27%/0.1)", lu.toString());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -1802,6 +1824,10 @@ public class PropertyParserColorRGBTest {
 		assertMatch(Match.TRUE, lunit, "<color>");
 		assertMatch(Match.FALSE, lunit, "<length>");
 		assertMatch(Match.TRUE, lunit, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -1829,6 +1855,10 @@ public class PropertyParserColorRGBTest {
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(0.7333f, lu.getFloatValue(), 0.0001f);
 		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -1849,6 +1879,10 @@ public class PropertyParserColorRGBTest {
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(26, lu.getIntegerValue());
 		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -1876,6 +1910,10 @@ public class PropertyParserColorRGBTest {
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(0.9412f, lu.getFloatValue(), 0.0001f);
 		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {

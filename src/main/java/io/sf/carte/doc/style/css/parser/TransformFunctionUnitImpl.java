@@ -13,37 +13,35 @@ package io.sf.carte.doc.style.css.parser;
 
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
-import io.sf.carte.doc.style.css.MediaQueryPredicate;
 
-/**
- * Media type predicate lexical unit.
- */
-class MediaPredicateUnit extends BooleanConditionUnit.Predicate implements MediaQueryPredicate {
+class TransformFunctionUnitImpl extends FunctionUnitImpl {
 
 	private static final long serialVersionUID = 1L;
 
-	MediaPredicateUnit(String medium) {
-		super(medium);
+	public TransformFunctionUnitImpl(LexicalType type) {
+		super(type);
 	}
 
 	@Override
-	public int getPredicateType() {
-		return MediaQueryPredicate.MEDIA_TYPE;
+	public int getContextIndex() {
+		return getLexicalUnitType().ordinal() - LexicalType.MATRIX_FUNCTION.ordinal();
 	}
 
 	@Override
 	Match typeMatch(CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
-		Match match;
 		switch (syntax.getCategory()) {
-		case IDENT:
+		case transformFunction:
+		case transformList:
 		case universal:
-			match = Match.TRUE;
-			break;
+			return Match.TRUE;
 		default:
-			match = Match.FALSE;
-			break;
+			return Match.FALSE;
 		}
-		return match;
+	}
+
+	@Override
+	TransformFunctionUnitImpl instantiateLexicalUnit() {
+		return new TransformFunctionUnitImpl(getLexicalUnitType());
 	}
 
 }

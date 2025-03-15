@@ -99,6 +99,10 @@ public class PropertyParserAttrTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <string>+");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <string>");
 		assertEquals(Match.TRUE, lu.matches(universalSyntax));
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -132,6 +136,10 @@ public class PropertyParserAttrTest {
 		assertMatch(Match.PENDING, lu, "<percentage>+");
 		assertMatch(Match.FALSE, lu, "<color>");
 		assertEquals(Match.TRUE, lu.matches(universalSyntax));
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -185,6 +193,10 @@ public class PropertyParserAttrTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <percentage>+");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <percentage>");
 		assertEquals(Match.TRUE, lu.matches(universalSyntax));
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -806,6 +818,10 @@ public class PropertyParserAttrTest {
 		assertMatch(Match.PENDING, lu, "<string> | <percentage>");
 		assertMatch(Match.PENDING, lu, "<color>");
 		assertEquals(Match.TRUE, lu.matches(universalSyntax));
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test

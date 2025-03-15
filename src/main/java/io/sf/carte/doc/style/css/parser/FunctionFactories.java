@@ -33,7 +33,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.CALC);
+				return new ExpressionUnitImpl(LexicalType.CALC);
 			}
 
 		});
@@ -42,7 +42,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.ATTR);
+				return new AttrUnitImpl();
 			}
 
 		});
@@ -60,7 +60,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.VAR);
+				return new VarFunctionUnitImpl();
 			}
 
 			@Override
@@ -88,7 +88,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.ENV);
+				return new EnvUnitImpl();
 			}
 
 		});
@@ -106,7 +106,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.MATRIX_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.MATRIX_FUNCTION);
 			}
 
 		});
@@ -115,7 +115,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.PERSPECTIVE_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.PERSPECTIVE_FUNCTION);
 			}
 
 		});
@@ -124,7 +124,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.TRANSLATE_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.TRANSLATE_FUNCTION);
 			}
 
 		});
@@ -133,7 +133,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.TRANSLATE_3D_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.TRANSLATE_3D_FUNCTION);
 			}
 
 		});
@@ -142,7 +142,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.TRANSLATE_X_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.TRANSLATE_X_FUNCTION);
 			}
 
 			@Override
@@ -159,7 +159,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.TRANSLATE_Y_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.TRANSLATE_Y_FUNCTION);
 			}
 
 			@Override
@@ -176,7 +176,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.TRANSLATE_Z_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.TRANSLATE_Z_FUNCTION);
 			}
 
 			@Override
@@ -193,7 +193,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.SCALE_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.SCALE_FUNCTION);
 			}
 
 		});
@@ -202,7 +202,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.SCALE_3D_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.SCALE_3D_FUNCTION);
 			}
 
 		});
@@ -211,7 +211,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.SCALE_X_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.SCALE_X_FUNCTION);
 			}
 
 			@Override
@@ -228,7 +228,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.SCALE_Y_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.SCALE_Y_FUNCTION);
 			}
 
 			@Override
@@ -245,7 +245,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.SCALE_Z_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.SCALE_Z_FUNCTION);
 			}
 
 			@Override
@@ -262,7 +262,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.ROTATE_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.ROTATE_FUNCTION);
 			}
 
 		});
@@ -271,7 +271,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.ROTATE_3D_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.ROTATE_3D_FUNCTION);
 			}
 
 		});
@@ -280,7 +280,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.ROTATE_X_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.ROTATE_X_FUNCTION);
 			}
 
 			@Override
@@ -297,7 +297,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.ROTATE_Y_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.ROTATE_Y_FUNCTION);
 			}
 
 			@Override
@@ -314,7 +314,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.ROTATE_Z_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.ROTATE_Z_FUNCTION);
 			}
 
 			@Override
@@ -331,7 +331,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.SKEW_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.SKEW_FUNCTION);
 			}
 
 		});
@@ -340,7 +340,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.SKEW_X_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.SKEW_X_FUNCTION);
 			}
 
 			@Override
@@ -357,7 +357,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.SKEW_Y_FUNCTION);
+				return new TransformFunctionUnitImpl(LexicalType.SKEW_Y_FUNCTION);
 			}
 
 			@Override
@@ -383,7 +383,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.IMAGE_SET);
+				return new ImageFunctionUnitImpl(LexicalType.IMAGE_SET);
 			}
 
 		});
@@ -392,7 +392,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.ELEMENT_REFERENCE);
+				return new ElementReferenceUnitImpl();
 			}
 
 		});
@@ -401,7 +401,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.CIRCLE_FUNCTION);
+				return new BasicShapeUnitImpl(LexicalType.CIRCLE_FUNCTION);
 			}
 
 		});
@@ -410,7 +410,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.ELLIPSE_FUNCTION);
+				return new BasicShapeUnitImpl(LexicalType.ELLIPSE_FUNCTION);
 			}
 
 		});
@@ -419,7 +419,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.INSET_FUNCTION);
+				return new BasicShapeUnitImpl(LexicalType.INSET_FUNCTION);
 			}
 
 		});
@@ -428,7 +428,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.PATH_FUNCTION);
+				return new BasicShapeUnitImpl(LexicalType.PATH_FUNCTION);
 			}
 
 		});
@@ -437,7 +437,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.POLYGON_FUNCTION);
+				return new BasicShapeUnitImpl(LexicalType.POLYGON_FUNCTION);
 			}
 
 		});
@@ -446,7 +446,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.RECT_FUNCTION);
+				return new BasicShapeUnitImpl(LexicalType.RECT_FUNCTION);
 			}
 
 		});
@@ -455,7 +455,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.SHAPE_FUNCTION);
+				return new BasicShapeUnitImpl(LexicalType.SHAPE_FUNCTION);
 			}
 
 		});
@@ -464,16 +464,20 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.XYWH_FUNCTION);
+				return new BasicShapeUnitImpl(LexicalType.XYWH_FUNCTION);
 			}
 
 		});
+
+		/*
+		 * <counter>
+		 */
 
 		factories.put("counter", new LexicalUnitFactory() {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.COUNTER_FUNCTION);
+				return new CounterUnitImpl(LexicalType.COUNTER_FUNCTION);
 			}
 
 		});
@@ -482,7 +486,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.COUNTERS_FUNCTION);
+				return new CounterUnitImpl(LexicalType.COUNTERS_FUNCTION);
 			}
 
 		});
@@ -495,7 +499,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.CUBIC_BEZIER_FUNCTION);
+				return new EasingFunctionUnitImpl(LexicalType.CUBIC_BEZIER_FUNCTION);
 			}
 
 		});
@@ -504,7 +508,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.LINEAR_FUNCTION);
+				return new EasingFunctionUnitImpl(LexicalType.LINEAR_FUNCTION);
 			}
 
 		});
@@ -513,7 +517,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.STEPS_FUNCTION);
+				return new EasingFunctionUnitImpl(LexicalType.STEPS_FUNCTION);
 			}
 
 		});
@@ -526,7 +530,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.RGBCOLOR);
+				return new RGBColorUnitImpl();
 			}
 
 			@Override
@@ -543,7 +547,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.HSLCOLOR);
+				return new ColorUnitImpl(LexicalType.HSLCOLOR);
 			}
 
 			@Override
@@ -560,7 +564,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.LABCOLOR);
+				return new ColorUnitImpl(LexicalType.LABCOLOR);
 			}
 
 			@Override
@@ -574,7 +578,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.LCHCOLOR);
+				return new ColorUnitImpl(LexicalType.LCHCOLOR);
 			}
 
 			@Override
@@ -588,7 +592,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.OKLABCOLOR);
+				return new ColorUnitImpl(LexicalType.OKLABCOLOR);
 			}
 
 			@Override
@@ -602,7 +606,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.OKLCHCOLOR);
+				return new ColorUnitImpl(LexicalType.OKLCHCOLOR);
 			}
 
 			@Override
@@ -616,7 +620,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.HWBCOLOR);
+				return new ColorUnitImpl(LexicalType.HWBCOLOR);
 			}
 
 			@Override
@@ -630,7 +634,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.COLOR_FUNCTION);
+				return new ColorUnitImpl(LexicalType.COLOR_FUNCTION);
 			}
 
 			@Override
@@ -644,7 +648,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.COLOR_MIX);
+				return new ColorUnitImpl(LexicalType.COLOR_MIX);
 			}
 
 			@Override

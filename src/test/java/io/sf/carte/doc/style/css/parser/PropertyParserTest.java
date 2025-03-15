@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -166,6 +167,10 @@ public class PropertyParserTest {
 		assertEquals("foo\uff08", lu.getStringValue());
 		assertEquals("foo\uff08", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<custom-ident>");
+		assertMatch(Match.FALSE, lu, "<easing-function>");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -175,6 +180,9 @@ public class PropertyParserTest {
 		assertEquals("⁑", lu.getStringValue());
 		assertEquals("⁑", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<custom-ident>");
+		assertMatch(Match.FALSE, lu, "<color>");
 	}
 
 	@Test
@@ -206,6 +214,9 @@ public class PropertyParserTest {
 		lu = lu.getNextLexicalUnit();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Roman", lu.getStringValue());
+
+		assertMatch(Match.TRUE, lu, "<custom-ident>+");
+		assertMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -253,6 +264,10 @@ public class PropertyParserTest {
 		assertMatch(Match.FALSE, lu, "<custom-ident>+");
 		assertMatch(Match.FALSE, lu, "<resolution>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -316,6 +331,10 @@ public class PropertyParserTest {
 		assertMatch(Match.FALSE, lu, "<custom-ident>+");
 		assertMatch(Match.FALSE, lu, "<resolution>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -1021,6 +1040,9 @@ public class PropertyParserTest {
 		assertMatch(Match.FALSE, lu, "<string> | <length>");
 		assertMatch(Match.TRUE, lu, "<string> | <length>+");
 		assertMatch(Match.TRUE, lu, "*");
+
+		assertShallowMatch(Match.TRUE, lu, "<length>");
+		assertShallowMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -1493,6 +1515,8 @@ public class PropertyParserTest {
 		assertMatch(Match.FALSE, lu, "<integer> | <custom-ident>");
 		assertMatch(Match.FALSE, lu, "<number> | <custom-ident>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		assertShallowMatch(Match.TRUE, lu, "<integer>");
 	}
 
 	@Test
@@ -1570,6 +1594,8 @@ public class PropertyParserTest {
 		assertMatch(Match.FALSE, lunit, "<length-percentage>");
 		assertMatch(Match.FALSE, lunit, "<color>");
 		assertMatch(Match.TRUE, lunit, "*");
+
+		assertShallowMatch(Match.TRUE, lunit, "<length>");
 	}
 
 	@Test
@@ -1742,6 +1768,8 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
 		assertEquals("counters(section, '.') ' '", lu.toString());
 
+		assertTrue(lu.getContextIndex() >= 0);
+
 		assertMatch(Match.FALSE, lu, "<length-percentage>");
 		assertMatch(Match.FALSE, lu, "<string>");
 		assertMatch(Match.FALSE, lu, "<color>");
@@ -1782,11 +1810,17 @@ public class PropertyParserTest {
 		assertEquals(50f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 
+		assertTrue(lu.getContextIndex() >= 0);
+
 		assertEquals("circle(50px)", lu.toString());
 
 		assertMatch(Match.TRUE, lu, "<basic-shape>");
 		assertMatch(Match.FALSE, lu, "<custom-ident>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -1964,6 +1998,10 @@ public class PropertyParserTest {
 		assertEquals("M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80", param.getStringValue());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("path('M 10 80 C 40 10, 65 10, 95 80 S 150 150, 180 80')", lu.toString());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -2236,10 +2274,16 @@ public class PropertyParserTest {
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("cubic-bezier(0.33, 0.1, 0.5, 1)", lu.toString());
 
+		assertTrue(lu.getContextIndex() >= 0);
+
 		assertMatch(Match.TRUE, lu, "<easing-function>");
 		assertMatch(Match.TRUE, lu, "<easing-function>#");
 		assertMatch(Match.FALSE, lu, "<custom-ident>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -2385,6 +2429,10 @@ public class PropertyParserTest {
 		assertMatch(Match.FALSE, lu, "<transform-list>");
 		assertMatch(Match.FALSE, lu, "<custom-ident>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -2562,6 +2610,8 @@ public class PropertyParserTest {
 		assertMatch(Match.FALSE, lu, "<transform-list>");
 		assertMatch(Match.FALSE, lu, "<custom-ident>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		assertShallowMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -2575,6 +2625,8 @@ public class PropertyParserTest {
 		assertMatch(Match.FALSE, lu, "<transform-list>");
 		assertMatch(Match.TRUE, lu, "<custom-ident>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		assertShallowMatch(Match.TRUE, lu, "*");
 	}
 
 	@Test
@@ -2612,11 +2664,21 @@ public class PropertyParserTest {
 
 		assertNull(param.getNextLexicalUnit());
 
+		assertTrue(lu.getContextIndex() >= 0);
+
 		assertMatch(Match.TRUE, lu, "<easing-function>");
 		assertMatch(Match.TRUE, lu, "<easing-function>#");
 		assertMatch(Match.FALSE, lu, "<transform-list>");
 		assertMatch(Match.FALSE, lu, "<custom-ident>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+
+		// Test equals
+		LexicalUnit otherlu = parsePropertyValue("linear(0, 0.5 25%, 1)");
+		assertNotEquals(lu, otherlu);
 	}
 
 	@Test
@@ -2638,10 +2700,16 @@ public class PropertyParserTest {
 		assertEquals("end", param.getStringValue());
 		assertNull(param.getNextLexicalUnit());
 
+		assertTrue(lu.getContextIndex() >= 0);
+
 		assertMatch(Match.TRUE, lu, "<easing-function>");
 		assertMatch(Match.FALSE, lu, "<transform-list>");
 		assertMatch(Match.FALSE, lu, "<custom-ident>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -2651,6 +2719,7 @@ public class PropertyParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IMAGE_SET, lu.getLexicalUnitType());
 		assertEquals("image-set", lu.getFunctionName());
+
 		// parameters
 		LexicalUnit param = lu.getParameters();
 		assertNotNull(param);
@@ -2674,6 +2743,8 @@ public class PropertyParserTest {
 		assertEquals(2f, param.getFloatValue(), 1e-5f);
 		assertEquals("x", param.getDimensionUnitText());
 		assertNull(param.getNextLexicalUnit());
+
+		assertTrue(lu.getContextIndex() >= 0);
 
 		assertEquals(
 				"image-set(url('//www.example.com/path/to/img.png') 1x, url('//www2.example.com/path2/to2/img2.png') 2x)",
@@ -2729,7 +2800,11 @@ public class PropertyParserTest {
 				"-webkit-image-set(url('//www.example.com/path/to/img.png') 1x, url('//www2.example.com/path2/to2/img2.png') 2x) foo(bar)",
 				lu.toString());
 
+		assertMatch(Match.FALSE, lu, "<image>#");
 		assertMatch(Match.FALSE, lu, "<transform-list>");
+		assertMatch(Match.FALSE, lu, "*");
+
+		assertShallowMatch(Match.FALSE, lu, "<image>");
 	}
 
 	@Test
@@ -2746,6 +2821,12 @@ public class PropertyParserTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <transform-function>+");
 		assertMatch(Match.FALSE, lu, "<custom-ident> | <transform-function>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		assertShallowMatch(Match.TRUE, lu, "<transform-function>");
+
+		LexicalUnit clone = lu.shallowClone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -2754,6 +2835,8 @@ public class PropertyParserTest {
 				"translate(-10px, -20px) scale(2) rotate(45deg), rotate(15deg) scale(2) translate(20px)");
 		assertEquals("translate", lu.getFunctionName());
 		assertEquals(LexicalType.TRANSLATE_FUNCTION, lu.getLexicalUnitType());
+
+		assertTrue(lu.getContextIndex() >= 0);
 
 		assertMatch(Match.TRUE, lu, "<transform-list>#");
 		assertMatch(Match.FALSE, lu, "<transform-list>");
@@ -3140,6 +3223,10 @@ public class PropertyParserTest {
 		assertMatch(Match.FALSE, lu, "<image>+");
 		assertMatch(Match.FALSE, lu, "<custom-ident> | <image>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -3420,6 +3507,8 @@ public class PropertyParserTest {
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("element(#fooid)", lu.toString());
 
+		assertTrue(lu.getContextIndex() >= 0);
+
 		assertMatch(Match.TRUE, lu, "<image>");
 		assertMatch(Match.TRUE, lu, "<image>#");
 		assertMatch(Match.TRUE, lu, "<image>+");
@@ -3428,6 +3517,10 @@ public class PropertyParserTest {
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <image>+");
 		assertMatch(Match.TRUE, lu, "<custom-ident> | <image>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -3526,6 +3619,8 @@ public class PropertyParserTest {
 		assertEquals(159, params.getIntegerValue());
 		assertNull(params.getNextLexicalUnit());
 
+		assertTrue(lunit.getContextIndex() >= 0);
+
 		assertMatch(Match.TRUE, lunit, "<image>");
 		assertMatch(Match.TRUE, lunit, "<image>#");
 		assertMatch(Match.TRUE, lunit, "<image>+");
@@ -3595,6 +3690,11 @@ public class PropertyParserTest {
 	private void assertMatch(Match match, LexicalUnit lu, String syntax) {
 		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
 		assertEquals(match, lu.matches(syn));
+	}
+
+	private void assertShallowMatch(Match match, LexicalUnit lu, String syntax) {
+		CSSValueSyntax syn = syntaxParser.parseSyntax(syntax);
+		assertEquals(match, lu.shallowMatch(syn));
 	}
 
 }

@@ -6533,7 +6533,7 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			protected void addEmptyLexicalUnit() {
-				LexicalUnitImpl empty = newLexicalUnit(LexicalType.EMPTY, false);
+				LexicalUnitImpl empty = newLexicalUnit(LexicalType.EMPTY);
 				empty.value = "";
 			}
 
@@ -6600,7 +6600,7 @@ public class CSSParser implements Parser, Cloneable {
 						prevcp = TokenProducer.CHAR_LEFT_PAREN;
 					} else if (buffer.length() == 0) {
 						// Sub-values
-						newLexicalUnit(LexicalType.SUB_EXPRESSION, true);
+						newFunctionOrExpressionUnit(new SubExpressionUnitImpl());
 					} else {
 						handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
 								"Unexpected token: " + buffer.toString());
@@ -6643,21 +6643,19 @@ public class CSSParser implements Parser, Cloneable {
 					escapedTokenIndex = -1;
 					return;
 				} else if (isNotForbiddenIdentStart(raw = buffer.toString())) {
-					LexicalType type;
 					if (name.charAt(0) == '-' && name.length() > 3) {
 						/*
 						 * If CSS Functions & Mixins is implemented, should check for
 						 * custom functions (and add a CUSTOM_FUNCTION type).
 						 */
 						// Prefixed function or calc() (for example -o-calc())
-						type = LexicalType.PREFIXED_FUNCTION;
+						lu = newFunctionOrExpressionUnit(new PrefixedFunctionUnitImpl());
 					} else if (lcName.endsWith("-gradient")) {
-						type = LexicalType.GRADIENT;
 						name = lcName;
+						lu = newFunctionOrExpressionUnit(new ImageFunctionUnitImpl(LexicalType.GRADIENT));
 					} else {
-						type = LexicalType.FUNCTION;
+						lu = newFunctionOrExpressionUnit(new LexicalUnitImpl(LexicalType.FUNCTION));
 					}
-					lu = newLexicalUnit(type, true);
 					lu.value = name;
 					functionToken = true;
 				} else {
@@ -6725,7 +6723,7 @@ public class CSSParser implements Parser, Cloneable {
 			} else if (!parseError) {
 				if (propertyName != null) {
 					processBuffer(index);
-					newLexicalUnit(LexicalType.LEFT_BRACKET, false);
+					newLexicalUnit(LexicalType.LEFT_BRACKET);
 					prevcp = 32;
 				} else {
 					unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
@@ -6733,22 +6731,70 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
-		private LexicalUnitImpl newLexicalUnit(LexicalType unitType, boolean functionOrSubexpression) {
+		/**
+		 * Create a non-function (nor expression) lexical unit, add it as the current
+		 * value.
+		 * 
+		 * @param unitType the unit type. Cannot be a function or expression.
+		 * @return the lexical unit that should be processed as the current unit,
+		 *         generally the newly created value.
+		 */
+		private LexicalUnitImpl newLexicalUnit(LexicalType unitType) {
 			LexicalUnitImpl lu;
 			if (functionToken) {
-				if (currentlu.getLexicalUnitType() == LexicalType.URI
-						&& unitType != LexicalType.VAR) {
+				if (currentlu.getLexicalUnitType() == LexicalType.URI) {
 					// Special case
-					lu = currentlu;
+					return currentlu;
 				} else {
 					lu = new LexicalUnitImpl(unitType);
 					currentlu.addFunctionParameter(lu);
-					if (functionOrSubexpression) {
-						currentlu = lu;
-					}
 				}
 			} else {
 				lu = new LexicalUnitImpl(unitType);
+				if (currentlu != null) {
+					currentlu.nextLexicalUnit = lu;
+					lu.previousLexicalUnit = currentlu;
+				}
+				currentlu = lu;
+				if (lunit == null) {
+					lunit = lu;
+				}
+			}
+			return lu;
+		}
+
+		/**
+		 * Add a non-function (nor expression) lexical unit as the current value.
+		 * 
+		 * @param lu the lexical unit to add.
+		 * @return the lexical unit that should be processed as the current unit.
+		 */
+		private LexicalUnitImpl addPlainLexicalUnit(LexicalUnitImpl lu) {
+			if (functionToken) {
+				if (currentlu.getLexicalUnitType() == LexicalType.URI) {
+					// Special case
+					return currentlu;
+				} else {
+					currentlu.addFunctionParameter(lu);
+				}
+			} else {
+				if (currentlu != null) {
+					currentlu.nextLexicalUnit = lu;
+					lu.previousLexicalUnit = currentlu;
+				}
+				currentlu = lu;
+				if (lunit == null) {
+					lunit = lu;
+				}
+			}
+			return lu;
+		}
+
+		private LexicalUnitImpl newFunctionOrExpressionUnit(LexicalUnitImpl lu) {
+			if (functionToken) {
+				currentlu.addFunctionParameter(lu);
+				currentlu = lu;
+			} else {
 				if (currentlu != null) {
 					currentlu.nextLexicalUnit = lu;
 					lu.previousLexicalUnit = currentlu;
@@ -6873,7 +6919,7 @@ public class CSSParser implements Parser, Cloneable {
 			if (!parseError) {
 				if (propertyName != null) {
 					processBuffer(index);
-					newLexicalUnit(LexicalType.RIGHT_BRACKET, false);
+					newLexicalUnit(LexicalType.RIGHT_BRACKET);
 				} else {
 					unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
 				}
@@ -6940,7 +6986,7 @@ public class CSSParser implements Parser, Cloneable {
 					if (!functionToken || currentlu.parameters == null || !addToIdentCompat()) {
 						processBuffer(index);
 					}
-					newLexicalUnit(LexicalType.OPERATOR_COMMA, false);
+					newLexicalUnit(LexicalType.OPERATOR_COMMA);
 				} else if (codepoint == TokenProducer.CHAR_EXCLAMATION) { // !
 					if (!functionToken) {
 						processBuffer(index);
@@ -6966,7 +7012,7 @@ public class CSSParser implements Parser, Cloneable {
 								buffer.append('%');
 							} else {
 								processBuffer(index);
-								newLexicalUnit(LexicalType.OPERATOR_MOD, false);
+								newLexicalUnit(LexicalType.OPERATOR_MOD);
 							}
 						} else if (codepoint == 35) { // #
 							if (buffer.length() != 0) {
@@ -7006,7 +7052,7 @@ public class CSSParser implements Parser, Cloneable {
 											&& !lastParamIsAlgebraicOperator()) {
 										// We are either in calc() plus operator context
 										// or in IE compatibility
-										newLexicalUnit(LexicalType.OPERATOR_PLUS, false);
+										newLexicalUnit(LexicalType.OPERATOR_PLUS);
 									} else if (prevCpWS || currentlu.parameters == null
 											|| lastParamIsMultOrSlashOperator()) {
 										// We are in sign context
@@ -7034,7 +7080,7 @@ public class CSSParser implements Parser, Cloneable {
 							if (!functionToken || (currentlu.parameters != null
 									&& (isVarOrLastParamIsOperand() || currentlu
 											.getLexicalUnitType() == LexicalType.ATTR))) {
-								newLexicalUnit(LexicalType.OPERATOR_SLASH, false);
+								newLexicalUnit(LexicalType.OPERATOR_SLASH);
 							} else {
 								unexpectedCharError(index, codepoint);
 							}
@@ -7042,7 +7088,7 @@ public class CSSParser implements Parser, Cloneable {
 							if (codepoint == TokenProducer.CHAR_ASTERISK) { // '*'
 								processBuffer(index);
 								if (currentlu.parameters != null && isVarOrLastParamIsOperand()) {
-									newLexicalUnit(LexicalType.OPERATOR_MULTIPLY, false);
+									newLexicalUnit(LexicalType.OPERATOR_MULTIPLY);
 								} else {
 									unexpectedCharError(index, codepoint);
 								}
@@ -7107,7 +7153,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		private void newCustomPropertyOperator(int index, int codepoint, LexicalType operator) {
 			if (currentlu == null) {
-				newLexicalUnit(operator, false);
+				newLexicalUnit(operator);
 				return;
 			} else {
 				// This method is not being called if we are in calc()
@@ -7116,7 +7162,7 @@ public class CSSParser implements Parser, Cloneable {
 				LexicalType type;
 				if (!typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
 						&& type != LexicalType.OPERATOR_COMMA) {
-					newLexicalUnit(operator, false);
+					newLexicalUnit(operator);
 					return;
 				}
 			}
@@ -7139,7 +7185,7 @@ public class CSSParser implements Parser, Cloneable {
 						if (escapedTokenIndex == -1) {
 							buffer.append('=');
 							String s = buffer.toString();
-							newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = s;
+							newLexicalUnit(LexicalType.COMPAT_IDENT).value = s;
 							buffer.setLength(0);
 							hexColor = false;
 							warnIdentCompat(index - buflen, s);
@@ -7160,7 +7206,7 @@ public class CSSParser implements Parser, Cloneable {
 							lu.value += '=';
 							return true;
 						} else if (lutype == LexicalType.RIGHT_BRACKET) {
-							newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = "=";
+							newLexicalUnit(LexicalType.COMPAT_IDENT).value = "=";
 							warnIdentCompat(index, "=");
 							return true;
 						}
@@ -7266,7 +7312,7 @@ public class CSSParser implements Parser, Cloneable {
 					return;
 				} else if (parendepth == 1 && functionToken && allowSemicolonArgument()) {
 					processBuffer(index);
-					newLexicalUnit(LexicalType.OPERATOR_SEMICOLON, false);
+					newLexicalUnit(LexicalType.OPERATOR_SEMICOLON);
 					return;
 				}
 			}
@@ -7556,7 +7602,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 
 				// Create a new dimension/percentage lexical unit
-				lu = newLexicalUnit(unitType, false);
+				lu = newLexicalUnit(unitType);
 				lu.floatValue = flval;
 				lu.dimensionUnitText = unit;
 				lu.setCssUnit(cssUnit);
@@ -7602,17 +7648,17 @@ public class CSSParser implements Parser, Cloneable {
 			LexicalType type;
 			if (this.currentlu == null) {
 				if (isCustomProperty()) {
-					newLexicalUnit(operator, false);
+					newLexicalUnit(operator);
 					return;
 				}
 			} else if (currentlu.parameters != null) {
 				if (isVarOrLastParamIsOperand()) {
-					newLexicalUnit(operator, false);
+					newLexicalUnit(operator);
 					return;
 				}
 			} else if (isCustomProperty() && !typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
 					&& type != LexicalType.OPERATOR_COMMA) {
-				newLexicalUnit(operator, false);
+				newLexicalUnit(operator);
 				return;
 			}
 			unexpectedCharError(index, codePoint);
@@ -7621,13 +7667,13 @@ public class CSSParser implements Parser, Cloneable {
 		private boolean createIdentifierOrKeyword(int index, String raw, String ident,
 			String cssText) {
 			if (ident.equalsIgnoreCase("inherit")) {
-				newLexicalUnit(LexicalType.INHERIT, false);
+				newLexicalUnit(LexicalType.INHERIT);
 			} else if (ident.equalsIgnoreCase("initial")) {
-				newLexicalUnit(LexicalType.INITIAL, false);
+				newLexicalUnit(LexicalType.INITIAL);
 			} else if (ident.equalsIgnoreCase("unset")) {
-				newLexicalUnit(LexicalType.UNSET, false);
+				newLexicalUnit(LexicalType.UNSET);
 			} else if (ident.equalsIgnoreCase("revert")) {
-				newLexicalUnit(LexicalType.REVERT, false);
+				newLexicalUnit(LexicalType.REVERT);
 			} else {
 				return newIdentifier(raw, ident, cssText);
 			}
@@ -7655,7 +7701,7 @@ public class CSSParser implements Parser, Cloneable {
 						}
 					}
 				}
-				LexicalUnitImpl lu = newLexicalUnit(LexicalType.IDENT, false);
+				LexicalUnitImpl lu = newLexicalUnit(LexicalType.IDENT);
 				lu.value = ident;
 				lu.identCssText = cssText;
 				return true;
@@ -7733,11 +7779,16 @@ public class CSSParser implements Parser, Cloneable {
 					return false;
 				}
 				currentlu.reset();
-				currentlu.value = prev + ' ' + lastvalue;
-				currentlu.setUnitType(LexicalType.COMPAT_IDENT);
-				currentlu.setCssUnit(CSSUnit.CSS_INVALID);
+				LexicalUnitImpl lu = new LexicalUnitImpl(LexicalType.COMPAT_IDENT);
+				lu.value = prev + ' ' + lastvalue;
+				if (currentlu == lunit) {
+					lunit = lu;
+				} else {
+					currentlu.replaceBy(lu);
+				}
+				currentlu = lu;
 			} else {
-				newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = lastvalue;
+				newLexicalUnit(LexicalType.COMPAT_IDENT).value = lastvalue;
 			}
 			warnIdentCompat(index, lastvalue);
 			return true;
@@ -7765,11 +7816,10 @@ public class CSSParser implements Parser, Cloneable {
 				} finally {
 					lunit.reset();
 				}
+				lunit = new LexicalUnitImpl(LexicalType.COMPAT_IDENT);
 				lunit.value = newval;
-				lunit.setUnitType(LexicalType.COMPAT_IDENT);
-				lunit.setCssUnit(CSSUnit.CSS_INVALID);
 			} else {
-				newLexicalUnit(LexicalType.COMPAT_IDENT, false).value = newval;
+				newLexicalUnit(LexicalType.COMPAT_IDENT).value = newval;
 			}
 			return newval;
 		}
@@ -7789,7 +7839,7 @@ public class CSSParser implements Parser, Cloneable {
 					lu1 = new LexicalUnitImpl(LexicalType.INTEGER);
 					lu1.intValue = Integer.parseInt(s, 16);
 				} else if (check == 2) {
-					lu1 = new LexicalUnitImpl(LexicalType.UNICODE_WILDCARD);
+					lu1 = new UnicodeWildcardUnitImpl();
 					lu1.value = s;
 				} else {
 					handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
@@ -7818,7 +7868,7 @@ public class CSSParser implements Parser, Cloneable {
 				handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
 				return;
 			}
-			LexicalUnitImpl range = newLexicalUnit(LexicalType.UNICODE_RANGE, false);
+			LexicalUnitImpl range = addPlainLexicalUnit(new UnicodeRangeUnitImpl());
 			range.addFunctionParameter(lu1);
 			if (lu2 != null) {
 				range.addFunctionParameter(lu2);
@@ -7850,7 +7900,7 @@ public class CSSParser implements Parser, Cloneable {
 		private boolean parseHexColor(int buflen) {
 			try {
 				if (buflen == 3) {
-					newLexicalUnit(LexicalType.RGBCOLOR, true);
+					newFunctionOrExpressionUnit(new RGBColorUnitImpl());
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -7860,7 +7910,7 @@ public class CSSParser implements Parser, Cloneable {
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 6) {
-					newLexicalUnit(LexicalType.RGBCOLOR, true);
+					newFunctionOrExpressionUnit(new RGBColorUnitImpl());
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -7870,7 +7920,7 @@ public class CSSParser implements Parser, Cloneable {
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 8) {
-					newLexicalUnit(LexicalType.RGBCOLOR, true);
+					newFunctionOrExpressionUnit(new RGBColorUnitImpl());
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -7878,12 +7928,12 @@ public class CSSParser implements Parser, Cloneable {
 					parseHexComponent(2, 4, false);
 					parseHexComponent(4, 6, false);
 					int comp = hexComponent(6, 8, false);
-					newLexicalUnit(LexicalType.OPERATOR_SLASH, false);
+					newLexicalUnit(LexicalType.OPERATOR_SLASH);
 					newNumberUnit(LexicalType.REAL).floatValue = comp / 255f;
 					recoverOwnerUnit();
 					functionToken = prevft;
 				} else if (buflen == 4) {
-					newLexicalUnit(LexicalType.RGBCOLOR, true);
+					newFunctionOrExpressionUnit(new RGBColorUnitImpl());
 					currentlu.value = "rgb";
 					boolean prevft = functionToken;
 					functionToken = true;
@@ -7891,7 +7941,7 @@ public class CSSParser implements Parser, Cloneable {
 					parseHexComponent(1, 2, true);
 					parseHexComponent(2, 3, true);
 					int comp = hexComponent(3, 4, true);
-					newLexicalUnit(LexicalType.OPERATOR_SLASH, false);
+					newLexicalUnit(LexicalType.OPERATOR_SLASH);
 					newNumberUnit(LexicalType.REAL).floatValue = comp / 255f;
 					recoverOwnerUnit();
 					functionToken = prevft;
@@ -7910,7 +7960,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		private LexicalUnitImpl newNumberUnit(LexicalType sacType) {
-			LexicalUnitImpl lu = newLexicalUnit(sacType, false);
+			LexicalUnitImpl lu = newLexicalUnit(sacType);
 			lu.setCssUnit(CSSUnit.CSS_NUMBER);
 			return lu;
 		}
@@ -7939,7 +7989,7 @@ public class CSSParser implements Parser, Cloneable {
 				processBuffer(index);
 				if (!parseError) {
 					String s = quoted.toString();
-					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING, false);
+					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING);
 					if (lu.value != null) {
 						handleError(index, ParseHelper.ERR_WRONG_VALUE,
 							"Unexpected string: " + quoteChar + quoted + quoteChar);
@@ -7965,7 +8015,7 @@ public class CSSParser implements Parser, Cloneable {
 				processBuffer(index);
 				if (!parseError) {
 					String s = quoted.toString();
-					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING, false);
+					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING);
 					if (lu.value != null) {
 						handleError(index, ParseHelper.ERR_WRONG_VALUE,
 							"Unexpected string: " + quoteChar + quoted + quoteChar);

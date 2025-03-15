@@ -13,14 +13,11 @@ package io.sf.carte.doc.style.css.parser;
 
 import java.util.Locale;
 
-import org.w3c.dom.DOMException;
-
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Multiplier;
-import io.sf.carte.doc.style.css.UnitStringToId;
 import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
@@ -295,11 +292,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 
 	@Override
 	public LexicalUnit getSubValues() {
-		if (unitType == LexicalType.SUB_EXPRESSION || unitType == LexicalType.UNICODE_RANGE) {
-			return parameters;
-		} else {
-			return null;
-		}
+		return null;
 	}
 
 	void addFunctionParameter(LexicalUnitImpl paramUnit) {
@@ -377,7 +370,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 
 	CharSequence currentToString() {
 		if (parameters != null) {
-			return serializeUnitWithParam();
+			return functionalSerialization(value);
 		}
 
 		switch (unitType) {
@@ -418,16 +411,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			return "unset";
 		case REVERT:
 			return "revert";
-		case ELEMENT_REFERENCE:
-			if (value == null) {
-				return "element(#)";
-			}
-			int len = value.length();
-			buf = new StringBuilder(len + 10);
-			buf.append("element(#").append(value).append(')');
-			return buf;
-		case UNICODE_WILDCARD:
-			return getStringValue();
 		case OPERATOR_COMMA:
 			return ",";
 		case OPERATOR_SEMICOLON:
@@ -466,60 +449,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		return "";
 	}
 
-	private CharSequence serializeUnitWithParam() {
-		StringBuilder buf;
-		switch (unitType) {
-		case RGBCOLOR:
-			if (identCssText != null) {
-				return identCssText;
-			}
-			break;
-		case SUB_EXPRESSION:
-			buf = new StringBuilder();
-			boolean saExpr = (previousLexicalUnit == null
-					|| previousLexicalUnit.getLexicalUnitType() == LexicalType.OPERATOR_COMMA)
-					&& (nextLexicalUnit == null
-							|| nextLexicalUnit.getLexicalUnitType() == LexicalType.OPERATOR_COMMA);
-			if (!saExpr) {
-				buf.append('(');
-			}
-			LexicalUnit lu = this.parameters;
-			if (lu != null) {
-				buf.append(lu.toString());
-			}
-			if (!saExpr) {
-				buf.append(')');
-			}
-			return buf;
-		case ELEMENT_REFERENCE:
-			return functionalSerialization("element");
-		case UNICODE_RANGE:
-			buf = new StringBuilder();
-			lu = this.parameters;
-			if (lu != null) {
-				if (lu.getLexicalUnitType() == LexicalType.INTEGER) {
-					buf.append("U+").append(Integer.toHexString(lu.getIntegerValue()));
-				} else {
-					buf.append("U+").append(lu.getStringValue());
-				}
-				lu = lu.getNextLexicalUnit();
-				if (lu != null) {
-					buf.append('-');
-					if (lu.getLexicalUnitType() == LexicalType.INTEGER) {
-						buf.append(Integer.toHexString(lu.getIntegerValue()));
-					} else {
-						buf.append(lu.getStringValue());
-					}
-				}
-			}
-			return buf;
-		default:
-		}
-		return functionalSerialization(value);
-	}
-
-	private CharSequence functionalSerialization(String fname) {
-		StringBuilder buf = new StringBuilder();
+	CharSequence functionalSerialization(String fname) {
+		StringBuilder buf = new StringBuilder(32);
 		buf.append(fname).append('(');
 		LexicalUnit lu = this.parameters;
 		if (lu != null) {
@@ -543,26 +474,36 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 				break;
 			}
 
-			CSSValueSyntax comp = syntax;
-			do {
-				Multiplier mult = comp.getMultiplier();
-				Category cat = comp.getCategory();
-				if (cat == Category.universal) {
-					return Match.TRUE;
-				}
-				// If there is a next unit but no multiplier defined, skip this syntax
-				if (mult != Multiplier.NONE || nextLexicalUnit == null
-						|| cat == Category.transformList) {
-					Match result;
-					if ((result = matchesComponent(syntax, comp)) != Match.FALSE) {
-						return result;
-					}
-				}
-				comp = comp.getNext();
-			} while (comp != null);
+			return matchSyntaxChain(syntax);
 		}
 
 		return Match.FALSE;
+	}
+
+	Match matchSyntaxChain(CSSValueSyntax syntax) {
+		CSSValueSyntax comp = syntax;
+		do {
+			Multiplier mult = comp.getMultiplier();
+			Category cat = comp.getCategory();
+			if (cat == Category.universal) {
+				return getUniversalMatch();
+			}
+			// If there is a next unit but no multiplier defined, skip this syntax
+			if (mult != Multiplier.NONE || nextLexicalUnit == null
+					|| cat == Category.transformList) {
+				Match result;
+				if ((result = matchesComponent(syntax, comp)) != Match.FALSE) {
+					return result;
+				}
+			}
+			comp = comp.getNext();
+		} while (comp != null);
+
+		return Match.FALSE;
+	}
+
+	Match getUniversalMatch() {
+		return Match.TRUE;
 	}
 
 	private Match matchesComponent(CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
@@ -570,7 +511,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		Match prevmatch = Match.FALSE;
 
 		do {
-			Match match = matchesComponent(lu, rootSyntax, syntax);
+			Match match = lu.componentMatch(rootSyntax, syntax);
 			if (match == Match.FALSE) {
 				return Match.FALSE;
 			}
@@ -604,7 +545,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		Match prevmatch = Match.FALSE;
 		CSSValueSyntax comp = syntax;
 		do {
-			Match match = matchesComponent(this, syntax, comp);
+			Match match = componentMatch(syntax, comp);
 			if (match == Match.TRUE) {
 				prevmatch = Match.TRUE;
 				break;
@@ -616,47 +557,34 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		return prevmatch;
 	}
 
-	private static Match matchesComponent(LexicalUnitImpl lexicalUnit, CSSValueSyntax rootSyntax,
-			CSSValueSyntax syntax) {
-		LexicalType type = lexicalUnit.getLexicalUnitType();
-		switch (type) {
+	private Match componentMatch(CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
+		switch (unitType) {
 		case OPERATOR_COMMA:
 			if (syntax.getMultiplier() != Multiplier.NUMBER
-					|| lexicalUnit.nextLexicalUnit == null) {
+					|| nextLexicalUnit == null) {
 				return Match.FALSE;
 			}
 			// Unlikely to reach this (unless consecutive commas when testing a # multiplier)
 			return Match.TRUE;
-		case ATTR:
-			return matchAttr(lexicalUnit, rootSyntax, syntax);
-		case VAR:
-			return Match.PENDING;
 		default:
 			break;
 		}
 
+		return typeMatch(rootSyntax, syntax);
+	}
+
+	Match typeMatch(CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
+		LexicalType type = getLexicalUnitType();
 		Category cat = syntax.getCategory();
 		switch (cat) {
-		case universal:
-			return Match.TRUE;
-		case integer:
+		case number:
 			if (type == LexicalType.REAL) {
-				break;
+				return Match.TRUE;
 			}
 			// pass-through
-		case number:
-			switch (type) {
-			case REAL:
+		case integer:
+			if (type == LexicalType.INTEGER) {
 				return Match.TRUE;
-			case INTEGER:
-				return Match.TRUE;
-			case CALC:
-			case SUB_EXPRESSION:
-				return matchExpression(lexicalUnit, rootSyntax, syntax);
-			case MATH_FUNCTION:
-				return matchMathFunction(lexicalUnit, rootSyntax, syntax);
-			default:
-				break;
 			}
 			break;
 		case percentage:
@@ -672,124 +600,56 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case resolution:
 		case flex:
 			// Dimension
-			switch (type) {
-			case DIMENSION:
-				return matchBoolean(unitMatchesCategory(lexicalUnit.getCssUnit(), cat));
-			case CALC:
-			case SUB_EXPRESSION:
-				return matchExpression(lexicalUnit, rootSyntax, syntax);
-			case MATH_FUNCTION:
-				return matchMathFunction(lexicalUnit, rootSyntax, syntax);
-			case ENV:
-				return matchEnv(lexicalUnit, rootSyntax, syntax);
-			default:
-				break;
+			if (type == LexicalType.DIMENSION && unitMatchesCategory(getCssUnit(), cat)) {
+				return Match.TRUE;
 			}
 			break;
 		case color:
-			switch (type) {
-			case RGBCOLOR:
-			case HSLCOLOR:
-			case LABCOLOR:
-			case LCHCOLOR:
-			case OKLABCOLOR:
-			case OKLCHCOLOR:
-			case HWBCOLOR:
-			case COLOR_FUNCTION:
-			case COLOR_MIX:
+			if (type == LexicalType.IDENT && ColorIdentifiers.getInstance()
+					.isColorIdentifier(getStringValue().toLowerCase(Locale.ROOT))) {
 				return Match.TRUE;
-			case IDENT:
-				return matchBoolean(ColorIdentifiers.getInstance()
-						.isColorIdentifier(lexicalUnit.getStringValue().toLowerCase(Locale.ROOT)));
-			default:
-				break;
 			}
 			break;
 		case IDENT:
-			return matchBoolean(syntax.getName().equals(lexicalUnit.getStringValue()));
-		case customIdent:
-			return matchBoolean(type == LexicalType.IDENT);
-		case image:
-			if (type == LexicalType.GRADIENT || type == LexicalType.IMAGE_SET
-					|| (type == LexicalType.FUNCTION && CSSUtil.isUnimplementedImageFunction(
-							lexicalUnit.getStringValue().toLowerCase(Locale.ROOT)))
-					|| type == LexicalType.ELEMENT_REFERENCE) {
+			if (syntax.getName().equals(getStringValue())) {
 				return Match.TRUE;
+			}
+			break;
+		case customIdent:
+			if (type == LexicalType.IDENT) {
+				return Match.TRUE;
+			}
+			break;
+		case image:
+			if (type == LexicalType.FUNCTION) {
+				if (CSSUtil
+						.isUnimplementedImageFunction(getStringValue().toLowerCase(Locale.ROOT))) {
+					return Match.TRUE;
+				}
+				break;
 			}
 			// pass-through
 		case url:
-			return matchBoolean(type == LexicalType.URI || type == LexicalType.SRC);
+			if (type == LexicalType.URI || type == LexicalType.SRC) {
+				return Match.TRUE;
+			}
+			break;
 		case easingFunction:
-			switch (type) {
-			case IDENT:
-				return matchBoolean("linear".equalsIgnoreCase(lexicalUnit.getStringValue()));
-			case CUBIC_BEZIER_FUNCTION:
-			case LINEAR_FUNCTION:
-			case STEPS_FUNCTION:
+			if (type == LexicalType.IDENT && "linear".equalsIgnoreCase(getStringValue())) {
 				return Match.TRUE;
-			default:
-				break;
 			}
 			break;
-		case basicShape:
-			switch (type) {
-			case RECT_FUNCTION:
-			case CIRCLE_FUNCTION:
-			case ELLIPSE_FUNCTION:
-			case INSET_FUNCTION:
-			case POLYGON_FUNCTION:
-			case PATH_FUNCTION:
-			case XYWH_FUNCTION:
-			case SHAPE_FUNCTION:
-				return Match.TRUE;
-			default:
-				break;
-			}
-			break;
-		case counter:
-			return matchBoolean(
-					type == LexicalType.COUNTER_FUNCTION || type == LexicalType.COUNTERS_FUNCTION);
 		case string:
-			return matchBoolean(type == LexicalType.STRING);
-		case transformFunction:
-		case transformList:
-			switch (type) {
-			case MATRIX_FUNCTION:
-			case PERSPECTIVE_FUNCTION:
-			case TRANSLATE_FUNCTION:
-			case TRANSLATE_3D_FUNCTION:
-			case TRANSLATE_X_FUNCTION:
-			case TRANSLATE_Y_FUNCTION:
-			case TRANSLATE_Z_FUNCTION:
-			case SCALE_FUNCTION:
-			case SCALE_3D_FUNCTION:
-			case SCALE_X_FUNCTION:
-			case SCALE_Y_FUNCTION:
-			case SCALE_Z_FUNCTION:
-			case ROTATE_FUNCTION:
-			case ROTATE_3D_FUNCTION:
-			case ROTATE_X_FUNCTION:
-			case ROTATE_Y_FUNCTION:
-			case ROTATE_Z_FUNCTION:
-			case SKEW_FUNCTION:
-			case SKEW_X_FUNCTION:
-			case SKEW_Y_FUNCTION:
+			if (type == LexicalType.STRING) {
 				return Match.TRUE;
-			default:
-				break;
 			}
 			break;
-		case unicodeRange:
-			return matchBoolean(
-					type == LexicalType.UNICODE_RANGE || type == LexicalType.UNICODE_WILDCARD);
+		case universal:
+			return getUniversalMatch();
 		default:
 		}
 
 		return Match.FALSE;
-	}
-
-	private static Match matchBoolean(boolean b) {
-		return b ? Match.TRUE : Match.FALSE;
 	}
 
 	/**
@@ -799,7 +659,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 	 * @param cat  the grammar type category to check.
 	 * @return true if the unit matches the syntax category.
 	 */
-	private static boolean unitMatchesCategory(short unit, Category cat) {
+	static boolean unitMatchesCategory(short unit, Category cat) {
 		switch (cat) {
 		case length:
 			return CSSUnit.isLengthUnitType(unit);
@@ -827,260 +687,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		return false;
 	}
 
-	private static Match matchAttr(LexicalUnitImpl lexicalUnit, CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
-		Match result = Match.FALSE;
-		LexicalUnit param = lexicalUnit.getParameters();
-		if (param != null) {
-			LexicalUnit fallback = null;
-			param = param.getNextLexicalUnit();
-			if (param == null) {
-				// Implicit "string"
-				return syntax.getCategory() == Category.string ? Match.TRUE : Match.FALSE;
-			}
-
-			short unit = CSSUnit.CSS_OTHER;
-			CSSValueSyntax attrSyntax = null;
-			LexicalType luType = param.getLexicalUnitType();
-			if (luType == LexicalType.OPERATOR_COMMA) {
-				attrSyntax = SyntaxParser.createSimpleSyntax("string");
-				fallback = param.getNextLexicalUnit();
-			} else {
-				switch (luType) {
-				case OPERATOR_COMMA:
-					break;
-				case TYPE_FUNCTION:
-					LexicalUnit typeParam = param.getParameters();
-					try {
-						attrSyntax = typeParam.getSyntax();
-					} catch (IllegalStateException e) {
-						return Match.FALSE; // Error
-					}
-					break;
-				case IDENT:
-					// We got a data type spec
-					String s = param.getStringValue().toLowerCase(Locale.ROOT);
-					if ("string".equals(s)) {
-						attrSyntax = SyntaxParser.createSimpleSyntax("string");
-					} else {
-						unit = UnitStringToId.unitFromString(s);
-					}
-					break;
-				case OPERATOR_MOD:
-					unit = CSSUnit.CSS_PERCENTAGE;
-					break;
-				case VAR:
-					return Match.PENDING;
-				default:
-					return Match.FALSE; // Should never happen
-				}
-				param = param.getNextLexicalUnit();
-				if (param != null) {
-					if (param.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
-						return Match.FALSE; // Should never happen
-					}
-					fallback = param.getNextLexicalUnit();
-				}
-			}
-
-			// Now, let's try matching the attr datatype and the fallback (if available).
-			CSSValueSyntax typeMatch = null;
-			CSSValueSyntax comp = rootSyntax;
-			topLoop: do {
-				Match attrTypeMatch;
-				if (attrSyntax == null) {
-					if (unitMatchesCategory(unit, comp.getCategory())) {
-						attrTypeMatch = Match.TRUE;
-						result = Match.PENDING;
-						typeMatch = comp;
-					} else {
-						attrTypeMatch = Match.FALSE;
-					}
-				} else {
-					attrTypeMatch = matchAttrTypeSyntax(lexicalUnit.isParameter(), attrSyntax, comp.getCategory());
-					if (attrTypeMatch != Match.FALSE) {
-						result = Match.PENDING;
-						typeMatch = comp;
-					}
-				}
-				//
-				if (fallback != null) {
-					// We got a fallback
-					CSSValueSyntax fallbackComp = rootSyntax;
-					do {
-						Match match = fallback.matches(fallbackComp);
-						if (match == Match.FALSE) {
-							// url is a special case
-							if (attrTypeMatch != Match.FALSE && attrSyntax != null
-									&& attrSyntax.getCategory() == Category.url
-									&& fallback.getLexicalUnitType() == LexicalType.STRING
-									&& hasNoSiblings(lexicalUnit)
-									&& fallback.getNextLexicalUnit() == null) {
-								result = Match.TRUE;
-							} else {
-								continue;
-							}
-						} else if (match == Match.PENDING) {
-							result = Match.PENDING;
-							if (attrTypeMatch != Match.FALSE) {
-								continue;
-							}
-						} else { // TRUE
-							if (attrTypeMatch != Match.TRUE) {
-								result = Match.PENDING;
-								// Perhaps we'll have better luck matching attr datatype with next syntax
-								continue topLoop;
-							} else if (hasNoSiblings(lexicalUnit) || (typeMatch == fallbackComp)) {
-								result = Match.TRUE;
-							} // Here, attrTypeMatch is true and 'result' should be PENDING
-						}
-						return result;
-					} while ((fallbackComp = fallbackComp.getNext()) != null);
-				} else if (attrTypeMatch == Match.TRUE) {
-					return Match.TRUE;
-				}
-			} while ((comp = comp.getNext()) != null);
-		}
-		return result;
-	}
-
-	/**
-	 * Match the type syntax of an {@code attr()} value.
-	 * 
-	 * @param calcContext {@code true} if we are in {@code calc()} context.
-	 * @param typeSyntax  the syntax of the type being checked.
-	 * @param cat         the grammar data type category to check.
-	 * @return true if the type category matches the syntax category.
-	 */
-	private static Match matchAttrTypeSyntax(boolean calcContext, CSSValueSyntax typeSyntax,
-			Category cat) {
-		Match expected = Match.FALSE;
-		do {
-			Category typeCategory = typeSyntax.getCategory();
-			Match match = categoryMatch(calcContext, false, typeCategory, cat);
-			if (match != Match.FALSE) {
-				if (expected != Match.PENDING) {
-					expected = Match.TRUE;
-					break;
-				}
-			} else if (expected == Match.TRUE) {
-				expected = Match.PENDING;
-			}
-			typeSyntax = typeSyntax.getNext();
-		} while (typeSyntax != null);
-		return expected;
-	}
-
-	/**
-	 * If the supplied value represents an expression, determine if its result that
-	 * could be consistent with the requested syntax.
-	 * 
-	 * @param lunit      the lexical value containing the first operand.
-	 * @param rootSyntax the first syntax in the syntax chain.
-	 * @param syntax     the current syntax to be evaluated in the syntax chain.
-	 * @return the match that would be expected from the expression.
-	 */
-	private static Match matchExpression(LexicalUnitImpl lunit, CSSValueSyntax rootSyntax,
-			CSSValueSyntax syntax) {
-		DimensionalAnalyzer danal = new DimensionalAnalyzer();
-		Dimension dim;
-		try {
-			dim = danal.expressionDimension(lunit.parameters);
-		} catch (DOMException e) {
-			return Match.FALSE;
-		}
-		if (dim == null) { // var()
-			return Match.PENDING;
-		}
-
-		Match expected = Match.FALSE;
-		// Look for both lengths and percentages being matched
-		boolean lenghtMatched = false, pcntMatched = false;
-		CSSValueSyntax comp = rootSyntax;
-		do {
-			Category cat = comp.getCategory();
-
-			Match match;
-
-			boolean lenientLP = danal.isAttrPending();
-
-			if (lenientLP) {
-				/*
-				 * The idea of attr() lenient length-percentage processing is that the attr()
-				 * type and fallback may be a length and a percentage, or vice-versa. In which
-				 * case one cannot clearly match either with TRUE, FALSE nor PENDING. However,
-				 * when we find lengths or percentages in subsequent computations, this can be
-				 * used to narrow the match.
-				 */
-				match = categoryMatch(true, true, dim.category, cat);
-				if (match == Match.PENDING) {
-					// Special case: length-percentage
-					if (cat == Category.length) {
-						lenghtMatched = true;
-						match = dim.isPercentageProcessed() ? Match.FALSE : Match.PENDING;
-					} else if (cat == Category.percentage) {
-						pcntMatched = true;
-						match = dim.isLengthProcessed() ? Match.FALSE : Match.PENDING;
-					}
-				}
-			} else {
-				// Special case: length-percentage
-				if (cat == Category.length) {
-					lenghtMatched = true;
-				} else if (cat == Category.percentage) {
-					pcntMatched = true;
-				}
-				match = categoryMatch(true, false, dim.category, cat);
-			}
-
-			if (match == Match.TRUE) {
-				if (dim.isCSS()) {
-					return Match.TRUE;
-				}
-			} else if (expected != Match.PENDING) {
-				expected = match;
-			}
-		} while ((comp = comp.getNext()) != null);
-
-		// Special case: length-percentage
-		if (dim.category == Category.lengthPercentage && lenghtMatched && pcntMatched) {
-			expected = Match.TRUE;
-		}
-
-		return expected;
-	}
-
-	private static Match matchMathFunction(LexicalUnitImpl lexicalUnit, CSSValueSyntax rootSyntax,
-			CSSValueSyntax syntax) {
-		DimensionalAnalyzer danal = new DimensionalAnalyzer();
-		Dimension dim;
-		try {
-			dim = ((MathFunctionUnitImpl) lexicalUnit).dimension(danal);
-		} catch (DOMException e) {
-			return Match.FALSE;
-		}
-		return dim != null ? dim.matches(syntax) : Match.PENDING;
-	}
-
-	private static Match matchEnv(LexicalUnitImpl lexicalUnit, CSSValueSyntax rootSyntax,
-			CSSValueSyntax syntax) {
-		LexicalUnitImpl param = lexicalUnit.parameters;
-		String name = param.getStringValue();
-		LexicalUnitImpl fallback;
-		do {
-			param = param.nextLexicalUnit;
-			if (param == null) {
-				fallback = null;
-				break;
-			}
-			if (param.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
-				fallback = param.nextLexicalUnit;
-				break;
-			}
-		} while (true);
-
-		return CSSUtil.matchEnv(rootSyntax, syntax, name, fallback);
-	}
-
 	/**
 	 * Match the syntax category of a type with a given category.
 	 * 
@@ -1090,7 +696,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 	 * @param cat          the grammar syntax type category to check.
 	 * @return the match of the syntax category.
 	 */
-	private static Match categoryMatch(boolean calcContext, boolean lenientLP,
+	static Match categoryMatch(boolean calcContext, boolean lenientLP,
 			Category typeCategory, Category cat) {
 		if (typeCategory == cat
 				|| (typeCategory == Category.length && cat == Category.lengthPercentage)
@@ -1109,11 +715,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		}
 
 		return Match.FALSE;
-	}
-
-	private static boolean hasNoSiblings(LexicalUnit lexicalUnit) {
-		return lexicalUnit.getNextLexicalUnit() == null
-				&& lexicalUnit.getPreviousLexicalUnit() == null;
 	}
 
 	@Override
@@ -1172,11 +773,13 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		if (intValue != other.intValue) {
 			return false;
 		}
+
 		if (parameters == null) {
 			return other.parameters == null;
 		} else if (other.parameters == null) {
 			return false;
 		}
+
 		LexicalUnitImpl lu = parameters;
 		LexicalUnitImpl olu = other.parameters;
 		while (lu != null) {

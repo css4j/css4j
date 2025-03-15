@@ -71,6 +71,10 @@ public class PropertyParserColorTest {
 		assertMatch(Match.TRUE, lu, "<color>#");
 		assertMatch(Match.FALSE, lu, "<length>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test

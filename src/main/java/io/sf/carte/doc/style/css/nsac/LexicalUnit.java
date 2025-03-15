@@ -19,7 +19,20 @@ import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 
 /**
+ * A CSS lexical unit.
+ * <p>
+ * This lexical unit may be followed by a number of subsequent units, accessible
+ * via the {@link #getNextLexicalUnit()} method. May also be preceded by other
+ * units that can be accessed by the {@link #getPreviousLexicalUnit()}.
+ * </p>
+ * <p>
+ * It is recommended that implementations of this interface override the
+ * {@code equals()} and {@code hashCode()} methods, but in doing that do not
+ * take into account subsequent lexical units in the chain.
+ * </p>
+ * <p>
  * Based on SAC's {@code LexicalUnit} interface by Philippe Le Hegaret.
+ * </p>
  */
 public interface LexicalUnit {
 
@@ -153,6 +166,39 @@ public interface LexicalUnit {
 		DIMENSION,
 
 		/**
+		 * Identifier, both predefined and custom.
+		 * 
+		 * @see LexicalUnit#getStringValue
+		 */
+		IDENT,
+
+		/**
+		 * A string.
+		 * 
+		 * @see LexicalUnit#getStringValue
+		 */
+		STRING,
+
+		/**
+		 * URI: <code>url(...)</code>.
+		 * 
+		 * Use {@link LexicalUnit#getStringValue() getStringValue()} to retrieve the
+		 * URL.
+		 */
+		URI,
+
+		/**
+		 * SRC: <code>src(...)</code>.
+		 * 
+		 * Use {@link LexicalUnit#getParameters() getParameters()} to retrieve the URL.
+		 */
+		SRC,
+
+		/*
+		 * Color functions.
+		 */
+
+		/**
 		 * RGB colors in functional (<code>rgb(0, 0, 0)</code>) and hex
 		 * (<code>#000</code>) notations.
 		 * 
@@ -229,51 +275,48 @@ public interface LexicalUnit {
 		 */
 		COLOR_MIX,
 
-		/**
-		 * Identifier, both predefined and custom.
-		 * 
-		 * @see LexicalUnit#getStringValue
+		/*
+		 * End of color functions.
 		 */
-		IDENT,
 
 		/**
-		 * A string.
+		 * A <code>calc()</code> expression.
 		 * 
-		 * @see LexicalUnit#getStringValue
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
-		STRING,
+		CALC,
 
 		/**
-		 * URI: <code>url(...)</code>.
-		 * 
-		 * Use {@link LexicalUnit#getStringValue() getStringValue()} to retrieve the
-		 * URL.
-		 */
-		URI,
-
-		/**
-		 * SRC: <code>src(...)</code>.
-		 * 
-		 * Use {@link LexicalUnit#getParameters() getParameters()} to retrieve the URL.
-		 */
-		SRC,
-
-		/**
-		 * A unicode range.
+		 * Sub-expressions <code>(a)</code> <code>(a + b)</code>
 		 * 
 		 * @see LexicalUnit#getSubValues
 		 */
-		UNICODE_RANGE,
+		SUB_EXPRESSION,
 
 		/**
-		 * Unicode range wildcard.
-		 * <p>
-		 * For example: <code>U+4??</code>.
-		 * <p>
-		 * The {@link #getStringValue()} method returns the wildcard without the
-		 * preceding "U+".
+		 * Mathematical function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
 		 */
-		UNICODE_WILDCARD,
+		MATH_FUNCTION,
+
+		/**
+		 * A function.
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		FUNCTION,
+
+		/**
+		 * A prefixed function (_e.g._ {@code -webkit-cross-fade()}).
+		 * 
+		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getParameters
+		 */
+		PREFIXED_FUNCTION,
 
 		/**
 		 * Custom property value: <code>var(...)</code>.
@@ -313,12 +356,25 @@ public interface LexicalUnit {
 		SYNTAX,
 
 		/**
-		 * A <code>calc()</code> expression.
+		 * A unicode range.
 		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
+		 * @see LexicalUnit#getSubValues
 		 */
-		CALC,
+		UNICODE_RANGE,
+
+		/**
+		 * Unicode range wildcard.
+		 * <p>
+		 * For example: <code>U+4??</code>.
+		 * <p>
+		 * The {@link #getStringValue()} method returns the wildcard without the
+		 * preceding "U+".
+		 */
+		UNICODE_WILDCARD,
+
+		/*
+		 * <counter> types.
+		 */
 
 		/**
 		 * function <code>counter</code>.
@@ -335,6 +391,14 @@ public interface LexicalUnit {
 		 * @see LexicalUnit#getParameters
 		 */
 		COUNTERS_FUNCTION,
+
+		/*
+		 * End of <counter> types.
+		 */
+
+		/*
+		 * <easing-function> types.
+		 */
 
 		/**
 		 * <code>cubic-bezier()</code> easing function.
@@ -359,6 +423,14 @@ public interface LexicalUnit {
 		 * @see LexicalUnit#getParameters
 		 */
 		STEPS_FUNCTION,
+
+		/*
+		 * End of <easing-function> types.
+		 */
+
+		/*
+		 * Basic shapes.
+		 */
 
 		/**
 		 * function <code>rect</code>.
@@ -423,6 +495,14 @@ public interface LexicalUnit {
 		 * @see LexicalUnit#getParameters
 		 */
 		XYWH_FUNCTION,
+
+		/*
+		 * End of <basic-shape> types.
+		 */
+
+		/*
+		 * Transform functions.
+		 */
 
 		/**
 		 * {@code matrix()} function.
@@ -584,36 +664,13 @@ public interface LexicalUnit {
 		 */
 		SKEW_Y_FUNCTION,
 
-		/**
-		 * Mathematical function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
+		/*
+		 * End of transform functions.
 		 */
-		MATH_FUNCTION,
 
-		/**
-		 * A function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
+		/*
+		 * Image functions.
 		 */
-		FUNCTION,
-
-		/**
-		 * A prefixed function (_e.g._ {@code -webkit-cross-fade()}).
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		PREFIXED_FUNCTION,
-
-		/**
-		 * Sub-expressions <code>(a)</code> <code>(a + b)</code>
-		 * 
-		 * @see LexicalUnit#getSubValues
-		 */
-		SUB_EXPRESSION,
 
 		/**
 		 * Any function whose name ends with {@code -gradient}.
@@ -646,6 +703,10 @@ public interface LexicalUnit {
 		 * @see LexicalUnit#getParameters
 		 */
 		ELEMENT_REFERENCE,
+
+		/*
+		 * End of image functions.
+		 */
 
 		/**
 		 * [
@@ -932,6 +993,25 @@ public interface LexicalUnit {
 	 */
 	default int getMathFunctionIndex() {
 		return -1;
+	}
+
+	/**
+	 * Gives the index of this unit in its processing context.
+	 * <p>
+	 * This helps to speed processing in some contexts, like math or transform
+	 * functions.
+	 * </p>
+	 * <p>
+	 * For example, if this unit represents a {@link LexicalType#MATH_FUNCTION
+	 * MATH_FUNCTION}, this method would return the same result as
+	 * {@link #getMathFunctionIndex()}.
+	 * </p>
+	 * 
+	 * @return the zero-based function index, or {@code -1} if this lexical unit
+	 *         does not belong to any processing context.
+	 */
+	default int getContextIndex() {
+		return getMathFunctionIndex();
 	}
 
 	/**

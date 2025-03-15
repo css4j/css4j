@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -63,11 +64,17 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals("lab", lu.getFunctionName());
 		assertEquals("lab(53.2% 42.4 57.76)", lu.toString());
 
+		assertTrue(lu.getContextIndex() >= 0);
+
 		assertMatch(Match.TRUE, lu, "<color>");
 		assertMatch(Match.TRUE, lu, "<color>+");
 		assertMatch(Match.TRUE, lu, "<color>#");
 		assertMatch(Match.FALSE, lu, "<length>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -777,11 +784,17 @@ public class PropertyParserCIELabLChColorTest {
 		assertEquals("lch", lu.getFunctionName());
 		assertEquals("lch(53.2% 42.4 57.76)", lu.toString());
 
+		assertTrue(lu.getContextIndex() >= 0);
+
 		assertMatch(Match.TRUE, lu, "<color>");
 		assertMatch(Match.TRUE, lu, "<color>+");
 		assertMatch(Match.TRUE, lu, "<color>#");
 		assertMatch(Match.FALSE, lu, "<length>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test

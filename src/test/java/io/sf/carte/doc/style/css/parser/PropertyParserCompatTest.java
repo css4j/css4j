@@ -119,6 +119,10 @@ public class PropertyParserCompatTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("#d0df9f", lu.getStringValue());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -148,6 +152,10 @@ public class PropertyParserCompatTest {
 		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("EndColorStr=#d0df9f", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
