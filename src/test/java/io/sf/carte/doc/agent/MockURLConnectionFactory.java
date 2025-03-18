@@ -19,7 +19,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -132,17 +131,6 @@ public class MockURLConnectionFactory {
 			Map<String, List<String>> hdrmap = getHeadersForExtension(ext);
 			if (hdrmap != null) {
 				connheaders.putAll(hdrmap);
-			}
-			if ("html".equalsIgnoreCase(ext) || "xhtml".equalsIgnoreCase(ext) || "xml".equalsIgnoreCase(ext)) {
-				String domain = url.getHost();
-				if (domain.charAt(0) == 'w') {
-					domain = domain.substring(domain.indexOf('.'));
-				} else {
-					domain = '.' + domain;
-				}
-				LinkedList<String> ckhdr = new LinkedList<>();
-				ckhdr.add("countryCode=EN; Domain=" + domain + "; Path=/");
-				connheaders.put("Set-Cookie", ckhdr);
 			}
 		}
 

@@ -17,6 +17,7 @@ package io.sf.carte.doc.agent;
  * @author Carlos Amengual
  *
  */
+@Deprecated
 public interface CookieConfig {
 
 	boolean acceptsAllCookies();

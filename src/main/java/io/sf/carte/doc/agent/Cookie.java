@@ -11,15 +11,12 @@
 
 package io.sf.carte.doc.agent;
 
+@Deprecated(forRemoval = true)
 public interface Cookie {
 
 	String getDomain();
 
 	void setDomain(String domain);
-
-	int[] getPorts();
-
-	void addPort(int port);
 
 	String getPath();
 
@@ -32,6 +29,13 @@ public interface Cookie {
 	String getValue();
 
 	void setValue(String value);
+
+	/**
+	 * @return the creation time
+	 */
+	long getCreationTime();
+
+	void setCreationTime(long time);
 
 	long getExpiryTime();
 

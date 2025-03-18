@@ -48,8 +48,8 @@ public class ParseHelperTest {
 		assertFalse(ParseHelper.endsWithIgnoreCase("", "bar"));
 		assertFalse(ParseHelper.endsWithIgnoreCase("foo", "bar"));
 		assertFalse(ParseHelper.endsWithIgnoreCase("bar", "fbar"));
-		assertTrue(ParseHelper.endsWithIgnoreCase("foo", "oo"));
-		assertTrue(ParseHelper.endsWithIgnoreCase("foo", "foo"));
+		assertTrue(ParseHelper.endsWithIgnoreCase("abc", "bc"));
+		assertTrue(ParseHelper.endsWithIgnoreCase("abc", "abc"));
 	}
 
 	@Test

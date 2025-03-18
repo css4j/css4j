@@ -443,7 +443,6 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 			// Read cookies and close connection, if appropriate
 			if (con instanceof HttpURLConnection) {
 				HttpURLConnection hcon = (HttpURLConnection) con;
-				readCookies(hcon, time);
 				hcon.disconnect();
 			}
 			return wrapper;

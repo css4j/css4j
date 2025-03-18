@@ -12,62 +12,54 @@
 package io.sf.carte.doc.agent;
 
 import java.io.Serializable;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Default Cookie implementation.
- * 
- * @author Carlos Amengual
  *
  */
+@Deprecated(forRemoval = true)
 public class DefaultCookie implements Cookie, Serializable, Cloneable {
 
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 3L;
+
+	private long creationTime;
 
 	private long expiryTime = 0L;
-
-	private String comment = null;
-
-	private String domain = null;
-
-	private int[] ports;
-
-	private String path = null;
 
 	private String name = null;
 
 	private String value = null;
 
-	private boolean secure = false;
+	private String domain = null;
 
-	private boolean persistent = false;
+	private String path = null;
+
+	private boolean secure = false;
 
 	private boolean httpOnly = false;
 
+	private String comment = null;
+
 	public DefaultCookie() {
-		super();
-		ports = new int[0];
+		this(null, null);
 	}
 
-	public DefaultCookie(int port, String name, String value) {
-		super();
-		ports = new int[1];
-		ports[0] = port;
-		this.name = name;
-		this.value = value;
+	public DefaultCookie(String name, String value) {
+		this(name, value, System.currentTimeMillis());
 	}
 
-	private DefaultCookie(String domain, String path, int[] ports, boolean secure, String name, String value,
-			boolean persistent, long expiryTime, String comment) {
+	public DefaultCookie(String name, String value, long creationTime) {
 		super();
-		this.domain = domain;
-		this.path = path;
-		this.ports = ports;
 		this.name = name;
 		this.value = value;
-		this.secure = secure;
-		this.persistent = persistent;
-		this.expiryTime = expiryTime;
-		this.comment = comment;
+		this.creationTime = creationTime;
 	}
 
 	@Override
@@ -78,22 +70,6 @@ public class DefaultCookie implements Cookie, Serializable, Cloneable {
 	@Override
 	public void setDomain(String domain) {
 		this.domain = domain;
-	}
-
-	@Override
-	public int[] getPorts() {
-		return ports;
-	}
-
-	@Override
-	public void addPort(int port) {
-		int pl = ports.length;
-		int[] newports = new int[pl + 1];
-		for (int i = 0; i < pl; i++) {
-			newports[i] = ports[i];
-		}
-		newports[pl] = port;
-		this.ports = newports;
 	}
 
 	@Override
@@ -126,6 +102,19 @@ public class DefaultCookie implements Cookie, Serializable, Cloneable {
 		this.value = value;
 	}
 
+	/**
+	 * @return the creation time
+	 */
+	@Override
+	public long getCreationTime() {
+		return creationTime;
+	}
+
+	@Override
+	public void setCreationTime(long time) {
+		this.creationTime = time;
+	}
+
 	@Override
 	public long getExpiryTime() {
 		return expiryTime;
@@ -134,7 +123,6 @@ public class DefaultCookie implements Cookie, Serializable, Cloneable {
 	@Override
 	public void setExpiryTime(long expiryTime) {
 		this.expiryTime = expiryTime;
-		this.persistent = true;
 	}
 
 	@Override
@@ -159,7 +147,7 @@ public class DefaultCookie implements Cookie, Serializable, Cloneable {
 
 	@Override
 	public boolean isPersistent() {
-		return persistent;
+		return expiryTime != 0L;
 	}
 
 	@Override
@@ -172,13 +160,81 @@ public class DefaultCookie implements Cookie, Serializable, Cloneable {
 		return httpOnly;
 	}
 
+	static class CookieComparator implements Comparator<Cookie> {
+
+		@Override
+		public int compare(Cookie c1, Cookie c2) {
+			return c2.getPath().length() - c1.getPath().length();
+		}
+
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(domain, name, path);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		DefaultCookie other = (DefaultCookie) obj;
+		return Objects.equals(domain, other.domain) && Objects.equals(name, other.name)
+				&& Objects.equals(path, other.path);
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder(32);
+		buf.append(name);
+		buf.append('=');
+		buf.append(URLEncoder.encode(value, StandardCharsets.UTF_8));
+		buf.append(";Domain=");
+		buf.append(domain);
+		buf.append(";Path=");
+		buf.append(path);
+		if (isPersistent()) {
+			SimpleDateFormat cookieDateFormat = new SimpleDateFormat(
+					"EEE, dd-MMM-yyyy HH:mm:ss zzz", Locale.ROOT);
+			Date date = new Date(expiryTime);
+			buf.append(";Expires=");
+			buf.append(cookieDateFormat.format(date));
+		}
+		if (secure) {
+			buf.append(";Secure");
+		}
+		if (httpOnly) {
+			buf.append(";HttpOnly");
+		}
+		return buf.toString();
+	}
+
 	@Override
 	public DefaultCookie clone() {
-		int[] clonedports = new int[ports.length];
-		for (int i = 0; i < clonedports.length; i++) {
-			clonedports[i] = ports[i];
+		DefaultCookie clon;
+		try {
+			clon = (DefaultCookie) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new IllegalStateException(e);
 		}
-		return new DefaultCookie(domain, path, clonedports, secure, name, value, persistent, expiryTime, comment);
+
+		clon.domain = domain;
+		clon.path = path;
+		clon.name = name;
+		clon.value = value;
+		clon.secure = secure;
+		clon.httpOnly = httpOnly;
+		clon.creationTime = creationTime;
+		clon.expiryTime = expiryTime;
+		clon.comment = comment;
+		return clon;
 	}
 
 }

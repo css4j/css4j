@@ -15,14 +15,28 @@ import java.net.URL;
 
 /**
  * Handles errors that the user agent finds.
- * 
- * @author Carlos Amengual
  *
  */
 public interface UserAgentErrorHandler {
-	void onSuperCookie(URL offendingURL, String domain);
 
-	void onUnknownProperty(String propertyName, String value);
+	@Deprecated
+	default void onSuperCookie(URL offendingURL, String domain) {
+	}
 
-	void onWrongPropertyValue(String propertyName, String value);
+	@Deprecated
+	default void onUnknownProperty(String propertyName, String value) {
+	}
+
+	default void onWrongPropertyValue(String propertyName, String value) {
+	}
+
+	/**
+	 * Resets the error handler.
+	 * <p>
+	 * Depending on the error handler, this call may not have any effect.
+	 * </p>
+	 */
+	default void reset() {
+	}
+
 }

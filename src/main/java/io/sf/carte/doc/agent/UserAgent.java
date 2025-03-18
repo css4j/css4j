@@ -22,8 +22,6 @@ import io.sf.carte.doc.style.css.CSSDocument;
 /**
  * Very basic user agent abstraction.
  *
- * @author Carlos Amengual
- *
  */
 public interface UserAgent {
 
@@ -84,25 +82,24 @@ public interface UserAgent {
 		/**
 		 * Sets a control property.
 		 * <p>
-		 * If the property is not known, the user agent may invoke the method
-		 * {@link UserAgentErrorHandler#onUnknownProperty(String, String)}. If
-		 * the property is known but the value is wrong, the user agent should
-		 * call the method
+		 * If the property is wrong, the user agent should call the method
 		 * {@link UserAgentErrorHandler#onWrongPropertyValue(String, String)}.
 		 *
-		 * @param propertyName
-		 *            the name of the property to set.
-		 * @param value
-		 *            the string representation of the property value.
+		 * @param propertyName the name of the property to set.
+		 * @param value        the string representation of the property value.
+		 * @return {@code true} if the property was set successfully.
 		 */
-		void setProperty(String propertyName, String value);
+		boolean setProperty(String propertyName, String value);
 
 		/**
 		 * Gets the global, useragent-wide default cookie config.
 		 *
 		 * @return the default user-agent cookie config.
 		 */
-		CookieConfig getCookieConfig();
+		@Deprecated(forRemoval = true)
+		default CookieConfig getCookieConfig() {
+			return null;
+		}
 
 		/**
 		 * Gets the authentication credentials for the given URL.

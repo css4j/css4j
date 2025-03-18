@@ -13,14 +13,17 @@ package io.sf.carte.doc.agent;
 
 /**
  * Origin policy.
- * <p>
- *
- * @author Carlos Amengual
  */
 public interface OriginPolicy {
 
 	boolean isTopLevelSuffix(String possibleTld);
 
+	/**
+	 * Obtain the domain from the host name.
+	 * 
+	 * @param host the lower case host name.
+	 * @return the domain.
+	 */
 	String domainFromHostname(String host);
 
 }

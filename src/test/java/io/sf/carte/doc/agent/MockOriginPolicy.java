@@ -29,6 +29,7 @@ public class MockOriginPolicy implements OriginPolicy {
 		topLevelSuffixes.add("com");
 		topLevelSuffixes.add("net");
 		topLevelSuffixes.add("org");
+		topLevelSuffixes.add("co.uk");
 	}
 
 	private MockOriginPolicy() {

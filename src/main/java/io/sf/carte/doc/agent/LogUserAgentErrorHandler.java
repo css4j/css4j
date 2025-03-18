@@ -16,6 +16,7 @@ import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class LogUserAgentErrorHandler implements UserAgentErrorHandler {
 	static Logger log = LoggerFactory.getLogger(LogUserAgentErrorHandler.class.getName());
 

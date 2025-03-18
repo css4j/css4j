@@ -1168,8 +1168,8 @@ public class ParseHelper {
 			return false;
 		}
 
-		for (int i = len - 1; i >= minidx; i--) {
-			char c = seq.charAt(i);
+		for (int i = len - 1; i >= 0; i--) {
+			char c = seq.charAt(i + minidx);
 			char lc = lcString.charAt(i);
 			if (c != lc && Character.toLowerCase(c) != lc) {
 				return false;

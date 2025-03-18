@@ -34,6 +34,7 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 	private static final long serialVersionUID = 1L;
 
 	private final WrapperUserAgent agent;
+
 	private final MockURLConnectionFactory urlFactory = new MockURLConnectionFactory();
 
 	public TestCSSStyleSheetFactory() {
@@ -157,7 +158,7 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 		}
 
 		@Override
-		public URLConnection openConnection(URL url, long creationDate) throws IOException {
+		protected URLConnection createConnection(URL url) throws IOException {
 			return urlFactory.createConnection(url);
 		}
 	}
