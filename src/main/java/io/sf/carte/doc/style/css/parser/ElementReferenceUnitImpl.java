@@ -24,6 +24,7 @@ class ElementReferenceUnitImpl extends ImageFunctionUnitImpl {
 		return LexicalType.ELEMENT_REFERENCE.ordinal() - LexicalType.GRADIENT.ordinal();
 	}
 
+	@Override
 	CharSequence currentToString() {
 		if (parameters != null) {
 			return functionalSerialization("element");

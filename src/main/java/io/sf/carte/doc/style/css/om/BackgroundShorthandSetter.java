@@ -299,19 +299,22 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 			if (currentValue != null && LexicalType.OPERATOR_SLASH == currentValue.getLexicalUnitType()) {
 				// Size
 				currentValue = currentValue.getNextLexicalUnit();
-				if (currentValue != null && testBackgroundSize(i, subp)) {
-					nextCurrentValue();
-				} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
-					setPrefixedValue(currentValue);
-					retVal = 4;
-				} else {
-					// Report error: size not found after slash.
-					StyleDeclarationErrorHandler eh = styleDeclaration.getStyleDeclarationErrorHandler();
-					if (eh != null) {
-						eh.shorthandSyntaxError("background", "Size not found after slash");
+				if (currentValue != null) {
+					if (testBackgroundSize(i, subp)) {
+						nextCurrentValue();
+						return 0;
+					} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
+						setPrefixedValue(currentValue);
+						return 4;
 					}
-					retVal = 3;
 				}
+				// Report error: size not found after slash.
+				StyleDeclarationErrorHandler eh = styleDeclaration
+						.getStyleDeclarationErrorHandler();
+				if (eh != null) {
+					eh.shorthandSyntaxError("background", "Size not found after slash");
+				}
+				retVal = 3;
 			}
 		} else if (subp.contains("background-attachment")
 				&& testIdentifierProperty(i, subp, "background-attachment", lstAttachment)) {

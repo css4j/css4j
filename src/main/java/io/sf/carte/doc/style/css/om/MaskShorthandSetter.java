@@ -209,23 +209,25 @@ class MaskShorthandSetter extends ShorthandSetter {
 			nextCurrentValue();
 			retVal = 0;
 			if (currentValue != null
-				&& LexicalType.OPERATOR_SLASH == currentValue.getLexicalUnitType()) {
+					&& LexicalType.OPERATOR_SLASH == currentValue.getLexicalUnitType()) {
 				// Size
 				currentValue = currentValue.getNextLexicalUnit();
-				if (currentValue != null && testSize(i, subp)) {
-					nextCurrentValue();
-				} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
-					setPrefixedValue(currentValue);
-					retVal = 1;
-				} else {
-					// Report error: size not found after slash.
-					StyleDeclarationErrorHandler eh = styleDeclaration
-						.getStyleDeclarationErrorHandler();
-					if (eh != null) {
-						eh.shorthandSyntaxError("mask", "Size not found after slash");
+				if (currentValue != null) {
+					if (testSize(i, subp)) {
+						nextCurrentValue();
+						return 0;
+					} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
+						setPrefixedValue(currentValue);
+						return 1;
 					}
-					retVal = 2;
 				}
+				// Report error: size not found after slash.
+				StyleDeclarationErrorHandler eh = styleDeclaration
+						.getStyleDeclarationErrorHandler();
+				if (eh != null) {
+					eh.shorthandSyntaxError("mask", "Size not found after slash");
+				}
+				retVal = 2;
 			}
 		} else if (subp.contains("mask-mode")
 			&& testIdentifierProperty(i, subp, "mask-mode", lstMode)) {
