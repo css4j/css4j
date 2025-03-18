@@ -87,7 +87,7 @@ class GridPlacementShorthandBuilder extends ShorthandBuilder {
 			return 1;
 		}
 
-		//
+
 		String[] subp = getSubproperties();
 
 		// Make sure that it is not a layered property

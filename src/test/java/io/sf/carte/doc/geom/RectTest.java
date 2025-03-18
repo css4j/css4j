@@ -34,12 +34,12 @@ public class RectTest {
 		assertEquals(160d, rect.getWidth(), 1e-15);
 		rect.setHeight(90d);
 		assertEquals(90d, rect.getHeight(), 1e-15);
-		//
+
 		assertEquals(4d, rect.getTop(), 1e-15);
 		assertEquals(168d, rect.getRight(), 1e-15);
 		assertEquals(94d, rect.getBottom(), 1e-15);
 		assertEquals(8d, rect.getLeft(), 1e-15);
-		//
+
 		rect.setWidth(-160d);
 		rect.setHeight(-90d);
 		assertEquals(-86d, rect.getTop(), 1e-15);

@@ -105,7 +105,7 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		if (!lchColor.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
-		//
+
 		CSSTypedValue primihue = (CSSTypedValue) lchColor.getHue();
 		float c = ((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float h;
@@ -116,14 +116,14 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		} else {
 			h = primihue.getFloatValue(CSSUnit.CSS_RAD);
 		}
-		//
+
 		float a = (float) (c * Math.cos(h));
 		float b = (float) (c * Math.sin(h));
 		NumberValue primia = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, a);
 		NumberValue primib = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, b);
 		primia.setAbsolutizedUnit();
 		primib.setAbsolutizedUnit();
-		//
+
 		LABColorValue lab = new LABColorValue();
 		lab.setComponent(0, lchColor.getAlpha().clone());
 		lab.setComponent(1, lchColor.getLightness().clone());
@@ -152,7 +152,7 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		if (!lchColor.hasConvertibleComponents() || !((ColorValue) color).hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
 		}
-		//
+
 		LCHColor lch;
 		switch (color.getColorModel()) {
 		case LCH:

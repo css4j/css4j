@@ -49,7 +49,7 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLengthP));
 		CSSValueSyntax synUniversal = synParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(title string)");
 		assertEquals("attr(title string)", value.getCssText());
 		assertEquals("attr(title string)", value.getMinifiedCssText(""));
@@ -58,15 +58,15 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synCI));
 		assertEquals(Match.FALSE, value.matches(synLengthP));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(title string, 'foo')");
 		assertEquals("attr(title string, 'foo')", value.getCssText());
 		assertEquals("attr(title string,'foo')", value.getMinifiedCssText(""));
-		//
+
 		value.setCssText("attr(data-id type(<custom-ident>), none)");
 		assertEquals("attr(data-id type(<custom-ident>), none)", value.getCssText());
 		assertEquals("attr(data-id type(<custom-ident>),none)", value.getMinifiedCssText(""));
-		//
+
 		value.setCssText("attr(width type(<length>), 20em)");
 		assertEquals("attr(width type(<length>), 20em)", value.getCssText());
 		assertEquals("attr(width type(<length>),20em)", value.getMinifiedCssText(""));
@@ -78,11 +78,11 @@ public class AttrTest {
 		assertEquals(Match.TRUE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synLengthP));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(width type(<length>))");
 		assertEquals("attr(width type(<length>))", value.getCssText());
 		assertEquals("attr(width type(<length>))", value.getMinifiedCssText(""));
-		//
+
 		value.setCssText("attr(width px, 20em)");
 		assertEquals("attr(width px, 20em)", value.getCssText());
 		assertEquals("attr(width px,20em)", value.getMinifiedCssText(""));
@@ -92,7 +92,7 @@ public class AttrTest {
 		assertEquals(Match.TRUE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synLengthP));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(width px)");
 		assertEquals("attr(width px)", value.getCssText());
 		assertEquals("attr(width px)", value.getMinifiedCssText(""));
@@ -102,7 +102,7 @@ public class AttrTest {
 		assertEquals(Match.TRUE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synLengthP));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(width type(<percentage>), 40%)");
 		assertEquals("attr(width type(<percentage>), 40%)", value.getCssText());
 		assertEquals("attr(width type(<percentage>),40%)", value.getMinifiedCssText(""));
@@ -112,7 +112,7 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synLengthP));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(width type(<percentage>))");
 		assertEquals("attr(width type(<percentage>))", value.getCssText());
 		assertEquals("attr(width type(<percentage>))", value.getMinifiedCssText(""));
@@ -122,7 +122,7 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synLengthP));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(width %)");
 		assertEquals("attr(width %)", value.getCssText());
 		assertEquals("attr(width %)", value.getMinifiedCssText(""));
@@ -132,7 +132,7 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synLengthP));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(elev type(<angle>), 20deg)");
 		assertEquals("attr(elev type(<angle>), 20deg)", value.getCssText());
 		assertEquals("attr(elev type(<angle>),20deg)", value.getMinifiedCssText(""));
@@ -144,7 +144,7 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synAngle));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(elev type(<angle>))");
 		assertEquals("attr(elev type(<angle>))", value.getCssText());
 		assertEquals("attr(elev type(<angle>))", value.getMinifiedCssText(""));
@@ -154,7 +154,7 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synAngle));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(elev deg, 20deg)");
 		assertEquals("attr(elev deg, 20deg)", value.getCssText());
 		assertEquals("attr(elev deg,20deg)", value.getMinifiedCssText(""));
@@ -164,7 +164,7 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synAngle));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(elev deg)");
 		assertEquals("attr(elev deg)", value.getCssText());
 		assertEquals("attr(elev deg)", value.getMinifiedCssText(""));
@@ -174,7 +174,7 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synAngle));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(pause type(<time>), 2s)");
 		assertEquals("attr(pause type(<time>), 2s)", value.getCssText());
 		assertEquals("attr(pause type(<time>),2s)", value.getMinifiedCssText(""));
@@ -186,7 +186,7 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synTime));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(pause type(<time>))");
 		assertEquals("attr(pause type(<time>))", value.getCssText());
 		assertEquals("attr(pause type(<time>))", value.getMinifiedCssText(""));
@@ -196,11 +196,11 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synTime));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(pause s, 2s)");
 		assertEquals("attr(pause s, 2s)", value.getCssText());
 		assertEquals("attr(pause s,2s)", value.getMinifiedCssText(""));
-		//
+
 		value.setCssText("attr(pause s)");
 		assertEquals("attr(pause s)", value.getCssText());
 		assertEquals("attr(pause s)", value.getMinifiedCssText(""));
@@ -210,11 +210,11 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synTime));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(pitch type(<frequency>), 200Hz)");
 		assertEquals("attr(pitch type(<frequency>), 200hz)", value.getCssText());
 		assertEquals("attr(pitch type(<frequency>),200hz)", value.getMinifiedCssText(""));
-		//
+
 		value.setCssText("attr(pitch type(<frequency>))");
 		assertEquals("attr(pitch type(<frequency>))", value.getCssText());
 		assertEquals("attr(pitch type(<frequency>))", value.getMinifiedCssText(""));
@@ -226,11 +226,11 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synLength));
 		assertEquals(Match.TRUE, value.matches(synFreq));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(pitch Hz, 200Hz)");
 		assertEquals("attr(pitch Hz, 200hz)", value.getCssText());
 		assertEquals("attr(pitch Hz,200hz)", value.getMinifiedCssText(""));
-		//
+
 		value.setCssText("attr(pitch Hz)");
 		assertEquals("attr(pitch Hz)", value.getCssText());
 		assertEquals("attr(pitch Hz)", value.getMinifiedCssText(""));
@@ -241,7 +241,7 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(synTime));
 		assertEquals(Match.TRUE, value.matches(synFreq));
 		assertEquals(Match.TRUE, value.matches(synUniversal));
-		//
+
 		value.setCssText("attr(data-grid type(<flex>))");
 		assertEquals("attr(data-grid type(<flex>))", value.getCssText());
 		assertEquals("attr(data-grid type(<flex>))", value.getMinifiedCssText(""));
@@ -347,7 +347,7 @@ public class AttrTest {
 	public void testMatch() {
 		SyntaxParser syntaxParser = new SyntaxParser();
 		LexicalValue value = new LexicalValue();
-		//
+
 		value.setCssText("attr(title)");
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<string>");
 		assertEquals(Match.TRUE, value.matches(syn));
@@ -363,7 +363,7 @@ public class AttrTest {
 		assertEquals(Match.FALSE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(syn));
-		//
+
 		value.setCssText("attr(data-pcnt type(<percentage>))");
 		syn = syntaxParser.parseSyntax("<percentage>");
 		assertEquals(Match.TRUE, value.matches(syn));
@@ -383,7 +383,7 @@ public class AttrTest {
 		assertEquals(Match.TRUE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(syn));
-		//
+
 		value.setCssText("attr(data-width type(<length>), 'default')");
 		syn = syntaxParser.parseSyntax("<string> | <length>");
 		assertEquals(Match.TRUE, value.matches(syn));
@@ -397,7 +397,7 @@ public class AttrTest {
 		assertEquals(Match.PENDING, value.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(syn));
-		//
+
 		value.setCssText("attr(data-width type(<length>), 8%)");
 		syn = syntaxParser.parseSyntax("<percentage> | <length>");
 		assertEquals(Match.TRUE, value.matches(syn));
@@ -415,7 +415,7 @@ public class AttrTest {
 		assertEquals(Match.PENDING, value.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(syn));
-		//
+
 		value.setCssText("attr(data-width type(<percentage>), 11px)");
 		syn = syntaxParser.parseSyntax("<length-percentage>");
 		assertEquals(Match.TRUE, value.matches(syn));

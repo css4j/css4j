@@ -40,7 +40,7 @@ public class DirMatcherTest {
 		CSSParser parser = new CSSParser();
 		SelectorList ltr = parser.parseSelectors(":dir(ltr)");
 		SelectorList rtl = parser.parseSelectors(":dir(rtl)");
-		//
+
 		DOMElement elm = document.getElementById("head");
 		assertTrue(elm.matches(rtl, null));
 		assertFalse(elm.matches(ltr, null));

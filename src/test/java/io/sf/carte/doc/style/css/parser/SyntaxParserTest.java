@@ -65,7 +65,7 @@ public class SyntaxParserTest {
 		assertEquals(Multiplier.NONE, syn.getMultiplier());
 		assertNull(syn.getNext());
 		assertEquals("<length>", syn.toString());
-		//
+
 		syn = parser.parseSyntax("<Length-percentage>");
 		assertEquals("length-percentage", syn.getName());
 		assertEquals(Category.lengthPercentage, syn.getCategory());
@@ -82,14 +82,14 @@ public class SyntaxParserTest {
 		assertEquals(Multiplier.NUMBER, syn.getMultiplier());
 		assertNull(syn.getNext());
 		assertEquals("<length>#", syn.toString());
-		//
+
 		syn = parser.parseSyntax("<Length-percentage>#");
 		assertEquals("length-percentage", syn.getName());
 		assertEquals(Category.lengthPercentage, syn.getCategory());
 		assertEquals(Multiplier.NUMBER, syn.getMultiplier());
 		assertNull(syn.getNext());
 		assertEquals("<length-percentage>#", syn.toString());
-		//
+
 		syn = parser.parseSyntax("<Length-percentage>#    |   <number>+");
 		assertEquals("length-percentage", syn.getName());
 		assertEquals(Category.lengthPercentage, syn.getCategory());
@@ -100,7 +100,7 @@ public class SyntaxParserTest {
 		assertEquals(Category.number, syn.getCategory());
 		assertEquals(Multiplier.PLUS, syn.getMultiplier());
 		assertNull(syn.getNext());
-		//
+
 		syn = parser.parseSyntax("<Length-percentage>#|<number>+");
 		assertEquals("length-percentage", syn.getName());
 		assertEquals(Category.lengthPercentage, syn.getCategory());
@@ -218,13 +218,13 @@ public class SyntaxParserTest {
 		assertEquals(Category.IDENT, syn.getCategory());
 		assertEquals(Multiplier.NONE, syn.getMultiplier());
 		assertEquals("\\1d700\\+foo\\\\ | \\:# | \\#+", syn.toString());
-		//
+
 		syn = syn.getNext();
 		assertEquals(":", syn.getName());
 		assertEquals(Category.IDENT, syn.getCategory());
 		assertEquals(Multiplier.NUMBER, syn.getMultiplier());
 		assertEquals("\\:# | \\#+", syn.toString());
-		//
+
 		syn = syn.getNext();
 		assertEquals("#", syn.getName());
 		assertEquals(Category.IDENT, syn.getCategory());
@@ -241,7 +241,7 @@ public class SyntaxParserTest {
 		assertEquals(Multiplier.NUMBER, syn.getMultiplier());
 		assertNull(syn.getNext());
 		assertEquals("-foo#", syn.toString());
-		//
+
 		syn = parser.parseSyntax("-foo+   |   -bar#");
 		assertEquals("-foo", syn.getName());
 		assertEquals(Category.IDENT, syn.getCategory());
@@ -261,37 +261,37 @@ public class SyntaxParserTest {
 			fail("Must throw exception.");
 		} catch (CSSException e) {
 		}
-		//
+
 		try {
 			parser.parseSyntax("  ");
 			fail("Must throw exception.");
 		} catch (CSSException e) {
 		}
-		//
+
 		try {
 			parser.parseSyntax(" | ");
 			fail("Must throw exception.");
 		} catch (CSSException e) {
 		}
-		//
+
 		try {
 			parser.parseSyntax("<color> | ");
 			fail("Must throw exception.");
 		} catch (CSSException e) {
 		}
-		//
+
 		try {
 			parser.parseSyntax("<color> | *");
 			fail("Must throw exception.");
 		} catch (CSSException e) {
 		}
-		//
+
 		try {
 			parser.parseSyntax("<color> #| <length>");
 			fail("Must throw exception.");
 		} catch (CSSException e) {
 		}
-		//
+
 		try {
 			parser.parseSyntax("\\1D700 \\+foo\\\\ \\:#");
 			fail("Must throw exception.");

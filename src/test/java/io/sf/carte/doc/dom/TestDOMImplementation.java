@@ -174,7 +174,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		domImpl.getParserFlags().add(Parser.Flag.IEVALUES);
 		XMLDocumentBuilder builder = new XMLDocumentBuilder(domImpl);
 		builder.setXMLReader(parser);
-		//
+
 		Reader re = DOMCSSStyleSheetFactoryTest.sampleIEReader();
 		InputSource is = new InputSource(re);
 		HTMLDocument xhtmlDoc;

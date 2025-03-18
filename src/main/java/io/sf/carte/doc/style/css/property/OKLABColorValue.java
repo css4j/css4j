@@ -100,7 +100,7 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 		float light = ((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
-		//
+
 		ColorProfile profile = new SRGBColorProfile();
 		double[] rgb = new double[3];
 		ColorUtil.oklabToRGB(light, a, b, clamp, profile, rgb);
@@ -118,7 +118,7 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 		float light = ((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
-		//
+
 		double[] lab = new double[3];
 		ColorUtil.oklabToLab(light, a, b, lab);
 		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[0]);
@@ -127,7 +127,7 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 		primiL.setAbsolutizedUnit();
 		primia.setAbsolutizedUnit();
 		primib.setAbsolutizedUnit();
-		//
+
 		LABColorValue primiLab = new LABColorValue();
 		primiLab.setComponent(0, labColor.getAlpha().clone());
 		primiLab.setComponent(1, primiL);
@@ -144,10 +144,10 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 		float light = ((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
 		double a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
 		double b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
-		//
+
 		double[] lab = new double[3];
 		ColorUtil.oklabToLab(light, a, b, lab);
-		//
+
 		a = lab[1];
 		b = lab[2];
 		double c = Math.sqrt(a * a + b * b);
@@ -161,7 +161,7 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 		primiL.setAbsolutizedUnit();
 		chroma.setAbsolutizedUnit();
 		hue.setAbsolutizedUnit();
-		//
+
 		LCHColorValue lch = new LCHColorValue();
 		lch.setComponent(0, labColor.getAlpha().clone());
 		lch.setComponent(1, primiL);
@@ -190,7 +190,7 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 			|| !((ColorValue) color).hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
 		}
-		//
+
 		LABColor lab;
 		switch (color.getColorModel()) {
 		case LAB:

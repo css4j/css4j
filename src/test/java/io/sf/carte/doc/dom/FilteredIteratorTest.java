@@ -337,7 +337,7 @@ public class FilteredIteratorTest {
 			fail("Must throw exception");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		it = document.elementIterator("p");
 		assertFalse(it.hasNext());
 		try {
@@ -506,7 +506,7 @@ public class FilteredIteratorTest {
 			fail("Must throw exception");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		it = document.elementIterator("p");
 		assertFalse(it.hasNext());
 		try {

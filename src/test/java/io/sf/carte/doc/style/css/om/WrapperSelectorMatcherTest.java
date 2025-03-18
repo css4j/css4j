@@ -105,7 +105,7 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
-		//
+
 		matcher = selectorMatcher(div);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -127,7 +127,7 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
-		//
+
 		assertTrue(svgmatcher.matches(selist) == -1);
 		assertTrue(matcher.matches(svgselist) == -1);
 		selidx = svgmatcher.matches(svgselist);
@@ -216,7 +216,7 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(0, sp.names_pseudoelements_count);
-		//
+
 		matcher = selectorMatcher(elm3);
 		selidx = matcher.matches(selist);
 		assertEquals(0, selidx);
@@ -250,11 +250,11 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
-		//
+
 		matcher = selectorMatcher(elm3);
 		selidx = matcher.matches(selist);
 		assertEquals(0, selidx);
-		//
+
 		matcher = selectorMatcher(div);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -282,7 +282,7 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
-		//
+
 		matcher = selectorMatcher(elm3);
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
@@ -291,7 +291,7 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
-		//
+
 		matcher = selectorMatcher(div);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -318,10 +318,10 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
-		//
+
 		matcher = selectorMatcher(elm1);
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		matcher = selectorMatcher(div);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -339,7 +339,7 @@ public class WrapperSelectorMatcherTest {
 		div.setAttribute("title", "hi");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
-		//
+
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		matcher = selectorMatcher(elm1);
@@ -350,7 +350,7 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
-		//
+
 		matcher = selectorMatcher(div);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -379,14 +379,14 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
-		//
+
 		matcher = selectorMatcher(elm1);
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
-		//
+
 		matcher = selectorMatcher(elm2);
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		matcher = selectorMatcher(div);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -497,7 +497,7 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(1, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
-		//
+
 		matcher = selectorMatcher(div);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -588,7 +588,7 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(1, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
-		//
+
 		matcher = selectorMatcher(div);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -638,7 +638,7 @@ public class WrapperSelectorMatcherTest {
 		Element p2 = parent.getOwnerDocument().createElement("p");
 		p2.setAttribute("id", "childidp2");
 		parent.appendChild(p2);
-		//
+
 		SelectorMatcher matcher = selectorMatcher(pre);
 		assertEquals(-1, matcher.matches(selist));
 		matcher = selectorMatcher(p);
@@ -682,7 +682,7 @@ public class WrapperSelectorMatcherTest {
 		Element a3 = parent.getOwnerDocument().createElement("a");
 		a3.setAttribute("id", "a3");
 		li.appendChild(a3);
-		//
+
 		SelectorMatcher matcher = selectorMatcher(p);
 		int selidx = matcher.matches(selist);
 		assertEquals(-1, selidx);

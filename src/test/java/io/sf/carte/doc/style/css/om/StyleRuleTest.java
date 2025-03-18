@@ -64,16 +64,16 @@ public class StyleRuleTest {
 		rule2.getStyle().setCssText("margin-left: 1em; color: gray;");
 		assertTrue(rule.equals(rule2));
 		assertTrue(rule.hashCode() == rule2.hashCode());
-		//
+
 		rule2.setSelectorText("p");
 		assertFalse(rule.equals(rule2));
-		//
+
 		rule2.setSelectorText("p, div");
 		assertTrue(rule.equals(rule2));
-		//
+
 		rule2.getStyle().setCssText("margin-left: 1em; color: blue;");
 		assertFalse(rule.equals(rule2));
-		//
+
 		rule2.getStyle().setCssText("margin-left: 1em");
 		assertFalse(rule.equals(rule2));
 	}

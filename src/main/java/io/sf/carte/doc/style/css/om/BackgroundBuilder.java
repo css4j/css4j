@@ -68,7 +68,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		bgattachment = computeMultipleSubproperty("background-image", "background-attachment");
 		bgclip = computeMultipleSubproperty("background-image", "background-clip");
 		bgorigin = computeMultipleSubproperty("background-image", "background-origin");
-		//
+
 		// Determine whether it is a layered shorthand property
 		CssType type = bgimage.getCssValueType();
 		if (type == CssType.LIST && ((ValueList) bgimage).isCommaSeparated()) {

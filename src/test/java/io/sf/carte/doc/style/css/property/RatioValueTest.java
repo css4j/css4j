@@ -37,7 +37,7 @@ public class RatioValueTest {
 		RatioValue ratio2 = (RatioValue) vf.parseMediaFeature("3/2");
 		assertTrue(ratio.equals(ratio2));
 		assertEquals(ratio.hashCode(), ratio2.hashCode());
-		//
+
 		CalcValue calc = (CalcValue) vf.parseProperty("calc(2 * 3)");
 		ratio2.setAntecedentValue(calc);
 		assertFalse(ratio.equals(ratio2));
@@ -57,17 +57,17 @@ public class RatioValueTest {
 		assertEquals("3", ratio.getComponent(0).getCssText());
 		assertEquals("2", ratio.getComponent(1).getCssText());
 		assertEquals("3/2", ratio.getCssText());
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<number>");
 		assertEquals(Match.FALSE, value.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, value.matches(syn));
-		//
+
 		PrimitiveValue primi = (PrimitiveValue) vf.parseProperty("9");
 		ratio.setAntecedentValue(primi);
 		assertEquals("9/2", ratio.getCssText());
-		//
+
 		primi = (PrimitiveValue) vf.parseProperty("7");
 		ratio.setComponent(0, primi);
 		assertSame(primi, ratio.getComponent(0));
@@ -76,23 +76,23 @@ public class RatioValueTest {
 		primi = (PrimitiveValue) vf.parseProperty("3");
 		ratio.setComponent(1, primi);
 		assertEquals("7/3", ratio.getCssText());
-		//
+
 		ratio.setConsequentValue((PrimitiveValue) vf.parseProperty("5"));
 		assertEquals("7/5", ratio.getCssText());
-		//
+
 		ratio.setAntecedentValue((PrimitiveValue) vf.parseProperty("11.8"));
 		assertEquals("11.8/5", ratio.getCssText());
-		//
+
 		ratio.setConsequentValue((PrimitiveValue) vf.parseProperty("3.7"));
 		assertEquals("11.8/3.7", ratio.getCssText());
-		//
+
 		CalcValue calc = (CalcValue) vf.parseProperty("calc(2 * 3)");
 		ratio.setAntecedentValue(calc);
 		assertEquals("calc(2*3)/3.7", ratio.getCssText());
 		calc = (CalcValue) vf.parseProperty("calc(5 / 3)");
 		ratio.setConsequentValue(calc);
 		assertEquals("calc(2*3)/calc(5/3)", ratio.getCssText());
-		//
+
 		try {
 			ratio.setAntecedentValue(null);
 			fail("Must throw exception.");
@@ -105,7 +105,7 @@ public class RatioValueTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
-		//
+
 		try {
 			ratio.setAntecedentValue((PrimitiveValue) vf.parseProperty("foo"));
 			fail("Must throw exception.");
@@ -118,7 +118,7 @@ public class RatioValueTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.SYNTAX_ERR, e.code);
 		}
-		//
+
 		try {
 			ratio.setAntecedentValue((PrimitiveValue) vf.parseProperty("-1"));
 			fail("Must throw exception.");

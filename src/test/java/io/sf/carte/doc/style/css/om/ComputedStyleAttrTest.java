@@ -517,7 +517,7 @@ public class ComputedStyleAttrTest {
 	public void testBackgroundShorthandAttrFallback() {
 		CSSElement elm = xhtmlDoc.getElementById("h1");
 		assertNotNull(elm);
-		//
+
 		elm.setAttribute("data-color", "antiquewhite");
 		elm.getOverrideStyle(null).setCssText("background:attr(data-color type(<color>), #f00)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
@@ -575,7 +575,7 @@ public class ComputedStyleAttrTest {
 	public void testBackgroundShorthandAttrImageFallback() {
 		CSSElement elm = xhtmlDoc.getElementById("h1");
 		assertNotNull(elm);
-		//
+
 		elm.getOverrideStyle(null).setCssText(
 				"background:attr(data-color type(<color>), linear-gradient(35deg,#fa3 50%,transparent 0))");
 		CSSComputedProperties style = elm.getComputedStyle(null);
@@ -650,7 +650,7 @@ public class ComputedStyleAttrTest {
 	public void testBackgroundShorthandUrlAttrFallbackColor() {
 		CSSElement elm = xhtmlDoc.getElementById("h1");
 		assertNotNull(elm);
-		//
+
 		elm.getOverrideStyle(null).setCssText("background:attr(data-uri type(<url>), antiquewhite)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("#faebd7", style.getPropertyValue("background"));
@@ -683,7 +683,7 @@ public class ComputedStyleAttrTest {
 	public void testBackgroundShorthandAttrListFallback() {
 		CSSElement elm = xhtmlDoc.getElementById("h1");
 		assertNotNull(elm);
-		//
+
 		elm.getOverrideStyle(null)
 				.setCssText("background:attr(data-color type(<color>), url('bkg.png') 40%/10em)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
@@ -721,7 +721,7 @@ public class ComputedStyleAttrTest {
 	public void testGridShorthandAttr() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
-		//
+
 		elm.getOverrideStyle(null)
 				.setCssText("grid: \"a a a\" attr(data-line)");
 		elm.setAttribute("data-line", "b b b");
@@ -741,7 +741,7 @@ public class ComputedStyleAttrTest {
 	public void testGridShorthandAttrListFallback() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
-		//
+
 		elm.getOverrideStyle(null)
 				.setCssText("grid: \"a a a\" attr(data-line, 'b b b' / 1fr 2fr)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
@@ -771,7 +771,7 @@ public class ComputedStyleAttrTest {
 	public void testGridShorthandAttrListFallback2() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
-		//
+
 		elm.getOverrideStyle(null)
 				.setCssText("grid: auto-flow 1fr 1fr / attr(data-flex type(<flex>), 1fr 2fr)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
@@ -801,7 +801,7 @@ public class ComputedStyleAttrTest {
 	public void testBorderRadiusShorthandAttrListFallback() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
-		//
+
 		elm.getOverrideStyle(null)
 				.setCssText("border-radius: 20% attr(data-radius %, / 40%)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
@@ -827,7 +827,7 @@ public class ComputedStyleAttrTest {
 	public void testBorderRadiusShorthandAttrLengthListFallback() {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
-		//
+
 		elm.getOverrideStyle(null)
 				.setCssText("border-radius: 20% attr(data-radius rlh, / 40%)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
@@ -853,7 +853,7 @@ public class ComputedStyleAttrTest {
 	public void testFontShorthandAttrListFallback() {
 		CSSElement elm = xhtmlDoc.getElementById("h1");
 		assertNotNull(elm);
-		//
+
 		elm.getOverrideStyle(null)
 				.setCssText("font:attr(data-weight type(<custom-ident>), 400 80%/120% 'Delicious Handrawn')");
 		CSSComputedProperties style = elm.getComputedStyle(null);

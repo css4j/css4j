@@ -97,11 +97,11 @@ public class SyntaxParser {
 			}
 			errInvalidDefinition(def);
 		}
-		//
+
 		if (c == '|' || def.charAt(len - 1) == '|') {
 			errInvalidDefinition(def);
 		}
-		//
+
 		SyntaxComponent comp = new SyntaxComponent();
 		SyntaxComponent current = comp;
 		int idx = 0;
@@ -113,7 +113,7 @@ public class SyntaxParser {
 					break topLoop;
 				}
 			}
-			//
+
 			if (c != '|') {
 				errInvalidDefinition(def);
 			}
@@ -125,12 +125,12 @@ public class SyntaxParser {
 					break topLoop;
 				}
 			}
-			//
+
 			SyntaxComponent next = new SyntaxComponent();
 			current.setNext(next);
 			current = next;
 		}
-		//
+
 		return comp;
 	}
 
@@ -174,7 +174,7 @@ public class SyntaxParser {
 		if (i == idx) {
 			errInvalidDefinition(def);
 		}
-		//
+
 		String name = def.substring(idx, i);
 		if (escaped) {
 			name = ParseHelper.unescapeStringValue(name);
@@ -186,7 +186,7 @@ public class SyntaxParser {
 			errUnknownDataType(name, def);
 		}
 		comp.setCategory(cat);
-		//
+
 		i++; // Increment after the '>'
 		if (i < len) {
 			char c = def.charAt(i);
@@ -198,7 +198,7 @@ public class SyntaxParser {
 				i++;
 			}
 		}
-		//
+
 		return i;
 	}
 
@@ -237,12 +237,12 @@ public class SyntaxParser {
 		if (i == idx + 1) {
 			errInvalidDefinition(def);
 		}
-		//
+
 		String name = def.substring(idx, i);
 		name = ParseHelper.unescapeStringValue(name);
 		comp.setName(name);
 		comp.setCategory(Category.IDENT);
-		//
+
 		if (i < len) {
 			char c = def.charAt(i);
 			if (c == '#') {
@@ -253,7 +253,7 @@ public class SyntaxParser {
 				i++;
 			}
 		}
-		//
+
 		return i;
 	}
 

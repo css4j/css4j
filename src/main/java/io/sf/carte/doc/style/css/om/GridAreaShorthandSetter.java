@@ -52,7 +52,7 @@ class GridAreaShorthandSetter extends GridPlacementShorthandSetter {
 				return 2;
 			}
 		}
-		//
+
 		StyleValue cssval0 = gridLines.item(0);
 		StyleValue cssval;
 		switch (gridLines.getLength()) {

@@ -61,7 +61,7 @@ class MaskBuilder extends ShorthandBuilder {
 		mskclip = computeMultipleSubproperty("mask-image", "mask-clip");
 		mskcomposite = computeMultipleSubproperty("mask-image", "mask-composite");
 		mskmode = computeMultipleSubproperty("mask-image", "mask-mode");
-		//
+
 		// Determine whether it is a layered shorthand property
 		CssType type = mskimage.getCssValueType();
 		if (type == CssType.LIST && ((ValueList) mskimage).isCommaSeparated()) {

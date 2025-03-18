@@ -470,7 +470,7 @@ public class SelectorParserNSTest {
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
 		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		//
+
 		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());

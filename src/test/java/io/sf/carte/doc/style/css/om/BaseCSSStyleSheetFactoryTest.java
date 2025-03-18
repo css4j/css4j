@@ -46,21 +46,21 @@ public class BaseCSSStyleSheetFactoryTest {
 		assertNotNull(mql);
 		assertEquals(1, mql.getLength());
 		assertEquals("screen", mql.getMedia());
-		//
+
 		try {
 			mql.appendMedium("print");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, e.code);
 		}
-		//
+
 		try {
 			mql.deleteMedium("print");
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.NO_MODIFICATION_ALLOWED_ERR, e.code);
 		}
-		//
+
 		try {
 			mql.setMediaText("print");
 			fail("Must throw exception.");
@@ -87,7 +87,7 @@ public class BaseCSSStyleSheetFactoryTest {
 		CSSValueSyntax syntax = syntaxParser.parseSyntax("<length>");
 		CSSOMParser parser = new CSSOMParser();
 		LexicalUnit value = parser.parsePropertyValue(new StringReader("18px"));
-		//
+
 		CSSPropertyDefinition definition = factory.createPropertyDefinition("--my-length", syntax, true, value);
 		assertNotNull(definition);
 		assertEquals("--my-length", definition.getName());
@@ -102,19 +102,19 @@ public class BaseCSSStyleSheetFactoryTest {
 	public void testCreatePropertyDefinitionError() throws CSSParseException, IOException {
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syntax = syntaxParser.parseSyntax("*");
-		//
+
 		try {
 			factory.createPropertyDefinition(null, syntax, true, null);
 			fail("Must throw exception.");
 		} catch (NullPointerException e) {
 		}
-		//
+
 		try {
 			factory.createPropertyDefinition("--foo", null, true, null);
 			fail("Must throw exception.");
 		} catch (NullPointerException e) {
 		}
-		//
+
 		syntax = syntaxParser.parseSyntax("<length>");
 		try {
 			factory.createPropertyDefinition("--my-length", syntax, true, null);
@@ -122,7 +122,7 @@ public class BaseCSSStyleSheetFactoryTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_ACCESS_ERR, e.code);
 		}
-		//
+
 		CSSOMParser parser = new CSSOMParser();
 		LexicalUnit value = parser.parsePropertyValue(new StringReader("#bbb"));
 		try {

@@ -138,7 +138,7 @@ public class CSSStyleDeclarationRuleTest {
 		SelectorList list = rule.getSelectorList();
 		assertEquals(1, list.getLength());
 		assertEquals("table[align='center']>caption[align='left']", rule.getSelectorText());
-		//
+
 		rule.setCssText("table[foo=\\*bar] > caption[foo=\"'\"] {border-top-width: 1px; }");
 		list = rule.getSelectorList();
 		assertEquals(1, list.getLength());
@@ -152,7 +152,7 @@ public class CSSStyleDeclarationRuleTest {
 		SelectorList list = rule.getSelectorList();
 		assertEquals(1, list.getLength());
 		assertEquals("table[align=\"center\"]>caption[align=\"left\"]", rule.getSelectorText());
-		//
+
 		rule.setCssText("table[foo=\\*bar] > caption[foo=\"'\"] {border-top-width: 1px; }");
 		list = rule.getSelectorList();
 		assertEquals(1, list.getLength());
@@ -217,16 +217,16 @@ public class CSSStyleDeclarationRuleTest {
 		CSSStyleDeclarationRule rule = sheet.createStyleRule();
 		rule.setCssText("h1~pre {border-top-width: 1px; }");
 		assertEquals("h1~pre", rule.getSelectorText());
-		//
+
 		rule.setCssText(":dir(rtl) {border-top-width: 1px; }");
 		assertEquals(":dir(rtl)", rule.getSelectorText());
-		//
+
 		rule.setCssText("::first-letter {border-top-width: 1px; }");
 		assertEquals("::first-letter", rule.getSelectorText());
-		//
+
 		rule.setCssText(".foo\\/1 {border-top-width: 1px; }");
 		assertEquals(".foo\\/1", rule.getSelectorText());
-		//
+
 		rule.setCssText("foo#bar\\/1 {border-top-width: 1px; }");
 		assertEquals("foo#bar\\/1", rule.getSelectorText());
 	}
@@ -242,7 +242,7 @@ public class CSSStyleDeclarationRuleTest {
 		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("-123\\a", ((AttributeCondition) cond).getValue());
 		assertEquals("#\\-123\\\\a", rule.getSelectorText());
-		//
+
 		rule.setCssText(".-\\31 23\\\\a {border-top-width: 1px; }");
 		assertEquals(".\\-123\\\\a", rule.getSelectorText());
 	}

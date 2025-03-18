@@ -58,7 +58,7 @@ public class FontFaceRuleTest {
 		PropertyCountVisitor visitor = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitor);
 		assertEquals(2, visitor.getCount());
-		//
+
 		visitor.reset();
 		sheet.acceptDescriptorRuleVisitor(visitor);
 		assertEquals(2, visitor.getCount());

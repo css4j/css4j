@@ -292,7 +292,7 @@ class ColorUtil {
 		// D50 reference white (from ASTM E308-01 via Lindbloom)
 		double xwhite = 0.96422d;
 		double zwhite = 0.82521d;
-		//
+
 		double x = xr * xwhite;
 		double z = zr * zwhite;
 
@@ -472,7 +472,7 @@ class ColorUtil {
 	private static void okClampRGB(double light, double a, double b, ColorProfile profile,
 			double[] rgb) {
 		// Reduce chromaticity until clipped color is in range within deltaE2000 < 2
-		//
+
 		oklabToLab(light, a, b, rgb);
 		light = rgb[0];
 		double current_a = rgb[1];
@@ -499,7 +499,7 @@ class ColorUtil {
 		current_a = c * cosh;
 		current_b = c * sinh;
 		oklabToRGB(light, current_a, current_b, false, profile, rgb);
-		//
+
 		float eps = 0.025f;
 		float factor = 0.97f;
 		// Refine the value, starting with a progressive reduction.
@@ -589,7 +589,7 @@ class ColorUtil {
 		double r = 3.24096994190452 * xyzD65[0] - 1.53738317757 * xyzD65[1] - 0.498610760293 * xyzD65[2];
 		double g = -0.96924363628088 * xyzD65[0] + 1.8759675015077 * xyzD65[1] + 0.04155505740718 * xyzD65[2];
 		double b = 0.055630079697 * xyzD65[0] - 0.20397695888898 * xyzD65[1] + 1.05697151424288 * xyzD65[2];
-		//
+
 		rgb[0] = sRGBCompanding(r);
 		rgb[1] = sRGBCompanding(g);
 		rgb[2] = sRGBCompanding(b);
@@ -619,7 +619,7 @@ class ColorUtil {
 		r = profile.linearComponent(r);
 		g = profile.linearComponent(g);
 		b = profile.linearComponent(b);
-		//
+
 		double[] xyz = new double[3];
 		profile.linearRgbToXYZ(r, g, b, xyz);
 		if (profile.getIlluminant() != Illuminant.D50) {
@@ -646,7 +646,7 @@ class ColorUtil {
 		final double zwhite = Illuminants.whiteD50[2];
 		xyz[0] /= xwhite;
 		xyz[2] /= zwhite;
-		//
+
 		double fx = fxyz(xyz[0]);
 		double fy = fxyz(xyz[1]);
 		double fz = fxyz(xyz[2]);
@@ -676,7 +676,7 @@ class ColorUtil {
 		final double a2 = c2 * Math.cos(h2);
 		final double b1 = c1 * Math.sin(h1);
 		final double b2 = c2 * Math.sin(h2);
-		//
+
 		return deltaE2000(dL, lav, c_av, a1, b1, a2, b2);
 	}
 
@@ -686,7 +686,7 @@ class ColorUtil {
 		final double c1 = Math.sqrt(a1 * a1 + b1 * b1);
 		final double c2 = Math.sqrt(a2 * a2 + b2 * b2);
 		final double c_av = (c1 + c2) * 0.5d;
-		//
+
 		return deltaE2000(dL, lav, c_av, a1, b1, a2, b2);
 	}
 
@@ -702,7 +702,7 @@ class ColorUtil {
 		final double c2prime = Math.sqrt(a2prime * a2prime + b2 * b2);
 		final double deltaCprime = c2prime - c1prime;
 		final double cprime_av = (c1prime + c2prime) * 0.5d;
-		//
+
 		final double TWOPI = Math.PI + Math.PI;
 		double h1prime = Math.atan2(b1, a1prime);
 		if (h1prime < 0d) {
@@ -712,7 +712,7 @@ class ColorUtil {
 		if (h2prime < 0d) {
 			h2prime += TWOPI;
 		}
-		//
+
 		double hprime_av = 0d;
 		double dhprime = h2prime - h1prime;
 		if (Math.abs(h1prime - h2prime) > Math.PI) {
@@ -725,21 +725,21 @@ class ColorUtil {
 		}
 		hprime_av += (h1prime + h2prime) * 0.5d;
 		final double dHprime = 2d * Math.sqrt(c1prime * c2prime) * Math.sin(dhprime * 0.5d);
-		//
+
 		final double t = 1d - 0.17d * Math.cos(hprime_av - 0.5235988d) + 0.24d * Math.cos(hprime_av + hprime_av)
 				+ 0.32d * Math.cos(3d * hprime_av + 0.1047198d) - 0.2d * Math.cos(4d * hprime_av - 1.099557d);
-		//
+
 		double lav_minus50_sq = lav - 50d;
 		lav_minus50_sq *= lav_minus50_sq;
 		final double sL = 1d + 0.015d * lav_minus50_sq / Math.sqrt(lav_minus50_sq + 20d);
 		final double sC = 1d + 0.045d * cprime_av;
 		final double sH = 1d + 0.015d * cprime_av * t;
-		//
+
 		final double cprime_av_pow7 = Math.pow(cprime_av, 7d);
 		final double exp_arg = (hprime_av - 4.799655443d) / 0.436332313d;
 		final double rt = -2d * Math.sqrt(cprime_av_pow7 / (cprime_av_pow7 + 6103515625d))
 				* Math.sin(1.04719755d * Math.exp(-exp_arg * exp_arg));
-		//
+
 		final double l_comp = dL / sL;
 		final double c_comp = deltaCprime / sC;
 		final double h_comp = dHprime / sH;
@@ -761,7 +761,7 @@ class ColorUtil {
 		final double c2prime = Math.sqrt(a2prime * a2prime + labClamped[2] * labClamped[2]);
 		final double deltaCprime = c2prime - c1prime;
 		final double cprime_av = (c1prime + c2prime) * 0.5d;
-		//
+
 		final double TWOPI = Math.PI + Math.PI;
 		double h1prime = Math.atan2(b1, a1prime);
 		if (h1prime < 0d) {
@@ -771,7 +771,7 @@ class ColorUtil {
 		if (h2prime < 0d) {
 			h2prime += TWOPI;
 		}
-		//
+
 		double hprime_av = 0d;
 		double dhprime = h2prime - h1prime;
 		if (Math.abs(h1prime - h2prime) > Math.PI) {
@@ -784,20 +784,20 @@ class ColorUtil {
 		}
 		hprime_av += (h1prime + h2prime) * 0.5d;
 		final double dHprime = 2d * Math.sqrt(c1prime * c2prime) * Math.sin(dhprime * 0.5d);
-		//
+
 		final double t = 1d - 0.17d * Math.cos(hprime_av - 0.5235988d)
 				+ 0.24d * Math.cos(hprime_av + hprime_av)
 				+ 0.32d * Math.cos(3d * hprime_av + 0.1047198d)
 				- 0.2d * Math.cos(4d * hprime_av - 1.099557d);
-		//
+
 		final double sC = 1d + 0.045d * cprime_av;
 		final double sH = 1d + 0.015d * cprime_av * t;
-		//
+
 		final double cprime_av_pow7 = Math.pow(cprime_av, 7d);
 		final double exp_arg = (hprime_av - 4.799655443d) / 0.436332313d;
 		final double rt = -2d * Math.sqrt(cprime_av_pow7 / (cprime_av_pow7 + 6103515625d))
 				* Math.sin(1.04719755d * Math.exp(-exp_arg * exp_arg));
-		//
+
 		final double c_comp = deltaCprime / sC;
 		final double h_comp = dHprime / sH;
 		final double hue_rotation = rt * c_comp * h_comp;

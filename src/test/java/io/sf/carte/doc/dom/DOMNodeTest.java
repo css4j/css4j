@@ -155,7 +155,7 @@ public class DOMNodeTest {
 		elm.normalize();
 		assertEquals(1, elm.getChildNodes().getLength());
 		assertEquals("foo bar", elm.getChildNodes().item(0).getNodeValue());
-		//
+
 		html.appendChild(xhtmlDoc.createTextNode("\n     "));
 		html.appendChild(xhtmlDoc.createTextNode("\t     "));
 		html.appendChild(xhtmlDoc.createTextNode("\n     "));
@@ -190,7 +190,7 @@ public class DOMNodeTest {
 		elm.normalize();
 		assertEquals(3, elm.getChildNodes().getLength());
 		assertEquals(" foo bar \u212b ", elm.getChildNodes().item(1).getNodeValue());
-		//
+
 		DOMConfiguration config = xhtmlDoc.getDomConfig();
 		assertTrue(config.canSetParameter("normalize-characters", false));
 		assertTrue(config.canSetParameter("normalize-characters", true));
@@ -200,7 +200,7 @@ public class DOMNodeTest {
 		elm.normalize();
 		assertEquals(3, elm.getChildNodes().getLength());
 		assertEquals(" foo bar \u00c5 ", elm.getChildNodes().item(1).getNodeValue());
-		//
+
 		html.appendChild(xhtmlDoc.createTextNode("\n     "));
 		html.appendChild(xhtmlDoc.createTextNode("\t     "));
 		html.appendChild(xhtmlDoc.createTextNode("\n     "));
@@ -235,7 +235,7 @@ public class DOMNodeTest {
 		assertTrue(config.canSetParameter("css-whitespace-processing", false));
 		assertTrue(config.canSetParameter("css-whitespace-processing", true));
 		assertTrue((boolean) config.getParameter("css-whitespace-processing"));
-		//
+
 		assertTrue(config.canSetParameter("canonical-form", false));
 		assertTrue(config.canSetParameter("check-character-normalization", false));
 		assertTrue(config.canSetParameter("datatype-normalization", false));
@@ -251,7 +251,7 @@ public class DOMNodeTest {
 		assertTrue(config.canSetParameter("well-formed", false));
 		assertFalse(config.canSetParameter("split-cdata-sections", true));
 		assertFalse(config.canSetParameter("split-cdata-sections", false));
-		//
+
 		DOMStringList names = config.getParameterNames();
 		assertEquals(4, names.getLength());
 		assertTrue(names.contains("css-whitespace-processing"));
@@ -420,7 +420,7 @@ public class DOMNodeTest {
 		assertTrue(xhtmlDoc == elm.getOwnerDocument());
 		assertTrue(xhtmlDoc == html.getOwnerDocument());
 		Attr attr = xhtmlDoc.createAttribute("id");
-		//
+
 		try {
 			elm.prependChild(attr);
 			fail("Must throw exception.");
@@ -459,7 +459,7 @@ public class DOMNodeTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.WRONG_DOCUMENT_ERR, e.code);
 		}
-		//
+
 		DocumentFragment fragment = createDocumentFragment();
 		try {
 			((ParentNode) fragment).prependChild(docType);
@@ -554,7 +554,7 @@ public class DOMNodeTest {
 		assertTrue(xhtmlDoc == html.getOwnerDocument());
 		Attr attr = xhtmlDoc.createAttribute("id");
 		DocumentFragment fragment = createDocumentFragment();
-		//
+
 		try {
 			docType.appendChild(fragment);
 			fail("Must throw exception.");
@@ -562,7 +562,7 @@ public class DOMNodeTest {
 			assertNull(fragment.getParentNode());
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
-		//
+
 		try {
 			elm.appendChild(attr);
 			fail("Must throw exception.");
@@ -601,7 +601,7 @@ public class DOMNodeTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.WRONG_DOCUMENT_ERR, e.code);
 		}
-		//
+
 		EntityReference ref = xhtmlDoc.createEntityReference("amp");
 		Attr id2 = xhtmlDoc.createAttribute("id");
 		try {
@@ -624,7 +624,7 @@ public class DOMNodeTest {
 			assertNull(docType.getParentNode());
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
-		//
+
 		Text text = xhtmlDoc.createTextNode("text inside elm");
 		try {
 			text.appendChild(xhtmlDoc);
@@ -680,7 +680,7 @@ public class DOMNodeTest {
 			assertNull(fragment.getParentNode());
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
-		//
+
 		try {
 			attr.appendChild(text);
 			fail("Must throw exception.");
@@ -709,7 +709,7 @@ public class DOMNodeTest {
 			assertNull(fragment.getParentNode());
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
-		//
+
 		try {
 			pi.appendChild(fragment);
 			fail("Must throw exception.");
@@ -717,7 +717,7 @@ public class DOMNodeTest {
 			assertNull(fragment.getParentNode());
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
-		//
+
 		try {
 			pi.appendChild(docType);
 			fail("Must throw exception.");
@@ -855,14 +855,14 @@ public class DOMNodeTest {
 		assertTrue(span == body.getFirstElementChild());
 		assertTrue(p == body.getLastChild());
 		assertTrue(p == body.getLastElementChild());
-		//
+
 		ElementList listspan = body.getElementsByTagName("span");
 		ElementList listdiv = body.getElementsByTagName("div");
 		ElementList listp = body.getElementsByTagName("p");
 		assertEquals(1, listspan.getLength());
 		assertEquals(1, listdiv.getLength());
 		assertEquals(1, listp.getLength());
-		//
+
 		assertTrue(p.getPreviousSibling() == div);
 		assertTrue(p.getPreviousElementSibling() == div);
 		assertTrue(div.getPreviousSibling() == text2);
@@ -871,7 +871,7 @@ public class DOMNodeTest {
 		assertTrue(((NonDocumentTypeChildNode) text2).getPreviousElementSibling() == span);
 		assertNull(span.getPreviousSibling());
 		assertNull(span.getPreviousElementSibling());
-		//
+
 		DOMElement p2 = xhtmlDoc.createElement("p");
 		DOMElement elm = (DOMElement) body.insertBefore(p2, div);
 		assertTrue(p2 == elm);
@@ -885,7 +885,7 @@ public class DOMNodeTest {
 		assertEquals(1, listspan.getLength());
 		assertEquals(1, listdiv.getLength());
 		assertEquals(2, listp.getLength());
-		//
+
 		DOMElement elm3 = xhtmlDoc.createElement("div");
 		elm = (DOMElement) body.insertBefore(elm3, null);
 		assertTrue(elm == elm3);
@@ -1042,14 +1042,14 @@ public class DOMNodeTest {
 		assertTrue(elm == body.getFirstElementChild());
 		assertTrue(p == body.getLastChild());
 		assertTrue(p == body.getLastElementChild());
-		//
+
 		ElementList listspan = body.getElementsByTagName("span");
 		ElementList listdiv = body.getElementsByTagName("div");
 		ElementList listp = body.getElementsByTagName("p");
 		assertEquals(1, listspan.getLength());
 		assertEquals(1, listdiv.getLength());
 		assertEquals(1, listp.getLength());
-		//
+
 		assertTrue(p.getPreviousSibling() == div);
 		assertTrue(p.getPreviousElementSibling() == div);
 		assertTrue(div.getPreviousSibling() == text2);
@@ -1062,7 +1062,7 @@ public class DOMNodeTest {
 		assertTrue(elm == body.getChildNodes().item(0));
 		assertTrue(text2 == body.getChildNodes().item(1));
 		assertTrue(div == body.getChildNodes().item(2));
-		//
+
 		body.removeChild(div);
 		assertTrue(body.hasChildNodes());
 		assertNull(div.getParentNode());
@@ -1085,7 +1085,7 @@ public class DOMNodeTest {
 		assertEquals(3, body.getChildNodes().getLength());
 		assertTrue(elm == body.getChildNodes().item(0));
 		assertTrue(p == body.getChildNodes().item(2));
-		//
+
 		elm = (DOMElement) body.removeChild(elm);
 		assertTrue(body.hasChildNodes());
 		assertNull(elm.getParentNode());
@@ -1110,7 +1110,7 @@ public class DOMNodeTest {
 		assertEquals(2, body.getChildNodes().getLength());
 		assertTrue(text2 == body.getChildNodes().item(0));
 		assertTrue(p == body.getChildNodes().item(1));
-		//
+
 		body.removeChild(text2);
 		assertNull(text2.getParentNode());
 		assertNull(text2.getNextSibling());
@@ -1131,7 +1131,7 @@ public class DOMNodeTest {
 		assertTrue(p == body.getLastElementChild());
 		assertEquals(1, body.getChildNodes().getLength());
 		assertTrue(p == body.getChildNodes().item(0));
-		//
+
 		body.removeChild(p);
 		assertFalse(body.hasChildNodes());
 		assertEquals(0, body.getChildNodes().getLength());
@@ -1240,14 +1240,14 @@ public class DOMNodeTest {
 		DOMElement p = xhtmlDoc.createElement("p");
 		p.appendChild(xhtmlDoc.createTextNode("inside p"));
 		body.appendChild(p);
-		//
+
 		ElementList listspan = body.getElementsByTagName("span");
 		ElementList listdiv = body.getElementsByTagName("div");
 		ElementList listp = body.getElementsByTagName("p");
 		assertEquals(1, listspan.getLength());
 		assertEquals(1, listdiv.getLength());
 		assertEquals(1, listp.getLength());
-		//
+
 		DOMElement div2 = xhtmlDoc.createElement("div");
 		div2.setAttribute("id", "div2");
 		DOMElement elm = (DOMElement) body.replaceChild(div2, div);
@@ -1258,7 +1258,7 @@ public class DOMNodeTest {
 		assertNull(elm.getPreviousSibling());
 		assertNull(elm.getNextElementSibling());
 		assertNull(elm.getPreviousElementSibling());
-		//
+
 		assertNull(span.getPreviousSibling());
 		assertNull(span.getPreviousElementSibling());
 		assertTrue(span.getNextSibling() == text2);
@@ -1277,7 +1277,7 @@ public class DOMNodeTest {
 		assertEquals(1, listspan.getLength());
 		assertEquals(1, listdiv.getLength());
 		assertEquals(1, listp.getLength());
-		//
+
 		assertEquals(4, body.getChildNodes().getLength());
 		assertTrue(span == body.getChildNodes().item(0));
 		assertTrue(text2 == body.getChildNodes().item(1));

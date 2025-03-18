@@ -109,30 +109,30 @@ public class CSSDOMImplementationTest {
 	public void testCreateDocumentType() {
 		DocumentType doctype = domImpl.createDocumentType("html", null, null);
 		assertEquals("<!DOCTYPE html>", doctype.toString());
-		//
+
 		doctype = domImpl.createDocumentType("html", "-//W3C//DTD XHTML 1.0 Strict//EN", null);
 		assertEquals("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\">", doctype.toString());
-		//
+
 		doctype = domImpl.createDocumentType("html", null, "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
 		assertEquals("<!DOCTYPE html SYSTEM \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">",
 				doctype.toString());
-		//
+
 		doctype = domImpl.createDocumentType("html", "-//W3C//DTD XHTML 1.0 Strict//EN",
 				"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd");
 		assertEquals(
 				"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">",
 				doctype.toString());
-		//
+
 		try {
 			domImpl.createDocumentType("html><html><injection/", null, null);
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
-		//
+
 		doctype = domImpl.createDocumentType("html", "\"><injection foo=\"", null);
 		assertEquals("<!DOCTYPE html PUBLIC \"&quot;&gt;&lt;injection foo=&quot;\">", doctype.toString());
-		//
+
 		doctype = domImpl.createDocumentType("html", null, "\"><injection foo=\"");
 		assertEquals("<!DOCTYPE html SYSTEM \"&quot;&gt;&lt;injection foo=&quot;\">", doctype.toString());
 	}

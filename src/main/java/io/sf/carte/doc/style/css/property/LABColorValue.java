@@ -113,7 +113,7 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		}
 		float a = ((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float b = ((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER);
-		//
+
 		float c = (float) Math.sqrt(a * a + b * b);
 		float h = (float) (Math.atan2(b, a) * 180f / Math.PI);
 		if (h < 0f) {
@@ -123,7 +123,7 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		NumberValue hue = NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, h);
 		chroma.setAbsolutizedUnit();
 		hue.setAbsolutizedUnit();
-		//
+
 		LCHColorValue lch = new LCHColorValue();
 		lch.setComponent(0, labColor.getAlpha().clone());
 		lch.setComponent(1, labColor.getLightness().clone());
@@ -151,7 +151,7 @@ public class LABColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		if (!labColor.hasConvertibleComponents() || !((ColorValue) color).hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
 		}
-		//
+
 		LABColor lab;
 		switch (color.getColorModel()) {
 		case LAB:

@@ -78,7 +78,7 @@ public class CountersValueTest {
 		assertEquals("ListCounter", counter.getName());
 		assertNull(counter.getCounterStyle());
 		assertEquals("|", counter.getSeparator());
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<counter>");
 		assertEquals(Match.TRUE, cssval.matches(syn));

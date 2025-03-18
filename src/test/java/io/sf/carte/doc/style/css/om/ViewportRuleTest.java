@@ -52,7 +52,7 @@ public class ViewportRuleTest {
 		PropertyCountVisitor visitor = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitor);
 		assertEquals(1, visitor.getCount());
-		//
+
 		visitor.reset();
 		sheet.acceptDescriptorRuleVisitor(visitor);
 		assertEquals(1, visitor.getCount());

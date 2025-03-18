@@ -353,7 +353,7 @@ public class CalcValueTest {
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_NUMBER, ((ExpressionValue) val).computeUnitType());
-		//
+
 		assertMatch(Match.TRUE, val, "<integer>");
 		assertMatch(Match.TRUE, val, "<custom-ident> | <integer>");
 		assertMatch(Match.TRUE, val, "<custom-ident> | <integer> | <length>");
@@ -407,7 +407,7 @@ public class CalcValueTest {
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_NUMBER, ((ExpressionValue) val).computeUnitType());
-		//
+
 		assertMatch(Match.TRUE, val, "<number>");
 		assertMatch(Match.TRUE, val, "<custom-ident> | <number>");
 		assertMatch(Match.TRUE, val, "<integer>");
@@ -426,7 +426,7 @@ public class CalcValueTest {
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_PX, ((ExpressionValue) val).computeUnitType());
-		//
+
 		assertMatch(Match.TRUE, val, "<length>");
 		assertMatch(Match.TRUE, val, "<custom-ident> | <length>");
 		assertMatch(Match.FALSE, val, "<custom-ident> | <integer>");
@@ -479,7 +479,7 @@ public class CalcValueTest {
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		//
+
 		assertMatch(Match.TRUE, val, "<length-percentage>");
 		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
 		assertMatch(Match.FALSE, val, "<custom-ident> | <integer>");
@@ -499,7 +499,7 @@ public class CalcValueTest {
 		assertNotNull(val);
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
-		//
+
 		assertMatch(Match.TRUE, val, "<percentage>");
 		assertMatch(Match.TRUE, val, "<custom-ident> | <length-percentage>");
 		assertMatch(Match.FALSE, val, "<custom-ident> | <integer>");
@@ -564,7 +564,7 @@ public class CalcValueTest {
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_DEG, ((ExpressionValue) val).computeUnitType());
-		//
+
 		assertMatch(Match.TRUE, val, "<angle>");
 		assertMatch(Match.TRUE, val, "<angle> | <length>");
 		assertMatch(Match.TRUE, val, "<custom-ident> | <angle> | <length>");
@@ -582,7 +582,7 @@ public class CalcValueTest {
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_S, ((ExpressionValue) val).computeUnitType());
-		//
+
 		assertMatch(Match.TRUE, val, "<time>");
 		assertMatch(Match.TRUE, val, "<time> | <length>");
 		assertMatch(Match.TRUE, val, "<custom-ident> | <time> | <length>");
@@ -600,7 +600,7 @@ public class CalcValueTest {
 		assertEquals(CssType.TYPED, val.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, val.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_DPI, ((ExpressionValue) val).computeUnitType());
-		//
+
 		assertMatch(Match.TRUE, val, "<resolution>");
 		assertMatch(Match.TRUE, val, "<resolution> | <length>");
 		assertMatch(Match.TRUE, val, "<custom-ident> | <resolution> | <length>");
@@ -702,7 +702,7 @@ public class CalcValueTest {
 		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
 		assertEquals("calc(var(--bar, 0.3rem))", val.getCssText());
 		assertEquals("calc(var(--bar,0.3rem))", val.getMinifiedCssText("margin-left"));
-		//
+
 		assertMatch(Match.PENDING, val, "<length>");
 		assertMatch(Match.PENDING, val, "<percentage> | <length>");
 		assertMatch(Match.PENDING, val, "<percentage>");

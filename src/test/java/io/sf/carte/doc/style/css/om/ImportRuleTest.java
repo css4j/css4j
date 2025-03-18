@@ -320,18 +320,18 @@ public class ImportRuleTest {
 		assertEquals(2, list.getLength());
 		assertEquals("@import url('http://www.example.com/css/circular.css'); ", imp.getCssText());
 		assertEquals("@import 'http://www.example.com/css/circular.css';", imp.getMinifiedCssText());
-		//
+
 		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasSacWarnings());
 		assertTrue(sheet.getErrorHandler().hasOMErrors());
 		assertFalse(sheet.getErrorHandler().hasOMWarnings());
-		//
+
 		assertFalse(imported.getErrorHandler().hasSacErrors());
 		assertFalse(imported.getErrorHandler().hasSacWarnings());
 		assertTrue(imported.getErrorHandler().hasOMErrors());
 		assertFalse(imported.getErrorHandler().hasOMWarnings());
-		//
+
 		assertFalse(docsheet.getErrorHandler().hasSacErrors());
 		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
 		assertTrue(docsheet.getErrorHandler().hasOMErrors());
@@ -363,18 +363,18 @@ public class ImportRuleTest {
 		assertEquals(2, list.getLength());
 		assertEquals("@import url('http://www.example.com/css/circular.css') screen; ", imp.getCssText());
 		assertEquals("@import 'http://www.example.com/css/circular.css' screen;", imp.getMinifiedCssText());
-		//
+
 		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasSacWarnings());
 		assertTrue(sheet.getErrorHandler().hasOMErrors());
 		assertFalse(sheet.getErrorHandler().hasOMWarnings());
-		//
+
 		assertFalse(imported.getErrorHandler().hasSacErrors());
 		assertFalse(imported.getErrorHandler().hasSacWarnings());
 		assertTrue(imported.getErrorHandler().hasOMErrors());
 		assertFalse(imported.getErrorHandler().hasOMWarnings());
-		//
+
 		assertFalse(docsheet.getErrorHandler().hasSacErrors());
 		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
 		assertTrue(docsheet.getErrorHandler().hasOMErrors());
@@ -407,23 +407,23 @@ public class ImportRuleTest {
 		assertEquals(0, list.getLength());
 		assertEquals("@import url('jar:http://www.example.com/evil.jar!/file'); ", imp.getCssText());
 		assertEquals("@import 'jar:http://www.example.com/evil.jar!/file';", imp.getMinifiedCssText());
-		//
+
 		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasSacWarnings());
 		assertFalse(sheet.getErrorHandler().hasOMErrors());
 		assertFalse(sheet.getErrorHandler().hasOMWarnings());
-		//
+
 		assertFalse(imported.getErrorHandler().hasSacErrors());
 		assertFalse(imported.getErrorHandler().hasSacWarnings());
 		assertFalse(imported.getErrorHandler().hasOMErrors());
 		assertFalse(imported.getErrorHandler().hasOMWarnings());
-		//
+
 		assertFalse(docsheet.getErrorHandler().hasSacErrors());
 		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
 		assertFalse(docsheet.getErrorHandler().hasOMErrors());
 		assertFalse(docsheet.getErrorHandler().hasOMWarnings());
-		//
+
 		assertFalse(cssdoc.getErrorHandler().hasIOErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertTrue(cssdoc.getErrorHandler().hasErrors());
@@ -452,18 +452,18 @@ public class ImportRuleTest {
 		assertNotNull(imported);
 		CSSRuleArrayList list = imported.getCssRules();
 		assertEquals(0, list.getLength());
-		//
+
 		DocumentCSSStyleSheet docsheet = cssdoc.getStyleSheet();
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasSacWarnings());
 		assertFalse(sheet.getErrorHandler().hasOMErrors());
 		assertFalse(sheet.getErrorHandler().hasOMWarnings());
-		//
+
 		assertFalse(imported.getErrorHandler().hasSacErrors());
 		assertFalse(imported.getErrorHandler().hasSacWarnings());
 		assertFalse(imported.getErrorHandler().hasOMErrors());
 		assertFalse(imported.getErrorHandler().hasOMWarnings());
-		//
+
 		assertFalse(docsheet.getErrorHandler().hasSacErrors());
 		assertFalse(docsheet.getErrorHandler().hasSacWarnings());
 		assertFalse(docsheet.getErrorHandler().hasOMErrors());
@@ -480,17 +480,17 @@ public class ImportRuleTest {
 		AbstractCSSStyleSheet imported = imp.getStyleSheet();
 		assertNotNull(imported);
 		assertEquals(0, imported.getCssRules().getLength());
-		//
+
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasSacWarnings());
 		assertFalse(sheet.getErrorHandler().hasOMErrors());
 		assertFalse(sheet.getErrorHandler().hasOMWarnings());
-		//
+
 		assertFalse(imported.getErrorHandler().hasSacErrors());
 		assertFalse(imported.getErrorHandler().hasSacWarnings());
 		assertFalse(imported.getErrorHandler().hasOMErrors());
 		assertFalse(imported.getErrorHandler().hasOMWarnings());
-		//
+
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasSacWarnings());
 		assertFalse(sheet.getErrorHandler().hasOMErrors());

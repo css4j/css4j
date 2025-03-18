@@ -71,14 +71,14 @@ public class FontFeatureValuesRuleTest {
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, rule.getPrecedingComments().size());
 		assertEquals(" pre-rule ", rule.getPrecedingComments().get(0));
-		//
+
 		CSSFontFeatureValuesMap swash2 = rule.getFeatureValuesMap("swash");
 		assertTrue(swash == swash2);
 		assertTrue(rule.getAnnotation() == rule.getFeatureValuesMap("annotation"));
 		assertTrue(rule.getOrnaments() == rule.getFeatureValuesMap("ornaments"));
 		assertTrue(rule.getStyleset() == rule.getFeatureValuesMap("styleset"));
 		assertTrue(rule.getStylistic() == rule.getFeatureValuesMap("stylistic"));
-		//
+
 		NumberValue number = new NumberValue();
 		number.setIntegerValue(4);
 		CSSFontFeatureValuesMap annot = rule.getAnnotation();
@@ -110,10 +110,10 @@ public class FontFeatureValuesRuleTest {
 		assertEquals(1, ((TypedValue) swash.get("swishy")[0]).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
 		PrimitiveValue primi = swash.get("flowing")[0];
 		assertEquals(CSSValue.Type.EXPRESSION, primi.getPrimitiveType());
-		//
+
 		primi = rule.getStyleset().get("double-W")[0];
 		assertEquals(CSSValue.Type.LEXICAL, primi.getPrimitiveType());
-		//
+
 		assertEquals(
 				"@font-feature-values Some Font{@swash{swishy:1;flowing:calc(1 + 1)}@styleset{double-W:var(--doubleW,2);sharp-terminals:16 1}}",
 				rule.getMinifiedCssText());
@@ -329,7 +329,7 @@ public class FontFeatureValuesRuleTest {
 		NumberValue number = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 14f);
 		rule.getStyleset().set("sharp-terminals", number);
 		assertEquals("@font-feature-values Arial,Helvetica{@styleset{sharp-terminals:14}}", rule.getMinifiedCssText());
-		//
+
 		NumberValue number2 = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 1f);
 		PrimitiveValue[] pvarray = { number, number2 };
 		rule.getStyleset().set("sharp-terminals", pvarray);
@@ -346,14 +346,14 @@ public class FontFeatureValuesRuleTest {
 			fail("Must throw exception");
 		} catch (DOMException e) {
 		}
-		//
+
 		PrimitiveValue[] pvarray = { null, null };
 		try {
 			rule.getStyleset().set("sharp-terminals", pvarray);
 			fail("Must throw exception");
 		} catch (DOMException e) {
 		}
-		//
+
 		try {
 			rule.getStyleset().set("sharp-terminals", new IdentifierValue("foo"));
 			fail("Must throw exception");

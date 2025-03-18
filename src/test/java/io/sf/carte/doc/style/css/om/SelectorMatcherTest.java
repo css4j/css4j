@@ -122,7 +122,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 0, 1, selist.item(selidx), matcher);
-		//
+
 		assertTrue(svgmatcher.matches(selist) == -1);
 		assertTrue(matcher.matches(svgselist) == -1);
 		selidx = svgmatcher.matches(svgselist);
@@ -210,7 +210,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
@@ -231,7 +231,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
@@ -251,11 +251,11 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.setAttribute("title", "hi ho");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
@@ -276,7 +276,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
@@ -296,15 +296,15 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.setAttribute("title", "HI");
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
-		//
+
 		elm.setAttribute("title", "h");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "ho hi");
 		matcher = selectorMatcher(elm);
@@ -325,13 +325,13 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.setAttribute("lang", "en");
 		assertTrue(matcher.matches(selist) >= 0);
-		//
+
 		elm.setAttribute("lang", "en_US");
 		assertTrue(matcher.matches(selist) < 0);
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("lang", "en");
 		matcher = selectorMatcher(elm);
@@ -352,13 +352,13 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.setAttribute("lang", "EN");
 		assertTrue(matcher.matches(selist) >= 0);
-		//
+
 		elm.setAttribute("lang", "en_US");
 		assertTrue(matcher.matches(selist) < 0);
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("lang", "en");
 		matcher = selectorMatcher(elm);
@@ -379,7 +379,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
@@ -400,11 +400,11 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.setAttribute("title", "hi");
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
@@ -425,15 +425,15 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.setAttribute("title", "HI");
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
-		//
+
 		elm.setAttribute("title", "h");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
@@ -454,15 +454,15 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.setAttribute("title", "HI");
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
-		//
+
 		elm.setAttribute("title", "i");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
@@ -483,7 +483,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
@@ -504,22 +504,22 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.setAttribute("title", "HI");
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
-		//
+
 		elm.setAttribute("title", "HI HO");
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
-		//
+
 		elm.setAttribute("title", "HOHI");
 		selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
-		//
+
 		elm.setAttribute("title", "H");
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("title", "hi");
 		matcher = selectorMatcher(elm);
@@ -535,7 +535,7 @@ public class SelectorMatcherTest {
 		CSSElement elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		elm.setAttribute("lang", "en-US");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
@@ -550,7 +550,7 @@ public class SelectorMatcherTest {
 		CSSElement elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		elm.setAttribute("lang", "en-US");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
@@ -565,7 +565,7 @@ public class SelectorMatcherTest {
 		CSSElement elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		elm.setAttribute("lang", "en-US");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
@@ -597,7 +597,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("lang", "en-US");
 		matcher = selectorMatcher(elm);
@@ -614,12 +614,12 @@ public class SelectorMatcherTest {
 		elm.setAttribute("lang", "de-Latn");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "en-GB");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn-DE-1996");
 		matcher = selectorMatcher(elm);
@@ -636,12 +636,12 @@ public class SelectorMatcherTest {
 		elm.setAttribute("lang", "de-Latn");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "en-GB");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn-DE-1996");
 		matcher = selectorMatcher(elm);
@@ -658,12 +658,12 @@ public class SelectorMatcherTest {
 		elm.setAttribute("lang", "de-Latn");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "en-GB");
 		matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn-DE-1996");
 		matcher = selectorMatcher(elm);
@@ -680,12 +680,12 @@ public class SelectorMatcherTest {
 		elm.setAttribute("lang", "de-Latn");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-DE");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn-DE-1996");
 		matcher = selectorMatcher(elm);
@@ -702,12 +702,12 @@ public class SelectorMatcherTest {
 		elm.setAttribute("lang", "de-Latn-DE");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertEquals(0, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-DE");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
-		//
+
 		elm = createTopLevelElement("p");
 		elm.setAttribute("lang", "de-Latn-DE-1996");
 		matcher = selectorMatcher(elm);
@@ -1000,7 +1000,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -1170,7 +1170,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(1, 0, 1, selist.item(selidx), matcher);
-		//
+
 		elm = createTopLevelElement("div");
 		elm.setAttribute("id", "exampleid");
 		matcher = selectorMatcher(elm);
@@ -1293,13 +1293,13 @@ public class SelectorMatcherTest {
 		a3.setAttribute("id", "a3");
 		li.appendChild(a3);
 		assertTrue(a3.matches(selist, null));
-		//
+
 		SelectorMatcher matcher = selectorMatcher(a3);
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 0, 3, selist.item(selidx), matcher);
-		//
+
 		CSSElement span = doc.createElement("span");
 		a3.appendChild(span);
 		assertFalse(span.matches(selist, null));
@@ -1334,13 +1334,13 @@ public class SelectorMatcherTest {
 		a3.setAttribute("id", "a3");
 		li.appendChild(a3);
 		assertTrue(a3.matches(selist, null));
-		//
+
 		SelectorMatcher matcher = selectorMatcher(a3);
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 0, 3, selist.item(selidx), matcher);
-		//
+
 		CSSElement span = doc.createElement("span");
 		a3.appendChild(span);
 		assertFalse(span.matches(selist, null));
@@ -1387,7 +1387,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		css = parseStyle("p:last-child {color: blue;}");
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
@@ -1447,7 +1447,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 2, selist.item(selidx), matcher);
-		//
+
 		css = parseStyle("p:nth-last-child(1 of p) {color: blue;}");
 		rule = (StyleRule) css.getCssRules().item(0);
 		selist = rule.getSelectorList();
@@ -1456,7 +1456,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 2, selist.item(selidx), matcher);
-		//
+
 		CSSElement lastp = doc.createElement("p");
 		parent.appendChild(lastp);
 		assertEquals(-1, matcher.matches(selist));
@@ -1471,7 +1471,7 @@ public class SelectorMatcherTest {
 		assertEquals(-1, lastpMatcher.matches(selist));
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 2, selist.item(selidx), matcher);
-		//
+
 		parent.removeChild(lastp);
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -1545,7 +1545,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		parent.removeChild(lastp);
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -1565,12 +1565,12 @@ public class SelectorMatcherTest {
 		assertEquals(0, matcher.matches(selist));
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 0, selist.item(selidx), matcher);
-		//
+
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "bar");
 		assertEquals(0, matcher.matches(selist));
-		//
+
 		a.removeAttribute("href");
 		matcher = selectorMatcher(a);
 		assertEquals(-1, matcher.matches(selist));
@@ -1591,12 +1591,12 @@ public class SelectorMatcherTest {
 		assertEquals(0, matcher.matches(selist));
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 0, selist.item(selidx), matcher);
-		//
+
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "bar");
 		assertEquals(0, matcher.matches(selist));
-		//
+
 		a.removeAttribute("href");
 		matcher = selectorMatcher(a);
 		assertEquals(-1, matcher.matches(selist));
@@ -1620,7 +1620,7 @@ public class SelectorMatcherTest {
 		assertEquals(0, selidx);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 0, selist.item(selidx), matcher);
-		//
+
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
@@ -1629,7 +1629,7 @@ public class SelectorMatcherTest {
 		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
 			"https://www.example.com/foo");
 		assertEquals(0, matcher.matches(selist));
-		//
+
 		a.removeAttribute("href");
 		matcher = selectorMatcher(a);
 		assertEquals(-1, matcher.matches(selist));
@@ -1650,7 +1650,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 0, selist.item(selidx), matcher);
-		//
+
 		matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -1669,7 +1669,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 0, selist.item(selidx), matcher);
-		//
+
 		matcher = selectorMatcher(div);
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -1695,7 +1695,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		div.appendChild(doc.createTextNode("foo"));
 		matcher = selectorMatcher(div);
 		assertTrue(matcher.matches(selist) < 0);
@@ -1722,7 +1722,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		div.appendChild(doc.createTextNode("foo"));
 		matcher = selectorMatcher(div);
 		assertTrue(matcher.matches(selist) < 0);
@@ -1734,7 +1734,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p.exampleclass:has(>img)", selectorListToString(selist, rule));
-		//
+
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("id", "p1");
 		CSSElement elm = doc.createElement("span");
@@ -1750,7 +1750,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 2, selist.item(selidx), matcher);
-		//
+
 		parent.removeChild(elm2);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -1761,7 +1761,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p.exampleclass:has(+p)", selectorListToString(selist, rule));
-		//
+
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
 		CSSElement elm = doc.createElement("p");
@@ -1777,7 +1777,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 2, selist.item(selidx), matcher);
-		//
+
 		parent.removeChild(elm2);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -1788,7 +1788,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("div.exampleclass:has(p>span)", selectorListToString(selist, rule));
-		//
+
 		CSSElement parent = createTopLevelElement("div");
 		CSSElement elm = doc.createElement("p");
 		parent.appendChild(elm);
@@ -1801,7 +1801,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 3, selist.item(selidx), matcher);
-		//
+
 		elm.removeChild(span);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -1812,7 +1812,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("div.exampleclass:has(span+p)", selectorListToString(selist, rule));
-		//
+
 		CSSElement parent = createTopLevelElement("div");
 		CSSElement elm = doc.createElement("span");
 		parent.appendChild(elm);
@@ -1825,7 +1825,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 3, selist.item(selidx), matcher);
-		//
+
 		parent.removeChild(elm);
 		parent.removeChild(elm2);
 		assertEquals(-1, matcher.matches(selist));
@@ -1837,7 +1837,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("body>div.exampleclass:has(span+p)", selectorListToString(selist, rule));
-		//
+
 		CSSElement body = createTopLevelElement("body");
 		CSSElement parent = doc.createElement("div");
 		body.appendChild(parent);
@@ -1852,7 +1852,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 4, selist.item(selidx), matcher);
-		//
+
 		parent.removeChild(elm);
 		parent.removeChild(elm2);
 		assertEquals(-1, matcher.matches(selist));
@@ -1864,7 +1864,7 @@ public class SelectorMatcherTest {
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
 		assertEquals("p.exampleclass:has(* img,#fooID)", selectorListToString(selist, rule));
-		//
+
 		CSSElement parent = createTopLevelElement("p");
 		parent.setAttribute("id", "p1");
 		CSSElement elm = doc.createElement("span");
@@ -2112,7 +2112,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.setAttribute("disabled", "disabled");
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -2140,7 +2140,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.setAttribute("disabled", "disabled");
 		assertTrue(matcher.matches(selist) < 0);
 		css = parseStyle("div:read-write {color: blue;}");
@@ -2192,7 +2192,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		button.removeAttribute("disabled");
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -2218,7 +2218,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		button.removeAttribute("disabled");
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -2251,7 +2251,7 @@ public class SelectorMatcherTest {
 		assertEquals(0, selidx);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		button2.removeAttribute("disabled");
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -2272,7 +2272,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.removeAttribute("checked");
 		assertTrue(matcher.matches(selist) < 0);
 	}
@@ -2293,7 +2293,7 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
-		//
+
 		elm.setAttribute("indeterminate", "false");
 		assertTrue(matcher.matches(selist) < 0);
 	}

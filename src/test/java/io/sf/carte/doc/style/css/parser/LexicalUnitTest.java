@@ -161,19 +161,19 @@ public class LexicalUnitTest {
 		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
 		assertFalse(lu2.isParameter());
 		assertFalse(lu.isParameter());
-		//
+
 		lu = lu.getNextLexicalUnit();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Very", lu.getStringValue());
 		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
 		assertSame(lu, lu2);
 		assertFalse(lu.isParameter());
-		//
+
 		lu = lu.getNextLexicalUnit();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("New", lu.getStringValue());
 		assertSame(lu, lu.getNextLexicalUnit().getPreviousLexicalUnit());
-		//
+
 		lu = lu.getNextLexicalUnit();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Roman", lu.getStringValue());
@@ -182,13 +182,13 @@ public class LexicalUnitTest {
 	@Test
 	public void testInsertNextLexicalUnitEmpty() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("Courier New");
-		//
+
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		parser.parseStyleDeclaration(new StringReader("--foo:;"));
 		LexicalUnit empty = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.LexicalType.EMPTY, empty.getLexicalUnitType());
-		//
+
 		lu.insertNextLexicalUnit(empty);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Courier", lu.getStringValue());
@@ -197,7 +197,7 @@ public class LexicalUnitTest {
 		assertEquals(LexicalType.IDENT, nlu.getLexicalUnitType());
 		assertEquals("New", nlu.getStringValue());
 		assertNull(nlu.getNextLexicalUnit());
-		//
+
 		lu.getNextLexicalUnit().insertNextLexicalUnit(empty);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("Courier New", lu.toString());
@@ -227,7 +227,7 @@ public class LexicalUnitTest {
 		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
 		assertEquals("three", param.getStringValue());
 		assertTrue(param.isParameter());
-		//
+
 		lu2 = parsePropertyValue("four");
 		param.insertNextLexicalUnit(lu2);
 		assertEquals("three", param.getStringValue());
@@ -311,13 +311,13 @@ public class LexicalUnitTest {
 	public void testReplaceByEmpty() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("inset 10px 5px 6px blue");
 		LexicalUnit nlu = lu.getNextLexicalUnit();
-		//
+
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		parser.parseStyleDeclaration(new StringReader("--foo:;"));
 		LexicalUnit empty = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.LexicalType.EMPTY, empty.getLexicalUnitType());
-		//
+
 		LexicalUnit replacement = lu.replaceBy(empty);
 		assertNotNull(replacement);
 		assertNull(lu.getPreviousLexicalUnit());
@@ -326,11 +326,11 @@ public class LexicalUnitTest {
 		assertEquals("inset", lu.toString());
 		assertEquals("10px 5px 6px blue", replacement.toString());
 		assertSame(nlu, replacement);
-		//
+
 		replacement = nlu.getNextLexicalUnit().replaceBy(empty);
 		assertEquals("6px blue", replacement.toString());
 		assertEquals("10px 6px blue", nlu.toString());
-		//
+
 		replacement = replacement.getNextLexicalUnit().replaceBy(empty);
 		assertNull(replacement);
 		assertEquals("10px 6px", nlu.toString());
@@ -470,13 +470,13 @@ public class LexicalUnitTest {
 	@Test
 	public void testCountReplaceByEmpty() throws CSSException, IOException {
 		LexicalUnit lu = parsePropertyValue("Times New Roman");
-		//
+
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		parser.parseStyleDeclaration(new StringReader("--foo:;"));
 		LexicalUnit empty = handler.lexicalValues.getFirst();
 		assertEquals(LexicalUnit.LexicalType.EMPTY, empty.getLexicalUnitType());
-		//
+
 		LexicalUnit nlu = lu.getNextLexicalUnit();
 		int count = nlu.countReplaceBy(empty);
 		assertEquals(1, count);
@@ -486,7 +486,7 @@ public class LexicalUnitTest {
 		assertEquals("Times Roman", lu.toString());
 		nlu = lu.getNextLexicalUnit();
 		assertNull(nlu.getNextLexicalUnit());
-		//
+
 		count = lu.countReplaceBy(empty);
 		assertEquals(1, count);
 		assertEquals("Times", lu.toString());
@@ -495,7 +495,7 @@ public class LexicalUnitTest {
 		assertNull(lu.getNextLexicalUnit());
 		assertNull(nlu.getPreviousLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
-		//
+
 		lu = parsePropertyValue("Courier New");
 		count = lu.getNextLexicalUnit().countReplaceBy(empty);
 		assertEquals(1, count);
@@ -509,25 +509,25 @@ public class LexicalUnitTest {
 		LexicalUnit lu2 = parsePropertyValue("Lucida Sans");
 		assertNotEquals(lu, lu2);
 		assertEquals(lu, lu2.getNextLexicalUnit());
-		//
+
 		lu = parsePropertyValue("calc(2 * (3 + 2))");
 		lu2 = parsePropertyValue("calc(2 * (3 + 2)) 7");
 		assertEquals(lu, lu2);
 		assertNotEquals(lu, lu2.getNextLexicalUnit());
-		//
+
 		lu2 = parsePropertyValue("calc(2 * (3 + 1))");
 		assertNotEquals(lu, lu2);
-		//
+
 		lu2 = parsePropertyValue("calc(2 * (3 + 2) * 5)");
 		assertNotEquals(lu, lu2);
-		//
+
 		lu2 = parsePropertyValue("calc(2)");
 		assertNotEquals(lu, lu2);
-		//
+
 		lu = parsePropertyValue("calc(2)");
 		lu2 = parsePropertyValue("calc(2 * (3 + 2))");
 		assertNotEquals(lu, lu2);
-		//
+
 		lu2 = parsePropertyValue("c\\41 lc(2)");
 		assertEquals(lu, lu2);
 		assertEquals(lu.hashCode(), lu2.hashCode());
@@ -539,7 +539,7 @@ public class LexicalUnitTest {
 		LexicalUnit lu2 = parsePropertyValue("#444");
 		assertEquals(lu, lu2);
 		assertEquals(lu.hashCode(), lu2.hashCode());
-		//
+
 		lu2 = parsePropertyValue("rgb(68,68,68)");
 		assertNotEquals(lu, lu2);
 		assertNotEquals(lu.hashCode(), lu2.hashCode());

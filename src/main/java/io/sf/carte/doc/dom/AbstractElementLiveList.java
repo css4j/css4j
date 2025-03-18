@@ -58,7 +58,7 @@ abstract class AbstractElementLiveList implements ElementList, Serializable {
 		if (index < 0) {
 			return null;
 		}
-		//
+
 		ElementTuple tuple = new ElementTuple();
 		indexChildList(contextNode, index, tuple);
 		return tuple.element;

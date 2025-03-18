@@ -73,7 +73,7 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 	@Override
 	void set(BaseColor color) {
 		super.set(color);
-		//
+
 		XYZColorImpl xyzcolor = (XYZColorImpl) color;
 		this.x = xyzcolor.x;
 		this.y = xyzcolor.y;

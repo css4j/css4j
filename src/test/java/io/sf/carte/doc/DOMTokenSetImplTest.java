@@ -200,7 +200,7 @@ public class DOMTokenSetImplTest {
 		assertFalse(tokenSet.containsAll(tokenSet2));
 		tokenSet2.setValue("four");
 		assertTrue(tokenSet.containsAll(tokenSet2));
-		//
+
 		tokenSet.setValue("one");
 		tokenSet2.setValue("five");
 		assertFalse(tokenSet.containsAll(tokenSet2));

@@ -329,7 +329,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			buf.append(" / ");
 			appendAlphaChannel(buf);
 		}
-		//
+
 		buf.append(')');
 		return buf.toString();
 	}
@@ -352,7 +352,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			buf.append('/');
 			appendAlphaChannelMinified(buf);
 		}
-		//
+
 		buf.append(')');
 		return buf.toString();
 	}
@@ -473,11 +473,11 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 				(float) lab[0]);
 		NumberValue primia = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[1]);
 		NumberValue primib = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[2]);
-		//
+
 		primiL.setAbsolutizedUnit();
 		primia.setAbsolutizedUnit();
 		primib.setAbsolutizedUnit();
-		//
+
 		labColor.setLightness(primiL);
 		labColor.setA(primia);
 		labColor.setB(primib);

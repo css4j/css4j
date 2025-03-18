@@ -14,6 +14,7 @@
  * DOM implementation.
  */
 module io.sf.carte.css4j {
+
 	exports io.sf.carte.doc;
 	exports io.sf.carte.doc.agent;
 	exports io.sf.carte.doc.color;
@@ -34,4 +35,5 @@ module io.sf.carte.css4j {
 	requires io.sf.jclf.math.linear3;
 	requires static io.sf.carte.xml.dtd;
 	requires static org.slf4j;
+
 }

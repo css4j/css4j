@@ -70,7 +70,7 @@ class BaseProfiledColor extends BaseColor {
 	@Override
 	void set(BaseColor color) {
 		super.set(color);
-		//
+
 		BaseProfiledColor setfrom = (BaseProfiledColor) color;
 		if (setfrom.components.length != this.components.length) {
 			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,

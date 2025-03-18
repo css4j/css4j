@@ -331,7 +331,7 @@ public class DOMWriter {
 				writeAttribute(attr, wri);
 			}
 		}
-		//
+
 		writeAttributes(element.getAttributes(), wri);
 		if (element.hasChildNodes() || !element.isNonHTMLOrVoid()) {
 			wri.write('>');
@@ -358,7 +358,7 @@ public class DOMWriter {
 			}
 			wri.write("/>");
 		}
-		//
+
 		if (indented) {
 			endIndentedNode(element, wri);
 		}

@@ -277,7 +277,7 @@ abstract public class HTMLDocument extends DOMDocument {
 			} else {
 				// Set the baseURL field to null so it is re-computed
 				getOwnerDocument().baseURL = null;
-				//
+
 				super.setParentNode(parentNode);
 			}
 		}
@@ -666,7 +666,7 @@ abstract public class HTMLDocument extends DOMDocument {
 		if (!DOMDocument.isValidName(localName)) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid name: " + localName);
 		}
-		//
+
 		DOMElement myelem;
 		if ("link".equals(localName)) {
 			myelem = new LinkElement(namespaceURI);

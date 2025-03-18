@@ -456,7 +456,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 						.setTrailingComments(characterVariant.getTrailingComments());
 				FontFeatureValuesRule.this.styleset.setTrailingComments(styleset.getTrailingComments());
 			}
-			//
+
 			if (parentHandler != null) {
 				parentHandler.endSubHandler(CSSRule.FONT_FEATURE_VALUES_RULE);
 			}

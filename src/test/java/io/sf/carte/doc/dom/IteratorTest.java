@@ -400,7 +400,7 @@ public class IteratorTest {
 		}
 		assertEquals(2, nnm.getLength());
 		assertFalse(it.hasNext());
-		//
+
 		it = nnm.iterator();
 		assertTrue(it.hasNext());
 		node = it.next();

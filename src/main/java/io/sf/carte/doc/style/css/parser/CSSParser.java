@@ -5871,7 +5871,7 @@ public class CSSParser implements Parser, Cloneable {
 					((AttributeConditionImpl) condition).setValue(lcname.trim());
 				}
 			}
-			//
+
 			if (currentsel instanceof CombinatorSelectorImpl) {
 				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
 				if (simple != null && simple.getSelectorType() == SelectorType.CONDITIONAL) {
@@ -6270,7 +6270,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		private String ruleFirstPart = null;
 		private byte stage = 0;
-		//
+
 		static final byte STAGE_FOUND_AT_CHAR = 1;
 		static final byte STAGE_RULE_NAME_SELECTOR = 2;
 		static final byte STAGE_RULE_BODY = 3;
@@ -7170,7 +7170,7 @@ public class CSSParser implements Parser, Cloneable {
 			} else {
 				// This method is not being called if we are in calc()
 				assert currentlu.parameters == null;
-				//
+
 				LexicalType type;
 				if (!typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
 						&& type != LexicalType.OPERATOR_COMMA) {

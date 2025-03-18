@@ -170,24 +170,24 @@ public class StylableDocumentWrapperTest2 {
 		assertEquals("http://www.example.com/", wrapped.getBaseURI());
 		Attr attr = element.getAttributeNode("xml:base");
 		assertNotNull(attr);
-		//
+
 		attr.setValue("jar:http://www.example.com/evil.jar!/file");
 		assertNull(wrapped.getBaseURI());
 		assertTrue(wrapped.getErrorHandler().hasErrors());
 		assertTrue(wrapped.getErrorHandler().hasPolicyErrors());
-		//
+
 		wrapped.getErrorHandler().reset();
 		wrapped.setDocumentURI("http://www.example.com/foo.html");
 		assertEquals("http://www.example.com/foo.html", wrapped.getBaseURI());
 		assertEquals("jar:http://www.example.com/evil.jar!/file", attr.getValue());
 		assertTrue(wrapped.getErrorHandler().hasErrors());
 		assertTrue(wrapped.getErrorHandler().hasPolicyErrors());
-		//
+
 		attr.setValue("http://www.example.com/");
 		assertEquals("http://www.example.com/", wrapped.getBaseURI());
 		attr.setValue("jar:http://www.example.com/evil.jar!/file");
 		assertEquals("http://www.example.com/foo.html", wrapped.getBaseURI());
-		//
+
 		wrapped.getErrorHandler().reset();
 		attr.setValue("file:/dev/zero");
 		assertEquals("http://www.example.com/foo.html", wrapped.getBaseURI());
@@ -287,12 +287,12 @@ public class StylableDocumentWrapperTest2 {
 		element.setAttribute("rel", "stylesheet");
 		element.setAttribute("href", "http://www.example.com/css/common.css");
 		element.setIdAttribute("id", true);
-		//
+
 		Attr iattr = element.getAttributeNode("href");
 		assertNotNull(iattr);
 		Attr iattr2 = element.getAttributeNodeNS(null, "href");
 		assertSame(iattr, iattr2);
-		//
+
 		// Wrap
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(false);
@@ -300,10 +300,10 @@ public class StylableDocumentWrapperTest2 {
 		CSSElement link = wrapped.getElementById("linkId");
 		Attr href = link.getAttributeNode("href");
 		assertNotNull(href);
-		//
+
 		Attr attr = link.getAttributeNodeNS(null, "href");
 		assertSame(href, attr);
-		//
+
 		CSSStyleSheet<AbstractCSSRule> sheet = ((LinkStyle<AbstractCSSRule>) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
@@ -312,7 +312,7 @@ public class StylableDocumentWrapperTest2 {
 		assertEquals("http://www.example.com/css/common.css", href.getValue());
 		assertFalse(wrapped.getErrorHandler().hasErrors());
 		assertFalse(wrapped.getErrorHandler().hasPolicyErrors());
-		//
+
 		href.setValue("file:/dev/zero");
 		sheet = ((LinkStyle<AbstractCSSRule>) link).getSheet();
 		assertNotNull(sheet);
@@ -322,7 +322,7 @@ public class StylableDocumentWrapperTest2 {
 		assertEquals("file:/dev/zero", href.getValue());
 		assertTrue(wrapped.getErrorHandler().hasErrors());
 		assertTrue(wrapped.getErrorHandler().hasPolicyErrors());
-		//
+
 		wrapped.getErrorHandler().reset();
 		href.setValue("jar:http://www.example.com/evil.jar!/file");
 		sheet = ((LinkStyle<AbstractCSSRule>) link).getSheet();
@@ -332,7 +332,7 @@ public class StylableDocumentWrapperTest2 {
 		assertTrue(sheet.getOwnerNode() == link);
 		assertTrue(wrapped.getErrorHandler().hasErrors());
 		assertTrue(wrapped.getErrorHandler().hasPolicyErrors());
-		//
+
 		wrapped.getErrorHandler().reset();
 		href.setValue("http://www.example.com/etc/fakepasswd");
 		sheet = ((LinkStyle<AbstractCSSRule>) link).getSheet();

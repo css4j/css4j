@@ -67,7 +67,7 @@ public class KeyframesRuleTest {
 		assertNotNull(kfrule.getPrecedingComments());
 		assertEquals(1, kfrule.getPrecedingComments().size());
 		assertEquals(" pre-from ", kfrule.getPrecedingComments().get(0));
-		//
+
 		kfrule = (KeyframeRule) kfrules.item(1);
 		assertEquals(CSSRule.KEYFRAME_RULE, kfrule.getType());
 		assertEquals("50%", kfrule.getKeyText());
@@ -77,7 +77,7 @@ public class KeyframesRuleTest {
 		assertNotNull(kfrule.getPrecedingComments());
 		assertEquals(1, kfrule.getPrecedingComments().size());
 		assertEquals(" pre-50% ", kfrule.getPrecedingComments().get(0));
-		//
+
 		kfrule = (KeyframeRule) kfrules.item(2);
 		assertEquals(CSSRule.KEYFRAME_RULE, kfrule.getType());
 		assertEquals("to", kfrule.getKeyText());
@@ -97,7 +97,7 @@ public class KeyframesRuleTest {
 		PropertyCountVisitor visitor = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitor);
 		assertEquals(6, visitor.getCount());
-		//
+
 		visitor.reset();
 		sheet.acceptDescriptorRuleVisitor(visitor);
 		assertEquals(6, visitor.getCount());
@@ -151,7 +151,7 @@ public class KeyframesRuleTest {
 		PropertyCountVisitor visitor = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitor);
 		assertEquals(5, visitor.getCount());
-		//
+
 		visitor.reset();
 		sheet.acceptDescriptorRuleVisitor(visitor);
 		assertEquals(5, visitor.getCount());

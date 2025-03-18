@@ -75,7 +75,7 @@ public class AbstractStyleDatabaseTest {
 				ffrule.getCssText());
 		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf') format('truetype')",
 				ffrule.getStyle().getPropertyValue("src"));
-		//
+
 		CSSElement body = cssdoc.getElementById("bodyId");
 		body.getComputedStyle(null);
 		assertTrue(factory.getDeviceFactory().getStyleDatabase("screen").isFontFaceName("opensans regular"));
@@ -92,7 +92,7 @@ public class AbstractStyleDatabaseTest {
 				ffrule.getCssText());
 		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')",
 				ffrule.getStyle().getPropertyValue("src"));
-		//
+
 		factory.getConnectionFactory().setHeader("ttf", "content-type", "application/font-ttf");
 		CSSElement body = cssdoc.getElementById("bodyId");
 		body.getComputedStyle(null);
@@ -106,7 +106,7 @@ public class AbstractStyleDatabaseTest {
 				"@font-face{font-family:'Hack Sans';src:url('jar:http://www.example.com/evil.jar!/fakefont.ttf') format('truetype')}");
 		FontFaceRule ffrule = (FontFaceRule) sheet.getCssRules().item(0);
 		assertEquals(2, ffrule.getStyle().getLength());
-		//
+
 		CSSElement body = cssdoc.getElementById("bodyId");
 		body.getComputedStyle(null);
 		assertFalse(factory.getDeviceFactory().getStyleDatabase("screen").isFontFaceName("hack sans"));

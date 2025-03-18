@@ -78,14 +78,14 @@ public class IdentifierValueTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
 		}
-		//
+
 		try {
 			value.setStringValue(CSSValue.Type.IDENT, null);
 			fail("Must throw exception.");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
-		//
+
 		try {
 			value.setStringValue(CSSValue.Type.IDENT, "");
 			fail("Must throw exception.");
@@ -130,7 +130,7 @@ public class IdentifierValueTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
-		//
+
 		try {
 			value.setCssText("");
 			fail("Must throw exception.");

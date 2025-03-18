@@ -591,7 +591,7 @@ public class XMLDocumentBuilderJdkTest {
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, docElement.getNamespaceURI());
 		assertNull(docElement.getPrefix());
 		assertTrue(docElement.hasAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns"));
-		//
+
 		Element element = (Element) docElement.getFirstChild();
 		assertNotNull(element);
 		assertFalse(element.hasChildNodes());
@@ -605,7 +605,7 @@ public class XMLDocumentBuilderJdkTest {
 		assertNull(nsattr);
 		nsattr = element.getAttributeNode("x");
 		assertNotNull(nsattr);
-		//
+
 		assertNull(element.getAttributeNodeNS(HTMLDocument.HTML_NAMESPACE_URI, "x"));
 	}
 

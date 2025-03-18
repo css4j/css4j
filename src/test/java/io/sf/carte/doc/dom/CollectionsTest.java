@@ -80,7 +80,7 @@ public class CollectionsTest {
 		assertTrue(lcNode == fcElement.getNextElementSibling());
 		assertTrue(fcNode == list.item(0));
 		assertTrue(lcNode == list.item(1));
-		//
+
 		DOMElement element = fcElement;
 		list = element.getChildNodes();
 		assertEquals(4, list.getLength());

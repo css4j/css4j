@@ -325,7 +325,7 @@ public class HTMLElementTest {
 		assertEquals("CLASS", attr.getLocalName());
 		body.setAttributeNodeNS(attr);
 		assertEquals("e:CLASS=\"barclass\"", attr.toString());
-		//
+
 		assertEquals("fooclass", body.getAttribute("CLASS"));
 		attr = xhtmlDoc.createAttribute("CLASS");
 		attr.setValue("barclass");
@@ -377,7 +377,7 @@ public class HTMLElementTest {
 		nnm.setNamedItem(attr);
 		assertSame(attr, nnm.getNamedItem("e:CLASS"));
 		assertSame(attr, nnm.getNamedItemNS("http://www.example.com/examplens", "CLASS"));
-		//
+
 		assertEquals("fooclass", body.getAttribute("CLASS"));
 		attr = xhtmlDoc.createAttribute("CLASS");
 		attr.setValue("barclass");
@@ -387,7 +387,7 @@ public class HTMLElementTest {
 		Attr attr2 = nnm.getNamedItem("CLASS");
 		assertTrue(attr == attr2);
 		assertEquals(2, nnm.getLength());
-		//
+
 		rmattr = nnm.removeNamedItem(attr.getName());
 		assertTrue(rmattr == attr);
 		assertEquals(1, nnm.getLength());
@@ -600,7 +600,7 @@ public class HTMLElementTest {
 		assertEquals("font-family: Arial; ", style.getCssText());
 		body.removeAttribute("STYLE");
 		assertNull(body.getStyle());
-		//
+
 		body.setAttribute("style", "font-family");
 		assertEquals("<body style=\"font-family\" />", body.getStartTag());
 	}
@@ -733,7 +733,7 @@ public class HTMLElementTest {
 		DOMElement video = xhtmlDoc.createElement("video");
 		video.appendChild(xhtmlDoc.createTextNode("Your browser doesn't support embedded videos."));
 		div.appendChild(video);
-		//
+
 		body.appendChild(xhtmlDoc.createTextNode("   "));
 		DOMElement span3 = xhtmlDoc.createElement("span");
 		span3.appendChild(xhtmlDoc.createTextNode(" span 3"));
@@ -745,7 +745,7 @@ public class HTMLElementTest {
 		span4.setAttribute("style", "white-space: pre-line; text-transform: uppercase");
 		body.appendChild(span4);
 		body.appendChild(xhtmlDoc.createTextNode("   "));
-		//
+
 		assertEquals(" span 1 Span 2 \n  white  space   must   be\n   preserved   \n\nspan 3 SPAN\n4\n",
 				body.getInnerText());
 	}

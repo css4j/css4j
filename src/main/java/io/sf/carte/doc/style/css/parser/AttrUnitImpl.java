@@ -109,7 +109,7 @@ class AttrUnitImpl extends FunctionUnitImpl {
 						typeMatch = comp;
 					}
 				}
-				//
+
 				if (fallback != null) {
 					// We got a fallback
 					CSSValueSyntax fallbackComp = rootSyntax;

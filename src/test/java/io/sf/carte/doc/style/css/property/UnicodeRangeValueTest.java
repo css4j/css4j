@@ -126,7 +126,7 @@ public class UnicodeRangeValueTest {
 		assertEquals(Match.FALSE, cssval.matches(syn));
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, cssval.matches(syn));
-		//
+
 		try {
 			unicode.setStringValue(CSSValue.Type.UNICODE_WILDCARD, null);
 			fail("Must throw exception.");

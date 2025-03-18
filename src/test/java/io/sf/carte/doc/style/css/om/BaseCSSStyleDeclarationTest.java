@@ -806,7 +806,7 @@ public class BaseCSSStyleDeclarationTest {
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("font-size"));
 		assertEquals("important", emptyStyleDecl.getPropertyPriority("font"));
 		assertEquals("bold", emptyStyleDecl.getPropertyValue("font"));
-		//
+
 		emptyStyleDecl.setCssText("font: bold; border: solid blue; font-size: x-large;");
 		assertEquals("bold", emptyStyleDecl.getPropertyValue("font-weight"));
 		assertEquals("x-large", emptyStyleDecl.getPropertyValue("font-size"));

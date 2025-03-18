@@ -132,11 +132,11 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		if (!hasConvertibleComponents() || !((ColorValue) color).hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
 		}
-		//
+
 		RGBColorValue rgb1;
 		LABColor lab1, lab2;
 		RGBAColor color1;
-		//
+
 		switch (color.getColorModel()) {
 		case LCH:
 		case LAB:
@@ -148,7 +148,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			LABColorImpl labColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
 			rgbcolor.toLABColor(labColor);
 			lab2 = labColor;
-			//
+
 			color1 = toRGBColor(false);
 			rgb1 = new RGBColorValue();
 			rgb1.setComponent(0, (StyleValue) color1.getAlpha());
@@ -170,7 +170,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 			rgb2.setComponent(1, (StyleValue) color2.getRed());
 			rgb2.setComponent(2, (StyleValue) color2.getGreen());
 			rgb2.setComponent(3, (StyleValue) color2.getBlue());
-			//
+
 			lab1 = rgb1.toLABColorValue().getColor();
 			lab2 = rgb2.toLABColorValue().getColor();
 		}

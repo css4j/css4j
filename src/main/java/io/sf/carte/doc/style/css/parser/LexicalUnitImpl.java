@@ -91,7 +91,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		if (nextUnit == null || nextUnit.getLexicalUnitType() == LexicalType.EMPTY) {
 			return;
 		}
-		//
+
 		LexicalUnitImpl nlu = (LexicalUnitImpl) nextUnit;
 		if (nlu.ownerLexicalUnit != null) {
 			throw new IllegalArgumentException("Argument is a parameter of another unit.");

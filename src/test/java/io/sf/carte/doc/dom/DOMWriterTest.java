@@ -138,15 +138,15 @@ public class DOMWriterTest {
 		domWriter.setIndentingUnit(1);
 		String expected = "<html><s:svg xmlns:s=\"http://www.w3.org/2000/svg\"/></html>\n";
 		assertEquals(expected, domWriter.serializeToString(document));
-		//
+
 		svg.setAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns:s", TestConfig.SVG_NAMESPACE_URI);
 		assertEquals(expected, domWriter.serializeToString(document));
-		//
+
 		DOMElement rect = document.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg:rect");
 		svg.appendChild(rect);
 		expected = "<html><s:svg xmlns:s=\"http://www.w3.org/2000/svg\"><svg:rect xmlns:svg=\"http://www.w3.org/2000/svg\"/></s:svg></html>\n";
 		assertEquals(expected, domWriter.serializeToString(document));
-		//
+
 		rect.setAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns:svg", TestConfig.SVG_NAMESPACE_URI);
 		assertEquals(expected, domWriter.serializeToString(document));
 	}

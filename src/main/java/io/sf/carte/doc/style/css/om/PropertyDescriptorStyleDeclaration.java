@@ -104,7 +104,7 @@ class PropertyDescriptorStyleDeclaration extends BaseCSSStyleDeclaration {
 				}
 				throw e;
 			}
-			//
+
 			if (cssvalue.getCssValueType() != CssType.TYPED) {
 				// Invalid type error
 				CSSPropertyValueException ex = null;
@@ -121,7 +121,7 @@ class PropertyDescriptorStyleDeclaration extends BaseCSSStyleDeclaration {
 				}
 				throw exception;
 			}
-			//
+
 			LexicalValue lexicalValue = new LexicalValue();
 			lexicalValue.setLexicalUnit(lunit);
 			setProperty(propertyName, lexicalValue, important);

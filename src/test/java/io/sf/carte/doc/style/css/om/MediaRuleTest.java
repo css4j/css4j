@@ -117,11 +117,11 @@ public class MediaRuleTest {
 		StyleCountVisitor visitor = new StyleCountVisitor();
 		sheet.acceptStyleRuleVisitor(visitor);
 		assertEquals(3, visitor.getCount());
-		//
+
 		PropertyCountVisitor visitorP = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitorP);
 		assertEquals(4, visitorP.getCount());
-		//
+
 		visitorP.reset();
 		sheet.acceptDescriptorRuleVisitor(visitorP);
 		assertEquals(0, visitorP.getCount());
@@ -145,11 +145,11 @@ public class MediaRuleTest {
 		StyleCountVisitor visitor = new StyleCountVisitor();
 		sheet.acceptStyleRuleVisitor(visitor);
 		assertEquals(1, visitor.getCount());
-		//
+
 		PropertyCountVisitor visitorP = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitorP);
 		assertEquals(3, visitorP.getCount());
-		//
+
 		visitorP.reset();
 		sheet.acceptDescriptorRuleVisitor(visitorP);
 		assertEquals(2, visitorP.getCount());
@@ -163,7 +163,7 @@ public class MediaRuleTest {
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
-		//
+
 		MediaQueryList mql = rule.getMedia();
 		assertFalse(mql.isNotAllMedia());
 		assertTrue(mql.isAllMedia());
@@ -197,24 +197,24 @@ public class MediaRuleTest {
 		assertEquals(
 				"@media only screen and (min-width:0\\0){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
 				rule.getMinifiedCssText());
-		//
+
 		MediaQueryList mql = rule.getMedia();
 		assertTrue(mql.isNotAllMedia());
 		assertFalse(mql.isAllMedia());
-		//
+
 		DefaultSheetErrorHandler errHandler = (DefaultSheetErrorHandler) compatsheet.getErrorHandler();
 		assertFalse(errHandler.hasSacErrors());
 		assertTrue(errHandler.hasSacWarnings());
 		assertFalse(errHandler.hasOMErrors());
 		assertFalse(errHandler.hasOMWarnings());
-		//
+
 		List<CSSParseException> warns = errHandler.getSacWarnings();
 		Iterator<CSSParseException> it = warns.iterator();
 		CSSParseException pex = it.next();
 		assertTrue(pex.getMessage().contains("compat ident"));
 		assertEquals(1, pex.getLineNumber());
 		assertEquals(38, pex.getColumnNumber());
-		//
+
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
 		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
@@ -228,23 +228,23 @@ public class MediaRuleTest {
 		AbstractCSSRule rule = sheet.getCssRules().item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
 		MediaRule mrule = (MediaRule) rule;
-		//
+
 		MediaQueryList mql = mrule.getMedia();
 		assertTrue(mql.isNotAllMedia());
 		assertFalse(mql.isAllMedia());
 		assertTrue(mql.hasErrors());
-		//
+
 		assertEquals(1, mrule.getCssRules().getLength());
 		DefaultSheetErrorHandler errHandler = (DefaultSheetErrorHandler) sheet.getErrorHandler();
 		assertTrue(errHandler.hasSacErrors());
 		assertFalse(errHandler.hasOMErrors());
-		//
+
 		List<CSSParseException> warns = errHandler.getSacErrors();
 		Iterator<CSSParseException> it = warns.iterator();
 		CSSParseException pex = it.next();
 		assertEquals(1, pex.getLineNumber());
 		assertEquals(31, pex.getColumnNumber());
-		//
+
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
 		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
@@ -258,23 +258,23 @@ public class MediaRuleTest {
 		AbstractCSSRule rule = sheet.getCssRules().item(0);
 		assertEquals(CSSRule.MEDIA_RULE, rule.getType());
 		MediaRule mrule = (MediaRule) rule;
-		//
+
 		MediaQueryList mql = mrule.getMedia();
 		assertFalse(mql.isNotAllMedia());
 		assertFalse(mql.isAllMedia());
 		assertTrue(mql.hasErrors());
-		//
+
 		assertEquals(1, mrule.getCssRules().getLength());
 		DefaultSheetErrorHandler errHandler = (DefaultSheetErrorHandler) sheet.getErrorHandler();
 		assertTrue(errHandler.hasSacErrors());
 		assertFalse(errHandler.hasOMErrors());
-		//
+
 		List<CSSParseException> warns = errHandler.getSacErrors();
 		Iterator<CSSParseException> it = warns.iterator();
 		CSSParseException pex = it.next();
 		assertEquals(1, pex.getLineNumber());
 		assertEquals(24, pex.getColumnNumber());
-		//
+
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
 		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
@@ -286,14 +286,14 @@ public class MediaRuleTest {
 				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}");
 		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(2, sheet.getCssRules().getLength());
-		//
+
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
 		assertEquals("handheld", rule.getMedia().getMedia());
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals("@media handheld {}", rule.getCssText());
 		assertEquals("@media handheld{}", rule.getMinifiedCssText());
-		//
+
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(1).getType());
 		rule = (MediaRule) sheet.getCssRules().item(1);
 		assertEquals("all", rule.getMedia().getMedia());
@@ -302,7 +302,7 @@ public class MediaRuleTest {
 		assertEquals("@media{div.foo{margin:1em;}}", rule.getMinifiedCssText());
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasOMErrors());
-		//
+
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
 		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
@@ -314,14 +314,14 @@ public class MediaRuleTest {
 				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }}@media {div.foo{margin:1em}}");
 		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(2, sheet.getCssRules().getLength());
-		//
+
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
 		assertEquals("handheld", rule.getMedia().getMedia());
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals("@media handheld {}", rule.getCssText());
 		assertEquals("@media handheld{}", rule.getMinifiedCssText());
-		//
+
 		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(1).getType());
 		rule = (MediaRule) sheet.getCssRules().item(1);
 		assertEquals("all", rule.getMedia().getMedia());

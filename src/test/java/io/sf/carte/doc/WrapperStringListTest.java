@@ -160,7 +160,7 @@ public class WrapperStringListTest {
 	public void testSublist() {
 		StringList sub = list.subList(0, 0);
 		assertTrue(sub.isEmpty());
-		//
+
 		try {
 			list.subList(-1, 1);
 			fail("Must throw exception.");
@@ -200,7 +200,7 @@ public class WrapperStringListTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		baselist.add("foo");
 		it = list.iterator();
 		assertTrue(it.hasNext());
@@ -222,7 +222,7 @@ public class WrapperStringListTest {
 		assertTrue(split.hasCharacteristics(Spliterator.SIZED));
 		assertEquals(3, split.estimateSize());
 		assertTrue(split.tryAdvance((a) -> {if (!a.equals("foo")) throw new IllegalStateException(a);}));
-		//
+
 		Spliterator<String> split2 = split.trySplit();
 		assertNotNull(split2);
 		assertTrue(split2.hasCharacteristics(Spliterator.SIZED));

@@ -325,7 +325,7 @@ public class XMLDocumentWrapperTest {
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(true);
 		xmlDoc = cssFac.createCSSDocument(doc);
-		//
+
 		CSSElement elm = xmlDoc.getDocumentElement();
 		assertNotNull(elm);
 		CSSComputedProperties style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
@@ -411,17 +411,17 @@ public class XMLDocumentWrapperTest {
 		assertTrue(sheet.getCssRules().getLength() != 0);
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
 		assertTrue(sheet.getOwnerNode() == link);
-		//
+
 		CSSElement style = (CSSElement) xmlDoc.getElementsByTagName("style").item(0);
 		assertEquals(1, style.getChildNodes().getLength());
 		Node node = style.getFirstChild();
 		node.setNodeValue("body {font-size: 14pt; margin-left: 7%;} h1 {font-size: 2.4em;}");
-		//
+
 		link.setNodeValue("href=\"#doesnotexist\" type=\"text/css\"");
 		assertNull(link.getSheet());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 		xmlDoc.getErrorHandler().reset();
-		//
+
 		link.setNodeValue("href=\"#style1\" type=\"foo\"");
 		assertNull(link.getSheet());
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
@@ -436,22 +436,22 @@ public class XMLDocumentWrapperTest {
 		assertEquals(0, sheet.getMedia().getLength());
 		assertTrue(sheet.getCssRules().getLength() != 0);
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
-		//
+
 		link.setNodeValue("href=\"/css/common.css\" media=\"screen\"");
 		AbstractCSSStyleSheet sheet2 = link.getSheet();
 		assertNotNull(sheet2);
 		assertEquals(1, sheet2.getMedia().getLength());
 		assertEquals("screen", sheet2.getMedia().item(0));
 		assertEquals(sheet.getCssRules().getLength(), sheet2.getCssRules().getLength());
-		//
+
 		link.setNodeValue("href=\"http://www.example.com/css/alter1.css\" media=\"screen\"");
 		sheet = link.getSheet();
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
-		//
+
 		link.setNodeValue("href=\"http://www.example.com/css/alter1.css\" media=\"screen and only\"");
 		assertNull(link.getSheet());
 		xmlDoc.getErrorHandler().reset();
-		//
+
 		link.setNodeValue("href=\"http://www.example.com/css/example.css\" media=\"screen\"");
 		sheet = link.getSheet();
 		assertEquals(0, sheet.getCssRules().getLength());

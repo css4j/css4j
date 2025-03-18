@@ -900,7 +900,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, docElement.getNamespaceURI());
 		assertNull(docElement.getPrefix());
 		assertTrue(docElement.hasAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns"));
-		//
+
 		DOMElement element = docElement.getFirstElementChild();
 		assertNotNull(element);
 		assertFalse(element.hasChildNodes());
@@ -916,10 +916,10 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(nsattr);
 		assertNull(nsattr.getNamespaceURI());
 		assertNull(nsattr.getPrefix());
-		//
+
 		Attr attr = element.getAttributeNode("x");
 		assertSame(nsattr, attr);
-		//
+
 		assertNull(element.getAttributeNodeNS(HTMLDocument.HTML_NAMESPACE_URI, "x"));
 	}
 
@@ -936,7 +936,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, docElement.getNamespaceURI());
 		assertNull(docElement.getPrefix());
 		assertFalse(docElement.hasAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns"));
-		//
+
 		DOMElement element = docElement.getFirstElementChild();
 		assertNotNull(element);
 		assertFalse(element.hasChildNodes());
@@ -952,10 +952,10 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(nsattr);
 		assertNull(nsattr.getNamespaceURI());
 		assertNull(nsattr.getPrefix());
-		//
+
 		Attr attr = element.getAttributeNode("x");
 		assertSame(nsattr, attr);
-		//
+
 		assertNull(element.getAttributeNodeNS("http://www.w3.org/1999/xhtml", "x"));
 	}
 

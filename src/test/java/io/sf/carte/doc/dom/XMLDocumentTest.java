@@ -223,12 +223,12 @@ public class XMLDocumentTest {
 		attr.setValue("para<Id");
 		assertEquals("para<Id", attr.getValue());
 		assertEquals("id=\"para&lt;Id\"", attr.toString());
-		//
+
 		p.setAttribute("class", "\"fooclass&");
 		assertEquals("\"fooclass&", p.getAttribute("class"));
 		attr = p.getAttributeNode("class");
 		assertEquals("class=\"&quot;fooclass&amp;\"", attr.toString());
-		//
+
 		try {
 			p.setAttribute("foo=", "bar");
 			fail("Must throw an exception");
@@ -239,7 +239,7 @@ public class XMLDocumentTest {
 		assertEquals("bar=", p.getAttribute("foo"));
 		attr = p.getAttributeNode("foo");
 		assertEquals("foo=\"bar=\"", attr.toString());
-		//
+
 		try {
 			p.setAttribute("foo:", "bar");
 			fail("Must throw an exception");
@@ -346,7 +346,7 @@ public class XMLDocumentTest {
 		Text d = c.splitText(7);
 		assertEquals("A text ", c.getData());
 		assertEquals("node", d.getData());
-		//
+
 		DOMElement elm = xmlDoc.createElement("p");
 		c = xmlDoc.createTextNode("A text node");
 		elm.appendChild(c);
@@ -357,7 +357,7 @@ public class XMLDocumentTest {
 		assertTrue(elm == d.getParentNode());
 		assertEquals(2, elm.getChildNodes().getLength());
 		assertTrue(d == c.getNextSibling());
-		//
+
 		c = xmlDoc.createTextNode("A text node<");
 		assertEquals("A text node<", c.getData());
 		assertEquals("A text node&lt;", c.toString());
@@ -506,9 +506,9 @@ public class XMLDocumentTest {
 		} catch (DOMException e) {
 		}
 		assertEquals(4, list.getLength());
-		//
+
 		assertEquals(stylelist.toString(), xmlDoc.getElementsByTagName("style").toString());
-		//
+
 		list = xmlDoc.getElementsByTagName("html");
 		assertEquals(1, list.getLength());
 		assertTrue(xmlDoc.getDocumentElement() == list.item(0));
@@ -541,7 +541,7 @@ public class XMLDocumentTest {
 		assertEquals(8, list.getLength());
 		ul.removeChild(div);
 		assertEquals(7, list.getLength());
-		//
+
 		list = xmlDoc.getElementsByClassName("xxxxxx");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
@@ -672,7 +672,7 @@ public class XMLDocumentTest {
 		String text = elm.getTextContent();
 		assertNotNull(text);
 		assertEquals(1204, text.trim().length());
-		//
+
 		xmlDoc.normalizeDocument();
 		text = elm.getTextContent();
 		assertNotNull(text);
@@ -934,7 +934,7 @@ public class XMLDocumentTest {
 		assertEquals("21.6pt", styledecl.getPropertyValue("font-size"));
 		assertEquals("bold", styledecl.getPropertyValue("font-weight"));
 		assertEquals(15, styledecl.getLength());
-		//
+
 		ErrorHandler errHandler = xmlDoc.getErrorHandler();
 		assertNotNull(errHandler);
 		assertFalse(errHandler.hasErrors());
@@ -1038,13 +1038,13 @@ public class XMLDocumentTest {
 		assertFalse(sheet2.equals(sheet));
 		assertFalse(sheet.getCssRules().item(sheet.getCssRules().getLength() - 1)
 				.equals(sheet2.getCssRules().item(sheet2.getCssRules().getLength() - 1)));
-		//
+
 		xmlDoc.getErrorHandler().reset();
 		link.setNodeValue("href=\"http://www.example.com/css/background.png\" media=\"all\"");
 		assertNull(link.getSheet());
 		assertTrue(xmlDoc.getErrorHandler().hasPolicyErrors());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
-		//
+
 		xmlDoc.getErrorHandler().reset();
 		link.setNodeValue("href=\"http://www.example.com/etc/fakepasswd\" media=\"all\"");
 		assertNull(link.getSheet());
@@ -1059,6 +1059,7 @@ public class XMLDocumentTest {
 		Attr base = xmlDoc.getDocumentElement().getAttributeNode("xml:base");
 		base.setValue("http://www.example.com/newbase/");
 		assertEquals("http://www.example.com/newbase/", xmlDoc.getBaseURI());
+
 		// Changing an unrelated href attribute does nothing to base uri.
 		DOMElement anchor = xmlDoc.getElementsByTagName("a").item(0);
 		anchor.setAttribute("href", "http://www.example.com/foo/");
@@ -1190,13 +1191,13 @@ public class XMLDocumentTest {
 		ProcessingInstruction pi = xmlDoc.createProcessingInstruction("xml-stylesheet",
 				"type=\"text/css\" href=\"#styleFontFamily\"");
 		xmlDoc.insertBefore(pi, xmlDoc.getDocumentElement());
-		//
+
 		list = xmlDoc.getStyleSheets();
 		assertEquals(7, list.getLength());
 		AbstractCSSStyleSheet item = list.item(6);
 		CSSStyleSheet<?> sheet = ((LinkStyle<?>) pi).getSheet();
 		assertSame(sheet, item);
-		//
+
 		head.getComputedStyle(null);
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
 	}

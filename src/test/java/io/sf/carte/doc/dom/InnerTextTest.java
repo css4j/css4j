@@ -24,7 +24,7 @@ public class InnerTextTest {
 		DOMDocument xhtmlDoc = TestDOMImplementation.loadDocument("/io/sf/carte/doc/agent/contrib/innertext.html");
 		String expected = DOMWriterTest.classPathFile("/io/sf/carte/doc/agent/contrib/innertext-html.bin");
 		DOMElement body = xhtmlDoc.getElementById("bodyId");
-		//
+
 		assertEquals(expected, body.getInnerText());
 	}
 
@@ -33,7 +33,7 @@ public class InnerTextTest {
 		DOMDocument xhtmlDoc = TestDOMImplementation.loadXMLDocument("/io/sf/carte/doc/agent/contrib/innertext.xhtml");
 		String expected = DOMWriterTest.classPathFile("/io/sf/carte/doc/agent/contrib/innertext.bin");
 		DOMElement body = xhtmlDoc.getElementById("bodyId");
-		//
+
 		assertEquals(expected, body.getInnerText());
 	}
 

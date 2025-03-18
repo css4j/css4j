@@ -59,7 +59,7 @@ public class CSSOMParserTest {
 		assertFalse(mql.isNotAllMedia());
 		assertFalse(mql.hasErrors());
 		assertEquals("screen", mql.getMedia());
-		//
+
 		MediaQueryList mqlAll = parser.parseMediaQueryList("all", null);
 		assertFalse(mql.matches(mqlAll));
 		assertTrue(mqlAll.matches(mql));
@@ -73,7 +73,7 @@ public class CSSOMParserTest {
 		assertTrue(mql.isNotAllMedia());
 		assertTrue(mql.hasErrors());
 		assertEquals("not all", mql.getMedia());
-		//
+
 		MediaQueryList mqlAll = parser.parseMediaQueryList("all", null);
 		assertFalse(mql.matches(mqlAll));
 		assertFalse(mqlAll.matches(mql));

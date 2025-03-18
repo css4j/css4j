@@ -484,7 +484,7 @@ abstract class AbstractMediaFeaturePredicate extends MediaPredicate implements M
 			if (otherVal2 == null) {
 				return false; // That should never happen
 			}
-			//
+
 			boolean isRatio2 = false;
 			pType = value2.getUnitType();
 			if (value2.getPrimitiveType() != CSSValue.Type.RATIO) {

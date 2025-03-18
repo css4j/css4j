@@ -42,7 +42,7 @@ public class NSACSelectorFactoryTest {
 		assertTrue(unisel.equals(other));
 		assertEquals(unisel.hashCode(), other.hashCode());
 		assertTrue(ParseHelper.equalSelectorList(selist1, selist2));
-		//
+
 		SelectorList otherlist = parser.parseSelectors("p");
 		other = otherlist.item(0);
 		assertFalse(unisel.equals(other));

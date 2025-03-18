@@ -62,7 +62,7 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	@Override
 	void set(BaseColor color) {
 		super.set(color);
-		//
+
 		LCHColorImpl setfrom = (LCHColorImpl) color;
 		setLightness(setfrom.getLightness());
 		setChroma(setfrom.getChroma());

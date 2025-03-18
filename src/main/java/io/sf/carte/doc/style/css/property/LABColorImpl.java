@@ -62,7 +62,7 @@ class LABColorImpl extends BaseColor implements LABColor {
 	@Override
 	void set(BaseColor color) {
 		super.set(color);
-		//
+
 		LABColorImpl setfrom = (LABColorImpl) color;
 		lightness = setfrom.getLightness();
 		a = setfrom.getA();

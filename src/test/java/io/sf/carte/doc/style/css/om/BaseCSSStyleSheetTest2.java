@@ -52,9 +52,9 @@ public class BaseCSSStyleSheetTest2 {
 		Reader re = loadFilefromClasspath("html.css");
 		sheet.parseStyleSheet(re);
 		re.close();
-		//
+
 		assertEquals(113, sheet.getCssRules().getLength());
-		//
+
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(0).getType());
 		StyleRule stylerule = (StyleRule) sheet.getCssRules().item(0);
 		String result = stylerule.getCssText();
@@ -72,7 +72,7 @@ public class BaseCSSStyleSheetTest2 {
 				"\n * HTML/XHTML CSS, derived from the one in the W3C CSS 2.1 specification,\n * combined with the styles from HTML5 specification.\n ",
 				result);
 		assertNull(stylerule.getTrailingComments());
-		//
+
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(41).getType());
 		stylerule = (StyleRule) sheet.getCssRules().item(41);
 		assertEquals("/* The start attribute on ol elements */ol[start] {counter-reset: list-item calc(attr(start type(<integer>), 1) - 1); }", stylerule.getCssText());
@@ -81,7 +81,7 @@ public class BaseCSSStyleSheetTest2 {
 		assertNotNull(stylerule.getPrecedingComments());
 		assertEquals(" The start attribute on ol elements ", stylerule.getPrecedingComments().get(0));
 		assertNull(stylerule.getTrailingComments());
-		//
+
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(47).getType());
 		stylerule = (StyleRule) sheet.getCssRules().item(47);
 		assertEquals("wbr {content: '\\200B'; }", stylerule.getCssText());
@@ -99,22 +99,22 @@ public class BaseCSSStyleSheetTest2 {
 		Reader re = loadFilefromClasspath("parser/page.css");
 		sheet.parseStyleSheet(re);
 		re.close();
-		//
+
 		assertEquals(4, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(0).getType());
 		StyleRule stylerule = (StyleRule) sheet.getCssRules().item(0);
 		assertEquals("body{background-color:red}", stylerule.getMinifiedCssText());
-		//
+
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(1).getType());
 		PageRule pagerule = (PageRule) sheet.getCssRules().item(1);
 		assertEquals("@page :first {margin-top: 20%; }", pagerule.getCssText());
 		assertEquals("@page :first{margin-top:20%}", pagerule.getMinifiedCssText());
-		//
+
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(2).getType());
 		pagerule = (PageRule) sheet.getCssRules().item(2);
 		assertEquals("@page foo:left {margin-left: 10%; @top-center {content: none; }@bottom-center {content: counter(page); }}", pagerule.getCssText());
 		assertEquals("@page foo:left{margin-left:10%;@top-center{content:none}@bottom-center{content:counter(page)}}", pagerule.getMinifiedCssText());
-		//
+
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(3).getType());
 		pagerule = (PageRule) sheet.getCssRules().item(3);
 		assertEquals("@page bar:right,:blank {margin-right: 2em; }", pagerule.getCssText());
@@ -126,11 +126,11 @@ public class BaseCSSStyleSheetTest2 {
 		StyleCountVisitor visitor = new StyleCountVisitor();
 		sheet.acceptStyleRuleVisitor(visitor);
 		assertEquals(1, visitor.getCount());
-		//
+
 		PropertyCountVisitor visitorP = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitorP);
 		assertEquals(6, visitorP.getCount());
-		//
+
 		visitorP.reset();
 		sheet.acceptDescriptorRuleVisitor(visitorP);
 		assertEquals(5, visitorP.getCount());
@@ -143,24 +143,24 @@ public class BaseCSSStyleSheetTest2 {
 		Reader re = loadFilefromClasspath("parser/comments.css");
 		sheet.parseStyleSheet(re);
 		re.close();
-		//
+
 		assertEquals(4, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
 		ViewportRule vprule = (ViewportRule) sheet.getCssRules().item(0);
 		assertEquals("@viewport{width:device-width}", vprule.getMinifiedCssText());
 		assertEquals(1, vprule.getStyle().getLength());
-		//
+
 		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(1).getType());
 		AbstractCSSRule unknown = sheet.getCssRules().item(1);
 		assertEquals(
 				"/* pre-rule-1-webkit */@-webkit-viewport /* skip-vw 1-webkit */{/* pre-viewport-decl-webkit */ width: /* skip-vw 2-webkit */device-width; /* post-viewport-decl-webkit */}",
 				unknown.getCssText());
-		//
+
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(2).getType());
 		StyleRule stylerule = (StyleRule) sheet.getCssRules().item(2);
 		assertEquals(1, stylerule.getStyle().getLength());
 		assertEquals("body{background-color:red}", stylerule.getMinifiedCssText());
-		//
+
 		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(3).getType());
 		AbstractCSSRule unknown2 = sheet.getCssRules().item(3);
 		String result = unknown2.getCssText();
@@ -388,11 +388,11 @@ public class BaseCSSStyleSheetTest2 {
 		StyleCountVisitor visitor = new StyleCountVisitor();
 		css.acceptStyleRuleVisitor(visitor);
 		assertEquals(1, visitor.getCount());
-		//
+
 		PropertyCountVisitor visitorP = new PropertyCountVisitor();
 		css.acceptDeclarationRuleVisitor(visitorP);
 		assertEquals(1, visitorP.getCount());
-		//
+
 		visitorP.reset();
 		css.acceptDescriptorRuleVisitor(visitorP);
 		assertEquals(0, visitorP.getCount());

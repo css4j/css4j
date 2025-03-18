@@ -69,7 +69,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"p.myclass,:first-child{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(3, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.get(0));
@@ -80,13 +80,13 @@ public class SheetParserTest {
 		assertEquals("yellow", handler.lexicalValues.get(1).toString());
 		assertEquals("calc(100% - 3em)", handler.lexicalValues.get(2).toString());
 		assertEquals(3, handler.priorities.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(52, loc.getColumnNumber());
 		assertEquals(67, handler.ptyLocators.get(1).getColumnNumber());
 		assertEquals(92, handler.ptyLocators.get(2).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -95,7 +95,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"hr[align=\"left\"]    {margin-left : 0 ;margin-right : auto;}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals("hr[align=\"left\"]", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -108,12 +108,12 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(38, loc.getColumnNumber());
 		assertEquals(58, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -122,7 +122,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			".fooclass{zoom:expression(function(ele){ele.style.zoom = \"1\"; document.execCommand(\"BackgroundImageCache\", false, true); skip-me:skip-value}(this))}#fooid .barclass{margin-right:auto;}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(2, handler.selectors.size());
 		assertEquals(".fooclass", handler.selectors.getFirst().toString());
 		assertEquals("#fooid .barclass", handler.selectors.get(1).toString());
@@ -131,11 +131,11 @@ public class SheetParserTest {
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(183, loc.getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 	}
 
@@ -144,7 +144,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			".fooclass{zoom:expression(function(ele){ele.style.zoom = \"1\"; document.execCommand(\"BackgroundImageCache\", false, true); }(this));margin-left:0}#fooid .fooclass{margin-right:auto;}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(2, handler.selectors.size());
 		assertEquals(".fooclass", handler.selectors.getFirst().toString());
 		assertEquals("#fooid .fooclass", handler.selectors.get(1).toString());
@@ -158,12 +158,12 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(144, loc.getColumnNumber());
 		assertEquals(179, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 	}
 
@@ -172,7 +172,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			".foo{@transform : translateY(-5px);margin-left:0;margin-right:auto;}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -185,12 +185,12 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(49, loc.getColumnNumber());
 		assertEquals(67, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(6, errorHandler.getLastException().getColumnNumber());
@@ -200,7 +200,7 @@ public class SheetParserTest {
 	public void testParseSheetStyleRuleBad2() throws CSSException, IOException {
 		Reader re = new StringReader(".foo{margin-left:0;{foo:bar;} :bar;margin-right:auto;}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
@@ -213,12 +213,12 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(19, loc.getColumnNumber());
 		assertEquals(53, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(20, errorHandler.getLastException().getColumnNumber());
@@ -229,7 +229,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@media screen and (min-width: 768px){.foo{@transform : translateY(-5px);margin-left:0;margin-right:auto;}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen and (min-width: 768px)", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.selectors.size());
@@ -244,12 +244,12 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(86, loc.getColumnNumber());
 		assertEquals(104, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(43, errorHandler.getLastException().getColumnNumber());
@@ -260,7 +260,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"input:not(){}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header",
 			handler.selectors.getFirst().toString());
@@ -274,12 +274,12 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(69, loc.getColumnNumber());
 		assertEquals(89, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(11, errorHandler.getLastException().getColumnNumber());
@@ -290,7 +290,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"p.myclass width:300px}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header",
 			handler.selectors.getFirst().toString());
@@ -304,12 +304,12 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(78, loc.getColumnNumber());
 		assertEquals(98, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(22, errorHandler.getLastException().getColumnNumber());
@@ -320,7 +320,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"p.myclass color:rgb(120}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header",
 			handler.selectors.getFirst().toString());
@@ -334,12 +334,12 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(80, loc.getColumnNumber());
 		assertEquals(100, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(24, errorHandler.getLastException().getColumnNumber());
@@ -364,7 +364,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@namespace svg \"http://www.w3.org/2000/svg\";svg|p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals("svg|p", handler.selectors.getFirst().toString());
 		assertEquals(3, handler.propertyNames.size());
@@ -376,13 +376,13 @@ public class SheetParserTest {
 		assertEquals("yellow", handler.lexicalValues.get(1).toString());
 		assertEquals("calc(100% - 3em)", handler.lexicalValues.get(2).toString());
 		assertEquals(3, handler.priorities.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(79, loc.getColumnNumber());
 		assertEquals(94, handler.ptyLocators.get(1).getColumnNumber());
 		assertEquals(119, handler.ptyLocators.get(2).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -404,7 +404,7 @@ public class SheetParserTest {
 	public void testParseSheetDuplicateSelector() throws CSSException, IOException {
 		Reader re = new StringReader("p, p {width: 80%}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.get(0));
 		assertEquals(1, handler.lexicalValues.size());
@@ -415,11 +415,11 @@ public class SheetParserTest {
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("p", ((ElementSelector) sel).getLocalName());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(17, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -429,7 +429,7 @@ public class SheetParserTest {
 		// An asterisk before the '*/' may confuse the parser
 		Reader re = new StringReader(".foo {\n/**just a comment**/margin-left:auto}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -440,11 +440,11 @@ public class SheetParserTest {
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(1, handler.comments.size());
 		assertEquals("*just a comment*", handler.comments.getFirst());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(37, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -453,7 +453,7 @@ public class SheetParserTest {
 		// An asterisk before the '*/' may confuse the parser
 		Reader re = new StringReader(".foo {  /**just a comment**/margin-left:auto}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -464,11 +464,11 @@ public class SheetParserTest {
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(1, handler.comments.size());
 		assertEquals("*just a comment*", handler.comments.getFirst());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(45, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -476,7 +476,7 @@ public class SheetParserTest {
 	public void testParseSheetCommentWStarNL() throws CSSException, IOException {
 		Reader re = new StringReader(".foo {  /*Newline\nhere*/:;margin-left:auto}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -487,11 +487,11 @@ public class SheetParserTest {
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(1, handler.comments.size());
 		assertEquals("Newline\nhere", handler.comments.getFirst());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(25, loc.getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertNotNull(errorHandler.getLastException());
 		assertEquals(2, errorHandler.getLastException().getLineNumber());
@@ -502,7 +502,7 @@ public class SheetParserTest {
 	public void testParseSheetErrorNL() throws CSSException, IOException {
 		Reader re = new StringReader(".foo {\n:;margin-left:auto}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -512,11 +512,11 @@ public class SheetParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(0, handler.comments.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(19, loc.getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertNotNull(errorHandler.getLastException());
 		assertEquals(2, errorHandler.getLastException().getLineNumber());
@@ -525,10 +525,10 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseSheetCDORuleCDC() throws CSSException, IOException {
-		//
+
 		Reader re = new StringReader("<!-- .foo {margin-left:auto} -->");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(0, handler.comments.size());
@@ -538,20 +538,20 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(28, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseSheetCommentCDOCDCRule() throws CSSException, IOException {
-		//
+
 		Reader re = new StringReader("<!-- --> .foo {margin-left:auto}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(0, handler.comments.size());
@@ -561,20 +561,20 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(32, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseSheetCommentCDORule() throws CSSException, IOException {
-		//
+
 		Reader re = new StringReader("<!-- .foo {margin-left:auto}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(0, handler.comments.size());
@@ -584,20 +584,20 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(28, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
 	@Test
 	public void testParseSheetCommentCDCRule() throws CSSException, IOException {
-		//
+
 		Reader re = new StringReader("--> .foo {margin-left:auto}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.getFirst().toString());
 		assertEquals(0, handler.comments.size());
@@ -607,11 +607,11 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(27, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -706,7 +706,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@namespace svg url('http://www.w3.org/2000/svg'); p {color: blue;} svg|svg {margin-left: 5pt;}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, handler.namespaceMaps.get("svg"));
 		assertEquals(2, handler.selectors.size());
@@ -723,12 +723,12 @@ public class SheetParserTest {
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PT, lu.getCssUnit());
 		assertEquals(5, lu.getFloatValue(), 0.01f);
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(65, loc.getColumnNumber());
 		assertEquals(93, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -748,14 +748,14 @@ public class SheetParserTest {
 		assertEquals(2, handler.priorities.size());
 		assertEquals("important", handler.priorities.get(0));
 		assertEquals("important", handler.priorities.get(1));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(36, loc.getColumnNumber());
 		loc = handler.ptyLocators.get(1);
 		assertEquals(3, loc.getLineNumber());
 		assertEquals(31, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -779,7 +779,7 @@ public class SheetParserTest {
 			handler.importMedias.get(0).toString());
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("tv.css", handler.importURIs.get(0));
-		//
+
 		assertEquals(7, handler.comments.size());
 		assertEquals(" After CDO ", handler.comments.get(0));
 		assertEquals(" After CDC ", handler.comments.get(1));
@@ -787,7 +787,7 @@ public class SheetParserTest {
 		assertEquals(" Comment before frame ", handler.comments.get(3));
 		assertEquals(" Comment before frameset ", handler.comments.get(4));
 		assertEquals(" Comment before noframes ", handler.comments.get(5));
-		//
+
 		assertEquals(21, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.getFirst());
 		assertEquals("font-weight", handler.propertyNames.get(2));
@@ -804,7 +804,7 @@ public class SheetParserTest {
 		String prio = handler.priorities.get(12);
 		assertNotNull(prio);
 		assertEquals("important", prio);
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(82, loc.getColumnNumber());
@@ -812,11 +812,11 @@ public class SheetParserTest {
 		assertEquals(32, handler.ptyLocators.get(2).getColumnNumber());
 		assertEquals(49, handler.ptyLocators.get(3).getColumnNumber());
 		assertEquals(32, handler.ptyLocators.get(4).getColumnNumber());
-		//
+
 		assertEquals(1, handler.atRules.size());
 		assertEquals("@-webkit-viewport {width: device-width; height: device-height}",
 			handler.atRules.getFirst());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -836,11 +836,11 @@ public class SheetParserTest {
 		assertEquals("li", handler.selectors.get(6).toString());
 		assertEquals("body", handler.selectors.get(12).toString());
 		assertEquals(14, handler.endSelectors.size());
-		//
+
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals("svg", handler.namespaceMaps.keySet().iterator().next());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, handler.namespaceMaps.get("svg"));
-		//
+
 		assertEquals(3, handler.mediaRuleLists.size());
 		MediaQueryList mql = handler.mediaRuleLists.get(1);
 		assertTrue(mql.isNotAllMedia());
@@ -852,13 +852,13 @@ public class SheetParserTest {
 			handler.importMedias.get(0).toString());
 		assertEquals(1, handler.importURIs.size());
 		assertEquals("tv.css", handler.importURIs.get(0));
-		//
+
 		assertEquals(4, handler.comments.size());
 		assertEquals(" Comment before li ", handler.comments.get(0));
 		assertEquals(" Comment before frame ", handler.comments.get(1));
 		assertEquals(" Comment before frameset ", handler.comments.get(2));
 		assertEquals(" Comment before noframes ", handler.comments.get(3));
-		//
+
 		assertEquals(22, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.get(0));
 		assertEquals("display", handler.propertyNames.get(1));
@@ -879,7 +879,7 @@ public class SheetParserTest {
 		String prio = handler.priorities.get(13);
 		assertNotNull(prio);
 		assertEquals("important", prio);
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(82, loc.getColumnNumber());
@@ -893,11 +893,11 @@ public class SheetParserTest {
 		assertEquals(49, handler.ptyLocators.get(4).getColumnNumber());
 		assertEquals(32, handler.ptyLocators.get(5).getColumnNumber());
 		assertEquals(52, handler.ptyLocators.get(6).getColumnNumber());
-		//
+
 		assertEquals(1, handler.atRules.size());
 		assertEquals("@-webkit-viewport {width: device-width; height: device-height}",
 			handler.atRules.getFirst());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(13, errorHandler.getLastException().getLineNumber());
 		assertEquals(35, errorHandler.getLastException().getColumnNumber());
@@ -917,11 +917,11 @@ public class SheetParserTest {
 		assertEquals("1em", handler.lexicalValues.get(0).toString());
 		assertEquals(1, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(27, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -939,11 +939,11 @@ public class SheetParserTest {
 		assertEquals("1em", handler.lexicalValues.get(0).toString());
 		assertEquals(1, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(20, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -961,11 +961,11 @@ public class SheetParserTest {
 		assertEquals("1em", handler.lexicalValues.get(0).toString());
 		assertEquals(1, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(26, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -983,11 +983,11 @@ public class SheetParserTest {
 		assertEquals("1em", handler.lexicalValues.get(0).toString());
 		assertEquals(1, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(37, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1005,11 +1005,11 @@ public class SheetParserTest {
 		assertEquals("1em", handler.lexicalValues.get(0).toString());
 		assertEquals(1, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(28, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1027,11 +1027,11 @@ public class SheetParserTest {
 		assertEquals("1em", handler.lexicalValues.get(0).toString());
 		assertEquals(1, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(37, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1149,12 +1149,12 @@ public class SheetParserTest {
 		assertEquals(2, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
 		assertNull(handler.priorities.get(1));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(50, loc.getColumnNumber());
 		assertEquals(104, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1182,13 +1182,13 @@ public class SheetParserTest {
 		assertEquals("Helvetica", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals("block", handler.lexicalValues.getLast().toString());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(3, loc.getLineNumber());
 		assertEquals(40, loc.getColumnNumber());
 		assertEquals(21, handler.ptyLocators.get(1).getColumnNumber());
 		assertEquals(20, handler.ptyLocators.get(2).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1203,12 +1203,12 @@ public class SheetParserTest {
 
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
-		//
+
 		assertEquals(1, handler.fontFeaturesNames.size());
 		assertEquals("Foo Sans", handler.fontFeaturesNames.get(0)[0]);
 		assertEquals(1, handler.featureMapNames.size());
 		assertEquals("styleset", handler.featureMapNames.get(0));
-		//
+
 		assertEquals(4, handler.propertyNames.size());
 		assertEquals("background-color", handler.propertyNames.get(0));
 		assertEquals("font-family", handler.propertyNames.get(1));
@@ -1224,7 +1224,7 @@ public class SheetParserTest {
 		assertNull(handler.priorities.get(3));
 		assertEquals(1, handler.fontFaceCount);
 		assertEquals(0, handler.atRules.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(23, loc.getColumnNumber());
@@ -1233,7 +1233,7 @@ public class SheetParserTest {
 		loc = handler.ptyLocators.get(3);
 		assertEquals(9, loc.getLineNumber());
 		assertEquals(14, loc.getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1242,7 +1242,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"\ufeff@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}@import 'foo.css';");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(0, handler.selectors.size());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
@@ -1255,7 +1255,7 @@ public class SheetParserTest {
 		assertEquals(0, list.getLength());
 		assertTrue(list.isAllMedia());
 		assertEquals("all", list.getMedia());
-		//
+
 		assertTrue(errorHandler.hasError());
 	}
 
@@ -1264,7 +1264,7 @@ public class SheetParserTest {
 		Reader re = loadTestCSSReader("page.css");
 		parser.parseStyleSheet(re);
 		re.close();
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(6, handler.propertyNames.size());
@@ -1289,7 +1289,7 @@ public class SheetParserTest {
 		assertEquals(2, handler.marginRuleNames.size());
 		assertEquals("top-center", handler.marginRuleNames.get(0));
 		assertEquals("bottom-center", handler.marginRuleNames.get(1));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(23, loc.getColumnNumber());
@@ -1300,7 +1300,7 @@ public class SheetParserTest {
 		assertEquals(18, handler.ptyLocators.get(3).getColumnNumber());
 		assertEquals(42, handler.ptyLocators.get(4).getColumnNumber());
 		assertEquals(19, handler.ptyLocators.get(5).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1309,7 +1309,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.pageRuleSelectors.size());
 		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
 		assertEquals(1, handler.marginRuleNames.size());
@@ -1330,13 +1330,13 @@ public class SheetParserTest {
 		assertEquals("property", handler.eventSeq.get(4));
 		assertEquals("endMargin", handler.eventSeq.get(5));
 		assertEquals("endPage", handler.eventSeq.get(6));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(28, loc.getColumnNumber());
 		assertEquals(52, handler.ptyLocators.get(1).getColumnNumber());
 		assertEquals(63, handler.ptyLocators.get(2).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1345,7 +1345,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@page LetterHead:first{margin-top:20%;@top-left{content:'foo';color:green}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.pageRuleSelectors.size());
 		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
 		assertEquals(1, psl.getLength());
@@ -1379,13 +1379,13 @@ public class SheetParserTest {
 		assertEquals("property", handler.eventSeq.get(4));
 		assertEquals("endMargin", handler.eventSeq.get(5));
 		assertEquals("endPage", handler.eventSeq.get(6));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(38, loc.getColumnNumber());
 		assertEquals(62, handler.ptyLocators.get(1).getColumnNumber());
 		assertEquals(74, handler.ptyLocators.get(2).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1394,7 +1394,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@page Foo:blank:first,:right{margin-top:20%;@top-left{content:'foo';color:green}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.pageRuleSelectors.size());
 		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
 		assertEquals(2, psl.getLength());
@@ -1413,14 +1413,14 @@ public class SheetParserTest {
 		assertEquals(":first", ps.getCssText());
 		assertEquals("first", ps.getName());
 		assertNull(ps.getNext());
-		//
+
 		ps = psl.item(1);
 		assertEquals(":right", ps.toString());
 		assertEquals(":right", ps.getCssText());
 		assertEquals("right", ps.getName());
 		assertEquals(PageSelector.Type.PSEUDO_PAGE, ps.getSelectorType());
 		assertNull(ps.getNext());
-		//
+
 		assertEquals(1, handler.marginRuleNames.size());
 		assertEquals("top-left", handler.marginRuleNames.get(0));
 		assertEquals(3, handler.propertyNames.size());
@@ -1440,13 +1440,13 @@ public class SheetParserTest {
 		assertEquals("property", handler.eventSeq.get(4));
 		assertEquals("endMargin", handler.eventSeq.get(5));
 		assertEquals("endPage", handler.eventSeq.get(6));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(44, loc.getColumnNumber());
 		assertEquals(68, handler.ptyLocators.get(1).getColumnNumber());
 		assertEquals(80, handler.ptyLocators.get(2).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1455,7 +1455,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@page:first{margin-top:20%;@top-left{content:'foo';color:green}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.pageRuleSelectors.size());
 		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
 		assertEquals(1, psl.getLength());
@@ -1485,13 +1485,13 @@ public class SheetParserTest {
 		assertEquals("property", handler.eventSeq.get(4));
 		assertEquals("endMargin", handler.eventSeq.get(5));
 		assertEquals("endPage", handler.eventSeq.get(6));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(27, loc.getColumnNumber());
 		assertEquals(51, handler.ptyLocators.get(1).getColumnNumber());
 		assertEquals(63, handler.ptyLocators.get(2).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1500,7 +1500,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@page :first{margin-top:20%;myname@top-left{content:'foo';color:blue}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.pageRuleSelectors.size());
 		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -1513,11 +1513,11 @@ public class SheetParserTest {
 		assertEquals("startPage", handler.eventSeq.get(0));
 		assertEquals("property", handler.eventSeq.get(1));
 		assertEquals("endPage", handler.eventSeq.get(2));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(28, loc.getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(35, errorHandler.getLastException().getColumnNumber());
@@ -1528,7 +1528,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@page :first{margin-top:20%;myname @top-left{content:'foo';color:blue}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.pageRuleSelectors.size());
 		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -1541,11 +1541,11 @@ public class SheetParserTest {
 		assertEquals("startPage", handler.eventSeq.get(0));
 		assertEquals("property", handler.eventSeq.get(1));
 		assertEquals("endPage", handler.eventSeq.get(2));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(28, loc.getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(36, errorHandler.getLastException().getColumnNumber());
@@ -1556,7 +1556,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@page :first{margin-top:20%; top-left{content:'foo';color:blue}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.pageRuleSelectors.size());
 		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
 		assertEquals(1, handler.propertyNames.size());
@@ -1569,11 +1569,11 @@ public class SheetParserTest {
 		assertEquals("startPage", handler.eventSeq.get(0));
 		assertEquals("property", handler.eventSeq.get(1));
 		assertEquals("endPage", handler.eventSeq.get(2));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(28, loc.getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(38, errorHandler.getLastException().getColumnNumber());
@@ -1584,13 +1584,13 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@page LetterHead :first{margin-top:20%;@top-left{content:'foo';color:green}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(0, handler.pageRuleSelectors.size());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertEquals(0, handler.priorities.size());
 		assertEquals(0, handler.eventSeq.size());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(24, errorHandler.getLastException().getColumnNumber());
@@ -1618,7 +1618,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@page LetterHead:first{margin-top:20%;@top-left @{content:'foo';color:green}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.pageRuleSelectors.size());
 		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
 		assertEquals(1, psl.getLength());
@@ -1634,7 +1634,7 @@ public class SheetParserTest {
 		assertEquals("startPage", handler.eventSeq.get(0));
 		assertEquals("property", handler.eventSeq.get(1));
 		assertEquals("endPage", handler.eventSeq.get(2));
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(49, errorHandler.getLastException().getColumnNumber());
@@ -1645,7 +1645,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@page LetterHead:first{margin-top:20%;@top-foo{content:'foo';color:green}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.pageRuleSelectors.size());
 		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
 		assertEquals(1, psl.getLength());
@@ -1661,7 +1661,7 @@ public class SheetParserTest {
 		assertEquals("startPage", handler.eventSeq.get(0));
 		assertEquals("property", handler.eventSeq.get(1));
 		assertEquals("endPage", handler.eventSeq.get(2));
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(47, errorHandler.getLastException().getColumnNumber());
@@ -1671,7 +1671,7 @@ public class SheetParserTest {
 	public void testParseStyleSheetPageRuleNestedOnMediaRule() throws CSSException, IOException {
 		Reader re = new StringReader("@media print {@page {margin-top: 20%;}h3 {width: 80%}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.pageRuleSelectors.size());
 		assertNull(handler.pageRuleSelectors.getFirst());
 		assertEquals(1, handler.mediaRuleLists.size());
@@ -1693,12 +1693,12 @@ public class SheetParserTest {
 		assertEquals("startSelector", handler.eventSeq.get(4));
 		assertEquals("endSelector", handler.eventSeq.get(6));
 		assertEquals("endMedia", handler.eventSeq.get(7));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(37, loc.getColumnNumber());
 		assertEquals(53, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -1707,9 +1707,9 @@ public class SheetParserTest {
 		Reader re = loadTestCSSReader("other_rules.css");
 		parser.parseStyleSheet(re);
 		re.close();
-		//
+
 		assertEquals(1, handler.viewportCount);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(1, handler.fontFeaturesNames.size());
@@ -1717,7 +1717,7 @@ public class SheetParserTest {
 		assertEquals(2, handler.featureMapNames.size());
 		assertEquals("swash", handler.featureMapNames.get(0));
 		assertEquals("styleset", handler.featureMapNames.get(1));
-		//
+
 		assertEquals(2, handler.keyframesNames.size());
 		assertEquals("slide-right", handler.keyframesNames.get(0));
 		assertEquals("important1", handler.keyframesNames.get(1));
@@ -1729,10 +1729,10 @@ public class SheetParserTest {
 		assertEquals("from", handler.keyframeSelectors.get(4).toString());
 		assertEquals("50%", handler.keyframeSelectors.get(5).toString());
 		assertEquals("to", handler.keyframeSelectors.get(6).toString());
-		//
+
 		assertEquals(1, handler.counterStyleNames.size());
 		assertEquals("foo", handler.counterStyleNames.get(0));
-		//
+
 		assertEquals(15, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.get(0));
 		assertEquals("margin-left", handler.propertyNames.get(1));
@@ -1766,7 +1766,7 @@ public class SheetParserTest {
 		assertEquals("red", handler.lexicalValues.get(14).toString());
 		assertEquals(15, handler.priorities.size());
 		assertNull(handler.priorities.get(14));
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(22, loc.getColumnNumber());
@@ -1774,14 +1774,14 @@ public class SheetParserTest {
 		assertEquals(24, handler.ptyLocators.get(2).getColumnNumber());
 		assertEquals(27, handler.ptyLocators.get(12).getColumnNumber());
 		assertEquals(50, handler.ptyLocators.get(13).getColumnNumber());
-		//
+
 		assertEquals(1, handler.atRules.size());
 		assertEquals("@-webkit-keyframes foo {from{margin-top: 50px; }to{margin-top: 100px;}}",
 			handler.atRules.getFirst());
-		//
+
 		assertEquals(1, handler.comments.size());
 		assertEquals(" ignored ", handler.comments.get(0));
-		//
+
 		assertTrue(errorHandler.hasError());
 	}
 
@@ -1850,14 +1850,14 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf')}@charset \"utf-8\";");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(0, handler.atRules.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(41, loc.getColumnNumber());
 		assertEquals(74, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(75, errorHandler.getLastException().getColumnNumber());
@@ -1868,18 +1868,18 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@font-feature-values Foo Sans, Bar {@styleset {my-style: 2;}}@charset \"utf-8\";");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.fontFeaturesNames.size());
 		assertEquals("Foo Sans", handler.fontFeaturesNames.get(0)[0]);
 		assertEquals("Bar", handler.fontFeaturesNames.get(0)[1]);
 		assertEquals(1, handler.featureMapNames.size());
 		assertEquals("styleset", handler.featureMapNames.get(0));
 		assertEquals(0, handler.atRules.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(59, loc.getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(62, errorHandler.getLastException().getColumnNumber());
@@ -1894,7 +1894,7 @@ public class SheetParserTest {
 	public void testParseCharsetRuleBadRecovery() throws CSSException, IOException {
 		Reader re = new StringReader("p{display:block;}@charset \"utf-8\";span {color: blue;}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(0, handler.atRules.size());
 		assertEquals(2, handler.selectors.size());
 		assertEquals("p", handler.selectors.get(0).item(0).toString());
@@ -1903,12 +1903,12 @@ public class SheetParserTest {
 		assertEquals("display", handler.propertyNames.get(0));
 		assertEquals("color", handler.propertyNames.get(1));
 		assertEquals(2, handler.lexicalValues.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(16, loc.getColumnNumber());
 		assertEquals(52, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(18, errorHandler.getLastException().getColumnNumber());
@@ -2192,7 +2192,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		assertEquals(0, handler.importURIs.size());
 		assertEquals(0, handler.importMedias.size());
-		//
+
 		assertEquals(1, handler.selectors.size());
 		SelectorList selist = handler.selectors.getFirst();
 		assertEquals(
@@ -2204,20 +2204,20 @@ public class SheetParserTest {
 		assertEquals("code", selist.item(2).toString());
 		assertEquals("pre", selist.item(3).toString());
 		assertEquals("div", selist.item(4).toString());
-		//
+
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.getFirst());
-		//
+
 		assertEquals(1, handler.lexicalValues.size());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("block", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(117, loc.getColumnNumber());
-		//
+
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(23, errorHandler.getLastException().getColumnNumber());
@@ -2305,7 +2305,7 @@ public class SheetParserTest {
 	public void testParseCounterStyleRule() throws CSSException, IOException {
 		Reader re = new StringReader("@counter-style foo {symbols: \\1F44D;\n suffix: \" \";\n}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.counterStyleNames.size());
 		assertEquals("foo", handler.counterStyleNames.get(0));
 		assertEquals(2, handler.propertyNames.size());
@@ -2315,7 +2315,7 @@ public class SheetParserTest {
 		assertEquals("\\1f44d ", handler.lexicalValues.get(0).toString());
 		assertEquals("\" \"", handler.lexicalValues.get(1).toString());
 		assertEquals(0, handler.atRules.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(36, loc.getColumnNumber());
@@ -2346,7 +2346,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@property --my-length {syntax: '<length>'; inherits: false;\ninitial-value: 24px; ignore-me:0}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.customPropertyNames.size());
 		assertEquals("--my-length", handler.customPropertyNames.get(0));
 		assertEquals(4, handler.propertyNames.size());
@@ -2360,7 +2360,7 @@ public class SheetParserTest {
 		assertEquals("24px", handler.lexicalValues.get(2).toString());
 		assertEquals("0", handler.lexicalValues.get(3).toString());
 		assertEquals(0, handler.atRules.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(42, loc.getColumnNumber());
@@ -2371,7 +2371,7 @@ public class SheetParserTest {
 		loc = handler.ptyLocators.get(3);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(33, loc.getColumnNumber());
-		//
+
 		assertEquals("endProperty", handler.eventSeq.get(5));
 		assertFalse(errorHandler.hasError());
 	}
@@ -2381,12 +2381,12 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@property {syntax: '<length>'; inherits: false;\ninitial-value: 24px}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(0, handler.customPropertyNames.size());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertEquals(0, handler.atRules.size());
-		//
+
 		assertEquals(0, handler.eventSeq.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
@@ -2398,12 +2398,12 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@property 111 {syntax: '<length>'; inherits: false;\ninitial-value: 24px}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(0, handler.customPropertyNames.size());
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
 		assertEquals(0, handler.atRules.size());
-		//
+
 		assertEquals(0, handler.eventSeq.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
@@ -2415,7 +2415,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@property --my-length {syntax: '<foo>'; inherits: false;\ninitial-value: 24px}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.customPropertyNames.size());
 		assertEquals("--my-length", handler.customPropertyNames.get(0));
 		assertEquals(2, handler.propertyNames.size());
@@ -2425,14 +2425,14 @@ public class SheetParserTest {
 		assertEquals("false", handler.lexicalValues.get(0).toString());
 		assertEquals("24px", handler.lexicalValues.get(1).toString());
 		assertEquals(0, handler.atRules.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(56, loc.getColumnNumber());
 		loc = handler.ptyLocators.get(1);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(20, loc.getColumnNumber());
-		//
+
 		assertEquals("endProperty-Discard", handler.eventSeq.get(3));
 		assertTrue(errorHandler.hasError());
 		assertEquals(2, errorHandler.getLastException().getLineNumber());
@@ -2444,7 +2444,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@property --my-length {syntax: '<length>'; inherits: false;\ninitial-value: 72dpi}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.customPropertyNames.size());
 		assertEquals("--my-length", handler.customPropertyNames.get(0));
 		assertEquals(3, handler.propertyNames.size());
@@ -2456,14 +2456,14 @@ public class SheetParserTest {
 		assertEquals("false", handler.lexicalValues.get(1).toString());
 		assertEquals("72dpi", handler.lexicalValues.get(2).toString());
 		assertEquals(0, handler.atRules.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(42, loc.getColumnNumber());
 		loc = handler.ptyLocators.get(1);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(59, loc.getColumnNumber());
-		//
+
 		assertEquals("endProperty-Discard", handler.eventSeq.get(4));
 		assertTrue(errorHandler.hasError());
 		assertEquals(2, errorHandler.getLastException().getLineNumber());
@@ -2476,7 +2476,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@property --my-length {syntax: '<length>'; inherits: false;\ninitial-value: 2.1em}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.customPropertyNames.size());
 		assertEquals("--my-length", handler.customPropertyNames.get(0));
 		assertEquals(3, handler.propertyNames.size());
@@ -2488,14 +2488,14 @@ public class SheetParserTest {
 		assertEquals("false", handler.lexicalValues.get(1).toString());
 		assertEquals("2.1em", handler.lexicalValues.get(2).toString());
 		assertEquals(0, handler.atRules.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(42, loc.getColumnNumber());
 		loc = handler.ptyLocators.get(1);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(59, loc.getColumnNumber());
-		//
+
 		assertEquals("endProperty-Discard", handler.eventSeq.get(4));
 		assertTrue(errorHandler.hasError());
 		assertEquals(2, errorHandler.getLastException().getLineNumber());
@@ -2506,14 +2506,14 @@ public class SheetParserTest {
 	public void testParseViewportRule() throws CSSException, IOException {
 		Reader re = new StringReader("@viewport\n{width: device-width;}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.viewportCount);
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.get(0));
 		assertEquals(1, handler.lexicalValues.size());
 		assertEquals("device-width", handler.lexicalValues.get(0).toString());
 		assertEquals(0, handler.atRules.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(21, loc.getColumnNumber());
@@ -2526,7 +2526,7 @@ public class SheetParserTest {
 			"@keyframes slide-right {\nfrom {margin-left: 0px;}\n50% {margin-left: 110px; opacity: 1;}\n"
 				+ "70% {opacity: 0.9;}\nto\n{margin-left: 200px;}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.keyframesNames.size());
 		assertEquals("slide-right", handler.keyframesNames.get(0));
 		assertEquals(4, handler.keyframeSelectors.size());
@@ -2547,7 +2547,7 @@ public class SheetParserTest {
 		assertEquals("0.9", handler.lexicalValues.get(3).toString());
 		assertEquals("200px", handler.lexicalValues.get(4).toString());
 		assertEquals(0, handler.atRules.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(23, loc.getColumnNumber());
@@ -2572,7 +2572,7 @@ public class SheetParserTest {
 			"@keyframes/* comment */slide-right {\nfrom {margin-left: 0px;}\n50% {margin-left: 110px; opacity: 1;}\n"
 				+ "70% {opacity: 0.9;}\nto\n{margin-left: 200px;}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(1, handler.keyframesNames.size());
 		assertEquals("slide-right", handler.keyframesNames.get(0));
 		assertEquals(4, handler.keyframeSelectors.size());
@@ -2593,7 +2593,7 @@ public class SheetParserTest {
 		assertEquals("0.9", handler.lexicalValues.get(3).toString());
 		assertEquals("200px", handler.lexicalValues.get(4).toString());
 		assertEquals(0, handler.atRules.size());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(23, loc.getColumnNumber());
@@ -2636,7 +2636,7 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"@media screen {@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }@media (color) {.blue {color:blue}}}}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(0, handler.atRules.size());
 		assertEquals(1, handler.supportsRuleLists.size());
 		assertEquals("(display: flexbox) and (not (display: inline-grid))",
@@ -2657,7 +2657,7 @@ public class SheetParserTest {
 		assertEquals("table-cell", handler.lexicalValues.get(0).toString());
 		assertEquals("list-item", handler.lexicalValues.get(1).toString());
 		assertEquals("blue", handler.lexicalValues.get(2).toString());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(102, loc.getColumnNumber());
@@ -2965,26 +2965,26 @@ public class SheetParserTest {
 		Reader re = loadTestCSSReader("comments.css");
 		parser.parseStyleSheet(re);
 		re.close();
-		//
+
 		assertEquals(1, handler.viewportCount);
-		//
+
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("width", handler.propertyNames.getFirst());
 		assertEquals("background-color", handler.propertyNames.get(1));
-		//
+
 		assertEquals("device-width", handler.lexicalValues.get(0).toString());
 		LexicalUnit lu = handler.lexicalValues.get(1);
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("red", lu.getStringValue());
-		//
+
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
 		assertEquals(86, loc.getColumnNumber());
 		assertEquals(61, handler.ptyLocators.get(1).getColumnNumber());
-		//
+
 		assertEquals(8, handler.comments.size());
 		assertEquals(" pre-rule-1 ", handler.comments.get(0));
 		assertEquals(" pre-viewport-decl ", handler.comments.get(1));
@@ -2994,7 +2994,7 @@ public class SheetParserTest {
 		assertEquals(" pre-style-decl 1 ", handler.comments.get(5));
 		assertEquals(" post-style-decl 1 ", handler.comments.get(6));
 		assertEquals(" pre-webkit-kfs ", handler.comments.get(7));
-		//
+
 		assertEquals(2, handler.atRules.size());
 		assertEquals(
 			"@-webkit-viewport /* skip-vw 1-webkit */{/* pre-viewport-decl-webkit */ width: /* skip-vw 2-webkit */device-width; /* post-viewport-decl-webkit */}",
@@ -3097,14 +3097,14 @@ public class SheetParserTest {
 		Reader re = new StringReader(
 			"html{overflow-x:hidden!important}/* comment */[hidden]{display:none!important}");
 		parser.parseStyleSheet(re);
-		//
+
 		assertEquals(2, handler.selectors.size());
 		assertEquals("html", handler.selectors.getFirst().toString());
 		assertEquals("[hidden]", handler.selectors.get(1).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("overflow-x", handler.propertyNames.getFirst());
 		assertEquals("display", handler.propertyNames.get(1));
-		//
+
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
@@ -3113,7 +3113,7 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("none", lu.getStringValue());
-		//
+
 		assertEquals("important", handler.priorities.get(0));
 		assertEquals("important", handler.priorities.get(1));
 		assertEquals(1, handler.comments.size());
@@ -3131,7 +3131,7 @@ public class SheetParserTest {
 			"@-webkit-keyframes/* post-at-ident */foo {from{margin: 50px/* post-value */10px; } to "
 				+ "{margin-top/* post-pty-name */:/* post-pty-colon */ 100px;/* post-semicolon */}}",
 			handler.atRules.getFirst());
-		//
+
 		assertEquals(1, handler.comments.size());
 		assertEquals(" ignored ", handler.comments.get(0));
 		assertFalse(errorHandler.hasError());

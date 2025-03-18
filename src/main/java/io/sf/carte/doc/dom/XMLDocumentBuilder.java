@@ -175,7 +175,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		if (errorHandlerSet) {
 			xmlReader.setErrorHandler(null);
 		}
-		//
+
 		return document;
 	}
 

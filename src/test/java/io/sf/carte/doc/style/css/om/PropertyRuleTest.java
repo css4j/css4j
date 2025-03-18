@@ -51,18 +51,18 @@ public class PropertyRuleTest {
 		PropertyRule rule = (PropertyRule) sheet.getCssRules().item(0);
 		assertEquals(CSSRule.PROPERTY_RULE, rule.getType());
 		assertEquals("--my-color", rule.getName());
-		//
+
 		CSSValueSyntax syntax = rule.getSyntax();
 		assertNotNull(syntax);
 		assertEquals(CSSValueSyntax.Category.color, syntax.getCategory());
 		assertEquals(CSSValueSyntax.Multiplier.NONE, syntax.getMultiplier());
-		//
+
 		assertFalse(rule.inherits());
-		//
+
 		LexicalUnit initial = rule.getInitialValue();
 		assertNotNull(initial);
 		assertEquals(LexicalType.RGBCOLOR, initial.getLexicalUnitType());
-		//
+
 		assertEquals("@property --my-color {syntax:'<color>';inherits:false;initial-value:#047b42}",
 				rule.getMinifiedCssText());
 		assertEquals("@property --my-color {\n    syntax: '<color>';\n    inherits: false;\n    initial-value: #047b42;\n}\n",
@@ -72,7 +72,7 @@ public class PropertyRuleTest {
 		PropertyCountVisitor visitor = new PropertyCountVisitor();
 		sheet.acceptDeclarationRuleVisitor(visitor);
 		assertEquals(3, visitor.getCount());
-		//
+
 		visitor.reset();
 		sheet.acceptDescriptorRuleVisitor(visitor);
 		assertEquals(3, visitor.getCount());
@@ -105,18 +105,18 @@ public class PropertyRuleTest {
 		PropertyRule rule = (PropertyRule) sheet.getCssRules().item(0);
 		assertEquals(CSSRule.PROPERTY_RULE, rule.getType());
 		assertEquals("--my-color", rule.getName());
-		//
+
 		CSSValueSyntax syntax = rule.getSyntax();
 		assertNotNull(syntax);
 		assertEquals(CSSValueSyntax.Category.color, syntax.getCategory());
 		assertEquals(CSSValueSyntax.Multiplier.NONE, syntax.getMultiplier());
-		//
+
 		assertFalse(rule.inherits());
-		//
+
 		LexicalUnit initial = rule.getInitialValue();
 		assertNotNull(initial);
 		assertEquals(LexicalType.IDENT, initial.getLexicalUnitType());
-		//
+
 		assertEquals("@property --my-color {syntax:'<color>';inherits:false;initial-value:green}",
 				rule.getMinifiedCssText());
 		assertEquals("@property --my-color {\n    syntax: '<color>';\n    inherits: false;\n    initial-value: green;\n}\n",
@@ -139,7 +139,7 @@ public class PropertyRuleTest {
 		assertEquals("@property --foo {\n    syntax: '*';\n    inherits: false;\n}\n",
 				rule.getCssText());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
-		//
+
 		assertEquals(0, rule.getStyle().removeProperty("syntax").length());
 		assertEquals(0, rule.getStyle().removeProperty("inherits").length());
 		assertEquals(0, rule.getStyle().removeProperty("not-a-descriptor").length());
@@ -164,7 +164,7 @@ public class PropertyRuleTest {
 				"@property --my-color {inherits: false}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
@@ -174,7 +174,7 @@ public class PropertyRuleTest {
 				"@property --my-color {syntax: '<color>'}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
@@ -184,7 +184,7 @@ public class PropertyRuleTest {
 				"@property --my-color {syntax:'<color>';inherits:false}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
@@ -194,7 +194,7 @@ public class PropertyRuleTest {
 				"@property --my-color {syntax: 12em; inherits: false}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
@@ -204,7 +204,7 @@ public class PropertyRuleTest {
 				"@property --my-color {syntax:'<color>'; inherits:3px;initial-value:#047b42}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
@@ -221,7 +221,7 @@ public class PropertyRuleTest {
 		StringReader re = new StringReader("@property --my@color {");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
@@ -230,7 +230,7 @@ public class PropertyRuleTest {
 		StringReader re = new StringReader("@property --my-color; {");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
@@ -239,7 +239,7 @@ public class PropertyRuleTest {
 		StringReader re = new StringReader("@property --my-color {");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasSacWarnings());
 	}
@@ -249,7 +249,7 @@ public class PropertyRuleTest {
 		StringReader re = new StringReader("@property --my-color");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
@@ -258,7 +258,7 @@ public class PropertyRuleTest {
 		StringReader re = new StringReader("@property ");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
@@ -268,7 +268,7 @@ public class PropertyRuleTest {
 				"@property 111 {syntax: '<color>'; inherits: false; initial-value: #111;}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
@@ -278,11 +278,11 @@ public class PropertyRuleTest {
 		rule.setCssText("@property --my-color {syntax: '<color>'; inherits: false; initial-value: #047b42;}");
 		assertEquals("--my-color", rule.getName());
 		assertEquals(3, rule.getStyle().getLength());
-		//
+
 		LexicalUnit initial = rule.getInitialValue();
 		assertNotNull(initial);
 		assertEquals(LexicalType.RGBCOLOR, initial.getLexicalUnitType());
-		//
+
 		assertEquals("@property --my-color {syntax:'<color>';inherits:false;initial-value:#047b42}",
 				rule.getMinifiedCssText());
 		assertEquals("@property --my-color {\n    syntax: '<color>';\n    inherits: false;\n    initial-value: #047b42;\n}\n",
@@ -412,7 +412,7 @@ public class PropertyRuleTest {
 		rule2.setCssText("@property --my-color {syntax: '<color>'; inherits: false; initial-value: #047b42;}");
 		assertTrue(rule.equals(rule2));
 		assertEquals(rule.hashCode(), rule2.hashCode());
-		//
+
 		rule2.setCssText("@property --my-color {syntax: '<color>'; inherits: false; initial-value: #090;}");
 		assertFalse(rule.equals(rule2));
 	}

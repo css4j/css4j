@@ -91,7 +91,7 @@ public class DOMElementTest {
 		assertEquals(1, attrs.getLength());
 		assertTrue(idattr == attrs.getNamedItem("id"));
 		assertTrue(idattr == attrs.item(0));
-		//
+
 		attrs.setNamedItem(attr);
 		Attr xmlns = xhtmlDoc.createAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns");
 		xmlns.setValue(HTMLDocument.HTML_NAMESPACE_URI);
@@ -150,7 +150,7 @@ public class DOMElementTest {
 		assertFalse(body.hasAttribute("id"));
 		assertFalse(body.hasAttributes());
 		assertNull(idattr.getOwnerElement());
-		//
+
 		DOMElement svg = xhtmlDoc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
 		Attr version = xhtmlDoc.createAttributeNS(TestConfig.SVG_NAMESPACE_URI, "version");
 		version.setValue("1.1");
@@ -263,7 +263,7 @@ public class DOMElementTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
-		//
+
 		AttributeNamedNodeMap attrs = p.getAttributes();
 		assertNull(attrs.getNamedItem(null));
 	}
@@ -283,7 +283,7 @@ public class DOMElementTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
-		//
+
 		AttributeNamedNodeMap attrs = p.getAttributes();
 		assertNull(attrs.getNamedItemNS(null, null));
 	}
@@ -448,7 +448,7 @@ public class DOMElementTest {
 		assertTrue(idattr == html.removeAttributeNode(idattr));
 		assertEquals("", html.getId());
 		assertEquals(2, html.getAttributes().getLength());
-		//
+
 		try {
 			xhtmlDoc.createAttributeNS("http://www.example.com/ns", "xml:foo");
 			fail("Must throw exception");
@@ -750,7 +750,7 @@ public class DOMElementTest {
 		assertEquals("font-family: Helvetica; ", style.getCssText());
 		assertEquals("font-family: Helvetica; ", body.getAttribute("style"));
 		body.removeAttribute("style");
-		//
+
 		body.setAttribute("style", "font-family");
 		assertEquals("<body style=\"font-family\" />", body.getStartTag());
 	}
@@ -802,14 +802,14 @@ public class DOMElementTest {
 		assertEquals(list.getLength(), body.getChildElementCount());
 		assertTrue(list == body.getChildren());
 		assertFalse(list.isEmpty());
-		//
+
 		list = xhtmlDoc.getChildren();
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
 		assertTrue(html == list.item(0));
 		assertEquals(1, xhtmlDoc.getChildElementCount());
 		assertFalse(list.isEmpty());
-		//
+
 		list = html.getChildren();
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
@@ -821,7 +821,7 @@ public class DOMElementTest {
 		assertTrue(body == html.getLastElementChild());
 		assertTrue(list == html.getChildren());
 		assertFalse(list.isEmpty());
-		//
+
 		list = div4.getChildren();
 		assertTrue(list.isEmpty());
 		div4.appendChild(xhtmlDoc.createTextNode(" "));
@@ -867,7 +867,7 @@ public class DOMElementTest {
 		assertTrue(list.contains(div4));
 		assertFalse(list.contains(html));
 		assertFalse(list.isEmpty());
-		//
+
 		list = xhtmlDoc.getChildNodes();
 		assertNotNull(list);
 		assertEquals(2, list.getLength());
@@ -876,7 +876,7 @@ public class DOMElementTest {
 		assertFalse(list.contains(div4));
 		assertTrue(list.contains(html));
 		assertFalse(list.isEmpty());
-		//
+
 		list = html.getChildNodes();
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
@@ -889,7 +889,7 @@ public class DOMElementTest {
 		assertTrue(list.contains(body));
 		assertFalse(list.contains(div4));
 		assertFalse(list.isEmpty());
-		//
+
 		list = div4.getChildNodes();
 		assertTrue(list.isEmpty());
 		div4.appendChild(xhtmlDoc.createTextNode(" "));
@@ -922,7 +922,7 @@ public class DOMElementTest {
 		span4.appendChild(xhtmlDoc.createTextNode("span 4"));
 		body.appendChild(span4);
 		body.appendChild(xhtmlDoc.createTextNode("   "));
-		//
+
 		assertEquals("       span 1   span 2   span 3     span 4   ", body.getTextContent());
 	}
 
@@ -947,7 +947,7 @@ public class DOMElementTest {
 		DOMElement pre = xhtmlDoc.createElement("pre");
 		pre.appendChild(xhtmlDoc.createTextNode("  white  space   must   be\n   preserved   "));
 		div.appendChild(pre);
-		//
+
 		body.appendChild(xhtmlDoc.createTextNode("   "));
 		DOMElement span3 = xhtmlDoc.createElement("span");
 		span3.appendChild(xhtmlDoc.createTextNode(" span 3"));
@@ -959,7 +959,7 @@ public class DOMElementTest {
 		span4.setAttribute("style", "white-space: pre-line; text-transform: uppercase");
 		body.appendChild(span4);
 		body.appendChild(xhtmlDoc.createTextNode("   "));
-		//
+
 		assertEquals(" span 1 Span 2 \n  white  space   must   be\n   preserved   \n\nspan 3 SPAN\n4\n",
 				body.getInnerText());
 	}
@@ -1045,7 +1045,7 @@ public class DOMElementTest {
 		assertSame(elem3, list.item(2));
 		assertSame(elem4, list.item(3));
 		assertNull(list.item(4));
-		//
+
 		list = elem1.getElementsByTagName("div");
 		assertNotNull(list);
 		assertEquals(2, list.getLength());
@@ -1053,14 +1053,14 @@ public class DOMElementTest {
 		assertSame(elem2, list.item(0));
 		assertSame(elem3, list.item(1));
 		assertNull(list.item(2));
-		//
+
 		list = elem2.getElementsByTagName("div");
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
 		assertNull(list.item(-1));
 		assertSame(elem3, list.item(0));
 		assertNull(list.item(1));
-		//
+
 		list = elem4.getElementsByTagName("div");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
@@ -1071,7 +1071,7 @@ public class DOMElementTest {
 		list = elem4.getElementsByTagName("svg");
 		assertNotNull(list);
 		assertTrue(list.isEmpty());
-		//
+
 		list = elem4.getElementsByTagName("s:svg");
 		assertNotNull(list);
 		assertEquals(1, list.getLength());

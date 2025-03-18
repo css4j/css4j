@@ -55,7 +55,7 @@ public class ValueListTest {
 		assertEquals("thin,thick", cs.getMinifiedCssText(""));
 		assertEquals("repeat repeat", ws.getCssText());
 		assertEquals("repeat repeat", ws.getMinifiedCssText(""));
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>#");
 		assertEquals(Match.TRUE, cs.matches(syn));
@@ -104,7 +104,7 @@ public class ValueListTest {
 		ws.add(factory.parseProperty("25px"));
 		ws.add(factory.parseProperty("18pt"));
 		ws.add(factory.parseProperty("2cm"));
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
 		assertEquals(Match.TRUE, cs.matches(syn));
@@ -150,7 +150,7 @@ public class ValueListTest {
 		ws.add(factory.parseProperty("attr(data-length type(<length>), 25px)"));
 		ws.add(factory.parseProperty("attr(data-length type(<length>), 18pt)"));
 		ws.add(factory.parseProperty("attr(data-length type(<length>), 2cm)"));
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
 		assertEquals(Match.TRUE, cs.matches(syn));
@@ -196,7 +196,7 @@ public class ValueListTest {
 		ws.add(factory.parseProperty("attr(data-length type(<length>), 16pt)"));
 		ws.add(factory.parseProperty("attr(data-length type(<length>))"));
 		ws.add(factory.parseProperty("attr(data-length type(<length>), 15%)"));
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length-percentage>#");
 		assertEquals(Match.TRUE, cs.matches(syn));
@@ -247,7 +247,7 @@ public class ValueListTest {
 		cs.add(factory.parseProperty("var(--thick)"));
 		ws.add(factory.parseProperty("repeat"));
 		ws.add(factory.parseProperty("var(--repeat)"));
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>#");
 		assertEquals(Match.PENDING, cs.matches(syn));
@@ -285,7 +285,7 @@ public class ValueListTest {
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, cs.matches(syn));
 		assertEquals(Match.TRUE, ws.matches(syn));
-		//
+
 		ws.add(factory.parseProperty("18px"));
 		syn = syntaxParser.parseSyntax("<custom-ident>+");
 		assertEquals(Match.FALSE, ws.matches(syn));
@@ -304,7 +304,7 @@ public class ValueListTest {
 		ws2.add(factory.parseProperty("translate(20px)"));
 		cs.add(ws);
 		cs.add(ws2);
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<transform-list>#");
 		assertEquals(Match.TRUE, cs.matches(syn));
@@ -347,7 +347,7 @@ public class ValueListTest {
 	public void testMatchLexical() throws CSSParseException, IOException {
 		ValueList cs = ValueList.createCSValueList();
 		ValueList ws = ValueList.createWSValueList();
-		//
+
 		CSSParser parser = new CSSParser();
 		LexicalValue length = new LexicalValue();
 		length.setLexicalUnit(parser.parsePropertyValue(new StringReader("16px")));
@@ -361,10 +361,10 @@ public class ValueListTest {
 		lengthWS.setLexicalUnit(parser.parsePropertyValue(new StringReader("14pt 25px")));
 		LexicalValue lengthWS2 = new LexicalValue();
 		lengthWS2.setLexicalUnit(parser.parsePropertyValue(new StringReader("2pt 2.5px 0.1cm")));
-		//
+
 		cs.add(length);
 		ws.add(length);
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<length>#");
 		assertEquals(Match.TRUE, cs.matches(syn));
@@ -393,10 +393,10 @@ public class ValueListTest {
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, cs.matches(syn));
 		assertEquals(Match.TRUE, ws.matches(syn));
-		//
+
 		cs.add(length2);
 		ws.add(length2);
-		//
+
 		syn = syntaxParser.parseSyntax("<length>#");
 		assertEquals(Match.TRUE, cs.matches(syn));
 		assertEquals(Match.FALSE, ws.matches(syn));
@@ -424,12 +424,12 @@ public class ValueListTest {
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, cs.matches(syn));
 		assertEquals(Match.TRUE, ws.matches(syn));
-		//
+
 		cs.add(lengthCS);
 		cs.add(lengthCS2);
 		ws.add(lengthWS);
 		ws.add(lengthWS2);
-		//
+
 		syn = syntaxParser.parseSyntax("<length>#");
 		assertEquals(Match.TRUE, cs.matches(syn));
 		assertEquals(Match.FALSE, ws.matches(syn));
@@ -457,12 +457,12 @@ public class ValueListTest {
 		syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, cs.matches(syn));
 		assertEquals(Match.TRUE, ws.matches(syn));
-		//
+
 		cs.add(lengthWS);
 		cs.add(lengthWS2);
 		ws.add(lengthCS);
 		ws.add(lengthCS2);
-		//
+
 		syn = syntaxParser.parseSyntax("<length>#");
 		assertEquals(Match.FALSE, cs.matches(syn));
 		assertEquals(Match.FALSE, ws.matches(syn));
@@ -509,7 +509,7 @@ public class ValueListTest {
 		cs.add(factory.parseProperty("uri('https://www.example.com/file')"));
 		cs.add(factory.parseProperty("counters(ListCounter,'. ')"));
 		cs.add(factory.parseProperty("counter(ListCounter, decimal)"));
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("*");
 		assertEquals(Match.TRUE, cs.matches(syn));

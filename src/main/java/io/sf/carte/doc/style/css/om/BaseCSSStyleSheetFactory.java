@@ -177,7 +177,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
 					"Value " + initialValue.getCssText() + " does not match syntax " + syntax.toString() + '.');
 		}
-		//
+
 		PropertyDefinition def = new PropertyDefinition(name, syntax, inherited, initialValue);
 		return def;
 	}

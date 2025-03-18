@@ -187,7 +187,7 @@ public class ElementReferenceValueTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
 		}
-		//
+
 		try {
 			value.setStringValue(Type.ELEMENT_REFERENCE, "");
 			fail("Must throw exception");

@@ -283,12 +283,12 @@ public class XHTMLDocumentTest {
 		attr.setValue("para<Id");
 		assertEquals("para<Id", attr.getValue());
 		assertEquals("id=\"para&lt;Id\"", attr.toString());
-		//
+
 		p.setAttribute("class", "\"fooclass&");
 		assertEquals("\"fooclass&", p.getAttribute("class"));
 		attr = p.getAttributeNode("class");
 		assertEquals("class=\"&quot;fooclass&amp;\"", attr.toString());
-		//
+
 		p.setAttribute("foo", "bar\"");
 		assertEquals("bar\"", p.getAttribute("foo"));
 		attr = p.getAttributeNode("foo");
@@ -349,7 +349,7 @@ public class XHTMLDocumentTest {
 		Text d = c.splitText(7);
 		assertEquals("A text ", c.getData());
 		assertEquals("node", d.getData());
-		//
+
 		DOMElement elm = xmlDoc.createElement("p");
 		c = xmlDoc.createTextNode("A text node");
 		elm.appendChild(c);
@@ -360,7 +360,7 @@ public class XHTMLDocumentTest {
 		assertTrue(elm == d.getParentNode());
 		assertEquals(2, elm.getChildNodes().getLength());
 		assertTrue(d == c.getNextSibling());
-		//
+
 		c = xmlDoc.createTextNode("A text node<");
 		assertEquals("A text node<", c.getData());
 		assertEquals("A text node&lt;", c.toString());
@@ -413,7 +413,7 @@ public class XHTMLDocumentTest {
 		assertEquals(4, list.getLength());
 		NodeList stylelist2 = xmlDoc.getElementsByTagName("style");
 		assertEquals(stylelist.toString(), stylelist2.toString());
-		//
+
 		list = xmlDoc.getElementsByTagName("html");
 		assertEquals(1, list.getLength());
 		assertTrue(xmlDoc.getDocumentElement() == list.item(0));
@@ -517,12 +517,12 @@ public class XHTMLDocumentTest {
 		String text = elm.getTextContent();
 		assertNotNull(text);
 		assertEquals(1204, text.trim().length());
-		//
+
 		xmlDoc.normalizeDocument();
 		text = elm.getTextContent();
 		assertNotNull(text);
 		assertEquals(1204, text.trim().length());
-		//
+
 		xmlDoc.getDomConfig().setParameter("use-computed-styles", true);
 		xmlDoc.getStyleSheets();
 		xmlDoc.normalizeDocument();
@@ -849,12 +849,12 @@ public class XHTMLDocumentTest {
 		assertTrue(sheet2 == sheet);
 		assertEquals(2, sheet.getCssRules().getLength());
 		assertTrue(sheet.getOwnerNode() == style);
-		//
+
 		assertEquals(2, sheet.insertRule("h3 {font-family: Arial}", 2));
 		style.normalize();
 		assertEquals("body {font-size: 14pt; margin-left: 7%; }h1 {font-size: 2.4em; }h3 {font-family: Arial; }",
 				style.getTextContent());
-		//
+
 		Attr type = style.getAttributeNode("type");
 		type.setNodeValue("foo");
 		assertNull(((LinkStyleDefiner) style).getSheet());
@@ -899,7 +899,7 @@ public class XHTMLDocumentTest {
 		assertTrue(sheet2 == sheet);
 		assertTrue(sheet.getOwnerNode() == link);
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
-		//
+
 		Attr href = link.getAttributeNode("href");
 		assertNotNull(href);
 		href.setValue("http://www.example.com/css/example.css");
@@ -907,7 +907,7 @@ public class XHTMLDocumentTest {
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 		xmlDoc.getErrorHandler().reset();
-		//
+
 		link.setAttribute("media", "screen only and");
 		assertNull(((LinkStyleDefiner) link).getSheet());
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());

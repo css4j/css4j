@@ -57,7 +57,7 @@ class ColorFunction extends ColorValue {
 	@Override
 	void set(StyleValue value) {
 		super.set(value);
-		//
+
 		ColorValue setfrom = (ColorValue) value;
 		this.color.set((BaseColor) setfrom.getColor());
 	}
@@ -86,7 +86,7 @@ class ColorFunction extends ColorValue {
 			wri.write(" / ");
 			color.appendAlphaChannel(wri);
 		}
-		//
+
 		wri.write(')');
 	}
 
@@ -110,7 +110,7 @@ class ColorFunction extends ColorValue {
 		if (!color.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
-		//
+
 		switch (color.getSpace()) {
 		case sRGB:
 			return (RGBColor) color;
@@ -119,7 +119,7 @@ class ColorFunction extends ColorValue {
 			return ((XYZColorImpl) color).toSRGBColor(clamp);
 		default:
 		}
-		//
+
 		if (getColorModel() == ColorModel.RGB) {
 			return ((ProfiledRGBColor) color).toSRGBColor(clamp);
 		}
@@ -141,7 +141,7 @@ class ColorFunction extends ColorValue {
 		if (!this.color.hasConvertibleComponents() || !((ColorValue) otherColor).hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
 		}
-		//
+
 		LABColor lab;
 		switch (otherColor.getColorModel()) {
 		case LAB:
@@ -167,7 +167,7 @@ class ColorFunction extends ColorValue {
 			CSSColorValue rgbValue = rgb.packInValue();
 			lab = rgbValue.toLABColorValue().getColor();
 		}
-		//
+
 		LABColorImpl labColor = new LABColorImpl(Space.CIE_Lab, ColorSpace.cie_lab);
 		switch (this.color.getColorModel()) {
 		case RGB:
@@ -179,7 +179,7 @@ class ColorFunction extends ColorValue {
 		default:
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Color space is not supported.");
 		}
-		//
+
 		return ColorUtil.deltaE2000Lab(((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) labColor.getA()).getFloatValue(CSSUnit.CSS_NUMBER),
 				((CSSTypedValue) labColor.getB()).getFloatValue(CSSUnit.CSS_NUMBER),

@@ -439,7 +439,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 				// or is not the selected set
 				boolean disable = alternate
 						&& (linkedSheet == null || !title.equalsIgnoreCase(getSelectedStyleSheetSet()));
-				//
+
 				String href = getPseudoAttribute("href");
 				int hreflen = href.length();
 				if (hreflen > 1) {

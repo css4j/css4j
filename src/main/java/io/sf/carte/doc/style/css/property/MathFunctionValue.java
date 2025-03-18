@@ -112,7 +112,7 @@ public class MathFunctionValue extends FunctionValue implements CSSMathFunctionV
 		if (syntax.getCategory() == Category.universal) {
 			return Match.TRUE;
 		}
-		//
+
 		boolean lengthPercentageL = false, lengthPercentageP = false;
 		do {
 			Category cat = syntax.getCategory();

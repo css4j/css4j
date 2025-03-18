@@ -51,7 +51,7 @@ public class CSSParserTest {
 		assertEquals("foo", sel.getCssText());
 		assertNull(sel.getNext());
 		assertEquals("foo", pagesel.toString());
-		//
+
 		pagesel = parser.parsePageSelectorList("\\31z");
 		assertNotNull(pagesel);
 		assertEquals(1, pagesel.getLength());
@@ -61,7 +61,7 @@ public class CSSParserTest {
 		assertEquals("\\31 z", sel.getCssText());
 		assertNull(sel.getNext());
 		assertEquals("\\31 z", pagesel.toString());
-		//
+
 		pagesel = parser.parsePageSelectorList("\\31 f");
 		assertNotNull(pagesel);
 		assertEquals(1, pagesel.getLength());
@@ -71,7 +71,7 @@ public class CSSParserTest {
 		assertEquals("\\31 f", sel.getCssText());
 		assertNull(sel.getNext());
 		assertEquals("\\31 f", pagesel.toString());
-		//
+
 		pagesel = parser.parsePageSelectorList(":first");
 		assertNotNull(pagesel);
 		assertEquals(1, pagesel.getLength());
@@ -81,7 +81,7 @@ public class CSSParserTest {
 		assertEquals(":first", sel.getCssText());
 		assertNull(sel.getNext());
 		assertEquals(":first", pagesel.toString());
-		//
+
 		pagesel = parser.parsePageSelectorList(":first ,");
 		assertNotNull(pagesel);
 		assertEquals(1, pagesel.getLength());
@@ -90,7 +90,7 @@ public class CSSParserTest {
 		assertEquals("first", sel.getName());
 		assertEquals(":first", sel.getCssText());
 		assertNull(sel.getNext());
-		//
+
 		pagesel = parser.parsePageSelectorList("foo:first");
 		assertNotNull(pagesel);
 		assertEquals(1, pagesel.getLength());
@@ -104,7 +104,7 @@ public class CSSParserTest {
 		assertEquals("first", sel.getName());
 		assertEquals(":first", sel.getCssText());
 		assertNull(sel.getNext());
-		//
+
 		pagesel = parser.parsePageSelectorList("foo:first:left");
 		assertNotNull(pagesel);
 		assertEquals(1, pagesel.getLength());
@@ -123,7 +123,7 @@ public class CSSParserTest {
 		assertEquals("left", sel.getName());
 		assertEquals(":left", sel.getCssText());
 		assertNull(sel.getNext());
-		//
+
 		pagesel = parser.parsePageSelectorList("foo,bar:first");
 		assertNotNull(pagesel);
 		assertEquals(2, pagesel.getLength());
@@ -143,7 +143,7 @@ public class CSSParserTest {
 		assertEquals(":first", sel.getCssText());
 		assertNull(sel.getNext());
 		assertEquals("foo,bar:first", pagesel.toString());
-		//
+
 		pagesel = parser.parsePageSelectorList("foo , bar:first");
 		assertNotNull(pagesel);
 		assertEquals(2, pagesel.getLength());

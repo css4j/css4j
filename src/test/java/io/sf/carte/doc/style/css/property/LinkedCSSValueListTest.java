@@ -42,7 +42,7 @@ public class LinkedCSSValueListTest {
 		assertEquals("thin,thick", list.getMinifiedCssText(""));
 		assertEquals(CssType.LIST, list.getCssValueType());
 		assertEquals(Type.INVALID, list.getPrimitiveType());
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>#");
 		assertEquals(Match.TRUE, list.matches(syn));
@@ -66,7 +66,7 @@ public class LinkedCSSValueListTest {
 		assertEquals("thin,thick,var(--foo,bar)", list.getMinifiedCssText(""));
 		assertEquals(CssType.LIST, list.getCssValueType());
 		assertEquals(Type.INVALID, list.getPrimitiveType());
-		//
+
 		SyntaxParser syntaxParser = new SyntaxParser();
 		CSSValueSyntax syn = syntaxParser.parseSyntax("<custom-ident>#");
 		assertEquals(Match.PENDING, list.matches(syn));

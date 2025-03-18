@@ -182,7 +182,7 @@ public class CustomPropertyValueTest {
 		assertEquals("var(--my-identifier)", value.getCssText());
 		assertEquals("var(--my-identifier)", value.getMinifiedCssText(""));
 		assertEquals("--my-identifier", value.getLexicalUnit().getParameters().getCssText());
-		//
+
 		value.setCssText("var(--my-identifier, #f0c)");
 		assertEquals("var(--my-identifier, #f0c)", value.getCssText());
 		assertEquals("var(--my-identifier,#f0c)", value.getMinifiedCssText(""));

@@ -88,7 +88,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 	@Override
 	void set(StyleValue value) {
 		super.set(value);
-		//
+
 		ColorMixFunction setfrom = (ColorMixFunction) value;
 		this.inColorSpace = setfrom.inColorSpace;
 		this.inColorModel = setfrom.inColorModel;
@@ -411,7 +411,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 		if (!color.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
-		//
+
 		switch (color.getSpace()) {
 		case sRGB:
 			return (RGBColor) color;

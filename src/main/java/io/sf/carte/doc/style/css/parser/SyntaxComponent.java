@@ -86,7 +86,7 @@ class SyntaxComponent implements CSSValueSyntax {
 		if (cat == Category.IDENT && next == null && multiplier == Multiplier.NONE) {
 			return ParseHelper.escape(name, true, true);
 		}
-		//
+
 		StringBuilder buf = new StringBuilder(32);
 		appendToBuffer(this, buf);
 		return buf.toString();
@@ -109,7 +109,7 @@ class SyntaxComponent implements CSSValueSyntax {
 		default:
 			break;
 		}
-		//
+
 		if (syntax.next != null) {
 			buf.append(" | ");
 			appendToBuffer(syntax.next, buf);

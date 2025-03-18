@@ -42,32 +42,32 @@ public class StringValueTest {
 		assertEquals("Some text in \"double quotes\"", value.getStringValue());
 		assertEquals("'Some text in \"double quotes\"'", value.getCssText());
 		assertEquals("'Some text in \"double quotes\"'", value.getMinifiedCssText(""));
-		//
+
 		value.setStringValue(CSSValue.Type.STRING, "Some text 'in quotes'");
 		assertEquals("Some text 'in quotes'", value.getStringValue());
 		assertEquals("\"Some text 'in quotes'\"", value.getCssText());
 		assertEquals("\"Some text 'in quotes'\"", value.getMinifiedCssText(""));
-		//
+
 		value.setStringValue(CSSValue.Type.STRING, "Some text in \"double quote's\"");
 		assertEquals("Some text in \"double quote's\"", value.getStringValue());
 		assertEquals("'Some text in \"double quote\\'s\"'", value.getCssText());
 		assertEquals("'Some text in \"double quote\\'s\"'", value.getMinifiedCssText(""));
-		//
+
 		value.setStringValue(CSSValue.Type.STRING, "&");
 		assertEquals("&", value.getStringValue());
 		assertEquals("'&'", value.getCssText());
 		assertEquals("'&'", value.getMinifiedCssText(""));
-		//
+
 		value.setStringValue(CSSValue.Type.STRING, "foo");
 		assertEquals("foo", value.getStringValue());
 		assertEquals("'foo'", value.getCssText());
 		assertEquals("'foo'", value.getMinifiedCssText(""));
-		//
+
 		value.setStringValue(CSSValue.Type.STRING, "\\5FAE\u8F6F");
 		assertEquals("\\5FAE\u8F6F", value.getStringValue());
 		assertEquals("'\\\\5FAE\u8F6F'", value.getCssText());
 		assertEquals("'\\\\5FAE\u8F6F'", value.getMinifiedCssText(""));
-		//
+
 		try {
 			value.setStringValue(CSSValue.Type.STRING, null);
 			fail("Must throw exception.");
@@ -83,7 +83,7 @@ public class StringValueTest {
 		assertEquals("foo", value.getStringValue());
 		assertEquals("\"foo\"", value.getCssText());
 		assertEquals("\"foo\"", value.getMinifiedCssText(""));
-		//
+
 		value.setCssText("foo");
 		assertEquals("foo", value.getStringValue());
 		assertEquals("\"foo\"", value.getCssText());
@@ -265,7 +265,7 @@ public class StringValueTest {
 		other.setCssText("foo");
 		assertFalse(value.equals(other));
 		assertFalse(value.hashCode() == other.hashCode());
-		//
+
 		value.setCssText("\"foo\"");
 		other.setCssText("'foo'");
 		assertTrue(value.equals(other));

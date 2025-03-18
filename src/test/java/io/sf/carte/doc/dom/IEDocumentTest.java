@@ -51,12 +51,12 @@ public class IEDocumentTest {
 		String text = elm.getTextContent();
 		assertNotNull(text);
 		assertEquals(1142, text.trim().length());
-		//
+
 		xhtmlDoc.normalizeDocument();
 		text = elm.getTextContent();
 		assertNotNull(text);
 		assertEquals(1142, text.trim().length());
-		//
+
 		xhtmlDoc.getDomConfig().setParameter("use-computed-styles", true);
 		xhtmlDoc.normalizeDocument();
 		text = elm.getTextContent();
@@ -127,7 +127,7 @@ public class IEDocumentTest {
 		// Check for non-existing property
 		assertNull(styledecl.getPropertyCSSValue("does-not-exist"));
 		assertEquals("", styledecl.getPropertyValue("does-not-exist"));
-		//
+
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
@@ -246,7 +246,7 @@ public class IEDocumentTest {
 		DOMElement head = xhtmlDoc.getElementsByTagName("head").item(0);
 		head.appendChild(meta);
 		assertEquals("Alter 1", xhtmlDoc.getSelectedStyleSheetSet());
-		//
+
 		xhtmlDoc.normalizeDocument();
 		assertEquals("Alter 1", xhtmlDoc.getSelectedStyleSheetSet());
 	}

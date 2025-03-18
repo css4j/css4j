@@ -95,7 +95,7 @@ public class RGBColorValue extends ColorValue {
 		if (!color.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
-		//
+
 		HSLColorValue hsl = new HSLColorValue();
 		color.toHSLColor(hsl.getHSLColorImpl());
 		return hsl;
@@ -121,7 +121,7 @@ public class RGBColorValue extends ColorValue {
 		if (!this.color.hasConvertibleComponents() || !((ColorValue) color).hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
 		}
-		//
+
 		LABColor lab1;
 		LABColor lab2;
 		switch (color.getColorModel()) {

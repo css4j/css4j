@@ -732,9 +732,9 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		} else if ("capitalize".equalsIgnoreCase(sTextTransform)) {
 			textTransform = 3;
 		}
-		//
+
 		boolean visible = !"hidden".equalsIgnoreCase(style.getPropertyValue("visibility"));
-		//
+
 		boolean inline = false;
 		boolean isBlock = matchesString(displays, "block") || (matchesString(displays, "list-item")
 				|| (matchesString(displays, "table") || matchesString(displays, "table-caption"))
@@ -750,7 +750,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 				buf.append('\t'); // sort of 'table cell separator'
 			}
 		}
-		//
+
 		boolean firstTextAdded = true;
 		for (DOMNode node : element.getNodeList()) {
 			switch (node.getNodeType()) {
@@ -803,7 +803,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 			default:
 			}
 		}
-		//
+
 		if (visible) {
 			boolean isRow = false;
 			if (isBlock || ((isRow = matchesString(displays, "table-row")) && !inline)) {
@@ -892,7 +892,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 				&& (!preserveNL || c != '\n')) {
 			whitespaceLast = true;
 		}
-		//
+
 		int cp;
 		int len = text.length();
 		for (int i = 0; i < len; i = text.offsetByCodePoints(i, 1)) {

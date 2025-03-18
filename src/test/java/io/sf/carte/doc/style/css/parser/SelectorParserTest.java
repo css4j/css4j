@@ -1299,7 +1299,7 @@ public class SelectorParserTest {
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
-		//
+
 		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
@@ -1344,7 +1344,7 @@ public class SelectorParserTest {
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
-		//
+
 		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
@@ -1389,7 +1389,7 @@ public class SelectorParserTest {
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
-		//
+
 		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
@@ -1434,7 +1434,7 @@ public class SelectorParserTest {
 		if (secondcond instanceof AttributeCondition) {
 			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 		}
-		//
+
 		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
@@ -3733,7 +3733,7 @@ public class SelectorParserTest {
 		Condition condsibling = ((ConditionalSelector) sibling).getCondition();
 		assertEquals(ConditionType.CLASS, condsibling.getConditionType());
 		assertEquals("otherclass", ((AttributeCondition) condsibling).getValue());
-		//
+
 		Selector simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertNotNull(simple);
 		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
@@ -5307,20 +5307,20 @@ public class SelectorParserTest {
 			"a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div");
 		assertNotNull(selist);
 		assertEquals(5, selist.getLength());
-		//
+
 		Selector sel = selist.item(0);
 		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertNotNull(simple);
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("a", ((ElementSelector) simple).getLocalName());
-		//
+
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(ConditionType.AND, cond.getConditionType());
 		CombinatorCondition comb = (CombinatorCondition) cond;
 		Condition cond1 = comb.getFirstCondition();
 		Condition cond2 = comb.getSecondCondition();
-		//
+
 		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond1.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond1).getName());
 		SelectorList arglist = ((ArgumentCondition) cond1).getSelectors();
@@ -5331,7 +5331,7 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.ATTRIBUTE, cond0.getConditionType());
 		assertEquals("href", ((AttributeCondition) cond0).getLocalName());
 		assertNull(((AttributeCondition) cond0).getValue());
-		//
+
 		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond2.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond2).getName());
 		arglist = ((ArgumentCondition) cond2).getSelectors();
@@ -5342,9 +5342,9 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.ATTRIBUTE, cond0.getConditionType());
 		assertEquals("tabindex", ((AttributeCondition) cond0).getLocalName());
 		assertNull(((AttributeCondition) cond0).getValue());
-		//
+
 		assertEquals("a:not([href]):not([tabindex])", sel.toString());
-		//
+
 		sel = selist.item(1);
 		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		cond = ((ConditionalSelector) sel).getCondition();
@@ -5356,12 +5356,12 @@ public class SelectorParserTest {
 		comb = (CombinatorCondition) cond;
 		cond1 = comb.getFirstCondition();
 		cond2 = comb.getSecondCondition();
-		//
+
 		assertEquals(ConditionType.AND, cond1.getConditionType());
 		CombinatorCondition comb1 = (CombinatorCondition) cond1;
 		Condition cond11 = comb1.getFirstCondition();
 		Condition cond12 = comb1.getSecondCondition();
-		//
+
 		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond11.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond11).getName());
 		arglist = ((ArgumentCondition) cond11).getSelectors();
@@ -5372,7 +5372,7 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.ATTRIBUTE, cond0.getConditionType());
 		assertEquals("href", ((AttributeCondition) cond0).getLocalName());
 		assertNull(((AttributeCondition) cond0).getValue());
-		//
+
 		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond12.getConditionType());
 		assertEquals("not", ((ArgumentCondition) cond12).getName());
 		arglist = ((ArgumentCondition) cond12).getSelectors();
@@ -5383,25 +5383,25 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.ATTRIBUTE, cond0.getConditionType());
 		assertEquals("tabindex", ((AttributeCondition) cond0).getLocalName());
 		assertNull(((AttributeCondition) cond0).getValue());
-		//
+
 		assertEquals(ConditionType.PSEUDO_CLASS, cond2.getConditionType());
 		assertEquals("focus", ((PseudoCondition) cond2).getName());
 		assertNull(((PseudoCondition) cond2).getArgument());
-		//
+
 		assertEquals("a:not([href]):not([tabindex]):focus", sel.toString());
-		//
+
 		sel = selist.item(2);
 		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("code", ((ElementSelector) sel).getLocalName());
-		//
+
 		sel = selist.item(3);
 		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("pre", ((ElementSelector) sel).getLocalName());
-		//
+
 		sel = selist.item(4);
 		assertEquals(SelectorType.ELEMENT, sel.getSelectorType());
 		assertEquals("div", ((ElementSelector) sel).getLocalName());
-		//
+
 		assertEquals(
 			"a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div",
 			selist.toString());

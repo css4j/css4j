@@ -96,15 +96,15 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 		if (!lchColor.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
-		//
+
 		CSSTypedValue primihue = (CSSTypedValue) lchColor.getHue();
 		float c = ((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER);
 		double h = ColorUtil.hueRadians(primihue);
-		//
+
 		double a = c * Math.cos(h);
 		double b = c * Math.sin(h);
 		float light = ((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
-		//
+
 		ColorProfile profile = new SRGBColorProfile();
 		double[] rgb = new double[3];
 		ColorUtil.oklabToRGB(light, a, b, clamp, profile, rgb);
@@ -119,7 +119,7 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 		if (!lchColor.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
-		//
+
 		float light = ((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float c = ((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER);
 		CSSTypedValue primihue = (CSSTypedValue) lchColor.getHue();
@@ -131,10 +131,10 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 		} else {
 			h = primihue.getFloatValue(CSSUnit.CSS_RAD);
 		}
-		//
+
 		double a = c * Math.cos(h);
 		double b = c * Math.sin(h);
-		//
+
 		double[] lab = new double[3];
 		ColorUtil.oklabToLab(light, a, b, lab);
 		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[0]);
@@ -143,7 +143,7 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 		primiL.setAbsolutizedUnit();
 		primia.setAbsolutizedUnit();
 		primib.setAbsolutizedUnit();
-		//
+
 		LABColorValue primiLab = new LABColorValue();
 		primiLab.setComponent(0, lchColor.getAlpha().clone());
 		primiLab.setComponent(1, primiL);
@@ -157,7 +157,7 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 		if (!lchColor.hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot convert.");
 		}
-		//
+
 		float light = ((CSSTypedValue) lchColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER);
 		float c = ((CSSTypedValue) lchColor.getChroma()).getFloatValue(CSSUnit.CSS_NUMBER);
 		CSSTypedValue primihue = (CSSTypedValue) lchColor.getHue();
@@ -169,10 +169,10 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 		} else {
 			h = primihue.getFloatValue(CSSUnit.CSS_RAD);
 		}
-		//
+
 		double a = c * Math.cos(h);
 		double b = c * Math.sin(h);
-		//
+
 		double[] lab = new double[3];
 		ColorUtil.oklabToLab(light, a, b, lab);
 		c = (float) Math.sqrt(lab[1] * lab[1] + lab[2] * lab[2]);
@@ -180,14 +180,14 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 		if (h < 0f) {
 			h += 360f;
 		}
-		//
+
 		NumberValue primiL = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[0]);
 		NumberValue primiC = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, c);
 		NumberValue primih = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, h);
 		primiL.setAbsolutizedUnit();
 		primiC.setAbsolutizedUnit();
 		primih.setAbsolutizedUnit();
-		//
+
 		LCHColorValue primiLch = new LCHColorValue();
 		primiLch.setComponent(0, lchColor.getAlpha().clone());
 		primiLch.setComponent(1, primiL);
@@ -212,7 +212,7 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 			|| !((ColorValue) color).hasConvertibleComponents()) {
 			throw new DOMException(DOMException.INVALID_STATE_ERR, "Cannot compute delta.");
 		}
-		//
+
 		LCHColor lch;
 		switch (color.getColorModel()) {
 		case LCH:
