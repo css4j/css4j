@@ -37,6 +37,7 @@ public interface ErrorHandler {
 	 * <p>
 	 * Presentational hint errors are included in this category, as they are found
 	 * during style computation.
+	 * </p>
 	 * 
 	 * @return <code>true</code> if this handler processed computed style errors.
 	 */
@@ -48,6 +49,7 @@ public interface ErrorHandler {
 	 * <p>
 	 * Presentational hint errors are included in this category, as they are found
 	 * during style computation.
+	 * </p>
 	 * 
 	 * @param element the element.
 	 * @return <code>true</code> if this handler processed computed style errors.
@@ -62,6 +64,13 @@ public interface ErrorHandler {
 	boolean hasMediaErrors();
 
 	/**
+	 * Check whether this handler has processed any Node errors.
+	 * 
+	 * @return <code>true</code> if this handler processed any Node errors.
+	 */
+	boolean hasNodeErrors();
+
+	/**
 	 * Check whether this handler has processed any I/O errors.
 	 * 
 	 * @return <code>true</code> if this handler processed any I/O errors.
@@ -72,6 +81,7 @@ public interface ErrorHandler {
 	 * Check whether this handler has processed any non-transient error.
 	 * <p>
 	 * I/O errors are not taken into account by this method.
+	 * </p>
 	 * 
 	 * @return <code>true</code> if this handler processed any non-transient errors.
 	 */
@@ -168,6 +178,22 @@ public interface ErrorHandler {
 	 * @param exception the exception describing the problem.
 	 */
 	void ioError(String uri, IOException exception);
+
+	/**
+	 * A generic error was found when processing a Node, one that is not directly
+	 * associated to a style sheet or declaration.
+	 * <p>
+	 * It may be called while processing the URI of a document or a resource,
+	 * generally the {@code href} attribute.
+	 * </p>
+	 * 
+	 * @param node    the node.
+	 * @param message the error message. May be {@code null} if an exception is
+	 *                provided.
+	 * @param t       the exception, or {@code null} if there is a message.
+	 */
+	default void nodeError(Node node, String message, Throwable t) {
+	}
 
 	/**
 	 * Get the error handler for the given element's inline style.

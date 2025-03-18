@@ -113,7 +113,7 @@ public class HTMLElementTest {
 		assertNull(attr.getParentNode());
 		assertTrue(attr.getSpecified());
 		assertEquals("xmlns", attr.getName());
-		assertEquals("http://www.w3.org/2000/xmlns/", attr.getNamespaceURI());
+		assertEquals(DOMDocument.XMLNS_NAMESPACE_URI, attr.getNamespaceURI());
 		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, attr.getValue());
 		assertEquals("xmlns", attr.getNodeName());
 		assertEquals(HTMLDocument.HTML_NAMESPACE_URI, attr.getNodeValue());

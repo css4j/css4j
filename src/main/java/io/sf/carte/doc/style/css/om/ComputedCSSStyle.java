@@ -13,8 +13,8 @@ package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -2740,52 +2740,61 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 	}
 
 	/**
-	 * Attempts to get the absolute Href from the string value of a (uri)
-	 * property.
+	 * Attempts to get the absolute Href from the string value of a (uri) property.
 	 * 
-	 * @param cssVal
-	 *            the uri value.
-	 * @param baseHref
-	 *            the base href context.
+	 * @param cssVal   the uri value.
+	 * @param baseHref the base href context. Cannot be null.
 	 * @return the base URL, or null if could not be determined.
 	 */
 	protected String getHref(CSSTypedValue cssVal, String baseHref) {
 		String href = cssVal.getStringValue();
-		if (!href.contains("://")) {
+		URI uri;
+		try {
+			uri = new URI(href);
+		} catch (Exception e) {
+			getStyleDeclarationErrorHandler().malformedURIValue(baseHref);
+			return null;
+		}
+
+		if (!uri.isAbsolute()) {
 			// Relative URL
-			URL baseUrl = null;
+			URI baseUri = null;
 			if (baseHref == null) {
-				String documentURI = getOwnerNode().getBaseURI();
-				if (documentURI != null) {
-					try {
-						baseUrl = new URL(documentURI);
-					} catch (MalformedURLException e) {
-						// This will never happen
-					}
-				}
-			} else if (!baseHref.contains("://")) {
-				try {
-					baseUrl = new URL(new URL(getOwnerNode().getBaseURI()), baseHref);
-				} catch (MalformedURLException e) {
-					getStyleDeclarationErrorHandler().malformedURIValue(baseHref);
-				}
+				baseUri = documentURI();
 			} else {
 				try {
-					baseUrl = new URL(baseHref);
-				} catch (MalformedURLException e) {
+					baseUri = new URI(baseHref);
+					if (!baseUri.isAbsolute()) {
+						String ownerUri = getOwnerNode().getBaseURI();
+						if (ownerUri != null) {
+							URI ownerBase = new URI(ownerUri);
+							baseUri = ownerBase.resolve(baseUri);
+						}
+					}
+				} catch (Exception e) {
 					getStyleDeclarationErrorHandler().malformedURIValue(baseHref);
+					baseUri = documentURI();
 				}
 			}
-			if (baseUrl != null) {
-				try {
-					URL url = new URL(baseUrl, href);
-					href = url.toExternalForm();
-				} catch (MalformedURLException e) {
-					getStyleDeclarationErrorHandler().malformedURIValue(href);
-				}
+			if (baseUri != null) {
+				uri = baseUri.resolve(uri);
 			}
 		}
-		return href;
+
+		return uri.toASCIIString();
+	}
+
+	private URI documentURI() {
+		URI uri = null;
+		String documentURI = getOwnerNode().getBaseURI();
+		if (documentURI != null) {
+			try {
+				uri = new URI(documentURI);
+			} catch (URISyntaxException e) {
+				// This should never happen
+			}
+		}
+		return uri;
 	}
 
 	/**

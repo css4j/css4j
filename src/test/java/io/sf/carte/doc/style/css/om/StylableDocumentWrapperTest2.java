@@ -48,6 +48,8 @@ import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class StylableDocumentWrapperTest2 {
 
+	private static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
+
 	private static DocumentBuilder docbuilder;
 
 	@BeforeAll
@@ -64,6 +66,9 @@ public class StylableDocumentWrapperTest2 {
 		Document document = docbuilder.newDocument();
 		Element element = document.createElement("html");
 		document.appendChild(element);
+		Element baseElm = document.createElement("base");
+		element.appendChild(baseElm);
+
 		// Wrap
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(false);
@@ -76,12 +81,14 @@ public class StylableDocumentWrapperTest2 {
 		assertEquals("en", docElm.getAttribute("lang"));
 		assertNotNull(docElm.getAttributeNode("lang"));
 
-		docElm.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base",
+		docElm.setAttributeNS(XML_NAMESPACE_URI, "xml:base",
 				"http://www.example.com/");
 		assertEquals("http://www.example.com/", docElm.getAttribute("xml:base"));
 		assertEquals("http://www.example.com/",
-				docElm.getAttributeNS("http://www.w3.org/XML/1998/namespace", "base"));
+				docElm.getAttributeNS(XML_NAMESPACE_URI, "base"));
 		assertNotNull(docElm.getAttributeNode("xml:base"));
+
+		assertEquals("http://www.example.com/", wrapped.getBaseURI());
 
 		docElm.removeAttribute("lang");
 		assertFalse(docElm.hasAttribute("lang"));
@@ -89,12 +96,42 @@ public class StylableDocumentWrapperTest2 {
 		// Nothing happens
 		docElm.removeAttribute("lang");
 
-		docElm.removeAttributeNS("http://www.w3.org/XML/1998/namespace", "base");
-		assertFalse(docElm.hasAttributeNS("http://www.w3.org/XML/1998/namespace", "base"));
+		docElm.removeAttributeNS(XML_NAMESPACE_URI, "base");
+		assertFalse(docElm.hasAttributeNS(XML_NAMESPACE_URI, "base"));
 
 		// Nothing happens
-		docElm.removeAttributeNS("http://www.w3.org/XML/1998/namespace", "base");
+		docElm.removeAttributeNS(XML_NAMESPACE_URI, "base");
 
+		assertNull(wrapped.getBaseURI());
+
+		CSSElement wbase = (CSSElement) wrapped.getElementsByTagName("base").item(0);
+		assertNotNull(wbase);
+
+		wbase.setAttribute("HREF", "https://www.example.net/base/");
+
+		assertEquals("https://www.example.net/base/", wrapped.getBaseURI());
+
+		wbase.removeAttribute("HREF");
+		assertFalse(wbase.hasAttribute("HREF"));
+
+		wbase.setAttribute("HreF", "https://www.example.org/newbase/");
+
+		assertEquals("https://www.example.org/newbase/", wrapped.getBaseURI());
+
+		wbase.removeAttribute("HreF");
+
+		wrapped.setDocumentURI("https://www.example.com/foo/");
+		wbase.setAttribute("Href", "/base/");
+
+		assertEquals("https://www.example.com/base/", wrapped.getBaseURI());
+
+		assertTrue(wbase.hasAttribute("Href"));
+		wbase.removeAttribute("Href");
+		assertFalse(wbase.hasAttribute("Href"));
+
+		/*
+		 * Attributes
+		 */
 		docElm.setAttribute("class", "foo");
 		assertTrue(docElm.hasAttribute("class"));
 		final Attr attr = docElm.getAttributeNode("class");
@@ -112,10 +149,10 @@ public class StylableDocumentWrapperTest2 {
 		assertSame(title, docElm.setAttributeNode(title));
 		assertTrue(docElm.hasAttribute("title"));
 
-		Attr base = wrapped.createAttributeNS("http://www.w3.org/XML/1998/namespace", "base");
+		Attr base = wrapped.createAttributeNS(XML_NAMESPACE_URI, "base");
 		assertSame(base, docElm.setAttributeNodeNS(base));
-		assertTrue(docElm.hasAttributeNS("http://www.w3.org/XML/1998/namespace", "base"));
-		assertSame(base, docElm.getAttributeNodeNS("http://www.w3.org/XML/1998/namespace", "base"));
+		assertTrue(docElm.hasAttributeNS(XML_NAMESPACE_URI, "base"));
+		assertSame(base, docElm.getAttributeNodeNS(XML_NAMESPACE_URI, "base"));
 	}
 
 	@Test
@@ -123,7 +160,8 @@ public class StylableDocumentWrapperTest2 {
 		Document document = docbuilder.newDocument();
 		Element element = document.createElement("foo");
 		document.appendChild(element);
-		element.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base", "http://www.example.com/");
+		element.setAttributeNS(XML_NAMESPACE_URI, "xml:base", "http://www.example.com/");
+
 		// Wrap
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(false);
@@ -163,6 +201,49 @@ public class StylableDocumentWrapperTest2 {
 		Document document = docbuilder.newDocument();
 		Element element = document.createElement("foo");
 		document.appendChild(element);
+		element.setAttributeNS(XML_NAMESPACE_URI, "xml:base", "http:\\www.example.com/");
+
+		// Wrap
+		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
+		cssFac.setLenientSystemValues(false);
+		StylableDocumentWrapper wrapped = cssFac.createCSSDocument(document);
+		assertEquals("http:\\www.example.com/", element.getAttribute("xml:base"));
+		assertNull(wrapped.getBaseURI());
+		assertTrue(wrapped.getErrorHandler().hasErrors());
+		wrapped.getErrorHandler().reset();
+
+		Attr attr = element.getAttributeNode("xml:base");
+		assertNotNull(attr);
+
+		attr.setValue("");
+		assertNull(wrapped.getBaseURI());
+		assertFalse(wrapped.getErrorHandler().hasErrors());
+		wrapped.getErrorHandler().reset();
+
+		attr.setValue("/bar/");
+		assertNull(wrapped.getBaseURI());
+		assertTrue(wrapped.getErrorHandler().hasErrors());
+		assertTrue(wrapped.getErrorHandler().hasNodeErrors());
+		wrapped.getErrorHandler().reset();
+
+		wrapped.setDocumentURI("http://www.example.com/foo.html");
+		assertEquals("http://www.example.com/bar/", wrapped.getBaseURI());
+		assertFalse(wrapped.getErrorHandler().hasErrors());
+		wrapped.getErrorHandler().reset();
+
+		wrapped.setDocumentURI("http:\\www.example.com/foo.html");
+		assertNull(wrapped.getBaseURI());
+		assertTrue(wrapped.getErrorHandler().hasErrors());
+		assertTrue(wrapped.getErrorHandler().hasNodeErrors());
+		wrapped.getErrorHandler().reset();
+	}
+
+	@Test
+	public void testBaseAttributeNoBase() {
+		Document document = docbuilder.newDocument();
+		Element element = document.createElement("foo");
+		document.appendChild(element);
+
 		// Wrap
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(false);
@@ -173,11 +254,11 @@ public class StylableDocumentWrapperTest2 {
 	}
 
 	@Test
-	public void testBaseAttribute3() {
+	public void testBaseAttributeQueryString() {
 		Document document = docbuilder.newDocument();
 		Element element = document.createElement("foo");
 		document.appendChild(element);
-		element.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:base",
+		element.setAttributeNS(XML_NAMESPACE_URI, "xml:base",
 				"http://www.example.com/base?p=a&q=b");
 		// Wrap
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();

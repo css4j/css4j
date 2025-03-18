@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,6 +69,7 @@ import io.sf.carte.doc.style.css.om.DOMUtil;
 import io.sf.carte.doc.style.css.om.DefaultErrorHandler;
 import io.sf.carte.doc.style.css.om.MediaFactory;
 import io.sf.carte.doc.style.css.om.StyleSheetList;
+import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.xml.dtd.ContentModel;
 
 /**
@@ -297,7 +298,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 
 		@Override
-		void checkAppendNode(Node newChild) {
+		void checkInsertNode(Node newChild, Node refNode) {
 			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
 					"Cannot append the node to " + getNodeName());
 		}
@@ -338,8 +339,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 
 		@Override
-		void checkAppendNodeHierarchy(Node newChild) {
-			super.checkAppendNodeHierarchy(newChild);
+		void checkInsertNodeHierarchy(Node newChild, Node refNode) {
+			super.checkInsertNodeHierarchy(newChild, refNode);
 			if (newChild.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
 				throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Doctype must be added to document.");
 			}
@@ -399,8 +400,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 
 		@Override
-		void checkAppendNodeHierarchy(Node newChild) {
-			super.checkAppendNodeHierarchy(newChild);
+		void checkInsertNodeHierarchy(Node newChild, Node refNode) {
+			super.checkInsertNodeHierarchy(newChild, refNode);
 			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
 					"This implementation does not support appending nodes to an entity reference.");
 		}
@@ -648,8 +649,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 
 		@Override
-		void postAddChild(AbstractDOMNode newChild) {
-			super.postAddChild(newChild);
+		void postInsertChild(AbstractDOMNode newChild) {
+			super.postInsertChild(newChild);
 			helper.postAddChildInline(newChild);
 		}
 
@@ -785,7 +786,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 
 		@Override
-		void checkAppendNodeHierarchy(Node newChild) {
+		void checkInsertNodeHierarchy(Node newChild, Node refNode) {
 			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
 					"Cannot append the node to text/comment/cdatasection");
 		}
@@ -1945,7 +1946,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 		Attr my;
 		if ("xmlns".equals(localName)) {
-			if (namespaceURI != null && !"http://www.w3.org/2000/xmlns/".equals(namespaceURI)) {
+			if (namespaceURI != null && !XMLNS_NAMESPACE_URI.equals(namespaceURI)) {
 				throw new DOMException(DOMException.NAMESPACE_ERR, "xmlns local name but not xmlns namespace");
 			}
 			my = new XmlnsAttr();
@@ -2350,24 +2351,86 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	@Override
-	void preAddChild(Node newChild) {
-		super.preAddChild(newChild);
-		if (newChild.getNodeType() == Node.ELEMENT_NODE) {
+	void checkInsertNodeHierarchy(Node newChild, Node refNode) {
+		switch (newChild.getNodeType()) {
+		case Node.ELEMENT_NODE: {
 			Node node = getFirstChild();
 			while (node != null) {
 				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Document already has a root element.");
+					// This implementation generally allows re-appending an
+					// existing child, but the document element is critical
+					// so it is preferable to raise an exception
+					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							"Document already has a root element.");
 				}
 				node = node.getNextSibling();
 			}
-		} else if (newChild.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
+		}
+			break;
+		case Node.DOCUMENT_TYPE_NODE: {
 			Node node = getFirstChild();
 			while (node != null) {
 				if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Document already has a doctype.");
+					if (node != newChild) {
+						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+								"Document already has a doctype.");
+					}
+				} else if (node.getNodeType() == Node.ELEMENT_NODE) {
+					if (node == refNode) {
+						break;
+					}
+					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							"Cannot insert doctype after document element.");
 				}
 				node = node.getNextSibling();
 			}
+		}
+			break;
+		case Node.ATTRIBUTE_NODE:
+			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+					"Use setAttributeNode to add attribute nodes.");
+		}
+	}
+
+	@Override
+	void checkReplaceNodeHierarchy(Node newChild, Node oldNode) {
+		switch (newChild.getNodeType()) {
+		case Node.ELEMENT_NODE: {
+			Node node = getFirstChild();
+			while (node != null) {
+				if (node.getNodeType() == Node.ELEMENT_NODE) {
+					if (node == oldNode || node == newChild) {
+						break;
+					}
+					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							"Document already has a root element.");
+				}
+				node = node.getNextSibling();
+			}
+		}
+			break;
+		case Node.DOCUMENT_TYPE_NODE: {
+			Node node = getFirstChild();
+			while (node != null) {
+				if (node == oldNode) {
+					break;
+				}
+				if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
+					if (node != newChild) {
+						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+								"Document already has a doctype.");
+					}
+				} else if (node.getNodeType() == Node.ELEMENT_NODE) {
+					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							"Cannot insert doctype after document element.");
+				}
+				node = node.getNextSibling();
+			}
+		}
+			break;
+		case Node.ATTRIBUTE_NODE:
+			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+					"Use setAttributeNode to add attribute nodes.");
 		}
 	}
 
@@ -2381,7 +2444,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	@Override
 	void preReplaceChild(AbstractDOMNode newChild, AbstractDOMNode replaced) {
-		super.preAddChild(newChild);
+		checkReplaceNode(newChild, replaced);
+		checkNewChildParentNode(newChild);
+
 		if (newChild.getNodeType() == Node.ELEMENT_NODE) {
 			if (replaced.getNodeType() != Node.ELEMENT_NODE) {
 				Node node = getFirstChild();
@@ -2407,8 +2472,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	@Override
-	void postAddChild(AbstractDOMNode newChild) {
-		super.postAddChild(newChild);
+	void postInsertChild(AbstractDOMNode newChild) {
+		super.postInsertChild(newChild);
 		String data;
 		if (newChild.getNodeType() == Node.PROCESSING_INSTRUCTION_NODE
 				&& "xml-stylesheet".equals(newChild.getNodeName()) && (data = newChild.getNodeValue()) != null
@@ -2776,7 +2841,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 */
 	@Override
 	public void enableStyleSheetsForSet(String name) {
-		if (name == null || name.length() == 0) {
+		if (name == null || name.isEmpty()) {
 			return;
 		}
 
@@ -2914,12 +2979,13 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	/**
 	 * Has any of the linked or embedded style sheets any error or warning ?
 	 * 
-	 * @return <code>true</code> if any of the linked or embedded style sheets has any SAC or rule error or
-	 *         warning, <code>false</code> otherwise.
+	 * @return <code>true</code> if any of the linked or embedded style sheets has
+	 *         any SAC or rule error or warning, <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean hasStyleIssues() {
-		return sheets.hasErrorsOrWarnings() || getErrorHandler().hasErrors() || getErrorHandler().hasWarnings();
+		return sheets.hasErrorsOrWarnings() || getErrorHandler().hasErrors()
+				|| getErrorHandler().hasWarnings();
 	}
 
 	/**
@@ -2975,8 +3041,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		String buri = getBaseURI();
 		if (buri != null) {
 			try {
-				baseURL = new URL(buri);
-			} catch (MalformedURLException e) {
+				URI uri = new URI(buri);
+				baseURL = uri.toURL();
+			} catch (Exception e) {
 			}
 		}
 		return baseURL;
@@ -2993,35 +3060,34 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		String buri = getDocumentURI();
 		DOMElement elm = getDocumentElement();
 		if (elm != null) {
-			String attr = elm.getAttribute("xml:base");
-			if (attr.length() != 0) {
+			String attr = elm.getAttribute("xml:base").trim();
+			if (!attr.isEmpty()) {
+				URI bUri;
 				if (buri != null) {
 					// Relative url
-					URL docUrl;
+					URI docUri;
 					try {
-						docUrl = new URL(buri);
-					} catch (MalformedURLException e) {
+						docUri = new URI(buri);
+					} catch (Exception e) {
 						return getBaseForNullDocumentURI(attr, elm);
 					}
-					URL bUrl;
 					try {
-						bUrl = new URL(docUrl, attr);
-					} catch (MalformedURLException e) {
-						getErrorHandler().ioError(attr, e);
-						return docUrl.toExternalForm();
+						bUri = docUri.resolve(attr);
+					} catch (Exception e) {
+						getErrorHandler().nodeError(elm, "Invalid base: " + attr, e);
+						return docUri.toString();
 					}
-					buri = bUrl.toExternalForm();
-					String docscheme = docUrl.getProtocol();
-					String bscheme = bUrl.getProtocol();
-					if (!docscheme.equals(bscheme)) {
-						if (!bscheme.equals("https") && !bscheme.equals("http") && !docscheme.equals("file")
-								&& !docscheme.equals("jar")) {
-							// Remote document wants to set a non-http base URI
-							getErrorHandler().policyError(elm,
-									"Remote document wants to set a non-http base URL: " + buri);
-							buri = docUrl.toExternalForm();
-						}
+					String docscheme = docUri.getScheme();
+					String bscheme = bUri.getScheme();
+					if (!docscheme.equals(bscheme) && !bscheme.equals("https")
+							&& !bscheme.equals("http") && !docscheme.equals("file")
+							&& !docscheme.equals("jar")) {
+						// Remote document wants to set a non-http base URI
+						getErrorHandler().policyError(elm,
+								"Remote document wants to set a non-http base URL: " + buri);
+						bUri = docUri;
 					}
+					buri = bUri.toASCIIString();
 				} else {
 					buri = getBaseForNullDocumentURI(attr, elm);
 				}
@@ -3031,49 +3097,25 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	private String getBaseForNullDocumentURI(String attr, DOMElement documentElement) {
-		URL bUrl;
 		try {
-			bUrl = new URL(attr);
-			String bscheme = bUrl.getProtocol();
+			URI uri = new URI(attr);
+			String bscheme = uri.getScheme();
 			if (bscheme.equals("https") || bscheme.equals("http")) {
-				return attr;
+				return uri.toASCIIString();
 			} else {
 				getErrorHandler().policyError(documentElement,
 						"Untrusted document wants to set a non-http base URL: " + attr);
 			}
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
+			getErrorHandler().nodeError(documentElement, "Invalid base: " + attr, e);
 		}
 		return null;
 	}
 
 	/**
-	 * Gets an URL for the given URI, taking into account the Base URL if appropriate.
-	 * 
-	 * @param uri
-	 *            the uri.
-	 * @return the absolute URL.
-	 * @throws MalformedURLException
-	 *             if the uri was wrong.
-	 */
-	@Override
-	public URL getURL(String uri) throws MalformedURLException {
-		if (uri.length() == 0) {
-			throw new MalformedURLException("Empty URI");
-		}
-		URL url;
-		if (uri.indexOf("://") < 0) {
-			url = new URL(getBaseURL(), uri);
-		} else {
-			url = new URL(uri);
-		}
-		return url;
-	}
-
-	/**
 	 * Is the provided URL a safe origin to load certain external resources?
 	 * 
-	 * @param linkedURL
-	 *            the URL of the external resource.
+	 * @param linkedURL the URL of the external resource.
 	 * 
 	 * @return <code>true</code> if is a safe origin, <code>false</code> otherwise.
 	 */
@@ -3090,7 +3132,9 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		if (linkedPort == -1) {
 			linkedPort = linkedURL.getDefaultPort();
 		}
-		return (docHost.equalsIgnoreCase(linkedHost) || linkedHost.endsWith(docHost)) && docPort == linkedPort;
+		return (docHost.equalsIgnoreCase(linkedHost)
+				|| ParseHelper.endsWithIgnoreCase(linkedHost, '.' + docHost))
+				&& docPort == linkedPort;
 	}
 
 	/**
@@ -3148,13 +3192,12 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	/**
-	 * Opens an InputStream for the given URI, taking into account the Base URL if needed.
+	 * Opens an InputStream for the given URI, taking into account the Base URL if
+	 * needed.
 	 * 
-	 * @param uri
-	 *            the uri to open a connection.
+	 * @param uri the uri to open a connection.
 	 * @return the InputStream.
-	 * @throws IOException
-	 *             if the uri was wrong, or the stream could not be opened.
+	 * @throws IOException if the stream could not be opened.
 	 */
 	public InputStream openStream(String uri) throws IOException {
 		return openConnection(getURL(uri)).getInputStream();

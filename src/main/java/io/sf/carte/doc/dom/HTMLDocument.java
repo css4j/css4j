@@ -12,6 +12,8 @@
 package io.sf.carte.doc.dom;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
@@ -176,8 +178,8 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		void preAddChild(Node newChild) {
-			super.preAddChild(newChild);
+		void preInsertChild(Node newChild, Node refNode) {
+			super.preInsertChild(newChild, refNode);
 			if (newChild.getNodeType() == Node.ELEMENT_NODE) {
 				String nname = newChild.getNodeName();
 				if ("head".equals(nname) || "body".equals(nname)) {
@@ -195,7 +197,7 @@ abstract public class HTMLDocument extends DOMDocument {
 
 		@Override
 		void preReplaceChild(AbstractDOMNode newChild, AbstractDOMNode replaced) {
-			super.preAddChild(newChild);
+			super.preInsertChild(newChild, replaced);
 			if (newChild.getNodeType() == Node.ELEMENT_NODE) {
 				String nname = newChild.getNodeName();
 				String rname = replaced.getNodeName();
@@ -401,8 +403,8 @@ abstract public class HTMLDocument extends DOMDocument {
 		}
 
 		@Override
-		void postAddChild(AbstractDOMNode newChild) {
-			super.postAddChild(newChild);
+		void postInsertChild(AbstractDOMNode newChild) {
+			super.postInsertChild(newChild);
 			helper.postAddChildInline(newChild);
 		}
 
@@ -804,7 +806,7 @@ abstract public class HTMLDocument extends DOMDocument {
 				my = new MyAttr(localName, namespaceURI);
 			}
 		} else if ("xmlns".equals(localName)) {
-			if (!"http://www.w3.org/2000/xmlns/".equals(namespaceURI)) {
+			if (!XMLNS_NAMESPACE_URI.equals(namespaceURI)) {
 				throw new DOMException(DOMException.NAMESPACE_ERR, "xmlns local name but not xmlns namespace");
 			}
 			my = new XmlnsAttr();
@@ -833,34 +835,48 @@ abstract public class HTMLDocument extends DOMDocument {
 	 * @return {@code true} if the {@code BASE} URL was set.
 	 */
 	private boolean setBaseURL(DOMElement baseElement, String base) {
-		if (base.length() != 0) {
+		if (!base.isEmpty()) {
 			String docUri = getDocumentURI();
 			if (docUri != null) {
-				URL docUrl;
+				URI dUri;
 				try {
-					docUrl = new URL(docUri);
-				} catch (MalformedURLException e) {
+					dUri = new URI(docUri);
+				} catch (URISyntaxException e) {
 					return setBaseForNullDocumentURI(base, baseElement);
 				}
-				URL urlBase;
+				URI uriBase;
+				URL url;
 				try {
-					urlBase = new URL(docUrl, base);
+					uriBase = new URI(base);
+					uriBase = dUri.resolve(uriBase);
+					if (uriBase.isAbsolute()) {
+						url = uriBase.toURL();
+					} else {
+						getErrorHandler().nodeError(baseElement,
+								"Cannot convert URI to absolute: " + base, null);
+						return false;
+					}
 				} catch (MalformedURLException e) {
 					getErrorHandler().ioError(base, e);
 					return false;
+				} catch (Exception e) {
+					// Only URISyntaxException should arrive here
+					getErrorHandler().nodeError(baseElement,
+							"Cannot convert URI to absolute: " + base, e);
+					return false;
 				}
-				String docscheme = docUrl.getProtocol();
-				String bscheme = urlBase.getProtocol();
-				if (!docscheme.equals(bscheme)) {
-					if (!bscheme.equals("https") && !bscheme.equals("http") && !docscheme.equals("file")
-							&& !docscheme.equals("jar")) {
-						// Remote document wants to set a non-http base URI
-						getErrorHandler().policyError(baseElement,
-								"Remote document wants to set a non-http base URL: " + urlBase.toExternalForm());
-						return false;
-					}
+				String docscheme = dUri.getScheme();
+				String bscheme = uriBase.getScheme();
+				if (!docscheme.equals(bscheme) && !bscheme.equals("https")
+						&& !bscheme.equals("http") && !docscheme.equals("file")
+						&& !docscheme.equals("jar")) {
+					// Remote document wants to set a non-http base URI
+					getErrorHandler().policyError(baseElement,
+							"Remote document wants to set a non-http base URL: "
+									+ uriBase.toASCIIString());
+					return false;
 				}
-				baseURL = urlBase;
+				baseURL = url;
 				return true;
 			} else {
 				return setBaseForNullDocumentURI(base, baseElement);
@@ -871,16 +887,17 @@ abstract public class HTMLDocument extends DOMDocument {
 
 	private boolean setBaseForNullDocumentURI(String base, DOMElement baseElement) {
 		try {
-			URL urlBase = new URL(base);
-			String scheme = urlBase.getProtocol();
-			if (scheme.equals("https") || scheme.equals("http")) {
-				baseURL = urlBase;
+			URI uriBase = new URI(base);
+			String scheme = uriBase.getScheme();
+			if ((scheme.equals("https") || scheme.equals("http")) && uriBase.isAbsolute()) {
+				baseURL = uriBase.toURL();
 				return true;
 			}
 			// Remote document wants to set a non-http base URL
 			getErrorHandler().policyError(baseElement,
-					"Untrusted document wants to set a non-http base URL: " + base);
-		} catch (MalformedURLException e) {
+					"Untrusted document wants to set a non-http or relative base URL: " + base);
+		} catch (Exception e) {
+			getErrorHandler().nodeError(baseElement, "Cannot convert URI to absolute: " + base, e);
 		}
 		return false;
 	}
@@ -914,8 +931,10 @@ abstract public class HTMLDocument extends DOMDocument {
 			String docUri = getDocumentURI();
 			if (docUri != null) {
 				try {
-					baseURL = new URL(docUri);
-				} catch (MalformedURLException e) {
+					baseURL = new URI(docUri).toURL();
+				} catch (Exception e) {
+					getErrorHandler().nodeError(this, "Cannot convert URI to absolute: " + docUri,
+							e);
 				}
 			}
 		}

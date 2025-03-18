@@ -171,10 +171,10 @@ public class DOMElementTest {
 		assertNull(version.getOwnerElement());
 		body.appendChild(svg);
 		// xml:lang
-		body.setAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:lang", "en_UK");
+		body.setAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:lang", "en_UK");
 		assertTrue(body.hasAttribute("xml:lang"));
 		assertEquals("en_UK", body.getAttribute("xml:lang"));
-		assertEquals("en_UK", body.getAttributeNS("http://www.w3.org/XML/1998/namespace", "lang"));
+		assertEquals("en_UK", body.getAttributeNS(DOMDocument.XML_NAMESPACE_URI, "lang"));
 	}
 
 	@Test
@@ -501,8 +501,10 @@ public class DOMElementTest {
 		assertEquals(0, list.getLength());
 		assertFalse(list.contains("foo"));
 		assertFalse(body.hasAttribute("class"));
+
 		Attr attr = xhtmlDoc.createAttribute("class");
 		attr.setValue("foo");
+
 		body.setAttributeNode(attr);
 		assertEquals(1, list.getLength());
 		assertEquals("foo", list.item(0));
@@ -529,9 +531,19 @@ public class DOMElementTest {
 		list.remove("111");
 		assertEquals(2, list.getLength());
 		assertEquals("foo bar", list.getValue());
+
 		body.removeAttribute("class");
 		assertEquals(0, list.getLength());
 		assertEquals("foo bar", attr.getValue());
+
+		assertEquals(0, list.getLength());
+		assertNull(list.item(0));
+		assertEquals("", list.getValue());
+
+		body.setAttributeNode(attr);
+		assertEquals(2, list.getLength());
+		attr.setValue("");
+		assertEquals(0, list.getLength());
 	}
 
 	@Test
@@ -991,14 +1003,22 @@ public class DOMElementTest {
 		assertSame(body, xhtmlDoc.getElementById("myId"));
 		body.setIdAttributeNode(fooAttr, true); // Does not work, is ignored
 		assertFalse(body == xhtmlDoc.getElementById("bar"));
+
 		// test for xml:id
 		body.removeAttribute("id");
-		attr = xhtmlDoc.createAttributeNS("http://www.w3.org/XML/1998/namespace", "xml:id");
+		assertFalse(body.hasAttribute("id"));
+		attr = xhtmlDoc.createAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:id");
 		attr.setValue("xmlId");
 		body.setAttributeNode(attr);
 		assertTrue(attr.isId());
-		assertEquals("xmlId", body.getAttributeNS("http://www.w3.org/XML/1998/namespace", "id"));
+		assertEquals("xmlId", body.getAttributeNS(DOMDocument.XML_NAMESPACE_URI, "id"));
 		assertSame(body, xhtmlDoc.getElementById("xmlId"));
+
+		assertTrue(body.hasAttributeNS(DOMDocument.XML_NAMESPACE_URI, "id"));
+		body.removeAttributeNS(DOMDocument.XML_NAMESPACE_URI, "id");
+		assertFalse(body.hasAttributeNS(DOMDocument.XML_NAMESPACE_URI, "id"));
+		// Remove it again
+		body.removeAttributeNS(DOMDocument.XML_NAMESPACE_URI, "id");
 	}
 
 	@Test

@@ -112,22 +112,26 @@ abstract class DOMNode implements CSSNode {
 
 	@Override
 	public Node insertBefore(Node newChild, Node refChild) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
+				"This is a readonly wrapper.");
 	}
 
 	@Override
 	public Node replaceChild(Node newChild, Node oldChild) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
+				"This is a readonly wrapper.");
 	}
 
 	@Override
 	public Node removeChild(Node oldChild) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
+				"This is a readonly wrapper.");
 	}
 
 	@Override
 	public Node appendChild(Node newChild) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
+				"This is a readonly wrapper.");
 	}
 
 	@Override

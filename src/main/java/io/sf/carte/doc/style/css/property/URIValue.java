@@ -13,7 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import org.w3c.dom.DOMException;
@@ -151,12 +151,14 @@ public class URIValue extends StringValue {
 	 * @return the URL contained in this URI value if it is absolute, null otherwise.
 	 */
 	public URL getURLValue() {
-		URL url;
+		URL url = null;
 		String sv = getStringValue();
 		try {
-			url = new URL(sv);
-		} catch (MalformedURLException e) {
-			url = null;
+			URI uri = new URI(sv);
+			if (uri.isAbsolute()) {
+				url = uri.toURL();
+			}
+		} catch (Exception e) {
 		}
 		return url;
 	}

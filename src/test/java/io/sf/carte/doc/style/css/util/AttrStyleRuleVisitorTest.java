@@ -15,7 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.junit.jupiter.api.Test;
 import org.xml.sax.InputSource;
@@ -81,9 +82,11 @@ public class AttrStyleRuleVisitorTest {
 		DOMDocument document;
 		try {
 			document = (DOMDocument) builder.parse(is);
-			URL base = new URL("http://www.example.com/");
-			document.setDocumentURI(new URL(base, filename).toExternalForm());
-		} catch (IOException e) {
+			URI uri = new URI(filename);
+			URI base = new URI("http://www.example.com/");
+			uri = base.resolve(uri);
+			document.setDocumentURI(uri.toASCIIString());
+		} catch (IOException | URISyntaxException e) {
 			document = null;
 		}
 		return document;

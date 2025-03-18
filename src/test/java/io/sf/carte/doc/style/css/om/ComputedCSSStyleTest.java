@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -323,7 +323,7 @@ public class ComputedCSSStyleTest {
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(elm));
-		HashMap<String, CSSPropertyValueException> warnings = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler())
+		Map<String, CSSPropertyValueException> warnings = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler())
 				.getComputedStyleWarnings(elm);
 		assertNotNull(warnings);
 		assertEquals(1, warnings.size());
@@ -508,7 +508,7 @@ public class ComputedCSSStyleTest {
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(1f, marginLeft.getFloatValue(CSSUnit.CSS_VW), 0.01f);
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler())
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler())
 				.getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -948,7 +948,7 @@ public class ComputedCSSStyleTest {
 		//
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler())
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc.getErrorHandler())
 				.getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());

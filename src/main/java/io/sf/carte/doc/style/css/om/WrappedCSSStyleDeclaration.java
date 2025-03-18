@@ -11,7 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import org.w3c.dom.Node;
@@ -65,18 +65,24 @@ class WrappedCSSStyleDeclaration extends BaseCSSStyleDeclaration {
 		Node node = parentSheet.getOwnerNode();
 		String parentHref = parentSheet.getHref();
 		if (parentHref != null) {
-			if (!parentHref.contains("://")) {
-				// Relative URI, try to find absolute
-				if (node != null) {
-					try {
-						hrefcontext = new URL(((CSSDocument) node.getOwnerDocument()).getBaseURL(), parentHref)
-								.toExternalForm();
-					} catch (MalformedURLException e) {
-						parentRule.getStyleDeclarationErrorHandler().malformedURIValue(parentHref);
+			try {
+				URI sheetURI = new URI(parentHref);
+				if (!sheetURI.isAbsolute()) {
+					// Relative URI, try to find absolute
+					if (node != null) {
+						URL docUrl = ((CSSDocument) node.getOwnerDocument()).getBaseURL();
+						if (docUrl != null) {
+							try {
+								URI nodeBase = docUrl.toURI();
+								sheetURI = nodeBase.resolve(sheetURI);
+							} catch (Exception e) {
+							}
+						}
 					}
 				}
-			} else {
-				hrefcontext = parentHref;
+				hrefcontext = sheetURI.toASCIIString();
+			} catch (Exception e) {
+				parentRule.getStyleDeclarationErrorHandler().malformedURIValue(parentHref);
 			}
 		} else {
 			if (node != null) {

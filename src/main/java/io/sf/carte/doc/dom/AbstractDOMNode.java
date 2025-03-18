@@ -191,32 +191,29 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 	public DOMNode appendChild(Node newChild) throws DOMException {
 		AbstractDOMNode added = (AbstractDOMNode) newChild;
 		if (newChild.getNodeType() != Node.DOCUMENT_FRAGMENT_NODE) {
-			preAddChild(newChild);
+			preInsertChild(newChild, null);
 			getNodeList().add(added);
-			postAddChild(added);
+			postInsertChild(added);
 		} else {
 			appendDocumentFragment(newChild);
 		}
 		return added;
 	}
 
-	void preAddChild(Node newChild) {
-		checkAppendNode(newChild);
-		Node node = newChild.getParentNode();
-		if (node != null) {
-			node.removeChild(newChild);
-		}
+	void preInsertChild(Node newChild, Node refNode) {
+		checkInsertNode(newChild, refNode);
+		checkNewChildParentNode(newChild);
 	}
 
-	void checkAppendNode(Node newChild) {
+	void checkInsertNode(Node newChild, Node refNode) {
 		if (newChild.getNodeType() == Node.DOCUMENT_NODE) {
 			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot append a document.");
 		}
-		checkAppendNodeHierarchy(newChild);
+		checkInsertNodeHierarchy(newChild, refNode);
 		checkDocumentOwner(newChild);
 	}
 
-	void checkAppendNodeHierarchy(Node newChild) {
+	void checkInsertNodeHierarchy(Node newChild, Node refNode) {
 		if (newChild.getNodeType() == Node.ATTRIBUTE_NODE) {
 			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Use setAttributeNode to add attribute nodes.");
 		}
@@ -235,7 +232,26 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 		}
 	}
 
-	void postAddChild(AbstractDOMNode newChild) {
+	void checkNewChildParentNode(Node newChild) {
+		Node node = newChild.getParentNode();
+		if (node != null) {
+			node.removeChild(newChild);
+		}
+	}
+
+	void checkReplaceNode(Node newChild, Node oldNode) {
+		if (newChild.getNodeType() == Node.DOCUMENT_NODE) {
+			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot append a document.");
+		}
+		checkReplaceNodeHierarchy(newChild, oldNode);
+		checkDocumentOwner(newChild);
+	}
+
+	void checkReplaceNodeHierarchy(Node newChild, Node oldNode) {
+		checkInsertNodeHierarchy(newChild, null);
+	}
+
+	void postInsertChild(AbstractDOMNode newChild) {
 		newChild.setParentNode(this);
 	}
 
@@ -264,9 +280,9 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 					insertDocumentFragment(inserted, refNode);
 					return inserted;
 				}
-				preAddChild(inserted);
+				preInsertChild(inserted, refNode);
 				getNodeList().insertBefore(inserted, refNode);
-				postAddChild(inserted);
+				postInsertChild(inserted);
 			}
 		} else {
 			appendChild(inserted);
@@ -314,7 +330,7 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 	}
 
 	void preReplaceChild(AbstractDOMNode newNode, AbstractDOMNode replaced) {
-		preAddChild(newNode);
+		preInsertChild(newNode, null);
 	}
 
 	private void replaceWithDocumentFragment(AbstractDOMNode newChild, AbstractDOMNode replaced) {
@@ -334,14 +350,14 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 	}
 
 	void insertAfter(AbstractDOMNode newNode, AbstractDOMNode refNode) {
-		preAddChild(newNode);
+		preInsertChild(newNode, refNode);
 		AbstractDOMNode next = refNode.nextSibling;
 		if (next != null) {
 			getNodeList().insertBefore(newNode, next);
 		} else {
 			getNodeList().add(newNode);
 		}
-		postAddChild(newNode);
+		postInsertChild(newNode);
 	}
 
 	@Override

@@ -28,8 +28,8 @@ abstract class NamespacedNode extends NDTNode {
 	}
 
 	@Override
-	void checkAppendNodeHierarchy(Node newChild) {
-		super.checkAppendNodeHierarchy(newChild);
+	void checkInsertNodeHierarchy(Node newChild, Node refNode) {
+		super.checkInsertNodeHierarchy(newChild, refNode);
 		if (newChild.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
 			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot append a document type here.");
 		}

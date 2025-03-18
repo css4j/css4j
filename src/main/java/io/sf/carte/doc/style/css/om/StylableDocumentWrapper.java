@@ -15,7 +15,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -67,6 +68,7 @@ import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 /**
  * <p>
@@ -147,6 +149,22 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	@Override
 	public CSSDocument getOwnerDocument() {
 		return null;
+	}
+
+	private boolean isWrappedNode(Node node) {
+		if (node.getNodeType() == Node.DOCUMENT_FRAGMENT_NODE) {
+			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
+					"This is a readonly wrapper.");
+		}
+		Document doc = node.getOwnerDocument();
+		if (doc == this) {
+			return true;
+		}
+		if (doc == document) {
+			return false;
+		}
+		throw new DOMException(DOMException.WRONG_DOCUMENT_ERR,
+				"The node was created with a different document.");
 	}
 
 	@Override
@@ -350,12 +368,12 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public void setData(String data) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			((ProcessingInstruction) rawnode).setData(data);
 		}
 
 		@Override
 		public void setNodeValue(String nodeValue) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			rawnode.setNodeValue(nodeValue);
 		}
 
 	}
@@ -917,9 +935,14 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public Attr removeAttributeNode(Attr oldAttr) throws DOMException {
-			Attr rawnode = (Attr) ((DOMNode) oldAttr).rawnode;
-			Attr attr = element.removeAttributeNode(rawnode);
-			nodemap.remove(attr);
+			Attr rawAttr;
+			if (isWrappedNode(oldAttr)) {
+				rawAttr = (Attr) ((DOMNode) oldAttr).rawnode;
+			} else {
+				rawAttr = oldAttr;
+			}
+			element.removeAttributeNode(rawAttr);
+			nodemap.remove(rawAttr);
 			return oldAttr;
 		}
 
@@ -945,6 +968,9 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		@Override
 		public void removeAttributeNS(String namespaceURI, String localName) throws DOMException {
 			Attr attr = element.getAttributeNodeNS(namespaceURI, localName);
+			if (attr == null) {
+				return;
+			}
 			nodemap.remove(attr);
 			element.removeAttributeNS(namespaceURI, localName);
 		}
@@ -960,9 +986,22 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public Attr setAttributeNodeNS(Attr newAttr) throws DOMException {
-			Attr rawnode = (Attr) ((DOMNode) newAttr).rawnode;
-			element.setAttributeNodeNS(rawnode);
+			Attr rawAttr;
+			if (isWrappedNode(newAttr)) {
+				rawAttr = (Attr) ((DOMNode) newAttr).rawnode;
+			} else {
+				rawAttr = newAttr;
+			}
+			element.setAttributeNodeNS(rawAttr);
 			return newAttr;
+		}
+
+		public String getAttributeQuirksMode(String name) {
+			return StylableDocumentWrapper.getAttributeQuirksMode(element, name);
+		}
+
+		public Attr getAttributeNodeQuirksMode(String name) {
+			return StylableDocumentWrapper.getAttributeNodeQuirksMode(element, name);
 		}
 
 		@Override
@@ -987,17 +1026,90 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public void setIdAttribute(String name, boolean isId) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			element.setIdAttribute(name, isId);
 		}
 
 		@Override
 		public void setIdAttributeNS(String namespaceURI, String localName, boolean isId) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			element.setIdAttributeNS(namespaceURI, localName, isId);
 		}
 
 		@Override
 		public void setIdAttributeNode(Attr idAttr, boolean isId) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "This is a readonly wrapper.");
+			Attr rawAttr;
+			if (isWrappedNode(idAttr)) {
+				rawAttr = (Attr) ((DOMNode) idAttr).rawnode;
+			} else {
+				rawAttr = idAttr;
+			}
+			element.setIdAttributeNode(rawAttr, isId);
+		}
+
+		@Override
+		public Node insertBefore(Node newChild, Node refChild) throws DOMException {
+			Node toAdd, other; // Raw nodes
+			if (isWrappedNode(newChild)) {
+				DOMNode cssNode = (DOMNode) newChild;
+				toAdd = cssNode.rawnode;
+				nodemap.put(toAdd, cssNode);
+			} else {
+				toAdd = newChild;
+			}
+			if (isWrappedNode(refChild)) {
+				other = ((DOMNode) refChild).rawnode;
+			} else {
+				other = refChild;
+			}
+			Node child = element.insertBefore(toAdd, other);
+			StylableDocumentWrapper.this.reset();
+			return getCSSNode(child);
+		}
+
+		@Override
+		public Node replaceChild(Node newChild, Node oldChild) throws DOMException {
+			Node toAdd, other; // Raw nodes
+			if (isWrappedNode(newChild)) {
+				DOMNode cssNode = (DOMNode) newChild;
+				toAdd = cssNode.rawnode;
+				nodemap.put(toAdd, cssNode);
+			} else {
+				toAdd = newChild;
+			}
+			if (isWrappedNode(oldChild)) {
+				other = ((DOMNode) oldChild).rawnode;
+			} else {
+				other = oldChild;
+			}
+			Node child = element.replaceChild(toAdd, other);
+			nodemap.remove(other);
+			StylableDocumentWrapper.this.reset();
+			return getCSSNode(child);
+		}
+
+		@Override
+		public Node removeChild(Node oldChild) throws DOMException {
+			Node toRemove;
+			if (isWrappedNode(oldChild)) {
+				toRemove = ((DOMNode) oldChild).rawnode;
+			} else {
+				toRemove = oldChild;
+			}
+			element.removeChild(toRemove);
+			nodemap.remove(toRemove);
+			StylableDocumentWrapper.this.reset();
+			return oldChild;
+		}
+
+		@Override
+		public Node appendChild(Node newChild) throws DOMException {
+			if (isWrappedNode(newChild)) {
+				element.appendChild(((DOMNode) newChild).rawnode);
+				StylableDocumentWrapper.this.reset();
+				return newChild;
+			}
+			element.appendChild(newChild);
+			StylableDocumentWrapper.this.reset();
+			return getCSSNode(newChild);
 		}
 
 		@Override
@@ -1137,6 +1249,32 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			}
 			return buf.toString();
 		}
+
+	}
+
+	private static String getAttributeQuirksMode(Element element, String name) {
+		Attr attr = getAttributeNodeQuirksMode(element, name);
+		if (attr != null) {
+			String av = attr.getValue();
+			if (av != null) {
+				return av;
+			}
+		}
+		return "";
+	}
+
+	private static Attr getAttributeNodeQuirksMode(Element element, String name) {
+		NamedNodeMap nnm = element.getAttributes();
+		if (nnm != null) {
+			int len = nnm.getLength();
+			for (int i = 0; i < len; i++) {
+				Node attr = nnm.item(i);
+				if (name.equalsIgnoreCase(attr.getNodeName())) {
+					return (Attr) attr;
+				}
+			}
+		}
+		return null;
 	}
 
 	abstract class StyleDefinerElement extends MyElement implements LinkStyleDefiner {
@@ -2039,15 +2177,17 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		String buri = getBaseURI();
 		if (buri != null) {
 			try {
-				url = new URL(buri);
-			} catch (MalformedURLException e) {
+				URI uri = new URI(buri);
+				url = uri.toURL();
+			} catch (Exception e) {
 				try {
 					String docuri = document.getDocumentURI();
 					if (docuri != null) {
-						URL context = new URL(docuri);
-						url = new URL(context, buri);
+						URI context = new URI(docuri);
+						URI bUri = new URI(buri);
+						url = context.resolve(bUri).toURL();
 					}
-				} catch (MalformedURLException e1) {
+				} catch (Exception e1) {
 				}
 			}
 		}
@@ -2059,8 +2199,8 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		String buri = null;
 		Element elm = getDocumentElement();
 		if (elm != null) {
-			String attr = elm.getAttribute("xml:base");
-			if (attr.length() != 0) {
+			String attr = elm.getAttribute("xml:base").trim();
+			if (!attr.isEmpty()) {
 				buri = attr;
 			} else if ("html".equalsIgnoreCase(elm.getTagName())) {
 				NodeList nl = document.getElementsByTagName("base");
@@ -2069,7 +2209,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 					String s = elm.getAttribute("href").trim();
 					if (s.length() != 0) {
 						buri = s;
-					} else if ((s = elm.getAttribute("HREF")).length() != 0) {
+					} else if (!(s = getAttributeQuirksMode(elm, "href")).isEmpty()) {
 						buri = s;
 					}
 				}
@@ -2079,29 +2219,31 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			String docUri = document.getDocumentURI();
 			if (docUri != null) {
 				// Relative url
-				URL docUrl;
+				URI dUri;
 				try {
-					docUrl = new URL(docUri);
-				} catch (MalformedURLException e) {
+					dUri = new URI(docUri);
+				} catch (URISyntaxException e) {
+					getErrorHandler().nodeError(elm, "Invalid document URI: " + docUri, e);
 					return getBaseForNullDocumentURI(buri, elm);
 				}
-				URL bUrl;
+				URI bUri;
 				try {
-					bUrl = new URL(docUrl, buri);
-				} catch (MalformedURLException e) {
-					getErrorHandler().ioError(buri, e);
-					return docUrl != null ? docUrl.toExternalForm() : null;
+					bUri = new URI(buri);
+					bUri = dUri.resolve(bUri);
+				} catch (Exception e) {
+					getErrorHandler().nodeError(elm, "Cannot convert URI to absolute: " + buri, e);
+					return dUri.toASCIIString();
 				}
-				buri = bUrl.toExternalForm();
-				String docscheme = docUrl.getProtocol();
-				String bscheme = bUrl.getProtocol();
-				if (!docscheme.equals(bscheme)) {
-					if (!bscheme.equals("https") && !bscheme.equals("http") && !docscheme.equals("file")
-							&& !docscheme.equals("jar")) {
-						// Remote document wants to set a non-http base URI
-						getErrorHandler().policyError(elm, "Remote document wants to set a non-http base URL: " + buri);
-						buri = docUrl != null ? docUrl.toExternalForm() : null;
-					}
+				buri = bUri.toASCIIString();
+				String docscheme = dUri.getScheme();
+				String bscheme = bUri.getScheme();
+				if (!docscheme.equals(bscheme) && !bscheme.equals("https")
+						&& !bscheme.equals("http") && !docscheme.equals("file")
+						&& !docscheme.equals("jar")) {
+					// Remote document wants to set a non-http base URI
+					getErrorHandler().policyError(elm,
+							"Remote document wants to set a non-http base URL: " + buri);
+					buri = dUri.toASCIIString();
 				}
 				return buri;
 			} else {
@@ -2118,48 +2260,24 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	private String getBaseForNullDocumentURI(String baseUri, Element elm) {
 		try {
-			URL bUrl = new URL(baseUri);
-			String bscheme = bUrl.getProtocol();
+			URI uri = new URI(baseUri);
+			String bscheme = uri.getScheme();
 			if (bscheme.equals("https") || bscheme.equals("http")) {
-				return baseUri;
+				return uri.toASCIIString();
 			} else {
 				getErrorHandler().policyError(elm,
 						"Untrusted document wants to set a non-http base URL: " + baseUri);
 			}
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
+			getErrorHandler().nodeError(elm, "Invalid base: " + baseUri, e);
 		}
 		return null;
 	}
 
 	/**
-	 * Gets an URL for the given URI, taking into account the Base URL if
-	 * appropriate.
-	 * 
-	 * @param uri
-	 *            the uri.
-	 * @return the absolute URL.
-	 * @throws MalformedURLException
-	 *             if the uri was wrong.
-	 */
-	@Override
-	public URL getURL(String uri) throws MalformedURLException {
-		if (uri.length() == 0) {
-			throw new MalformedURLException("Empty URI");
-		}
-		URL url;
-		if (uri.indexOf("://") < 0) {
-			url = new URL(getBaseURL(), uri);
-		} else {
-			url = new URL(uri);
-		}
-		return url;
-	}
-
-	/**
 	 * Is the provided URL a safe origin to load certain external resources?
 	 * 
-	 * @param linkedURL
-	 *            the URL of the external resource.
+	 * @param linkedURL the URL of the external resource.
 	 * 
 	 * @return <code>true</code> if is a safe origin, <code>false</code> otherwise.
 	 */
@@ -2176,7 +2294,9 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		if (linkedPort == -1) {
 			linkedPort = linkedURL.getDefaultPort();
 		}
-		return (docHost.equalsIgnoreCase(linkedHost) || linkedHost.endsWith(docHost)) && docPort == linkedPort;
+		return (docHost.equalsIgnoreCase(linkedHost)
+				|| ParseHelper.endsWithIgnoreCase(linkedHost, '.' + docHost))
+				&& docPort == linkedPort;
 	}
 
 	/**
@@ -2231,9 +2351,19 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 	}
 
 	protected void setReferrerPolicyHeader(String policy) {
-		if (metaReferrerPolicy.length() == 0) {
+		if (metaReferrerPolicy.isEmpty()) {
 			metaReferrerPolicy = policy;
 		}
+	}
+
+	/**
+	 * Resets the wrapper.
+	 */
+	private void reset() {
+		linkedStyle.clear();
+		embeddedStyle.clear();
+		errorHandler.reset();
+		mergedStyleSheet = null;
 	}
 
 	class MyOMStyleSheetList extends StyleSheetList {

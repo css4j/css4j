@@ -40,7 +40,7 @@ abstract class DOMAttr extends NamespacedNode implements Attr {
 	}
 
 	@Override
-	void checkAppendNodeHierarchy(Node newChild) {
+	void checkInsertNodeHierarchy(Node newChild, Node refNode) {
 		throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot append to attribute node");
 	}
 

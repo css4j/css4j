@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -104,7 +105,7 @@ public class DOMDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INDEX_SIZE_ERR, e.code);
 		}
-		//
+
 		DOMElement elm = document.createElement("p");
 		c = document.createTextNode("A text node");
 		elm.appendChild(c);
@@ -115,26 +116,26 @@ public class DOMDocumentTest {
 		assertTrue(elm == d.getParentNode());
 		assertEquals(2, elm.getChildNodes().getLength());
 		assertTrue(d == c.getNextSibling());
-		//
+
 		c = document.createTextNode("A text node<");
 		assertEquals("A text node<", c.getData());
 		assertEquals("A text node&lt;", c.toString());
 		c.appendData("foo>");
 		assertEquals("A text node<foo>", c.getData());
 		assertEquals("A text node&lt;foo&gt;", c.toString());
-		//
+
 		c.deleteData(11, 20);
 		assertEquals("A text node", c.getData());
 		assertEquals("A text node", c.toString());
-		//
+
 		c.replaceData(0, 1, "My");
 		assertEquals("My text node", c.getData());
 		assertEquals("My text node", c.toString());
-		//
+
 		c.deleteData(0, 3);
 		assertEquals("text node", c.getData());
 		assertEquals("text node", c.toString());
-		//
+
 		try {
 			document.createTextNode(null);
 			fail("Must throw an exception");
@@ -153,42 +154,42 @@ public class DOMDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INDEX_SIZE_ERR, e.code);
 		}
-		//
+
 		try {
 			c.deleteData(1, -3);
 			fail("Must throw an exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INDEX_SIZE_ERR, e.code);
 		}
-		//
+
 		try {
 			c.deleteData(20, 3);
 			fail("Must throw an exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INDEX_SIZE_ERR, e.code);
 		}
-		//
+
 		c.insertData(0, "The ");
 		assertEquals("The text node", c.getData());
 		assertEquals("The text node", c.toString());
-		//
+
 		c.insertData(13, " is now larger");
 		assertEquals("The text node is now larger", c.getData());
-		//
+
 		c.deleteData(9, 5);
 		assertEquals("The text is now larger", c.getData());
 		c.insertData(9, "node ");
 		assertEquals("The text node is now larger", c.getData());
 		c.deleteData(26, 200);
 		assertEquals("The text node is now large", c.getData());
-		//
+
 		try {
 			c.insertData(-1, "foo");
 			fail("Must throw an exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.INDEX_SIZE_ERR, e.code);
 		}
-		//
+
 		try {
 			c.insertData(30, "foo");
 			fail("Must throw an exception");
@@ -219,7 +220,7 @@ public class DOMDocumentTest {
 		assertEquals(c.getNodeType(), clone.getNodeType());
 		assertEquals(c.getNodeName(), clone.getNodeName());
 		assertEquals(c.getNodeValue(), clone.getNodeValue());
-		//
+
 		try {
 			document.createCDATASection(null);
 			fail("Must throw an exception");
@@ -238,7 +239,7 @@ public class DOMDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
 		}
-		//
+
 		try {
 			c.substringData(-1, 4);
 			fail("Must throw exception");
@@ -315,7 +316,7 @@ public class DOMDocumentTest {
 		assertFalse(element.getAttributeNode("foo").isId());
 		document.appendChild(element);
 		assertTrue(element == document.getDocumentElement());
-		//
+
 		assertEquals("<element Id=\"myId\" foo=\"bar\"/>", element.toString());
 	}
 
@@ -471,7 +472,7 @@ public class DOMDocumentTest {
 		assertNotNull(comment);
 		assertEquals("My comment", comment.getData());
 		assertEquals("<!--My comment-->", comment.toString());
-		//
+
 		comment = document.createComment("<--");
 		assertNotNull(comment);
 		assertEquals("<--", comment.getData());
@@ -516,16 +517,16 @@ public class DOMDocumentTest {
 		span.appendChild(document.createTextNode("foo"));
 		p.appendChild(span);
 		df.isEqualNode(df.cloneNode(true));
-		//
+
 		assertEquals(
 				"<!--My comment--><div/><!-- another comment --><p lang=\"en\" class=\"para\"><span>foo</span></p>",
 				df.toString());
-		//
+
 		ElementList elist = ((ParentNode) df).getElementsByTagName("span");
 		assertNotNull(elist);
 		assertEquals(1, elist.getLength());
 		assertEquals("span", elist.item(0).getTagName());
-		//
+
 		elist = ((ParentNode) df).getElementsByClassName("para");
 		assertNotNull(elist);
 		assertEquals(1, elist.getLength());
@@ -548,7 +549,7 @@ public class DOMDocumentTest {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
 		DOMElement docElm = document.createElementNS("http://www.example.com/examplens", "doc");
 		document.appendChild(docElm);
-		Attr attr = document.createAttribute("lang");
+		final Attr attr = document.createAttribute("lang");
 		assertNotNull(attr);
 		attr.setValue("en");
 		assertNull(attr.getAttributes());
@@ -565,8 +566,15 @@ public class DOMDocumentTest {
 		assertEquals("lang", attr.getNodeName());
 		assertEquals("en", attr.getNodeValue());
 		assertEquals("lang=\"en\"", attr.toString());
+
+		DOMException ex = assertThrows(DOMException.class, () -> document.appendChild(attr));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
+		ex = assertThrows(DOMException.class, () -> document.replaceChild(attr, docElm));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
 		docElm.setAttributeNodeNS(attr);
-		//
+
 		try {
 			document.createAttribute(null);
 			fail("Must throw an exception");
@@ -585,6 +593,7 @@ public class DOMDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
+
 		Attr attr2 = document.createAttribute("foo");
 		attr2.setValue("bar");
 		try {
@@ -605,6 +614,7 @@ public class DOMDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
 		}
+
 		docElm.setAttributeNodeNS(attr2);
 		Attr attr3 = document.createAttribute("id");
 		attr3.setValue("myId");
@@ -616,10 +626,10 @@ public class DOMDocumentTest {
 		assertTrue(attr2 == attr3.getPreviousSibling());
 		assertNull(attr3.getNextSibling());
 		assertNull(attr3.getParentNode());
-		//
-		attr = document.createAttribute("foo");
-		attr.setValue("foo\u00a0bar&\"");
-		assertEquals("foo=\"foo&nbsp;bar&amp;&quot;\"", attr.toString());
+
+		Attr fattr = document.createAttribute("foo");
+		fattr.setValue("foo\u00a0bar&\"");
+		assertEquals("foo=\"foo&nbsp;bar&amp;&quot;\"", fattr.toString());
 	}
 
 	@Test
@@ -824,7 +834,7 @@ public class DOMDocumentTest {
 		assertNull(pi.getPreviousSibling());
 		assertNull(pi.getFirstChild());
 		assertNull(pi.getLastChild());
-		//
+
 		try {
 			pi.setData("?>");
 			fail("Must throw exception");
@@ -886,7 +896,7 @@ public class DOMDocumentTest {
 		assertEquals("type=\"text/css\" href=\"http://www.example.com/css/common.css\"", pi.getData());
 		assertFalse(document.getErrorHandler().hasErrors());
 		assertFalse(document.getErrorHandler().hasPolicyErrors());
-		//
+
 		pi.setData("type=\"text/css\" href=\"file:/dev/zero\"");
 		sheet = ((LinkStyle<?>) pi).getSheet();
 		assertNotNull(sheet);
@@ -896,7 +906,7 @@ public class DOMDocumentTest {
 		assertEquals("type=\"text/css\" href=\"file:/dev/zero\"", pi.getData());
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasPolicyErrors());
-		//
+
 		document.getErrorHandler().reset();
 		pi.setData("type=\"text/css\" href=\"jar:http://www.example.com/evil.jar!/file\"");
 		sheet = ((LinkStyle<?>) pi).getSheet();
@@ -907,7 +917,7 @@ public class DOMDocumentTest {
 		assertEquals("type=\"text/css\" href=\"jar:http://www.example.com/evil.jar!/file\"", pi.getData());
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasPolicyErrors());
-		//
+
 		document.getErrorHandler().reset();
 		DOMElement root = document.createElement("html");
 		document.appendChild(root);
@@ -919,7 +929,7 @@ public class DOMDocumentTest {
 		assertTrue(sheet.getOwnerNode() == pi);
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasPolicyErrors());
-		//
+
 		StyleSheetList list = document.getStyleSheets();
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
@@ -940,19 +950,19 @@ public class DOMDocumentTest {
 		ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet",
 				"type=\"text/css\" href=\"#styleBadFont\"");
 		document.insertBefore(pi, element);
-		//
+
 		CSSStyleSheet<?> sheet = ((LinkStyle<?>) pi).getSheet();
 		StyleSheetList list = document.getStyleSheets();
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
 		AbstractCSSStyleSheet item = list.item(0);
 		assertSame(sheet, item);
-		//
+
 		ErrorHandler errHandler = document.getErrorHandler();
 		assertNotNull(errHandler);
 		assertFalse(errHandler.hasErrors());
 		element.getComputedStyle(null);
-		//
+
 		assertTrue(errHandler.hasIOErrors());
 		assertTrue(errHandler.hasErrors());
 	}
@@ -974,21 +984,21 @@ public class DOMDocumentTest {
 		AbstractCSSStyleSheet sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		style.setAttribute("type", "");
 		sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		style.removeAttributeNode(style.getAttributeNode("type"));
 		sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		style.setAttribute("type", "text/xsl");
 		sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
 		assertNull(sheet);
-		//
+
 		style.removeAttribute("type");
 		sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
 		assertNotNull(sheet);
@@ -996,7 +1006,7 @@ public class DOMDocumentTest {
 		style.setTextContent("body {color: blue;}");
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals("<style>body {color: blue;}</style>", style.toString());
-		//
+
 		style.setTextContent("foo:");
 		assertEquals("<style>foo:</style>", style.toString());
 		sheet = ((DOMDocument.LinkStyleDefiner) style).getSheet();
@@ -1031,14 +1041,14 @@ public class DOMDocumentTest {
 		assertSame(elem3, list.item(2));
 		assertSame(elem4, list.item(3));
 		assertNull(list.item(4));
-		//
+
 		assertFalse(list.isEmpty());
 		assertTrue(list.contains(elem1));
 		assertTrue(list.contains(elem2));
 		assertTrue(list.contains(elem3));
 		assertTrue(list.contains(elem4));
 		assertFalse(list.contains(docElm));
-		//
+
 		Iterator<DOMElement> it = list.iterator();
 		assertTrue(it.hasNext());
 		assertFalse(list.isEmpty());
@@ -1052,17 +1062,17 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = elem4.getElementsByTagName("div");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
-		//
+
 		assertTrue(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem4));
-		//
+
 		it = list.iterator();
 		assertFalse(it.hasNext());
 		try {
@@ -1097,7 +1107,7 @@ public class DOMDocumentTest {
 		assertSame(elem3, list.item(2));
 		assertSame(elem4, list.item(3));
 		assertNull(list.item(4));
-		//
+
 		Iterator<DOMElement> it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem1, it.next());
@@ -1137,7 +1147,7 @@ public class DOMDocumentTest {
 		assertSame(elem3, list.item(2));
 		assertSame(elem4, list.item(3));
 		assertNull(list.item(4));
-		//
+
 		Iterator<DOMElement> it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem1, it.next());
@@ -1168,14 +1178,14 @@ public class DOMDocumentTest {
 		DOMElement elem4 = document.createElementNS("http://www.example.com/differentns", "div");
 		elem4.setAttribute("id", "div4");
 		docElm.appendChild(elem4);
-		//
+
 		ElementList list = document.getElementsByTagNameNS("http://www.example.com/examplens", "div");
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
 		assertNull(list.item(-1));
 		assertSame(elem3, list.item(0));
 		assertNull(list.item(1));
-		//
+
 		Iterator<DOMElement> it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem3, it.next());
@@ -1184,7 +1194,7 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = document.getElementsByTagNameNS("http://www.example.com/differentns", "div");
 		assertNotNull(list);
 		assertEquals(3, list.getLength());
@@ -1193,7 +1203,7 @@ public class DOMDocumentTest {
 		assertSame(elem2, list.item(1));
 		assertSame(elem4, list.item(2));
 		assertNull(list.item(3));
-		//
+
 		it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem1, it.next());
@@ -1205,14 +1215,14 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = elem1.getElementsByTagNameNS("http://www.example.com/differentns", "div");
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
 		assertNull(list.item(-1));
 		assertSame(elem2, list.item(0));
 		assertNull(list.item(1));
-		//
+
 		it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem2, it.next());
@@ -1222,14 +1232,14 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = elem1.getElementsByTagNameNS("http://www.example.com/examplens", "div");
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
 		assertNull(list.item(-1));
 		assertSame(elem3, list.item(0));
 		assertNull(list.item(1));
-		//
+
 		it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem3, it.next());
@@ -1239,13 +1249,13 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = elem3.getElementsByTagNameNS("http://www.example.com/examplens", "div");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
-		//
+
 		it = list.iterator();
 		assertFalse(it.hasNext());
 		try {
@@ -1271,7 +1281,7 @@ public class DOMDocumentTest {
 		DOMElement elem4 = document.createElementNS("http://www.example.com/differentns", "div");
 		elem4.setAttribute("id", "div4");
 		docElm.appendChild(elem4);
-		//
+
 		ElementList list = document.getElementsByTagNameNS("*", "div");
 		assertNotNull(list);
 		assertEquals(4, list.getLength());
@@ -1281,7 +1291,7 @@ public class DOMDocumentTest {
 		assertSame(elem3, list.item(2));
 		assertSame(elem4, list.item(3));
 		assertNull(list.item(4));
-		//
+
 		Iterator<DOMElement> it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem1, it.next());
@@ -1294,7 +1304,7 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = elem1.getElementsByTagNameNS("*", "div");
 		assertNotNull(list);
 		assertEquals(2, list.getLength());
@@ -1303,7 +1313,7 @@ public class DOMDocumentTest {
 		assertSame(elem3, list.item(1));
 		assertNull(list.item(2));
 		assertEquals(elem2.getStartTag() + ',' + elem3.getStartTag(), list.toString());
-		//
+
 		it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem2, it.next());
@@ -1314,7 +1324,7 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = elem2.getElementsByTagNameNS("*", "div");
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
@@ -1322,7 +1332,7 @@ public class DOMDocumentTest {
 		assertSame(elem3, list.item(0));
 		assertNull(list.item(1));
 		assertEquals(elem3.getStartTag(), list.toString());
-		//
+
 		it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem3, it.next());
@@ -1332,14 +1342,14 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = elem3.getElementsByTagNameNS("*", "div");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
 		assertEquals("", list.toString());
-		//
+
 		it = list.iterator();
 		assertFalse(it.hasNext());
 		try {
@@ -1374,14 +1384,14 @@ public class DOMDocumentTest {
 		assertSame(elem3, list.item(2));
 		assertSame(elem4, list.item(3));
 		assertNull(list.item(4));
-		//
+
 		assertFalse(list.isEmpty());
 		assertTrue(list.contains(elem1));
 		assertTrue(list.contains(elem2));
 		assertTrue(list.contains(elem3));
 		assertTrue(list.contains(elem4));
 		assertFalse(list.contains(docElm));
-		//
+
 		Iterator<DOMElement> it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem1, it.next());
@@ -1394,7 +1404,7 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = document.getElementsByClassName("bar");
 		assertNotNull(list);
 		assertEquals(2, list.getLength());
@@ -1402,13 +1412,13 @@ public class DOMDocumentTest {
 		assertSame(elem1, list.item(0));
 		assertSame(elem4, list.item(1));
 		assertNull(list.item(2));
-		//
+
 		assertTrue(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
 		assertTrue(list.contains(elem4));
 		assertFalse(list.contains(docElm));
-		//
+
 		it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem1, it.next());
@@ -1419,7 +1429,7 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = document.getElementsByClassName("foo bar");
 		assertNotNull(list);
 		assertEquals(2, list.getLength());
@@ -1427,13 +1437,13 @@ public class DOMDocumentTest {
 		assertSame(elem1, list.item(0));
 		assertSame(elem4, list.item(1));
 		assertNull(list.item(2));
-		//
+
 		assertTrue(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
 		assertTrue(list.contains(elem4));
 		assertFalse(list.contains(docElm));
-		//
+
 		it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem1, it.next());
@@ -1444,7 +1454,7 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = document.getElementsByClassName("bar foo");
 		assertNotNull(list);
 		assertEquals(2, list.getLength());
@@ -1452,13 +1462,13 @@ public class DOMDocumentTest {
 		assertSame(elem1, list.item(0));
 		assertSame(elem4, list.item(1));
 		assertNull(list.item(2));
-		//
+
 		assertTrue(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
 		assertTrue(list.contains(elem4));
 		assertFalse(list.contains(docElm));
-		//
+
 		it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem1, it.next());
@@ -1469,20 +1479,20 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = document.getElementsByClassName("otherclass");
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
 		assertNull(list.item(-1));
 		assertSame(elem4, list.item(0));
 		assertNull(list.item(1));
-		//
+
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
 		assertTrue(list.contains(elem4));
 		assertFalse(list.contains(docElm));
-		//
+
 		it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem4, it.next());
@@ -1492,20 +1502,20 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = document.getElementsByClassName("noclass");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
-		//
+
 		assertTrue(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
 		assertFalse(list.contains(elem4));
 		assertFalse(list.contains(docElm));
-		//
+
 		it = list.iterator();
 		assertFalse(it.hasNext());
 		try {
@@ -1513,20 +1523,20 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = document.getElementsByClassName("");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
-		//
+
 		assertTrue(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
 		assertFalse(list.contains(elem4));
 		assertFalse(list.contains(docElm));
-		//
+
 		it = list.iterator();
 		assertFalse(it.hasNext());
 		try {
@@ -1534,20 +1544,20 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = elem2.getElementsByClassName("bar");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
-		//
+
 		assertTrue(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
 		assertFalse(list.contains(elem4));
 		assertFalse(list.contains(docElm));
-		//
+
 		it = list.iterator();
 		assertFalse(it.hasNext());
 		try {
@@ -1555,20 +1565,20 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = elem3.getElementsByClassName("foo");
 		assertNotNull(list);
 		assertEquals(0, list.getLength());
 		assertNull(list.item(-1));
 		assertNull(list.item(0));
-		//
+
 		assertTrue(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem3));
 		assertFalse(list.contains(elem4));
 		assertFalse(list.contains(docElm));
-		//
+
 		it = list.iterator();
 		assertFalse(it.hasNext());
 		try {
@@ -1576,21 +1586,21 @@ public class DOMDocumentTest {
 			fail("Must throw exception.");
 		} catch (NoSuchElementException e) {
 		}
-		//
+
 		list = elem2.getElementsByClassName("foo");
 		assertNotNull(list);
 		assertEquals(1, list.getLength());
 		assertNull(list.item(-1));
 		assertSame(elem3, list.item(0));
 		assertNull(list.item(1));
-		//
+
 		assertFalse(list.isEmpty());
 		assertFalse(list.contains(elem1));
 		assertFalse(list.contains(elem2));
 		assertFalse(list.contains(elem4));
 		assertTrue(list.contains(elem3));
 		assertFalse(list.contains(docElm));
-		//
+
 		it = list.iterator();
 		assertTrue(it.hasNext());
 		assertSame(elem3, it.next());
@@ -1619,7 +1629,7 @@ public class DOMDocumentTest {
 		Text text = document.createTextNode("text");
 		body.appendChild(text);
 		docElm.appendChild(body);
-		//
+
 		DOMDocument doc2 = domImpl.createDocument(null, null, null);
 		Node docElm2 = doc2.importNode(docElm, true);
 		assertFalse(docElm == docElm2);
@@ -1641,6 +1651,7 @@ public class DOMDocumentTest {
 		assertTrue(idAttr2.isId());
 		assertEquals(2, body2.getAttributes().getLength());
 		assertEquals(1, body2.getChildNodes().getLength());
+
 		// DocumentFragment
 		DocumentFragment df = document.createDocumentFragment();
 		DOMElement div = document.createElement("div");
@@ -1687,7 +1698,7 @@ public class DOMDocumentTest {
 		Text text = document.createTextNode("text");
 		body.appendChild(text);
 		docElm.appendChild(body);
-		//
+
 		DOMDocument doc2 = domImpl.createDocument(null, null, null);
 		Node docElm2 = doc2.importNode(docElm, true);
 		assertFalse(docElm == docElm2);
@@ -1709,6 +1720,7 @@ public class DOMDocumentTest {
 		assertTrue(idAttr2.isId());
 		assertEquals(2, body2.getAttributes().getLength());
 		assertEquals(1, body2.getChildNodes().getLength());
+
 		// DocumentFragment
 		DocumentFragment df = document.createDocumentFragment();
 		Element div = document.createElement("div");
@@ -1738,29 +1750,31 @@ public class DOMDocumentTest {
 	@Test
 	public void testAppendPrependChild() {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
+
 		// Replace document element
 		DOMElement docelm = document.createElementNS(null, "doc");
 		DOMElement element = document.createElementNS(null, "element");
 		document.appendChild(docelm);
-		assertTrue(document == docelm.getParentNode());
-		try {
-			document.appendChild(element);
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
-		}
+		assertSame(document, docelm.getParentNode());
+
+		DOMException ex = assertThrows(DOMException.class, () -> document.appendChild(element));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
 		assertNull(element.getParentNode());
-		assertTrue(document == docelm.getParentNode());
-		assertTrue(docelm == document.getDocumentElement());
-		try {
-			document.prependChild(element);
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
-		}
+		assertSame(document, docelm.getParentNode());
+		assertSame(docelm, document.getDocumentElement());
+
+		ex = assertThrows(DOMException.class, () -> document.prependChild(element));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
 		assertNull(element.getParentNode());
-		assertTrue(document == docelm.getParentNode());
-		assertTrue(docelm == document.getDocumentElement());
+		assertSame(document, docelm.getParentNode());
+		assertSame(docelm, document.getDocumentElement());
+
+		ex = assertThrows(DOMException.class, () -> document.insertBefore(element, docelm));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+		assertNull(element.getParentNode());
+		assertSame(document, docelm.getParentNode());
+		assertSame(docelm, document.getDocumentElement());
+
 		// Document type
 		DocumentType dtd = domImpl.createDocumentType("doc", null, null);
 		document.prependChild(dtd);
@@ -1771,18 +1785,22 @@ public class DOMDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
-		assertTrue(dtd == document.getDoctype());
-		assertTrue(document == dtd.getParentNode());
+		assertSame(dtd, document.getDoctype());
+		assertSame(document, dtd.getParentNode());
 		assertNull(dtd2.getParentNode());
+
 		try {
 			document.prependChild(dtd2);
 			fail("Must throw exception");
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
-		assertTrue(dtd == document.getDoctype());
-		assertTrue(document == dtd.getParentNode());
+		assertSame(dtd, document.getDoctype());
+		assertSame(document, dtd.getParentNode());
 		assertNull(dtd2.getParentNode());
+
+		ex = assertThrows(DOMException.class, () -> document.insertBefore(dtd2, docelm));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
 	}
 
 	@Test
@@ -1799,11 +1817,13 @@ public class DOMDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
 		}
+
 		document.insertBefore(docelm, comment);
 		assertTrue(docelm == document.getDocumentElement());
 		assertTrue(document == docelm.getParentNode());
 		assertTrue(comment == docelm.getNextSibling());
 		assertNull(docelm.getPreviousSibling());
+
 		try {
 			document.insertBefore(element, docelm);
 			fail("Must throw exception");
@@ -1811,6 +1831,7 @@ public class DOMDocumentTest {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
 		assertNull(element.getNextSibling());
+
 		// Document types
 		DocumentType dtd = domImpl.createDocumentType("doc", null, null);
 		DocumentType dtd2 = domImpl.createDocumentType("element", null, null);
@@ -1820,12 +1841,14 @@ public class DOMDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
 		}
+
 		document.insertBefore(dtd, docelm);
-		assertTrue(dtd == document.getDoctype());
-		assertTrue(document == dtd.getParentNode());
-		assertTrue(docelm == dtd.getNextSibling());
+		assertSame(dtd, document.getDoctype());
+		assertSame(document, dtd.getParentNode());
+		assertSame(docelm, dtd.getNextSibling());
 		assertNull(dtd.getPreviousSibling());
-		assertTrue(dtd == docelm.getPreviousSibling());
+		assertSame(dtd, docelm.getPreviousSibling());
+
 		try {
 			document.insertBefore(dtd2, dtd);
 			fail("Must throw exception");
@@ -1844,7 +1867,7 @@ public class DOMDocumentTest {
 		} catch (DOMException e) {
 			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
 		}
-		//
+
 		Comment comment1 = document.createComment(" First comment ");
 		document.insertBefore(comment1, dtd);
 		assertTrue(comment1 == dtd.getPreviousSibling());
@@ -1852,7 +1875,7 @@ public class DOMDocumentTest {
 		assertNull(comment1.getPreviousSibling());
 		assertTrue(dtd == comment1.getNextSibling());
 		assertTrue(document == comment1.getParentNode());
-		//
+
 		DOMElement bar = document.createElementNS(null, "bar");
 		docelm.appendChild(bar);
 		DOMElement foo = document.createElementNS(null, "foo");
@@ -1864,54 +1887,80 @@ public class DOMDocumentTest {
 	@Test
 	public void testReplaceChild() {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
+
 		// Replace document element
 		DOMElement docelm = document.createElementNS(null, "doc");
 		DOMElement element = document.createElementNS(null, "element");
-		try {
-			document.replaceChild(element, docelm);
-		} catch (DOMException e) {
-			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
-		}
+		DOMException ex = assertThrows(DOMException.class, () -> document.replaceChild(element, docelm));
+		assertEquals(DOMException.NOT_FOUND_ERR, ex.code);
+
 		document.appendChild(docelm);
-		assertTrue(docelm == document.getDocumentElement());
+		assertSame(docelm, document.getDocumentElement());
+
 		document.replaceChild(element, docelm);
-		assertTrue(element == document.getDocumentElement());
+		assertSame(element, document.getDocumentElement());
 		assertNull(docelm.getParentNode());
-		assertTrue(document == element.getParentNode());
+		assertSame(document, element.getParentNode());
+
 		document.replaceChild(docelm, element);
 		assertNull(element.getParentNode());
-		assertTrue(document == docelm.getParentNode());
-		assertTrue(docelm == document.getDocumentElement());
+		assertSame(document, docelm.getParentNode());
+		assertSame(docelm, document.getDocumentElement());
+
 		// Document types
 		DocumentType dtd = domImpl.createDocumentType("doc", null, null);
 		DocumentType dtd2 = domImpl.createDocumentType("element", null, null);
-		try {
-			document.replaceChild(dtd2, dtd);
-		} catch (DOMException e) {
-			assertEquals(DOMException.NOT_FOUND_ERR, e.code);
-		}
-		document.appendChild(dtd);
-		assertTrue(dtd == document.getDoctype());
-		document.replaceChild(dtd2, dtd);
-		assertTrue(dtd2 == document.getDoctype());
-		assertTrue(document == dtd2.getParentNode());
+
+		ex = assertThrows(DOMException.class, () -> document.replaceChild(dtd2, dtd));
+		assertEquals(DOMException.NOT_FOUND_ERR, ex.code);
+
+		ex = assertThrows(DOMException.class, () -> document.appendChild(dtd));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
+		assertNull(document.getDoctype());
+
+		document.replaceChild(dtd, docelm);
+		assertNull(docelm.getParentNode());
+
+		document.replaceChild(docelm, dtd);
 		assertNull(dtd.getParentNode());
+
+		Text text = document.createTextNode(" ");
+		document.appendChild(text);
+
+		ex = assertThrows(DOMException.class, () -> document.replaceChild(dtd, text));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
+		// Prepend the DTD
+		document.prependChild(dtd);
+
+		ex = assertThrows(DOMException.class, () -> document.replaceChild(element, text));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
+		ex = assertThrows(DOMException.class, () -> document.replaceChild(dtd2, text));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
+		document.replaceChild(dtd2, dtd);
+
+		assertSame(dtd2, document.getDoctype());
+		assertSame(document, dtd2.getParentNode());
+		assertNull(dtd.getParentNode());
+
 		document.replaceChild(dtd, dtd2);
-		assertTrue(dtd == document.getDoctype());
-		assertTrue(document == dtd.getParentNode());
+		assertSame(dtd, document.getDoctype());
+		assertSame(document, dtd.getParentNode());
 		assertNull(dtd2.getParentNode());
+
 		// Try to replace a different node type to add more than one DTD or document
 		// element
-		try {
-			document.replaceChild(element, dtd);
-		} catch (DOMException e) {
-			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
-		}
-		try {
-			document.replaceChild(dtd2, docelm);
-		} catch (DOMException e) {
-			assertEquals(DOMException.HIERARCHY_REQUEST_ERR, e.code);
-		}
+		/*
+		 * Somehow the code coverage of these is not counted.
+		 */
+		ex = assertThrows(DOMException.class, () -> document.replaceChild(element, dtd));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
+		ex = assertThrows(DOMException.class, () -> document.replaceChild(dtd2, docelm));
+		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
 	}
 
 	@Test
@@ -1971,23 +2020,37 @@ public class DOMDocumentTest {
 		assertNull(document.getBaseURI());
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasPolicyErrors());
-		//
+
 		document.getErrorHandler().reset();
 		document.setDocumentURI("http://www.example.com/foo.html");
 		assertEquals("http://www.example.com/foo.html", document.getBaseURI());
 		assertEquals("jar:http://www.example.com/evil.jar!/file", attr.getValue());
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasPolicyErrors());
-		//
+
 		document.getErrorHandler().reset();
 		attr.setValue("file:/dev/zero");
 		assertEquals("http://www.example.com/foo.html", document.getBaseURI());
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasPolicyErrors());
+		document.getErrorHandler().reset();
 
 		// Remove attribute
 		element.removeAttributeNode(attr);
 		assertEquals("http://www.example.com/foo.html", document.getBaseURI());
+
+		// Wrong attribute
+		element.setAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:base", "http:\\www.example.com/");
+		assertEquals("http://www.example.com/foo.html", document.getBaseURI());
+		assertTrue(document.getErrorHandler().hasErrors());
+		assertTrue(document.getErrorHandler().hasNodeErrors());
+		document.getErrorHandler().reset();
+
+		// And wrong document URI
+		document.setDocumentURI("http:\\www.example.com/foo.html");
+		assertNull(document.getBaseURI());
+		assertTrue(document.getErrorHandler().hasErrors());
+		assertTrue(document.getErrorHandler().hasNodeErrors());
 	}
 
 	@Test
@@ -1999,7 +2062,7 @@ public class DOMDocumentTest {
 		assertNull(docelm.lookupNamespaceURI("z"));
 		assertEquals("http://www.example.com/examplens", document.lookupNamespaceURI("x"));
 		assertNull(document.lookupNamespaceURI("z"));
-		//
+
 		document = domImpl.createDocument("", null, null);
 		assertNull(document.lookupNamespaceURI("x"));
 	}

@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -246,19 +247,61 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 	 *
 	 * @return the base URL, or null if no base URL could be determined.
 	 */
-	URL getBaseURL();
+	default URL getBaseURL() {
+		URL baseURL = null;
+		String buri = getBaseURI();
+		if (buri != null) {
+			try {
+				URI uri = new URI(buri);
+				baseURL = uri.toURL();
+			} catch (Exception e) {
+				getErrorHandler().nodeError(this, "Cannot convert URI to absolute: " + buri, e);
+			}
+		}
+		return baseURL;
+	}
 
 	/**
 	 * Gets an URL for the given URI, taking into account the Base URL if
 	 * appropriate.
 	 *
-	 * @param uri
-	 *            the uri.
+	 * @param uri the uri.
 	 * @return the absolute URL.
-	 * @throws MalformedURLException
-	 *             if the uri was wrong.
+	 * @throws MalformedURLException if the uri cannot be converted to URL.
 	 */
-	URL getURL(String uri) throws MalformedURLException;
+	default URL getURL(String uri) throws MalformedURLException {
+		if (uri == null || uri.isEmpty()) {
+			/*
+			 * URISyntaxException would fit more, but for backwards compatibility
+			 * MalformedURLException is used.
+			 */
+			throw new MalformedURLException("Empty URI");
+		}
+
+		URI u;
+		try {
+			u = new URI(uri);
+			if (!u.isAbsolute()) {
+				URL url = getBaseURL();
+				if (url != null) {
+					URI bu = url.toURI();
+					u = bu.resolve(u);
+				} else {
+					throw new MalformedURLException("Cannot convert URI " + uri + " to absolute.");
+				}
+			}
+		} catch (Exception e) {
+			throw new MalformedURLException(e.getMessage());
+		}
+
+		URL url;
+		try {
+			url = u.toURL();
+		} catch (Exception e) {
+			throw new MalformedURLException("Cannot convert URI " + uri + " to absolute.");
+		}
+		return url;
+	}
 
 	/**
 	 * Opens a connection for the given URL.

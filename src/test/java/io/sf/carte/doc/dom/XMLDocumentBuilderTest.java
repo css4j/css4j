@@ -25,7 +25,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
@@ -897,7 +899,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("svg", docElement.getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, docElement.getNamespaceURI());
 		assertNull(docElement.getPrefix());
-		assertTrue(docElement.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
+		assertTrue(docElement.hasAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns"));
 		//
 		DOMElement element = docElement.getFirstElementChild();
 		assertNotNull(element);
@@ -906,7 +908,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("rect", element.getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, element.getNamespaceURI());
 		assertNull(element.getPrefix());
-		assertFalse(element.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
+		assertFalse(element.hasAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns"));
 		// Convention: unprefixed attributes have an empty namespace, related to the owner element
 		Attr nsattr = element.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "x");
 		assertNull(nsattr);
@@ -918,7 +920,7 @@ public class XMLDocumentBuilderTest {
 		Attr attr = element.getAttributeNode("x");
 		assertSame(nsattr, attr);
 		//
-		assertNull(element.getAttributeNodeNS("http://www.w3.org/1999/xhtml", "x"));
+		assertNull(element.getAttributeNodeNS(HTMLDocument.HTML_NAMESPACE_URI, "x"));
 	}
 
 	@Test
@@ -933,7 +935,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("svg", docElement.getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, docElement.getNamespaceURI());
 		assertNull(docElement.getPrefix());
-		assertFalse(docElement.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
+		assertFalse(docElement.hasAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns"));
 		//
 		DOMElement element = docElement.getFirstElementChild();
 		assertNotNull(element);
@@ -942,7 +944,7 @@ public class XMLDocumentBuilderTest {
 		assertEquals("rect", element.getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, element.getNamespaceURI());
 		assertNull(element.getPrefix());
-		assertFalse(element.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
+		assertFalse(element.hasAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns"));
 		// Convention: unprefixed attributes have an empty namespace, related to the owner element
 		Attr nsattr = element.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "x");
 		assertNull(nsattr);
@@ -965,8 +967,16 @@ public class XMLDocumentBuilderTest {
 		InputSource is = new InputSource(re);
 		DOMDocument document = (DOMDocument) builder.parse(is);
 		re.close();
-		URL base = new URL("http://www.example.com/xml/");
-		document.setDocumentURI(new URL(base, filename).toExternalForm());
+
+		URI base;
+		URI uri;
+		try {
+			base = new URI("http://www.example.com/xml/");
+			uri = new URI(filename);
+		} catch (URISyntaxException e) {
+			throw new MalformedURLException(e.getMessage());
+		}
+		document.setDocumentURI(base.resolve(uri).toASCIIString());
 		return document;
 	}
 

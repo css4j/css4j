@@ -30,8 +30,8 @@ abstract public class HTMLElement extends DOMElement implements org.w3c.dom.html
 	}
 
 	@Override
-	void checkAppendNodeHierarchy(Node newChild) {
-		super.checkAppendNodeHierarchy(newChild);
+	void checkInsertNodeHierarchy(Node newChild, Node refNode) {
+		super.checkInsertNodeHierarchy(newChild, refNode);
 		if (isNonHTMLOrVoid()) {
 			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "This element is void");
 		}

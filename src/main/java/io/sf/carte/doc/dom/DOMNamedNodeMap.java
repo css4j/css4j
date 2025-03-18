@@ -49,11 +49,11 @@ abstract class DOMNamedNodeMap<T extends AbstractDOMNode> implements NamedNodeMa
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		void preAddChild(Node node) {
+		void preInsertChild(Node node, Node refNode) {
 		}
 
 		@Override
-		void postAddChild(AbstractDOMNode node) {
+		void postInsertChild(AbstractDOMNode node) {
 		}
 
 		@Override

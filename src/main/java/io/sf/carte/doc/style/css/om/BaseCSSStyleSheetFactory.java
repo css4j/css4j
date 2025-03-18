@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -210,7 +213,16 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 		if (re != null) {
 			loadUserStyleSheet(url, re);
 		} else if (url != null) {
-			URL href = new URL(url);
+			URI uri;
+			try {
+				uri = new URI(url);
+			} catch (URISyntaxException e) {
+				throw new MalformedURLException(e.getMessage());
+			}
+			if (!uri.isAbsolute()) {
+				throw new MalformedURLException("Cannot convert relative URI " + uri);
+			}
+			URL href = uri.toURL();
 			URLConnection uconn = href.openConnection();
 			String conType = uconn.getContentType();
 			String contentEncoding = uconn.getContentEncoding();

@@ -12,7 +12,6 @@
 package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -107,18 +106,14 @@ public class URIValueWrapper extends URIValue implements WrappedValue {
 
 	private String getStringValue(String relValue, String contextHref) {
 		if (relValue != null) {
-			if (!relValue.contains("://") && contextHref != null) {
-				try {
-					URL base = new URL(contextHref);
-					URL url = new URL(base, relValue);
-					relValue = url.toExternalForm();
-				} catch (MalformedURLException e) {
-				}
-			}
 			try {
 				URI uri = new URI(relValue);
-				relValue = uri.normalize().toString();
-			} catch (URISyntaxException e) {
+				if (!uri.isAbsolute() && contextHref != null) {
+					URI base = new URI(contextHref);
+					uri = base.resolve(uri);
+				}
+				relValue = uri.normalize().toASCIIString();
+			} catch (Exception e) {
 			}
 		}
 		return relValue;
@@ -139,17 +134,18 @@ public class URIValueWrapper extends URIValue implements WrappedValue {
 		URL url = null;
 		String sv = super.getStringValue();
 		if (sv != null) {
-			if (parentSheetHref != null) {
-				try {
-					URL base = new URL(parentSheetHref);
-					url = new URL(base, sv);
-					return url;
-				} catch (MalformedURLException e) {
-				}
-			}
 			try {
-				url = new URL(sv);
-			} catch (MalformedURLException e) {
+				URI uri = new URI(sv);
+				if (!uri.isAbsolute()) {
+					if (parentSheetHref != null) {
+						URI base = new URI(parentSheetHref);
+						uri = base.resolve(uri);
+					} else {
+						return null;
+					}
+				}
+				url = uri.toURL();
+			} catch (Exception e) {
 			}
 		}
 		return url;

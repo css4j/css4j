@@ -12,7 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
@@ -28,9 +28,9 @@ import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
-import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.CSSValueList;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.DeclarationFormattingContext;
 import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
@@ -761,21 +761,21 @@ abstract class ShorthandBuilder {
 	static String relativeURI(String baseuri, URL url) {
 		String uri;
 		try {
-			URL base = new URL(baseuri);
+			URI base = new URI(baseuri);
 			if (sameTree(base, url)) {
 				try {
-					return base.toURI().relativize(url.toURI()).toString();
-				} catch (URISyntaxException e) {
+					return base.relativize(url.toURI()).toString();
+				} catch (Exception e) {
 				}
 			}
-		} catch (MalformedURLException e) {
+		} catch (URISyntaxException e) {
 		}
 		uri = url.toExternalForm();
 		return uri;
 	}
 
-	static boolean sameTree(URL base, URL url) {
-		if (base.getProtocol().equals(url.getProtocol())) {
+	static boolean sameTree(URI base, URL url) {
+		if (url.getProtocol().equals(base.getScheme())) {
 			String bhost = base.getHost();
 			String uhost = url.getHost();
 			if (bhost != null) {
@@ -783,7 +783,8 @@ abstract class ShorthandBuilder {
 					int bport = base.getPort();
 					int uport = url.getPort();
 					if (bport == -1) {
-						bport = base.getDefaultPort();
+						// Same scheme, so same default port for both
+						bport = url.getDefaultPort();
 					}
 					if (uport == -1) {
 						uport = url.getDefaultPort();

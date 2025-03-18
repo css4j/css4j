@@ -14,6 +14,8 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -311,30 +313,26 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 	}
 
 	private String getOrigin(String referrer) {
-		URL url;
 		try {
-			url = new URL(referrer);
-			if (!isLocalScheme(url.getProtocol())) {
-				URL refUrl = new URL(url.getProtocol(), url.getHost(), urlPort(url), "/");
-				return refUrl.toExternalForm();
+			URI uri = new URI(referrer);
+			if (!isLocalScheme(uri.getScheme())) {
+				return referrerURL(uri.toURL(), "/");
 			}
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
 		}
 		return null;
 	}
 
 	private String getSameOrigin(String referrer, URL destinationUrl) {
-		URL url;
 		try {
-			url = new URL(referrer);
-			if (!isLocalScheme(url.getProtocol())) {
+			URI uri = new URI(referrer);
+			if (!isLocalScheme(uri.getScheme())) {
 				String desthost = destinationUrl.getHost();
-				if (desthost != null && desthost.equalsIgnoreCase(url.getHost())) {
-					URL refUrl = new URL(url.getProtocol(), url.getHost(), urlPort(url), url.getFile());
-					return refUrl.toExternalForm();
+				if (desthost != null && desthost.equalsIgnoreCase(uri.getHost())) {
+					return referrerURL(uri.toURL(), uri.getRawPath());
 				}
 			}
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
 		}
 		return null;
 	}
@@ -348,44 +346,46 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 	 * @formatter:on
 	 */
 	private String getStrictOrigin(String referrer, URL destinationUrl) {
-		URL url;
 		try {
-			url = new URL(referrer);
-			if (!isLocalScheme(url.getProtocol())) {
+			URI uri = new URI(referrer);
+			if (!isLocalScheme(uri.getScheme())) {
 				String destproto = destinationUrl.getProtocol();
 				String desthost = destinationUrl.getHost();
-				if (!"https".equals(url.getProtocol()) || ("https".equals(destproto) && desthost != null
-						&& desthost.equalsIgnoreCase(url.getHost()))) {
-					URL refUrl = new URL(url.getProtocol(), url.getHost(), urlPort(url), "/");
-					return refUrl.toExternalForm();
+				if (!"https".equals(uri.getScheme()) || ("https".equals(destproto)
+						&& desthost != null && desthost.equalsIgnoreCase(uri.getHost()))) {
+					return referrerURL(uri.toURL(), "/");
 				}
 			}
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
 		}
 		return null;
 	}
 
 	private String getNoReferrerWhenDowngrade(String referrer, URL destinationUrl) {
-		URL url;
 		try {
-			url = new URL(referrer);
-			if (!isLocalScheme(url.getProtocol())) {
+			URI uri = new URI(referrer);
+			if (!isLocalScheme(uri.getScheme())) {
 				String destproto = destinationUrl.getProtocol();
-				if (!"https".equals(url.getProtocol()) || "https".equals(destproto)) {
-					URL refUrl = new URL(url.getProtocol(), url.getHost(), urlPort(url), url.getFile());
-					return refUrl.toExternalForm();
+				if (!"https".equals(uri.getScheme()) || "https".equals(destproto)) {
+					return referrerURL(uri.toURL(), uri.getRawPath());
 				}
 			}
-		} catch (MalformedURLException e) {
+		} catch (Exception e) {
 		}
 		return null;
 	}
 
-	private boolean isLocalScheme(String proto) {
+	private static String referrerURL(URL url, String file)
+			throws MalformedURLException, URISyntaxException {
+		URI uri = new URI(url.getProtocol(), null, url.getHost(), urlPort(url), file, null, null);
+		return uri.toASCIIString();
+	}
+
+	private static boolean isLocalScheme(String proto) {
 		return !"https".equals(proto) && !"http".equals(proto);
 	}
 
-	private int urlPort(URL url) {
+	private static int urlPort(URL url) {
 		int port = url.getPort();
 		if (port == url.getDefaultPort()) {
 			port = -1;

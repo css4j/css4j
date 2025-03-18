@@ -179,10 +179,10 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 		}
 		AbstractDOMNode added = (AbstractDOMNode) newChild;
 		if (added.getNodeType() != Node.DOCUMENT_FRAGMENT_NODE) {
-			preAddChild(added);
+			preInsertChild(added, getFirstChild());
 			AbstractDOMNode refChild = nl.getFirst();
 			nl.insertBefore(added, refChild);
-			postAddChild(added);
+			postInsertChild(added);
 		} else {
 			prependDocumentFragment(added);
 		}
@@ -343,13 +343,13 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 		}
 
 		@Override
-		void preAddChild(Node node) {
-			NDTNode.this.preAddChild(node);
+		void preInsertChild(Node node, Node refNode) {
+			NDTNode.this.preInsertChild(node, refNode);
 		}
 
 		@Override
-		void postAddChild(AbstractDOMNode node) {
-			NDTNode.this.postAddChild(node);
+		void postInsertChild(AbstractDOMNode node) {
+			NDTNode.this.postInsertChild(node);
 		}
 
 		@Override

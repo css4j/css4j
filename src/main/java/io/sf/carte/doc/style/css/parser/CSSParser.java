@@ -18,6 +18,8 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -227,7 +229,12 @@ public class CSSParser implements Parser, Cloneable {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		URL url = new URL(uri);
+		URL url;
+		try {
+			url = new URI(uri).toURL();
+		} catch (Exception e) {
+			throw new MalformedURLException(e.getMessage());
+		}
 		URLConnection ucon = url.openConnection();
 		ucon.setConnectTimeout(15000);
 		ucon.connect();
@@ -367,7 +374,12 @@ public class CSSParser implements Parser, Cloneable {
 			} else {
 				String uri = source.getURI();
 				if (uri != null) {
-					URL url = new URL(uri);
+					URL url;
+					try {
+						url = new URI(uri).toURL();
+					} catch (Exception e) {
+						throw new MalformedURLException(e.getMessage());
+					}
 					URLConnection con = url.openConnection();
 					con.setConnectTimeout(30000);
 					con.connect();

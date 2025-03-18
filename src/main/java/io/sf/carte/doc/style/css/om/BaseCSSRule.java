@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.w3c.dom.DOMException;
@@ -291,33 +293,37 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 	}
 
 	/**
-	 * Gets an URL for the given URI, taking into account the parent CSS Base
-	 * URL if appropriate.
+	 * Gets an URL for the given URI, taking into account the parent CSS Base URL if
+	 * appropriate.
 	 * 
-	 * @param uri
-	 *            the uri.
+	 * @param uri the uri.
 	 * @return the absolute URL.
-	 * @throws MalformedURLException
-	 *             if the uri was wrong.
+	 * @throws MalformedURLException if the URL could not be built.
 	 */
 	protected URL getURL(String uri) throws MalformedURLException {
-		if (uri.length() == 0) {
+		if (uri == null || uri.isEmpty()) {
 			throw new MalformedURLException("Empty URI");
 		}
-		String phref = getParentStyleSheet().getHref();
-		URL url;
-		if (phref != null) {
-			URL pUrl;
-			try {
-				pUrl = new URL(phref);
-			} catch (MalformedURLException e) {
-				return new URL(uri);
-			}
-			url = new URL(pUrl, uri);
-		} else {
-			url = new URL(uri);
+		URI destUri;
+		try {
+			destUri = new URI(uri);
+		} catch (URISyntaxException e) {
+			throw new MalformedURLException(e.getMessage());
 		}
-		return url;
+		String phref = getParentStyleSheet().getHref();
+		if (!destUri.isAbsolute()) {
+			if (phref == null) {
+				throw new MalformedURLException("Cannot convert to absolute URI " + uri);
+			}
+			URI pUri;
+			try {
+				pUri = new URI(phref);
+				destUri = pUri.resolve(destUri);
+			} catch (Exception e) {
+				throw new MalformedURLException(e.getMessage());
+			}
+		}
+		return destUri.toURL();
 	}
 
 	/**

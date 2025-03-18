@@ -244,9 +244,9 @@ abstract class LinkedNodeList implements AbstractDOMNode.RawNodeList, Serializab
 		return buf.toString();
 	}
 
-	abstract void preAddChild(Node node);
+	abstract void preInsertChild(Node node, Node refNode);
 
-	abstract void postAddChild(AbstractDOMNode node);
+	abstract void postInsertChild(AbstractDOMNode node);
 
 	abstract void replaceChild(Node newChild, Node oldChild);
 
@@ -403,14 +403,14 @@ abstract class LinkedNodeList implements AbstractDOMNode.RawNodeList, Serializab
 		@Override
 		public void add(Node node) {
 			AbstractDOMNode newNode = (AbstractDOMNode) node;
-			preAddChild(newNode);
+			preInsertChild(newNode, null);
 			if (currentNode != null) {
 				LinkedNodeList.this.insertBefore(newNode, currentNode);
 			} else {
 				LinkedNodeList.this.add(newNode);
 			}
 			currentIndex++;
-			postAddChild(newNode);
+			postInsertChild(newNode);
 			last = null;
 		}
 

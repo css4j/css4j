@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import static org.junit.Assert.assertSame;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,6 +23,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
@@ -157,12 +160,38 @@ public class StylableDocumentWrapperTest {
 	}
 
 	@Test
-	public void isSafeOrigin() throws MalformedURLException {
-		URL url = new URL("http://www.example.com/bar");
+	public void isSafeOrigin() throws MalformedURLException, URISyntaxException {
+		URL url = new URI("http://www.example.COM/bar").toURL();
 		assertTrue(xhtmlDoc.isSafeOrigin(url));
-		//
-		url = new URL("http://www.foo.com/bar");
+
+		assertTrue(xhtmlDoc
+				.isSafeOrigin(new URI("http://www.example.com:80/other.html").toURL()));
+
+		url = new URI("http://www.foo.com/bar").toURL();
 		assertFalse(xhtmlDoc.isSafeOrigin(url));
+
+		url = new URI("http://www1.example.com/other/").toURL();
+		assertFalse(xhtmlDoc.isSafeOrigin(url));
+
+		url = new URI("http://www.example.com:8000/xhtml/htmlsample.html").toURL();
+		assertFalse(xhtmlDoc.isSafeOrigin(url));
+
+		url = new URI("http://otherwww.example.com/other/").toURL();
+		assertFalse(xhtmlDoc.isSafeOrigin(url));
+
+		url = new URI("http://other.www.example.COM/other/").toURL();
+		assertTrue(xhtmlDoc.isSafeOrigin(url));
+
+		// Set a new document URI
+		xhtmlDoc.setDocumentURI("http://www.example.org:80/html/other.html");
+		// Remove <base> so the new document URI takes effect
+		Node base = xhtmlDoc.getElementsByTagName("base").item(0);
+		assertNotNull(base);
+		Node parent = base.getParentNode();
+		parent.removeChild(base);
+
+		assertTrue(xhtmlDoc
+				.isSafeOrigin(new URI("http://www.example.ORG/foo.html").toURL()));
 	}
 
 	@Test
@@ -170,6 +199,43 @@ public class StylableDocumentWrapperTest {
 		CSSElement root = xhtmlDoc.getDocumentElement();
 		assertNotNull(root);
 		assertEquals("html", root.getTagName());
+
+		CSSElement body = null;
+		NodeList list = root.getChildNodes();
+		int len = list.getLength();
+		for (int i = 0; i < len; i++) {
+			Node node = list.item(i);
+			if ("body".equalsIgnoreCase(node.getNodeName())) {
+				body = (CSSElement) node;
+				break;
+			}
+		}
+		assertNotNull(body);
+
+		CSSElement p = xhtmlDoc.createElement("p");
+		p.setAttribute("id", "p1");
+		p.setIdAttribute("id", true);
+		body.appendChild(p);
+
+		assertSame(p, xhtmlDoc.getElementById("p1"));
+
+		CSSElement div = xhtmlDoc.createElement("div");
+		Attr divid = xhtmlDoc.createAttribute("id");
+		divid.setValue("newdiv1");
+		div.setAttributeNode(divid);
+		div.setIdAttributeNode(divid, true);
+
+		body.replaceChild(div, p);
+		assertNull(xhtmlDoc.getElementById("p1"));
+		assertSame(div, xhtmlDoc.getElementById("newdiv1"));
+
+		body.insertBefore(p, div);
+		assertSame(p, xhtmlDoc.getElementById("p1"));
+
+		body.removeChild(p);
+		assertNull(xhtmlDoc.getElementById("p1"));
+		body.removeChild(div);
+		assertNull(xhtmlDoc.getElementById("newdiv1"));
 	}
 
 	@Test
@@ -401,7 +467,7 @@ public class StylableDocumentWrapperTest {
 		// Empty text content
 		node.setNodeValue("");
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		Attr type = style.getAttributeNode("type");
 		type.setNodeValue("foo");
 		assertNull(((LinkStyle<?>) style).getSheet());
@@ -424,23 +490,23 @@ public class StylableDocumentWrapperTest {
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(false);
 		CSSDocument cssDoc = cssFac.createCSSDocument(doc);
-		//
+
 		CSSElement style = cssDoc.getElementById("style1");
 		assertNotNull(style);
 		CSSStyleSheet sheet = ((LinkStyle<?>) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		Attr type = style.getAttributeNode("type");
 		type.setValue("");
 		sheet = ((LinkStyle<?>) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
-		//
+
 		type.setValue("text/xsl");
 		sheet = ((LinkStyle<?>) style).getSheet();
 		assertNull(sheet);
-		//
+
 		doc = docb.getDOMImplementation().createDocument(null, "html", null);
 		head = doc.createElement("head");
 		element = doc.createElement("style");
@@ -557,11 +623,11 @@ public class StylableDocumentWrapperTest {
 		StyleCountVisitor visitor = new StyleCountVisitor();
 		xhtmlDoc.getStyleSheets().acceptStyleRuleVisitor(visitor);
 		assertEquals(29, visitor.getCount());
-		//
+
 		PropertyCountVisitor visitorP = new PropertyCountVisitor();
 		xhtmlDoc.getStyleSheets().acceptDeclarationRuleVisitor(visitorP);
 		assertEquals(111, visitorP.getCount());
-		//
+
 		visitorP.reset();
 		xhtmlDoc.getStyleSheets().acceptDescriptorRuleVisitor(visitorP);
 		assertEquals(2, visitorP.getCount());
@@ -579,13 +645,14 @@ public class StylableDocumentWrapperTest {
 		href.setNodeValue("http://www.example.com/newbase/");
 		assertEquals("http://www.example.com/newbase/", xhtmlDoc.getBaseURI());
 		assertEquals("http://www.example.com/newbase/", base.getBaseURI());
-		//
+
 		assertFalse(xhtmlDoc.getErrorHandler().hasErrors());
 		href.setNodeValue("foo://");
 		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getBaseURI());
 		assertEquals("http://www.example.com/xhtml/htmlsample.html", base.getBaseURI());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
-		assertTrue(xhtmlDoc.getErrorHandler().hasIOErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasNodeErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
 	}
 
 	@Test
@@ -599,7 +666,7 @@ public class StylableDocumentWrapperTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
-		//
+
 		xhtmlDoc.getErrorHandler().reset();
 		href.setNodeValue("file:/dev/zero");
 		assertEquals("http://www.example.com/xhtml/htmlsample.html", base.getBaseURI());
@@ -607,7 +674,7 @@ public class StylableDocumentWrapperTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasPolicyErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
-		//
+
 		xhtmlDoc.getErrorHandler().reset();
 		xhtmlDoc.setDocumentURI("jar:http://www.example.com/trusted.jar!/document.html");
 		href.setNodeValue("jar:http://www.example.com/trusted.jar!/css/");

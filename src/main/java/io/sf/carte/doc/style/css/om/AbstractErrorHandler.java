@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.DOMException;
@@ -29,7 +30,7 @@ import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 
 abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private HashMap<Node,String> policyErrorMap = null;
 
@@ -42,6 +43,8 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 	private HashMap<Node, CSSMediaException> mediaQueryErrors = null;
 
 	private HashMap<String,IOException> ioErrors = null;
+
+	private HashMap<Node, String> genericErrors = null;
 
 	private HashMap<CSSElement, HashMap<String, CSSPropertyValueException>> computedStyleWarnings = null;
 
@@ -142,8 +145,30 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 	}
 
 	@Override
+	public void nodeError(Node node, String message, Throwable exception) {
+		if (message == null) {
+			if (exception != null) {
+				message = exception.getMessage();
+			}
+			if (message == null) {
+				message = "Error in node: " + node.getNodeName();
+			}
+		}
+		if (genericErrors == null) {
+			genericErrors = new HashMap<>();
+		}
+		genericErrors.put(node, message);
+	}
+
+	@Override
 	public boolean hasErrors() {
-		return hasInlineErrors() || hasComputedStyleErrors() || hasMediaErrors() || hasIOErrors() || hasPolicyErrors();
+		return hasInlineErrors() || hasComputedStyleErrors() || hasMediaErrors() || hasIOErrors()
+				|| hasNodeErrors() || hasPolicyErrors();
+	}
+
+	@Override
+	public boolean hasNodeErrors() {
+		return genericErrors != null;
 	}
 
 	@Override
@@ -230,7 +255,7 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 		return policyErrorMap != null ? policyErrorMap.get(node) : null;
 	}
 
-	public HashMap<String, CSSPropertyValueException> getComputedStyleErrors(CSSElement element) {
+	public Map<String, CSSPropertyValueException> getComputedStyleErrors(CSSElement element) {
 		return computedStyleErrors != null ? computedStyleErrors.get(element) : null;
 	}
 
@@ -238,25 +263,29 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 		return hintErrors != null ? hintErrors.get(element) : null;
 	}
 
-	public HashMap<String, CSSPropertyValueException> getComputedStyleWarnings(CSSElement element) {
+	public Map<String, CSSPropertyValueException> getComputedStyleWarnings(CSSElement element) {
 		return computedStyleWarnings != null ? computedStyleWarnings.get(element) : null;
 	}
 
-	public HashMap<Node, String> getPolicyErrors() {
+	public Map<Node, String> getPolicyErrors() {
 		return policyErrorMap;
 	}
 
-	public HashMap<Node, CSSMediaException> getMediaErrors() {
+	public Map<Node, CSSMediaException> getMediaErrors() {
 		return mediaQueryErrors;
 	}
 
 	@Deprecated
-	public HashMap<String, IOException> getRuleIOErrors() {
+	public Map<String, IOException> getRuleIOErrors() {
 		return getIOErrors();
 	}
 
-	public HashMap<String, IOException> getIOErrors() {
+	public Map<String, IOException> getIOErrors() {
 		return ioErrors;
+	}
+
+	public Map<Node, String> getGenericErrors() {
+		return genericErrors;
 	}
 
 	@Override
@@ -308,6 +337,7 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 		mediaQueryWarnings = null;
 		policyErrorMap = null;
 		ioErrors = null;
+		genericErrors = null;
 	}
 
 	abstract protected AbstractCSSStyleSheetFactory getStyleSheetFactory();

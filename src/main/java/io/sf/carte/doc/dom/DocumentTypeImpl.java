@@ -36,7 +36,7 @@ class DocumentTypeImpl extends AbstractDOMNode implements DocumentType {
 	}
 
 	@Override
-	void checkAppendNode(Node newChild) {
+	void checkInsertNode(Node newChild, Node refNode) {
 		throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot add children to this node");
 	}
 

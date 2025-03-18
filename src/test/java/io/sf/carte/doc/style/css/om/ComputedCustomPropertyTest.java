@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -699,7 +699,7 @@ public class ComputedCustomPropertyTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -1004,7 +1004,7 @@ public class ComputedCustomPropertyTest {
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -1041,7 +1041,7 @@ public class ComputedCustomPropertyTest {
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -1063,7 +1063,7 @@ public class ComputedCustomPropertyTest {
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -1085,7 +1085,7 @@ public class ComputedCustomPropertyTest {
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -1121,7 +1121,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -1160,7 +1160,7 @@ public class ComputedCustomPropertyTest {
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -1217,7 +1217,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals(0f, marginTop.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(2, errors.size());
@@ -1248,7 +1248,7 @@ public class ComputedCustomPropertyTest {
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 
 		// Missing operand error overwrites the circularity error
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -1315,7 +1315,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 1e-5f);
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -1358,7 +1358,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PT), 0.01f);
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(elm);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -1414,7 +1414,7 @@ public class ComputedCustomPropertyTest {
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(listpara);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());
@@ -1487,7 +1487,7 @@ public class ComputedCustomPropertyTest {
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(listpara));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings(listpara));
-		HashMap<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
+		Map<String, CSSPropertyValueException> errors = ((DefaultErrorHandler) xhtmlDoc
 				.getErrorHandler()).getComputedStyleErrors(listpara);
 		assertNotNull(errors);
 		assertEquals(1, errors.size());

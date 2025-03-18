@@ -327,7 +327,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 
 		@Override
 		public void setValue(String value) throws DOMException {
-			if (value == null || value.length() == 0) {
+			if (value == null || value.isEmpty()) {
 				clear();
 				value = "";
 			}
@@ -551,8 +551,8 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	}
 
 	@Override
-	void checkAppendNodeHierarchy(Node newChild) {
-		super.checkAppendNodeHierarchy(newChild);
+	void checkInsertNodeHierarchy(Node newChild, Node refNode) {
+		super.checkInsertNodeHierarchy(newChild, refNode);
 		if (newChild.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
 			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Doctype must be added to document.");
 		}

@@ -25,7 +25,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
@@ -98,7 +100,7 @@ public class XMLDocumentBuilderJdkTest {
 		assertEquals(" A comment just after the document element ", node.getNodeValue());
 		// Not specified attributes are not present
 		Element style = (Element) document.getElementsByTagName("style").item(0);
-		assertFalse(style.hasAttributeNS("http://www.w3.org/XML/1998/namespace", "space"));
+		assertFalse(style.hasAttributeNS(DOMDocument.XML_NAMESPACE_URI, "space"));
 		assertFalse(style.hasAttribute("xml:space"));
 		// Entities etc.
 		Element element = document.getElementById("entity");
@@ -152,10 +154,10 @@ public class XMLDocumentBuilderJdkTest {
 		assertEquals(" A comment just after the document element ", node.getNodeValue());
 		// Not specified attributes are present
 		Element style = (Element) document.getElementsByTagName("style").item(0);
-		assertTrue(style.hasAttributeNS("http://www.w3.org/XML/1998/namespace", "space"));
+		assertTrue(style.hasAttributeNS(DOMDocument.XML_NAMESPACE_URI, "space"));
 		assertTrue(style.hasAttribute("xml:space"));
 		assertEquals("preserve", style.getAttribute("xml:space"));
-		assertEquals("preserve", style.getAttributeNS("http://www.w3.org/XML/1998/namespace", "space"));
+		assertEquals("preserve", style.getAttributeNS(DOMDocument.XML_NAMESPACE_URI, "space"));
 		Attr attr = style.getAttributeNode("xml:space");
 		assertNotNull(attr);
 		// Entities etc.
@@ -588,7 +590,7 @@ public class XMLDocumentBuilderJdkTest {
 		assertEquals("svg", docElement.getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, docElement.getNamespaceURI());
 		assertNull(docElement.getPrefix());
-		assertTrue(docElement.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
+		assertTrue(docElement.hasAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns"));
 		//
 		Element element = (Element) docElement.getFirstChild();
 		assertNotNull(element);
@@ -597,14 +599,14 @@ public class XMLDocumentBuilderJdkTest {
 		assertEquals("rect", element.getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, element.getNamespaceURI());
 		assertNull(element.getPrefix());
-		assertFalse(element.hasAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns"));
+		assertFalse(element.hasAttributeNS(DOMDocument.XMLNS_NAMESPACE_URI, "xmlns"));
 		// Convention: unprefixed attributes belong to a namespace partition in the owner element
 		Attr nsattr = element.getAttributeNodeNS(TestConfig.SVG_NAMESPACE_URI, "x");
 		assertNull(nsattr);
 		nsattr = element.getAttributeNode("x");
 		assertNotNull(nsattr);
 		//
-		assertNull(element.getAttributeNodeNS("http://www.w3.org/1999/xhtml", "x"));
+		assertNull(element.getAttributeNodeNS(HTMLDocument.HTML_NAMESPACE_URI, "x"));
 	}
 
 	private Document parseDocument(String filename) throws SAXException, IOException {
@@ -615,8 +617,15 @@ public class XMLDocumentBuilderJdkTest {
 		InputSource is = new InputSource(re);
 		Document document = builder.parse(is);
 		re.close();
-		URL base = new URL("http://www.example.com/xml/");
-		document.setDocumentURI(new URL(base, filename).toExternalForm());
+		URI base;
+		URI uri;
+		try {
+			base = new URI("http://www.example.com/xml/");
+			uri = new URI(filename);
+		} catch (URISyntaxException e) {
+			throw new MalformedURLException(e.getMessage());
+		}
+		document.setDocumentURI(base.resolve(uri).toASCIIString());
 		return document;
 	}
 
