@@ -928,8 +928,11 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 		@Override
 		public Attr setAttributeNode(Attr newAttr) throws DOMException {
-			Attr rawnode = (Attr) ((DOMNode) newAttr).rawnode;
+			DOMNode node = (DOMNode) newAttr;
+			Attr rawnode = (Attr) (node).rawnode;
 			element.setAttributeNode(rawnode);
+			// In case that the attribute was removed from map
+			nodemap.put(rawnode, node);
 			return newAttr;
 		}
 
@@ -1103,7 +1106,10 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		@Override
 		public Node appendChild(Node newChild) throws DOMException {
 			if (isWrappedNode(newChild)) {
-				element.appendChild(((DOMNode) newChild).rawnode);
+				DOMNode node = (DOMNode) newChild;
+				element.appendChild(node.rawnode);
+				// In case that the node was removed from map
+				nodemap.put(rawnode, node);
 				StylableDocumentWrapper.this.reset();
 				return newChild;
 			}
