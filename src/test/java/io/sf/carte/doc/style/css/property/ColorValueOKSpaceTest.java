@@ -2493,7 +2493,7 @@ public class ColorValueOKSpaceTest {
 		assertNotNull(labLightness);
 		assertNotNull(a);
 		assertNotNull(b);
-		assertEquals(-13.802f, ((CSSTypedValue) labLightness).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(-13.802f, labLightness.getFloatValue(CSSUnit.CSS_NUMBER),
 				1e-3f);
 		assertEquals(158.902f, a.getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
 		assertEquals(-122.482f, b.getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
@@ -2569,7 +2569,7 @@ public class ColorValueOKSpaceTest {
 		assertNotNull(labLightness);
 		assertNotNull(a);
 		assertNotNull(b);
-		assertEquals(0.065f, ((CSSTypedValue) labLightness).getFloatValue(CSSUnit.CSS_NUMBER),
+		assertEquals(0.065f, labLightness.getFloatValue(CSSUnit.CSS_NUMBER),
 				1e-3f);
 		assertEquals(0f, a.getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
 		assertEquals(0f, b.getFloatValue(CSSUnit.CSS_NUMBER), 0.001f);
