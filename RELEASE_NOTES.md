@@ -1,51 +1,62 @@
-# css4j version 5.2 Release Notes
+# css4j version 5.3 Release Notes
 
-### February 23, 2025
+### March 31, 2025
 
 <br/>
 
 ## Highlights
 
-### Better handling of mathematical functions
+### Improved CSS function management
 
-The handling of mathematical functions is now much faster, and the `round`, `mod`, `rem`, `log` and `exp` functions from Values 4 were implemented.
+- Function names are now converted to a canonical form (mostly lowercase, except for names like `rotateX` or `skewY`).
+- New type identifiers for many functions.
+- New `<easing-function>` syntax.
+- Add `LexicalUnit.shallowMatch(CSSValueSyntax)`, use in shorthand decompositions.
+- Prefixed functions are processed separately and no longer used in style computations.
+- Allow trailing comma in function arguments, see CSSWG issue 4968.
+- Added method `getContextIndex()` to `LexicalUnit`.
+- Undeprecate `CSSMathFunctionValue.MathFunction`, keep backwards compatibility broken by 5.2.
 
-The library is now on parity with the CSS numeric functions supported by modern web browsers.
+### `CSSEnvVariableValue` values
 
-### `src()` values
+`CSSEnvVariableValue` was updated to the latest specification which allows indices.
 
-The `src()` function is now considered a valid URL value, and therefore matches `<url>` and `<image>`.
+In web browsers, `env()` is substituted at parse time. But given the multiplicity
+of use cases for this library, the substitution is done at computed-value time
+and this requires a CSSOM value interface.
 
-### Update of `background` and `mask` shorthands
+### DOM wrapper
 
-Both shorthand properties now behave according to the latest specification, supporting all the new identifiers in `background-clip` and `mask-clip`.
-
-### Values of `border-width` identifiers
-
-The main browsers consistently use the same figures for the computed values of border-width's `thin`, `thick` and `medium` identifiers, which were subsequently defined in May 2022.
-
-This leads to the deprecation of `StyleDatabase.getWidthSize`.
+A few improvements. For example, insert/remove/replace/append child operations
+are now allowed in elements.
 
 <br/>
 
 ## Detail of changes
 
-- NSAC,CSSOM: support the `round`, `mod`, `rem`, `log` and `exp` functions from Values 4.
-- NSAC,CSSOM: more efficient handling of functions.
-- NSAC,CSSOM: support `src()` values.
-- CSSOM: add method `getFloatValue()` to `CSSTypedValue`, to retrieve raw value.
-- CSSOM: implement `Cloneable` in `StringList` and `CSSFontFeatureValuesMap` implementation.
-- CSSOM: add `ShorthandDatabase.getInstance(ClassLoader)`.
-- CSSOM: deprecate `StyleDatabase.getWidthSize`. The `thin`, `thick` and `medium` identifiers have fixed values since May 2022, see CSSWG issue 7254.
-- CSSOM: support `text` and `border-area` as `background-clip` values.
-- CSSOM: support `border`, `padding`, `content` and `text` as `mask-clip` values.
-- CSSOM: ignore case when optimizing `background-position` in `getPropertyValue("background")`.
-- CSSOM: avoid unlikely NPE when optimizing `getPropertyValue("background")` of a declared style when `background-origin` is not set.
-- CSSOM: avoid unlikely NPE when optimizing `getPropertyValue("mask")` of a declared style when `mask-origin` is not set.
-- CSSOM: other updates to `background` and `mask` shorthands.
-- CSSOM: use private constructors in a few singleton classes.
-- Agent: use a more modern user agent identification string.
-- Tests: clean up HTMLDocumentTest.
-- Upgrade Jazzer to 0.24.0.
-- Upgrade to checkstyle 10.21.2.
-- README: use the assignment operator in the Gradle example.
+- Undeprecate `CSSMathFunctionValue.MathFunction`, keep backwards compatibility broken by 5.2.
+- agent: deprecate archaic cookie management code for removal.
+- NSAC: convert function names to a canonical form (mostly lowercase, except for names like `rotateX` or `skewY`).
+- NSAC: allow trailing comma in function arguments, see CSSWG issue 4968.
+- NSAC: add method `getContextIndex()` to `LexicalUnit`. It may be useful to implementations.
+- NSAC: add `LexicalUnit.shallowMatch(CSSValueSyntax)`, use in shorthand decompositions.
+- NSAC,CSSOM: new type identifiers for many functions, including the `circle`, `ellipse`, `inset`, `path`, `polygon`, `shape` and `xywh` functions from CSS Shapes Module.
+- NSAC,CSSOM: new `<easing-function>` syntax.
+- NSAC,CSSOM: prefixed functions are processed separately and no longer used in style computations.
+- CSSOM: `CSSEnvVariableValue` update.
+- CSSOM: use the syntax match infrastructure in shorthand decomposition and gradients.
+- CSSOM: stop using `StyleDatabase.getWidthSize()` in `SimpleBoxModel`.
+- CSSOM: use the `BaseCSSStyleSheetFactory` class to load the default UA sheets. This avoids potential classloader issues when the factory is subclassed.
+- CSSOM: clamp RGB conversion in `HSLColorValue` (HSL colors belong to the sRGB color space, so in principle it is not needed to clamp. But clamp for safety anyway, in case that some numeric inaccuracy causes out-of-gamut mappings).
+- DOM wrapper: a few improvements, especially to element child handling.
+- DOM: stricter hierarchy checks in the native DOM.
+- Deprecation clean-up: Do not use java.net.URL() constructors.
+- Tests: add a couple of no-EntityResolver tests to `XMLDocumentBuilderTest`.
+- Tests: more URI management tests in the DOM & wrapper.
+- Code clean-up & formatting.
+- Gradle: move dependency versions to a separate properties file.
+- Add a SECURITY.md.
+- Upgrade to JUnit 5.12.1.
+- Upgrade to TokenProducer 3.1.
+- Upgrade to checkstyle 10.22.0.
+- Upgrade Gradle wrapper to 8.13.
