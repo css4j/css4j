@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.TransformFunctions;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -2811,7 +2812,8 @@ public class PropertyParserTest {
 	public void testParsePropertyValueFunctionTransformList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("translate(-10px, -20px) scale(2) rotate(45deg)");
 		assertEquals("translate", lu.getFunctionName());
-		assertEquals(LexicalType.TRANSLATE_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.TRANSFORM_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(TransformFunctions.TRANSLATE, lu.getTransformFunction());
 
 		assertMatch(Match.TRUE, lu, "<transform-function>+");
 		assertMatch(Match.TRUE, lu, "<transform-list>");
@@ -2834,7 +2836,8 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue(
 				"translate(-10px, -20px) scale(2) rotate(45deg), rotate(15deg) scale(2) translate(20px)");
 		assertEquals("translate", lu.getFunctionName());
-		assertEquals(LexicalType.TRANSLATE_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(LexicalType.TRANSFORM_FUNCTION, lu.getLexicalUnitType());
+		assertEquals(TransformFunctions.TRANSLATE, lu.getTransformFunction());
 
 		assertTrue(lu.getContextIndex() >= 0);
 

@@ -1233,84 +1233,8 @@ public class ValueFactory implements CSSValueFactory {
 				primi = new ShapeFunction(Type.XYWH);
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
-			case MATRIX_FUNCTION:
-				primi = new TransformFunction(Type.MATRIX);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case PERSPECTIVE_FUNCTION:
-				primi = new TransformFunction(Type.PERSPECTIVE);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case TRANSLATE_FUNCTION:
-				primi = new TransformFunction(Type.TRANSLATE);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case TRANSLATE_3D_FUNCTION:
-				primi = new TransformFunction(Type.TRANSLATE_3D);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case TRANSLATE_X_FUNCTION:
-				primi = new TransformFunction(Type.TRANSLATE_X);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case TRANSLATE_Y_FUNCTION:
-				primi = new TransformFunction(Type.TRANSLATE_Y);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case TRANSLATE_Z_FUNCTION:
-				primi = new TransformFunction(Type.TRANSLATE_Z);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case SCALE_FUNCTION:
-				primi = new TransformFunction(Type.SCALE);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case SCALE_3D_FUNCTION:
-				primi = new TransformFunction(Type.SCALE_3D);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case SCALE_X_FUNCTION:
-				primi = new TransformFunction(Type.SCALE_X);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case SCALE_Y_FUNCTION:
-				primi = new TransformFunction(Type.SCALE_Y);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case SCALE_Z_FUNCTION:
-				primi = new TransformFunction(Type.SCALE_Z);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case ROTATE_FUNCTION:
-				primi = new TransformFunction(Type.ROTATE);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case ROTATE_3D_FUNCTION:
-				primi = new TransformFunction(Type.ROTATE_3D);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case ROTATE_X_FUNCTION:
-				primi = new TransformFunction(Type.ROTATE_X);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case ROTATE_Y_FUNCTION:
-				primi = new TransformFunction(Type.ROTATE_Y);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case ROTATE_Z_FUNCTION:
-				primi = new TransformFunction(Type.ROTATE_Z);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case SKEW_FUNCTION:
-				primi = new TransformFunction(Type.SKEW);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case SKEW_X_FUNCTION:
-				primi = new TransformFunction(Type.SKEW_X);
-				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				break;
-			case SKEW_Y_FUNCTION:
-				primi = new TransformFunction(Type.SKEW_Y);
+			case TRANSFORM_FUNCTION:
+				primi = new TransformFunction(lunit.getTransformFunction());
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case IMAGE_SET:

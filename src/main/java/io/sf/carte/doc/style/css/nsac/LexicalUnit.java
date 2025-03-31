@@ -16,6 +16,7 @@ package io.sf.carte.doc.style.css.nsac;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.TransformFunctions;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 
 /**
@@ -298,6 +299,8 @@ public interface LexicalUnit {
 		 * Mathematical function.
 		 * 
 		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getMathFunction()
+		 * @see LexicalUnit#getMathFunctionIndex()
 		 * @see LexicalUnit#getParameters
 		 */
 		MATH_FUNCTION,
@@ -500,173 +503,15 @@ public interface LexicalUnit {
 		 * End of <basic-shape> types.
 		 */
 
-		/*
-		 * Transform functions.
-		 */
-
 		/**
-		 * {@code matrix()} function.
+		 * Transform function.
 		 * 
 		 * @see LexicalUnit#getFunctionName
+		 * @see LexicalUnit#getTransformFunction()
+		 * @see LexicalUnit#getContextIndex()
 		 * @see LexicalUnit#getParameters
 		 */
-		MATRIX_FUNCTION,
-
-		/**
-		 * {@code perspective()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		PERSPECTIVE_FUNCTION,
-
-		/**
-		 * {@code translate()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		TRANSLATE_FUNCTION,
-
-		/**
-		 * {@code translate3d()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		TRANSLATE_3D_FUNCTION,
-
-		/**
-		 * {@code translateX()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		TRANSLATE_X_FUNCTION,
-
-		/**
-		 * {@code translateY()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		TRANSLATE_Y_FUNCTION,
-
-		/**
-		 * {@code translateZ()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		TRANSLATE_Z_FUNCTION,
-
-		/**
-		 * {@code scale()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		SCALE_FUNCTION,
-
-		/**
-		 * {@code scale3d()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		SCALE_3D_FUNCTION,
-
-		/**
-		 * {@code scaleX()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		SCALE_X_FUNCTION,
-
-		/**
-		 * {@code scaleY()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		SCALE_Y_FUNCTION,
-
-		/**
-		 * {@code scaleZ()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		SCALE_Z_FUNCTION,
-
-		/**
-		 * {@code rotate()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		ROTATE_FUNCTION,
-
-		/**
-		 * {@code rotate3d()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		ROTATE_3D_FUNCTION,
-
-		/**
-		 * {@code rotateX()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		ROTATE_X_FUNCTION,
-
-		/**
-		 * {@code rotateY()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		ROTATE_Y_FUNCTION,
-
-		/**
-		 * {@code rotateZ()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		ROTATE_Z_FUNCTION,
-
-		/**
-		 * {@code skew()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		SKEW_FUNCTION,
-
-		/**
-		 * {@code skewX()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		SKEW_X_FUNCTION,
-
-		/**
-		 * {@code skewY()} function.
-		 * 
-		 * @see LexicalUnit#getFunctionName
-		 * @see LexicalUnit#getParameters
-		 */
-		SKEW_Y_FUNCTION,
-
-		/*
-		 * End of transform functions.
-		 */
+		TRANSFORM_FUNCTION,
 
 		/*
 		 * Image functions.
@@ -1012,6 +857,18 @@ public interface LexicalUnit {
 	 */
 	default int getContextIndex() {
 		return getMathFunctionIndex();
+	}
+
+	/**
+	 * Gives the ID of this unit as a transform function, according to
+	 * {@link TransformFunctions}.
+	 * 
+	 * @return the function enum, or {@code null} if this lexical unit is not a
+	 *         transform function ({@code TRANSFORM_FUNCTION}).
+	 * @see LexicalType#TRANSFORM_FUNCTION
+	 */
+	default TransformFunctions getTransformFunction() {
+		return null;
 	}
 
 	/**

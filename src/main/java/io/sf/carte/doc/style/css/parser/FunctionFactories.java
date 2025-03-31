@@ -18,6 +18,7 @@ import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.TransformFunctions;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.parser.CSSParser.LexicalUnitFactory;
@@ -106,7 +107,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.MATRIX_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.MATRIX);
 			}
 
 		});
@@ -115,7 +116,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.PERSPECTIVE_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.PERSPECTIVE);
 			}
 
 		});
@@ -124,7 +125,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.TRANSLATE_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.TRANSLATE);
 			}
 
 		});
@@ -133,7 +134,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.TRANSLATE_3D_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.TRANSLATE_3D);
 			}
 
 		});
@@ -142,7 +143,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.TRANSLATE_X_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.TRANSLATE_X);
 			}
 
 			@Override
@@ -159,7 +160,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.TRANSLATE_Y_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.TRANSLATE_Y);
 			}
 
 			@Override
@@ -176,7 +177,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.TRANSLATE_Z_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.TRANSLATE_Z);
 			}
 
 			@Override
@@ -193,7 +194,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.SCALE_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.SCALE);
 			}
 
 		});
@@ -202,7 +203,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.SCALE_3D_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.SCALE_3D);
 			}
 
 		});
@@ -211,7 +212,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.SCALE_X_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.SCALE_X);
 			}
 
 			@Override
@@ -228,7 +229,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.SCALE_Y_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.SCALE_Y);
 			}
 
 			@Override
@@ -245,7 +246,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.SCALE_Z_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.SCALE_Z);
 			}
 
 			@Override
@@ -262,7 +263,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.ROTATE_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.ROTATE);
 			}
 
 		});
@@ -271,7 +272,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.ROTATE_3D_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.ROTATE_3D);
 			}
 
 		});
@@ -280,7 +281,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.ROTATE_X_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.ROTATE_X);
 			}
 
 			@Override
@@ -297,7 +298,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.ROTATE_Y_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.ROTATE_Y);
 			}
 
 			@Override
@@ -314,7 +315,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.ROTATE_Z_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.ROTATE_Z);
 			}
 
 			@Override
@@ -331,7 +332,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.SKEW_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.SKEW);
 			}
 
 		});
@@ -340,7 +341,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.SKEW_X_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.SKEW_X);
 			}
 
 			@Override
@@ -357,7 +358,7 @@ abstract class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new TransformFunctionUnitImpl(LexicalType.SKEW_Y_FUNCTION);
+				return new TransformFunctionUnitImpl(TransformFunctions.SKEW_Y);
 			}
 
 			@Override

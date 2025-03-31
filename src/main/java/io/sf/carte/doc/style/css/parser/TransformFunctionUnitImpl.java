@@ -13,18 +13,27 @@ package io.sf.carte.doc.style.css.parser;
 
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.TransformFunctions;
 
 class TransformFunctionUnitImpl extends FunctionUnitImpl {
 
 	private static final long serialVersionUID = 1L;
 
-	public TransformFunctionUnitImpl(LexicalType type) {
-		super(type);
+	private final TransformFunctions functionId;
+
+	public TransformFunctionUnitImpl(TransformFunctions functionId) {
+		super(LexicalType.TRANSFORM_FUNCTION);
+		this.functionId = functionId;
+	}
+
+	@Override
+	public TransformFunctions getTransformFunction() {
+		return functionId;
 	}
 
 	@Override
 	public int getContextIndex() {
-		return getLexicalUnitType().ordinal() - LexicalType.MATRIX_FUNCTION.ordinal();
+		return functionId.ordinal();
 	}
 
 	@Override
@@ -41,7 +50,7 @@ class TransformFunctionUnitImpl extends FunctionUnitImpl {
 
 	@Override
 	TransformFunctionUnitImpl instantiateLexicalUnit() {
-		return new TransformFunctionUnitImpl(getLexicalUnitType());
+		return new TransformFunctionUnitImpl(getTransformFunction());
 	}
 
 }

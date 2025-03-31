@@ -13,6 +13,7 @@
 package io.sf.carte.doc.style.css.parser;
 
 import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
+import io.sf.carte.doc.style.css.TransformFunctions;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 
 /**
@@ -102,7 +103,7 @@ public class LexicalHelper {
 	 * @return the number of supported transform functions.
 	 */
 	public static int getTransformFunctionIndexCount() {
-		return LexicalType.SKEW_Y_FUNCTION.ordinal() - LexicalType.MATRIX_FUNCTION.ordinal() + 1;
+		return TransformFunctions.OTHER.ordinal();
 	}
 
 }

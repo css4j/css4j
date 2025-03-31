@@ -20,10 +20,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.sf.carte.doc.style.css.CSSTransformFunction;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.TransformFunctions;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
@@ -77,10 +79,11 @@ public class TransformFunctionValueTest {
 	@Test
 	public void testMatrix() {
 		style.setCssText("transform: matrix(1, 2, -1, 1, 50, 50);");
-		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transform");
+		CSSTransformFunction val = (CSSTransformFunction) style.getPropertyCSSValue("transform");
 		assertNotNull(val);
-		assertEquals(CSSValue.Type.MATRIX, val.getPrimitiveType());
-		assertEquals(6, val.getArguments().size());
+		assertEquals(CSSValue.Type.TRANSFORM_FUNCTION, val.getPrimitiveType());
+		assertEquals(TransformFunctions.MATRIX, val.getFunction());
+		assertEquals(6, val.getArguments().getLength());
 		assertEquals("matrix(1, 2, -1, 1, 50, 50)", val.getCssText());
 		assertEquals("matrix(1,2,-1,1,50,50)", val.getMinifiedCssText(""));
 		assertTrue(val.equals(val.clone()));
@@ -96,13 +99,14 @@ public class TransformFunctionValueTest {
 	@Test
 	public void testCalcArgument() {
 		style.setCssText("transform: translateY(calc(3% - 1.2 * 5px));");
-		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("transform");
+		CSSTransformFunction val = (CSSTransformFunction) style.getPropertyCSSValue("transform");
 		assertNotNull(val);
-		assertEquals(CSSValue.Type.TRANSLATE_Y, val.getPrimitiveType());
+		assertEquals(CSSValue.Type.TRANSFORM_FUNCTION, val.getPrimitiveType());
+		assertEquals(TransformFunctions.TRANSLATE_Y, val.getFunction());
 		assertEquals("translateY(calc(3% - 1.2*5px))", style.getPropertyValue("transform"));
 		assertEquals("transform: translateY(calc(3% - 1.2*5px)); ", style.getCssText());
-		assertEquals(1, val.getArguments().size());
-		StyleValue arg = val.getArguments().get(0);
+		assertEquals(1, val.getArguments().getLength());
+		CSSValue arg = val.getArguments().item(0);
 		assertEquals(CssType.TYPED, arg.getCssValueType());
 		assertEquals(CSSValue.Type.EXPRESSION, arg.getPrimitiveType());
 		ExpressionValue calc = (ExpressionValue) arg;
