@@ -185,7 +185,6 @@ public class CSSParser implements Parser, Cloneable {
 
 	@Override
 	public void parseStyleSheet(Reader reader) throws CSSParseException, IOException, IllegalStateException {
-		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
@@ -194,8 +193,9 @@ public class CSSParser implements Parser, Cloneable {
 		if (handler instanceof NamespaceMap) {
 			nsMap = (NamespaceMap) handler;
 		}
+
 		SheetTokenHandler handler = new SheetTokenHandler(nsMap, true);
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
@@ -229,12 +229,14 @@ public class CSSParser implements Parser, Cloneable {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
+
 		URL url;
 		try {
 			url = new URI(uri).toURL();
 		} catch (Exception e) {
 			throw new MalformedURLException(e.getMessage());
 		}
+
 		URLConnection ucon = url.openConnection();
 		ucon.setConnectTimeout(15000);
 		ucon.connect();
@@ -267,9 +269,9 @@ public class CSSParser implements Parser, Cloneable {
 		if (handler instanceof NamespaceMap) {
 			nsMap = (NamespaceMap) handler;
 		}
+
 		SheetTokenHandler handler = new SheetTokenHandler(nsMap, false);
-		int[] allowInWords = { 45, 95 }; // -_
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
 
 		try (Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding,
@@ -315,16 +317,18 @@ public class CSSParser implements Parser, Cloneable {
 			}
 			re = new InputStreamReader(is, charset);
 		}
+
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		final int[] allowInWords = { 45, 95 }; // -_
+
 		NamespaceMap nsMap = null;
 		if (handler instanceof NamespaceMap) {
 			nsMap = (NamespaceMap) handler;
 		}
+
 		SheetTokenHandler handler = new SheetTokenHandler(nsMap, true);
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
 		this.handler.parseStart(handler);
 		tp.parse(re, "/*", "*/");
@@ -332,24 +336,22 @@ public class CSSParser implements Parser, Cloneable {
 
 	@Override
 	public void parseStyleDeclaration(Reader reader) throws CSSParseException, IOException, IllegalStateException {
-		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
 		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
 
 	public void parseStyleDeclaration(InputSource source)
 			throws CSSException, IOException, IllegalStateException {
-		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
 		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		Reader reader = getReaderFromSource(source);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
@@ -359,6 +361,7 @@ public class CSSParser implements Parser, Cloneable {
 		if (source == null) {
 			throw new NullPointerException("Null source.");
 		}
+
 		Reader re = source.getCharacterStream();
 		if (re == null) {
 			InputStream is = source.getByteStream();
@@ -398,6 +401,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			}
 		}
+
 		return re;
 	}
 
@@ -428,7 +432,6 @@ public class CSSParser implements Parser, Cloneable {
 	 *                               a {@code DeclarationRuleHandler}.
 	 */
 	public void parseDeclarationRule(Reader reader) throws CSSParseException, IOException {
-		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
@@ -438,7 +441,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(
 			ShorthandDatabase.getInstance());
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
@@ -524,12 +527,11 @@ public class CSSParser implements Parser, Cloneable {
 
 	@Override
 	public void parseRule(Reader reader) throws CSSParseException, IOException, IllegalStateException {
-		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
 		RuleTokenHandler handler = new RuleTokenHandler(null);
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
@@ -537,23 +539,21 @@ public class CSSParser implements Parser, Cloneable {
 	@Override
 	public void parseRule(Reader reader, NamespaceMap nsmap)
 			throws CSSParseException, IOException, IllegalStateException {
-		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
 		RuleTokenHandler handler = new RuleTokenHandler(nsmap);
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		this.handler.parseStart(handler);
 		tp.parse(reader, "/*", "*/");
 	}
 
 	public void parseRule(InputSource source) throws CSSParseException, IOException {
-		final int[] allowInWords = { 45, 95 }; // -_
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
 		RuleTokenHandler handler = new RuleTokenHandler(null);
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		Reader re = getReaderFromSource(source);
 		this.handler.parseStart(handler);
 		tp.parse(re, "/*", "*/");
@@ -2156,9 +2156,8 @@ public class CSSParser implements Parser, Cloneable {
 
 	@Override
 	public SelectorList parseSelectors(Reader reader) throws CSSParseException, CSSBudgetException, IOException {
-		int[] allowInWords = { 45, 95 }; // -_
 		SelectorTokenHandler handler = new SelectorTokenHandler();
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		tp.parse(reader, "/*", "*/");
 		return handler.getTrimmedSelectorList();
 	}
@@ -2174,10 +2173,9 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	public SelectorList parseSelectors(InputSource source) throws CSSParseException, IOException {
-		int[] allowInWords = { 45, 95 }; // -_
 		Reader re = getReaderFromSource(source);
 		SelectorTokenHandler handler = new SelectorTokenHandler(null);
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		tp.parse(re, "/*", "*/");
 		return handler.getTrimmedSelectorList();
 	}
@@ -2231,35 +2229,32 @@ public class CSSParser implements Parser, Cloneable {
 	@Override
 	public LexicalUnit parsePropertyValue(Reader reader)
 			throws CSSParseException, IOException {
-		int[] allowInWords = { 45, 95 }; // -_
 		PropertyTokenHandler handler = new PropertyTokenHandler();
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		tp.parse(reader, "/*", "*/");
 		return handler.getLexicalUnit();
 	}
 
 	private LexicalUnit parsePropertyValue(Reader reader, int currentLine, int prevLineLength)
 			throws CSSParseException, IOException {
-		int[] allowInWords = { 45, 95 }; // -_
 		PropertyTokenHandler handler = new PropertyTokenHandler(currentLine, prevLineLength);
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		tp.parse(reader, "/*", "*/");
 		return handler.getLexicalUnit();
 	}
 
 	public LexicalUnit parsePropertyValue(String propertyName, Reader reader) throws CSSParseException, IOException {
-		int[] allowInWords = { 45, 95 }; // -_
 		PropertyTokenHandler handler = new PropertyTokenHandler(propertyName);
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		tp.parse(reader, "/*", "*/");
 		return handler.getLexicalUnit();
 	}
 
-	public LexicalUnit parsePropertyValue(InputSource source) throws CSSParseException, IOException {
-		int[] allowInWords = { 45, 95 }; // -_
+	public LexicalUnit parsePropertyValue(InputSource source)
+			throws CSSParseException, IOException {
 		Reader re = getReaderFromSource(source);
 		PropertyTokenHandler handler = new PropertyTokenHandler();
-		TokenProducer tp = new TokenProducer(handler, allowInWords, streamSizeLimit);
+		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		tp.parse(re, "/*", "*/");
 		return handler.getLexicalUnit();
 	}
@@ -6158,7 +6153,7 @@ public class CSSParser implements Parser, Cloneable {
 			super();
 			this.prevcp = TokenProducer.CHAR_LESS_THAN;
 			this.parserctl = parserctl;
-			this.parent = (CSSTokenHandler) parserctl.getTokenHandler();
+			this.parent = (CSSTokenHandler) parserctl.getContentHandler();
 		}
 
 		@Override
@@ -8276,6 +8271,7 @@ public class CSSParser implements Parser, Cloneable {
 		private final TokenControl parserctl;
 		private final TokenHandler2 parent;
 
+		@SuppressWarnings("deprecation")
 		CallbackIgnoredDeclarationTH(TokenControl parserctl) {
 			super();
 			this.parserctl = parserctl;
