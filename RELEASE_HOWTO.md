@@ -32,10 +32,10 @@ git clone git@github.com:css4j/css4j.git
 For reference, let your copy of the css4j release code be at `/path/to/css4j`.
 
 2) Use `changes.sh <new-version>` to create a `CHANGES.txt` file with the
-changes from the latest tag. For example if you are releasing `5.2.1`:
+changes from the latest tag. For example if you are releasing `6.0.1`:
 
 ```shell
-./changes.sh 5.2.1
+./changes.sh 6.0.1
 ```
 
 Edit the resulting `CHANGES.txt` as convenient, then update the Release Notes
@@ -85,14 +85,14 @@ generate_directory_index_caddystyle.py -r css4j
 ```
 
 If the changes to the `css4j.github.io` repo look correct, commit them as
-"Maven: deploy css4j 5.2.1 artifacts" or similar but do not push yet.
+"Maven: deploy css4j 6.0.1 artifacts" or similar but do not push yet.
 
 10) Create a `v<version>` tag in the css4j Git repository. For example:
 
 ```shell
 cd /path/to/css4j
-git tag -s v5.2.1 -m "Release 5.2.1"
-git push origin v5.2.1
+git tag -s v6.0.1 -m "Release 6.0.1"
+git push origin v6.0.1
 ```
 
 or `git tag -a` instead of `-s` if you do not plan to sign the tag. But it is
@@ -103,29 +103,29 @@ Alternatively, you could create the new tag when drafting the Github release
 
 11) Now prepare the release Zip file by running `./gradlew clean`, removing the
 unnecessary directories and finally creating the archive. In the following
-example we create the 5.2.1 release Zip with the `7z` compressor:
+example we create the 6.0.1 release Zip with the `7z` compressor:
 
 ```shell
 cd /path/to/css4j
 ./gradlew clean
 rm -fr .git .gitattributes .gitignore .gradle buildSrc/.gradle
 cd ..
-mv css4j css4j-5.2.1
-7z a -mx9 css4j-5.2.1.zip css4j-5.2.1
+mv css4j css4j-6.0.1
+7z a -mx9 css4j-6.0.1.zip css4j-6.0.1
 ```
 
 12) Create the release's digest files:
 
 ```shell
 cd /path/to/css4j.github.io/digest
-./ha.sh /path/to/css4j-5.2.1.zip
+./ha.sh /path/to/css4j-6.0.1.zip
 ```
 
-You should now have the `css4j-5.2.1.sha1`, `css4j-5.2.1.sha256`,
-`css4j-5.2.1.b2` and `css4j-5.2.1.md5` files under the `digest` directory.
+You should now have the `css4j-6.0.1.sha1`, `css4j-6.0.1.sha256`,
+`css4j-6.0.1.b2` and `css4j-6.0.1.md5` files under the `digest` directory.
 
 If the changes to the `css4j.github.io` repo look correct, commit them as
-"Digests for css4j 5.2.1 zip distribution" or similar but do not push yet.
+"Digests for css4j 6.0.1 zip distribution" or similar but do not push yet.
 
 13) Upload the newly created digest files and the Zip release to the appropriate
 folders in https://sourceforge.net/projects/carte/files/css4j/
@@ -157,7 +157,7 @@ repository and execute `./gradlew mergedJavadoc`. Move the javadocs from
 `build/docs/javadoc` to `/path/to/css4j.github.io/api/latest`.
 
 If the changes to the `css4j.github.io` repo look correct, commit them with a
-description like "Latest modular Javadocs after css4j 5.2.1". Make sure that the
+description like "Latest modular Javadocs after css4j 6.0.1". Make sure that the
 previous `pages-build-deployment` action in that repository has finished, before
 pushing this new commit.
 

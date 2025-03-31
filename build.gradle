@@ -17,7 +17,7 @@ plugins {
 }
 
 group = 'io.sf.carte'
-version = '5.3'
+version = '6.0-SNAPSHOT'
 description = 'css4j'
 
 java {

@@ -40,7 +40,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	private static final String HEADER_AGENT = "User-agent";
 
-	private static final String CSS4J_MAJOR_VERSION = "5";
+	private static final String CSS4J_MAJOR_VERSION = "6";
 
 	private static final String DEFAULT_USER_AGENT_STRING = userAgentString();
 
