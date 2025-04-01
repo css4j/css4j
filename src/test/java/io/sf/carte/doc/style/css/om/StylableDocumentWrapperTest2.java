@@ -37,6 +37,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.ProcessingInstruction;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -44,6 +45,7 @@ import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.LinkStyle;
+import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleProcessingInstruction;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class StylableDocumentWrapperTest2 {
@@ -373,6 +375,28 @@ public class StylableDocumentWrapperTest2 {
 		Attr httpEquiv = wrappedMeta.getAttributeNode("http-equiv");
 		httpEquiv.setValue("foo");
 		assertEquals("Default", wrapped.getSelectedStyleSheetSet());
+	}
+
+	@Test
+	public void testStyleProcessingInstruction() {
+		Document document = docbuilder.newDocument();
+		ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet",
+				"title=\"a&amp;&lt;&quot;&gt;e&apos;z\" type=\"text/css\" href=\"style.css\"");
+		document.appendChild(pi);
+		Element element = document.createElement("svg");
+		document.appendChild(element);
+
+		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
+		cssFac.setLenientSystemValues(false);
+		StylableDocumentWrapper wrapped = cssFac.createCSSDocument(document);
+		LinkStyleProcessingInstruction lpi = (LinkStyleProcessingInstruction) wrapped
+				.getFirstChild();
+
+		assertEquals("title=\"a&amp;&lt;&quot;&gt;e&apos;z\" type=\"text/css\" href=\"style.css\"",
+				lpi.getData());
+		assertEquals("text/css", lpi.getPseudoAttribute("type"));
+		assertEquals("style.css", lpi.getPseudoAttribute("href"));
+		assertEquals("a&<\">e'z", lpi.getPseudoAttribute("title"));
 	}
 
 	@Test

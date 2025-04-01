@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -281,24 +282,30 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 		URI u;
 		try {
 			u = new URI(uri);
-			if (!u.isAbsolute()) {
-				URL url = getBaseURL();
-				if (url != null) {
+		} catch (URISyntaxException e) {
+			throw new MalformedURLException(e.getMessage());
+		}
+
+		if (!u.isAbsolute()) {
+			URL url = getBaseURL();
+			if (url != null) {
+				try {
 					URI bu = url.toURI();
 					u = bu.resolve(u);
-				} else {
-					throw new MalformedURLException("Cannot convert URI " + uri + " to absolute.");
+				} catch (URISyntaxException e) {
+					throw new MalformedURLException(e.getMessage());
 				}
+			} else {
+				throw new MalformedURLException("Cannot convert URI " + uri + " to absolute.");
 			}
-		} catch (Exception e) {
-			throw new MalformedURLException(e.getMessage());
 		}
 
 		URL url;
 		try {
 			url = u.toURL();
 		} catch (Exception e) {
-			throw new MalformedURLException("Cannot convert URI " + uri + " to absolute.");
+			throw new MalformedURLException(
+					"Cannot convert URI " + uri + " to absolute: " + e.getMessage());
 		}
 		return url;
 	}

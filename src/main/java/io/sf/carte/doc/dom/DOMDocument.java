@@ -62,11 +62,9 @@ import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
-import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.DOMUtil;
-import io.sf.carte.doc.style.css.om.DefaultErrorHandler;
 import io.sf.carte.doc.style.css.om.MediaFactory;
 import io.sf.carte.doc.style.css.om.StyleSheetList;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
@@ -100,7 +98,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 	private final MyOMStyleSheetList sheets = new MyOMStyleSheetList(7);
 
-	private final ErrorHandler errorHandler = createErrorHandler();
+	private ErrorHandler errorHandler = createErrorHandler();
 
 	/*
 	 * Default style set according to 'Default-Style' meta.
@@ -2313,7 +2311,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			Node node = getFirstChild();
 			while (node != null) {
 				if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Document already has a doctype.");
+					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							"Document already has a doctype.");
 				}
 				node = node.getNextSibling();
 			}
@@ -2341,7 +2340,8 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 				Node node = getFirstChild();
 				while (node != null) {
 					if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Document already has a doctype.");
+						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+								"Document already has a doctype.");
 					}
 					node = node.getNextSibling();
 				}
@@ -2369,18 +2369,22 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			break;
 		case Node.DOCUMENT_TYPE_NODE: {
 			Node node = getFirstChild();
+			boolean refNodeFound = false;
 			while (node != null) {
 				if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
 					if (node != newChild) {
 						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
 								"Document already has a doctype.");
 					}
-				} else if (node.getNodeType() == Node.ELEMENT_NODE) {
-					if (node == refNode) {
+				} else {
+					refNodeFound = refNodeFound || node == refNode;
+					if (node.getNodeType() == Node.ELEMENT_NODE) {
+						if (!refNodeFound) {
+							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+									"Cannot insert doctype after document element.");
+						}
 						break;
 					}
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
-							"Cannot insert doctype after document element.");
 				}
 				node = node.getNextSibling();
 			}
@@ -2411,18 +2415,23 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			break;
 		case Node.DOCUMENT_TYPE_NODE: {
 			Node node = getFirstChild();
+			boolean oldNodeFound = false;
 			while (node != null) {
-				if (node == oldNode) {
-					break;
-				}
 				if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-					if (node != newChild) {
+					if (node != oldNode) {
 						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
 								"Document already has a doctype.");
 					}
-				} else if (node.getNodeType() == Node.ELEMENT_NODE) {
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
-							"Cannot insert doctype after document element.");
+					break;
+				} else {
+					oldNodeFound = oldNodeFound || node == oldNode;
+					if (node.getNodeType() == Node.ELEMENT_NODE) {
+						if (!oldNodeFound) {
+							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+									"Cannot insert doctype after document element.");
+						}
+						break;
+					}
 				}
 				node = node.getNextSibling();
 			}
@@ -2968,7 +2977,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	}
 
 	ErrorHandler createErrorHandler() {
-		return new MyDefaultErrorHandler();
+		return getStyleSheetFactory().createErrorHandler();
 	}
 
 	@Override
@@ -3251,17 +3260,6 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		protected void update() {
 			super.update();
 			updateStyleLists();
-		}
-
-	}
-
-	class MyDefaultErrorHandler extends DefaultErrorHandler {
-
-		private static final long serialVersionUID = DOMDocument.serialVersionUID;
-
-		@Override
-		protected AbstractCSSStyleSheetFactory getStyleSheetFactory() {
-			return DOMDocument.this.getStyleSheetFactory();
 		}
 
 	}

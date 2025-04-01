@@ -11,8 +11,10 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.w3c.dom.DOMException;
 
@@ -34,19 +36,21 @@ public class DOMUtil {
 	 *             DOMException.INVALID_CHARACTER_ERR if a syntax error was found while
 	 *             parsing the pseudo-attributes.
 	 */
-	public static void parsePseudoAttributes(String data, LinkedHashMap<String, String> pseudoAttrs)
+	public static void parsePseudoAttributes(String data, Map<String, String> pseudoAttrs)
 			throws DOMException {
 		pseudoAttrs.clear();
-		LinkedList<String> tokenlist = new LinkedList<>();
+		// There are 6 defined style pseudo-attributes
+		List<String> tokenlist = new ArrayList<>(6);
 		TokenParser tp = new TokenParser(data, " ", "\"'");
 		while (tp.hasNext()) {
-			tokenlist.add(tp.next());
+			tokenlist.add(tp.next().trim());
 		}
+
 		String token = null, name = null;
 		byte stage = 0;
 		for (String element : tokenlist) {
 			token = element;
-			if (stage == 0) {
+			if (stage == 0) { // Expecting pseudo-attribute name
 				int idx = token.indexOf('=');
 				if (idx == -1) {
 					if (invalidPseudoAttrName(token)) {
@@ -66,7 +70,7 @@ public class DOMUtil {
 					idx++;
 					if (idx != token.length()) {
 						String value = token.substring(idx);
-						pseudoAttrs.put(name, value);
+						setPseudoAttribute(pseudoAttrs, name, value);
 						name = null;
 						stage = 0;
 					} else {
@@ -74,47 +78,24 @@ public class DOMUtil {
 						stage = 2;
 					}
 				}
-			} else if (stage == 1) {
+			} else if (stage == 1) { // Waiting for either '=' or '=value'
 				int idx = token.indexOf('=');
-				if (idx == -1) {
-					pseudoAttrs.put(name, null);
-					if (invalidPseudoAttrName(token)) {
-						pseudoAttrs.clear();
-						parseError("Invalid pseudo-attribute name in PI: " + token);
-						return;
-					}
-					name = token;
-				} else if (idx == 0) {
+				if (idx == 0) {
 					// =[value]
 					idx++;
 					if (idx != token.length()) {
 						String value = token.substring(idx);
-						pseudoAttrs.put(name, value);
+						setPseudoAttribute(pseudoAttrs, name, value);
 						name = null;
 						stage = 0;
 					} else {
 						stage = 2;
 					}
 				} else {
-					pseudoAttrs.put(name, null);
-					name = token.substring(0, idx);
-					if (invalidPseudoAttrName(name)) {
-						pseudoAttrs.clear();
-						parseError("Invalid pseudo-attribute name in PI: " + name);
-						return;
-					}
-					idx++;
-					if (idx != token.length()) {
-						String value = token.substring(idx);
-						pseudoAttrs.put(name, value);
-						name = null;
-						stage = 0;
-					} else {
-						// name=
-						stage = 2;
-					}
+					parseError("Expected '=' in pseudo-attribute, instead found: " + token);
+					return;
 				}
-			} else if (stage == 2) {
+			} else if (stage == 2) { // Waiting for value, having found '='
 				pseudoAttrs.put(name, token);
 				stage = 0;
 			}
@@ -126,7 +107,7 @@ public class DOMUtil {
 	}
 
 	private static boolean invalidPseudoAttrName(String name) {
-		if (name.length() != 0) {
+		if (!name.isEmpty()) {
 			char[] na = name.toCharArray();
 			for (char c : na) {
 				if (!Character.isLetterOrDigit(c)) {
@@ -136,6 +117,78 @@ public class DOMUtil {
 			return false;
 		}
 		return true;
+	}
+
+	private static void setPseudoAttribute(Map<String, String> pseudoAttrs, String name,
+			String value) {
+		value = parseValue(value);
+		pseudoAttrs.put(name, value);
+	}
+
+	private static String parseValue(String value) {
+		int fromIdx = value.indexOf("&");
+		if (fromIdx == -1) {
+			return value;
+		}
+
+		int len = value.length();
+		int lenm3 = len - 3;
+		StringBuilder buf = new StringBuilder(lenm3);
+		buf.append(value.subSequence(0, fromIdx));
+		fromIdx++;
+
+		int idx;
+		while (fromIdx <= lenm3) {
+			idx = value.indexOf(";", fromIdx);
+			if (idx != -1) {
+				String ent = value.substring(fromIdx, idx).toLowerCase(Locale.ROOT);
+				buf.append(replaceEntity(ent));
+				idx++;
+				fromIdx = value.indexOf("&", idx);
+				if (fromIdx != -1) {
+					if (idx < fromIdx) {
+						buf.append(value.subSequence(idx, fromIdx));
+					}
+					fromIdx++;
+					continue;
+				} else {
+					fromIdx = idx;
+				}
+			} else {
+				parseError("Malformed entity in PI: " + value);
+				buf.append('&');
+			}
+			break;
+		}
+
+		buf.append(value.subSequence(fromIdx, len));
+
+		return buf.toString();
+	}
+
+	private static char replaceEntity(String ent) {
+		char c;
+		switch(ent) {
+		case "amp":
+			c = '&';
+			break;
+		case "lt":
+			c = '<';
+			break;
+		case "gt":
+			c = '>';
+			break;
+		case "quot":
+			c = '"';
+			break;
+		case "apos":
+			c = '\'';
+			break;
+		default:
+			parseError("Only predefined entities are valid in PI, not &" + ent + ';');
+			c = '?';
+		}
+		return c;
 	}
 
 }

@@ -26,6 +26,7 @@ import org.w3c.dom.Node;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.AbstractCSSRule;
@@ -41,6 +42,7 @@ import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.DOMComputedStyle;
 import io.sf.carte.doc.style.css.om.DOMDocumentCSSStyleSheet;
+import io.sf.carte.doc.style.css.om.DefaultErrorHandler;
 import io.sf.carte.doc.style.css.om.InlineStyle;
 
 /**
@@ -516,6 +518,26 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 		@Override
 		protected CSSDOMImplementation getStyleSheetFactory() {
+			return CSSDOMImplementation.this;
+		}
+
+	}
+
+	/**
+	 * Create an error handler.
+	 * 
+	 * @return the error handler.
+	 */
+	protected ErrorHandler createErrorHandler() {
+		return new MyDefaultErrorHandler();
+	}
+
+	class MyDefaultErrorHandler extends DefaultErrorHandler {
+
+		private static final long serialVersionUID = CSSDOMImplementation.serialVersionUID;
+
+		@Override
+		protected AbstractCSSStyleSheetFactory getStyleSheetFactory() {
 			return CSSDOMImplementation.this;
 		}
 

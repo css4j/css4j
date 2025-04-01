@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +46,7 @@ import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
 import io.sf.carte.doc.TestConfig;
+import io.sf.carte.doc.dom.DOMDocument.LinkStyleProcessingInstruction;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
@@ -827,7 +830,8 @@ public class DOMDocumentTest {
 	@Test
 	public void testProcessingInstruction() {
 		DOMDocument document = domImpl.createDocument(null, null, null);
-		ProcessingInstruction pi = document.createProcessingInstruction("xml-foo", "pseudoattr=\"value\"");
+		ProcessingInstruction pi = document.createProcessingInstruction("xml-foo",
+				"pseudoattr=\"value\"");
 		assertEquals("<?xml-foo pseudoattr=\"value\"?>", pi.toString());
 		assertFalse(pi instanceof LinkStyle);
 		assertNull(pi.getNextSibling());
@@ -835,47 +839,125 @@ public class DOMDocumentTest {
 		assertNull(pi.getFirstChild());
 		assertNull(pi.getLastChild());
 
-		try {
-			pi.setData("?>");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
-		}
-		try {
-			document.createProcessingInstruction("xml-foo", "?>");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
-		}
-		try {
-			document.createProcessingInstruction("xml-foo ?>",
-					"<DOCTYPE SYSTEM='http://www.example.com/malicious.dtd'>");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
-		}
-		try {
-			document.createProcessingInstruction(null, "bar");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
-		}
-		try {
-			document.createProcessingInstruction("", "bar");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
-		}
+		/*
+		 * Errors
+		 */
+		DOMException ex = assertThrows(DOMException.class, () -> pi.setData("?>"));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+
+		ex = assertThrows(DOMException.class,
+				() -> document.createProcessingInstruction("xml-foo", "?>"));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+
+		ex = assertThrows(DOMException.class,
+				() -> document.createProcessingInstruction("xml-foo ?>",
+						"<DOCTYPE SYSTEM='http://www.example.com/malicious.dtd'>"));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+
+		ex = assertThrows(DOMException.class,
+				() -> document.createProcessingInstruction(null, "bar"));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+
+		ex = assertThrows(DOMException.class,
+				() -> document.createProcessingInstruction("", "bar"));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+
+		/*
+		 * Clone
+		 */
 		Node clone = pi.cloneNode(true);
 		assertTrue(pi.isEqualNode(clone));
 	}
 
 	@Test
+	public void testXmlIsNotProcessingInstruction() {
+		DOMDocument document = domImpl.createDocument("", null, null);
+		DOMException ex = assertThrows(DOMException.class, () -> document
+				.createProcessingInstruction("xml", "version=\"1.0\" standalone=\"no\""));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+	}
+
+	@Test
 	public void testStyleProcessingInstruction() {
-		ProcessingInstruction pi = domImpl.createDocument(null, null, null)
-				.createProcessingInstruction("xml-stylesheet", "type=\"text/css\" href=\"style.css\"");
-		assertEquals("<?xml-stylesheet type=\"text/css\" href=\"style.css\"?>", pi.toString());
+		DOMDocument document = domImpl.createDocument("", null, null);
+		ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href = \"style.css\"");
+		assertEquals("<?xml-stylesheet type=\"text/css\" href = \"style.css\"?>", pi.toString());
+		assertTrue(pi instanceof LinkStyleProcessingInstruction);
+		LinkStyleProcessingInstruction lpi = (LinkStyleProcessingInstruction) pi;
+		assertEquals("text/css", lpi.getPseudoAttribute("type"));
+		assertEquals("style.css", lpi.getPseudoAttribute("href"));
+
+		// Empty style PI
+		document.createProcessingInstruction("xml-stylesheet", "");
+
+		// Predefined entities
+		pi = document.createProcessingInstruction("xml-stylesheet",
+				"title=\"a&amp;&lt;&quot;&gt;e&apos;z\" type= \"text/css\" href =\"style.css\"");
+		lpi = (LinkStyleProcessingInstruction) pi;
+		assertEquals("text/css", lpi.getPseudoAttribute("type"));
+		assertEquals("style.css", lpi.getPseudoAttribute("href"));
+		assertEquals("a&<\">e'z", lpi.getPseudoAttribute("title"));
+
+		// Invalid pseudo-attribute name in style PI
+		DOMException ex = assertThrows(DOMException.class, () ->
+		document.createProcessingInstruction("xml-stylesheet",
+				"$type=\"text/css\" href=\"style.css\""));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+
+		// Invalid pseudo-attribute name in style PI (II)
+		ex = assertThrows(DOMException.class, () ->
+		document.createProcessingInstruction("xml-stylesheet",
+				"$type= \"text/css\" href=\"style.css\""));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+
+		// Invalid pseudo-attribute name in style PI (III)
+		ex = assertThrows(DOMException.class, () ->
+		document.createProcessingInstruction("xml-stylesheet",
+				"$type =\"text/css\" href=\"style.css\""));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+
+		// pseudo-attribute syntax error in style PI (I)
+		ex = assertThrows(DOMException.class, () ->
+		document.createProcessingInstruction("xml-stylesheet",
+				"type \"text/css\" href=\"style.css\""));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+
+		// pseudo-attribute syntax error in style PI (II)
+		ex = assertThrows(DOMException.class, () ->
+		document.createProcessingInstruction("xml-stylesheet",
+				"type href=\"style.css\""));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+
+		// Undefined entity in style PI
+		ex = assertThrows(DOMException.class, () ->
+		document.createProcessingInstruction("xml-stylesheet",
+				"title=\"&foo;\" type=\"text/css\" href=\"style.css\""));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+
+		// Malformed entity in style PI
+		ex = assertThrows(DOMException.class, () ->
+		document.createProcessingInstruction("xml-stylesheet",
+				"title=\"&ltForgotComma\" type=\"text/css\" href=\"style.css\""));
+		assertEquals(DOMException.INVALID_CHARACTER_ERR, ex.code);
+	}
+
+	@Test
+	public void testStyleProcessingInstructionWS() {
+		DOMDocument document = domImpl.createDocument(null, null, null);
+		ProcessingInstruction pi = document.createProcessingInstruction("xml-stylesheet",
+				"type = \"text/css\" href = \"style.css\" ");
+		assertEquals("<?xml-stylesheet type = \"text/css\" href = \"style.css\" ?>", pi.toString());
 		assertTrue(pi instanceof LinkStyle);
+		assertTrue(pi instanceof LinkStyleProcessingInstruction);
+		LinkStyleProcessingInstruction lpi = (LinkStyleProcessingInstruction) pi;
+		assertEquals("text/css", lpi.getPseudoAttribute("type"));
+		assertEquals("style.css", lpi.getPseudoAttribute("href"));
+
+		assertNull(pi.getNextSibling());
+		assertNull(pi.getPreviousSibling());
+		assertNull(pi.getFirstChild());
+		assertNull(pi.getLastChild());
 	}
 
 	@Test
@@ -1751,9 +1833,18 @@ public class DOMDocumentTest {
 	public void testAppendPrependChild() {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
 
+		Comment comment = document.createComment(" Comment ");
+		document.prependChild(comment);
+		document.removeChild(comment);
+		document.appendChild(comment);
+
 		// Replace document element
 		DOMElement docelm = document.createElementNS(null, "doc");
 		DOMElement element = document.createElementNS(null, "element");
+
+		Comment comment2 = document.createComment(" New comment ");
+		document.appendChild(comment2);
+
 		document.appendChild(docelm);
 		assertSame(document, docelm.getParentNode());
 
@@ -1801,13 +1892,22 @@ public class DOMDocumentTest {
 
 		ex = assertThrows(DOMException.class, () -> document.insertBefore(dtd2, docelm));
 		assertEquals(DOMException.HIERARCHY_REQUEST_ERR, ex.code);
+
+		ProcessingInstruction ss = document.createProcessingInstruction("xml-stylesheet",
+				"type=\"text/css\" href=\"style.css\"");
+		document.insertBefore(ss, docelm);
+
+		Comment comment3 = document.createComment(" Another comment ");
+		document.insertBefore(comment3, ss);
 	}
 
 	@Test
 	public void testInsertBefore() {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
+
 		Comment comment = document.createComment(" Comment ");
-		document.appendChild(comment);
+		document.insertBefore(comment, null);
+
 		// Insert document element
 		DOMElement docelm = document.createElementNS(null, "doc");
 		DOMElement element = document.createElementNS(null, "element");
@@ -2051,6 +2151,28 @@ public class DOMDocumentTest {
 		assertNull(document.getBaseURI());
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasNodeErrors());
+	}
+
+	@Test
+	public void testGetURL() throws MalformedURLException {
+		DOMDocument document = domImpl.createDocument(TestConfig.SVG_NAMESPACE_URI, "svg", null);
+		document.setDocumentURI("https://www.example.com/a/b/");
+
+		URL c = document.getURL("/c.css");
+		assertNotNull(c);
+		assertEquals("https://www.example.com/c.css", c.toExternalForm());
+
+		c = document.getURL("c.css");
+		assertNotNull(c);
+		assertEquals("https://www.example.com/a/b/c.css", c.toExternalForm());
+
+		c = document.getURL("../c.css");
+		assertNotNull(c);
+		assertEquals("https://www.example.com/a/c.css", c.toExternalForm());
+
+		c = document.getURL("../../c.css");
+		assertNotNull(c);
+		assertEquals("https://www.example.com/c.css", c.toExternalForm());
 	}
 
 	@Test
