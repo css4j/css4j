@@ -48,6 +48,7 @@ import org.xml.sax.SAXParseException;
 
 import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.agent.TestEntityResolver;
+import io.sf.carte.doc.dom.DOMDocument.LinkStyleProcessingInstruction;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
 
 public class XMLDocumentBuilderTest {
@@ -75,10 +76,12 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(document);
 		assertEquals("http://www.example.com/xml/entities.xhtml", document.getDocumentURI());
 		assertEquals("http://www.example.com/", document.getBaseURI());
+
 		Node node = document.getFirstChild();
 		assertNotNull(node);
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 		assertEquals(" A first comment before the DOCTYPE ", ((Comment) node).getData());
+
 		DocumentType docType = document.getDoctype();
 		assertNotNull(docType);
 		node = docType.getPreviousSibling();
@@ -90,16 +93,32 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(node);
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 		assertEquals(" A comment just after the DOCTYPE ", ((Comment) node).getData());
+
 		node = node.getNextSibling();
 		assertNotNull(node);
 		assertEquals(Node.PROCESSING_INSTRUCTION_NODE, node.getNodeType());
 		ProcessingInstruction pi = (ProcessingInstruction) node;
 		assertEquals("xml-stylesheet", pi.getTarget());
 		assertEquals("type=\"text/css\" href=\"style.css\"", pi.getData());
+
+		node = node.getNextSibling();
+		assertNotNull(node);
+		assertEquals(Node.PROCESSING_INSTRUCTION_NODE, node.getNodeType());
+		ProcessingInstruction pialt = (ProcessingInstruction) node;
+		assertEquals("xml-stylesheet", pialt.getTarget());
+		assertEquals(
+				"alternate=\"yes\" href=\"foo?a=&quot;b&quot;&amp;c=&apos;d&apos;\" title=\"Dark\"",
+				pialt.getData());
+		assertTrue(pialt instanceof LinkStyleProcessingInstruction);
+		LinkStyleProcessingInstruction lpi = (LinkStyleProcessingInstruction) pialt;
+		assertEquals("yes", lpi.getPseudoAttribute("alternate"));
+		assertEquals("foo?a=\"b\"&c='d'", lpi.getPseudoAttribute("href"));
+
 		node = document.getDocumentElement().getNextSibling();
 		assertNotNull(node);
 		assertEquals(Node.COMMENT_NODE, node.getNodeType());
 		assertEquals(" A comment just after the document element ", node.getNodeValue());
+
 		// Entities etc.
 		DOMElement element = document.getElementById("entity");
 		assertNotNull(element);
@@ -117,6 +136,7 @@ public class XMLDocumentBuilderTest {
 		assertNotNull(element);
 		assertTrue(element.hasAttribute("donotexist"));
 		assertEquals("nothing", element.getAttribute("donotexist"));
+
 		// SVG
 		DOMElement svg = document.getElementById("svg1");
 		assertNotNull(svg);
