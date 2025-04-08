@@ -227,7 +227,10 @@ public interface CSSStyleSheet<R extends CSSRule> extends org.w3c.dom.css.CSSSty
 	 *
 	 * @return a CSSViewportRule object.
 	 */
-	CSSDeclarationRule createViewportRule();
+	@Deprecated(forRemoval = true)
+	default CSSDeclarationRule createViewportRule() {
+		return null;
+	}
 
 	/**
 	 * Create a CSS style declaration compatible with this implementation.
