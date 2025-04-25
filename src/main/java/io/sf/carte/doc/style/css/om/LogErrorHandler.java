@@ -25,6 +25,7 @@ import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 /**
  * A sample <code>ErrorHandler</code> that uses SLF4J logging.
  */
+@Deprecated(forRemoval = true)
 abstract public class LogErrorHandler extends AbstractErrorHandler {
 
 	private static final long serialVersionUID = 1L;
