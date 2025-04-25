@@ -24,6 +24,6 @@ import io.sf.carte.doc.style.css.StyleDatabase;
  * @deprecated
  * @see io.sf.carte.doc.style.css.Viewport
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public interface Viewport extends io.sf.carte.doc.style.css.Viewport {
 }

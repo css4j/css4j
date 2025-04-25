@@ -17,6 +17,6 @@ package io.sf.carte.doc.agent;
  * @deprecated
  * @see io.sf.carte.doc.style.css.CSSCanvas
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public interface CSSCanvas extends io.sf.carte.doc.style.css.CSSCanvas {
 }

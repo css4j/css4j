@@ -49,6 +49,10 @@ Upgrading to 6.0 from 5.3.1
 - The deprecated `LogUserAgentErrorHandler` was removed, and `LogErrorHandler`
   is now deprecated for removal.
 
+- The legacy `CSSCanvas` and `Viewport` in the `agent` package, which were
+  deprecated, now are for removal. Use the equivalent interfaces in the `css`
+  package.
+
 
 Upgrading to 5.3 from 5.2
 -------------------------
