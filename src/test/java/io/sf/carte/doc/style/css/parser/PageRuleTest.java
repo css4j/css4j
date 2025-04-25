@@ -61,7 +61,7 @@ public class PageRuleTest {
 		re.close();
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals("body", handler.selectors.get(0).toString());
 		assertEquals(6, handler.propertyNames.size());
 		assertEquals("background-color", handler.propertyNames.get(0));
 		assertEquals("margin-top", handler.propertyNames.get(1));
@@ -537,7 +537,7 @@ public class PageRuleTest {
 		assertEquals(1, medialist.getLength());
 		assertEquals("print", medialist.item(0));
 		assertEquals(1, handler.selectors.size());
-		assertEquals("h3", handler.selectors.getFirst().toString());
+		assertEquals("h3", handler.selectors.get(0).toString());
 		assertEquals(1, handler.endSelectors.size());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-top", handler.propertyNames.get(0));

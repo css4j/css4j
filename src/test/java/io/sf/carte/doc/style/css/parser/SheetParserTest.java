@@ -93,7 +93,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals("hr[align=\"left\"]", handler.selectors.getFirst().toString());
+		assertEquals("hr[align=\"left\"]", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
@@ -120,7 +120,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(2, handler.selectors.size());
-		assertEquals(".fooclass", handler.selectors.getFirst().toString());
+		assertEquals(".fooclass", handler.selectors.get(0).toString());
 		assertEquals("#fooid .barclass", handler.selectors.get(1).toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-right", handler.propertyNames.getFirst());
@@ -142,7 +142,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(2, handler.selectors.size());
-		assertEquals(".fooclass", handler.selectors.getFirst().toString());
+		assertEquals(".fooclass", handler.selectors.get(0).toString());
 		assertEquals("#fooid .fooclass", handler.selectors.get(1).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
@@ -170,7 +170,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
@@ -198,7 +198,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
@@ -229,7 +229,7 @@ public class SheetParserTest {
 		assertEquals(1, handler.mediaRuleLists.size());
 		assertEquals("screen and (min-width: 768px)", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
@@ -259,7 +259,7 @@ public class SheetParserTest {
 
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header",
-			handler.selectors.getFirst().toString());
+			handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
@@ -289,7 +289,7 @@ public class SheetParserTest {
 
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header",
-			handler.selectors.getFirst().toString());
+			handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
@@ -319,7 +319,7 @@ public class SheetParserTest {
 
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header",
-			handler.selectors.getFirst().toString());
+			handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
@@ -362,7 +362,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals("svg|p", handler.selectors.getFirst().toString());
+		assertEquals("svg|p", handler.selectors.get(0).toString());
 		assertEquals(3, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.get(0));
 		assertEquals("color", handler.propertyNames.get(1));
@@ -406,7 +406,7 @@ public class SheetParserTest {
 		assertEquals(1, handler.lexicalValues.size());
 		assertEquals("80%", handler.lexicalValues.get(0).toString());
 		assertEquals(1, handler.selectors.size());
-		SelectorList selist = handler.selectors.getFirst();
+		SelectorList selist = handler.selectors.get(0);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SelectorType.ELEMENT, sel.getSelectorType());
@@ -427,7 +427,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -451,7 +451,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -474,7 +474,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -500,7 +500,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -526,7 +526,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(0, handler.comments.size());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
@@ -549,7 +549,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(0, handler.comments.size());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
@@ -572,7 +572,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(0, handler.comments.size());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
@@ -595,7 +595,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(0, handler.comments.size());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
@@ -706,7 +706,7 @@ public class SheetParserTest {
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, handler.namespaceMaps.get("svg"));
 		assertEquals(2, handler.selectors.size());
-		assertEquals("p", handler.selectors.getFirst().toString());
+		assertEquals("p", handler.selectors.get(0).toString());
 		assertEquals("svg|svg", handler.selectors.get(1).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("color", handler.propertyNames.getFirst());
@@ -1121,8 +1121,8 @@ public class SheetParserTest {
 		assertTrue(mq0.hasErrors());
 		assertEquals("all", handler.mediaRuleLists.get(1).toString());
 		assertEquals(2, handler.selectors.size());
-		assertEquals(".bar", handler.selectors.getFirst().toString());
-		assertEquals("div.foo", handler.selectors.getLast().toString());
+		assertEquals(".bar", handler.selectors.get(0).toString());
+		assertEquals("div.foo", handler.selectors.get(1).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("top", handler.propertyNames.get(0));
 		assertEquals("margin", handler.propertyNames.get(1));
@@ -1247,7 +1247,7 @@ public class SheetParserTest {
 		re.close();
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals("body", handler.selectors.get(0).toString());
 		assertEquals(1, handler.fontFeaturesNames.size());
 		assertEquals("Some Font", handler.fontFeaturesNames.get(0)[0]);
 		assertEquals(2, handler.featureMapNames.size());
@@ -1547,7 +1547,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		re.close();
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals("body", handler.selectors.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("background-color", handler.propertyNames.get(0));
 		assertEquals(1, handler.lexicalValues.size());
@@ -1570,7 +1570,7 @@ public class SheetParserTest {
 		assertEquals(1, handler.lexicalValues.size());
 		assertEquals("10pt", handler.lexicalValues.get(0).toString());
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals("body", handler.selectors.get(0).toString());
 		assertFalse(errorHandler.hasError());
 		assertTrue(errorHandler.hasWarning());
 	}
@@ -1607,7 +1607,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		re.close();
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals("body", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("background-color", handler.propertyNames.get(0));
 		assertEquals("border", handler.propertyNames.get(1));
@@ -1628,7 +1628,7 @@ public class SheetParserTest {
 			"body {\nbackground-color: red;\nfont-family: 'Times New\ncolor: blue;:;\nborder: none}");
 		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals("body", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("background-color", handler.propertyNames.get(0));
 		assertEquals("border", handler.propertyNames.get(1));
@@ -1649,7 +1649,7 @@ public class SheetParserTest {
 			"p {margin-left: 2pt; content: 'Hello\ncolor: blue; border: none}");
 		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
-		assertEquals("p", handler.selectors.getFirst().toString());
+		assertEquals("p", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.get(0));
 		assertEquals("border", handler.propertyNames.get(1));
@@ -1671,7 +1671,7 @@ public class SheetParserTest {
 		re.close();
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals("body", handler.selectors.get(0).toString());
 		assertEquals(3, handler.propertyNames.size());
 		assertEquals("syntax", handler.propertyNames.getFirst());
 		assertEquals("inherits", handler.propertyNames.get(1));
@@ -1720,7 +1720,7 @@ public class SheetParserTest {
 			"<!--/*--><![CDATA[/*><!--*/body{padding-top:2px}.foo {color:red}");
 		parser.parseStyleSheet(re);
 		assertEquals(2, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals("body", handler.selectors.get(0).toString());
 		assertEquals(".foo", handler.selectors.get(1).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("padding-top", handler.propertyNames.getFirst());
@@ -1744,7 +1744,7 @@ public class SheetParserTest {
 		Reader re = new StringReader("<!--/*--><!/*><!--*/body{padding-top:2px}.foo {color:red}");
 		parser.parseStyleSheet(re);
 		assertEquals(2, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals("body", handler.selectors.get(0).toString());
 		assertEquals(".foo", handler.selectors.get(1).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("padding-top", handler.propertyNames.getFirst());
@@ -1768,7 +1768,7 @@ public class SheetParserTest {
 		Reader re = new StringReader("p /*, article */, div {display:block}");
 		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
-		assertEquals("p,div", handler.selectors.getFirst().toString());
+		assertEquals("p,div", handler.selectors.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1787,7 +1787,7 @@ public class SheetParserTest {
 		Reader re = new StringReader("p, div,/* html5 */ article  {display:block}");
 		parser.parseStyleSheet(re);
 		assertEquals(1, handler.selectors.size());
-		assertEquals("p,div,article", handler.selectors.getFirst().toString());
+		assertEquals("p,div,article", handler.selectors.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -1808,7 +1808,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(2, handler.selectors.size());
-		assertEquals("html", handler.selectors.getFirst().toString());
+		assertEquals("html", handler.selectors.get(0).toString());
 		assertEquals("[hidden]", handler.selectors.get(1).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("overflow-x", handler.propertyNames.getFirst());

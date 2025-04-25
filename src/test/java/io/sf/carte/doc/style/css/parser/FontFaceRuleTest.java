@@ -61,7 +61,7 @@ public class FontFaceRuleTest {
 		}
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
+		assertEquals("body", handler.selectors.get(0).toString());
 
 		assertEquals(1, handler.fontFeaturesNames.size());
 		assertEquals("Foo Sans", handler.fontFeaturesNames.get(0)[0]);

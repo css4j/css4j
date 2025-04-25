@@ -70,7 +70,7 @@ public class RuleParserTest {
 	public void testParseRule2() throws CSSException, IOException {
 		parseRule("hr[align=\"left\"]    {margin-left : 0 ;margin-right : auto;}");
 		assertEquals(1, handler.selectors.size());
-		assertEquals("hr[align=\"left\"]", handler.selectors.getFirst().toString());
+		assertEquals("hr[align=\"left\"]", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
@@ -89,7 +89,7 @@ public class RuleParserTest {
 	public void testParseRule3() throws CSSException, IOException {
 		parseRule("input:not(){}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body:not(.foo)[id*=\"substring\"] .header", handler.selectors.getFirst().toString());
+		assertEquals("body:not(.foo)[id*=\"substring\"] .header", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		assertEquals("margin-right", handler.propertyNames.getLast());
@@ -121,7 +121,7 @@ public class RuleParserTest {
 		nsmap.put("svg", TestConfig.SVG_NAMESPACE_URI);
 		parseRule("svg|p{font-family: Times New Roman; color: yellow; width: calc(100% - 3em);}", nsmap);
 		assertEquals(1, handler.selectors.size());
-		assertEquals("svg|p", handler.selectors.getFirst().toString());
+		assertEquals("svg|p", handler.selectors.get(0).toString());
 		assertEquals(3, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.get(0));
 		assertEquals("color", handler.propertyNames.get(1));
@@ -154,7 +154,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.lexicalValues.size());
 		assertEquals("80%", handler.lexicalValues.get(0).toString());
 		assertEquals(1, handler.selectors.size());
-		SelectorList selist = handler.selectors.getFirst();
+		SelectorList selist = handler.selectors.get(0);
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(Selector.SelectorType.ELEMENT, sel.getSelectorType());
@@ -168,7 +168,7 @@ public class RuleParserTest {
 		// An asterisk before the '*/' may confuse the parser
 		parseRule(".foo {\n/**just a comment**/margin-left:auto}");
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -187,7 +187,7 @@ public class RuleParserTest {
 		// An asterisk before the '*/' may confuse the parser
 		parseRule(".foo {  /**just a comment**/margin-left:auto}");
 		assertEquals(1, handler.selectors.size());
-		assertEquals(".foo", handler.selectors.getFirst().toString());
+		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
@@ -360,7 +360,7 @@ public class RuleParserTest {
 		assertEquals("print", medialist.item(0));
 		assertEquals(1, handler.endMediaCount);
 		assertEquals(1, handler.selectors.size());
-		assertEquals("h3", handler.selectors.getFirst().toString());
+		assertEquals("h3", handler.selectors.get(0).toString());
 		assertEquals(1, handler.endSelectors.size());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-top", handler.propertyNames.get(0));

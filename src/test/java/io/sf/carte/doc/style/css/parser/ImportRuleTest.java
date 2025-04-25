@@ -425,7 +425,7 @@ public class ImportRuleTest {
 		assertEquals(0, handler.importMedias.size());
 
 		assertEquals(1, handler.selectors.size());
-		SelectorList selist = handler.selectors.getFirst();
+		SelectorList selist = handler.selectors.get(0);
 		assertEquals(
 				"a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div",
 				selist.toString());
