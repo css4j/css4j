@@ -2,23 +2,23 @@
 
  Copyright (c) 2005-2025, Carlos Amengual.
 
- SPDX-License-Identifier: BSD-3-Clause
-
  Licensed under a BSD-style License. You can find the license here:
  https://css4j.github.io/LICENSE.txt
 
  */
+
+// SPDX-License-Identifier: BSD-3-Clause
 
 package io.sf.carte.doc.style.css.parser;
 
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 
-class PseudoConditionImpl implements PseudoCondition, java.io.Serializable {
+class PseudoConditionImpl extends AbstractCondition implements PseudoCondition {
 
 	private static final long serialVersionUID = 1L;
 
-	private final ConditionType condType;
+	private ConditionType condType;
 
 	String name = null;
 	String argument = null;
@@ -104,6 +104,15 @@ class PseudoConditionImpl implements PseudoCondition, java.io.Serializable {
 
 	private String getEscapedArgument() {
 		return argument != null ? ParseHelper.escape(argument) : "";
+	}
+
+	@Override
+	public PseudoConditionImpl clone() {
+		PseudoConditionImpl clon = (PseudoConditionImpl) super.clone();
+		clon.condType = condType;
+		clon.name = name;
+		clon.argument = argument;
+		return clon;
 	}
 
 }

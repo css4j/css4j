@@ -71,12 +71,13 @@ public class CompatInlineDeclarationTest {
 		div.setAttribute("style", "display: block");
 		body.appendChild(div);
 		document = factory.createCSSDocument(doc);
-		emptyStyleDecl = (BaseCSSStyleDeclaration) ((CSSElement) document.getDocumentElement().getFirstChild())
-				.getStyle();
+		emptyStyleDecl = (BaseCSSStyleDeclaration) ((CSSElement) document.getDocumentElement()
+				.getFirstChild()).getStyle();
 	}
 
 	private StyleDeclarationErrorHandler getStyleDeclarationErrorHandler() {
-		return document.getErrorHandler().getInlineStyleErrorHandler(document.getElementById("bodyId"));
+		return document.getErrorHandler()
+				.getInlineStyleErrorHandler(document.getElementById("bodyId"));
 	}
 
 	@Test
@@ -131,15 +132,18 @@ public class CompatInlineDeclarationTest {
 	@Test
 	public void setCssTextContent2() {
 		emptyStyleDecl.setCssText("content:attr(data-votes) \" votes\";");
-		assertEquals("attr(data-votes) \" votes\"", emptyStyleDecl.getPropertyCSSValue("content").getCssText());
+		assertEquals("attr(data-votes) \" votes\"",
+				emptyStyleDecl.getPropertyCSSValue("content").getCssText());
 		assertEquals("attr(data-votes) \" votes\"", emptyStyleDecl.getPropertyValue("content"));
 	}
 
 	@Test
 	public void setCssTextEscaped() {
-		emptyStyleDecl.setCssText("font-family: \\5FAE\\8F6F\\96C5\\9ED1,Arial,\\5b8b\\4f53,sans-serif");
+		emptyStyleDecl
+				.setCssText("font-family: \\5FAE\\8F6F\\96C5\\9ED1,Arial,\\5b8b\\4f53,sans-serif");
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
-		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , Arial, \\5b8b\\4f53 , sans-serif", value.getCssText());
+		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , Arial, \\5b8b\\4f53 , sans-serif",
+				value.getCssText());
 		assertEquals("微软雅黑,Arial,宋体,sans-serif", value.getMinifiedCssText("font-family"));
 		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , Arial, \\5b8b\\4f53 , sans-serif",
 				emptyStyleDecl.getPropertyValue("font-family"));
@@ -147,9 +151,11 @@ public class CompatInlineDeclarationTest {
 
 	@Test
 	public void setCssTextEscaped2() {
-		emptyStyleDecl.setCssText("font-family: \\5FAE\\8F6F\\96C5\\9ED1,\"Times New Roman\",\\5b8b\\4f53");
+		emptyStyleDecl.setCssText(
+				"font-family: \\5FAE\\8F6F\\96C5\\9ED1,\"Times New Roman\",\\5b8b\\4f53");
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("font-family");
-		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , \"Times New Roman\", \\5b8b\\4f53 ", value.getCssText());
+		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , \"Times New Roman\", \\5b8b\\4f53 ",
+				value.getCssText());
 		assertEquals("微软雅黑,\"Times New Roman\",宋体", value.getMinifiedCssText("font-family"));
 		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , \"Times New Roman\", \\5b8b\\4f53 ",
 				emptyStyleDecl.getPropertyValue("font-family"));
@@ -231,12 +237,15 @@ public class CompatInlineDeclarationTest {
 		assertEquals("12pt", emptyStyleDecl.getPropertyValue("font-size"));
 		assertEquals("font-size: 12pt; ", emptyStyleDecl.getCssText());
 		emptyStyleDecl.setCssText("font-family: \"Times New Roman\"");
-		assertEquals("\"Times New Roman\"", emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
+		assertEquals("\"Times New Roman\"",
+				emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
 		assertEquals("Times New Roman", emptyStyleDecl.getPropertyValue("font-family"));
-		assertEquals("\"Times New Roman\"", emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
+		assertEquals("\"Times New Roman\"",
+				emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
 		emptyStyleDecl.setCssText("font-family: Verdana, Chicago");
 		assertEquals("Verdana, Chicago", emptyStyleDecl.getPropertyValue("font-family"));
-		assertEquals("Verdana, Chicago", emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
+		assertEquals("Verdana, Chicago",
+				emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
 		emptyStyleDecl.setCssText("font-family: \"Comic Sans\", Chicago");
 		assertEquals("\"Comic Sans\", Chicago", emptyStyleDecl.getPropertyValue("font-family"));
 		emptyStyleDecl.setCssText("font-family: \"Comic Sans\",               Chicago");
@@ -259,7 +268,8 @@ public class CompatInlineDeclarationTest {
 
 	@Test
 	public void setCssTextFilterIdentifier() {
-		emptyStyleDecl.setCssText("filter:progid\\:DXImageTransform\\.Microsoft\\.Blur\\(pixelradius\\=5\\);");
+		emptyStyleDecl.setCssText(
+				"filter:progid\\:DXImageTransform\\.Microsoft\\.Blur\\(pixelradius\\=5\\);");
 		assertEquals("progid\\:DXImageTransform\\.Microsoft\\.Blur\\(pixelradius\\=5\\)",
 				emptyStyleDecl.getPropertyCSSValue("filter").getCssText());
 		assertEquals("progid:DXImageTransform.Microsoft.Blur(pixelradius=5)",
@@ -273,9 +283,11 @@ public class CompatInlineDeclarationTest {
 		String cssText = "filter:progid:DXImageTransform.Microsoft.gradient(startColorStr='#f5f5f5',EndColorStr='#f1f1f1');";
 		emptyStyleDecl.setCssText(cssText);
 		assertEquals(1, emptyStyleDecl.getLength());
-		assertEquals("progid:DXImageTransform.Microsoft.gradient(startColorStr= '#f5f5f5', EndColorStr= '#f1f1f1')",
+		assertEquals(
+				"progid:DXImageTransform.Microsoft.gradient(startColorStr= '#f5f5f5', EndColorStr= '#f1f1f1')",
 				emptyStyleDecl.getPropertyCSSValue("filter").getCssText());
-		assertEquals("progid:DXImageTransform.Microsoft.gradient(startColorStr= '#f5f5f5', EndColorStr= '#f1f1f1')",
+		assertEquals(
+				"progid:DXImageTransform.Microsoft.gradient(startColorStr= '#f5f5f5', EndColorStr= '#f1f1f1')",
 				emptyStyleDecl.getPropertyValue("filter"));
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertTrue(getStyleDeclarationErrorHandler().hasWarnings());
@@ -286,7 +298,8 @@ public class CompatInlineDeclarationTest {
 		String cssText = "margin:10px;margin:8px!important!;width:590px;width:600px!important!;";
 		emptyStyleDecl.setCssText(cssText);
 		assertEquals(5, emptyStyleDecl.getLength());
-		assertEquals("margin: 10px; margin: 8px!important!; width: 590px; width: 600px!important!; ",
+		assertEquals(
+				"margin: 10px; margin: 8px!important!; width: 590px; width: 600px!important!; ",
 				emptyStyleDecl.getCssText());
 		assertEquals("margin:10px;margin:8px!important!;width:590px;width:600px!important!",
 				emptyStyleDecl.getMinifiedCssText());
@@ -299,7 +312,8 @@ public class CompatInlineDeclarationTest {
 		String cssText = "margin:8px!important!;margin:10px;width:600px!important!;width:590px;";
 		emptyStyleDecl.setCssText(cssText);
 		assertEquals(5, emptyStyleDecl.getLength());
-		assertEquals("margin: 8px!important!; margin: 10px; width: 600px!important!; width: 590px; ",
+		assertEquals(
+				"margin: 8px!important!; margin: 10px; width: 600px!important!; width: 590px; ",
 				emptyStyleDecl.getCssText());
 		assertEquals("margin:8px!important!;margin:10px;width:600px!important!;width:590px",
 				emptyStyleDecl.getMinifiedCssText());
@@ -313,7 +327,8 @@ public class CompatInlineDeclarationTest {
 		emptyStyleDecl.setCssText(cssText);
 		assertEquals(4, emptyStyleDecl.getLength());
 		assertEquals("margin: 10px 5px; margin: 8px 4px!important!; ", emptyStyleDecl.getCssText());
-		assertEquals("margin:10px 5px;margin:8px 4px!important!;", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("margin:10px 5px;margin:8px 4px!important!;",
+				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertTrue(getStyleDeclarationErrorHandler().hasWarnings());
 	}
@@ -326,7 +341,8 @@ public class CompatInlineDeclarationTest {
 		assertEquals(
 				"margin: 10px ! important; margin: 8px!important!; width: 590px ! important; width: 600px!important!; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("margin:10px!important;margin:8px!important!;width:590px!important;width:600px!important!",
+		assertEquals(
+				"margin:10px!important;margin:8px!important!;width:590px!important;width:600px!important!",
 				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertTrue(getStyleDeclarationErrorHandler().hasWarnings());
@@ -337,8 +353,10 @@ public class CompatInlineDeclarationTest {
 		String cssText = "margin:8px!important!;margin:10px!important;width:600px!important!;width:590px!important;";
 		emptyStyleDecl.setCssText(cssText);
 		assertEquals(5, emptyStyleDecl.getLength());
-		assertEquals("margin: 10px ! important; width: 590px ! important; ", emptyStyleDecl.getCssText());
-		assertEquals("margin:10px!important;width:590px!important", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("margin: 10px ! important; width: 590px ! important; ",
+				emptyStyleDecl.getCssText());
+		assertEquals("margin:10px!important;width:590px!important",
+				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertTrue(getStyleDeclarationErrorHandler().hasWarnings());
 	}
@@ -348,8 +366,10 @@ public class CompatInlineDeclarationTest {
 		String cssText = "margin:10px;margin:10px!ie;width:590px;width:600px!ie;";
 		emptyStyleDecl.setCssText(cssText);
 		assertEquals(5, emptyStyleDecl.getLength());
-		assertEquals("margin: 10px; margin: 10px!ie; width: 590px; width: 600px!ie; ", emptyStyleDecl.getCssText());
-		assertEquals("margin:10px;margin:10px!ie;width:590px;width:600px!ie", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("margin: 10px; margin: 10px!ie; width: 590px; width: 600px!ie; ",
+				emptyStyleDecl.getCssText());
+		assertEquals("margin:10px;margin:10px!ie;width:590px;width:600px!ie",
+				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertTrue(getStyleDeclarationErrorHandler().hasWarnings());
 	}
@@ -392,8 +412,10 @@ public class CompatInlineDeclarationTest {
 		String cssText = "margin:10px!important;margin:10px!ie;width:590px!important;width:600px!ie;";
 		emptyStyleDecl.setCssText(cssText);
 		assertEquals(5, emptyStyleDecl.getLength());
-		assertEquals("margin: 10px ! important; width: 590px ! important; ", emptyStyleDecl.getCssText());
-		assertEquals("margin:10px!important;width:590px!important", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("margin: 10px ! important; width: 590px ! important; ",
+				emptyStyleDecl.getCssText());
+		assertEquals("margin:10px!important;width:590px!important",
+				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertTrue(getStyleDeclarationErrorHandler().hasWarnings());
 	}
@@ -403,8 +425,10 @@ public class CompatInlineDeclarationTest {
 		String cssText = "margin:10px;margin:10px\\9;width:590px;width:600px\\9;";
 		emptyStyleDecl.setCssText(cssText);
 		assertEquals(5, emptyStyleDecl.getLength());
-		assertEquals("margin: 10px; margin: 10px\\9; width: 590px; width: 600px\\9; ", emptyStyleDecl.getCssText());
-		assertEquals("margin:10px;margin:10px\\9;width:590px;width:600px\\9", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("margin: 10px; margin: 10px\\9; width: 590px; width: 600px\\9; ",
+				emptyStyleDecl.getCssText());
+		assertEquals("margin:10px;margin:10px\\9;width:590px;width:600px\\9",
+				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertTrue(getStyleDeclarationErrorHandler().hasWarnings());
 	}
@@ -436,7 +460,8 @@ public class CompatInlineDeclarationTest {
 		String cssText = "margin:10px;margin:10px\\9!important;width:590px;width:600px\\9!important;";
 		emptyStyleDecl.setCssText(cssText);
 		assertEquals(5, emptyStyleDecl.getLength());
-		assertEquals("margin: 10px; margin: 10px\\9 ! important; width: 590px; width: 600px\\9 ! important; ",
+		assertEquals(
+				"margin: 10px; margin: 10px\\9 ! important; width: 590px; width: 600px\\9 ! important; ",
 				emptyStyleDecl.getCssText());
 		assertEquals("margin:10px;margin:10px\\9!important;width:590px;width:600px\\9!important",
 				emptyStyleDecl.getMinifiedCssText());
@@ -449,7 +474,8 @@ public class CompatInlineDeclarationTest {
 		String cssText = "margin:10px!important;margin:10px\\9;width:590px!important;width:600px\\9!important;";
 		emptyStyleDecl.setCssText(cssText);
 		assertEquals(5, emptyStyleDecl.getLength());
-		assertEquals("margin: 10px ! important; width: 590px ! important; width: 600px\\9 ! important; ",
+		assertEquals(
+				"margin: 10px ! important; width: 590px ! important; width: 600px\\9 ! important; ",
 				emptyStyleDecl.getCssText());
 		assertEquals("margin:10px!important;width:590px!important;width:600px\\9!important",
 				emptyStyleDecl.getMinifiedCssText());
@@ -539,7 +565,8 @@ public class CompatInlineDeclarationTest {
 
 	@Test
 	public void setCssTextBackgroundFontError() {
-		emptyStyleDecl.setCssText("background-font:bold 14px/32px \"Courier New\", Arial, sans-serif");
+		emptyStyleDecl
+				.setCssText("background-font:bold 14px/32px \"Courier New\", Arial, sans-serif");
 		assertNull(emptyStyleDecl.getPropertyCSSValue("background-font"));
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
@@ -547,15 +574,18 @@ public class CompatInlineDeclarationTest {
 	@Test
 	public void setCssTextForBackgroundImage() {
 		emptyStyleDecl.setCssText("background-image:linear-gradient(35deg,#fa3 50%,transparent 0)");
-		assertEquals("linear-gradient(35deg, #fa3 50%, transparent 0)", emptyStyleDecl.getPropertyValue("background-image"));
+		assertEquals("linear-gradient(35deg, #fa3 50%, transparent 0)",
+				emptyStyleDecl.getPropertyValue("background-image"));
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
 	@Test
 	public void setCssTextForBackgroundPosition() {
-		emptyStyleDecl.setCssText("background-position: 10% 20%; background-position: 50% left top");
+		emptyStyleDecl
+				.setCssText("background-position: 10% 20%; background-position: 50% left top");
 		assertEquals("10% 20%", emptyStyleDecl.getPropertyValue("background-position"));
-		emptyStyleDecl.setCssText("background-position: 10% 20%; background-position: top left top left");
+		emptyStyleDecl
+				.setCssText("background-position: 10% 20%; background-position: top left top left");
 		assertEquals("10% 20%", emptyStyleDecl.getPropertyValue("background-position"));
 		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
 	}
@@ -565,7 +595,8 @@ public class CompatInlineDeclarationTest {
 		emptyStyleDecl.setCssText("background-position: 10% 20%, left top");
 		assertEquals("10% 20%, left top", emptyStyleDecl.getPropertyValue("background-position"));
 		emptyStyleDecl.setCssText("background-position: 10% 20%, center top 30%");
-		assertEquals("10% 20%, center top 30%", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("10% 20%, center top 30%",
+				emptyStyleDecl.getPropertyValue("background-position"));
 		StyleValue value = emptyStyleDecl.getPropertyCSSValue("background-position");
 		assertNotNull(value);
 		assertEquals(CssType.LIST, value.getCssValueType());
@@ -573,7 +604,8 @@ public class CompatInlineDeclarationTest {
 		assertEquals("10% 20%", ((ValueList) value).item(0).getCssText());
 		assertEquals("center top 30%", ((ValueList) value).item(1).getCssText());
 		emptyStyleDecl.setCssText("background-position: left, center top 30%, center, center");
-		assertEquals("left, center top 30%, center, center", emptyStyleDecl.getPropertyValue("background-position"));
+		assertEquals("left, center top 30%, center, center",
+				emptyStyleDecl.getPropertyValue("background-position"));
 		value = emptyStyleDecl.getPropertyCSSValue("background-position");
 		assertNotNull(value);
 		assertEquals(CssType.LIST, value.getCssValueType());
@@ -684,21 +716,24 @@ public class CompatInlineDeclarationTest {
 	@Test
 	public void testAddStyle() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
-		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) factory.createStyleSheet(null, null).createStyleRule()
-				.getStyle();
+		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) factory
+				.createStyleSheet(null, null).createStyleRule().getStyle();
 		style.setCssText("margin: 8px;");
 		emptyStyleDecl.setCssText("margin-top: 10px;");
 		emptyStyleDecl.addStyle(style);
 		assertEquals("margin: 8px; ", emptyStyleDecl.getCssText());
 
 		emptyStyleDecl.setCssText("margin: 8px;");
-		style.setCssText("margin-top: 10px; margin-right: 11px; margin-bottom: 12px; margin-left: 13px; ");
+		style.setCssText(
+				"margin-top: 10px; margin-right: 11px; margin-bottom: 12px; margin-left: 13px; ");
 		emptyStyleDecl.addStyle(style);
-		assertEquals("margin-top: 10px; margin-right: 11px; margin-bottom: 12px; margin-left: 13px; ",
+		assertEquals(
+				"margin-top: 10px; margin-right: 11px; margin-bottom: 12px; margin-left: 13px; ",
 				emptyStyleDecl.getCssText());
 
 		emptyStyleDecl.setCssText("margin: 8px ! important");
-		style.setCssText("margin-top: 10px; margin-right: 11px; margin-bottom: 12px; margin-left: 13px; ");
+		style.setCssText(
+				"margin-top: 10px; margin-right: 11px; margin-bottom: 12px; margin-left: 13px; ");
 		emptyStyleDecl.addStyle(style);
 		assertEquals("margin: 8px ! important; ", emptyStyleDecl.getCssText());
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
@@ -722,7 +757,8 @@ public class CompatInlineDeclarationTest {
 
 	@Test
 	public void testEquals() {
-		emptyStyleDecl.setCssText("font: bold !important; border: solid blue; line-height: normal !important");
+		emptyStyleDecl.setCssText(
+				"font: bold !important; border: solid blue; line-height: normal !important");
 		Node div = document.getElementById("bodyId").getFirstChild();
 		BaseCSSStyleDeclaration otherDecl = factory.createInlineStyle(div);
 		otherDecl.setCssText("font: bold !important; line-height: normal !important");
@@ -742,9 +778,11 @@ public class CompatInlineDeclarationTest {
 
 	@Test
 	public void testClone() {
-		emptyStyleDecl.setCssText("font: bold !important; border: solid blue; line-height: normal !important");
+		emptyStyleDecl.setCssText(
+				"font: bold !important; border: solid blue; line-height: normal !important");
 		BaseCSSStyleDeclaration clone = emptyStyleDecl.clone();
-		assertEquals("font: bold ! important; border: solid blue; line-height: normal ! important; ",
+		assertEquals(
+				"font: bold ! important; border: solid blue; line-height: normal ! important; ",
 				clone.getCssText());
 		assertEquals(34, clone.getLength());
 	}

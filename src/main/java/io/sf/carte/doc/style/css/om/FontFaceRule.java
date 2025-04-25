@@ -74,11 +74,4 @@ public class FontFaceRule extends BaseCSSDeclarationRule implements CSSFontFaceR
 		}
 	}
 
-	@Override
-	void startAtRule(String name, String pseudoSelector) {
-		if (!"font-face".equalsIgnoreCase(name)) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Cannot set rule of type: " + name);
-		}
-	}
-
 }

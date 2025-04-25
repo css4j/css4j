@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
@@ -208,7 +209,7 @@ abstract class BaseGridShorthandSetter extends ShorthandSetter {
 	}
 
 	void syntaxError(String message) {
-		BaseCSSDeclarationRule rule = styleDeclaration.getParentRule();
+		CSSDeclarationRule rule = styleDeclaration.getParentRule();
 		if (rule != null) {
 			rule.getStyleDeclarationErrorHandler().shorthandSyntaxError(getShorthandName(), message);
 		}

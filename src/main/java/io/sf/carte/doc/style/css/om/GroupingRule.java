@@ -14,13 +14,22 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.LinkedStringList;
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSGroupingRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
+import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSException;
+import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
@@ -32,11 +41,10 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 
 	private static final long serialVersionUID = 1L;
 
-	CSSRuleArrayList cssRules;
+	CSSRuleArrayList cssRules = null;
 
 	protected GroupingRule(AbstractCSSStyleSheet parentSheet, short type, byte origin) {
 		super(parentSheet, type, origin);
-		cssRules = new CSSRuleArrayList();
 	}
 
 	protected GroupingRule(AbstractCSSStyleSheet parentSheet, GroupingRule copyfrom) {
@@ -78,6 +86,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		if (index < 0 || index > cssRules.size()) {
 			throw new DOMException(DOMException.INDEX_SIZE_ERR, "Index out of bounds in rule list");
 		}
+
 		Reader re = new StringReader(rule);
 		RuleHandler handler = new RuleHandler();
 		handler.setCurrentInsertionIndex(index);
@@ -91,7 +100,77 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
+
 		return index;
+	}
+
+	void parseRule(Reader reader, Parser parser)
+			throws DOMException, IOException {
+		try {
+			parser.parseRule(reader);
+		} catch (CSSNamespaceParseException e) {
+			DOMException ex = new DOMException(DOMException.NAMESPACE_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		} catch (CSSBudgetException e) {
+			DOMException ex = new DOMException(DOMException.NOT_SUPPORTED_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		} catch (CSSParseException e) {
+			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, "Parse error at ["
+				+ e.getLineNumber() + ',' + e.getColumnNumber() + "]: " + e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		} catch (CSSException e) {
+			DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR, e.getMessage());
+			ex.initCause(e);
+			throw ex;
+		} catch (DOMException e) {
+			// Handler may produce DOM exceptions
+			throw e;
+		} catch (RuntimeException e) {
+			String message = e.getMessage();
+			AbstractCSSStyleSheet parentSS = getParentStyleSheet();
+			if (parentSS != null) {
+				String href = parentSS.getHref();
+				if (href != null) {
+					message = "Error in stylesheet at " + href + ": " + message;
+				}
+			}
+			DOMException ex = new DOMException(DOMException.INVALID_STATE_ERR, message);
+			ex.initCause(e);
+			throw ex;
+		}
+	}
+
+	/**
+	 * Error handler that allows warnings but no exceptions.
+	 */
+	class AllowWarningsRuleErrorHandler implements CSSErrorHandler {
+
+		private List<CSSParseException> warnings = null;
+
+		public AllowWarningsRuleErrorHandler() {
+			super();
+		}
+
+		@Override
+		public void warning(CSSParseException exception) throws CSSParseException {
+			if (warnings == null) {
+				warnings = new LinkedList<>();
+			}
+			warnings.add(exception);
+		}
+
+		@Override
+		public void error(CSSParseException exception) throws CSSParseException {
+			throw exception;
+		}
+
+		public List<CSSParseException> getWarnings() {
+			return warnings;
+		}
+
 	}
 
 	@Override
@@ -136,27 +215,6 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		return len;
 	}
 
-	@Override
-	void setRule(AbstractCSSRule copyMe) {
-		GroupingRule groupingRule = (GroupingRule) copyMe;
-		setGroupingRule(groupingRule);
-		setPrecedingComments(groupingRule.getPrecedingComments());
-		setTrailingComments(groupingRule.getTrailingComments());
-		cssRules.clear();
-		cssRules.addAll(groupingRule.getCssRules());
-		for (AbstractCSSRule rule : cssRules) {
-			rule.setParentRule(this);
-		}
-	}
-
-	@Override
-	void clear() {
-		cssRules.clear();
-		resetComments();
-	}
-
-	abstract protected void setGroupingRule(GroupingRule rule) throws DOMException;
-
 	private class RuleHandler extends SheetHandler {
 		private AbstractCSSRule currentRule = null;
 
@@ -178,7 +236,8 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		}
 
 		@Override
-		public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
+		public void importStyle(String uri, String layer, BooleanCondition supportsCondition,
+				MediaQueryList media, String defaultNamespaceURI) {
 			// Ignore any '@import' rule that occurs inside a block (CSS 2.1 §4.1.5)
 		}
 

@@ -61,8 +61,7 @@ public class ComputedCustomPropertyTest {
 	@BeforeAll
 	public static void setUpBeforeClass() throws IOException, DocumentException {
 		sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
-		refXhtmlDoc = DOMCSSStyleSheetFactoryTest.plainDocumentFromStream(
-				DOMCSSStyleSheetFactoryTest.sampleHTMLStream(),
+		refXhtmlDoc = SampleCSS.plainDocumentFromStream(SampleCSS.sampleHTMLStream(),
 				MockURLConnectionFactory.SAMPLE_URL);
 		//refXhtmlDoc = TestDOMImplementation.sampleHTMLDocument();
 	}
@@ -96,7 +95,8 @@ public class ComputedCustomPropertyTest {
 		CSSElement listpara = xhtmlDoc.getElementById("listpara");
 		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo,1vb)");
 		style = listpara.getComputedStyle(null);
-		LexicalUnit customProperty = ((CSSLexicalValue) style.getPropertyCSSValue("--foo")).getLexicalUnit();
+		LexicalUnit customProperty = ((CSSLexicalValue) style.getPropertyCSSValue("--foo"))
+				.getLexicalUnit();
 		assertNotNull(customProperty);
 		assertEquals(CSSUnit.CSS_PT, customProperty.getCssUnit());
 		assertEquals(8f, customProperty.getFloatValue(), 1e-6f);
@@ -319,7 +319,8 @@ public class ComputedCustomPropertyTest {
 		CSSElement listpara = xhtmlDoc.getElementById("listpara");
 		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo,19pt)");
 		style = (ComputedCSSStyle) listpara.getComputedStyle(null);
-		LexicalUnit customProperty = ((CSSLexicalValue) style.getPropertyCSSValue("--foo")).getLexicalUnit();
+		LexicalUnit customProperty = ((CSSLexicalValue) style.getPropertyCSSValue("--foo"))
+				.getLexicalUnit();
 		assertNotNull(customProperty);
 		assertEquals(LexicalType.DIMENSION, customProperty.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PT, customProperty.getCssUnit());
@@ -417,7 +418,8 @@ public class ComputedCustomPropertyTest {
 		CSSElement listpara = xhtmlDoc.getElementById("listpara");
 		listpara.getOverrideStyle(null).setCssText("font-size:var(--foo,19pt)");
 		style = listpara.getComputedStyle(null);
-		LexicalUnit customProperty = ((CSSLexicalValue) style.getPropertyCSSValue("--foo")).getLexicalUnit();
+		LexicalUnit customProperty = ((CSSLexicalValue) style.getPropertyCSSValue("--foo"))
+				.getLexicalUnit();
 		assertNotNull(customProperty);
 		assertEquals(CSSUnit.CSS_PT, customProperty.getCssUnit());
 		assertEquals(15f, customProperty.getFloatValue(), 1e-6f);
@@ -1169,8 +1171,7 @@ public class ComputedCustomPropertyTest {
 		assertNull(ex.getCause()); // No cause = circularity
 
 		/*
-		 * custom property, check for circular dependency with ancestor, no
-		 * fallback.
+		 * custom property, check for circular dependency with ancestor, no fallback.
 		 */
 		xhtmlDoc.getErrorHandler().resetComputedStyleErrors();
 		docelm.getOverrideStyle(null).setCssText("--foo:var(--bar)");

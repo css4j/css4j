@@ -123,13 +123,35 @@ public interface CSSStyleSheet<R extends CSSRule> extends org.w3c.dom.css.CSSSty
 	/**
 	 * Create a CSS import rule compatible with this implementation.
 	 *
-	 * @param mediaList
-	 *            a list of media types for which the new import rule may be used.
-	 * @param href
-	 *            the URI from which to import the sheet.
+	 * @param mediaList a list of media types for which the new import rule may be
+	 *                  used.
+	 * @param href      the URI from which to import the sheet.
+	 * @return a CSS import rule.
+	 * @deprecated See
+	 *             {@link #createImportRule(String, BooleanCondition, MediaQueryList, String, String)}.
+	 */
+	@Deprecated
+	default CSSImportRule createImportRule(MediaQueryList mediaList, String href) {
+		return createImportRule(null, null, mediaList, null, href);
+	}
+
+	/**
+	 * Create a CSS import rule compatible with this implementation.
+	 *
+	 * @param layerName           the layer name declared in the at-rule itself, or
+	 *                            an empty string if the layer is anonymous, or
+	 *                            {@code null} if the at-rule does not declare a
+	 *                            layer.
+	 * @param supportsCondition   the supports condition, or {@code null} if none.
+	 * @param mediaList           a list of media types for which the new import
+	 *                            rule may be used.
+	 * @param defaultNamespaceURI the default namespace URI for the imported style
+	 *                            sheet.
+	 * @param href                the URI from which to import the sheet.
 	 * @return a CSS import rule.
 	 */
-	CSSImportRule createImportRule(MediaQueryList mediaList, String href);
+	CSSImportRule createImportRule(String layerName, BooleanCondition supportsCondition,
+			MediaQueryList mediaList, String defaultNamespaceURI, String href);
 
 	/**
 	 * Create a CSSKeyframesRule compatible with this implementation.

@@ -13,16 +13,24 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class OrderedTwoValueShorthandBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -38,19 +46,23 @@ public class OrderedTwoValueShorthandBuilderTest {
 		assertShorthandText("place-content:center;", "place-content: center");
 		assertShorthandText("place-content:center;", "place-content: center center");
 		assertShorthandText("place-content:baseline center;", "place-content: baseline center");
-		assertShorthandText("place-content:first baseline space-evenly;", "place-content: first baseline space-evenly");
+		assertShorthandText("place-content:first baseline space-evenly;",
+				"place-content: first baseline space-evenly");
 		assertShorthandText("place-content:space-between;", "place-content: space-between");
-		assertShorthandText("place-content:last baseline right;", "place-content: last baseline right");
+		assertShorthandText("place-content:last baseline right;",
+				"place-content: last baseline right");
 		assertShorthandText("place-items:normal;", "place-items: normal");
 		assertShorthandText("place-items:center;", "place-items: center center");
 		assertShorthandText("place-items:center start;", "place-items: center start");
 		assertShorthandText("place-items:stretch unsafe end;", "place-items: stretch unsafe end");
-		assertShorthandText("place-items:first baseline legacy right;", "place-items: first baseline legacy right");
+		assertShorthandText("place-items:first baseline legacy right;",
+				"place-items: first baseline legacy right");
 		assertShorthandText("place-self:normal;", "place-self: normal");
 		assertShorthandText("place-self:center;", "place-self: center center");
 		assertShorthandText("place-self:center start;", "place-self: center start");
 		assertShorthandText("place-self:stretch unsafe end;", "place-self: stretch unsafe end");
-		assertShorthandText("place-self:first baseline safe start;", "place-self: first baseline safe start");
+		assertShorthandText("place-self:first baseline safe start;",
+				"place-self: first baseline safe start");
 		assertShorthandText("gap:normal;", "gap: normal");
 		assertShorthandText("gap:50px normal;", "gap:50px normal");
 		assertShorthandText("gap:50px;", "gap: 50px");
@@ -61,7 +73,8 @@ public class OrderedTwoValueShorthandBuilderTest {
 
 	@Test
 	public void testBuilderVar() {
-		assertShorthandText("place-content:var(--foo,center start);", "place-content: var(--foo,center start)");
+		assertShorthandText("place-content:var(--foo,center start);",
+				"place-content: var(--foo,center start)");
 	}
 
 	@Test
@@ -89,7 +102,8 @@ public class OrderedTwoValueShorthandBuilderTest {
 
 	@Test
 	public void testBuilderInheritImportant() {
-		assertShorthandText("place-content:inherit!important;", "place-content: inherit!important;");
+		assertShorthandText("place-content:inherit!important;",
+				"place-content: inherit!important;");
 	}
 
 	@Test

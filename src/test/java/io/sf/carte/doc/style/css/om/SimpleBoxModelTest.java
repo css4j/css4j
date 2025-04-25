@@ -42,6 +42,10 @@ public class SimpleBoxModelTest {
 		document.setTargetMedium("screen");
 	}
 
+	/*
+	 * @formatter:off
+	 */
+
 	@Test
 	public void testGetComputedBox() {
 		// This test is automatically generated, DO NOT EDIT MANUALLY !

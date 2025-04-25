@@ -44,6 +44,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 
 	protected SupportsRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, SUPPORTS_RULE, origin);
+		cssRules = new CSSRuleArrayList();
 	}
 
 	SupportsRule(AbstractCSSStyleSheet parentSheet, SupportsRule copyfrom) {
@@ -57,6 +58,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			throw new NullPointerException("Null @supports condition.");
 		}
 		this.condition = condition;
+		cssRules = new CSSRuleArrayList();
 	}
 
 	@Override
@@ -204,12 +206,6 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			context.writeRightCurlyBracket(wri);
 			context.endRule(wri, getTrailingComments());
 		}
-	}
-
-	@Override
-	protected void setGroupingRule(GroupingRule rule) throws DOMException {
-		SupportsRule supportsRule = (SupportsRule) rule;
-		this.condition = supportsRule.condition;
 	}
 
 	@Override

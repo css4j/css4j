@@ -42,7 +42,7 @@ public interface MediaQueryFactory extends BooleanConditionFactory {
 	 * Create a handler attached to a new media query list.
 	 * 
 	 * @param owner the node that owns the responsibility to handle the errors in
-	 *              the query list.
+	 *              the query list, or {@code null} if none.
 	 * @return the media query handler.
 	 */
 	MediaQueryHandler createMediaQueryHandler(Node owner);

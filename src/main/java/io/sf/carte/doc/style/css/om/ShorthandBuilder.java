@@ -24,6 +24,9 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
@@ -742,9 +745,9 @@ abstract class ShorthandBuilder {
 	}
 
 	String getBaseURI() {
-		BaseCSSDeclarationRule prule = getParentStyle().getParentRule();
+		CSSDeclarationRule prule = getParentStyle().getParentRule();
 		if (prule != null) {
-			AbstractCSSStyleSheet psheet = prule.getParentStyleSheet();
+			CSSStyleSheet<? extends CSSRule> psheet = prule.getParentStyleSheet();
 			if (psheet != null) {
 				return psheet.getHref();
 			}

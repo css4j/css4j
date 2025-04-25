@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css;
 
+import org.w3c.dom.DOMException;
+
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 /**
@@ -67,15 +69,17 @@ public interface MediaFeaturePredicate extends MediaQueryPredicate {
 	 * Set a single value to be tested on the feature.
 	 *
 	 * @param value the value to be tested on the feature.
+	 * @throws DOMException if the value is incompatible with this predicate.
 	 */
-	void setValue(LexicalUnit value);
+	void setValue(LexicalUnit value) throws DOMException;
 
 	/**
 	 * Set two values in a range test.
 	 *
 	 * @param value1 the first value in this range test.
 	 * @param value2 the second value in this range test.
+	 * @throws DOMException if the values are incompatible with this predicate.
 	 */
-	void setValueRange(LexicalUnit value1, LexicalUnit value2);
+	void setValueRange(LexicalUnit value1, LexicalUnit value2) throws DOMException;
 
 }

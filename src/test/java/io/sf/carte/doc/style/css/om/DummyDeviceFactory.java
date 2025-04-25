@@ -80,7 +80,8 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		}
 
 		@Override
-		public float getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier) throws DOMException {
+		public float getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier)
+				throws DOMException {
 			float sz;
 			if (fontSizeIdentifier.equals("medium")) {
 				sz = 12f;
@@ -132,6 +133,7 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		public float getDeviceWidth() {
 			return 1024;
 		}
+
 	}
 
 	/**
@@ -163,7 +165,8 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 			return dummyDatabase;
 		}
 
-		public void registerStatePseudoclasses(CSSElement element, List<String> statePseudoclasses) {
+		public void registerStatePseudoclasses(CSSElement element,
+				List<String> statePseudoclasses) {
 			this.statePseudoclasses.put(element, statePseudoclasses);
 		}
 

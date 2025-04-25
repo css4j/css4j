@@ -283,6 +283,7 @@ public final class PropertyDatabase {
 			{"padding-right", "0"},
 			{"padding-bottom", "0"},
 			{"padding-left", "0"},
+			{"page", "auto"},
 			{"page-break-after", "auto"},
 			{"page-break-before", "auto"},
 			{"page-break-inside", "auto"},

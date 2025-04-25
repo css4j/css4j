@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -292,7 +293,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 	}
 
 	private void reportUnknownValue(Set<String> subp) {
-		BaseCSSDeclarationRule prule = styleDeclaration.getParentRule();
+		CSSDeclarationRule prule = styleDeclaration.getParentRule();
 		if (prule != null) {
 			StyleDeclarationErrorHandler eh = prule.getStyleDeclarationErrorHandler();
 			if (currentValue.getLexicalUnitType() == LexicalType.IDENT) {
@@ -374,7 +375,7 @@ class MaskShorthandSetter extends ShorthandSetter {
 					posList.add(list);
 				} else {
 					// report error
-					BaseCSSDeclarationRule prule = styleDeclaration.getParentRule();
+					CSSDeclarationRule prule = styleDeclaration.getParentRule();
 					if (prule != null) {
 						CSSPropertyValueException ex = new CSSPropertyValueException(
 							"Wrong value for mask-position");

@@ -13,16 +13,24 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class BorderBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -113,12 +121,11 @@ public class BorderBuilderTest {
 
 	@Test
 	public void testBorderMultiVar() {
-		assertShorthandText(
-				"border-color:var(--my-border-color);border-right-style:solid;"
-						+ "border-top-width:1px;border-left-style:solid;border-right-width:1px;"
-						+ "border-bottom-width:1px;border-left-color:#d22;border-bottom-style:solid;"
-						+ "border-left-width:1px;border-top-style:solid;border-image:100%/1px;"
-						+ "border-radius:var(--my-border-radius);",
+		assertShorthandText("border-color:var(--my-border-color);border-right-style:solid;"
+				+ "border-top-width:1px;border-left-style:solid;border-right-width:1px;"
+				+ "border-bottom-width:1px;border-left-color:#d22;border-bottom-style:solid;"
+				+ "border-left-width:1px;border-top-style:solid;border-image:100%/1px;"
+				+ "border-radius:var(--my-border-radius);",
 				"border:1px solid;border-image-width:1px;border-color:var(--my-border-color);"
 						+ "border-left-color:#d22;border-radius: var(--my-border-radius);");
 	}

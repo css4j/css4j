@@ -99,7 +99,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBad() throws IOException {
+	public void testParsePropertyBad() {
 		try {
 			parsePropertyValue("@");
 			fail("Must throw exception");
@@ -109,7 +109,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadIdentifier() throws IOException {
+	public void testParsePropertyBadIdentifier() {
 		try {
 			parsePropertyValue("-9foo_bar");
 			fail("Must throw exception");
@@ -119,7 +119,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadIdentifier2() throws IOException {
+	public void testParsePropertyBadIdentifier2() {
 		try {
 			parsePropertyValue("9foo_bar");
 			fail("Must throw exception");
@@ -129,7 +129,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadIdentifierMinus() throws IOException {
+	public void testParsePropertyBadIdentifierMinus() {
 		try {
 			parsePropertyValue("-");
 			fail("Must throw exception");
@@ -139,7 +139,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadIdentifierPlus() throws IOException {
+	public void testParsePropertyBadIdentifierPlus() {
 		try {
 			parsePropertyValue("+");
 			fail("Must throw exception");
@@ -149,7 +149,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedIdentifier() throws IOException {
+	public void testParsePropertyEscapedIdentifier() {
 		LexicalUnit lu = parsePropertyValue("\\35 px\\9");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("5px\t", lu.getStringValue());
@@ -162,7 +162,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyIdentifierHighChar() throws IOException {
+	public void testParsePropertyIdentifierHighChar() {
 		LexicalUnit lu = parsePropertyValue("foo\uff08");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("foo\uff08", lu.getStringValue());
@@ -175,7 +175,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyIdentifierOtherChar() throws IOException {
+	public void testParsePropertyIdentifierOtherChar() {
 		LexicalUnit lu = parsePropertyValue("⁑");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("⁑", lu.getStringValue());
@@ -187,7 +187,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyIdentifierSurrogate() throws IOException {
+	public void testParsePropertyIdentifierSurrogate() {
 		LexicalUnit lu = parsePropertyValue("🚧");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("🚧", lu.getStringValue());
@@ -195,13 +195,12 @@ public class PropertyParserTest {
 		assertNull(lu.getNextLexicalUnit());
 	}
 
+	/*
+	 * See https://github.com/w3c/csswg-drafts/issues/7129
+	 */
 	@Test
-	public void testParsePropertyIdentifierHighControl() throws IOException {
-		LexicalUnit lu = parsePropertyValue("foo\u009e");
-		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
-		assertEquals("foo\u009e", lu.getStringValue());
-		assertEquals("foo\u009e", lu.toString());
-		assertNull(lu.getNextLexicalUnit());
+	public void testParsePropertyIdentifierHighControl() {
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("foo\u009e"));
 	}
 
 	@Test
@@ -645,7 +644,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedWS_PlusError() throws IOException {
+	public void testParsePropertyEscapedWS_PlusError() {
 		try {
 			parsePropertyValue("\\ +");
 			fail("Must throw exception");
@@ -655,7 +654,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyEscapedBackslash_PlusError() throws IOException {
+	public void testParsePropertyEscapedBackslash_PlusError() {
 		try {
 			parsePropertyValue("\\\\+");
 			fail("Must throw exception");

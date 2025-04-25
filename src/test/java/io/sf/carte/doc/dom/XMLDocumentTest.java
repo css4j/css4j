@@ -43,6 +43,7 @@ import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleProcessingInstruction;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
@@ -52,12 +53,10 @@ import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.LinkStyle;
-import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
-import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
 import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
-import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.FontFeatureValuesRule;
+import io.sf.carte.doc.style.css.om.SampleCSS;
 import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.om.StyleSheetList;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
@@ -77,7 +76,7 @@ public class XMLDocumentTest {
 
 	@BeforeEach
 	public void setUp() throws SAXException, IOException {
-		Reader re = DOMCSSStyleSheetFactoryTest.sampleXMLReader();
+		Reader re = SampleCSS.sampleXMLReader();
 		InputSource is = new InputSource(re);
 		try {
 			xmlDoc = (DOMDocument) builder.parse(is);
@@ -827,7 +826,7 @@ public class XMLDocumentTest {
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 
 		assertEquals("background-color: red; ", ((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
-		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
+		CSSStyleDeclaration fontface = ((CSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
 		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
 		assertEquals(CssType.TYPED, ffval.getCssValueType());
@@ -1204,7 +1203,7 @@ public class XMLDocumentTest {
 
 	@Test
 	public void testCascade() throws IOException {
-		try (Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader()) {
+		try (Reader re = SampleCSS.loadSampleUserCSSReader()) {
 			xmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
 		}
 		DOMElement elm = xmlDoc.getElementById("para1");

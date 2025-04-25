@@ -15,8 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.EnumSet;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -25,28 +28,36 @@ import io.sf.carte.doc.style.css.nsac.Parser;
 
 public class StyleRuleTest {
 
+	private static TestCSSStyleSheetFactory factory;
+
 	private AbstractCSSStyleSheet sheet;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		factory = new TestCSSStyleSheetFactory();
+	}
 
 	@BeforeEach
 	public void setUp() {
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		sheet = factory.createStyleSheet(null, null);
 	}
 
 	@Test
 	public void testGetCssText() {
-		CSSStyleDeclarationRule rule = new StyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		StyleRule rule = new StyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		assertEquals("", rule.getCssText());
 		assertEquals("", rule.getMinifiedCssText());
 	}
 
 	@Test
-	public void testSetCssTextCompat() {
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
+	public void testCompat() throws IOException {
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(
+				EnumSet.of(Parser.Flag.IEVALUES));
 		factory.setStyleFormattingFactory(new TestStyleFormattingFactory());
 		sheet = factory.createStyleSheet(null, null);
-		CSSStyleDeclarationRule rule = sheet.createStyleRule();
-		rule.setCssText("p {display: table-cell; filter:alpha(opacity=0);}");
+		sheet.parseStyleSheet(
+				new StringReader("p {display: table-cell; filter:alpha(opacity=0);}"));
+		StyleRule rule = (StyleRule) sheet.getCssRules().item(0);
 		assertEquals(2, rule.getStyle().getLength());
 		assertEquals("p {display: table-cell; filter: alpha(opacity=0); }", rule.getCssText());
 		assertEquals("p{display:table-cell;filter:alpha(opacity=0)}", rule.getMinifiedCssText());
@@ -54,12 +65,12 @@ public class StyleRuleTest {
 
 	@Test
 	public void testEquals() {
-		CSSStyleDeclarationRule rule = new StyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		StyleRule rule = new StyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule.setSelectorText("p, div");
 		rule.getStyle().setCssText("margin-left: 1em; color: gray;");
 		assertEquals("p,div {margin-left: 1em; color: gray; }", rule.getCssText());
 		assertEquals("p,div{margin-left:1em;color:gray}", rule.getMinifiedCssText());
-		CSSStyleDeclarationRule rule2 = new StyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		StyleRule rule2 = new StyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		rule2.setSelectorText("p, div");
 		rule2.getStyle().setCssText("margin-left: 1em; color: gray;");
 		assertTrue(rule.equals(rule2));
@@ -80,18 +91,27 @@ public class StyleRuleTest {
 
 	@Test
 	public void testCloneAbstractCSSStyleSheet() {
-		CSSStyleDeclarationRule rule = new StyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText(
+		StyleRule rule = parseStyleSheet(
 				"html:root + p:empty,span[foo~='bar'],span[foo='bar'],p:only-child,p:lang(en),p.someclass,a:link,span[class='example'] {border-top-width: 1px; }");
 		assertEquals(8, rule.getSelectorList().getLength());
 		assertEquals(1, rule.getStyle().getLength());
-		CSSStyleDeclarationRule clon = rule.clone(sheet);
+		StyleRule clon = rule.clone(sheet);
 		assertEquals(rule.getOrigin(), clon.getOrigin());
 		assertEquals(rule.getType(), clon.getType());
 		assertEquals(rule.getSelectorText(), clon.getSelectorText());
 		assertEquals(rule.getCssText(), clon.getCssText());
 		assertTrue(rule.equals(clon));
 		assertEquals(rule.hashCode(), clon.hashCode());
+	}
+
+	private StyleRule parseStyleSheet(String cssText) {
+		sheet.getCssRules().clear();
+		try {
+			sheet.parseStyleSheet(new StringReader(cssText));
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+		return (StyleRule) sheet.getCssRules().item(0);
 	}
 
 }

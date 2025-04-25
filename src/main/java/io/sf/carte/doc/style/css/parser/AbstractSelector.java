@@ -11,11 +11,27 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import io.sf.carte.doc.style.css.nsac.NamespacePrefixMap;
 import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
-abstract class AbstractSelector implements Selector, java.io.Serializable {
+abstract class AbstractSelector implements Selector, Cloneable, java.io.Serializable {
 
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * Set a new namespace prefix map to be used in serialization.
+	 * 
+	 * @param map the namespace prefix map.
+	 * @return {@code true} if the map was changed successfully.
+	 */
+	boolean setNamespacePrefixMap(NamespacePrefixMap map) {
+		return false;
+	}
+
+	Selector replace(SelectorList base) {
+		return this;
+	}
 
 	@Override
 	public int hashCode() {
@@ -33,4 +49,21 @@ abstract class AbstractSelector implements Selector, java.io.Serializable {
 		Selector other = (Selector) obj;
 		return getSelectorType() == other.getSelectorType();
 	}
+
+	/**
+	 * Perform a shallow cloning of this value.
+	 * 
+	 * @return the clone;
+	 */
+	@Override
+	public AbstractSelector clone() {
+		try {
+			return (AbstractSelector) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
+	abstract NSACSelectorFactory getSelectorFactory() throws IllegalStateException;
+
 }

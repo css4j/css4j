@@ -290,14 +290,14 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 				AbstractCSSStyleDeclaration st = rule.getStyle();
 				st.prioritySplit(userImportantStyle, userNormalStyle);
 				if (!userImportantStyle.isEmpty()) {
-					CSSStyleDeclarationRule newrule = importantSheet.createStyleRule();
+					StyleRule newrule = importantSheet.createStyleRule();
 					newrule.setSelectorList(rule.getSelectorList());
 					BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) newrule.getStyle();
 					style.setProperties((BaseCSSStyleDeclaration) userImportantStyle);
 					importantSheet.addRule(newrule);
 				}
 				if (!userNormalStyle.isEmpty()) {
-					CSSStyleDeclarationRule newrule = normalSheet.createStyleRule();
+					StyleRule newrule = normalSheet.createStyleRule();
 					newrule.setSelectorList(rule.getSelectorList());
 					BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) newrule.getStyle();
 					style.setProperties((BaseCSSStyleDeclaration) userNormalStyle);

@@ -49,6 +49,7 @@ import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSPropertyDefinition;
 import io.sf.carte.doc.style.css.CSSRule;
@@ -69,15 +70,14 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
-import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
 import io.sf.carte.doc.style.css.om.CSSRuleArrayList;
 import io.sf.carte.doc.style.css.om.ComputedCSSStyle;
-import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.DefaultErrorHandler;
 import io.sf.carte.doc.style.css.om.FontFeatureValuesRule;
 import io.sf.carte.doc.style.css.om.PropertyCountVisitor;
+import io.sf.carte.doc.style.css.om.SampleCSS;
 import io.sf.carte.doc.style.css.om.StyleCountVisitor;
 import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.om.StyleSheetList;
@@ -1073,7 +1073,7 @@ public class HTMLDocumentSampleTest {
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals("background-color: red; ",
 			((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
-		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules()
+		CSSStyleDeclaration fontface = ((CSSDeclarationRule) sheet.getCssRules()
 			.item(1)).getStyle();
 		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')",
 			fontface.getPropertyValue("src"));
@@ -2586,7 +2586,7 @@ public class HTMLDocumentSampleTest {
 
 	@Test
 	public void testCascade() throws IOException {
-		try (Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader()) {
+		try (Reader re = SampleCSS.loadSampleUserCSSReader()) {
 			xhtmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
 		}
 		DOMElement elm = xhtmlDoc.getElementById("para1");

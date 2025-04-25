@@ -13,16 +13,24 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ListStyleShorthandBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -44,16 +52,20 @@ public class ListStyleShorthandBuilderTest {
 		assertShorthandText("list-style:url('foo.png');", "list-style: url('foo.png');");
 		assertShorthandText("list-style:url('foo.png');", "list-style: url('foo.png') disc;");
 		assertShorthandText("list-style:none url('foo.png');", "list-style: url('foo.png') none");
-		assertShorthandText("list-style:inside none url('foo.png');", "list-style: url('foo.png') none inside");
-		assertShorthandText("list-style:inside url('foo.png');", "list-style: url('foo.png') inside");
-		assertShorthandText("list-style:inside square url('foo.png');", "list-style: url('foo.png') inside square");
+		assertShorthandText("list-style:inside none url('foo.png');",
+				"list-style: url('foo.png') none inside");
+		assertShorthandText("list-style:inside url('foo.png');",
+				"list-style: url('foo.png') inside");
+		assertShorthandText("list-style:inside square url('foo.png');",
+				"list-style: url('foo.png') inside square");
 		assertShorthandText("list-style:inside foo;", "list-style: foo inside;");
 		assertShorthandText("list-style:inside \"foo\";", "list-style: \"foo\" inside;");
 		assertShorthandText("list-style:inside thai;", "list-style: thai inside;");
 		assertShorthandText("list-style:inside MyStyle;", "list-style: inside MyStyle;");
 		assertShorthandText("list-style:inside symbols('*' '\u2020' '\u2021' '\u00a7');",
 				"list-style: inside symbols('*' '\\2020' '\\2021' '\\A7');");
-		assertShorthandText("list-style:radial-gradient(yellow,green);", "list-style: radial-gradient(yellow, green);");
+		assertShorthandText("list-style:radial-gradient(yellow,green);",
+				"list-style: radial-gradient(yellow, green);");
 	}
 
 	@Test
@@ -63,7 +75,8 @@ public class ListStyleShorthandBuilderTest {
 
 	@Test
 	public void testBuilderNoShorthandIEHack() {
-		assertShorthandText("list-style-image:none;list-style-position:inside;list-style-type:square \\9;",
+		assertShorthandText(
+				"list-style-image:none;list-style-position:inside;list-style-type:square \\9;",
 				"list-style-image: none; list-style-position: inside; list-style-type: square \\9;");
 	}
 

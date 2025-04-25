@@ -70,7 +70,7 @@ public class SelectorParserTest {
 			parseSelectors("&foo");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
-			assertEquals(1, e.getColumnNumber());
+			assertEquals(2, e.getColumnNumber());
 		}
 	}
 
@@ -2733,6 +2733,12 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.ID, cond.getConditionType());
 		assertEquals("foo/1", ((AttributeCondition) cond).getValue());
 		assertEquals("#foo\\/1", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorEmptyIdError() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class, () -> parseSelectors("# id"));
+		assertEquals(2, ex.getColumnNumber());
 	}
 
 	@Test

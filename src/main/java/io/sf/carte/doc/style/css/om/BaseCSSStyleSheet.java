@@ -37,6 +37,7 @@ import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
+import io.sf.carte.doc.style.css.MediaQuery;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -275,8 +276,9 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		addLocalRule(cssrule);
 	}
 
-	void setNamespace(String prefix, String uri) {
-		namespaces.put(uri, prefix);
+	@Override
+	public void registerNamespacePrefix(String prefix, String namespaceURI) {
+		namespaces.put(namespaceURI, prefix);
 	}
 
 	@Override
@@ -330,7 +332,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	private boolean containsRuleWithNamespace(String namespaceURI) {
 		for (CSSRule rule : cssRules) {
 			if (rule.getType() == CSSRule.STYLE_RULE) {
-				CSSStyleDeclarationRule stylerule = (CSSStyleDeclarationRule) rule;
+				StyleRule stylerule = (StyleRule) rule;
 				if (selectorListHasNamespace(stylerule.getSelectorList(), namespaceURI)) {
 					return true;
 				}
@@ -374,7 +376,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				addLocalRule(oRule.clone(sheet));
 			} else {
 				importCount++;
-				if (importCount == MAX_IMPORT_RECURSION) {
+				if (importCount >= MAX_IMPORT_RECURSION) {
 					DOMException ex = new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
 							"Too many nested imports");
 					String cssText = oRule.getCssText();
@@ -517,10 +519,17 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	@Override
 	public ImportRule createImportRule(MediaQueryList mediaList, String href) {
+		return createImportRule(null, null, mediaList, null, href);
+	}
+
+	@Override
+	public ImportRule createImportRule(String layerName, BooleanCondition supportsCondition,
+			MediaQueryList mediaList, String defaultNamespaceURI, String href) {
 		if (href == null) {
 			throw new NullPointerException("Null @import URI");
 		}
-		return new ImportRule(this, ((MediaListAccess) mediaList).unmodifiable(), href, getOrigin());
+		return new ImportRule(this, layerName, supportsCondition,
+				((MediaListAccess) mediaList).unmodifiable(), href, getOrigin());
 	}
 
 	@Override
@@ -588,17 +597,12 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
-	public ViewportRule createViewportRule() {
-		return new ViewportRule(this, getOrigin());
-	}
-
-	@Override
 	public UnknownRule createUnknownRule() {
 		return new UnknownRule(this, getOrigin());
 	}
 
 	@Override
-	protected BaseCSSStyleDeclaration createStyleDeclaration(BaseCSSDeclarationRule rule) {
+	protected BaseCSSStyleDeclaration createStyleDeclaration(CSSDeclarationRule rule) {
 		if (rule.getType() == CSSRule.FONT_FACE_RULE) {
 			return new WrappedCSSStyleDeclaration(rule);
 		}
@@ -670,7 +674,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		return namespaces.get(uri);
 	}
 
-	String getNamespaceURI(String nsPrefix) {
+	@Override
+	public String getNamespaceURI(String nsPrefix) {
 		for (Entry<String, String> entry : namespaces.entrySet()) {
 			String prefix = entry.getValue();
 			if (nsPrefix.equals(prefix)) {
@@ -825,10 +830,15 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		for (CSSRule rule : rules) {
 			switch (rule.getType()) {
 			case CSSRule.STYLE_RULE:
-			case CSSRule.PAGE_RULE: // 'page' property is a property, the rest are descriptors
-				CSSStyleDeclarationRule stylerule = (CSSStyleDeclarationRule) rule;
+				StyleRule stylerule = (StyleRule) rule;
 				if (((BaseCSSStyleDeclaration) stylerule.getStyle()).isPropertySet(propertyName)) {
 					subset.add(stylerule);
+				}
+				break;
+			case CSSRule.PAGE_RULE: // @page rules can contain properties as well as descriptors
+				BaseCSSDeclarationRule declrule = (BaseCSSDeclarationRule) rule;
+				if (((BaseCSSStyleDeclaration) declrule.getStyle()).isPropertySet(propertyName)) {
+					subset.add(declrule);
 				}
 				break;
 			case CSSRule.MEDIA_RULE:
@@ -866,7 +876,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		for (CSSRule rule : rules) {
 			switch (rule.getType()) {
 			case CSSRule.STYLE_RULE:
-				CSSStyleDeclarationRule stylerule = (CSSStyleDeclarationRule) rule;
+				StyleRule stylerule = (StyleRule) rule;
 				if (((BaseCSSStyleDeclaration) stylerule.getStyle()).isPropertySet(propertyName)) {
 					SelectorList list = stylerule.getSelectorList();
 					for (int i = 0; i < list.getLength(); i++) {
@@ -915,7 +925,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		for (CSSRule rule : rules) {
 			switch (rule.getType()) {
 			case CSSRule.STYLE_RULE:
-				CSSStyleDeclarationRule stylerule = (CSSStyleDeclarationRule) rule;
+				StyleRule stylerule = (StyleRule) rule;
 				if (value.equalsIgnoreCase(stylerule.getStyle().getPropertyValue(propertyName))) {
 					SelectorList list = stylerule.getSelectorList();
 					for (int i = 0; i < list.getLength(); i++) {
@@ -1056,7 +1066,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			case CSSRule.MARGIN_RULE:
 			case CSSRule.COUNTER_STYLE_RULE:
 			case CSSRule.PROPERTY_RULE:
-			case CSSRule.VIEWPORT_RULE:
+			case CSSRule.NESTED_DECLARATIONS:
 				CSSDeclarationRule declRule = (CSSDeclarationRule) rule;
 				visitor.visit(declRule);
 				break;
@@ -1095,7 +1105,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			case CSSRule.MARGIN_RULE:
 			case CSSRule.COUNTER_STYLE_RULE:
 			case CSSRule.PROPERTY_RULE:
-			case CSSRule.VIEWPORT_RULE:
+			case CSSRule.NESTED_DECLARATIONS:
 				CSSDeclarationRule declRule = (CSSDeclarationRule) rule;
 				visitor.visit(declRule);
 				break;
@@ -1296,14 +1306,14 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	/**
-	 * Does the given media query list contain any media present in
+	 * Does the second media query list contain any media present in
 	 * <code>media</code>?
 	 * 
 	 * @param media the media query list to match to.
 	 * @param mql   the media query list to test.
 	 * @return <code>true</code> if the second media query list contains any media
-	 *         which applies to the first <code>media</code> list,
-	 *         <code>false</code> otherwise.
+	 *         which applies to the first <code>media</code> list (pending media
+	 *         feature evaluation), <code>false</code> otherwise.
 	 */
 	boolean match(MediaQueryList media, MediaQueryList mql) {
 		if (media.isAllMedia()) {
@@ -1312,10 +1322,28 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		if (mql == null) {
 			return !media.isNotAllMedia(); // null list handled as "all"
 		}
-		if (mql.isAllMedia()) {
+		if (mql.isAllMedia() || appliesToAllMedia(mql)) {
 			return true;
 		}
 		return media.matches(mql);
+	}
+
+	private boolean appliesToAllMedia(MediaQueryList mql) {
+		int len = mql.getLength();
+		for (int i = 0; i < len; i++) {
+			MediaQuery mq = mql.getMediaQuery(i);
+			if (mq == null) {
+				break;
+			}
+			if (mq.isNotAllMedia() || mq.isNegated()) {
+				continue;
+			}
+			String media = mq.getMediaType();
+			if (media == null || "all".equalsIgnoreCase(media)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.om;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -184,7 +183,8 @@ public class MediaRuleTest {
 		CSSElement cssStyle = styleElement(
 				"@media only screen and (min-width:0\\0){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}",
 				EnumSet.of(Parser.Flag.IEVALUES));
-		AbstractCSSStyleSheet compatsheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
+		AbstractCSSStyleSheet compatsheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle)
+				.getSheet();
 		assertEquals(1, compatsheet.getCssRules().getLength());
 		assertEquals(CSSRule.MEDIA_RULE, compatsheet.getCssRules().item(0).getType());
 		MediaRule rule = (MediaRule) compatsheet.getCssRules().item(0);
@@ -202,7 +202,8 @@ public class MediaRuleTest {
 		assertTrue(mql.isNotAllMedia());
 		assertFalse(mql.isAllMedia());
 
-		DefaultSheetErrorHandler errHandler = (DefaultSheetErrorHandler) compatsheet.getErrorHandler();
+		DefaultSheetErrorHandler errHandler = (DefaultSheetErrorHandler) compatsheet
+				.getErrorHandler();
 		assertFalse(errHandler.hasSacErrors());
 		assertTrue(errHandler.hasSacWarnings());
 		assertFalse(errHandler.hasOMErrors());
@@ -222,7 +223,8 @@ public class MediaRuleTest {
 
 	@Test
 	public void testParseBad() throws DOMException, ParserConfigurationException {
-		CSSElement cssStyle = styleElement("@media (max-width:1600px) and only screen {div.foo{margin:1em}}");
+		CSSElement cssStyle = styleElement(
+				"@media (max-width:1600px) and only screen {div.foo{margin:1em}}");
 		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
 		assertEquals(1, sheet.getCssRules().getLength());
 		AbstractCSSRule rule = sheet.getCssRules().item(0);
@@ -358,7 +360,8 @@ public class MediaRuleTest {
 		assertEquals(
 				"@media screen {\n    .foo {\n        bottom: 20px ! important;\n    }\n    @media (max-width: 1600px) {\n        div.foo {\n            margin: 1em;\n        }\n    }\n}\n",
 				rule.getCssText());
-		assertEquals("@media screen{.foo{bottom:20px!important}@media (max-width:1600px){div.foo{margin:1em;}}}",
+		assertEquals(
+				"@media screen{.foo{bottom:20px!important}@media (max-width:1600px){div.foo{margin:1em;}}}",
 				rule.getMinifiedCssText());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
@@ -383,17 +386,18 @@ public class MediaRuleTest {
 		MediaRule nestedmrule = (MediaRule) rule1;
 		assertEquals("(max-width: 1600px)", nestedmrule.getMedia().getMedia());
 		assertEquals("(max-width:1600px)", nestedmrule.getMedia().getMinifiedMedia());
-		assertEquals("@media screen{.foo{bottom:20px!important}@media (max-width:1600px){div.foo{margin:1em;}}}",
+		assertEquals(
+				"@media screen{.foo{bottom:20px!important}@media (max-width:1600px){div.foo{margin:1em;}}}",
 				rule.getMinifiedCssText());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
-	public void testSetCssText() throws DOMException {
-		MediaQueryList mediaList = createMediaList("screen,print");
-		MediaRule rule = new MediaRule(sheet, mediaList, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		String text = "@media only screen and (min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}";
-		rule.setCssText(text);
+	public void testOnly() throws IOException {
+		StringReader re = new StringReader(
+				"@media only screen and (min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px;}}");
+		sheet.parseStyleSheet(re);
+		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
 		assertEquals(3, rule.getCssRules().getLength());
 		assertEquals("only screen and (min-width: 37.002em)", rule.getMedia().getMedia());
 		assertEquals(
@@ -402,23 +406,6 @@ public class MediaRuleTest {
 		assertEquals(
 				"@media only screen and (min-width:37.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
 				rule.getMinifiedCssText());
-	}
-
-	@Test
-	public void testSetCssTextBadRule() throws DOMException {
-		MediaQueryList mediaList = createMediaList("screen,print");
-		MediaRule rule = new MediaRule(sheet, mediaList, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		try {
-			rule.setCssText(
-					"@supports(display:table-cell)and(display:list-item){td{display:table-cell}@page{margin-top:20%}li{display:list-item}}");
-			fail("Must throw exception");
-		} catch (DOMException e) {
-			assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
-		}
-		assertEquals(0, rule.getCssRules().getLength());
-		assertEquals("screen,print", rule.getMedia().getMedia());
-		assertEquals("@media screen,print {\n}\n", rule.getCssText());
-		assertEquals("@media screen,print{}", rule.getMinifiedCssText());
 	}
 
 	@Test
@@ -471,14 +458,16 @@ public class MediaRuleTest {
 		return mql;
 	}
 
-	private static CSSElement styleElement(String sheetText) throws DOMException, ParserConfigurationException {
+	private static CSSElement styleElement(String sheetText)
+			throws DOMException, ParserConfigurationException {
 		return styleElement(sheetText, EnumSet.noneOf(Parser.Flag.class));
 	}
 
 	private static CSSElement styleElement(String sheetText, EnumSet<Parser.Flag> flags)
 			throws DOMException, ParserConfigurationException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
-		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
+		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null,
+				"html", null);
 		Element head = doc.createElement("head");
 		Element style = doc.createElement("style");
 		style.setAttribute("id", "styleId");

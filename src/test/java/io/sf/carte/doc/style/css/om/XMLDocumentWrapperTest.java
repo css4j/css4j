@@ -39,6 +39,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
@@ -69,7 +70,7 @@ public class XMLDocumentWrapperTest {
 
 	@BeforeEach
 	public void setUp() throws SAXException, IOException {
-		Reader re = DOMCSSStyleSheetFactoryTest.sampleXMLReader();
+		Reader re = SampleCSS.sampleXMLReader();
 		InputSource is = new InputSource(re);
 		Document doc = docb.parse(is);
 		re.close();
@@ -174,7 +175,8 @@ public class XMLDocumentWrapperTest {
 
 	@Test
 	public void getStyleSheet() {
-		DocumentCSSStyleSheet defsheet = xmlDoc.getStyleSheetFactory().getDefaultStyleSheet(xmlDoc.getComplianceMode());
+		DocumentCSSStyleSheet defsheet = xmlDoc.getStyleSheetFactory()
+				.getDefaultStyleSheet(xmlDoc.getComplianceMode());
 		assertNotNull(defsheet);
 		// Obtain the number of rules in the default style sheet, to use it
 		// as a baseline.
@@ -185,7 +187,8 @@ public class XMLDocumentWrapperTest {
 		int countInternalSheets = xmlDoc.embeddedStyle.size() + xmlDoc.linkedStyle.size();
 		assertEquals(7, countInternalSheets);
 		assertEquals(7, xmlDoc.getStyleSheets().getLength());
-		assertEquals("http://www.example.com/css/common.css", xmlDoc.getStyleSheets().item(0).getHref());
+		assertEquals("http://www.example.com/css/common.css",
+				xmlDoc.getStyleSheets().item(0).getHref());
 		assertEquals(3, xmlDoc.getStyleSheetSets().getLength());
 		Iterator<LinkStyleDefiner> it = xmlDoc.linkedStyle.iterator();
 		assertTrue(it.hasNext());
@@ -196,9 +199,12 @@ public class XMLDocumentWrapperTest {
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(xmlDoc.hasStyleIssues());
 
-		assertEquals("background-color: red; ", ((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
-		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
-		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));
+		assertEquals("background-color: red; ",
+				((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
+		CSSStyleDeclaration fontface = ((CSSDeclarationRule) sheet.getCssRules().item(1))
+				.getStyle();
+		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')",
+				fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
 		assertEquals(CssType.TYPED, ffval.getCssValueType());
 		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
@@ -282,7 +288,8 @@ public class XMLDocumentWrapperTest {
 		assertNotNull(elm);
 		CSSComputedProperties style = xmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals("5pt", style.getPropertyValue("margin-top"));
-		assertEquals("margin-top: 5pt; margin-right: 5pt; margin-bottom: 5pt; margin-left: 5pt; ", style.getCssText());
+		assertEquals("margin-top: 5pt; margin-right: 5pt; margin-bottom: 5pt; margin-left: 5pt; ",
+				style.getCssText());
 		elm.getOverrideStyle(null).setCssText("margin: 16pt; color: red");
 		assertEquals("red", elm.getOverrideStyle(null).getPropertyValue("color"));
 		assertEquals("margin: 16pt; color: red; ", elm.getOverrideStyle(null).getCssText());
@@ -290,7 +297,8 @@ public class XMLDocumentWrapperTest {
 		assertNotNull(style);
 		assertEquals("16pt", style.getPropertyValue("margin-top"));
 		assertEquals("#f00", style.getPropertyValue("color"));
-		assertEquals("margin-top: 16pt; margin-right: 16pt; margin-bottom: 16pt; margin-left: 16pt; color: #f00; ",
+		assertEquals(
+				"margin-top: 16pt; margin-right: 16pt; margin-bottom: 16pt; margin-left: 16pt; color: #f00; ",
 				style.getCssText());
 		assertEquals("margin:16pt;color:#f00;", style.getMinifiedCssText());
 	}
@@ -318,7 +326,7 @@ public class XMLDocumentWrapperTest {
 
 	@Test
 	public void testGetDocumentElementGetColorLenient() throws SAXException, IOException {
-		Reader re = DOMCSSStyleSheetFactoryTest.sampleXMLReader();
+		Reader re = SampleCSS.sampleXMLReader();
 		InputSource is = new InputSource(re);
 		Document doc = docb.parse(is);
 		re.close();
@@ -448,7 +456,8 @@ public class XMLDocumentWrapperTest {
 		sheet = link.getSheet();
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
 
-		link.setNodeValue("href=\"http://www.example.com/css/alter1.css\" media=\"screen and only\"");
+		link.setNodeValue(
+				"href=\"http://www.example.com/css/alter1.css\" media=\"screen and only\"");
 		assertNull(link.getSheet());
 		xmlDoc.getErrorHandler().reset();
 
@@ -468,7 +477,7 @@ public class XMLDocumentWrapperTest {
 
 	@Test
 	public void testCascade() throws IOException {
-		try (Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader()) {
+		try (Reader re = SampleCSS.loadSampleUserCSSReader()) {
 			xmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
 		}
 		CSSElement elm = xmlDoc.getElementById("para1");

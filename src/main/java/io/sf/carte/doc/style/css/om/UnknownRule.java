@@ -24,9 +24,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Implementation of CSSUnknownRule.
- * 
- * @author Carlos Amengual
- * 
  */
 public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 
@@ -41,18 +38,6 @@ public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 	UnknownRule(UnknownRule copyMe) {
 		super(copyMe);
 		cssText = copyMe.cssText;
-	}
-
-	@Override
-	void clear() {
-	}
-
-	@Override
-	void setRule(AbstractCSSRule copyMe) {
-		UnknownRule other = (UnknownRule) copyMe;
-		setPrecedingComments(copyMe.getPrecedingComments());
-		setTrailingComments(copyMe.getTrailingComments());
-		this.cssText = other.cssText;
 	}
 
 	@Override

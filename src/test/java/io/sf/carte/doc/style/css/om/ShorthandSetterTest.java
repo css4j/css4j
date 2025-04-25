@@ -81,7 +81,7 @@ public class ShorthandSetterTest {
 
 	@Before
 	public void setUp() {
-		CSSStyleDeclarationRule styleRule = sheet.createStyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -7844,6 +7844,8 @@ public class ShorthandSetterTest {
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-numeric"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-alternates"));
 		assertEquals("normal", emptyStyleDecl.getPropertyValue("font-variant-east-asian"));
+		assertEquals("Serif", emptyStyleDecl.getPropertyValue("font-family"));
+		assertEquals("initial", emptyStyleDecl.getPropertyCSSValue("font-family").getCssText());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("font-size").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("font-family").isSubproperty());
 		assertEquals("font: bold; ", emptyStyleDecl.getCssText());

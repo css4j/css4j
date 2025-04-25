@@ -12,12 +12,14 @@
 package io.sf.carte.doc.style.css.parser;
 
 import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
-class ConditionalSelectorImpl extends AbstractSelector implements ConditionalSelector {
+abstract class ConditionalSelectorImpl extends AbstractSelector implements ConditionalSelector {
 
 	private static final long serialVersionUID = 1L;
 
@@ -43,6 +45,32 @@ class ConditionalSelectorImpl extends AbstractSelector implements ConditionalSel
 	@Override
 	public Condition getCondition() {
 		return this.condition;
+	}
+
+	@Override
+	Selector replace(SelectorList base) {
+		Condition replCond;
+
+		if (condition.getConditionType() == ConditionType.NESTING) {
+			if (base.getLength() == 1 && selector == null) {
+				return base.item(0);
+			} else {
+				SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) getSelectorFactory()
+						.createCondition(ConditionType.SELECTOR_ARGUMENT);
+				is.arguments = base;
+				is.setName("is");
+				replCond = is;
+			}
+		} else {
+			replCond = ((AbstractCondition) condition).replace(base);
+		}
+
+		ConditionalSelectorImpl clon = clone();
+
+		clon.selector = (SimpleSelector) ((AbstractSelector) selector).replace(base);
+		clon.condition = replCond;
+
+		return clon;
 	}
 
 	@Override
@@ -94,4 +122,13 @@ class ConditionalSelectorImpl extends AbstractSelector implements ConditionalSel
 		buf.append(condition.toString());
 		return buf.toString();
 	}
+
+	@Override
+	public ConditionalSelectorImpl clone() {
+		ConditionalSelectorImpl clon = (ConditionalSelectorImpl) super.clone();
+		clon.condition = condition;
+		clon.selector = selector;
+		return clon;
+	}
+
 }

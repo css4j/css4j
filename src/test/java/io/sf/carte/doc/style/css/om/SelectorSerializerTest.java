@@ -13,6 +13,10 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.io.IOException;
+import java.io.StringReader;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,23 +25,26 @@ import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 public class SelectorSerializerTest {
 
-	TestCSSStyleSheetFactory factory;
+	private static TestCSSStyleSheetFactory factory;
 
-	AbstractCSSStyleSheet sheet;
+	private AbstractCSSStyleSheet sheet;
 
-	SelectorSerializer serializer;
+	private SelectorSerializer serializer;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		factory = new TestCSSStyleSheetFactory();
+	}
 
 	@BeforeEach
-	void setUp() throws Exception {
-		factory = new TestCSSStyleSheetFactory();
+	public void setUp() {
 		sheet = factory.createStyleSheet(null, null);
 		serializer = new SelectorSerializer(sheet);
 	}
 
 	@Test
 	public void testSelectorTextSelector() {
-		CSSStyleDeclarationRule rule = sheet.createStyleRule();
-		rule.setCssText(
+		StyleRule rule = parseStyleRule(
 				"html:root + p:empty,span[foo~='bar'],span[foo='bar'],p:only-child,p:lang(en),p.someclass,a:link,span[class='example'] {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals(8, list.getLength());
@@ -54,21 +61,22 @@ public class SelectorSerializerTest {
 
 	@Test
 	public void testSelectorTextSelectorDQ() {
-		CSSStyleDeclarationRule rule = createStyleRule(CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
-		rule.setCssText("span[foo~='bar'],span[foo='bar'],span[class='example'] {border-top-width: 1px; }");
+		StyleRule rule = parseStyleRule(
+				"span[foo~='bar'],span[foo='bar'],span[class='example'] {border-top-width: 1px; }",
+				CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 		SelectorList list = rule.getSelectorList();
 		assertEquals(3, list.getLength());
 		assertEquals("span[foo~=\"bar\"]", serializer.selectorText(list.item(0), false));
 		assertEquals("span[foo=\"bar\"]", serializer.selectorText(list.item(1), false));
 		assertEquals("span[class=\"example\"]", serializer.selectorText(list.item(2), false));
-		rule.setCssText("a[hreflang|='en'] {border-top-width: 1px; }");
+		rule = parseStyleRule("a[hreflang|='en'] {border-top-width: 1px; }");
 		assertEquals("a[hreflang|=\"en\"]", rule.getSelectorText());
 	}
 
 	@Test
 	public void testSelectorTextSelector2() {
-		CSSStyleDeclarationRule rule = sheet.createStyleRule();
-		rule.setCssText("ul li,h4[foo],a[hreflang|='en'] {border-top-width: 1px; }");
+		StyleRule rule = parseStyleRule(
+				"ul li,h4[foo],a[hreflang|='en'] {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals("ul li,h4[foo],a[hreflang|='en']", rule.getSelectorText());
 		assertEquals(3, list.getLength());
@@ -79,8 +87,8 @@ public class SelectorSerializerTest {
 
 	@Test
 	public void testSelectorTextSelector3() {
-		CSSStyleDeclarationRule rule = sheet.createStyleRule();
-		rule.setCssText("div ol>li p,p:first-line,p:hover {border-top-width: 1px; }");
+		StyleRule rule = parseStyleRule(
+				"div ol>li p,p:first-line,p:hover {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals("div ol>li p,p::first-line,p:hover", rule.getSelectorText());
 		assertEquals(3, list.getLength());
@@ -91,8 +99,7 @@ public class SelectorSerializerTest {
 
 	@Test
 	public void testSelectorTextSelector4() {
-		CSSStyleDeclarationRule rule = sheet.createStyleRule();
-		rule.setCssText(".someclass, h1 > p, a:visited {border-top-width: 1px; }");
+		StyleRule rule = parseStyleRule(".someclass, h1 > p, a:visited {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals(3, list.getLength());
 		assertEquals(".someclass", serializer.selectorText(list.item(0), false));
@@ -103,10 +110,10 @@ public class SelectorSerializerTest {
 
 	@Test
 	public void testSelectorTextSelector5() {
-		CSSStyleDeclarationRule rule = sheet.createStyleRule();
-		rule.setCssText(
+		StyleRule rule = parseStyleRule(
 				"*, p *, * p, p > *, * > p, * + p, * .foo, *:only-child, *[foo='bar'] {border-top-width: 1px; }");
-		assertEquals("*,p *,* p,p>*,*>p,*+p,* .foo,:only-child,[foo='bar']", rule.getSelectorText());
+		assertEquals("*,p *,* p,p>*,*>p,*+p,* .foo,:only-child,[foo='bar']",
+				rule.getSelectorText());
 		SelectorList list = rule.getSelectorList();
 		assertEquals("*", serializer.selectorText(list.item(0), false));
 		assertEquals("p *", serializer.selectorText(list.item(1), false));
@@ -119,30 +126,50 @@ public class SelectorSerializerTest {
 
 	@Test
 	public void testSelectorTextAttributeSelector() {
-		CSSStyleDeclarationRule rule = sheet.createStyleRule();
-		rule.setCssText("span[class=\"example\"][foo=\"'bar\"],:rtl * {border-top-width: 1px; }");
+		StyleRule rule = parseStyleRule(
+				"span[class=\"example\"][foo=\"'bar\"],:rtl * {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals("span[class='example'][foo=\"'bar\"],:rtl *", rule.getSelectorText());
 		assertEquals(2, list.getLength());
-		assertEquals("span[class='example'][foo=\"'bar\"]", serializer.selectorText(list.item(0), false));
+		assertEquals("span[class='example'][foo=\"'bar\"]",
+				serializer.selectorText(list.item(0), false));
 		assertEquals(":rtl *", serializer.selectorText(list.item(1), false));
 	}
 
 	@Test
 	public void testSelectorTextAttributeSelectorDQ() {
-		CSSStyleDeclarationRule rule = createStyleRule(CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
-		rule.setCssText("span[class=\"example\"][foo=\"bar\"],:rtl * {border-top-width: 1px; }");
+		StyleRule rule = parseStyleRule(
+				"span[class=\"example\"][foo=\"bar\"],:rtl * {border-top-width: 1px; }",
+				CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 		SelectorList list = rule.getSelectorList();
 		assertEquals("span[class=\"example\"][foo=\"bar\"],:rtl *", rule.getSelectorText());
 		assertEquals(2, list.getLength());
-		assertEquals("span[class=\"example\"][foo=\"bar\"]", serializer.selectorText(list.item(0), false));
+		assertEquals("span[class=\"example\"][foo=\"bar\"]",
+				serializer.selectorText(list.item(0), false));
 		assertEquals(":rtl *", serializer.selectorText(list.item(1), false));
 	}
 
-	private StyleRule createStyleRule(short flag) {
-		factory.setFactoryFlag(flag);
-		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		return sheet.createStyleRule();
+	private StyleRule parseStyleRule(String cssText) {
+		sheet.getCssRules().clear();
+		try {
+			sheet.parseStyleSheet(new StringReader(cssText));
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+		return (StyleRule) sheet.getCssRules().item(0);
+	}
+
+	private StyleRule parseStyleRule(String cssText, short flag) {
+		TestCSSStyleSheetFactory f = new TestCSSStyleSheetFactory();
+		f.setFactoryFlag(flag);
+		sheet = f.createStyleSheet(null, null);
+		try {
+			sheet.parseStyleSheet(new StringReader(cssText));
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+		serializer = new SelectorSerializer(sheet);
+		return (StyleRule) sheet.getCssRules().item(0);
 	}
 
 }

@@ -22,10 +22,6 @@ class IdentCharacterCheck implements CharacterCheck {
 
 	/**
 	 * Constructor.
-	 * <p>
-	 * The allowed characters shall be checked one by one in the array order. If the
-	 * array is large please use {@link WhitelistCharacterCheck} instead.
-	 * </p>
 	 */
 	public IdentCharacterCheck() {
 		super();

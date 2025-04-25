@@ -75,19 +75,17 @@ public class SystemDefaultValue extends TypedValue {
 		if (this == obj) {
 			return true;
 		}
-		if (!super.equals(obj)) {
+		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof SystemDefaultValue)) {
+		if (!(obj instanceof StyleValue)) {
 			return false;
 		}
-		SystemDefaultValue other = (SystemDefaultValue) obj;
-		return getCssText().equals(other.getCssText());
-	}
 
-	@Override
-	public int hashCode() {
-		return getCssText().hashCode();
+		StyleValue other = (StyleValue) obj;
+
+		// Assume they are being compared because the property is the same.
+		return other.isSystemDefault() || other.getPrimitiveType() == Type.INITIAL;
 	}
 
 	@Override
@@ -99,4 +97,5 @@ public class SystemDefaultValue extends TypedValue {
 	public SystemDefaultValue clone() {
 		return this;
 	}
+
 }

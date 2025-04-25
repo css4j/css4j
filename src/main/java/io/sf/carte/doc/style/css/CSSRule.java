@@ -97,11 +97,16 @@ public interface CSSRule extends org.w3c.dom.css.CSSRule {
 	 * February 2020</a>.
 	 * </p>
 	 */
+	@Deprecated
 	short VIEWPORT_RULE = 15;
 
 	short REGION_STYLE_RULE = 16;
+
 	short CUSTOM_MEDIA_RULE = 17;
+
 	short PROPERTY_RULE = 18;
+
+	short NESTED_DECLARATIONS = 19;
 
 	/**
 	 * A minified parsable textual representation of the rule. This reflects the current state
@@ -149,6 +154,13 @@ public interface CSSRule extends org.w3c.dom.css.CSSRule {
 	 * @see CSSStyleSheet#parseStyleSheet(java.io.Reader, short)
 	 */
 	StringList getTrailingComments();
+
+	/**
+	 * This method has no effect.
+	 */
+	@Override
+	default void setCssText(String cssText) {
+	}
 
 	/**
 	 * Write a serialization of this rule to the given simple writer, according to the given

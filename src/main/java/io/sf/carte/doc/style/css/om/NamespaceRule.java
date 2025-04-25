@@ -66,24 +66,11 @@ public class NamespaceRule extends BaseCSSRule implements CSSNamespaceRule {
 		for (CSSRule rule : rules) {
 			short type = rule.getType();
 			if (type == CSSRule.STYLE_RULE) {
-				((CSSStyleDeclarationRule) rule).updateSelectorText();
+				((StyleRule) rule).updateSelectorText();
 			} else if (rule instanceof GroupingRule) {
 				updateSelectorText(((GroupingRule) rule).getCssRules());
 			}
 		}
-	}
-
-	@Override
-	void clear() {
-	}
-
-	@Override
-	void setRule(AbstractCSSRule copyMe) {
-		NamespaceRule nsRule = (NamespaceRule) copyMe;
-		setPrecedingComments(copyMe.getPrecedingComments());
-		setTrailingComments(copyMe.getTrailingComments());
-		this.namespaceURI = nsRule.namespaceURI;
-		this.prefix = nsRule.prefix;
 	}
 
 	@Override

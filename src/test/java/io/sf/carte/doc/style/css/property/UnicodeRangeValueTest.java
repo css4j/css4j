@@ -26,8 +26,8 @@ import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
-import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
@@ -39,7 +39,7 @@ public class UnicodeRangeValueTest {
 	public void setUp() {
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
-		CSSStyleDeclarationRule styleRule = sheet.createStyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
 		style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}

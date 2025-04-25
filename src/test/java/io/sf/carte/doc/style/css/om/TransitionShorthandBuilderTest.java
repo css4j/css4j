@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,9 +21,16 @@ public class TransitionShorthandBuilderTest {
 
 	private BaseCSSStyleDeclaration emptyStyleDecl;
 
+	private static AbstractCSSStyleSheet sheet;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
+
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -30,7 +38,8 @@ public class TransitionShorthandBuilderTest {
 	public void testBuilderNoShorthand() {
 		assertShorthandText("transition-property:foo;", "transition-property: foo;");
 		// Nobody uses IE hacks for transitions, but the detection code is shared
-		assertShorthandText("transition-delay:1s;transition-duration:3200ms;transition-property:foo\\9;",
+		assertShorthandText(
+				"transition-delay:1s;transition-duration:3200ms;transition-property:foo\\9;",
 				"transition-duration: 3200ms;transition-delay:1s;transition-property:foo\\9;");
 	}
 
@@ -51,9 +60,11 @@ public class TransitionShorthandBuilderTest {
 
 	@Test
 	public void testBuilderMix() {
-		assertShorthandText("transition-delay:inherit;transition-duration:3200ms;transition-property:foo;transition-timing-function:ease-in;",
+		assertShorthandText(
+				"transition-delay:inherit;transition-duration:3200ms;transition-property:foo;transition-timing-function:ease-in;",
 				"transition-duration: 3200ms;transition-delay:inherit;transition-timing-function:ease-in;transition-property:foo;");
-		assertShorthandText("transition-delay:revert;transition-duration:3200ms;transition-property:foo;transition-timing-function:ease-in;",
+		assertShorthandText(
+				"transition-delay:revert;transition-duration:3200ms;transition-property:foo;transition-timing-function:ease-in;",
 				"transition-duration: 3200ms;transition-delay:revert;transition-timing-function:ease-in;transition-property:foo;");
 		assertShorthandText("transition:foo 3200ms ease-in;",
 				"transition-duration: 3200ms;transition-delay:initial;transition-timing-function:ease-in;transition-property:foo;");
@@ -92,7 +103,8 @@ public class TransitionShorthandBuilderTest {
 
 	@Test
 	public void testBuilderListImportant() {
-		assertShorthandText("transition:margin-left 3500ms 5s,margin-top 0s steps(2,start) 3s!important;",
+		assertShorthandText(
+				"transition:margin-left 3500ms 5s,margin-top 0s steps(2,start) 3s!important;",
 				"transition: 3500ms 5s margin-left, 0s 3s steps(2, start) margin-top ! important");
 	}
 

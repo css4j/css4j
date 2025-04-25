@@ -46,8 +46,7 @@ public class ComputedStyleAttrTest {
 	@BeforeAll
 	public static void setUpBeforeClass() throws IOException, DocumentException {
 		sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
-		refXhtmlDoc = DOMCSSStyleSheetFactoryTest.plainDocumentFromStream(
-				DOMCSSStyleSheetFactoryTest.sampleHTMLStream(),
+		refXhtmlDoc = SampleCSS.plainDocumentFromStream(SampleCSS.sampleHTMLStream(),
 				MockURLConnectionFactory.SAMPLE_URL);
 		//refXhtmlDoc = TestDOMImplementation.sampleHTMLDocument();
 	}
@@ -252,7 +251,8 @@ public class ComputedStyleAttrTest {
 		assertNotNull(elm);
 
 		elm.setAttribute("data-1", "calc(2*9)");
-		elm.getOverrideStyle(null).setCssText("foo: sqrt(.2 * calc(attr(data-1 type(<number>)) / 3))");
+		elm.getOverrideStyle(null)
+				.setCssText("foo: sqrt(.2 * calc(attr(data-1 type(<number>)) / 3))");
 
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		TypedValue val = (TypedValue) style.getPropertyCSSValue("foo");
@@ -651,7 +651,8 @@ public class ComputedStyleAttrTest {
 		CSSElement elm = xhtmlDoc.getElementById("h1");
 		assertNotNull(elm);
 
-		elm.getOverrideStyle(null).setCssText("background:attr(data-uri type(<url>), antiquewhite)");
+		elm.getOverrideStyle(null)
+				.setCssText("background:attr(data-uri type(<url>), antiquewhite)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("#faebd7", style.getPropertyValue("background"));
 		assertEquals("none", style.getPropertyValue("background-image"));
@@ -722,8 +723,7 @@ public class ComputedStyleAttrTest {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
 
-		elm.getOverrideStyle(null)
-				.setCssText("grid: \"a a a\" attr(data-line)");
+		elm.getOverrideStyle(null).setCssText("grid: \"a a a\" attr(data-line)");
 		elm.setAttribute("data-line", "b b b");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("\"a a a\" \"b b b\"", style.getPropertyValue("grid-template-areas"));
@@ -742,8 +742,7 @@ public class ComputedStyleAttrTest {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
 
-		elm.getOverrideStyle(null)
-				.setCssText("grid: \"a a a\" attr(data-line, 'b b b' / 1fr 2fr)");
+		elm.getOverrideStyle(null).setCssText("grid: \"a a a\" attr(data-line, 'b b b' / 1fr 2fr)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("\"a a a\" 'b b b'/1fr 2fr", style.getPropertyValue("grid"));
 		assertEquals("\"a a a\" 'b b b'", style.getPropertyValue("grid-template-areas"));
@@ -802,8 +801,7 @@ public class ComputedStyleAttrTest {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
 
-		elm.getOverrideStyle(null)
-				.setCssText("border-radius: 20% attr(data-radius %, / 40%)");
+		elm.getOverrideStyle(null).setCssText("border-radius: 20% attr(data-radius %, / 40%)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("20%/40%", style.getPropertyValue("border-radius"));
 		assertEquals("20% 40%", style.getPropertyValue("border-top-left-radius"));
@@ -828,8 +826,7 @@ public class ComputedStyleAttrTest {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
 
-		elm.getOverrideStyle(null)
-				.setCssText("border-radius: 20% attr(data-radius rlh, / 40%)");
+		elm.getOverrideStyle(null).setCssText("border-radius: 20% attr(data-radius rlh, / 40%)");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("20%/40%", style.getPropertyValue("border-radius"));
 		assertEquals("20% 40%", style.getPropertyValue("border-top-left-radius"));
@@ -854,8 +851,8 @@ public class ComputedStyleAttrTest {
 		CSSElement elm = xhtmlDoc.getElementById("h1");
 		assertNotNull(elm);
 
-		elm.getOverrideStyle(null)
-				.setCssText("font:attr(data-weight type(<custom-ident>), 400 80%/120% 'Delicious Handrawn')");
+		elm.getOverrideStyle(null).setCssText(
+				"font:attr(data-weight type(<custom-ident>), 400 80%/120% 'Delicious Handrawn')");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertEquals("Delicious Handrawn", style.getPropertyValue("font-family"));
 		assertEquals("400", style.getPropertyValue("font-weight"));

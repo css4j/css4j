@@ -52,6 +52,7 @@ import org.xml.sax.SAXException;
 
 import io.sf.carte.doc.DocumentException;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
@@ -78,7 +79,7 @@ public class StylableDocumentWrapperTest {
 	@BeforeAll
 	public static void setUpBeforeClass()
 			throws IOException, SAXException, ParserConfigurationException {
-		InputStream is = DOMCSSStyleSheetFactoryTest.sampleHTMLStream();
+		InputStream is = SampleCSS.sampleHTMLStream();
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docb = dbFac.newDocumentBuilder();
 		docb.setEntityResolver(new DefaultEntityResolver());
@@ -164,8 +165,7 @@ public class StylableDocumentWrapperTest {
 		URL url = new URI("http://www.example.COM/bar").toURL();
 		assertTrue(xhtmlDoc.isSafeOrigin(url));
 
-		assertTrue(xhtmlDoc
-				.isSafeOrigin(new URI("http://www.example.com:80/other.html").toURL()));
+		assertTrue(xhtmlDoc.isSafeOrigin(new URI("http://www.example.com:80/other.html").toURL()));
 
 		url = new URI("http://www.foo.com/bar").toURL();
 		assertFalse(xhtmlDoc.isSafeOrigin(url));
@@ -190,8 +190,7 @@ public class StylableDocumentWrapperTest {
 		Node parent = base.getParentNode();
 		parent.removeChild(base);
 
-		assertTrue(xhtmlDoc
-				.isSafeOrigin(new URI("http://www.example.ORG/foo.html").toURL()));
+		assertTrue(xhtmlDoc.isSafeOrigin(new URI("http://www.example.ORG/foo.html").toURL()));
 	}
 
 	@Test
@@ -259,7 +258,8 @@ public class StylableDocumentWrapperTest {
 		int countInternalSheets = xhtmlDoc.embeddedStyle.size() + xhtmlDoc.linkedStyle.size();
 		assertEquals(7, countInternalSheets);
 		assertEquals(7, xhtmlDoc.getStyleSheets().getLength());
-		assertEquals("http://www.example.com/css/common.css", xhtmlDoc.getStyleSheets().item(0).getHref());
+		assertEquals("http://www.example.com/css/common.css",
+				xhtmlDoc.getStyleSheets().item(0).getHref());
 		assertEquals(3, xhtmlDoc.getStyleSheetSets().getLength());
 		assertFalse(xhtmlDoc.hasStyleIssues());
 
@@ -271,9 +271,11 @@ public class StylableDocumentWrapperTest {
 		assertEquals(3, sheet.getCssRules().getLength());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals("background-color: red; ",
-				((BaseCSSDeclarationRule) sheet.getCssRules().item(0)).getStyle().getCssText());
-		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
-		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));
+				((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
+		CSSStyleDeclaration fontface = ((CSSDeclarationRule) sheet.getCssRules().item(1))
+				.getStyle();
+		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')",
+				fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
 		assertEquals(CssType.TYPED, ffval.getCssValueType());
 		assertEquals(CSSValue.Type.URI, ffval.getPrimitiveType());
@@ -369,7 +371,8 @@ public class StylableDocumentWrapperTest {
 		style.setCssText("width:calc(80%-)");
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasIOErrors());
-		StyleDeclarationErrorHandler eh = xhtmlDoc.getErrorHandler().getInlineStyleErrorHandler(elm);
+		StyleDeclarationErrorHandler eh = xhtmlDoc.getErrorHandler()
+				.getInlineStyleErrorHandler(elm);
 		assertNotNull(eh);
 		assertTrue(eh.hasErrors());
 	}
@@ -414,7 +417,8 @@ public class StylableDocumentWrapperTest {
 		assertNotNull(elm);
 		CSSComputedProperties style = xhtmlDoc.getStyleSheet().getComputedStyle(elm, null);
 		assertEquals("10px", style.getPropertyValue("margin-top"));
-		assertEquals("margin-top: 10px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px; ",
+		assertEquals(
+				"margin-top: 10px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px; ",
 				style.getCssText());
 		assertEquals(4, style.getLength());
 		elm.getOverrideStyle(null).setCssText("margin: 16pt; color: red");
@@ -424,7 +428,8 @@ public class StylableDocumentWrapperTest {
 		assertNotNull(style);
 		assertEquals("16pt", style.getPropertyValue("margin-top"));
 		assertEquals("#f00", style.getPropertyValue("color"));
-		assertEquals("margin-top: 16pt; margin-right: 16pt; margin-bottom: 16pt; margin-left: 16pt; color: #f00; ",
+		assertEquals(
+				"margin-top: 16pt; margin-right: 16pt; margin-bottom: 16pt; margin-left: 16pt; color: #f00; ",
 				style.getCssText());
 		assertEquals("margin:16pt;color:#f00;", style.getMinifiedCssText());
 		assertEquals(5, style.getLength());
@@ -560,7 +565,7 @@ public class StylableDocumentWrapperTest {
 
 	@Test
 	public void testCascade() throws IOException {
-		try (Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader()) {
+		try (Reader re = SampleCSS.loadSampleUserCSSReader()) {
 			xhtmlDoc.getStyleSheetFactory().setUserStyleSheet(re);
 		}
 		CSSElement elm = xhtmlDoc.getElementById("para1");

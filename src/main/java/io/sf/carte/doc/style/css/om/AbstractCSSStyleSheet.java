@@ -165,6 +165,11 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 	abstract public ImportRule createImportRule(MediaQueryList mediaList, String href);
 
 	@Override
+	abstract public ImportRule createImportRule(String layerName,
+			BooleanCondition supportsCondition, MediaQueryList mediaList,
+			String defaultNamespaceURI, String href);
+
+	@Override
 	abstract public MediaRule createMediaRule(MediaQueryList mediaList);
 
 	@Override
@@ -187,9 +192,6 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 	abstract public UnknownRule createUnknownRule();
 
 	@Override
-	abstract public ViewportRule createViewportRule();
-
-	@Override
 	abstract public AbstractCSSStyleDeclaration createStyleDeclaration();
 
 	/**
@@ -199,7 +201,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 	 * @return the style declaration.
 	 */
 	abstract protected AbstractCSSStyleDeclaration createStyleDeclaration(
-		BaseCSSDeclarationRule rule);
+			CSSDeclarationRule rule);
 
 	/**
 	 * Register the namespace from the given namespace rule.

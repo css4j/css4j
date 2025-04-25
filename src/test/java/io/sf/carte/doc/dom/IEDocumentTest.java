@@ -25,14 +25,13 @@ import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.dom.DOMDocument.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
-import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
-import io.sf.carte.doc.style.css.om.BaseCSSDeclarationRule;
 import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.om.StyleSheetList;
 
@@ -95,7 +94,7 @@ public class IEDocumentTest {
 		assertEquals(3, sheet.getCssRules().getLength());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		assertEquals("background-color: red; ", ((StyleRule) sheet.getCssRules().item(0)).getStyle().getCssText());
-		AbstractCSSStyleDeclaration fontface = ((BaseCSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
+		CSSStyleDeclaration fontface = ((CSSDeclarationRule) sheet.getCssRules().item(1)).getStyle();
 		assertEquals("url('http://www.example.com/fonts/OpenSans-Regular.ttf')", fontface.getPropertyValue("src"));
 		CSSValue ffval = fontface.getPropertyCSSValue("src");
 		assertEquals(CssType.TYPED, ffval.getCssValueType());

@@ -37,6 +37,20 @@ public interface CSSFontFeatureValuesMap {
 	void set(String featureValueName, PrimitiveValue... values);
 
 	/**
+	 * The size of the map.
+	 * 
+	 * @return the count of feature value names.
+	 */
+	int size();
+
+	/**
+	 * Check if empty.
+	 * 
+	 * @return {@code true} if the map is empty.
+	 */
+	boolean isEmpty();
+
+	/**
 	 * Get a list of the comments that preceded this map, if any.
 	 * 
 	 * @return the list of comments, or <code>null</code> if there were no preceding

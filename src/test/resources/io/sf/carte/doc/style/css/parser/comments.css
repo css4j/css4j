@@ -1,5 +1,6 @@
 /* pre-rule-1 */
-@viewport /* skip-vw 1 */ {/* pre-viewport-decl */ width: /* skip-vw 2 */device-width; /* post-viewport-decl */}
+@property/* skip-pty 1 */--reg-custom/* skip-pty 2 */{/* pre-property-decl */ syntax: /* skip-pty 3 */"*"; /* post-property-decl */inherits/* skip-pty 4 */:/*
+skip-pty-5 */false}
 /* pre-rule-1-webkit */
 @-webkit-viewport /* skip-vw 1-webkit */ {/* pre-viewport-decl-webkit */ width: /* skip-vw 2-webkit */device-width; /* post-viewport-decl-webkit */}
 

@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
@@ -21,14 +22,12 @@ import io.sf.carte.doc.style.css.CSSKeyframeRule;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
-import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
-import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -45,6 +44,8 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 
 	private final KeyframesRule parentRule;
 
+	private LexicalUnit keyframeSelector;
+
 	private String keyText;
 
 	public KeyframeRule(KeyframesRule parentRule) {
@@ -60,8 +61,9 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 		return keyText;
 	}
 
-	void setKeyText(String keyText) {
-		this.keyText = keyText;
+	void setKeyframeSelector(LexicalUnit keyframeSelector) throws DOMException {
+		this.keyframeSelector = keyframeSelector;
+		this.keyText = KeyframesRule.keyframeSelector(keyframeSelector);
 	}
 
 	@Override
@@ -79,7 +81,47 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 
 	@Override
 	public String getMinifiedCssText() {
-		return getKeyText() + '{' + getStyle().getMinifiedCssText() + '}';
+		StringBuilder buffer = new StringBuilder(64);
+		miniKeyframeSelector(buffer, keyframeSelector);
+		buffer.append('{');
+		buffer.append(getStyle().getMinifiedCssText());
+		buffer.append('}');
+		return buffer.toString();
+	}
+
+	private static String miniKeyframeSelector(StringBuilder buffer, LexicalUnit selunit) {
+		appendMiniSelector(buffer, selunit);
+		LexicalUnit lu = selunit.getNextLexicalUnit();
+		while (lu != null) {
+			LexicalUnit nextlu = lu.getNextLexicalUnit();
+			buffer.append(',');
+			appendMiniSelector(buffer, nextlu);
+			lu = nextlu.getNextLexicalUnit();
+		}
+		return buffer.toString();
+	}
+
+	private static void appendMiniSelector(StringBuilder buffer, LexicalUnit selunit) {
+		LexicalType type = selunit.getLexicalUnitType();
+		if (type == LexicalType.IDENT || type == LexicalType.STRING) {
+			buffer.append(selunit.getStringValue());
+		} else if (type == LexicalType.PERCENTAGE) {
+			float floatValue = selunit.getFloatValue();
+			if (floatValue == 0f) {
+				buffer.append('0');
+				return;
+			}
+			if (floatValue % 1 != 0) {
+				buffer.append(String.format(Locale.ROOT, "%s", floatValue));
+			} else {
+				buffer.append(String.format(Locale.ROOT, "%.0f", floatValue));
+			}
+			buffer.append('%');
+		} else if (type == LexicalType.INTEGER && selunit.getIntegerValue() == 0) {
+			buffer.append('0');
+		} else {
+			buffer.append('?');
+		}
 	}
 
 	@Override
@@ -99,47 +141,23 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 	@Override
 	public void setCssText(String cssText) throws DOMException {
 		PropertyCSSHandler handler = new MyKFHandler();
-		handler.setLexicalPropertyListener(getLexicalPropertyListener());
+		handler.setLexicalPropertyListener(getStyle());
 
-		Reader re = new StringReader(cssText);
-		try {
-			parseRule(re, handler);
-		} catch (IOException e) {
-			// This should never happen!
-			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
-		}
-	}
+		Reader re = new StringReader("@keyframes x {" + cssText + "}");
 
-	@Override
-	void parseRule(Reader reader, CSSHandler handler) throws IOException {
 		// Create and configure a parser
-		CSSParser parser = (CSSParser) createSACParser();
-		// Allow only warnings
-		CSSErrorHandler errorHandler = new AllowWarningsRuleErrorHandler();
+		Parser parser = createSACParser();
+		parser.setErrorHandler(handler);
 		parser.setDocumentHandler(handler);
-		// Use a more permissive error handler here
-		parser.setErrorHandler(errorHandler);
-
-		// Parse
-		parseRule(reader, parser);
-	}
-
-	@Override
-	void parseRule(Reader reader, Parser parser)
-			throws DOMException, IOException {
+		clear();
 		try {
-			((CSSParser) parser).parseDeclarationRule(reader);
-		} catch (CSSNamespaceParseException e) {
-			DOMException ex = new DOMException(DOMException.NAMESPACE_ERR, e.getMessage());
+			parser.parseRule(re);
+		} catch (CSSParseException e) {
+			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
 			ex.initCause(e);
 			throw ex;
 		} catch (CSSBudgetException e) {
 			DOMException ex = new DOMException(DOMException.NOT_SUPPORTED_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
-		} catch (CSSParseException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, "Parse error at ["
-				+ e.getLineNumber() + ',' + e.getColumnNumber() + "]: " + e.getMessage());
 			ex.initCause(e);
 			throw ex;
 		} catch (CSSException e) {
@@ -158,7 +176,11 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 			DOMException ex = new DOMException(DOMException.INVALID_STATE_ERR, message);
 			ex.initCause(e);
 			throw ex;
+		} catch (IOException e) {
+			// This should never happen!
+			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
+
 	}
 
 	@Override
@@ -199,22 +221,26 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 	@Override
 	public KeyframeRule clone(AbstractCSSStyleSheet parentSheet) {
 		KeyframeRule rule = new KeyframeRule(getParentRule());
-		rule.setKeyText(getKeyText());
+		rule.keyframeSelector = keyframeSelector;
+		rule.keyText = keyText;
 		String oldHrefContext = getParentStyleSheet().getHref();
 		rule.setWrappedStyle((BaseCSSStyleDeclaration) getStyle(), oldHrefContext);
 		return rule;
 	}
 
-	private class MyKFHandler extends DeclarationRuleCSSHandler {
+	private class MyKFHandler extends PropertyCSSHandler implements CSSHandler {
 
 		private MyKFHandler() {
 			super();
 		}
 
 		@Override
-		public void startAtRule(String name, String pseudoSelector) {
-			String selector = getParentRule().keyframeSelector(pseudoSelector);
-			setKeyText(selector);
+		public void startKeyframe(LexicalUnit keyframeSelector) {
+			KeyframeRule.this.setKeyframeSelector(keyframeSelector);
+		}
+
+		@Override
+		public void endKeyframe() {
 		}
 
 		@Override

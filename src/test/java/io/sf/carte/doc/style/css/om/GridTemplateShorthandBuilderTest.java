@@ -13,27 +13,38 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class GridTemplateShorthandBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
 	@Test
 	public void testBuilderNoShorthand() {
 		assertShorthandText("grid-row-start:2;", "grid-row-start: 2;");
-		assertShorthandText("grid-template-areas:none;grid-template-columns:inherit;grid-template-rows:none;",
+		assertShorthandText(
+				"grid-template-areas:none;grid-template-columns:inherit;grid-template-rows:none;",
 				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:inherit;");
-		assertShorthandText("grid-template-areas:none;grid-template-columns:revert;grid-template-rows:none;",
+		assertShorthandText(
+				"grid-template-areas:none;grid-template-columns:revert;grid-template-rows:none;",
 				"grid-template-areas:none;grid-template-rows:none;grid-template-columns:revert;");
-		assertShorthandText("grid-column-gap:1.4rem;grid-template:repeat(7,auto)/repeat(2,1fr);grid-template-areas:\"section2 cheatSheet\" \"section3 section3\" \"section4 section4\" \"section5 section5\" \"section6 section6\" \"section7 section7\";",
+		assertShorthandText(
+				"grid-column-gap:1.4rem;grid-template:repeat(7,auto)/repeat(2,1fr);grid-template-areas:\"section2 cheatSheet\" \"section3 section3\" \"section4 section4\" \"section5 section5\" \"section6 section6\" \"section7 section7\";",
 				"grid-column-gap: 1.4rem;grid-template-areas: \"section2 cheatSheet\" \"section3 section3\" \"section4 section4\" \"section5 section5\" \"section6 section6\" \"section7 section7\";grid-template-columns: repeat(2,1fr);grid-template-rows: repeat(7,auto);");
 	}
 
@@ -66,7 +77,8 @@ public class GridTemplateShorthandBuilderTest {
 
 	@Test
 	public void testGridTemplate() {
-		assertShorthandText("grid-template:\"a a a\" \"b b b\";", "grid-template: \"a a a\" \"b b b\"");
+		assertShorthandText("grid-template:\"a a a\" \"b b b\";",
+				"grid-template: \"a a a\" \"b b b\"");
 	}
 
 	@Test
@@ -89,7 +101,8 @@ public class GridTemplateShorthandBuilderTest {
 
 	@Test
 	public void testGridTemplate5() {
-		assertShorthandText("grid-template:auto 1fr/auto 1fr auto;", "grid-template: auto 1fr / auto 1fr auto; ");
+		assertShorthandText("grid-template:auto 1fr/auto 1fr auto;",
+				"grid-template: auto 1fr / auto 1fr auto; ");
 	}
 
 	@Test
@@ -100,12 +113,14 @@ public class GridTemplateShorthandBuilderTest {
 
 	@Test
 	public void testGridTemplate7() {
-		assertShorthandText("grid-template:auto-flow 1fr/100px;", "grid-template: auto-flow 1fr / 100px; ");
+		assertShorthandText("grid-template:auto-flow 1fr/100px;",
+				"grid-template: auto-flow 1fr / 100px; ");
 	}
 
 	@Test
 	public void testGridTemplate8() {
-		assertShorthandText("grid-template:none/auto-flow 1fr;", "grid-template: none / auto-flow 1fr; ");
+		assertShorthandText("grid-template:none/auto-flow 1fr;",
+				"grid-template: none / auto-flow 1fr; ");
 	}
 
 	@Test
@@ -140,12 +155,14 @@ public class GridTemplateShorthandBuilderTest {
 
 	@Test
 	public void testGridTemplate14() {
-		assertShorthandText("grid-template:100px 1fr/50px 1fr;", "grid-template: 100px 1fr / 50px 1fr; ");
+		assertShorthandText("grid-template:100px 1fr/50px 1fr;",
+				"grid-template: 100px 1fr / 50px 1fr; ");
 	}
 
 	@Test
 	public void testGridTemplate15() {
-		assertShorthandText("grid-template:auto 1fr/auto 1fr auto;", "grid-template: auto 1fr / auto 1fr auto; ");
+		assertShorthandText("grid-template:auto 1fr/auto 1fr auto;",
+				"grid-template: auto 1fr / auto 1fr auto; ");
 	}
 
 	@Test
@@ -168,18 +185,21 @@ public class GridTemplateShorthandBuilderTest {
 
 	@Test
 	public void testGridTemplate19() {
-		assertShorthandText("grid-template:repeat(1,10px)/auto;", "grid-template: repeat(1, [] 10px) / auto; ");
+		assertShorthandText("grid-template:repeat(1,10px)/auto;",
+				"grid-template: repeat(1, [] 10px) / auto; ");
 	}
 
 	@Test
 	public void testGridTemplate20() {
-		assertShorthandText("grid-template:\"a a a\" max-content \"b b b\" max-content \"c c c\"/1fr 200px;",
+		assertShorthandText(
+				"grid-template:\"a a a\" max-content \"b b b\" max-content \"c c c\"/1fr 200px;",
 				"grid-template:\"a a a\" max-content \"b b b\" max-content \"c c c\" auto /1fr 200px");
 	}
 
 	@Test
 	public void testGridTemplate21() {
-		assertShorthandText("grid-template:\". .\" \"a a a\" minmax(auto,max-content) \"b b b\" max-content \"c c c\" max-content \"d d d\"/auto 7rem;",
+		assertShorthandText(
+				"grid-template:\". .\" \"a a a\" minmax(auto,max-content) \"b b b\" max-content \"c c c\" max-content \"d d d\"/auto 7rem;",
 				"grid-template:\". .\" auto \"a a a\" minmax(auto, max-content) \"b b b\" max-content \"c c c\" max-content \"d d d\" auto / auto 7rem;");
 	}
 
@@ -218,7 +238,8 @@ public class GridTemplateShorthandBuilderTest {
 
 	@Test
 	public void testBuilderVar() {
-		assertShorthandText("grid-template:var(--foo,repeat(1,10px));", "grid-template: var(--foo,repeat(1,10px));");
+		assertShorthandText("grid-template:var(--foo,repeat(1,10px));",
+				"grid-template: var(--foo,repeat(1,10px));");
 	}
 
 	@Test

@@ -60,6 +60,14 @@ public interface CSSHandler {
 	void comment(String text, boolean precededByLF);
 
 	/**
+	 * A {@code @charset} rule.
+	 * 
+	 * @param charset the character set.
+	 */
+	default void charset(String charset) {
+	}
+
+	/**
 	 * Receive notification of an unknown {@literal @}-rule not supported by this parser.
 	 *
 	 * @param atRule The complete {@literal @}-rule.
@@ -69,8 +77,9 @@ public interface CSSHandler {
 	/**
 	 * Receive notification of a namespace declaration.
 	 *
-	 * @param prefix <code>null</code> if this is the default namespace
-	 * @param uri    The URI for this namespace.
+	 * @param prefix the namespace prefix, or the empty string if this is the
+	 *               default namespace.
+	 * @param uri    the URI for this namespace.
 	 */
 	void namespaceDeclaration(String prefix, String uri);
 
@@ -78,12 +87,18 @@ public interface CSSHandler {
 	 * Receive notification of a import rule in the style sheet.
 	 *
 	 * @param uri                 The URI of the imported style sheet.
+	 * @param layerName           the layer name declared in the at-rule itself, or
+	 *                            an empty string if the layer is anonymous, or
+	 *                            {@code null} if the at-rule does not declare a
+	 *                            layer.
+	 * @param supportsCondition   the supports condition, or {@code null} if none.
 	 * @param media               The intended destination media for style
 	 *                            information.
 	 * @param defaultNamespaceURI The default namespace URI for the imported style
 	 *                            sheet.
 	 */
-	void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI);
+	void importStyle(String uri, String layerName, BooleanCondition supportsCondition,
+			MediaQueryList media, String defaultNamespaceURI);
 
 	/**
 	 * Receive notification of the beginning of a media rule.

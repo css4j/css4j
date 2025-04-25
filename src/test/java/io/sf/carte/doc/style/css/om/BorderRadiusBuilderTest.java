@@ -13,16 +13,24 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class BorderRadiusBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -54,7 +62,8 @@ public class BorderRadiusBuilderTest {
 	public void testBorderRadiusSlash() {
 		assertShorthandText("border-radius:1px/2px;", "border-radius:1px/2px;");
 		assertShorthandText("border-radius:1px 2px/3px;", "border-radius:1px 2px/3px;");
-		assertShorthandText("border-radius:1px 2px 3px/5px 6px;", "border-radius:1px 2px 3px/5px 6px;");
+		assertShorthandText("border-radius:1px 2px 3px/5px 6px;",
+				"border-radius:1px 2px 3px/5px 6px;");
 		assertShorthandText("border-radius:1px 2px 3px 4px/5px 6px 7px 8px;",
 				"border-radius:1px 2px 3px 4px / 5px 6px 7px 8px;");
 	}
@@ -66,14 +75,11 @@ public class BorderRadiusBuilderTest {
 
 	@Test
 	public void testBorderRadiusMix() {
-		assertShorthandText(
-				"border-radius:1px 5px 7px 3px;",
+		assertShorthandText("border-radius:1px 5px 7px 3px;",
 				"border-top-left-radius:1px;border-bottom-left-radius:3px; border-top-right-radius:5px;border-bottom-right-radius:7px;");
-		assertShorthandText(
-				"border-radius:0 5px 7px 3px;",
+		assertShorthandText("border-radius:0 5px 7px 3px;",
 				"border-top-left-radius:unset;border-bottom-left-radius:3px; border-top-right-radius:5px;border-bottom-right-radius:7px;");
-		assertShorthandText(
-				"border-radius:0 0 7px 3px;",
+		assertShorthandText("border-radius:0 0 7px 3px;",
 				"border-top-left-radius:unset;border-bottom-left-radius:3px; border-top-right-radius:initial;border-bottom-right-radius:7px;");
 	}
 
@@ -81,8 +87,10 @@ public class BorderRadiusBuilderTest {
 	public void testBorderRadiusImportant() {
 		assertShorthandText("border-radius:1px!important;", "border-radius:1px!important;");
 		assertShorthandText("border-radius:1px 2px!important;", "border-radius:1px 2px!important;");
-		assertShorthandText("border-radius:1px 2px 3px!important;", "border-radius:1px 2px 3px!important;");
-		assertShorthandText("border-radius:1px 2px 3px 4px!important;", "border-radius:1px 2px 3px 4px!important;");
+		assertShorthandText("border-radius:1px 2px 3px!important;",
+				"border-radius:1px 2px 3px!important;");
+		assertShorthandText("border-radius:1px 2px 3px 4px!important;",
+				"border-radius:1px 2px 3px 4px!important;");
 	}
 
 	@Test
@@ -254,7 +262,8 @@ public class BorderRadiusBuilderTest {
 	@Test
 	public void testBorderRadiusInherit() {
 		assertShorthandText("border-radius:inherit;", "border-radius: inherit;");
-		assertShorthandText("border-radius:inherit!important;", "border-radius: inherit ! important;");
+		assertShorthandText("border-radius:inherit!important;",
+				"border-radius: inherit ! important;");
 	}
 
 	@Test

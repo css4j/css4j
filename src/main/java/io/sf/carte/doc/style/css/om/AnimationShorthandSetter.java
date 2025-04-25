@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -127,7 +128,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 					// Full property is 'keyword'
 					if (layerCount != 1 || currentValue.getPreviousLexicalUnit() != null
 							|| currentValue.getNextLexicalUnit() != null) {
-						BaseCSSDeclarationRule prule = styleDeclaration.getParentRule();
+						CSSDeclarationRule prule = styleDeclaration.getParentRule();
 						if (prule != null) {
 							StyleDeclarationErrorHandler eh = prule
 									.getStyleDeclarationErrorHandler();
@@ -348,7 +349,7 @@ class AnimationShorthandSetter extends ShorthandSetter {
 	}
 
 	private void reportUnknownValue(Set<String> subp, LexicalUnit unknownValue) {
-		BaseCSSDeclarationRule prule = styleDeclaration.getParentRule();
+		CSSDeclarationRule prule = styleDeclaration.getParentRule();
 		if (prule != null) {
 			StyleDeclarationErrorHandler eh = prule.getStyleDeclarationErrorHandler();
 			if (unknownValue.getLexicalUnitType() == LexicalType.IDENT) {

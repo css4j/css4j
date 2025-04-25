@@ -13,23 +13,30 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class BackgroundBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
 	@Test
 	public void testBackgroundIndividual() {
-		assertShorthandText(
-				"background-image:linear-gradient(35deg,#fa3 50%,transparent 0);",
+		assertShorthandText("background-image:linear-gradient(35deg,#fa3 50%,transparent 0);",
 				"background-image: linear-gradient(35deg,#fa3 50%,transparent 0);");
 		assertShorthandText(
 				"background-image:linear-gradient(transparent,transparent),url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA');",
@@ -61,7 +68,8 @@ public class BackgroundBuilderTest {
 	public void testBackgroundLayersBad() {
 		emptyStyleDecl.setCssText(
 				"background: url('bkg.png') no-repeat; background-size: 150px, 150px; background-position: 0 0;");
-		assertEquals("background:url('bkg.png') 0 0/150px no-repeat;", emptyStyleDecl.getOptimizedCssText());
+		assertEquals("background:url('bkg.png') 0 0/150px no-repeat;",
+				emptyStyleDecl.getOptimizedCssText());
 	}
 
 	@Test
@@ -88,7 +96,8 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundLayerNoneImportant() {
-		assertShorthandText("background:url('a.png'),none!important;", "background: url(a.png),none ! important;");
+		assertShorthandText("background:url('a.png'),none!important;",
+				"background: url(a.png),none ! important;");
 	}
 
 	@Test
@@ -105,7 +114,8 @@ public class BackgroundBuilderTest {
 	public void testBackgroundInheritBad() {
 		emptyStyleDecl.setCssText(
 				"background: url(a.png) top left no-repeat,url(b.png) center / 100% 100% no-repeat,url(c.png) inherit;");
-		assertEquals("background:url('a.png') no-repeat,url('b.png') center/100% 100% no-repeat,inherit;",
+		assertEquals(
+				"background:url('a.png') no-repeat,url('b.png') center/100% 100% no-repeat,inherit;",
 				emptyStyleDecl.getOptimizedCssText());
 	}
 
@@ -149,7 +159,8 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundContentB() {
-		assertShorthandText("background:url('bkg.png') calc(2*2%) calc(3*1%) no-repeat content-box;",
+		assertShorthandText(
+				"background:url('bkg.png') calc(2*2%) calc(3*1%) no-repeat content-box;",
 				"background: url('bkg.png') calc(2*2%) calc(3*1%) content-box no-repeat no-repeat;");
 	}
 
@@ -173,7 +184,8 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundBorderBPaddingB() {
-		assertShorthandText("background:url('bkg.png') top right 5px repeat-y border-box padding-box;",
+		assertShorthandText(
+				"background:url('bkg.png') top right 5px repeat-y border-box padding-box;",
 				"background: url('bkg.png') top right 5px border-box padding-box no-repeat repeat;");
 	}
 
@@ -247,29 +259,29 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundIEHack() {
 		assertShorthandText(
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat;background-size:auto \\9;",
-			"background: transparent url('image.svg') 15px 10px no-repeat;background-size: auto \\9;");
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat;background-size:auto \\9;",
+				"background: transparent url('image.svg') 15px 10px no-repeat;background-size: auto \\9;");
 		assertShorthandText(
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat \\9;background-size:auto;",
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat \\9;background-size:auto;");
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat \\9;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat \\9;background-size:auto;");
 		assertShorthandText(
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px \\9;background-repeat:no-repeat;background-size:auto;",
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px \\9;background-repeat:no-repeat;background-size:auto;");
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px \\9;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px \\9;background-repeat:no-repeat;background-size:auto;");
 		assertShorthandText(
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box\\9;background-position:15px;background-repeat:no-repeat;background-size:auto;",
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box\\9;background-position:15px;background-repeat:no-repeat;background-size:auto;");
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box\\9;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box\\9;background-position:15px;background-repeat:no-repeat;background-size:auto;");
 		assertShorthandText(
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box \\9;background-position:15px;background-repeat:no-repeat;background-size:auto;",
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box \\9;background-position:15px;background-repeat:no-repeat;background-size:auto;");
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box \\9;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box \\9;background-position:15px;background-repeat:no-repeat;background-size:auto;");
 		assertShorthandText(
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg') \\9;background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg') \\9 ;background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg') \\9;background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg') \\9 ;background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
 		assertShorthandText(
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent\\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent\\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent\\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent\\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
 		assertShorthandText(
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent \\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
-			"background-attachment:scroll;background-clip:border-box;background-color:transparent \\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent \\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent \\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
 	}
 
 	@Test
@@ -282,7 +294,7 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundNoShorthand() {
 		assertShorthandText("background-image:url('bkg.png');",
-			"background-image: url('bkg.png');");
+				"background-image: url('bkg.png');");
 	}
 
 	@Test
@@ -306,7 +318,8 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundPendingSubstitutionImportant() {
-		assertShorthandText("background:var(--foo,#f6ac43)!important;", "background: var(--foo, #f6ac43)!important;");
+		assertShorthandText("background:var(--foo,#f6ac43)!important;",
+				"background: var(--foo, #f6ac43)!important;");
 	}
 
 	@Test
@@ -322,12 +335,14 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundPendingSubstitutionUpperCase2Important() {
-		assertShorthandText("background:var(--FOO,#f6ac43)!important;", "background: var(--FOO, #f6ac43)!important;");
+		assertShorthandText("background:var(--FOO,#f6ac43)!important;",
+				"background: var(--FOO, #f6ac43)!important;");
 	}
 
 	@Test
 	public void testBackgroundBad() {
-		emptyStyleDecl.setCssText("background: url('bkg.png') 40% / 10em gray round fixed border-box, url('foo.png');");
+		emptyStyleDecl.setCssText(
+				"background: url('bkg.png') 40% / 10em gray round fixed border-box, url('foo.png');");
 		assertEquals("", emptyStyleDecl.getOptimizedCssText());
 	}
 
@@ -422,7 +437,8 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundImageVar() {
-		assertShorthandText("background:linear-gradient(to bottom,var(--white) 0%,var(--grey) 66%,var(--black) 100%);",
+		assertShorthandText(
+				"background:linear-gradient(to bottom,var(--white) 0%,var(--grey) 66%,var(--black) 100%);",
 				"background: linear-gradient(to bottom, var(--white) 0%, var(--grey) 66%, var(--black) 100%)");
 	}
 

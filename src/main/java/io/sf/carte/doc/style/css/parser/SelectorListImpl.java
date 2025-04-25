@@ -12,9 +12,11 @@
 package io.sf.carte.doc.style.css.parser;
 
 import java.util.Collection;
+import java.util.ListIterator;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.nsac.NamespacePrefixMap;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
@@ -81,6 +83,25 @@ class SelectorListImpl extends AbstractSACList<Selector> implements SelectorList
 			throw new NullPointerException("Null selector");
 		}
 		return set(index, selector);
+	}
+
+	public void setNamespacePrefixMap(NamespacePrefixMap map) {
+		for (Selector sel : this) {
+			if (((AbstractSelector) sel).setNamespacePrefixMap(map)) {
+				break;
+			}
+		}
+	}
+
+	@Override
+	public SelectorListImpl replaceNested(SelectorList base) {
+		SelectorListImpl clon = (SelectorListImpl) clone();
+		ListIterator<Selector> it = clon.listIterator();
+		while (it.hasNext()) {
+			AbstractSelector sel = (AbstractSelector) it.next();
+			it.set(sel.replace(base));
+		}
+		return clon;
 	}
 
 }

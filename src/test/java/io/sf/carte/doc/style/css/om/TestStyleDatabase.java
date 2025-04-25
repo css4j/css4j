@@ -70,7 +70,8 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 	@Override
 	protected boolean isFontFamilyAvailable(String fontFamily) {
 		if (fontFamily.equalsIgnoreCase("Courier") || fontFamily.equalsIgnoreCase("Helvetica")
-				|| fontFamily.equalsIgnoreCase("Times New Roman") || fontFamily.equalsIgnoreCase("Lucida Typewriter")) {
+				|| fontFamily.equalsIgnoreCase("Times New Roman")
+				|| fontFamily.equalsIgnoreCase("Lucida Typewriter")) {
 			return true;
 		} else {
 			return false;
@@ -78,7 +79,8 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 	}
 
 	@Override
-	public float getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier) throws DOMException {
+	public float getFontSizeFromIdentifier(String familyName, String fontSizeIdentifier)
+			throws DOMException {
 		float sz;
 		if (fontSizeIdentifier.equals("medium")) {
 			sz = 12f;
@@ -95,7 +97,8 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 		} else if (fontSizeIdentifier.equals("xx-large")) {
 			sz = 24f;
 		} else {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Unknown size identifier: " + fontSizeIdentifier);
+			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					"Unknown size identifier: " + fontSizeIdentifier);
 		}
 		return sz;
 	}

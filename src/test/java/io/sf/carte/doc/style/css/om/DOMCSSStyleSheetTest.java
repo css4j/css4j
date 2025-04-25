@@ -63,7 +63,7 @@ public class DOMCSSStyleSheetTest {
 	@Test
 	public void deleteRuleError() {
 		Assertions.assertThrows(DOMException.class,
-			() -> sheet.deleteRule(sheet.getCssRules().getLength()));
+				() -> sheet.deleteRule(sheet.getCssRules().getLength()));
 	}
 
 	@Test
@@ -72,13 +72,13 @@ public class DOMCSSStyleSheetTest {
 		AbstractCSSStyleSheet cloned = sheet.clone();
 		assertNotNull(cloned);
 		assertEquals(defSz, cloned.getCssRules().getLength());
-		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
+		Reader re = SampleCSS.loadSampleCSSReader();
 		assertNotNull(re);
 		assertTrue(sheet.parseStyleSheet(re));
 		re.close();
-		assertEquals(defSz + DOMCSSStyleSheetFactoryTest.RULES_IN_SAMPLE_CSS, sheet.getCssRules().getLength());
+		assertEquals(defSz + SampleCSS.RULES_IN_SAMPLE_CSS, sheet.getCssRules().getLength());
 		assertEquals("/* Comment before li */li {margin-top: 1em; margin-bottom: 1em; }",
-				sheet.getCssRules().item(defSz + DOMCSSStyleSheetFactoryTest.RULES_IN_SAMPLE_CSS - 6).getCssText());
+				sheet.getCssRules().item(defSz + SampleCSS.RULES_IN_SAMPLE_CSS - 6).getCssText());
 		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet2 = factory.createStyleSheet("", null);
 		boolean parseok = sheet2.parseStyleSheet(new StringReader(sheet.toString()));
@@ -96,8 +96,8 @@ public class DOMCSSStyleSheetTest {
 			assertEquals(rule.getType(), rule2.getType());
 			switch (rule.getType()) {
 			case CSSRule.STYLE_RULE:
-				CSSStyleDeclarationRule sr = (CSSStyleDeclarationRule) rule;
-				CSSStyleDeclarationRule sr2 = (CSSStyleDeclarationRule) rule2;
+				StyleRule sr = (StyleRule) rule;
+				StyleRule sr2 = (StyleRule) rule2;
 				SelectorList selist = sr.getSelectorList();
 				SelectorList selist2 = sr2.getSelectorList();
 				int selistlen = selist.getLength();
@@ -175,7 +175,8 @@ public class DOMCSSStyleSheetTest {
 			if (!selectorEquals(ssel, csel2.getSimpleSelector())) {
 				return false;
 			}
-			return csel.getCondition().getConditionType() == csel2.getCondition().getConditionType();
+			return csel.getCondition().getConditionType() == csel2.getCondition()
+					.getConditionType();
 		case DIRECT_ADJACENT:
 		case SUBSEQUENT_SIBLING:
 		case COLUMN_COMBINATOR:

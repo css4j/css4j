@@ -43,7 +43,8 @@ public class AbstractStyleDatabaseTest {
 	public void setUp() throws DOMException, ParserConfigurationException, CSSMediaException {
 		factory = new TestCSSStyleSheetFactory();
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
-		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
+		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null,
+				"html", null);
 		Element head = doc.createElement("head");
 		Element style = doc.createElement("style");
 		style.setAttribute("id", "styleId");
@@ -78,7 +79,8 @@ public class AbstractStyleDatabaseTest {
 
 		CSSElement body = cssdoc.getElementById("bodyId");
 		body.getComputedStyle(null);
-		assertTrue(factory.getDeviceFactory().getStyleDatabase("screen").isFontFaceName("opensans regular"));
+		assertTrue(factory.getDeviceFactory().getStyleDatabase("screen")
+				.isFontFaceName("opensans regular"));
 	}
 
 	@Test
@@ -96,7 +98,8 @@ public class AbstractStyleDatabaseTest {
 		factory.getConnectionFactory().setHeader("ttf", "content-type", "application/font-ttf");
 		CSSElement body = cssdoc.getElementById("bodyId");
 		body.getComputedStyle(null);
-		assertTrue(factory.getDeviceFactory().getStyleDatabase("screen").isFontFaceName("opensans regular"));
+		assertTrue(factory.getDeviceFactory().getStyleDatabase("screen")
+				.isFontFaceName("opensans regular"));
 	}
 
 	@Test
@@ -109,7 +112,8 @@ public class AbstractStyleDatabaseTest {
 
 		CSSElement body = cssdoc.getElementById("bodyId");
 		body.getComputedStyle(null);
-		assertFalse(factory.getDeviceFactory().getStyleDatabase("screen").isFontFaceName("hack sans"));
+		assertFalse(
+				factory.getDeviceFactory().getStyleDatabase("screen").isFontFaceName("hack sans"));
 		assertTrue(cssdoc.getErrorHandler().hasErrors());
 		assertTrue(cssdoc.getErrorHandler().hasPolicyErrors());
 	}

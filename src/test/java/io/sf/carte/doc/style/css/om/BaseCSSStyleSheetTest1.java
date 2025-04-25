@@ -39,12 +39,12 @@ public class BaseCSSStyleSheetTest1 {
 	public void testParseCSSStyleSheet() throws CSSException, IOException {
 		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
-		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
+		Reader re = SampleCSS.loadSampleCSSReader();
 		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_PRECEDING));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
-		assertEquals(DOMCSSStyleSheetFactoryTest.RULES_IN_SAMPLE_CSS, rules.getLength());
+		assertEquals(SampleCSS.RULES_IN_SAMPLE_CSS, rules.getLength());
 		assertFalse(css.getErrorHandler().hasSacErrors());
 		List<String> comments = rules.item(3).getPrecedingComments();
 		assertNotNull(comments);

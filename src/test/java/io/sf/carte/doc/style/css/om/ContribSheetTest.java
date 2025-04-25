@@ -43,7 +43,7 @@ public class ContribSheetTest {
 		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
-		Reader re = DOMCSSStyleSheetFactoryTest.loadFontAwesomeReader();
+		Reader re = SampleCSS.loadFontAwesomeReader();
 		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_PRECEDING));
 		cssParser.parseStyleSheet(re);
 		re.close();
@@ -73,7 +73,7 @@ public class ContribSheetTest {
 		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
-		Reader re = DOMCSSStyleSheetFactoryTest.loadNormalizeReader();
+		Reader re = SampleCSS.loadNormalizeReader();
 		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_PRECEDING));
 		cssParser.parseStyleSheet(re);
 		re.close();
@@ -98,8 +98,10 @@ public class ContribSheetTest {
 			AbstractCSSRule rule = rules.item(i);
 			AbstractCSSRule reparsedrule = reparsedrules.item(i);
 			assertTrue(rule.equals(reparsedrule));
-			assertTrue(Objects.equals(rule.getPrecedingComments(), reparsedrule.getPrecedingComments()));
-			assertTrue(Objects.equals(rule.getTrailingComments(), reparsedrule.getTrailingComments()));
+			assertTrue(Objects.equals(rule.getPrecedingComments(),
+					reparsedrule.getPrecedingComments()));
+			assertTrue(
+					Objects.equals(rule.getTrailingComments(), reparsedrule.getTrailingComments()));
 		}
 	}
 
@@ -108,7 +110,7 @@ public class ContribSheetTest {
 		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
-		Reader re = DOMCSSStyleSheetFactoryTest.loadAnimateReader();
+		Reader re = SampleCSS.loadAnimateReader();
 		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_AUTO));
 		cssParser.parseStyleSheet(re);
 		re.close();
@@ -140,13 +142,15 @@ public class ContribSheetTest {
 		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
-		Reader re = DOMCSSStyleSheetFactoryTest.loadMetroReader();
+		Reader re = SampleCSS.loadMetroReader();
 		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_AUTO));
 		cssParser.parseStyleSheet(re);
 		re.close();
 		CSSRuleArrayList rules = css.getCssRules();
 		int len = rules.getLength();
-		assertEquals(7333, len);
+		assertEquals(".mif-medium::before{content:\"\\f23a\"}",
+				rules.item(len - 1).getMinifiedCssText());
+		assertEquals(7334, len);
 		assertFalse(css.getErrorHandler().hasSacErrors());
 		List<String> comments = rules.item(0).getPrecedingComments();
 		assertNotNull(comments);
@@ -173,7 +177,7 @@ public class ContribSheetTest {
 		factory.setLenientSystemValues(false);
 		BaseCSSStyleSheet css = (BaseCSSStyleSheet) factory.createStyleSheet(null, null);
 		cssParser.setStreamSizeLimit(0x50000);
-		Reader re = DOMCSSStyleSheetFactoryTest.loadMetroReader();
+		Reader re = SampleCSS.loadMetroReader();
 		cssParser.setDocumentHandler(css.createSheetHandler(CSSStyleSheet.COMMENTS_IGNORE));
 		try {
 			cssParser.parseStyleSheet(re);

@@ -139,46 +139,6 @@ public class PropertyRule extends BaseCSSDeclarationRule implements CSSPropertyR
 	}
 
 	@Override
-	public void setCssText(String cssText) throws DOMException {
-		cssText = cssText.trim();
-		int idx = cssText.indexOf('{');
-		if (idx < 11) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Bad property rule: " + cssText);
-		}
-		try {
-			super.setCssText(cssText);
-		} catch (DOMException e) {
-			clear();
-			throw e;
-		}
-		PropertyDescriptorStyleDeclaration decl = (PropertyDescriptorStyleDeclaration) getStyle();
-		if (!decl.isValidDeclaration()) {
-			clear();
-			throw new DOMException(DOMException.SYNTAX_ERR, "Bad property rule: " + cssText);
-		}
-	}
-
-	@Override
-	void setRule(AbstractCSSRule copyMe) {
-		super.setRule(copyMe);
-		this.name = ((PropertyRule) copyMe).name;
-		PropertyDescriptorStyleDeclaration decl = (PropertyDescriptorStyleDeclaration) getStyle();
-		decl.updateValidity();
-	}
-
-	@Override
-	void startAtRule(String name, String pseudoSelector) {
-		if (!"property".equalsIgnoreCase(name)) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Cannot set rule of type: " + name);
-		}
-		if (pseudoSelector == null) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "No property name.");
-		}
-		pseudoSelector = ParseHelper.parseIdent(pseudoSelector);
-		setName(pseudoSelector);
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();

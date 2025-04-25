@@ -166,7 +166,8 @@ public class DeclarationRuleParserTest {
 		assertEquals(1, handler.streamEndcount);
 	}
 
-	static class TestDeclarationRuleHandler extends TestDeclarationHandler implements CSSParser.DeclarationRuleHandler {
+	static class TestDeclarationRuleHandler extends TestDeclarationHandler
+			implements CSSParser.DeclarationRuleHandler {
 
 		private LinkedList<String> ruleNames = new LinkedList<>();
 		private LinkedList<String> selectorNames = new LinkedList<>();
@@ -183,9 +184,10 @@ public class DeclarationRuleParserTest {
 		}
 
 		@Override
-		public void startAtRule(String ruleName, String selector) {
+		public boolean startAtRule(String ruleName, String selector) {
 			ruleNames.add(ruleName);
 			selectorNames.add(selector);
+			return true;
 		}
 
 		@Override
@@ -193,4 +195,5 @@ public class DeclarationRuleParserTest {
 		}
 
 	}
+
 }

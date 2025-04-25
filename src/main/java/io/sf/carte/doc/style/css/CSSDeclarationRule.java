@@ -13,7 +13,6 @@ package io.sf.carte.doc.style.css;
 
 /**
  * A CSS rule that contains style declarations (of properties and/or descriptors).
- *
  */
 public interface CSSDeclarationRule extends CSSRule {
 

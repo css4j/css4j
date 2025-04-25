@@ -54,7 +54,7 @@ public class StyleRuleTestNS {
 		StyleRule rule = (StyleRule) sheet.getCssRules().item(1);
 		assertEquals(1, rule.getSelectorList().getLength());
 		assertEquals(1, rule.getStyle().getLength());
-		CSSStyleDeclarationRule clon = rule.clone(sheet);
+		StyleRule clon = rule.clone(sheet);
 		assertEquals(rule.getOrigin(), clon.getOrigin());
 		assertEquals(rule.getType(), clon.getType());
 		assertEquals(rule.getSelectorText(), clon.getSelectorText());

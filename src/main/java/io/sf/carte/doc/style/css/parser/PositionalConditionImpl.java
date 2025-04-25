@@ -17,15 +17,15 @@ import io.sf.carte.doc.style.css.nsac.PositionalCondition;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
-class PositionalConditionImpl implements PositionalCondition, java.io.Serializable {
+class PositionalConditionImpl extends AbstractCondition implements PositionalCondition {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	int offset = 1; // By default, set to :first-child or :first-of-type
 	int slope = 0;
 	boolean forwardCondition = true;
 	boolean oftype = false;
-	private final boolean hasArgument;
+	private boolean hasArgument;
 	boolean hasKeyword = false;
 	SelectorList ofList = null;
 
@@ -78,6 +78,15 @@ class PositionalConditionImpl implements PositionalCondition, java.io.Serializab
 	@Override
 	public SelectorList getOfList() {
 		return ofList;
+	}
+
+	@Override
+	Condition replace(SelectorList base) {
+		PositionalConditionImpl clon = clone();
+		if (ofList != null) {
+			clon.ofList = ((SelectorListImpl) ofList).replaceNested(base);
+		}
+		return clon;
 	}
 
 	@Override
@@ -242,6 +251,19 @@ class PositionalConditionImpl implements PositionalCondition, java.io.Serializab
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public PositionalConditionImpl clone() {
+		PositionalConditionImpl clon = (PositionalConditionImpl) super.clone();
+		clon.forwardCondition = forwardCondition;
+		clon.hasArgument = forwardCondition;
+		clon.hasKeyword = forwardCondition;
+		clon.offset = offset;
+		clon.oftype = forwardCondition;
+		clon.slope = slope;
+		clon.ofList = ofList;
+		return clon;
 	}
 
 }

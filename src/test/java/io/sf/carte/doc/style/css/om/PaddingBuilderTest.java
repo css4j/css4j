@@ -13,16 +13,24 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class PaddingBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -39,9 +47,11 @@ public class PaddingBuilderTest {
 
 	@Test
 	public void testPaddingNoShorthandIEHack() {
-		assertShorthandText("padding-bottom:\\35 px\\9;padding-left:2px;padding-right:2px;padding-top:2px;",
+		assertShorthandText(
+				"padding-bottom:\\35 px\\9;padding-left:2px;padding-right:2px;padding-top:2px;",
 				"padding: 2px; padding-bottom: \\35 px\\9;");
-		assertShorthandText("padding-bottom:20px iehack;padding-left:2px;padding-right:2px;padding-top:2px;",
+		assertShorthandText(
+				"padding-bottom:20px iehack;padding-left:2px;padding-right:2px;padding-top:2px;",
 				"padding: 2px; padding-bottom: 20px iehack;");
 	}
 
@@ -61,7 +71,8 @@ public class PaddingBuilderTest {
 
 	@Test
 	public void testPaddingVarNoShorthand() {
-		assertShorthandText("padding-bottom:0;padding-left:var(--foo);padding-right:.75rem;padding-top:0;",
+		assertShorthandText(
+				"padding-bottom:0;padding-left:var(--foo);padding-right:.75rem;padding-top:0;",
 				"padding:0 0.75rem;padding-left:var(--foo)");
 	}
 
@@ -71,32 +82,38 @@ public class PaddingBuilderTest {
 		assertShorthandText("padding:1px!important;", "padding:1px!important;");
 		assertShorthandText("padding:1px 2px!important;", "padding:1px 2px!important;");
 		assertShorthandText("padding:1px 2px 3px!important;", "padding:1px 2px 3px!important;");
-		assertShorthandText("padding:1px 2px 3px 4px!important;", "padding:1px 2px 3px 4px!important;");
+		assertShorthandText("padding:1px 2px 3px 4px!important;",
+				"padding:1px 2px 3px 4px!important;");
 	}
 
 	@Test
 	public void testPaddingImportantMix() {
-		assertShorthandText("padding:1px;padding-top:3px!important;", "padding:1px;padding-top:3px!important");
-		assertShorthandText("padding:1px 2px;padding-top:3px!important;", "padding:1px 2px;padding-top:3px!important");
+		assertShorthandText("padding:1px;padding-top:3px!important;",
+				"padding:1px;padding-top:3px!important");
+		assertShorthandText("padding:1px 2px;padding-top:3px!important;",
+				"padding:1px 2px;padding-top:3px!important");
 		assertShorthandText("padding:3px 2px;padding-top:5px!important;",
 				"padding:1px 2px 3px;padding-top:5px!important");
 		assertShorthandText("padding:0 2px 3px 4px;padding-top:5px!important;",
 				"padding:1px 2px 3px 4px;padding-top:5px!important");
-		assertShorthandText("padding:1px;padding-right:3px!important;", "padding:1px;padding-right:3px!important");
+		assertShorthandText("padding:1px;padding-right:3px!important;",
+				"padding:1px;padding-right:3px!important");
 		assertShorthandText("padding:1px 2px;padding-right:3px!important;",
 				"padding:1px 2px;padding-right:3px!important");
 		assertShorthandText("padding:1px 2px 3px;padding-right:5px!important;",
 				"padding:1px 2px 3px;padding-right:5px!important");
 		assertShorthandText("padding:1px 4px 3px;padding-right:5px!important;",
 				"padding:1px 2px 3px 4px;padding-right:5px!important");
-		assertShorthandText("padding:1px;padding-bottom:3px!important;", "padding:1px;padding-bottom:3px!important");
+		assertShorthandText("padding:1px;padding-bottom:3px!important;",
+				"padding:1px;padding-bottom:3px!important");
 		assertShorthandText("padding:1px 2px;padding-bottom:3px!important;",
 				"padding:1px 2px;padding-bottom:3px!important");
 		assertShorthandText("padding:1px 2px;padding-bottom:5px!important;",
 				"padding:1px 2px 3px;padding-bottom:5px!important");
 		assertShorthandText("padding:1px 2px 0 4px;padding-bottom:5px!important;",
 				"padding:1px 2px 3px 4px;padding-bottom:5px!important");
-		assertShorthandText("padding:1px;padding-left:3px!important;", "padding:1px;padding-left:3px!important");
+		assertShorthandText("padding:1px;padding-left:3px!important;",
+				"padding:1px;padding-left:3px!important");
 		assertShorthandText("padding:1px 2px;padding-left:3px!important;",
 				"padding:1px 2px;padding-left:3px!important");
 		assertShorthandText("padding:1px 2px 3px;padding-left:5px!important;",
@@ -109,11 +126,14 @@ public class PaddingBuilderTest {
 	public void testPaddingImportantMix2() {
 		assertShorthandText("padding:1px;padding-right:5px!important;padding-top:3px!important;",
 				"padding:1px;padding-top:3px!important; padding-right:5px!important;");
-		assertShorthandText("padding:1px 2px;padding-right:5px!important;padding-top:3px!important;",
+		assertShorthandText(
+				"padding:1px 2px;padding-right:5px!important;padding-top:3px!important;",
 				"padding:1px 2px;padding-top:3px!important;padding-right:5px!important;");
-		assertShorthandText("padding:3px 2px;padding-right:6px!important;padding-top:5px!important;",
+		assertShorthandText(
+				"padding:3px 2px;padding-right:6px!important;padding-top:5px!important;",
 				"padding:1px 2px 3px;padding-top:5px!important;padding-right:6px!important;");
-		assertShorthandText("padding:3px 4px;padding-right:6px!important;padding-top:5px!important;",
+		assertShorthandText(
+				"padding:3px 4px;padding-right:6px!important;padding-top:5px!important;",
 				"padding:1px 2px 3px 4px;padding-top:5px!important;padding-right:6px!important;");
 		assertShorthandText("padding:1px;padding-bottom:5px!important;padding-top:3px!important;",
 				"padding:1px;padding-top:3px!important; padding-bottom:5px!important;");
@@ -121,15 +141,18 @@ public class PaddingBuilderTest {
 				"padding:1px 2px;padding-top:3px!important;padding-bottom:5px!important;");
 		assertShorthandText("padding:2px;padding-bottom:6px!important;padding-top:5px!important;",
 				"padding:1px 2px 3px;padding-top:5px!important;padding-bottom:6px!important;");
-		assertShorthandText("padding:0 2px 0 4px;padding-bottom:6px!important;padding-top:5px!important;",
+		assertShorthandText(
+				"padding:0 2px 0 4px;padding-bottom:6px!important;padding-top:5px!important;",
 				"padding:1px 2px 3px 4px;padding-top:5px!important;padding-bottom:6px!important;");
 		assertShorthandText("padding:1px;padding-left:3px!important;padding-right:5px!important;",
 				"padding:1px;padding-left:3px!important; padding-right:5px!important;");
 		assertShorthandText("padding:1px;padding-left:3px!important;padding-right:5px!important;",
 				"padding:1px 2px;padding-left:3px!important;padding-right:5px!important;");
-		assertShorthandText("padding:1px 0 3px;padding-left:5px!important;padding-right:6px!important;",
+		assertShorthandText(
+				"padding:1px 0 3px;padding-left:5px!important;padding-right:6px!important;",
 				"padding:1px 2px 3px;padding-left:5px!important;padding-right:6px!important;");
-		assertShorthandText("padding:1px 0 3px;padding-left:5px!important;padding-right:6px!important;",
+		assertShorthandText(
+				"padding:1px 0 3px;padding-left:5px!important;padding-right:6px!important;",
 				"padding:1px 2px 3px 4px;padding-left:5px!important;padding-right:6px!important;");
 		assertShorthandText("padding:1px;padding-left:5px!important;padding-top:3px!important;",
 				"padding:1px;padding-top:3px!important; padding-left:5px!important;");
@@ -141,11 +164,14 @@ public class PaddingBuilderTest {
 				"padding:1px 2px 3px 4px;padding-top:5px!important;padding-left:6px!important;");
 		assertShorthandText("padding:1px;padding-bottom:5px!important;padding-right:3px!important;",
 				"padding:1px;padding-right:3px!important; padding-bottom:5px!important;");
-		assertShorthandText("padding:1px 2px;padding-bottom:5px!important;padding-right:3px!important;",
+		assertShorthandText(
+				"padding:1px 2px;padding-bottom:5px!important;padding-right:3px!important;",
 				"padding:1px 2px;padding-right:3px!important;padding-bottom:5px!important;");
-		assertShorthandText("padding:1px 2px;padding-bottom:6px!important;padding-right:5px!important;",
+		assertShorthandText(
+				"padding:1px 2px;padding-bottom:6px!important;padding-right:5px!important;",
 				"padding:1px 2px 3px;padding-right:5px!important;padding-bottom:6px!important;");
-		assertShorthandText("padding:1px 4px;padding-bottom:6px!important;padding-right:5px!important;",
+		assertShorthandText(
+				"padding:1px 4px;padding-bottom:6px!important;padding-right:5px!important;",
 				"padding:1px 2px 3px 4px;padding-right:5px!important;padding-bottom:6px!important;");
 	}
 

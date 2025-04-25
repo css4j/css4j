@@ -43,7 +43,7 @@ import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.Selector.SelectorType;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
-import io.sf.carte.doc.style.css.parser.CSSParser.SelectorTokenHandler;
+import io.sf.carte.doc.style.css.parser.CSSParser.SelectorManager;
 import io.sf.carte.uparser.TokenProducer;
 
 public class SelectorParserNSTest {
@@ -1368,13 +1368,12 @@ public class SelectorParserNSTest {
 
 	static SelectorList parseSelectorsNS(String selist, String prefix, String nsuri, CSSParser parser)
 			throws CSSException {
-		int[] allowInWords = { 45, 95 }; // -_
-		SelectorTokenHandler handler = parser.new SelectorTokenHandler();
+		SelectorManager handler = parser.new SelectorManager();
 		if (prefix != null) {
-			handler.factory.registerNamespacePrefix(prefix, nsuri);
+			handler.getSelectorFactory().registerNamespacePrefix(prefix, nsuri);
 		}
-		handler.factory.registerNamespacePrefix("svg", TestConfig.SVG_NAMESPACE_URI);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		handler.getSelectorFactory().registerNamespacePrefix("svg", TestConfig.SVG_NAMESPACE_URI);
+		TokenProducer tp = handler.createTokenProducer();
 		StringReader re = new StringReader(selist);
 		try {
 			tp.parse(re, "/*", "*/");

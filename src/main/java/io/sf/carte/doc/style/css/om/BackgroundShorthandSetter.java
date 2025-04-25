@@ -17,6 +17,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -379,7 +380,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 	}
 
 	private void reportUnknownValues(Set<String> subp, List<LexicalUnit> unknownValues) {
-		BaseCSSDeclarationRule prule = styleDeclaration.getParentRule();
+		CSSDeclarationRule prule = styleDeclaration.getParentRule();
 		if (prule != null) {
 			StyleDeclarationErrorHandler eh = prule.getStyleDeclarationErrorHandler();
 			if (unknownValues.size() == 1 && unknownValues.get(0).getLexicalUnitType() == LexicalType.IDENT) {
@@ -467,7 +468,7 @@ class BackgroundShorthandSetter extends ShorthandSetter {
 					posList.add(list);
 				} else {
 					// report error
-					BaseCSSDeclarationRule prule = styleDeclaration.getParentRule();
+					CSSDeclarationRule prule = styleDeclaration.getParentRule();
 					if (prule != null) {
 						CSSPropertyValueException ex = new CSSPropertyValueException(
 								"Wrong value for background-position");

@@ -108,7 +108,7 @@ abstract public class AbstractMediaQuery implements MediaQuery, java.io.Serializ
 	}
 
 	/**
-	 * Check whether the given query is partially or totaly contained by this one.
+	 * Check whether the given query is partially or totally contained by this one.
 	 * <p>
 	 * If query A matches B, then if a medium matches B it will also match A. The
 	 * opposite may not be true.

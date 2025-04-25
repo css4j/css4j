@@ -856,27 +856,29 @@ public class ValueFactoryTest {
 	}
 
 	@Test
-	public void testCreateCSSValueCompatIEPrio() throws CSSException, IOException {
+	public void testCreateCSSValueCompatIEValues() throws CSSException, IOException {
 		ValueFactory factory = new ValueFactory();
-		parser.setFlag(Parser.Flag.IEPRIO);
-		LexicalUnit lunit = parsePropertyValue("40pt!ie");
+		parser.setFlag(Parser.Flag.IEVALUES);
+		LexicalUnit lunit = parsePropertyValue(
+				"progid:DXImageTransform.Microsoft.Blur(pixelradius=5)");
 		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CssType.TYPED, value.getCssValueType());
-		assertEquals(CSSValue.Type.UNKNOWN, value.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, value.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_INVALID, ((CSSTypedValue) value).getUnitType());
-		assertEquals("40pt!ie", value.getCssText());
+		assertEquals("progid:DXImageTransform.Microsoft.Blur(pixelradius=5)", value.getCssText());
 	}
 
 	@Test
-	public void testCreateCSSValueCompatIEPrio2() throws CSSException, IOException {
+	public void testCreateCSSValueCompatIEValuesPlus() throws CSSException, IOException {
 		ValueFactory factory = new ValueFactory();
-		parser.setFlag(Parser.Flag.IEPRIO);
-		LexicalUnit lunit = parsePropertyValue("foo 40pt!ie");
+		parser.setFlag(Parser.Flag.IEVALUES);
+		LexicalUnit lunit = parsePropertyValue(
+				"progid:DXImageTransform.Microsoft.Blur(pixelradius=5+1)");
 		StyleValue value = factory.createCSSValue(lunit);
 		assertEquals(CssType.TYPED, value.getCssValueType());
-		assertEquals(CSSValue.Type.UNKNOWN, value.getPrimitiveType());
+		assertEquals(CSSValue.Type.FUNCTION, value.getPrimitiveType());
 		assertEquals(CSSUnit.CSS_INVALID, ((CSSTypedValue) value).getUnitType());
-		assertEquals("foo 40pt!ie", value.getCssText());
+		assertEquals("progid:DXImageTransform.Microsoft.Blur(pixelradius=5 + 1)", value.getCssText());
 	}
 
 	private LexicalUnit parsePropertyValue(String string) throws CSSParseException, IOException {

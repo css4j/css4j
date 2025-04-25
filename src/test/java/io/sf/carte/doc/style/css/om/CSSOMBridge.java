@@ -43,7 +43,7 @@ public class CSSOMBridge {
 				"names/pseudo-elements count mismatch");
 	}
 
-	public static String selectorListToString(SelectorList selist, CSSStyleDeclarationRule rule) {
+	public static String selectorListToString(SelectorList selist, StyleRule rule) {
 		if (selist == null) {
 			return null;
 		}
@@ -56,7 +56,7 @@ public class CSSOMBridge {
 		return buf.toString();
 	}
 
-	public static String selectorText(CSSStyleDeclarationRule rule, Selector sel, boolean omitUniversal) {
+	public static String selectorText(StyleRule rule, Selector sel, boolean omitUniversal) {
 		SelectorSerializer serializer = new SelectorSerializer(rule.getParentStyleSheet());
 		return serializer.selectorText(sel, omitUniversal);
 	}

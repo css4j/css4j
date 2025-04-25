@@ -34,6 +34,8 @@ import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
@@ -69,12 +71,12 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration implements CSS2Properties, Cloneable {
 
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 3L;
 
 	/**
 	 * The rule that contains this declaration block, if any.
 	 */
-	private final BaseCSSDeclarationRule parentRule;
+	private CSSDeclarationRule parentRule;
 
 	private HashMap<String, StyleValue> propValue;
 
@@ -95,7 +97,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 * @param parentRule
 	 *            the parent CSS rule.
 	 */
-	protected BaseCSSStyleDeclaration(BaseCSSDeclarationRule parentRule) {
+	protected BaseCSSStyleDeclaration(CSSDeclarationRule parentRule) {
 		super();
 		this.parentRule = parentRule;
 		propValue = new HashMap<>();
@@ -233,9 +235,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	@Override
 	public String getCssText() {
 		StyleFormattingContext context = null;
-		BaseCSSDeclarationRule prule = getParentRule();
+		CSSDeclarationRule prule = getParentRule();
 		if (prule != null) {
-			AbstractCSSStyleSheet sheet = prule.getParentStyleSheet();
+			AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) prule.getParentStyleSheet();
 			if (sheet != null) {
 				context = sheet.getStyleSheetFactory().getStyleFormattingFactory().createStyleFormattingContext();
 			}
@@ -592,9 +594,9 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	@Override
 	protected AbstractCSSStyleSheetFactory getStyleSheetFactory() {
-		BaseCSSDeclarationRule prule = getParentRule();
+		CSSDeclarationRule prule = getParentRule();
 		if (prule != null) {
-			AbstractCSSStyleSheet sheet = prule.getParentStyleSheet();
+			AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) prule.getParentStyleSheet();
 			if (sheet != null) {
 				return sheet.getStyleSheetFactory();
 			}
@@ -1475,7 +1477,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 *         <code>CSSStyleDeclaration</code> is not attached to a <code>CSSRule</code>.
 	 */
 	@Override
-	public BaseCSSDeclarationRule getParentRule() {
+	public CSSDeclarationRule getParentRule() {
 		return parentRule;
 	}
 
@@ -1487,7 +1489,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 * @return the node that owns this declaration, or null if none.
 	 */
 	public Node getOwnerNode() {
-		AbstractCSSStyleSheet sheet;
+		CSSStyleSheet<? extends CSSRule> sheet;
 		if (parentRule != null && (sheet = parentRule.getParentStyleSheet()) != null) {
 			return sheet.getOwnerNode();
 		}
@@ -1606,7 +1608,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 */
 	public StyleDatabase getStyleDatabase() {
 		if (parentRule != null) {
-			AbstractCSSStyleSheet pSheet = parentRule.getParentStyleSheet();
+			CSSStyleSheet<? extends CSSRule> pSheet = parentRule.getParentStyleSheet();
 			if (pSheet != null) {
 				Node node = pSheet.getOwnerNode();
 				if (node != null) {
@@ -2013,7 +2015,15 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	@Override
 	public BaseCSSStyleDeclaration clone() {
-		return new BaseCSSStyleDeclaration(this);
+		BaseCSSStyleDeclaration clon;
+		try {
+			clon = (BaseCSSStyleDeclaration) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new IllegalStateException(e);
+		}
+		clon.parentRule = getParentRule();
+		setProperties(clon);
+		return clon;
 	}
 
 	/**

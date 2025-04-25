@@ -83,11 +83,9 @@ public class StylableDocumentWrapperTest2 {
 		assertEquals("en", docElm.getAttribute("lang"));
 		assertNotNull(docElm.getAttributeNode("lang"));
 
-		docElm.setAttributeNS(XML_NAMESPACE_URI, "xml:base",
-				"http://www.example.com/");
+		docElm.setAttributeNS(XML_NAMESPACE_URI, "xml:base", "http://www.example.com/");
 		assertEquals("http://www.example.com/", docElm.getAttribute("xml:base"));
-		assertEquals("http://www.example.com/",
-				docElm.getAttributeNS(XML_NAMESPACE_URI, "base"));
+		assertEquals("http://www.example.com/", docElm.getAttributeNS(XML_NAMESPACE_URI, "base"));
 		assertNotNull(docElm.getAttributeNode("xml:base"));
 
 		assertEquals("http://www.example.com/", wrapped.getBaseURI());
@@ -345,7 +343,7 @@ public class StylableDocumentWrapperTest2 {
 
 	@Test
 	public void testMetaElementDefaultStyle() throws SAXException, IOException {
-		InputStream is = DOMCSSStyleSheetFactoryTest.sampleHTMLStream();
+		InputStream is = SampleCSS.sampleHTMLStream();
 		Document doc;
 		try {
 			docbuilder.setEntityResolver(new DefaultEntityResolver());
@@ -401,7 +399,7 @@ public class StylableDocumentWrapperTest2 {
 
 	@Test
 	public void testFontIOError() throws SAXException, IOException {
-		InputStream is = DOMCSSStyleSheetFactoryTest.sampleHTMLStream();
+		InputStream is = SampleCSS.sampleHTMLStream();
 		Document doc;
 		try {
 			docbuilder.setEntityResolver(new DefaultEntityResolver());
@@ -414,7 +412,8 @@ public class StylableDocumentWrapperTest2 {
 		Node head = doc.getElementsByTagName("head").item(0);
 		Element style = doc.createElement("style");
 		style.setAttribute("type", "text/css");
-		style.setTextContent("@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf');}");
+		style.setTextContent(
+				"@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf');}");
 		head.appendChild(style);
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
 		cssFac.setLenientSystemValues(false);

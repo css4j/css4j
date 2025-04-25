@@ -18,29 +18,36 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.StringTokenizer;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.css.CSSRule;
 import org.w3c.dom.css.CSSRuleList;
 
-import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
-
 public class StyleRuleTest2 {
 
-	AbstractCSSStyleSheet sheet;
-	StyleRule styleRule;
-	BaseCSSStyleDeclaration emptyStyleDecl;
-	StyleRule frameRule = null;
-	StyleRule framesetRule = null;
-	StyleRule noframesRule = null;
+	private static TestCSSStyleSheetFactory myfactory;
+
+	private AbstractCSSStyleSheet sheet;
+	private StyleRule styleRule;
+	private BaseCSSStyleDeclaration emptyStyleDecl;
+	private StyleRule frameRule = null;
+	private StyleRule framesetRule = null;
+	private StyleRule noframesRule = null;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		myfactory = new TestCSSStyleSheetFactory();
+		myfactory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
+	}
 
 	@BeforeEach
 	public void setUp() throws IOException {
-		DOMCSSStyleSheetFactory myfactory = new TestCSSStyleSheetFactory();
 		sheet = myfactory.createStyleSheet(null, null);
-		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
+		Reader re = SampleCSS.loadSampleCSSReader();
 		try {
 			sheet.parseStyleSheet(re);
 			re.close();
@@ -49,7 +56,6 @@ public class StyleRuleTest2 {
 			sheet = null;
 			return;
 		}
-		myfactory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
 		styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		styleRule.setStyleDeclarationErrorHandler(new DefaultStyleDeclarationErrorHandler());
@@ -63,8 +69,11 @@ public class StyleRuleTest2 {
 
 	@Test
 	public void getCssText() {
-		assertEquals("display: block;\nborder: none ! important;\n", frameRule.getStyle().getCssText());
-		assertEquals("/* Comment before frame */\nframe {\n    display: block;\n    border: none ! important;\n}\n", frameRule.getCssText());
+		assertEquals("display: block;\nborder: none ! important;\n",
+				frameRule.getStyle().getCssText());
+		assertEquals(
+				"/* Comment before frame */\nframe {\n    display: block;\n    border: none ! important;\n}\n",
+				frameRule.getCssText());
 	}
 
 	@Test
@@ -123,10 +132,11 @@ public class StyleRuleTest2 {
 	}
 
 	@Test
-	public void testCloneAbstractCSSStyleSheet() {
-		StyleRule rule = new StyleRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText("p,.foo {margin-top: 20%;}");
-		CSSStyleDeclarationRule clon = rule.clone(sheet);
+	public void testCloneAbstractCSSStyleSheet() throws IOException {
+		AbstractCSSStyleSheet sheet1 = myfactory.createStyleSheet(null, null);
+		sheet1.parseStyleSheet(new StringReader("p,.foo {margin-top: 20%;}"));
+		AbstractCSSRule rule = sheet1.getCssRules().item(0);
+		AbstractCSSRule clon = rule.clone(sheet);
 		assertEquals(rule.getOrigin(), clon.getOrigin());
 		assertEquals(rule.getType(), clon.getType());
 		assertEquals(rule.getCssText(), clon.getCssText());
@@ -143,7 +153,8 @@ public class StyleRuleTest2 {
 				while (st.hasMoreElements()) {
 					String selector = st.nextToken();
 					if (selector.equals(selectorText)) {
-						if (((StyleRule) rule).getStyle().getPropertyCSSValue(propertyName) != null) {
+						if (((StyleRule) rule).getStyle()
+								.getPropertyCSSValue(propertyName) != null) {
 							return (StyleRule) rule;
 						}
 						break;
@@ -153,4 +164,5 @@ public class StyleRuleTest2 {
 		}
 		return null;
 	}
+
 }

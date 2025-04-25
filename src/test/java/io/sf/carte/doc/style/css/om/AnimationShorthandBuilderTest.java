@@ -13,16 +13,24 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class AnimationShorthandBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	private BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -69,7 +77,8 @@ public class AnimationShorthandBuilderTest {
 
 	@Test
 	public void testBuilderTimelineTwoCustomIdents() {
-		assertShorthandText("animation:3500ms 5s reverse --my-anim;animation-timeline:--my-timeline;",
+		assertShorthandText(
+				"animation:3500ms 5s reverse --my-anim;animation-timeline:--my-timeline;",
 				"animation: 3500ms 5s reverse --my-anim --my-timeline");
 	}
 
@@ -122,8 +131,7 @@ public class AnimationShorthandBuilderTest {
 	@Test
 	public void testBuilderIEHack() {
 		// Nobody uses IE hacks for animations, but the detection code is shared
-		assertShorthandText(
-				"animation:3200ms ease-in 1s foo\\9 ;",
+		assertShorthandText("animation:3200ms ease-in 1s foo\\9 ;",
 				"animation-duration: 3200ms;animation-delay:1s;animation-fill-mode:none;"
 						+ "animation-timing-function:ease-in;animation-direction:normal;"
 						+ "animation-iteration-count:1;animation-play-state:running;animation-name:foo\\9;"

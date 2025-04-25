@@ -13,16 +13,24 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class GridPlacementShorthandBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -49,22 +57,35 @@ public class GridPlacementShorthandBuilderTest {
 
 	@Test
 	public void testBuilderMix() {
-		assertShorthandText("grid-column:auto;", "grid-column-start: auto; grid-column-end: initial;");
-		assertShorthandText("grid-column:auto;", "grid-column-start: auto; grid-column-end: unset;");
-		assertShorthandText("grid-column:auto;", "grid-column-start: initial; grid-column-end: auto;");
-		assertShorthandText("grid-column:auto;", "grid-column-start: unset; grid-column-end: auto;");
+		assertShorthandText("grid-column:auto;",
+				"grid-column-start: auto; grid-column-end: initial;");
+		assertShorthandText("grid-column:auto;",
+				"grid-column-start: auto; grid-column-end: unset;");
+		assertShorthandText("grid-column:auto;",
+				"grid-column-start: initial; grid-column-end: auto;");
+		assertShorthandText("grid-column:auto;",
+				"grid-column-start: unset; grid-column-end: auto;");
 		assertShorthandText("grid-column:2;", "grid-column-start: 2; grid-column-end: initial;");
 		assertShorthandText("grid-column:2;", "grid-column-start: 2; grid-column-end: unset;");
-		assertShorthandText("grid-column:auto/2;", "grid-column-start: initial; grid-column-end: 2;");
+		assertShorthandText("grid-column:auto/2;",
+				"grid-column-start: initial; grid-column-end: 2;");
 		assertShorthandText("grid-column:auto/2;", "grid-column-start: unset; grid-column-end: 2;");
-		assertShorthandText("grid-column:2 foo;", "grid-column-start: 2 foo; grid-column-end: initial;");
-		assertShorthandText("grid-column:2 foo;", "grid-column-start: 2 foo; grid-column-end: unset;");
-		assertShorthandText("grid-column:auto/2 foo;", "grid-column-start: initial; grid-column-end: 2 foo;");
-		assertShorthandText("grid-column:auto/2 foo;", "grid-column-start: unset; grid-column-end: 2 foo;");
-		assertShorthandText("grid-column:span 2;", "grid-column-start: span 2; grid-column-end: initial;");
-		assertShorthandText("grid-column:span 2;", "grid-column-start: span 2; grid-column-end: unset;");
-		assertShorthandText("grid-column:auto/span 2;", "grid-column-start: initial; grid-column-end: span 2;");
-		assertShorthandText("grid-column:auto/span 2;", "grid-column-start: unset; grid-column-end: span 2;");
+		assertShorthandText("grid-column:2 foo;",
+				"grid-column-start: 2 foo; grid-column-end: initial;");
+		assertShorthandText("grid-column:2 foo;",
+				"grid-column-start: 2 foo; grid-column-end: unset;");
+		assertShorthandText("grid-column:auto/2 foo;",
+				"grid-column-start: initial; grid-column-end: 2 foo;");
+		assertShorthandText("grid-column:auto/2 foo;",
+				"grid-column-start: unset; grid-column-end: 2 foo;");
+		assertShorthandText("grid-column:span 2;",
+				"grid-column-start: span 2; grid-column-end: initial;");
+		assertShorthandText("grid-column:span 2;",
+				"grid-column-start: span 2; grid-column-end: unset;");
+		assertShorthandText("grid-column:auto/span 2;",
+				"grid-column-start: initial; grid-column-end: span 2;");
+		assertShorthandText("grid-column:auto/span 2;",
+				"grid-column-start: unset; grid-column-end: span 2;");
 	}
 
 	@Test

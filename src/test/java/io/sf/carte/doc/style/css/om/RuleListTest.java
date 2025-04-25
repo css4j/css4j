@@ -33,8 +33,8 @@ public class RuleListTest {
 	@Test
 	public void testRuleList() throws DOMException, IOException {
 		CSSRuleArrayList list = new CSSRuleArrayList();
-		list.append(sheet.createViewportRule());
-		list.append(sheet.createViewportRule());
+		list.append(sheet.createFontFaceRule());
+		list.append(sheet.createFontFaceRule());
 		assertEquals(2, list.getLength());
 		CSSRuleArrayList list2 = new CSSRuleArrayList(list);
 		assertEquals(2, list2.getLength());
@@ -46,11 +46,12 @@ public class RuleListTest {
 	@Test
 	public void testCloneAbstractCSSStyleSheet() {
 		CSSRuleArrayList list = new CSSRuleArrayList();
-		list.append(sheet.createViewportRule());
-		list.append(sheet.createViewportRule());
+		list.append(sheet.createFontFaceRule());
+		list.append(sheet.createFontFaceRule());
 		CSSRuleArrayList clon = (CSSRuleArrayList) list.clone();
 		assertEquals(list.getLength(), clon.getLength());
 		assertTrue(list.equals(clon));
 		assertEquals(list.hashCode(), clon.hashCode());
 	}
+
 }

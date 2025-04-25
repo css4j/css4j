@@ -16,6 +16,7 @@ import java.util.LinkedList;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -34,7 +35,7 @@ class CompatStyleDeclaration extends BaseCSSStyleDeclaration {
 
 	private final CompatDeclarationSet compatSet;
 
-	protected CompatStyleDeclaration(BaseCSSDeclarationRule parentRule) {
+	protected CompatStyleDeclaration(CSSDeclarationRule parentRule) {
 		super(parentRule);
 		compatSet = new CompatDeclarationSet();
 	}

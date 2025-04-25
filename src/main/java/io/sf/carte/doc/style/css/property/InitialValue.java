@@ -57,4 +57,10 @@ public class InitialValue extends KeywordValue {
 		return singleton;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj)
+				|| (obj instanceof StyleValue && ((StyleValue) obj).isSystemDefault());
+	}
+
 }

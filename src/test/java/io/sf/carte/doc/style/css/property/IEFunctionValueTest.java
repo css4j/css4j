@@ -26,8 +26,8 @@ import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
-import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 
 /**
@@ -35,7 +35,7 @@ import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
  */
 public class IEFunctionValueTest {
 
-	CSSStyleDeclarationRule styleRule;
+	StyleRule styleRule;
 	BaseCSSStyleDeclaration style;
 
 	@BeforeEach

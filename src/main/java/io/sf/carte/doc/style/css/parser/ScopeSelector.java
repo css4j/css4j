@@ -12,7 +12,7 @@
 package io.sf.carte.doc.style.css.parser;
 
 /**
- * Universal selector (for all namespaces).
+ * Scope selector.
  */
 class ScopeSelector extends AbstractSelector {
 
@@ -24,13 +24,13 @@ class ScopeSelector extends AbstractSelector {
 	}
 
 	@Override
-	public int hashCode() {
-		return 31 * super.hashCode();
+	public String toString() {
+		return "";
 	}
 
 	@Override
-	public String toString() {
-		return "";
+	NSACSelectorFactory getSelectorFactory() throws IllegalStateException {
+		throw new IllegalStateException();
 	}
 
 }

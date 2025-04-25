@@ -30,8 +30,8 @@ import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingFactory;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.DummyDeviceFactory;
+import io.sf.carte.doc.style.css.om.SampleCSS;
 import io.sf.carte.doc.style.css.om.TestStyleDatabase;
 import io.sf.carte.doc.style.css.om.TestStyleFormattingFactory;
 import io.sf.carte.doc.xml.dtd.DefaultEntityResolver;
@@ -132,7 +132,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true));
 		builder.setHTMLProcessing(true);
 		builder.setXMLReader(parser);
-		Reader re = DOMCSSStyleSheetFactoryTest.sampleHTMLReader();
+		Reader re = SampleCSS.sampleHTMLReader();
 		InputSource is = new InputSource(re);
 		HTMLDocument xhtmlDoc;
 		try {
@@ -147,7 +147,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 	}
 
 	public static HTMLDocument sampleXHTMLDocument() throws IOException {
-		Reader re = DOMCSSStyleSheetFactoryTest.sampleXHTMLReader();
+		Reader re = SampleCSS.sampleXHTMLReader();
 		InputSource is = new InputSource(re);
 		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true));
 		builder.setIgnoreElementContentWhitespace(true);
@@ -170,12 +170,11 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		parser.setReportingDoctype(true);
 		parser.setCommentPolicy(XmlViolationPolicy.ALLOW);
 		TestDOMImplementation domImpl = new TestDOMImplementation(true);
-		domImpl.getParserFlags().add(Parser.Flag.STARHACK);
 		domImpl.getParserFlags().add(Parser.Flag.IEVALUES);
 		XMLDocumentBuilder builder = new XMLDocumentBuilder(domImpl);
 		builder.setXMLReader(parser);
 
-		Reader re = DOMCSSStyleSheetFactoryTest.sampleIEReader();
+		Reader re = SampleCSS.sampleIEReader();
 		InputSource is = new InputSource(re);
 		HTMLDocument xhtmlDoc;
 		try {
@@ -195,7 +194,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		parser.setCommentPolicy(XmlViolationPolicy.ALLOW);
 		XMLDocumentBuilder builder = new XMLDocumentBuilder(new TestDOMImplementation(true));
 		builder.setXMLReader(parser);
-		Reader re = DOMCSSStyleSheetFactoryTest.simpleBoxXHTMLReader();
+		Reader re = SampleCSS.simpleBoxXHTMLReader();
 		InputSource is = new InputSource(re);
 		DOMDocument xhtmlDoc;
 		try {

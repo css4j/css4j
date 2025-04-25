@@ -15,7 +15,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -23,6 +22,7 @@ import java.io.StringReader;
 import java.util.EnumSet;
 import java.util.LinkedList;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
@@ -32,7 +32,6 @@ import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSRule;
-import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
@@ -40,22 +39,28 @@ import io.sf.carte.doc.style.css.parser.CSSParser;
 
 public class SupportsRuleTest {
 
+	private static TestCSSStyleSheetFactory factory;
+
+	private static StyleDatabase styleDb;
+
 	private AbstractCSSStyleSheet sheet;
-	StyleDatabase styleDb;
 
-	@BeforeEach
-	public void setUp() {
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		factory = new TestCSSStyleSheetFactory();
 		factory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
-		sheet = factory.createStyleSheet(null, null);
-
 		DeviceFactory df = factory.getDeviceFactory();
 		styleDb = df.getStyleDatabase("screen");
 	}
 
+	@BeforeEach
+	public void setUp() {
+		sheet = factory.createStyleSheet(null, null);
+	}
+
 	@Test
-	public void testParseSupportsConditionBad() throws DOMException {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+	public void testParseSupportsConditionBad() {
+		SupportsRule rule = sheet.createSupportsRule();
 		CSSParser parser = new CSSOMParser();
 		BooleanCondition cond = parser.parseSupportsCondition(" ", rule);
 		assertNull(cond);
@@ -70,8 +75,8 @@ public class SupportsRuleTest {
 	}
 
 	@Test
-	public void testParseSupportsConditionBad2() throws DOMException {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+	public void testParseSupportsConditionBad2() {
+		SupportsRule rule = sheet.createSupportsRule();
 		CSSParser parser = new CSSOMParser();
 		BooleanCondition cond = parser.parseSupportsCondition("(", rule);
 		assertNull(cond);
@@ -138,7 +143,8 @@ public class SupportsRuleTest {
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
-		assertEquals("(display: flexbox) and (not (display: inline-grid))", rule.getConditionText());
+		assertEquals("(display: flexbox) and (not (display: inline-grid))",
+				rule.getConditionText());
 		assertEquals(
 				"@supports (display: flexbox) and (not (display: inline-grid)) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
@@ -154,7 +160,8 @@ public class SupportsRuleTest {
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
-		assertEquals("(display: table-cell) and (display: list-item) and (display: run-in)", rule.getConditionText());
+		assertEquals("(display: table-cell) and (display: list-item) and (display: run-in)",
+				rule.getConditionText());
 		assertEquals(
 				"@supports (display: table-cell) and (display: list-item) and (display: run-in) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
@@ -265,7 +272,8 @@ public class SupportsRuleTest {
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
-		assertEquals("(-webkit-backdrop-filter: initial) or (backdrop-filter: initial)", rule.getConditionText());
+		assertEquals("(-webkit-backdrop-filter: initial) or (backdrop-filter: initial)",
+				rule.getConditionText());
 		assertEquals(
 				"@supports (-webkit-backdrop-filter: initial) or (backdrop-filter: initial) {\n    #fooid.fooclass .barclass {\n        -webkit-backdrop-filter: saturate(180%) blur(20px);\n        backdrop-filter: saturate(180%) blur(20px);\n        background-color: rgb(255 255 255 / 0.7);\n    }\n}\n",
 				rule.getCssText());
@@ -284,7 +292,8 @@ public class SupportsRuleTest {
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
-		assertEquals("(-webkit-backdrop-filter: initial) or (backdrop-filter: initial)", rule.getConditionText());
+		assertEquals("(-webkit-backdrop-filter: initial) or (backdrop-filter: initial)",
+				rule.getConditionText());
 		assertEquals(
 				"@supports (-webkit-backdrop-filter: initial) or (backdrop-filter: initial) {\n    .fooclass #descid.barclass .someclass,.barclass#otherid.otherclass .someclass {\n        background-color: rgb(11 11 11 / 0.7);\n    }\n}\n",
 				rule.getCssText());
@@ -330,7 +339,8 @@ public class SupportsRuleTest {
 	}
 
 	@Test
-	public void testParseSupportsRuleInsideMediaAndNestedPageRule() throws DOMException, IOException {
+	public void testParseSupportsRuleInsideMediaAndNestedPageRule()
+			throws DOMException, IOException {
 		StringReader re = new StringReader(
 				"@media screen {@supports (display: table-cell) and (display: list-item) {td {display: table-cell; } @page {margin-top: 20%;} li {display: list-item; }}}");
 		sheet.parseStyleSheet(re);
@@ -379,7 +389,8 @@ public class SupportsRuleTest {
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
-		assertEquals("not ((display: table-cell) or (display: list-item))", rule.getConditionText());
+		assertEquals("not ((display: table-cell) or (display: list-item))",
+				rule.getConditionText());
 		assertEquals(
 				"@supports not ((display:table-cell) or (display:list-item)){td{display:table-cell}li{display:list-item}}",
 				rule.getMinifiedCssText());
@@ -439,7 +450,8 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsRuleCompat() throws DOMException, IOException {
-		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(
+				EnumSet.of(Parser.Flag.IEVALUES));
 		factory.setStyleFormattingFactory(new TestStyleFormattingFactory());
 		sheet = factory.createStyleSheet(null, null);
 		StringReader re = new StringReader(
@@ -465,9 +477,8 @@ public class SupportsRuleTest {
 	}
 
 	@Test
-	public void testSetCssTextString() throws DOMException {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText(
+	public void testSupports() {
+		SupportsRule rule = parseStyleSheet(
 				"@supports (display: table-cell) and (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    @page {\n        margin-top: 20%;\n    }\n    li {\n        display: list-item;\n    }\n}\n");
 		assertEquals("(display: table-cell) and (display: list-item)", rule.getConditionText());
 		assertEquals(
@@ -476,9 +487,8 @@ public class SupportsRuleTest {
 	}
 
 	@Test
-	public void testSetCssTextString2() throws DOMException {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText(
+	public void testSupports2() {
+		SupportsRule rule = parseStyleSheet(
 				"@supports ((background: -webkit-gradient(linear, left top, left bottom, from(transparent), to(#fff))) or (background: -webkit-linear-gradient(transparent, #fff)) or (background: -moz-linear-gradient(transparent, #fff)) or (background: -o-linear-gradient(transparent, #fff)) or (background: linear-gradient(transparent, #fff))){.foo{padding:10px}}");
 		assertEquals(
 				"(background: -webkit-gradient(linear, left top, left bottom, from(transparent), to(#fff))) or (background: -webkit-linear-gradient(transparent, #fff)) or (background: -moz-linear-gradient(transparent, #fff)) or (background: -o-linear-gradient(transparent, #fff)) or (background: linear-gradient(transparent, #fff))",
@@ -489,122 +499,77 @@ public class SupportsRuleTest {
 	}
 
 	@Test
-	public void testSetCssTextString3() {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText(
+	public void testSupports3() {
+		SupportsRule rule = parseStyleSheet(
 				"@supports (background: radial-gradient(closest-side,#ff0000,#a2f3a1)){.foo .bar:first-child{background:radial-gradient(closest-side,rgb(32 45 46/0),#da212e),url(\"//example.com/img/image.jpg\");background-size:600px 600px}}");
 		assertEquals(
 				"@supports(background:radial-gradient(closest-side,#f00,#a2f3a1)){.foo .bar:first-child{background:radial-gradient(closest-side,rgb(32 45 46/0),#da212e),url(\"//example.com/img/image.jpg\");background-size:600px 600px}}",
 				rule.getMinifiedCssText());
-		SupportsRule rule2 = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule2.setCssText(
+		SupportsRule rule2 = parseStyleSheet(
 				"@supports (background: radial-gradient(closest-side, #f00, #a2f3a1)) {.foo .bar:first-child {background: radial-gradient(closest-side, rgb(32 45 46 / 0), #da212e), url('//example.com/img/image.jpg');background-size: 600px 600px;}}");
 		assertTrue(rule.equals(rule2));
 		assertEquals(rule.hashCode(), rule2.hashCode());
 	}
 
 	@Test
-	public void testSetCssTextStringWrongRule() {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		DOMException e = assertThrows(DOMException.class,
-			() -> rule.setCssText("@page {margin-top: 20%;}"));
-
-		assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
-
-		assertEquals("", rule.getMinifiedCssText());
-		assertEquals("", rule.getCssText());
+	public void testSupportsWrongCondition() {
+		// Is missing a final parenthesis
+		SupportsRule rule = parseStyleSheet(
+				"@supports ((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px)) {.foo {backdrop-filter:saturate(180%) blur(20px);}}");
+		assertNull(rule);
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
-	public void testSetCssTextStringWrongRule2() {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		DOMException e = assertThrows(DOMException.class,
-			() -> rule.setCssText("/* pre-rule */ @page {margin-top: 20%;}"));
-
-		assertEquals(DOMException.INVALID_MODIFICATION_ERR, e.code);
-
-		assertEquals("", rule.getMinifiedCssText());
-		assertEquals("", rule.getCssText());
+	public void testSupportsWrongCondition2() {
+		// Extra final parenthesis
+		SupportsRule rule = parseStyleSheet(
+				"@supports ((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px)))) {.foo {backdrop-filter:saturate(180%) blur(20px);}}");
+		assertNull(rule);
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
-	public void testSetCssTextStringWrongCondition() {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		DOMException e = assertThrows(DOMException.class, () -> rule.setCssText(
-			"@supports ((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px)) {.foo {backdrop-filter:saturate(180%) blur(20px);}}"));
-
-		assertEquals(DOMException.SYNTAX_ERR, e.code);
-
-		assertEquals("", rule.getMinifiedCssText());
-		assertEquals("", rule.getCssText());
-
-		assertFalse(rule.supports(styleDb));
-	}
-
-	@Test
-	public void testSetCssTextStringWrongCondition2() {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		DOMException e = assertThrows(DOMException.class, () -> rule.setCssText(
-			"@supports ((-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px)))) {.foo {backdrop-filter:saturate(180%) blur(20px);}}"));
-
-		assertEquals(DOMException.SYNTAX_ERR, e.code);
-
-		assertEquals("", rule.getMinifiedCssText());
-		assertEquals("", rule.getCssText());
-	}
-
-	@Test
-	public void testSetCssTextStringWrongCondition3() {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		DOMException e = assertThrows(DOMException.class, () -> rule.setCssText(
-			"@supports ((transition-property: color) or (animation-name: foo) and (transform: rotate(10deg))) {.foo {backdrop-filter:saturate(180%) blur(20px);}}"));
-
-		assertEquals(DOMException.SYNTAX_ERR, e.code);
-
-		assertEquals("", rule.getMinifiedCssText());
-		assertEquals("", rule.getCssText());
+	public void testSupportsWrongCondition3() {
+		// Ambiguous, forbidden by specification
+		SupportsRule rule = parseStyleSheet(
+				"@supports ((transition-property: color) or (animation-name: foo) and (transform: rotate(10deg))) {.foo {backdrop-filter:saturate(180%) blur(20px);}}");
+		assertNull(rule);
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test
 	public void testEquals() {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText(
+		SupportsRule rule = parseStyleSheet(
 				"@supports (display: table-cell) and (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    @page {\n        margin-top: 20%;\n    }\n    li {\n        display: list-item;\n    }\n}\n");
-		SupportsRule rule2 = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule2.setCssText(
+		SupportsRule rule2 = parseStyleSheet(
 				"@supports (display: table-cell) and (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    @page {\n        margin-top: 20%;\n    }\n    li {\n        display: list-item;\n    }\n}\n");
 		assertTrue(rule.equals(rule2));
 	}
 
 	@Test
 	public void testEquals2() {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText(
+		SupportsRule rule = parseStyleSheet(
 				"@supports (display: table-cell) and (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    @page {\n        margin-top: 20%;\n    }\n    li {\n        display: list-item;\n    }\n}\n");
-		SupportsRule rule2 = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule2.setCssText(
+		SupportsRule rule2 = parseStyleSheet(
 				"@supports (display: table-cell) {\n    td {\n        display: table-cell;\n    }\n    @page {\n        margin-top: 20%;\n    }\n    li {\n        display: list-item;\n    }\n}\n");
 		assertFalse(rule.equals(rule2));
 	}
 
 	@Test
 	public void testEquals3() {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText(
+		SupportsRule rule = parseStyleSheet(
 				"@supports (display: table-cell) and (display: list-item) {td {display: table-cell;}@page {margin-top: 20%;}li {display: list-item;}}");
-		SupportsRule rule2 = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule2.setCssText(
+		SupportsRule rule2 = parseStyleSheet(
 				"@supports (display: table-cell) and (display: list-item) {td {display: table-cell;}li {display: list-item;}}");
 		assertFalse(rule.equals(rule2));
 	}
 
 	@Test
 	public void testEquals4() {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText(
+		SupportsRule rule = parseStyleSheet(
 				"@supports ((position: -webkit-sticky) or (position: sticky)){html:not(.foo) body:not(.bar) .myclass{position:-webkit-sticky;position:sticky;bottom:-0.0625rem}html:not(.foo) body:not(.bar) .myclass.otherclass{top:-0.06em}}");
-		SupportsRule rule2 = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule2.setCssText(
+		SupportsRule rule2 = parseStyleSheet(
 				"@supports ((position: -webkit-sticky) or (position: sticky)){html:not(.foo) body:not(.bar) .myclass{position:-webkit-sticky;position:sticky;bottom:-0.0625rem}html:not(.foo) body:not(.bar) .myclass.otherclass{top:-0.06em}}");
 		assertTrue(rule.equals(rule2));
 		assertEquals(rule.hashCode(), rule2.hashCode());
@@ -612,8 +577,7 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testCloneAbstractCSSStyleSheet() {
-		SupportsRule rule = new SupportsRule(sheet, CSSStyleSheetFactory.ORIGIN_AUTHOR);
-		rule.setCssText(
+		SupportsRule rule = parseStyleSheet(
 				"@supports(display:table-cell) and (display:list-item){td{display:table-cell}li{display:list-item}}");
 		SupportsRule clon = rule.clone(sheet);
 		assertEquals(rule.getOrigin(), clon.getOrigin());
@@ -622,6 +586,16 @@ public class SupportsRuleTest {
 		assertEquals(rule.getCssText(), clon.getCssText());
 		assertTrue(rule.equals(clon));
 		assertEquals(rule.hashCode(), clon.hashCode());
+	}
+
+	private SupportsRule parseStyleSheet(String cssText) {
+		sheet.getCssRules().clear();
+		try {
+			sheet.parseStyleSheet(new StringReader(cssText));
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+		return (SupportsRule) sheet.getCssRules().item(0);
 	}
 
 }

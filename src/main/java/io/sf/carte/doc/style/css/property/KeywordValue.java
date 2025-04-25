@@ -69,12 +69,16 @@ abstract public class KeywordValue extends StyleValue implements ValueItem {
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		return prime * super.hashCode() + getCssText().hashCode();
+		return prime * super.hashCode() + getPrimitiveType().hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		return this == obj || (obj instanceof KeywordValue && getCssText().equals(((KeywordValue) obj).getCssText()));
+		/*
+		 * It's a singleton but there are subproperty variants
+		 */
+		return this == obj || (obj instanceof KeywordValue
+				&& getPrimitiveType() == ((KeywordValue) obj).getPrimitiveType());
 	}
 
 	public KeywordValue asSubproperty() {
@@ -128,5 +132,7 @@ abstract public class KeywordValue extends StyleValue implements ValueItem {
 		public KeywordValue clone() {
 			return this;
 		}
+
 	}
+
 }

@@ -15,6 +15,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Iterator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,28 +34,28 @@ public class CascadeTest {
 	private Cascade cascade;
 
 	@BeforeEach
-	public void setUp() {
+	public void setUp() throws IOException {
 		CSSDOMImplementation impl = new CSSDOMImplementation();
-		BaseDocumentCSSStyleSheet sheet = DOMBridge.createDocumentStyleSheet(impl, CSSStyleSheetFactory.ORIGIN_AUTHOR);
+		BaseDocumentCSSStyleSheet sheet = DOMBridge.createDocumentStyleSheet(impl,
+				CSSStyleSheetFactory.ORIGIN_AUTHOR);
 		CSSDocument ownerNode = impl.createDocument(null, "html", null);
 		sheet.setOwnerDocument(ownerNode);
-		cascade = sheet.new Cascade();
-		StyleRule rule = new StyleRule();
-		rule.setCssText("p.foo {font-size: 3em}");
+
+		sheet.parseStyleSheet(new StringReader("p.foo {font-size: 3em}"));
+		sheet.parseStyleSheet(new StringReader("#myid {font-size: 4em}"));
+		sheet.parseStyleSheet(new StringReader("p {font-size: 1.2em}"));
+		sheet.parseStyleSheet(new StringReader("div > p {font-size: 2.5em}"));
+		sheet.parseStyleSheet(new StringReader("p.bar {font-size: 2em}"));
+
+		CSSRuleArrayList rules = sheet.getCssRules();
+
 		SelectorMatcher matcher = new DOMSelectorMatcher(sheet.getOwnerNode().getDocumentElement());
-		cascade.add(rule.getSpecificity(0, matcher));
-		rule = new StyleRule();
-		rule.setCssText("#myid {font-size: 4em}");
-		cascade.add(rule.getSpecificity(0, matcher));
-		rule = new StyleRule();
-		rule.setCssText("p {font-size: 1.2em}");
-		cascade.add(rule.getSpecificity(0, matcher));
-		rule = new StyleRule();
-		rule.setCssText("div > p {font-size: 2.5em}");
-		cascade.add(rule.getSpecificity(0, matcher));
-		rule = new StyleRule();
-		rule.setCssText("p.bar {font-size: 2em}");
-		cascade.add(rule.getSpecificity(0, matcher));
+		cascade = sheet.new Cascade();
+		Iterator<AbstractCSSRule> it = rules.iterator();
+		while (it.hasNext()) {
+			StyleRule rule = (StyleRule) it.next();
+			cascade.add(rule.getSpecificity(0, matcher));
+		}
 	}
 
 	@Test

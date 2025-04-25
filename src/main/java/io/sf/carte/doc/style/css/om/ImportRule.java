@@ -16,10 +16,11 @@ import java.net.URL;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
-import org.w3c.dom.css.CSSImportRule;
 
 import io.sf.carte.doc.DOMPolicyException;
+import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSImportRule;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -41,18 +42,31 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 
 	private String styleSheetURI;
 
+	private String layerName;
+
+	private BooleanCondition supportsCondition;
+
 	private MediaQueryList mediaList;
 
 	/**
 	 * Construct an import rule with the given parameters.
 	 * 
-	 * @param parentSheet the parent style sheet.
-	 * @param mediaList   the media list to which the sheet shall apply.
-	 * @param href        the URI from which to import the sheet.
-	 * @param origin      the origin of the rule.
+	 * @param parentSheet       the parent style sheet.
+	 * @param layerName         the layer name declared in the at-rule itself, or an
+	 *                          empty string if the layer is anonymous, or
+	 *                          {@code null} if the at-rule does not declare a
+	 *                          layer.
+	 * @param supportsCondition the supports condition, or {@code null} if none.
+	 * @param mediaList         the media list to which the sheet shall apply.
+	 * @param href              the URI from which to import the sheet.
+	 * @param origin            the origin of the rule.
 	 */
-	protected ImportRule(AbstractCSSStyleSheet parentSheet, MediaQueryList mediaList, String href, byte origin) {
+	protected ImportRule(AbstractCSSStyleSheet parentSheet, String layerName,
+			BooleanCondition supportsCondition, MediaQueryList mediaList, String href,
+			byte origin) {
 		super(parentSheet, CSSRule.IMPORT_RULE, origin);
+		this.layerName = layerName;
+		this.supportsCondition = supportsCondition;
 		this.mediaList = mediaList;
 		this.styleSheetURI = href;
 	}
@@ -60,6 +74,16 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 	@Override
 	public String getHref() {
 		return styleSheetURI;
+	}
+
+	@Override
+	public String getLayerName() {
+		return layerName;
+	}
+
+	@Override
+	public BooleanCondition getSupportsCondition() {
+		return supportsCondition;
 	}
 
 	@Override
@@ -71,7 +95,8 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 	public AbstractCSSStyleSheet getStyleSheet() {
 		if (importedSheet == null) {
 			AbstractCSSStyleSheet parent = getParentStyleSheet();
-			importedSheet = parent.getStyleSheetFactory().createRuleStyleSheet(this, parent.getTitle(), mediaList);
+			importedSheet = parent.getStyleSheetFactory().createRuleStyleSheet(this,
+					parent.getTitle(), mediaList);
 			importedSheet.setParentStyleSheet(parent);
 			// Load the sheet
 			try {
@@ -112,25 +137,12 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 			cssdoc = null;
 		}
 		if (cssdoc != null && !cssdoc.isAuthorizedOrigin(styleSheetURL)) {
-			cssdoc.getErrorHandler().policyError(owner, "Unauthorized @import URL: " + styleSheetURL.toExternalForm());
+			cssdoc.getErrorHandler().policyError(owner,
+					"Unauthorized @import URL: " + styleSheetURL.toExternalForm());
 			return false;
 		}
 		// load & Parse
 		return importedSheet.loadStyleSheet(styleSheetURL, "");
-	}
-
-	@Override
-	void clear() {
-	}
-
-	@Override
-	void setRule(AbstractCSSRule copyMe) {
-		ImportRule imp = (ImportRule) copyMe;
-		this.styleSheetURI = imp.getHref();
-		this.mediaList = imp.getMedia();
-		setPrecedingComments(imp.getPrecedingComments());
-		setTrailingComments(imp.getTrailingComments());
-		this.importedSheet = null;
 	}
 
 	@Override
@@ -150,6 +162,22 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
 		wri.write("@import ");
 		context.writeURL(wri, getHref());
+		if (layerName != null) {
+			wri.write(' ');
+			if (layerName.isEmpty()) {
+				wri.write('"');
+				wri.write('"');
+			} else {
+				wri.write("layer(");
+				wri.write(layerName);
+				wri.write(')');
+			}
+		}
+		if (supportsCondition != null) {
+			wri.write(" supports(");
+			wri.write(supportsCondition.toString());
+			wri.write(')');
+		}
 		if (!mediaList.isAllMedia()) {
 			wri.write(' ');
 			wri.write(mediaList.getMedia());
@@ -162,6 +190,22 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 		StringBuilder buf = new StringBuilder(80);
 		buf.append("@import ");
 		buf.append(ParseHelper.quote(styleSheetURI, '\''));
+		if (layerName != null) {
+			buf.append(' ');
+			if (layerName.isEmpty()) {
+				buf.append('"');
+				buf.append('"');
+			} else {
+				buf.append("layer(");
+				buf.append(layerName);
+				buf.append(')');
+			}
+		}
+		if (supportsCondition != null) {
+			buf.append(" supports(");
+			supportsCondition.appendMinifiedText(buf);
+			buf.append(')');
+		}
 		if (!mediaList.isAllMedia()) {
 			buf.append(' ');
 			buf.append(mediaList.getMinifiedMedia());
@@ -215,8 +259,8 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 
 	@Override
 	public ImportRule clone(AbstractCSSStyleSheet parentSheet) {
-		ImportRule rule = new ImportRule(parentSheet, ((MediaListAccess) getMedia()).unmodifiable(), getHref(),
-				getOrigin());
+		ImportRule rule = new ImportRule(parentSheet, layerName, supportsCondition,
+				((MediaListAccess) getMedia()).unmodifiable(), getHref(), getOrigin());
 		return rule;
 	}
 

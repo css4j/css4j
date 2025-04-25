@@ -13,16 +13,24 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class FontVariantBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -33,11 +41,14 @@ public class FontVariantBuilderTest {
 
 	@Test
 	public void testFontVariantNoShorthandMix() {
-		assertShorthandText("font-variant-alternates:inherit;font-variant-caps:small-caps;font-variant-east-asian:ruby;font-variant-ligatures:normal;font-variant-numeric:normal;font-variant-position:sub;",
+		assertShorthandText(
+				"font-variant-alternates:inherit;font-variant-caps:small-caps;font-variant-east-asian:ruby;font-variant-ligatures:normal;font-variant-numeric:normal;font-variant-position:sub;",
 				"font-variant-caps: small-caps;font-variant-ligatures:normal;font-variant-position:sub;font-variant-numeric:normal;font-variant-alternates:inherit;font-variant-east-asian:ruby;");
-		assertShorthandText("font-variant-alternates:unset;font-variant-caps:small-caps;font-variant-east-asian:ruby;font-variant-ligatures:normal;font-variant-numeric:normal;font-variant-position:sub;",
+		assertShorthandText(
+				"font-variant-alternates:unset;font-variant-caps:small-caps;font-variant-east-asian:ruby;font-variant-ligatures:normal;font-variant-numeric:normal;font-variant-position:sub;",
 				"font-variant-caps: small-caps;font-variant-ligatures:normal;font-variant-position:sub;font-variant-numeric:normal;font-variant-alternates:unset;font-variant-east-asian:ruby;");
-		assertShorthandText("font-variant-alternates:revert;font-variant-caps:small-caps;font-variant-east-asian:ruby;font-variant-ligatures:normal;font-variant-numeric:normal;font-variant-position:sub;",
+		assertShorthandText(
+				"font-variant-alternates:revert;font-variant-caps:small-caps;font-variant-east-asian:ruby;font-variant-ligatures:normal;font-variant-numeric:normal;font-variant-position:sub;",
 				"font-variant-caps: small-caps;font-variant-ligatures:normal;font-variant-position:sub;font-variant-numeric:normal;font-variant-alternates:revert;font-variant-east-asian:ruby;");
 	}
 
@@ -60,7 +71,8 @@ public class FontVariantBuilderTest {
 	@Test
 	public void testFontVariant() {
 		assertShorthandText("font-variant:small-caps;", "font-variant: small-caps");
-		assertShorthandText("font-variant:common-ligatures small-caps proportional-nums ordinal stylistic(foo) ruby;",
+		assertShorthandText(
+				"font-variant:common-ligatures small-caps proportional-nums ordinal stylistic(foo) ruby;",
 				"font-variant: common-ligatures stylistic(foo) small-caps proportional-nums ordinal ruby");
 		assertShorthandText(
 				"font-variant:common-ligatures discretionary-ligatures small-caps proportional-nums diagonal-fractions ordinal stylistic(foo) jis83;",
@@ -70,7 +82,8 @@ public class FontVariantBuilderTest {
 
 	@Test
 	public void testFontVariantVar() {
-		assertShorthandText("font-variant:var(--foo,small-caps);", "font-variant: var(--foo,small-caps);");
+		assertShorthandText("font-variant:var(--foo,small-caps);",
+				"font-variant: var(--foo,small-caps);");
 	}
 
 	@Test
@@ -81,7 +94,8 @@ public class FontVariantBuilderTest {
 
 	@Test
 	public void testFontVariantImportant() {
-		assertShorthandText("font-variant:small-caps!important;", "font-variant: small-caps ! important");
+		assertShorthandText("font-variant:small-caps!important;",
+				"font-variant: small-caps ! important");
 	}
 
 	@Test

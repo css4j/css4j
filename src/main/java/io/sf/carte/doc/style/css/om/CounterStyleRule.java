@@ -19,14 +19,12 @@ import io.sf.carte.doc.style.css.CSSCounterStyleRule;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
+import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * CSS counter-style rule implementation.
- * 
- * @author Carlos Amengual
- * 
  */
 public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCounterStyleRule {
 
@@ -50,11 +48,12 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 
 	void setName(String name) throws DOMException {
 		name = ParseHelper.parseIdent(name);
-		if (name == null || "none".equalsIgnoreCase(name) || "disc".equalsIgnoreCase(name)
-				|| "decimal".equalsIgnoreCase(name) || "inside".equalsIgnoreCase(name)
-				|| "outside".equalsIgnoreCase(name) || "inherit".equalsIgnoreCase(name)
-				|| "unset".equalsIgnoreCase(name) || "initial".equalsIgnoreCase(name)
-				|| "revert".equalsIgnoreCase(name)) {
+		ShorthandDatabase sdb;
+		if (name == null || "none".equalsIgnoreCase(name)
+				|| (sdb = ShorthandDatabase.getInstance()).isIdentifierValue("list-style-type", name)
+				|| sdb.isIdentifierValue("list-style-position", name)
+				|| "inherit".equalsIgnoreCase(name) || "unset".equalsIgnoreCase(name)
+				|| "initial".equalsIgnoreCase(name) || "revert".equalsIgnoreCase(name)) {
 			throw new DOMException(DOMException.SYNTAX_ERR, "Bad counter-style name: " + name);
 		}
 		this.name = name;
@@ -76,7 +75,7 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 	@Override
 	public String getMinifiedCssText() {
 		if (name != null || getStyle().getLength() != 0) {
-			return "@counter-style " + getName() + " {" + getStyle().getMinifiedCssText() + '}';
+			return "@counter-style " + getName() + '{' + getStyle().getMinifiedCssText() + '}';
 		}
 		return "";
 	}
@@ -96,23 +95,6 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 			context.writeRightCurlyBracket(wri);
 			context.endRule(wri, getTrailingComments());
 		}
-	}
-
-	@Override
-	void setRule(AbstractCSSRule copyMe) {
-		super.setRule(copyMe);
-		this.name = ((CounterStyleRule) copyMe).name;
-	}
-
-	@Override
-	void startAtRule(String name, String pseudoSelector) {
-		if (!"counter-style".equalsIgnoreCase(name)) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Cannot set rule of type: " + name);
-		}
-		if (pseudoSelector == null) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "No counter-style name.");
-		}
-		setName(pseudoSelector.trim());
 	}
 
 	@Override
@@ -144,7 +126,7 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 	@Override
 	public CounterStyleRule clone(AbstractCSSStyleSheet parentSheet) {
 		CounterStyleRule rule = new CounterStyleRule(parentSheet, getOrigin());
-		rule.setName(getName());
+		rule.name = getName();
 		String oldHrefContext = getParentStyleSheet().getHref();
 		rule.setWrappedStyle((BaseCSSStyleDeclaration) getStyle(), oldHrefContext);
 		return rule;

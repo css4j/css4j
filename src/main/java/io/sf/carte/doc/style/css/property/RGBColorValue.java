@@ -242,14 +242,19 @@ public class RGBColorValue extends ColorValue {
 		if (this == obj) {
 			return true;
 		}
-		if (!super.equals(obj)) {
+		if (obj == null) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() == obj.getClass()) {
+			RGBColorValue other = (RGBColorValue) obj;
+			return color.equals(other.color);
+		}
+		if (!(obj instanceof StyleValue)) {
 			return false;
 		}
-		RGBColorValue other = (RGBColorValue) obj;
-		return color.equals(other.color);
+		// Maybe it is a system default
+		StyleValue other = (StyleValue) obj;
+		return isSystemDefault() && other.isSystemDefault();
 	}
 
 	@Override

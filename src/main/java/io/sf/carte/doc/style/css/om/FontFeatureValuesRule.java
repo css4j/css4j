@@ -36,10 +36,7 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Locator;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
-import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.parser.CommentRemover;
 import io.sf.carte.doc.style.css.parser.EmptyCSSHandler;
-import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -331,54 +328,6 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		}
 		context.updateContext(this);
 		context.endStyleDeclaration(wri);
-	}
-
-	@Override
-	public void setCssText(String cssText) throws DOMException {
-		cssText = cssText.trim();
-		int len = cssText.length();
-		int atIdx = cssText.indexOf('@');
-		if (len < 24 || atIdx == -1) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @font-feature-values rule: " + cssText);
-		}
-		String ncText = CommentRemover.removeComments(cssText).toString().trim();
-		CharSequence atkeyword = ncText.subSequence(0, 21);
-		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@font-feature-values")
-				|| !Character.isWhitespace((atkeyword.charAt(20)))) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
-					"Not a @font-feature-values rule: " + cssText);
-		}
-		String body = cssText.substring(atIdx + 21);
-		CSSHandler handler = new MyFontFeatureValuesHandler();
-		CSSParser parser = (CSSParser) createSACParser();
-		parser.setDocumentHandler(handler);
-		try {
-			parser.parseFontFeatureValuesBody(body);
-		} catch (CSSParseException e) {
-			DOMException ex = new DOMException(DOMException.INVALID_CHARACTER_ERR, "Parse error at ["
-				+ e.getLineNumber() + ',' + e.getColumnNumber() + "]: " + e.getMessage());
-			ex.initCause(e);
-			throw ex;
-		}
-	}
-
-	@Override
-	void clear() {
-	}
-
-	@Override
-	void setRule(AbstractCSSRule copyMe) {
-		setPrecedingComments(copyMe.getPrecedingComments());
-		setTrailingComments(copyMe.getTrailingComments());
-		FontFeatureValuesRule other = (FontFeatureValuesRule) copyMe;
-		this.fontFamily = other.fontFamily;
-		this.annotation = other.annotation;
-		this.ornaments = other.ornaments;
-		this.stylistic = other.stylistic;
-		this.swash = other.swash;
-		this.styleset = other.styleset;
-		this.characterVariant = other.characterVariant;
-		this.mapmap = other.mapmap;
 	}
 
 	CSSHandler createFontFeatureValuesHandler(CSSParentHandler parentHandler,
@@ -730,8 +679,14 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 			featureMap.put(featureValueName, values);
 		}
 
+		@Override
 		public boolean isEmpty() {
 			return featureMap.isEmpty();
+		}
+
+		@Override
+		public int size() {
+			return featureMap.size();
 		}
 
 		void setPrecedingComments(StringList ruleComments) {

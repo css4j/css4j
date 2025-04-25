@@ -19,8 +19,10 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
+import io.sf.carte.doc.style.css.nsac.NamespacePrefixMap;
 import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
 import io.sf.carte.doc.style.css.nsac.Selector;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
 /**
@@ -31,7 +33,8 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private static final ElementSelector universalSelector;
-	private HashMap<String, String> mapNsPrefix2Uri = null;
+
+	private NamespacePrefixMap nsPrefixMap = null;
 
 	static {
 		universalSelector = new AnyNodeSelector();
@@ -39,6 +42,74 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 
 	NSACSelectorFactory() {
 		super();
+	}
+
+	NSACSelectorFactory(NamespacePrefixMap nsPrefixMap) {
+		super();
+		this.nsPrefixMap = nsPrefixMap;
+	}
+
+	NamespacePrefixMap getNamespacePrefixMap() {
+		if (nsPrefixMap == null) {
+			nsPrefixMap = createNamespacePrefixMap();
+		}
+		return nsPrefixMap;
+	}
+
+	private NSACNamespacePrefixMap createNamespacePrefixMap() {
+		return new NSACNamespacePrefixMap();
+	}
+
+	private static class NSACNamespacePrefixMap implements NamespacePrefixMap {
+
+		private HashMap<String, String> mapNsPrefix2Uri = new HashMap<>();
+
+		/*
+		 * NamespaceMap
+		 */
+
+		@Override
+		public String getNamespaceURI(String nsPrefix) {
+			return mapNsPrefix2Uri.get(nsPrefix);
+		}
+
+		/*
+		 * NamespacePrefixMap
+		 */
+
+		@Override
+		public String getNamespacePrefix(String namespaceUri) {
+			for (Entry<String, String> me : mapNsPrefix2Uri.entrySet()) {
+				if (namespaceUri.equals(me.getValue())) {
+					return me.getKey();
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public boolean hasDefaultNamespace() {
+			return mapNsPrefix2Uri.containsKey("");
+		}
+
+		@Override
+		public void registerNamespacePrefix(String prefix, String uri) {
+			mapNsPrefix2Uri.put(prefix, uri);
+		}
+
+	}
+
+	@Override
+	public String getNamespaceURI(String nsPrefix) {
+		return nsPrefixMap != null ? nsPrefixMap.getNamespaceURI(nsPrefix) : null;
+	}
+
+	String getNamespacePrefix(String namespaceUri) {
+		return nsPrefixMap != null ? nsPrefixMap.getNamespacePrefix(namespaceUri) : null;
+	}
+
+	void registerNamespacePrefix(String prefix, String uri) {
+		getNamespacePrefixMap().registerNamespacePrefix(prefix, uri);
 	}
 
 	ElementSelector getUniversalSelector(String namespacePrefix) {
@@ -60,7 +131,8 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 		return new ElementSelectorImpl();
 	}
 
-	CombinatorSelectorImpl createCombinatorSelector(Selector.SelectorType type, Selector firstSelector) {
+	CombinatorSelectorImpl createCombinatorSelector(Selector.SelectorType type,
+			Selector firstSelector) {
 		if (firstSelector == null) {
 			firstSelector = getUniversalSelector();
 		}
@@ -70,51 +142,37 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 	/**
 	 * Creates a conditional selector.
 	 * 
-	 * @param selector
-	 *            a selector.
-	 * @param condition
-	 *            a condition
+	 * @param selector  a selector.
+	 * @param condition a condition
 	 * @return the conditional selector.
-	 * @exception CSSException
-	 *                If this selector is not supported.
+	 * @exception CSSException If this selector is not supported.
 	 */
-	ConditionalSelectorImpl createConditionalSelector(SimpleSelector selector, Condition condition)
-			throws CSSException {
+	ConditionalSelectorImpl createConditionalSelector(SimpleSelector selector,
+			Condition condition) throws CSSException {
 		if (selector == null) {
 			selector = getUniversalSelector();
 		}
-		return new ConditionalSelectorImpl(selector, condition);
+
+		return new ConditionalSelectorImpl(selector, condition) {
+
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			NSACSelectorFactory getSelectorFactory() throws IllegalStateException {
+				return NSACSelectorFactory.this;
+			}
+
+		};
 	}
 
 	Selector createScopeSelector() {
 		return new ScopeSelector();
 	}
 
-	void registerNamespacePrefix(String prefix, String uri) {
-		if (mapNsPrefix2Uri == null) {
-			mapNsPrefix2Uri = new HashMap<>();
-		}
-		mapNsPrefix2Uri.put(prefix, uri);
-	}
-
-	@Override
-	public String getNamespaceURI(String nsPrefix) {
-		return mapNsPrefix2Uri != null ? mapNsPrefix2Uri.get(nsPrefix) : null;
-	}
-
-	String getNamespacePrefix(String namespaceUri) {
-		for (Entry<String, String> me : mapNsPrefix2Uri.entrySet()) {
-			if (namespaceUri.equals(me.getValue())) {
-				return me.getKey();
-			}
-		}
-		return null;
-	}
-
 	/**
 	 * Universal selector (for all namespaces).
 	 */
-	static class AnyNodeSelector extends AbstractSelector implements ElementSelector {
+	private static class AnyNodeSelector extends AbstractSelector implements ElementSelector {
 
 		private static final long serialVersionUID = 1L;
 
@@ -146,16 +204,26 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 			return "*";
 		}
 
+		@Override
+		public AbstractSelector clone() {
+			return this;
+		}
+
+		@Override
+		NSACSelectorFactory getSelectorFactory() {
+			throw new IllegalStateException();
+		}
+
 	}
 
 	/**
 	 * Namespace-aware universal selector.
 	 */
-	class UniversalSelector extends ElementSelectorImpl {
+	private class UniversalSelector extends ElementSelectorImpl {
 
 		private static final long serialVersionUID = 1L;
 
-		UniversalSelector(String namespaceUri) {
+		private UniversalSelector(String namespaceUri) {
 			super();
 			this.namespaceUri = namespaceUri;
 		}
@@ -175,19 +243,26 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 			if (namespaceUri == null) {
 				return "*";
 			}
-			return getNamespacePrefix(namespaceUri) + "|*";
+
+			String pre;
+			if (nsPrefixMap == null) {
+				pre = "";
+			} else {
+				pre = nsPrefixMap.getNamespacePrefix(namespaceUri);
+			}
+			return pre + "|*";
 		}
 
 	}
 
-	class ElementSelectorImpl extends AbstractSelector implements ElementSelector {
+	class ElementSelectorImpl extends NamespaceAwareSelector implements ElementSelector {
 
 		private static final long serialVersionUID = 1L;
 
 		String namespaceUri = null;
 		String localName = null;
 
-		ElementSelectorImpl() {
+		private ElementSelectorImpl() {
 			super();
 		}
 
@@ -261,7 +336,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 			if (namespaceUri != null) {
 				if (namespaceUri.length() != 0) {
 					String nspre = getNamespacePrefix(namespaceUri);
-					if (nspre != null && nspre.length() != 0) {
+					if (nspre != null && !nspre.isEmpty()) {
 						return nspre + "|" + lName;
 					}
 				} else {
@@ -271,9 +346,37 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 			return lName;
 		}
 
+		@Override
+		public ElementSelectorImpl clone() {
+			ElementSelectorImpl clon = (ElementSelectorImpl) super.clone();
+			clon.localName = localName;
+			clon.namespaceUri = namespaceUri;
+			return clon;
+		}
+
 	}
 
-	static class CombinatorSelectorImpl extends AbstractSelector implements CombinatorSelector {
+	/**
+	 * Namespace-aware selector.
+	 */
+	abstract class NamespaceAwareSelector extends AbstractSelector {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		boolean setNamespacePrefixMap(NamespacePrefixMap map) {
+			NSACSelectorFactory.this.nsPrefixMap = map;
+			return true;
+		}
+
+		@Override
+		NSACSelectorFactory getSelectorFactory() {
+			return NSACSelectorFactory.this;
+		}
+
+	}
+
+	class CombinatorSelectorImpl extends NamespaceAwareSelector implements CombinatorSelector {
 
 		private static final long serialVersionUID = 1L;
 
@@ -283,7 +386,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 
 		Selector selector;
 
-		CombinatorSelectorImpl(SelectorType type, Selector selector) {
+		private CombinatorSelectorImpl(SelectorType type, Selector selector) {
 			super();
 			this.type = type;
 			this.selector = selector;
@@ -306,6 +409,43 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 		@Override
 		public SimpleSelector getSecondSelector() {
 			return simpleSelector;
+		}
+
+		@Override
+		Selector replace(SelectorList base) {
+			CombinatorSelectorImpl clon = clone();
+			clon.selector = ((AbstractSelector) clon.selector).replace(base);
+			Selector replSel = ((AbstractSelector) clon.simpleSelector).replace(base);
+			SelectorType replType = replSel.getSelectorType();
+			switch (replType) {
+			case DESCENDANT:
+			case CHILD:
+			case COLUMN_COMBINATOR:
+			case DIRECT_ADJACENT:
+			case SUBSEQUENT_SIBLING:
+				switch (getSelectorType()) {
+				case DESCENDANT:
+				case CHILD:
+				case COLUMN_COMBINATOR:
+				case DIRECT_ADJACENT:
+				case SUBSEQUENT_SIBLING:
+					CombinatorSelectorImpl replComb = (CombinatorSelectorImpl) replSel;
+					CombinatorSelectorImpl comb = getSelectorFactory()
+							.createCombinatorSelector(replType, replComb.selector);
+					clon.selector = comb;
+					clon.simpleSelector = replComb.simpleSelector;
+					break;
+				default:
+					clon.simpleSelector = (SimpleSelector) replSel;
+					break;
+				}
+				break;
+			default:
+				clon.simpleSelector = (SimpleSelector) replSel;
+				break;
+			}
+
+			return clon;
 		}
 
 		@Override
@@ -357,23 +497,23 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 			switch (this.type) {
 			case DIRECT_ADJACENT:
 				buf.append('+');
-			break;
+				break;
 			case SUBSEQUENT_SIBLING:
 				buf.append('~');
 				break;
 			case CHILD:
 				buf.append('>');
-			break;
+				break;
 			case DESCENDANT:
 				if (selector.getSelectorType() != SelectorType.SCOPE_MARKER) {
 					buf.append(' ');
 				} else {
 					buf.append(">>");
 				}
-			break;
+				break;
 			case COLUMN_COMBINATOR:
 				buf.append("||");
-			break;
+				break;
 			default:
 				throw new IllegalStateException("Unknown type: " + type);
 			}
@@ -383,6 +523,15 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 				buf.append('?');
 			}
 			return buf.toString();
+		}
+
+		@Override
+		public CombinatorSelectorImpl clone() {
+			CombinatorSelectorImpl clon = (CombinatorSelectorImpl) super.clone();
+			clon.simpleSelector = simpleSelector;
+			clon.selector = selector;
+			clon.type = type;
+			return clon;
 		}
 
 	}
@@ -399,8 +548,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 	Condition createCondition(Condition.ConditionType type) {
 		switch (type) {
 		case CLASS:
-			AttributeConditionImpl cond = new AttributeConditionImpl(type);
-			return cond;
+			return new AttributeConditionImpl(type);
 		case ATTRIBUTE:
 		case BEGIN_HYPHEN_ATTRIBUTE:
 		case ONE_OF_ATTRIBUTE:
@@ -422,11 +570,13 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 			return new SelectorArgumentConditionImpl();
 		case POSITIONAL:
 			return createPositionalCondition();
+		case NESTING:
+			return new NestingCondition();
 		}
 		return null;
 	}
 
-	class AttributeConditionImpl implements AttributeCondition, java.io.Serializable {
+	class AttributeConditionImpl extends AbstractCondition implements AttributeCondition {
 
 		private static final long serialVersionUID = 1L;
 
@@ -436,7 +586,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 		private String value = null;
 		private Flag flag = null;
 
-		AttributeConditionImpl(ConditionType type) {
+		private AttributeConditionImpl(ConditionType type) {
 			super();
 			this.type = type;
 		}
@@ -545,8 +695,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 				buf.append('[');
 				appendEscapedQName(buf);
 				if (value != null) {
-					buf.append('=').append('"')
-						.append(getControlEscapedValue()).append('"');
+					buf.append('=').append('"').append(getControlEscapedValue()).append('"');
 					if (flag == Flag.CASE_I) {
 						buf.append(' ').append('i');
 					} else if (flag == Flag.CASE_S) {
@@ -554,57 +703,57 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 					}
 				}
 				buf.append(']');
-			break;
+				break;
 			case BEGIN_HYPHEN_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
-				buf.append('|').append('=').append('"')
-						.append(getControlEscapedValue()).append('"');
+				buf.append('|').append('=').append('"').append(getControlEscapedValue())
+						.append('"');
 				buf.append(']');
-			break;
+				break;
 			case ONE_OF_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
-				buf.append('~').append('=').append('"')
-					.append(getControlEscapedValue()).append('"');
+				buf.append('~').append('=').append('"').append(getControlEscapedValue())
+						.append('"');
 				buf.append(']');
-			break;
+				break;
 			case BEGINS_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
-				buf.append('^').append('=').append('"')
-					.append(getControlEscapedValue()).append('"');
+				buf.append('^').append('=').append('"').append(getControlEscapedValue())
+						.append('"');
 				buf.append(']');
-			break;
+				break;
 			case ENDS_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
-				buf.append('$').append('=').append('"')
-					.append(getControlEscapedValue()).append('"');
+				buf.append('$').append('=').append('"').append(getControlEscapedValue())
+						.append('"');
 				buf.append(']');
-			break;
+				break;
 			case SUBSTRING_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
-				buf.append('*').append('=').append('"')
-					.append(getControlEscapedValue()).append('"');
+				buf.append('*').append('=').append('"').append(getControlEscapedValue())
+						.append('"');
 				buf.append(']');
-			break;
+				break;
 			case CLASS:
 				buf.append('.').append(getEscapedValue());
-			break;
+				break;
 			case ID:
 				buf.append('#').append(getEscapedValue());
-			break;
+				break;
 			case LANG:
 				buf.append(":lang(").append(getEscapedValue()).append(')');
-			break;
+				break;
 			case ONLY_CHILD:
 				buf.append(":only-child");
-			break;
+				break;
 			case ONLY_TYPE:
 				buf.append(":only-of-type");
-			break;
+				break;
 			default:
 				throw new IllegalStateException("Unknown type: " + condtype);
 			}
@@ -632,7 +781,19 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 		}
 
 		private String getControlEscapedValue() {
-			return value != null ? ParseHelper.escapeControl(ParseHelper.escapeBackslash(value)) : "";
+			return value != null ? ParseHelper.escapeControl(ParseHelper.escapeBackslash(value))
+					: "";
+		}
+
+		@Override
+		public AttributeConditionImpl clone() {
+			AttributeConditionImpl clon = (AttributeConditionImpl) super.clone();
+			clon.flag = flag;
+			clon.type = type;
+			clon.localName = localName;
+			clon.namespaceURI = namespaceURI;
+			clon.value = value;
+			return clon;
 		}
 
 	}

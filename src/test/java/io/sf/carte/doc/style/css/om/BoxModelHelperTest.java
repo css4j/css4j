@@ -25,18 +25,20 @@ public class BoxModelHelperTest {
 		assertEquals("", BoxModelHelper.contractSpaces(""));
 		assertEquals(" Lorem ipsum dolor sit amet ",
 				BoxModelHelper.contractSpaces("    Lorem   ipsum      dolor sit   amet   "));
-		assertEquals("Lorem ipsum dolor sit amet", BoxModelHelper.contractSpaces("Lorem ipsum dolor sit      amet"));
+		assertEquals("Lorem ipsum dolor sit amet",
+				BoxModelHelper.contractSpaces("Lorem ipsum dolor sit      amet"));
 	}
 
 	@Test
 	public void testComputeMinimumCharsWidth() {
 		assertEquals(13, BoxModelHelper.computeMinimumCharsWidth(
 				"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"));
-		assertEquals(11, BoxModelHelper.computeMinimumCharsWidth("Lorem ipsum dolor sit amet, consectetur"));
-		assertEquals(12,
-				BoxModelHelper.computeMinimumCharsWidth("exercitation Lorem ipsum dolor sit amet, consectetur"));
-		assertEquals(21,
-				BoxModelHelper.computeMinimumCharsWidth("exercitation Lorem\u00A0ipsum\u00A0dolor\u00A0sit amet"));
+		assertEquals(11,
+				BoxModelHelper.computeMinimumCharsWidth("Lorem ipsum dolor sit amet, consectetur"));
+		assertEquals(12, BoxModelHelper
+				.computeMinimumCharsWidth("exercitation Lorem ipsum dolor sit amet, consectetur"));
+		assertEquals(21, BoxModelHelper.computeMinimumCharsWidth(
+				"exercitation Lorem\u00A0ipsum\u00A0dolor\u00A0sit amet"));
 	}
 
 	@Test

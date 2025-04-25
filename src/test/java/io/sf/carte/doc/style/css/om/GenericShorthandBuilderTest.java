@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,9 +21,16 @@ public class GenericShorthandBuilderTest {
 
 	private BaseCSSStyleDeclaration emptyStyleDecl;
 
+	private static AbstractCSSStyleSheet sheet;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
+
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -45,8 +53,7 @@ public class GenericShorthandBuilderTest {
 		assertShorthandText(
 				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:revert;",
 				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:revert;");
-		assertShorthandText(
-				"text-emphasis-color:unset;text-emphasis-style:open;",
+		assertShorthandText("text-emphasis-color:unset;text-emphasis-style:open;",
 				"text-emphasis-style:open;text-emphasis-color:unset");
 	}
 
@@ -69,18 +76,18 @@ public class GenericShorthandBuilderTest {
 
 	@Test
 	public void testBuilderKeywordMix() {
-		assertShorthandText(
-				"text-decoration:line-through navy;",
+		assertShorthandText("text-decoration:line-through navy;",
 				"text-decoration-color:navy;text-decoration-line:line-through;text-decoration-style:unset;");
-		assertShorthandText(
-				"text-emphasis:open;", "text-emphasis-style:open;text-emphasis-color:initial");
+		assertShorthandText("text-emphasis:open;",
+				"text-emphasis-style:open;text-emphasis-color:initial");
 	}
 
 	@Test
 	public void testBuilder() {
 		assertShorthandText("text-decoration:none;", "text-decoration: initial");
 		assertShorthandText("text-decoration:double;", "text-decoration: double");
-		assertShorthandText("text-decoration:blink dashed #ffb;", "text-decoration: blink dashed #ffb");
+		assertShorthandText("text-decoration:blink dashed #ffb;",
+				"text-decoration: blink dashed #ffb");
 		assertShorthandText("text-decoration:blink dashed;", "text-decoration: blink dashed");
 		assertShorthandText("text-decoration:blink #ffb;", "text-decoration: blink #ffb");
 		assertShorthandText("text-decoration:#ffb;", "text-decoration: #ffb");
@@ -99,13 +106,16 @@ public class GenericShorthandBuilderTest {
 
 	@Test
 	public void testBuilderVar() {
-		assertShorthandText("text-decoration:var(--foo,double);", "text-decoration: var(--foo,double);");
+		assertShorthandText("text-decoration:var(--foo,double);",
+				"text-decoration: var(--foo,double);");
 	}
 
 	@Test
 	public void testBuilderImportant() {
-		assertShorthandText("text-decoration:none!important;", "text-decoration: initial!important");
-		assertShorthandText("text-decoration:double!important;", "text-decoration: double ! important");
+		assertShorthandText("text-decoration:none!important;",
+				"text-decoration: initial!important");
+		assertShorthandText("text-decoration:double!important;",
+				"text-decoration: double ! important");
 	}
 
 	@Test
@@ -115,7 +125,8 @@ public class GenericShorthandBuilderTest {
 
 	@Test
 	public void testBuilderInheritImportant() {
-		assertShorthandText("text-decoration:inherit!important;", "text-decoration: inherit!important;");
+		assertShorthandText("text-decoration:inherit!important;",
+				"text-decoration: inherit!important;");
 	}
 
 	@Test
@@ -135,7 +146,8 @@ public class GenericShorthandBuilderTest {
 
 	@Test
 	public void testBuilderRevertImportant() {
-		assertShorthandText("text-decoration:revert!important;", "text-decoration: revert!important;");
+		assertShorthandText("text-decoration:revert!important;",
+				"text-decoration: revert!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

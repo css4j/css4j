@@ -14,8 +14,10 @@ package io.sf.carte.doc.style.css.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.MediaQueryList;
@@ -28,9 +30,12 @@ class TestCSSHandler extends TestDeclarationHandler {
 
 	LinkedHashMap<String, String> namespaceMaps = new LinkedHashMap<>();
 	LinkedList<String> atRules = new LinkedList<>();
-	LinkedList<SelectorList> selectors = new LinkedList<>();
+	List<SelectorList> selectors = new ArrayList<>();
+	List<SelectorList> nestedSelectors = new ArrayList<>();
 	LinkedList<SelectorList> endSelectors = new LinkedList<>();
 	LinkedList<String> importURIs = new LinkedList<>();
+	LinkedList<String> importLayers = new LinkedList<>();
+	LinkedList<BooleanCondition> importSupportsConditions = new LinkedList<>();
 	LinkedList<MediaQueryList> importMedias = new LinkedList<>();
 	LinkedList<MediaQueryList> mediaRuleLists = new LinkedList<>();
 	LinkedList<BooleanCondition> supportsRuleLists = new LinkedList<>();
@@ -45,7 +50,6 @@ class TestCSSHandler extends TestDeclarationHandler {
 	LinkedList<String> eventSeq = new LinkedList<>();
 
 	int fontFaceCount = 0;
-	int viewportCount = 0;
 	int endMediaCount = 0;
 	int endPageCount = 0;
 	int endFontFaceCount = 0;
@@ -56,7 +60,6 @@ class TestCSSHandler extends TestDeclarationHandler {
 	int endKeyframeCount = 0;
 	int endFontFeaturesCount = 0;
 	int endFeatureMapCount = 0;
-	int endViewportCount = 0;
 	int endPropertyRuleCount = 0;
 
 	@Override
@@ -64,13 +67,20 @@ class TestCSSHandler extends TestDeclarationHandler {
 		if (selectors == null) {
 			throw new CSSException("Null selector");
 		}
-		this.selectors.add(selectors);
+		if (this.selectors.size() > this.endSelectors.size()) {
+			// Nesting
+			this.nestedSelectors.add(selectors);
+		} else {
+			this.selectors.add(selectors);
+		}
 		this.eventSeq.add("startSelector");
 	}
 
 	@Override
 	public void endSelector(SelectorList selectors) {
-		this.endSelectors.add(selectors);
+		if (!this.nestedSelectors.remove(selectors)) {
+			this.endSelectors.add(selectors);
+		}
 		this.eventSeq.add("endSelector");
 	}
 
@@ -81,8 +91,11 @@ class TestCSSHandler extends TestDeclarationHandler {
 	}
 
 	@Override
-	public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
+	public void importStyle(String uri, String layer, BooleanCondition supportsCondition,
+			MediaQueryList media, String defaultNamespaceURI) {
 		importURIs.add(uri);
+		importLayers.add(layer);
+		importSupportsConditions.add(supportsCondition);
 		importMedias.add(media);
 		this.eventSeq.add("importStyle");
 	}
@@ -245,24 +258,13 @@ class TestCSSHandler extends TestDeclarationHandler {
 		endPropertyRuleCount++;
 	}
 
-	@Override
-	public void startViewport() {
-		this.eventSeq.add("startViewport");
-		viewportCount++;
-	}
-
-	@Override
-	public void endViewport() {
-		this.eventSeq.add("endViewport");
-		endViewportCount++;
-	}
-
 	void checkRuleEndings() {
 		int sz = selectors.size();
 		assertEquals(sz, endSelectors.size());
 		for (int i = 0; i < sz; i++) {
 			assertEquals(selectors.get(i), endSelectors.get(i));
 		}
+		assertEquals(0, nestedSelectors.size());
 		assertTrue(selectors.equals(endSelectors));
 		assertEquals(mediaRuleLists.size(), endMediaCount);
 		assertEquals(pageRuleSelectors.size(), endPageCount);
@@ -274,7 +276,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 		assertEquals(featureMapNames.size(), endFeatureMapCount);
 		assertEquals(fontFaceCount, endFontFaceCount);
 		assertEquals(customPropertyNames.size(), endPropertyRuleCount);
-		assertEquals(viewportCount, endViewportCount);
 		assertEquals(1, streamEndcount);
 	}
+
 }

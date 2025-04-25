@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 
@@ -26,11 +27,20 @@ import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
 public class NumberValueTest {
+
+	private static AbstractCSSStyleSheet sheet;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@Test
 	public void testVarious() {
@@ -379,7 +389,7 @@ public class NumberValueTest {
 
 	@Test
 	public void testEquals2() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		style.setCssText("left: 5.33333333%; ");
 		StyleValue value = style.getPropertyCSSValue("left");
@@ -402,7 +412,7 @@ public class NumberValueTest {
 
 	@Test
 	public void testEquals3() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		style.setCssText("left: 2.6666666667px; ");
 		StyleValue value = style.getPropertyCSSValue("left");
@@ -429,7 +439,7 @@ public class NumberValueTest {
 
 	@Test
 	public void testEquals4() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) styleRule.getStyle();
 		style.setCssText("left: 0px; ");
 		StyleValue value = style.getPropertyCSSValue("left");

@@ -231,7 +231,13 @@ public interface Condition {
 		 *
 		 * @see ArgumentCondition
 		 */
-		SELECTOR_ARGUMENT
+		SELECTOR_ARGUMENT,
+
+		/**
+		 * Nesting selector ({@code &}).
+		 */
+		NESTING
+
 	}
 
 	/**

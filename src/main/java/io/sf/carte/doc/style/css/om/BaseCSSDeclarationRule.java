@@ -11,20 +11,18 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSRule;
 
-import io.sf.carte.doc.LinkedStringList;
-import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
-import io.sf.carte.doc.style.css.nsac.CSSParseException;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
+import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.property.StyleValue;
+import io.sf.carte.util.BufferSimpleWriter;
+import io.sf.carte.util.SimpleWriter;
 
 /**
  * Abstract class to be inherited by CSS rules which have a CSSStyleDeclaration.
@@ -32,9 +30,10 @@ import io.sf.carte.doc.style.css.property.StyleValue;
  * @author Carlos Amengual
  *
  */
-abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSDeclarationRule {
+abstract public class BaseCSSDeclarationRule extends BaseCSSRule
+		implements ExtendedCSSDeclarationRule {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private BaseCSSStyleDeclaration declaration = null;
 
@@ -66,25 +65,9 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		return declaration;
 	}
 
-	@Override
-	void setRule(AbstractCSSRule copyMe) {
-		BaseCSSDeclarationRule other = (BaseCSSDeclarationRule) copyMe;
-		setPrecedingComments(copyMe.getPrecedingComments());
-		setTrailingComments(copyMe.getTrailingComments());
-		declaration.setProperties(other.declaration);
-	}
-
-	@Override
 	void clear() {
 		declaration.clear();
 		resetComments();
-	}
-
-	void startAtRule(String name, String pseudoSelector) {
-	}
-
-	LexicalPropertyListener getLexicalPropertyListener() {
-		return declaration;
 	}
 
 	/**
@@ -95,27 +78,52 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 	@Override
 	public StyleDeclarationErrorHandler getStyleDeclarationErrorHandler() {
 		if (sdErrorHandler == null) {
-			sdErrorHandler = getParentStyleSheet().getStyleSheetFactory().createStyleDeclarationErrorHandler(this);
+			sdErrorHandler = getParentStyleSheet().getStyleSheetFactory()
+					.createStyleDeclarationErrorHandler(this);
 		}
 		return sdErrorHandler;
 	}
 
 	@Override
 	boolean hasErrorsOrWarnings() {
-		return sdErrorHandler != null && (sdErrorHandler.hasErrors() || sdErrorHandler.hasWarnings());
+		return sdErrorHandler != null
+				&& (sdErrorHandler.hasErrors() || sdErrorHandler.hasWarnings());
 	}
 
 	/**
 	 * Sets the style declaration error handler.
 	 * <p>
-	 * If no handler is set, the one from the parent style sheet's factory will be used.
+	 * If no handler is set, the one from the parent style sheet's factory will be
+	 * used.
 	 * </p>
 	 * 
-	 * @param handler
-	 *            the error handler.
+	 * @param handler the error handler.
 	 */
 	public void setStyleDeclarationErrorHandler(StyleDeclarationErrorHandler handler) {
 		sdErrorHandler = handler;
+	}
+
+	@Override
+	public String getCssText() {
+		StyleFormattingContext context = getStyleFormattingContext();
+		context.setParentContext(getParentRule());
+		BufferSimpleWriter sw = new BufferSimpleWriter(10 + getStyle().getLength() * 24);
+		try {
+			writeCssText(sw, context);
+		} catch (IOException e) {
+			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
+		}
+		return sw.toString();
+	}
+
+	@Override
+	public void writeCssText(SimpleWriter wri, StyleFormattingContext context) throws IOException {
+		getStyle().writeCssText(wri, context);
+	}
+
+	@Override
+	public String getMinifiedCssText() {
+		return getStyle().getMinifiedCssText();
 	}
 
 	@Override
@@ -143,7 +151,8 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 	}
 
 	@Override
-	public BaseCSSDeclarationRule clone(AbstractCSSStyleSheet parentSheet) throws IllegalArgumentException {
+	public BaseCSSDeclarationRule clone(AbstractCSSStyleSheet parentSheet)
+			throws IllegalArgumentException {
 		Class<?>[] parameterTypes = new Class<?>[2];
 		parameterTypes[0] = AbstractCSSStyleSheet.class;
 		parameterTypes[1] = Byte.TYPE;
@@ -170,6 +179,10 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 		rule.setWrappedStyle((BaseCSSStyleDeclaration) getStyle(), oldHrefContext);
 		return rule;
 	}
+
+	/*
+	 * Wrappers: any change to the code below should also be done to StyleRule.
+	 */
 
 	void setWrappedStyle(BaseCSSStyleDeclaration style, String oldHrefContext) {
 		if (!(style instanceof CompatStyleDeclaration)) {
@@ -223,63 +236,8 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule implements CSSD
 
 	}
 
-	class DeclarationRuleCSSHandler extends PropertyCSSHandler implements CSSParser.DeclarationRuleHandler {
-
-		private boolean ruleStarted = false, ruleEnded = false;
-
-		DeclarationRuleCSSHandler() {
-			super();
-		}
-
-		@Override
-		public void startAtRule(String name, String pseudoSelector) {
-			BaseCSSDeclarationRule.this.startAtRule(name, pseudoSelector);
-			ruleStarted = true;
-		}
-
-		@Override
-		public void endAtRule() {
-			ruleEnded = true;
-		}
-
-		@Override
-		public void property(String name, LexicalUnit value, boolean important) {
-			try {
-				super.property(name, value, important);
-			} catch (DOMException e) {
-				if (getStyleDeclarationErrorHandler() != null) {
-					CSSPropertyValueException ex = new CSSPropertyValueException(e);
-					ex.setValueText(value.toString());
-					getStyleDeclarationErrorHandler().wrongValue(name, ex);
-				}
-			}
-		}
-
-		@Override
-		public void comment(String text, boolean precededByLF) {
-			if (!ruleStarted) {
-				if (getPrecedingComments() == null) {
-					setPrecedingComments(new LinkedStringList());
-				}
-				getPrecedingComments().add(text);
-			} else if (!precededByLF && ruleEnded) {
-				if (getTrailingComments() == null) {
-					setTrailingComments(new LinkedStringList());
-				}
-				getTrailingComments().add(text);
-			}
-		}
-
-		@Override
-		public void warning(CSSParseException exception) throws CSSParseException {
-			getStyleDeclarationErrorHandler().sacWarning(exception, getStyle().getLength() - 1);
-		}
-
-		@Override
-		public void error(CSSParseException exception) throws CSSParseException {
-			getStyleDeclarationErrorHandler().sacError(exception, getStyle().getLength() - 1);
-		}
-
-	}
+	/*
+	 * End wrappers.
+	 */
 
 }

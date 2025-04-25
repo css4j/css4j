@@ -13,23 +13,32 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class GridAreaShorthandBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
 	@Test
 	public void testBuilderNoShorthand() {
 		assertShorthandText("grid-row-start:2;", "grid-row-start: 2;");
-		assertShorthandText("grid-column-start:2;grid-row-start:2;", "grid-row-start: 2; grid-column-start: 2;");
+		assertShorthandText("grid-column-start:2;grid-row-start:2;",
+				"grid-row-start: 2; grid-column-start: 2;");
 		assertShorthandText("grid-column-start:3;grid-row:2/foo;",
 				"grid-row-start: 2; grid-row-end: foo; grid-column-start: 3;");
 		assertShorthandText("grid-row-start:3;grid-column:2/foo;",
@@ -75,8 +84,10 @@ public class GridAreaShorthandBuilderTest {
 		assertShorthandText("grid-area:1/3!important;", "grid-area: 1 / 3 !important;");
 		assertShorthandText("grid-area:auto!important;",
 				"grid-row-start: auto!important; grid-row-end: auto!important; grid-column-start: auto !important; grid-column-end: auto !important;");
-		assertShorthandText("grid-area:span 2/3 foo!important;", "grid-area: span 2 / 3 foo!important");
-		assertShorthandText("grid-area:span 2/3 foo/bar!important;", "grid-area: span 2 / 3 foo / bar!important");
+		assertShorthandText("grid-area:span 2/3 foo!important;",
+				"grid-area: span 2 / 3 foo!important");
+		assertShorthandText("grid-area:span 2/3 foo/bar!important;",
+				"grid-area: span 2 / 3 foo / bar!important");
 		assertShorthandText("grid-area:1/span 2/3 foo/bar!important;",
 				"grid-area: 1 / span 2 / 3 foo / bar !important");
 	}

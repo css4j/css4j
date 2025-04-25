@@ -46,7 +46,7 @@ import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
-import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
+import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.ColorValue.CSSRGBColor;
@@ -58,7 +58,7 @@ public class ColorValueTest {
 
 	private static SyntaxParser syntaxParser;
 
-	CSSStyleDeclarationRule parentStyleRule;
+	StyleRule parentStyleRule;
 	AbstractCSSStyleDeclaration style;
 
 	@BeforeAll

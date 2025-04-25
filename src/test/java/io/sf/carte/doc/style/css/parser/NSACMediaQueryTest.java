@@ -345,17 +345,13 @@ public class NSACMediaQueryTest {
 	}
 
 	@Test
-	public void testGetCssMediaInvalid() {
+	public void testMediaInvalid() {
 		MediaQueryList mql;
 		mql = createMediaQueryList("only screen and (color");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
 		mql = createMediaQueryList("all and (min-color 4)");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
 		mql = createMediaQueryList("all and {min-color: 4}");
-		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = createMediaQueryList("not all and");
-		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
-		mql = createMediaQueryList("all and ()");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
 		mql = createMediaQueryList("tv and (orientation:)");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
@@ -395,6 +391,11 @@ public class NSACMediaQueryTest {
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
 		mql = createMediaQueryList("all and (2 <= 4)");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+	}
+
+	@Test
+	public void testInvalidFeature() {
+		MediaQueryList mql;
 		mql = createMediaQueryList("only screen and (color: rgb(255, 165))");
 		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
 		mql = createMediaQueryList("only screen and (color: #xxxz)");
@@ -402,7 +403,7 @@ public class NSACMediaQueryTest {
 	}
 
 	@Test
-	public void testGetCssMediaInvalid2() {
+	public void testMediaInvalid2() {
 		MediaQueryList mql;
 		mql = createMediaQueryList("all and (min-color 4), tv");
 		assertFalse(mql.isNotAllMedia());
@@ -411,7 +412,7 @@ public class NSACMediaQueryTest {
 	}
 
 	@Test
-	public void testGetCssMediaInvalid3() {
+	public void testMediaInvalid3() {
 		MediaQueryList mql;
 		// Example 18 of spec
 		mql = createMediaQueryList("(example, all,), speech");
@@ -421,7 +422,7 @@ public class NSACMediaQueryTest {
 	}
 
 	@Test
-	public void testGetCssMediaInvalid4() {
+	public void testMediaInvalid4() {
 		MediaQueryList mql;
 		mql = createMediaQueryList("&test, speech");
 		assertFalse(mql.isNotAllMedia());
@@ -430,7 +431,7 @@ public class NSACMediaQueryTest {
 	}
 
 	@Test
-	public void testGetCssMediaInvalid5() {
+	public void testMediaInvalid5() {
 		MediaQueryList mql;
 		mql = createMediaQueryList("(example, speech");
 		assertTrue(mql.isNotAllMedia());
@@ -440,7 +441,7 @@ public class NSACMediaQueryTest {
 	}
 
 	@Test
-	public void testGetCssMediaInvalid6() {
+	public void testMediaInvalid6() {
 		MediaQueryList mql;
 		// Example 20 of spec
 		mql = createMediaQueryList("or and (color)");
@@ -451,7 +452,16 @@ public class NSACMediaQueryTest {
 	}
 
 	@Test
-	public void testGetCssMediaInvalidCompat() throws DOMException, ParserConfigurationException {
+	public void testMediaInvalidAllAnd() {
+		MediaQueryList mql;
+		mql = createMediaQueryList("not all and");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+		mql = createMediaQueryList("all and ()");
+		assertTrue(mql.isNotAllMedia() && mql.hasErrors());
+	}
+
+	@Test
+	public void testMediaInvalidCompat() throws DOMException, ParserConfigurationException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		Document doc = dbFac.newDocumentBuilder().getDOMImplementation().createDocument(null, "html", null);
 		Element head = doc.createElement("head");

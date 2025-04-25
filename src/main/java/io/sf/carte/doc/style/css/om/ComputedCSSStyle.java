@@ -1638,7 +1638,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				substValue = parser.parsePropertyValue(new StringReader(attrvalue));
 			} catch (IOException e) {
 				// This won't happen
-				substValue = null;
+				throw new IllegalStateException(e);
 			} catch (CSSParseException e) {
 				computedStyleError(propertyName, attr.getCssText(),
 						"Error parsing attribute '" + attrname + "', value: " + attrvalue, e);

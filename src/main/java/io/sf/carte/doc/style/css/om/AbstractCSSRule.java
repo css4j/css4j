@@ -13,6 +13,8 @@ package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
 
+import org.w3c.dom.DOMException;
+
 import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -20,16 +22,18 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Abstract class to be inherited by all CSS rules.
- * 
- * @author Carlos Amengual
- * 
  */
 abstract public class AbstractCSSRule implements CSSRule, java.io.Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	@Override
 	abstract public short getType();
+
+	@Override
+	public void setCssText(String cssText) {
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Not supported.");
+	}
 
 	@Override
 	abstract public String getCssText();

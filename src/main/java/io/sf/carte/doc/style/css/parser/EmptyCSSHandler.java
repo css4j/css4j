@@ -54,7 +54,8 @@ abstract public class EmptyCSSHandler implements CSSHandler, CSSErrorHandler {
 	}
 
 	@Override
-	public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
+	public void importStyle(String uri, String layer, BooleanCondition supportsCondition,
+			MediaQueryList media, String defaultNamespaceURI) {
 	}
 
 	@Override

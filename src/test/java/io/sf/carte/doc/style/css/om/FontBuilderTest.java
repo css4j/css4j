@@ -13,16 +13,24 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class FontBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -52,7 +60,8 @@ public class FontBuilderTest {
 		assertShorthandText("font:italic small-caps 400 80%/120% \"Times New Roman\",Arial;",
 				"font:italic small-caps 400 80%/120% \"Times New Roman\",Arial");
 		assertShorthandText("font:24pt serif;", "font:24pt serif");
-		assertShorthandText("font:16pt \"Times New Roman\",Arial;", "font: 16pt \"Times New Roman\", Arial");
+		assertShorthandText("font:16pt \"Times New Roman\",Arial;",
+				"font: 16pt \"Times New Roman\", Arial");
 		assertShorthandText("font:condensed 80% sans-serif;", "font: condensed 80% sans-serif");
 		assertShorthandText("font:3em/1.25 \"Helvetica Neue\",Helvetica,sans-serif;",
 				"font: 3em/1.25 \"Helvetica Neue\", Helvetica, sans-serif;");
@@ -70,7 +79,8 @@ public class FontBuilderTest {
 
 	@Test
 	public void testFontInitialAndLineHeightImportant() {
-		assertShorthandText("font:normal;line-height:1!important;", "font: initial; line-height: 1!important;");
+		assertShorthandText("font:normal;line-height:1!important;",
+				"font: initial; line-height: 1!important;");
 	}
 
 	@Test
@@ -80,7 +90,8 @@ public class FontBuilderTest {
 
 	@Test
 	public void testFontAndFontStretchCss3Important() {
-		assertShorthandText("font:normal;font-stretch:82%!important;", "font:normal;font-stretch:82%!important");
+		assertShorthandText("font:normal;font-stretch:82%!important;",
+				"font:normal;font-stretch:82%!important");
 	}
 
 	@Test
@@ -91,18 +102,21 @@ public class FontBuilderTest {
 
 	@Test
 	public void testFontInitialAndFontKerning() {
-		assertShorthandText("font:normal;font-kerning:normal;", "font: initial; font-kerning:normal;");
+		assertShorthandText("font:normal;font-kerning:normal;",
+				"font: initial; font-kerning:normal;");
 	}
 
 	@Test
 	public void testFontInitialAndOthers() {
-		assertShorthandText("font:normal;line-height:1;font-optical-sizing:none;font-feature-settings:\"zero\";font-variation-settings:\"WDTH\" 120;",
+		assertShorthandText(
+				"font:normal;line-height:1;font-optical-sizing:none;font-feature-settings:\"zero\";font-variation-settings:\"WDTH\" 120;",
 				"font: initial;line-height: 1;font-optical-sizing: none;font-feature-settings:\"zero\";font-variation-settings:\"WDTH\" 120;");
 	}
 
 	@Test
 	public void testFontVariantCss3() {
-		assertShorthandText("font:normal;font-variant:titling-caps;", "font:normal;font-variant-caps:titling-caps");
+		assertShorthandText("font:normal;font-variant:titling-caps;",
+				"font:normal;font-variant-caps:titling-caps");
 	}
 
 	@Test
@@ -122,13 +136,15 @@ public class FontBuilderTest {
 		assertShorthandText("font:normal!important;", "font: normal ! important");
 		assertShorthandText("font:normal!important;font-kerning:none!important;",
 				"font: normal ! important; font-kerning: none ! important;");
-		assertShorthandText("font:400 80%/120% Serif!important;", "font: 400 80%/120% Serif!important");
+		assertShorthandText("font:400 80%/120% Serif!important;",
+				"font: 400 80%/120% Serif!important");
 		assertShorthandText("font:23pt serif!important;", "font: 23pt serif!important");
 	}
 
 	@Test
 	public void testFontImportantMix() {
-		assertShorthandText("font:normal;font-stretch:82%!important;", "font: normal;font-stretch:82%!important;");
+		assertShorthandText("font:normal;font-stretch:82%!important;",
+				"font: normal;font-stretch:82%!important;");
 	}
 
 	@Test
@@ -160,7 +176,8 @@ public class FontBuilderTest {
 
 	@Test
 	public void testFontInheritAndFontKerning() {
-		assertShorthandText("font:inherit;font-kerning:normal;", "font: inherit; font-kerning:normal;");
+		assertShorthandText("font:inherit;font-kerning:normal;",
+				"font: inherit; font-kerning:normal;");
 	}
 
 	@Test

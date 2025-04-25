@@ -24,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.TestConfig;
-import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
@@ -282,23 +281,9 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseSimpleNS() throws CSSException, IOException {
-		parseRule("@namespace svg url('http://www.w3.org/2000/svg'); p {color: blue;} svg|svg {margin-left: 5pt;}");
+		parseRule("@namespace svg url('http://www.w3.org/2000/svg');");
 		assertEquals(1, handler.namespaceMaps.size());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, handler.namespaceMaps.get("svg"));
-		assertEquals(2, handler.selectors.size());
-		assertEquals("p", handler.selectors.getFirst().toString());
-		assertEquals("svg|svg", handler.selectors.get(1).toString());
-		assertEquals(2, handler.propertyNames.size());
-		assertEquals("color", handler.propertyNames.getFirst());
-		assertEquals("margin-left", handler.propertyNames.get(1));
-		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
-		assertEquals("blue", lu.getStringValue());
-		lu = handler.lexicalValues.getLast();
-		assertNotNull(lu);
-		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
-		assertEquals(CSSUnit.CSS_PT, lu.getCssUnit());
-		assertEquals(5, lu.getFloatValue(), 0.01f);
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
 	}
@@ -321,15 +306,14 @@ public class RuleParserTest {
 	}
 
 	@Test
-	public void testParseStyleSheetMediaRuleErrorRecovery() throws CSSException, IOException {
+	public void testParseStyleSheetMediaRuleMQError() throws CSSException, IOException {
 		parseRule(
-				"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}");
-		assertEquals(2, handler.mediaRuleLists.size());
+				"@media handheld,only screen and max-width:1600px){div.foo{margin:1em}}");
+		assertEquals(1, handler.mediaRuleLists.size());
 		MediaQueryList mql = handler.mediaRuleLists.get(0);
-		assertTrue(mql.hasErrors());
 		assertEquals("handheld", mql.getMedia());
-		assertEquals("all", handler.mediaRuleLists.get(1).getMedia());
-		assertEquals(2, handler.endMediaCount);
+		assertTrue(mql.hasErrors());
+		assertEquals(1, handler.endMediaCount);
 		assertEquals(1, handler.selectors.size());
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("margin", handler.propertyNames.get(0));
@@ -585,7 +569,25 @@ public class RuleParserTest {
 
 	@Test
 	public void testParseCounterStyleRuleError() throws CSSException, IOException {
-		parseRule("@counter-style foo {symbols: \\1F44D;{foo} :bar;suffix: \" \";\n}");
+		parseRule("@counter-style foo {symbols: \\1F44D; :bar;suffix: \" \";\n}");
+		assertEquals(1, handler.counterStyleNames.size());
+		assertEquals("foo", handler.counterStyleNames.get(0));
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("symbols", handler.propertyNames.get(0));
+		assertEquals("suffix", handler.propertyNames.get(1));
+		assertEquals(2, handler.lexicalValues.size());
+		assertEquals("\\1f44d ", handler.lexicalValues.get(0).toString());
+		assertEquals("\" \"", handler.lexicalValues.get(1).toString());
+		assertEquals(0, handler.atRules.size());
+		assertEquals(1, handler.endCounterStyleCount);
+		handler.checkRuleEndings();
+		assertTrue(errorHandler.hasError());
+		assertEquals(38, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testParseCounterStyleRuleErrorCurlyBrackets() throws CSSException, IOException {
+		parseRule("@counter-style foo {symbols: \\1F44D;{foo} suffix: \" \";\n}");
 		assertEquals(1, handler.counterStyleNames.size());
 		assertEquals("foo", handler.counterStyleNames.get(0));
 		assertEquals(2, handler.propertyNames.size());
@@ -663,18 +665,18 @@ public class RuleParserTest {
 	}
 
 	@Test
-	public void testParseStyleSheetAsteriskHack() throws CSSException, IOException {
-		parseRule(".foo{*width: 80%}");
+	public void testParseStyleSheetIEValuesHack() throws CSSException, IOException {
+		parseRule(".foo{width: 80%\\9}");
 		assertTrue(errorHandler.hasError());
 		errorHandler.reset();
-		parser.setFlag(CSSParser.Flag.STARHACK);
-		parseRule(".foo{*width: 80%}");
+		parser.setFlag(CSSParser.Flag.IEVALUES);
+		parseRule(".foo{width: 80%\\9}");
 		assertFalse(errorHandler.hasError());
 		assertEquals(1, handler.propertyNames.size());
-		assertEquals("*width", handler.propertyNames.getFirst());
+		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(80f, lu.getFloatValue(), 0.01f);
+		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals("80%\\9", lu.getStringValue());
 		handler.checkRuleEndings();
 	}
 

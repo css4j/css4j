@@ -16,7 +16,10 @@ import java.net.URL;
 
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -41,7 +44,7 @@ class WrappedCSSStyleDeclaration extends BaseCSSStyleDeclaration {
 	 * @param parentRule
 	 *            the parent CSS rule.
 	 */
-	protected WrappedCSSStyleDeclaration(BaseCSSDeclarationRule parentRule) {
+	protected WrappedCSSStyleDeclaration(CSSDeclarationRule parentRule) {
 		super(parentRule);
 		hrefcontext = getHrefContext(parentRule);
 		this.oldHrefContext = hrefcontext;
@@ -59,9 +62,9 @@ class WrappedCSSStyleDeclaration extends BaseCSSStyleDeclaration {
 		this.oldHrefContext = oldHrefContext;
 	}
 
-	static String getHrefContext(BaseCSSDeclarationRule parentRule) {
+	static String getHrefContext(CSSDeclarationRule parentRule) {
 		String hrefcontext = null;
-		AbstractCSSStyleSheet parentSheet = parentRule.getParentStyleSheet();
+		CSSStyleSheet<? extends CSSRule> parentSheet = parentRule.getParentStyleSheet();
 		Node node = parentSheet.getOwnerNode();
 		String parentHref = parentSheet.getHref();
 		if (parentHref != null) {

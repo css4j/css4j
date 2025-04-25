@@ -13,16 +13,24 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class FlexShorthandBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -33,18 +41,16 @@ public class FlexShorthandBuilderTest {
 
 	@Test
 	public void testBuilderMixNoShorthand() {
-		assertShorthandText(
-				"flex-basis:inherit;flex-grow:0;flex-shrink:0;",
+		assertShorthandText("flex-basis:inherit;flex-grow:0;flex-shrink:0;",
 				"flex-grow:0;flex-shrink:0;flex-basis:inherit;");
-		assertShorthandText(
-				"flex-basis:revert;flex-grow:0;flex-shrink:0;",
+		assertShorthandText("flex-basis:revert;flex-grow:0;flex-shrink:0;",
 				"flex-grow:0;flex-shrink:0;flex-basis:revert;");
 	}
 
 	@Test
 	public void testBuilderFlexFlow() {
 		assertShorthandText("flex-flow:wrap-reverse;",
-			"flex-direction: row; flex-wrap: wrap-reverse;");
+				"flex-direction: row; flex-wrap: wrap-reverse;");
 	}
 
 	@Test
@@ -58,17 +64,22 @@ public class FlexShorthandBuilderTest {
 		assertShorthandText("flex:3%;", "flex: 3%; ");
 		assertShorthandText("flex:content;", "flex: content; ");
 		assertShorthandText("flex:0 0 50%;", "flex: 0 0 50%; ");
-		assertShorthandText("flex:50%;flex-shrink:0!important;", "flex: 0 0 50%; flex-shrink:0!important; ");
-		assertShorthandText("flex:1 50%;flex-shrink:0!important;", "flex: 1 0 50%; flex-shrink:0!important; ");
-		assertShorthandText("flex:0 0 50%;flex-grow:0!important;", "flex: 0 0 50%; flex-grow:0!important; ");
-		assertShorthandText("flex:2 2;flex-basis:3%!important;", "flex: 2 2 3%; flex-basis:3%!important;");
+		assertShorthandText("flex:50%;flex-shrink:0!important;",
+				"flex: 0 0 50%; flex-shrink:0!important; ");
+		assertShorthandText("flex:1 50%;flex-shrink:0!important;",
+				"flex: 1 0 50%; flex-shrink:0!important; ");
+		assertShorthandText("flex:0 0 50%;flex-grow:0!important;",
+				"flex: 0 0 50%; flex-grow:0!important; ");
+		assertShorthandText("flex:2 2;flex-basis:3%!important;",
+				"flex: 2 2 3%; flex-basis:3%!important;");
 		assertShorthandText("flex:1 0px;", "flex-basis:0;flex-grow:1;flex-shrink:1");
 		assertShorthandText("flex:1 0px;", "flex-basis:0px;flex-grow:1;flex-shrink:1");
 	}
 
 	@Test
 	public void testFlexCalc() {
-		assertShorthandText("flex:0 0 calc(100% - 60px/3);", "flex: 0 0 calc(100.0% - 60.0px / 3); ");
+		assertShorthandText("flex:0 0 calc(100% - 60px/3);",
+				"flex: 0 0 calc(100.0% - 60.0px / 3); ");
 		assertShorthandText("flex:0 0 calc(100%/3);", "flex: 0 0 calc(100.0%/ 3); ");
 	}
 
@@ -81,7 +92,8 @@ public class FlexShorthandBuilderTest {
 
 	@Test
 	public void testBuilderBadBasis() {
-		assertShorthandText("flex-basis:5;flex-grow:2;flex-shrink:2;", "flex: 2 2; flex-basis: 5; ");
+		assertShorthandText("flex-basis:5;flex-grow:2;flex-shrink:2;",
+				"flex: 2 2; flex-basis: 5; ");
 	}
 
 	@Test

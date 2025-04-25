@@ -19,21 +19,14 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.LinkedStringList;
-import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSKeyframeRule;
 import io.sf.carte.doc.style.css.CSSKeyframesRule;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSException;
-import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.doc.style.css.parser.CommentRemover;
-import io.sf.carte.doc.style.css.parser.ParseHelper;
-import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -123,7 +116,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		return null;
 	}
 
-	String keyframeSelector(String rawselector) {
+	String keyframeSelector(String rawselector) throws DOMException {
 		Reader re = new StringReader(rawselector);
 		Parser parser = createSACParser();
 		LexicalUnit selunit;
@@ -140,15 +133,17 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		return keyframeSelector(selunit);
 	}
 
-	static String keyframeSelector(LexicalUnit selunit) {
+	static String keyframeSelector(LexicalUnit selunit) throws DOMException {
 		StringBuilder buffer = new StringBuilder();
 		appendSelector(buffer, selunit);
 		LexicalUnit lu = selunit.getNextLexicalUnit();
 		while (lu != null) {
 			LexicalUnit nextlu = lu.getNextLexicalUnit();
-			if (lu.getLexicalUnitType() != LexicalType.OPERATOR_COMMA || nextlu == null) {
+			if (lu.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
 				throw new DOMException(DOMException.SYNTAX_ERR,
 						"Wrong keyframe selector syntax: " + selunit.toString());
+			} else if (nextlu == null) {
+				break;
 			}
 			buffer.append(',');
 			appendSelector(buffer, nextlu);
@@ -157,7 +152,8 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		return buffer.toString();
 	}
 
-	private static void appendSelector(StringBuilder buffer, LexicalUnit selunit) {
+	private static void appendSelector(StringBuilder buffer, LexicalUnit selunit)
+			throws DOMException {
 		LexicalType type = selunit.getLexicalUnitType();
 		if (type == LexicalType.IDENT || type == LexicalType.STRING) {
 			buffer.append(selunit.getStringValue());
@@ -172,7 +168,8 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		} else if (type == LexicalType.INTEGER && selunit.getIntegerValue() == 0) {
 			buffer.append('0');
 		} else {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Wrong keyframe selector: " + selunit.toString());
+			throw new DOMException(DOMException.SYNTAX_ERR,
+					"Wrong keyframe selector: " + selunit.toString());
 		}
 	}
 
@@ -236,159 +233,6 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 			context.writeRightCurlyBracket(wri);
 			context.endRule(wri, getTrailingComments());
 		}
-	}
-
-	@Override
-	public void setCssText(String cssText) throws DOMException {
-		cssText = cssText.trim();
-		int len = cssText.length();
-		int atIdx = cssText.indexOf('@');
-		if (len < 14 || atIdx == -1) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Invalid @keyframes rule: " + cssText);
-		}
-		String ncText = CommentRemover.removeComments(cssText).toString().trim();
-		CharSequence atkeyword = ncText.subSequence(0, 11);
-		if (!ParseHelper.startsWithIgnoreCase(atkeyword, "@keyframes")
-				|| !Character.isWhitespace(atkeyword.charAt(10))) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not a @keyframes rule: " + cssText);
-		}
-		String body = cssText.substring(atIdx + 11);
-		PropertyCSSHandler handler = new MyKeyframesHandler();
-		CSSParser parser = (CSSParser) createSACParser();
-		parser.setDocumentHandler(handler);
-		try {
-			parser.parseKeyFramesBody(body);
-		} catch (CSSParseException e) {
-			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, e.getMessage());
-		}
-	}
-
-	@Override
-	void clear() {
-		cssRules.clear();
-		resetComments();
-	}
-
-	@Override
-	void setRule(AbstractCSSRule copyMe) {
-		setPrecedingComments(copyMe.getPrecedingComments());
-		setTrailingComments(copyMe.getTrailingComments());
-		KeyframesRule other = (KeyframesRule) copyMe;
-		name = other.name;
-		cssRules.clear();
-		cssRules.addAll(other.getCssRules());
-		for (AbstractCSSRule rule : cssRules) {
-			rule.setParentRule(this);
-		}
-	}
-
-	private class MyKeyframesHandler extends PropertyCSSHandler {
-
-		private String name = null;
-		private final CSSRuleArrayList cssRules = new CSSRuleArrayList();
-
-		private KeyframeRule currentRule = null;
-
-		private KeyframeRule lastRule = null;
-
-		private StringList comments = null;
-
-		private MyKeyframesHandler() {
-			super();
-		}
-
-		@Override
-		public void startKeyframes(String name) {
-			this.name = name;
-			newRule();
-		}
-
-		private void newRule() {
-			lastRule = null;
-		}
-
-		@Override
-		public void endKeyframes() {
-			KeyframesRule.this.name = name;
-			KeyframesRule.this.cssRules.clear();
-			KeyframesRule.this.cssRules.addAll(cssRules);
-			resetComments();
-		}
-
-		@Override
-		public void startKeyframe(LexicalUnit keyframeSelector) {
-			newRule();
-			currentRule = new KeyframeRule(KeyframesRule.this);
-			currentRule.setKeyText(keyframeSelector(keyframeSelector));
-			setLexicalPropertyListener(currentRule.getLexicalPropertyListener());
-			this.cssRules.add(currentRule);
-		}
-
-		@Override
-		public void property(String name, LexicalUnit value, boolean important) {
-			if (currentRule != null) {
-				if (important) {
-					// Declarations marked as important must be ignored
-					CSSPropertyValueException ex = new CSSPropertyValueException(
-							"Important declarations in a keyframe rule are not valid");
-					ex.setValueText(value.toString() + " !important");
-					currentRule.getStyleDeclarationErrorHandler().wrongValue(name, ex);
-				} else {
-					try {
-						super.property(name, value, important);
-					} catch (DOMException e) {
-						if (currentRule.getStyleDeclarationErrorHandler() != null) {
-							CSSPropertyValueException ex = new CSSPropertyValueException(e);
-							ex.setValueText(value.toString());
-							currentRule.getStyleDeclarationErrorHandler().wrongValue(name, ex);
-						}
-					}
-				}
-			} else {
-				throw new CSSException("Declaration outside of keyframe rule");
-			}
-		}
-
-		@Override
-		public void endKeyframe() {
-			setCommentsToRule(currentRule);
-			currentRule = null;
-			lastRule = currentRule;
-			setLexicalPropertyListener(null);
-		}
-
-		@Override
-		public void comment(String text, boolean precededByLF) {
-			if (lastRule != null && !precededByLF) {
-				if (lastRule.getTrailingComments() == null) {
-					lastRule.setTrailingComments(new LinkedStringList());
-				}
-				lastRule.getTrailingComments().add(text);
-			} else {
-				if (currentRule == null) {
-					if (comments == null) {
-						comments = new LinkedStringList();
-					}
-					comments.add(text);
-				}
-			}
-		}
-
-		private void setCommentsToRule(AbstractCSSRule rule) {
-			if (comments != null && !comments.isEmpty()) {
-				LinkedStringList ruleComments = new LinkedStringList();
-				ruleComments.addAll(comments);
-				rule.setPrecedingComments(ruleComments);
-			}
-			resetCommentStack();
-		}
-
-		private void resetCommentStack() {
-			if (comments != null) {
-				comments.clear();
-			}
-		}
-
 	}
 
 	@Override

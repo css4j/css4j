@@ -38,7 +38,7 @@ public class PseudoClassTest {
 
 	@BeforeAll
 	public static void setUpBeforeClass()
-		throws IOException, SAXException, ParserConfigurationException {
+			throws IOException, SAXException, ParserConfigurationException {
 		DocumentBuilderFactory dbFac = DocumentBuilderFactory.newInstance();
 		DocumentBuilder docb = dbFac.newDocumentBuilder();
 		docb.setEntityResolver(new DefaultEntityResolver());
@@ -67,7 +67,7 @@ public class PseudoClassTest {
 		assertEquals("bold", styledecl.getPropertyValue("font-weight"));
 
 		assertEquals("background-color:#002a55;color:#faf;font-weight:bold;",
-			styledecl.getMinifiedCssText());
+				styledecl.getMinifiedCssText());
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());

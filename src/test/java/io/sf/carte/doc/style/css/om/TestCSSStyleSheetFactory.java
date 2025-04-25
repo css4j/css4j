@@ -74,7 +74,8 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 	}
 
 	@Override
-	protected DOMCSSStyleSheet createRuleStyleSheet(AbstractCSSRule ownerRule, String title, MediaQueryList mediaList) {
+	protected DOMCSSStyleSheet createRuleStyleSheet(AbstractCSSRule ownerRule, String title,
+			MediaQueryList mediaList) {
 		return new MockStyleSheet(title, null, mediaList, ownerRule, ownerRule.getOrigin());
 	}
 
@@ -86,13 +87,14 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 
 		private static final long serialVersionUID = 1L;
 
-		MockStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
+		MockStyleSheet(String title, Node ownerNode, MediaQueryList media,
+				AbstractCSSRule ownerRule, byte origin) {
 			super(title, ownerNode, media, ownerRule, origin);
 		}
 
 		@Override
-		protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode, MediaQueryList media,
-				AbstractCSSRule ownerRule, byte origin) {
+		protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode,
+				MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
 			return new MockStyleSheet(title, ownerNode, media, ownerRule, origin);
 		}
 
@@ -113,12 +115,14 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 	}
 
 	private static class TestDeviceFactory extends DummyDeviceFactory {
+
 		private final StyleDatabase styleDb = new TestStyleDatabase();
 
 		@Override
 		public StyleDatabase getStyleDatabase(String targetMedium) {
 			return styleDb;
 		}
+
 	}
 
 	private class MyStylableDocumentWrapper extends StylableDocumentWrapper {
@@ -147,6 +151,7 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 		@Override
 		public void setLoadingTime(long time) {
 		}
+
 	}
 
 	class MockUserAgent extends WrapperUserAgent {
@@ -161,6 +166,7 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 		protected URLConnection createConnection(URL url) throws IOException {
 			return urlFactory.createConnection(url);
 		}
+
 	}
 
 }

@@ -13,16 +13,24 @@ package io.sf.carte.doc.style.css.om;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class MarginBuilderTest {
 
+	private static AbstractCSSStyleSheet sheet;
+
 	BaseCSSStyleDeclaration emptyStyleDecl;
+
+	@BeforeAll
+	public static void setUpBeforeAll() {
+		sheet = new DOMCSSStyleSheetFactory().createStyleSheet(null, null);
+	}
 
 	@BeforeEach
 	public void setUp() {
-		StyleRule styleRule = new StyleRule();
+		StyleRule styleRule = sheet.createStyleRule();
 		emptyStyleDecl = (BaseCSSStyleDeclaration) styleRule.getStyle();
 	}
 
@@ -69,12 +77,14 @@ public class MarginBuilderTest {
 	@Test
 	public void testMarginVar() {
 		assertShorthandText("margin:var(--foo,1px 2px);", "margin: var(--foo,1px 2px);");
-		assertShorthandText("margin:var(--foo,1px 2px)!important;", "margin: var(--foo,1px 2px) ! important;");
+		assertShorthandText("margin:var(--foo,1px 2px)!important;",
+				"margin: var(--foo,1px 2px) ! important;");
 	}
 
 	@Test
 	public void testMarginVarNoShorthand() {
-		assertShorthandText("margin-bottom:var(--foo,1px 2px);margin-left:auto;margin-right:auto;margin-top:0;",
+		assertShorthandText(
+				"margin-bottom:var(--foo,1px 2px);margin-left:auto;margin-right:auto;margin-top:0;",
 				"margin:0 auto;margin-bottom:var(--foo,1px 2px);");
 	}
 
@@ -83,31 +93,40 @@ public class MarginBuilderTest {
 		assertShorthandText("margin:1px!important;", "margin:1px!important;");
 		assertShorthandText("margin:1px 2px!important;", "margin:1px 2px!important;");
 		assertShorthandText("margin:1px 2px 3px!important;", "margin:1px 2px 3px!important;");
-		assertShorthandText("margin:1px 2px 3px 4px!important;", "margin:1px 2px 3px 4px!important;");
+		assertShorthandText("margin:1px 2px 3px 4px!important;",
+				"margin:1px 2px 3px 4px!important;");
 	}
 
 	@Test
 	public void testMarginImportantMix() {
-		assertShorthandText("margin:1px;margin-top:3px!important;", "margin:1px;margin-top:3px!important");
-		assertShorthandText("margin:1px 2px;margin-top:3px!important;", "margin:1px 2px;margin-top:3px!important");
-		assertShorthandText("margin:3px 2px;margin-top:5px!important;", "margin:1px 2px 3px;margin-top:5px!important");
+		assertShorthandText("margin:1px;margin-top:3px!important;",
+				"margin:1px;margin-top:3px!important");
+		assertShorthandText("margin:1px 2px;margin-top:3px!important;",
+				"margin:1px 2px;margin-top:3px!important");
+		assertShorthandText("margin:3px 2px;margin-top:5px!important;",
+				"margin:1px 2px 3px;margin-top:5px!important");
 		assertShorthandText("margin:0 2px 3px 4px;margin-top:5px!important;",
 				"margin:1px 2px 3px 4px;margin-top:5px!important");
-		assertShorthandText("margin:1px;margin-right:3px!important;", "margin:1px;margin-right:3px!important");
-		assertShorthandText("margin:1px 2px;margin-right:3px!important;", "margin:1px 2px;margin-right:3px!important");
+		assertShorthandText("margin:1px;margin-right:3px!important;",
+				"margin:1px;margin-right:3px!important");
+		assertShorthandText("margin:1px 2px;margin-right:3px!important;",
+				"margin:1px 2px;margin-right:3px!important");
 		assertShorthandText("margin:1px 2px 3px;margin-right:5px!important;",
 				"margin:1px 2px 3px;margin-right:5px!important");
 		assertShorthandText("margin:1px 4px 3px;margin-right:5px!important;",
 				"margin:1px 2px 3px 4px;margin-right:5px!important");
-		assertShorthandText("margin:1px;margin-bottom:3px!important;", "margin:1px;margin-bottom:3px!important");
+		assertShorthandText("margin:1px;margin-bottom:3px!important;",
+				"margin:1px;margin-bottom:3px!important");
 		assertShorthandText("margin:1px 2px;margin-bottom:3px!important;",
 				"margin:1px 2px;margin-bottom:3px!important");
 		assertShorthandText("margin:1px 2px;margin-bottom:5px!important;",
 				"margin:1px 2px 3px;margin-bottom:5px!important");
 		assertShorthandText("margin:1px 2px 0 4px;margin-bottom:5px!important;",
 				"margin:1px 2px 3px 4px;margin-bottom:5px!important");
-		assertShorthandText("margin:1px;margin-left:3px!important;", "margin:1px;margin-left:3px!important");
-		assertShorthandText("margin:1px 2px;margin-left:3px!important;", "margin:1px 2px;margin-left:3px!important");
+		assertShorthandText("margin:1px;margin-left:3px!important;",
+				"margin:1px;margin-left:3px!important");
+		assertShorthandText("margin:1px 2px;margin-left:3px!important;",
+				"margin:1px 2px;margin-left:3px!important");
 		assertShorthandText("margin:1px 2px 3px;margin-left:5px!important;",
 				"margin:1px 2px 3px;margin-left:5px!important");
 		assertShorthandText("margin:1px 2px 3px;margin-left:5px!important;",
@@ -130,15 +149,18 @@ public class MarginBuilderTest {
 				"margin:1px 2px;margin-top:3px!important;margin-bottom:5px!important;");
 		assertShorthandText("margin:2px;margin-bottom:6px!important;margin-top:5px!important;",
 				"margin:1px 2px 3px;margin-top:5px!important;margin-bottom:6px!important;");
-		assertShorthandText("margin:0 2px 0 4px;margin-bottom:6px!important;margin-top:5px!important;",
+		assertShorthandText(
+				"margin:0 2px 0 4px;margin-bottom:6px!important;margin-top:5px!important;",
 				"margin:1px 2px 3px 4px;margin-top:5px!important;margin-bottom:6px!important;");
 		assertShorthandText("margin:1px;margin-left:3px!important;margin-right:5px!important;",
 				"margin:1px;margin-left:3px!important; margin-right:5px!important;");
 		assertShorthandText("margin:1px;margin-left:3px!important;margin-right:5px!important;",
 				"margin:1px 2px;margin-left:3px!important;margin-right:5px!important;");
-		assertShorthandText("margin:1px 0 3px;margin-left:5px!important;margin-right:6px!important;",
+		assertShorthandText(
+				"margin:1px 0 3px;margin-left:5px!important;margin-right:6px!important;",
 				"margin:1px 2px 3px;margin-left:5px!important;margin-right:6px!important;");
-		assertShorthandText("margin:1px 0 3px;margin-left:5px!important;margin-right:6px!important;",
+		assertShorthandText(
+				"margin:1px 0 3px;margin-left:5px!important;margin-right:6px!important;",
 				"margin:1px 2px 3px 4px;margin-left:5px!important;margin-right:6px!important;");
 		assertShorthandText("margin:1px;margin-left:5px!important;margin-top:3px!important;",
 				"margin:1px;margin-top:3px!important; margin-left:5px!important;");
@@ -150,23 +172,30 @@ public class MarginBuilderTest {
 				"margin:1px 2px 3px 4px;margin-top:5px!important;margin-left:6px!important;");
 		assertShorthandText("margin:1px;margin-bottom:5px!important;margin-right:3px!important;",
 				"margin:1px;margin-right:3px!important; margin-bottom:5px!important;");
-		assertShorthandText("margin:1px 2px;margin-bottom:5px!important;margin-right:3px!important;",
+		assertShorthandText(
+				"margin:1px 2px;margin-bottom:5px!important;margin-right:3px!important;",
 				"margin:1px 2px;margin-right:3px!important;margin-bottom:5px!important;");
-		assertShorthandText("margin:1px 2px;margin-bottom:6px!important;margin-right:5px!important;",
+		assertShorthandText(
+				"margin:1px 2px;margin-bottom:6px!important;margin-right:5px!important;",
 				"margin:1px 2px 3px;margin-right:5px!important;margin-bottom:6px!important;");
-		assertShorthandText("margin:1px 4px;margin-bottom:6px!important;margin-right:5px!important;",
+		assertShorthandText(
+				"margin:1px 4px;margin-bottom:6px!important;margin-right:5px!important;",
 				"margin:1px 2px 3px 4px;margin-right:5px!important;margin-bottom:6px!important;");
 	}
 
 	@Test
 	public void testMarginImportantMix3() {
-		assertShorthandText("margin:1px;margin-left:7px!important;margin-right:5px!important;margin-top:3px!important;",
+		assertShorthandText(
+				"margin:1px;margin-left:7px!important;margin-right:5px!important;margin-top:3px!important;",
 				"margin:1px;margin-top:3px!important; margin-right:5px!important;margin-left:7px!important;");
-		assertShorthandText("margin:1px;margin-left:7px!important;margin-right:5px!important;margin-top:3px!important;",
+		assertShorthandText(
+				"margin:1px;margin-left:7px!important;margin-right:5px!important;margin-top:3px!important;",
 				"margin:1px 2px;margin-top:3px!important;margin-right:5px!important;margin-left:7px!important;");
-		assertShorthandText("margin:3px;margin-left:7px!important;margin-right:6px!important;margin-top:5px!important;",
+		assertShorthandText(
+				"margin:3px;margin-left:7px!important;margin-right:6px!important;margin-top:5px!important;",
 				"margin:1px 2px 3px;margin-top:5px!important;margin-right:6px!important;margin-left:7px!important;");
-		assertShorthandText("margin:3px;margin-left:7px!important;margin-right:6px!important;margin-top:5px!important;",
+		assertShorthandText(
+				"margin:3px;margin-left:7px!important;margin-right:6px!important;margin-top:5px!important;",
 				"margin:1px 2px 3px 4px;margin-top:5px!important;margin-right:6px!important;margin-left:7px!important;");
 	}
 

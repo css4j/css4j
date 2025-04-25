@@ -32,8 +32,8 @@ import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
-import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
 import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.util.BufferSimpleWriter;
@@ -42,7 +42,7 @@ public class FunctionValueTest {
 
 	private static SyntaxParser syntaxParser;
 
-	CSSStyleDeclarationRule styleRule;
+	StyleRule styleRule;
 	BaseCSSStyleDeclaration style;
 
 	@BeforeAll

@@ -42,7 +42,7 @@ public class RGBColorDeclarationFormattingContextTest {
 		CSSElement elm = xhtmlDoc.getElementById("div1");
 		assertNotNull(elm);
 		elm.getOverrideStyle(null).setCssText(
-			"color:lch(80% 67 278);background:radial-gradient(lch(55% 94 40) 10%, lch(57% 67 67),color(display-p3 0.32 0.67 0.48),lch(58% 64 270));voice-family:announcer,male");
+				"color:lch(80% 67 278);background:radial-gradient(lch(55% 94 40) 10%, lch(57% 67 67),color(display-p3 0.32 0.67 0.48),lch(58% 64 270));voice-family:announcer,male");
 		CSSComputedProperties style = elm.getComputedStyle(null);
 		assertNotNull(style);
 		assertEquals("lch(80 67 278)", style.getPropertyValue("color"));

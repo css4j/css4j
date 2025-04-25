@@ -29,14 +29,13 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
 
 public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private final CSSStyleSheet<?> sheet;
 
 	private LinkedList<String> unknownRules = null;
 	private LinkedList<String> ignoredImports = null;
 	private LinkedList<RuleParseException> ruleParseErrors = null;
-	private LinkedList<String> emptyRules = null;
 
 	private LinkedList<MediaQueryList> badMediaLists = null;
 	private LinkedList<String> badAtRules = null;
@@ -77,14 +76,6 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 	}
 
 	@Override
-	public void emptyStyleRule(String selector) {
-		if (emptyRules == null) {
-			emptyRules = new LinkedList<>();
-		}
-		emptyRules.add(selector);
-	}
-
-	@Override
 	public void handleSacError(CSSParseException exception) {
 		if (sacErrors == null) {
 			sacErrors = new LinkedList<>();
@@ -110,7 +101,7 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 
 	@Override
 	public boolean hasOMWarnings() {
-		return omWarningMergedState || emptyRules != null;
+		return omWarningMergedState;
 	}
 
 	@Override
@@ -191,10 +182,6 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 		return badMediaLists;
 	}
 
-	public LinkedList<String> getEmptyStyleRules() {
-		return emptyRules;
-	}
-
 	public LinkedList<String> getIgnoredImports() {
 		return ignoredImports;
 	}
@@ -248,7 +235,6 @@ public class DefaultSheetErrorHandler implements SheetErrorHandler, java.io.Seri
 		unknownRules = null;
 		ignoredImports = null;
 		ruleParseErrors = null;
-		emptyRules = null;
 		badMediaLists = null;
 		badAtRules = null;
 		badConditions = null;

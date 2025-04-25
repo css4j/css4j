@@ -49,7 +49,7 @@ import io.sf.carte.doc.style.css.XYZColor;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
-import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
+import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.util.BufferSimpleWriter;
@@ -60,7 +60,7 @@ public class ColorFunctionTest {
 	private static CSSValueSyntax numberSyntax;
 
 	static AbstractCSSStyleSheet sheet;
-	CSSStyleDeclarationRule parentStyleRule;
+	StyleRule parentStyleRule;
 	AbstractCSSStyleDeclaration style;
 
 	@BeforeAll

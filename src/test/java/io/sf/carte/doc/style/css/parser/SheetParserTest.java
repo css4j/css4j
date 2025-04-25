@@ -32,17 +32,13 @@ import io.sf.carte.doc.TestConfig;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
-import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
-import io.sf.carte.doc.style.css.nsac.InputSource;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Locator;
-import io.sf.carte.doc.style.css.nsac.PageSelector;
-import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
-import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
+import io.sf.carte.doc.style.css.om.SampleCSS;
 
 public class SheetParserTest {
 
@@ -170,7 +166,7 @@ public class SheetParserTest {
 	@Test
 	public void testParseSheetStyleRuleBad() throws CSSException, IOException {
 		Reader re = new StringReader(
-			".foo{@transform : translateY(-5px);margin-left:0;margin-right:auto;}");
+			".foo{@*transform translateY(-5px);margin-left:0;margin-right:auto;}");
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
@@ -188,12 +184,12 @@ public class SheetParserTest {
 
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
-		assertEquals(49, loc.getColumnNumber());
-		assertEquals(67, handler.ptyLocators.get(1).getColumnNumber());
+		assertEquals(48, loc.getColumnNumber());
+		assertEquals(66, handler.ptyLocators.get(1).getColumnNumber());
 
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(6, errorHandler.getLastException().getColumnNumber());
+		assertEquals(7, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -221,13 +217,13 @@ public class SheetParserTest {
 
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(20, errorHandler.getLastException().getColumnNumber());
+		assertEquals(35, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
 	public void testParseSheetStyleRuleBadNested() throws CSSException, IOException {
 		Reader re = new StringReader(
-			"@media screen and (min-width: 768px){.foo{@transform : translateY(-5px);margin-left:0;margin-right:auto;}}");
+			"@media screen and (min-width: 768px){.foo{@: : translateY(-5px);margin-left:0;margin-right:auto;}}");
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.mediaRuleLists.size());
@@ -247,12 +243,12 @@ public class SheetParserTest {
 
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
-		assertEquals(86, loc.getColumnNumber());
-		assertEquals(104, handler.ptyLocators.get(1).getColumnNumber());
+		assertEquals(78, loc.getColumnNumber());
+		assertEquals(96, handler.ptyLocators.get(1).getColumnNumber());
 
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(43, errorHandler.getLastException().getColumnNumber());
+		assertEquals(44, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -288,37 +284,7 @@ public class SheetParserTest {
 	@Test
 	public void testMalformedStyleRule2() throws CSSException, IOException {
 		Reader re = new StringReader(
-			"p.myclass width:300px}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.selectors.size());
-		assertEquals("body:not(.foo)[id*=\"substring\"] .header",
-			handler.selectors.getFirst().toString());
-		assertEquals(2, handler.propertyNames.size());
-		assertEquals("margin-left", handler.propertyNames.getFirst());
-		assertEquals("margin-right", handler.propertyNames.getLast());
-		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
-		assertEquals(0, lu.getIntegerValue());
-		lu = handler.lexicalValues.getLast();
-		assertNotNull(lu);
-		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
-		assertEquals("auto", lu.getStringValue());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(78, loc.getColumnNumber());
-		assertEquals(98, handler.ptyLocators.get(1).getColumnNumber());
-
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(22, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testMalformedStyleRule3() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"p.myclass color:rgb(120}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
+			"p.myclass width:300px}{}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
@@ -342,7 +308,37 @@ public class SheetParserTest {
 
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(24, errorHandler.getLastException().getColumnNumber());
+		assertEquals(23, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testMalformedStyleRule3() throws CSSException, IOException {
+		Reader re = new StringReader(
+			"p.myclass color:rgb(120}}{}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
+		parser.parseStyleSheet(re);
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals("body:not(.foo)[id*=\"substring\"] .header",
+			handler.selectors.getFirst().toString());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("margin-left", handler.propertyNames.getFirst());
+		assertEquals("margin-right", handler.propertyNames.getLast());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(0, lu.getIntegerValue());
+		lu = handler.lexicalValues.getLast();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("auto", lu.getStringValue());
+
+		Locator loc = handler.ptyLocators.get(0);
+		assertEquals(1, loc.getLineNumber());
+		assertEquals(83, loc.getColumnNumber());
+		assertEquals(103, handler.ptyLocators.get(1).getColumnNumber());
+
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(26, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -495,7 +491,7 @@ public class SheetParserTest {
 		assertTrue(errorHandler.hasError());
 		assertNotNull(errorHandler.getLastException());
 		assertEquals(2, errorHandler.getLastException().getLineNumber());
-		assertEquals(7, errorHandler.getLastException().getColumnNumber());
+		assertEquals(8, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -520,7 +516,7 @@ public class SheetParserTest {
 		assertTrue(errorHandler.hasError());
 		assertNotNull(errorHandler.getLastException());
 		assertEquals(2, errorHandler.getLastException().getLineNumber());
-		assertEquals(1, errorHandler.getLastException().getColumnNumber());
+		assertEquals(2, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -640,7 +636,7 @@ public class SheetParserTest {
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(16, errorHandler.getLastException().getColumnNumber());
+		assertEquals(17, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -650,7 +646,7 @@ public class SheetParserTest {
 		assertEquals(0, handler.namespaceMaps.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(16, errorHandler.getLastException().getColumnNumber());
+		assertEquals(15, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -722,7 +718,7 @@ public class SheetParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PT, lu.getCssUnit());
-		assertEquals(5, lu.getFloatValue(), 0.01f);
+		assertEquals(5f, lu.getFloatValue(), 0.01f);
 
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
@@ -734,7 +730,7 @@ public class SheetParserTest {
 
 	@Test
 	public void testParseMinimalStyleSheet() throws CSSException, IOException {
-		try (Reader re = DOMCSSStyleSheetFactoryTest.loadSampleUserCSSReader()) {
+		try (Reader re = SampleCSS.loadSampleUserCSSReader()) {
 			parser.parseStyleSheet(re);
 		}
 
@@ -834,6 +830,12 @@ public class SheetParserTest {
 		assertEquals("li", handler.selectors.get(1).toString());
 		assertEquals("body", handler.selectors.get(2).toString());
 		assertEquals("li", handler.selectors.get(6).toString());
+		assertEquals("frame", handler.selectors.get(7).toString());
+		// A wrong media query does not invalidate the whole list
+		assertEquals("ul>li", handler.selectors.get(8).toString());
+		assertEquals("frameset", handler.selectors.get(9).toString());
+		assertEquals("noframes", handler.selectors.get(10).toString());
+		assertEquals("[foo]", handler.selectors.get(11).toString());
 		assertEquals("body", handler.selectors.get(12).toString());
 		assertEquals(14, handler.endSelectors.size());
 
@@ -864,6 +866,7 @@ public class SheetParserTest {
 		assertEquals("display", handler.propertyNames.get(1));
 		assertEquals("font-weight", handler.propertyNames.get(3));
 		assertEquals("color", handler.propertyNames.get(14));
+		assertEquals("display", handler.propertyNames.get(15));
 		assertEquals("float", handler.propertyNames.get(19));
 		assertEquals("font-size", handler.propertyNames.get(20));
 		assertEquals("border", handler.propertyNames.getLast());
@@ -872,6 +875,7 @@ public class SheetParserTest {
 		assertEquals("list-item", handler.lexicalValues.get(1).toString());
 		assertEquals("bold", handler.lexicalValues.get(3).toString());
 		assertEquals("yellow", handler.lexicalValues.get(14).toString());
+		assertEquals("block", handler.lexicalValues.get(15).toString());
 		assertEquals("left", handler.lexicalValues.get(19).toString());
 		assertEquals("12pt", handler.lexicalValues.get(20).toString());
 		assertEquals("solid orange", handler.lexicalValues.getLast().toString());
@@ -1085,7 +1089,30 @@ public class SheetParserTest {
 	@Test
 	public void testParseStyleSheetMediaRuleErrorRecovery() throws CSSException, IOException {
 		Reader re = new StringReader(
-			"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important; }@media {div.foo{margin:1em}}");
+				"@media handheld,screen and (max-width:1600px) .foo}@media {div.foo{margin:1em}}");
+		parser.parseStyleSheet(re);
+
+		assertEquals(1, handler.mediaRuleLists.size());
+		MediaQueryList mql = handler.mediaRuleLists.get(0);
+		assertEquals("handheld", mql.getMedia());
+		assertTrue(mql.hasErrors());
+		assertEquals(1, handler.endMediaCount);
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("1em", handler.lexicalValues.get(0).getCssText());
+		assertEquals(1, handler.priorities.size());
+		assertNull(handler.priorities.get(0));
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(47, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testParseStyleSheetMediaRuleErrorRecovery2() throws CSSException, IOException {
+		Reader re = new StringReader(
+			"@media handheld,only screen and (max-width:1600px) .foo{bottom: 20px!important;.bar{top: 1vw!important;}}@media {div.foo{margin:1em}}");
 		parser.parseStyleSheet(re);
 
 		assertEquals(2, handler.mediaRuleLists.size());
@@ -1093,16 +1120,37 @@ public class SheetParserTest {
 		assertEquals("handheld", mq0.toString());
 		assertTrue(mq0.hasErrors());
 		assertEquals("all", handler.mediaRuleLists.get(1).toString());
-		assertEquals(1, handler.selectors.size());
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals("margin", handler.propertyNames.get(0));
-		assertEquals(1, handler.lexicalValues.size());
-		assertEquals("1em", handler.lexicalValues.get(0).toString());
-		assertEquals(1, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
+		assertEquals(2, handler.selectors.size());
+		assertEquals(".bar", handler.selectors.getFirst().toString());
+		assertEquals("div.foo", handler.selectors.getLast().toString());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("top", handler.propertyNames.get(0));
+		assertEquals("margin", handler.propertyNames.get(1));
+		assertEquals(2, handler.lexicalValues.size());
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("1em", handler.lexicalValues.get(1).toString());
+		assertEquals(2, handler.priorities.size());
+		assertEquals("important", handler.priorities.getFirst());
+		assertNull(handler.priorities.get(1));
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(64, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testParseStyleSheetMediaQueryError() throws CSSException, IOException {
+		Reader re = new StringReader(
+			"@media handheld,only screen and (max-width:1600px .foo{bottom: 20px!important;.bar{top: 1vw!important;}}@media {div.foo{margin:1em}}");
+		parser.parseStyleSheet(re);
+
+		assertEquals(2, handler.mediaRuleLists.size());
+		assertEquals(2, handler.selectors.size());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals(2, handler.lexicalValues.size());
+		assertEquals(2, handler.priorities.size());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(63, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -1193,522 +1241,10 @@ public class SheetParserTest {
 	}
 
 	@Test
-	public void testParseStyleSheetFontFaceRule() throws CSSException, IOException {
-		try (InputStream is = SheetParserTest.class.getResourceAsStream("/io/sf/carte/doc/agent/common.css")) {
-			InputSource source = new InputSource();
-			source.setByteStream(is);
-			source.setEncoding("utf-8");
-			parser.parseStyleSheet(source);
-		}
-
-		assertEquals(1, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
-
-		assertEquals(1, handler.fontFeaturesNames.size());
-		assertEquals("Foo Sans", handler.fontFeaturesNames.get(0)[0]);
-		assertEquals(1, handler.featureMapNames.size());
-		assertEquals("styleset", handler.featureMapNames.get(0));
-
-		assertEquals(4, handler.propertyNames.size());
-		assertEquals("background-color", handler.propertyNames.get(0));
-		assertEquals("font-family", handler.propertyNames.get(1));
-		assertEquals("src", handler.propertyNames.get(2));
-		assertEquals("my-style", handler.propertyNames.get(3));
-		assertEquals(4, handler.lexicalValues.size());
-		assertEquals("red", handler.lexicalValues.get(0).toString());
-		assertEquals("'OpenSans Regular'", handler.lexicalValues.get(1).toString());
-		assertEquals("url('/fonts/OpenSans-Regular.ttf')", handler.lexicalValues.get(2).toString());
-		assertEquals("2", handler.lexicalValues.get(3).toString());
-		assertEquals(4, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertNull(handler.priorities.get(3));
-		assertEquals(1, handler.fontFaceCount);
-		assertEquals(0, handler.atRules.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(2, loc.getLineNumber());
-		assertEquals(23, loc.getColumnNumber());
-		assertEquals(33, handler.ptyLocators.get(1).getColumnNumber());
-		assertEquals(74, handler.ptyLocators.get(2).getColumnNumber());
-		loc = handler.ptyLocators.get(3);
-		assertEquals(9, loc.getLineNumber());
-		assertEquals(14, loc.getColumnNumber());
-
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseStyleSheetFontFaceRuleWrongChar() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"\ufeff@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}@import 'foo.css';");
-		parser.parseStyleSheet(re);
-
-		assertEquals(0, handler.selectors.size());
-		assertEquals(0, handler.propertyNames.size());
-		assertEquals(0, handler.lexicalValues.size());
-		assertEquals(0, handler.priorities.size());
-		assertEquals(0, handler.fontFaceCount);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(0, list.getLength());
-		assertTrue(list.isAllMedia());
-		assertEquals("all", list.getMedia());
-
-		assertTrue(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRule() throws CSSException, IOException {
-		Reader re = loadTestCSSReader("page.css");
-		parser.parseStyleSheet(re);
-		re.close();
-
-		assertEquals(1, handler.selectors.size());
-		assertEquals("body", handler.selectors.getFirst().toString());
-		assertEquals(6, handler.propertyNames.size());
-		assertEquals("background-color", handler.propertyNames.get(0));
-		assertEquals("margin-top", handler.propertyNames.get(1));
-		assertEquals("content", handler.propertyNames.get(2));
-		assertEquals("margin-left", handler.propertyNames.get(3));
-		assertEquals("content", handler.propertyNames.get(4));
-		assertEquals("margin-right", handler.propertyNames.get(5));
-		assertEquals(6, handler.lexicalValues.size());
-		assertEquals("red", handler.lexicalValues.get(0).toString());
-		assertEquals("20%", handler.lexicalValues.get(1).toString());
-		assertEquals("none", handler.lexicalValues.get(2).toString());
-		assertEquals("10%", handler.lexicalValues.get(3).toString());
-		assertEquals("counter(page)", handler.lexicalValues.get(4).toString());
-		assertEquals(6, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertEquals(3, handler.pageRuleSelectors.size());
-		assertEquals(":first", handler.pageRuleSelectors.get(0).toString());
-		assertEquals("foo:left", handler.pageRuleSelectors.get(1).toString());
-		assertEquals("bar:right,:blank", handler.pageRuleSelectors.get(2).toString());
-		assertEquals(2, handler.marginRuleNames.size());
-		assertEquals("top-center", handler.marginRuleNames.get(0));
-		assertEquals("bottom-center", handler.marginRuleNames.get(1));
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(2, loc.getLineNumber());
-		assertEquals(23, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(1);
-		assertEquals(5, loc.getLineNumber());
-		assertEquals(17, loc.getColumnNumber());
-		assertEquals(30, handler.ptyLocators.get(2).getColumnNumber());
-		assertEquals(18, handler.ptyLocators.get(3).getColumnNumber());
-		assertEquals(42, handler.ptyLocators.get(4).getColumnNumber());
-		assertEquals(19, handler.ptyLocators.get(5).getColumnNumber());
-
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRule2() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@page :first{margin-top:20%;@top-left{content:'foo';color:blue}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.pageRuleSelectors.size());
-		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
-		assertEquals(1, handler.marginRuleNames.size());
-		assertEquals("top-left", handler.marginRuleNames.get(0));
-		assertEquals(3, handler.propertyNames.size());
-		assertEquals("margin-top", handler.propertyNames.get(0));
-		assertEquals("content", handler.propertyNames.get(1));
-		assertEquals(3, handler.lexicalValues.size());
-		assertEquals("20%", handler.lexicalValues.get(0).toString());
-		assertEquals("'foo'", handler.lexicalValues.get(1).toString());
-		assertEquals(3, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertEquals(7, handler.eventSeq.size());
-		assertEquals("startPage", handler.eventSeq.get(0));
-		assertEquals("property", handler.eventSeq.get(1));
-		assertEquals("startMargin", handler.eventSeq.get(2));
-		assertEquals("property", handler.eventSeq.get(3));
-		assertEquals("property", handler.eventSeq.get(4));
-		assertEquals("endMargin", handler.eventSeq.get(5));
-		assertEquals("endPage", handler.eventSeq.get(6));
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(28, loc.getColumnNumber());
-		assertEquals(52, handler.ptyLocators.get(1).getColumnNumber());
-		assertEquals(63, handler.ptyLocators.get(2).getColumnNumber());
-
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRule3() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@page LetterHead:first{margin-top:20%;@top-left{content:'foo';color:green}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.pageRuleSelectors.size());
-		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
-		assertEquals(1, psl.getLength());
-		assertEquals("LetterHead:first", psl.toString());
-		PageSelector ps = psl.item(0);
-		assertEquals("LetterHead:first", ps.toString());
-		assertEquals("LetterHead", ps.getCssText());
-		assertEquals("LetterHead", ps.getName());
-		assertEquals(PageSelector.Type.PAGE_TYPE, ps.getSelectorType());
-		ps = ps.getNext();
-		assertEquals(PageSelector.Type.PSEUDO_PAGE, ps.getSelectorType());
-		assertEquals(":first", ps.getCssText());
-		assertEquals("first", ps.getName());
-		assertNull(ps.getNext());
-		assertEquals(1, handler.marginRuleNames.size());
-		assertEquals("top-left", handler.marginRuleNames.get(0));
-		assertEquals(3, handler.propertyNames.size());
-		assertEquals("margin-top", handler.propertyNames.get(0));
-		assertEquals("content", handler.propertyNames.get(1));
-		assertEquals(3, handler.lexicalValues.size());
-		assertEquals("20%", handler.lexicalValues.get(0).toString());
-		assertEquals("'foo'", handler.lexicalValues.get(1).toString());
-		assertEquals("green", handler.lexicalValues.get(2).toString());
-		assertEquals(3, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertEquals(7, handler.eventSeq.size());
-		assertEquals("startPage", handler.eventSeq.get(0));
-		assertEquals("property", handler.eventSeq.get(1));
-		assertEquals("startMargin", handler.eventSeq.get(2));
-		assertEquals("property", handler.eventSeq.get(3));
-		assertEquals("property", handler.eventSeq.get(4));
-		assertEquals("endMargin", handler.eventSeq.get(5));
-		assertEquals("endPage", handler.eventSeq.get(6));
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(38, loc.getColumnNumber());
-		assertEquals(62, handler.ptyLocators.get(1).getColumnNumber());
-		assertEquals(74, handler.ptyLocators.get(2).getColumnNumber());
-
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRule4() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@page Foo:blank:first,:right{margin-top:20%;@top-left{content:'foo';color:green}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.pageRuleSelectors.size());
-		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
-		assertEquals(2, psl.getLength());
-		assertEquals("Foo:blank:first,:right", psl.toString());
-		PageSelector ps = psl.item(0);
-		assertEquals("Foo:blank:first", ps.toString());
-		assertEquals("Foo", ps.getCssText());
-		assertEquals("Foo", ps.getName());
-		assertEquals(PageSelector.Type.PAGE_TYPE, ps.getSelectorType());
-		ps = ps.getNext();
-		assertEquals(PageSelector.Type.PSEUDO_PAGE, ps.getSelectorType());
-		assertEquals(":blank", ps.getCssText());
-		assertEquals("blank", ps.getName());
-		ps = ps.getNext();
-		assertEquals(PageSelector.Type.PSEUDO_PAGE, ps.getSelectorType());
-		assertEquals(":first", ps.getCssText());
-		assertEquals("first", ps.getName());
-		assertNull(ps.getNext());
-
-		ps = psl.item(1);
-		assertEquals(":right", ps.toString());
-		assertEquals(":right", ps.getCssText());
-		assertEquals("right", ps.getName());
-		assertEquals(PageSelector.Type.PSEUDO_PAGE, ps.getSelectorType());
-		assertNull(ps.getNext());
-
-		assertEquals(1, handler.marginRuleNames.size());
-		assertEquals("top-left", handler.marginRuleNames.get(0));
-		assertEquals(3, handler.propertyNames.size());
-		assertEquals("margin-top", handler.propertyNames.get(0));
-		assertEquals("content", handler.propertyNames.get(1));
-		assertEquals(3, handler.lexicalValues.size());
-		assertEquals("20%", handler.lexicalValues.get(0).toString());
-		assertEquals("'foo'", handler.lexicalValues.get(1).toString());
-		assertEquals("green", handler.lexicalValues.get(2).toString());
-		assertEquals(3, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertEquals(7, handler.eventSeq.size());
-		assertEquals("startPage", handler.eventSeq.get(0));
-		assertEquals("property", handler.eventSeq.get(1));
-		assertEquals("startMargin", handler.eventSeq.get(2));
-		assertEquals("property", handler.eventSeq.get(3));
-		assertEquals("property", handler.eventSeq.get(4));
-		assertEquals("endMargin", handler.eventSeq.get(5));
-		assertEquals("endPage", handler.eventSeq.get(6));
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(44, loc.getColumnNumber());
-		assertEquals(68, handler.ptyLocators.get(1).getColumnNumber());
-		assertEquals(80, handler.ptyLocators.get(2).getColumnNumber());
-
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRule5() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@page:first{margin-top:20%;@top-left{content:'foo';color:green}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.pageRuleSelectors.size());
-		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
-		assertEquals(1, psl.getLength());
-		assertEquals(":first", psl.toString());
-		PageSelector ps = psl.item(0);
-		assertEquals(PageSelector.Type.PSEUDO_PAGE, ps.getSelectorType());
-		assertEquals(":first", ps.toString());
-		assertEquals(":first", ps.getCssText());
-		assertEquals("first", ps.getName());
-		assertNull(ps.getNext());
-		assertEquals(1, handler.marginRuleNames.size());
-		assertEquals("top-left", handler.marginRuleNames.get(0));
-		assertEquals(3, handler.propertyNames.size());
-		assertEquals("margin-top", handler.propertyNames.get(0));
-		assertEquals("content", handler.propertyNames.get(1));
-		assertEquals(3, handler.lexicalValues.size());
-		assertEquals("20%", handler.lexicalValues.get(0).toString());
-		assertEquals("'foo'", handler.lexicalValues.get(1).toString());
-		assertEquals("green", handler.lexicalValues.get(2).toString());
-		assertEquals(3, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertEquals(7, handler.eventSeq.size());
-		assertEquals("startPage", handler.eventSeq.get(0));
-		assertEquals("property", handler.eventSeq.get(1));
-		assertEquals("startMargin", handler.eventSeq.get(2));
-		assertEquals("property", handler.eventSeq.get(3));
-		assertEquals("property", handler.eventSeq.get(4));
-		assertEquals("endMargin", handler.eventSeq.get(5));
-		assertEquals("endPage", handler.eventSeq.get(6));
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(27, loc.getColumnNumber());
-		assertEquals(51, handler.ptyLocators.get(1).getColumnNumber());
-		assertEquals(63, handler.ptyLocators.get(2).getColumnNumber());
-
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRuleBad() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@page :first{margin-top:20%;myname@top-left{content:'foo';color:blue}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.pageRuleSelectors.size());
-		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals("margin-top", handler.propertyNames.get(0));
-		assertEquals(1, handler.lexicalValues.size());
-		assertEquals("20%", handler.lexicalValues.get(0).toString());
-		assertEquals(1, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertEquals(3, handler.eventSeq.size());
-		assertEquals("startPage", handler.eventSeq.get(0));
-		assertEquals("property", handler.eventSeq.get(1));
-		assertEquals("endPage", handler.eventSeq.get(2));
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(28, loc.getColumnNumber());
-
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(35, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRuleBad2() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@page :first{margin-top:20%;myname @top-left{content:'foo';color:blue}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.pageRuleSelectors.size());
-		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals("margin-top", handler.propertyNames.get(0));
-		assertEquals(1, handler.lexicalValues.size());
-		assertEquals("20%", handler.lexicalValues.get(0).toString());
-		assertEquals(1, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertEquals(3, handler.eventSeq.size());
-		assertEquals("startPage", handler.eventSeq.get(0));
-		assertEquals("property", handler.eventSeq.get(1));
-		assertEquals("endPage", handler.eventSeq.get(2));
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(28, loc.getColumnNumber());
-
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(36, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRuleBad3() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@page :first{margin-top:20%; top-left{content:'foo';color:blue}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.pageRuleSelectors.size());
-		assertEquals(":first", handler.pageRuleSelectors.getFirst().toString());
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals("margin-top", handler.propertyNames.get(0));
-		assertEquals(1, handler.lexicalValues.size());
-		assertEquals("20%", handler.lexicalValues.get(0).toString());
-		assertEquals(1, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertEquals(3, handler.eventSeq.size());
-		assertEquals("startPage", handler.eventSeq.get(0));
-		assertEquals("property", handler.eventSeq.get(1));
-		assertEquals("endPage", handler.eventSeq.get(2));
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(28, loc.getColumnNumber());
-
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(38, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRuleBad4() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@page LetterHead :first{margin-top:20%;@top-left{content:'foo';color:green}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(0, handler.pageRuleSelectors.size());
-		assertEquals(0, handler.propertyNames.size());
-		assertEquals(0, handler.lexicalValues.size());
-		assertEquals(0, handler.priorities.size());
-		assertEquals(0, handler.eventSeq.size());
-
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(24, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRuleBadNameDot() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@page LetterHead. {margin-top:20%;@top-left{content:'foo';color:green}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(0, handler.pageRuleSelectors.size());
-		assertEquals(0, handler.propertyNames.size());
-		assertEquals(0, handler.lexicalValues.size());
-		assertEquals(0, handler.eventSeq.size());
-
-		assertTrue(errorHandler.hasError());
-		CSSParseException ex = errorHandler.getLastException();
-		assertEquals(1, ex.getLineNumber());
-		assertEquals(17, ex.getColumnNumber());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRuleBadNestedMarginBox() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@page LetterHead:first{margin-top:20%;@top-left @{content:'foo';color:green}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.pageRuleSelectors.size());
-		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
-		assertEquals(1, psl.getLength());
-		assertEquals("LetterHead:first", psl.toString());
-		assertEquals(0, handler.marginRuleNames.size());
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals("margin-top", handler.propertyNames.get(0));
-		assertEquals(1, handler.lexicalValues.size());
-		assertEquals("20%", handler.lexicalValues.get(0).toString());
-		assertEquals(1, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertEquals(3, handler.eventSeq.size());
-		assertEquals("startPage", handler.eventSeq.get(0));
-		assertEquals("property", handler.eventSeq.get(1));
-		assertEquals("endPage", handler.eventSeq.get(2));
-
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(49, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRuleBadNestedMarginBox2() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@page LetterHead:first{margin-top:20%;@top-foo{content:'foo';color:green}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.pageRuleSelectors.size());
-		PageSelectorList psl = handler.pageRuleSelectors.getFirst();
-		assertEquals(1, psl.getLength());
-		assertEquals("LetterHead:first", psl.toString());
-		assertEquals(0, handler.marginRuleNames.size());
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals("margin-top", handler.propertyNames.get(0));
-		assertEquals(1, handler.lexicalValues.size());
-		assertEquals("20%", handler.lexicalValues.get(0).toString());
-		assertEquals(1, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertEquals(3, handler.eventSeq.size());
-		assertEquals("startPage", handler.eventSeq.get(0));
-		assertEquals("property", handler.eventSeq.get(1));
-		assertEquals("endPage", handler.eventSeq.get(2));
-
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(47, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseStyleSheetPageRuleNestedOnMediaRule() throws CSSException, IOException {
-		Reader re = new StringReader("@media print {@page {margin-top: 20%;}h3 {width: 80%}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.pageRuleSelectors.size());
-		assertNull(handler.pageRuleSelectors.getFirst());
-		assertEquals(1, handler.mediaRuleLists.size());
-		MediaQueryList medialist = handler.mediaRuleLists.getFirst();
-		assertEquals(1, medialist.getLength());
-		assertEquals("print", medialist.item(0));
-		assertEquals(1, handler.selectors.size());
-		assertEquals("h3", handler.selectors.getFirst().toString());
-		assertEquals(1, handler.endSelectors.size());
-		assertEquals(2, handler.propertyNames.size());
-		assertEquals("margin-top", handler.propertyNames.get(0));
-		assertEquals("width", handler.propertyNames.get(1));
-		assertEquals(2, handler.lexicalValues.size());
-		assertEquals("20%", handler.lexicalValues.get(0).toString());
-		assertEquals("80%", handler.lexicalValues.get(1).toString());
-		assertEquals(2, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertEquals("endPage", handler.eventSeq.get(3));
-		assertEquals("startSelector", handler.eventSeq.get(4));
-		assertEquals("endSelector", handler.eventSeq.get(6));
-		assertEquals("endMedia", handler.eventSeq.get(7));
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(37, loc.getColumnNumber());
-		assertEquals(53, handler.ptyLocators.get(1).getColumnNumber());
-
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
 	public void testParseStyleSheetOtherRules() throws CSSException, IOException {
 		Reader re = loadTestCSSReader("other_rules.css");
 		parser.parseStyleSheet(re);
 		re.close();
-
-		assertEquals(1, handler.viewportCount);
 
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
@@ -1733,8 +1269,7 @@ public class SheetParserTest {
 		assertEquals(1, handler.counterStyleNames.size());
 		assertEquals("foo", handler.counterStyleNames.get(0));
 
-		assertEquals(15, handler.propertyNames.size());
-		assertEquals("width", handler.propertyNames.get(0));
+		assertEquals("size", handler.propertyNames.get(0));
 		assertEquals("margin-left", handler.propertyNames.get(1));
 		assertEquals("opacity", handler.propertyNames.get(3));
 		assertEquals("opacity", handler.propertyNames.get(4));
@@ -1748,8 +1283,10 @@ public class SheetParserTest {
 		assertEquals("double-W", handler.propertyNames.get(12));
 		assertEquals("sharp-terminals", handler.propertyNames.get(13));
 		assertEquals("background-color", handler.propertyNames.get(14));
+		assertEquals(15, handler.propertyNames.size());
+
 		assertEquals(15, handler.lexicalValues.size());
-		assertEquals("device-width", handler.lexicalValues.get(0).toString());
+		assertEquals("4in", handler.lexicalValues.get(0).toString());
 		assertEquals("0px", handler.lexicalValues.get(1).toString());
 		assertEquals("110px", handler.lexicalValues.get(2).toString());
 		assertEquals("1", handler.lexicalValues.get(3).toString());
@@ -1769,7 +1306,7 @@ public class SheetParserTest {
 
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
-		assertEquals(22, loc.getColumnNumber());
+		assertEquals(12, loc.getColumnNumber());
 		assertEquals(23, handler.ptyLocators.get(1).getColumnNumber());
 		assertEquals(24, handler.ptyLocators.get(2).getColumnNumber());
 		assertEquals(27, handler.ptyLocators.get(12).getColumnNumber());
@@ -1786,509 +1323,6 @@ public class SheetParserTest {
 	}
 
 	@Test
-	public void testParseCharsetRule() throws CSSException, IOException {
-		Reader re = new StringReader("@charset \"utf-8\";");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.atRules.size());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseCharsetRule2() throws CSSException, IOException {
-		Reader re = new StringReader("/* My sheet */\n@charset \"utf-8\";");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.atRules.size());
-		assertEquals(1, handler.comments.size());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseCharsetRuleBad() throws CSSException, IOException {
-		Reader re = new StringReader("@import url('foo.css');@charset \"utf-8\";");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.atRules.size());
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(0, list.getLength());
-		assertTrue(list.isAllMedia());
-		assertEquals("all", list.getMedia());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(24, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseCharsetRuleBad2() throws CSSException, IOException {
-		Reader re = new StringReader("p{display:block;}@charset \"utf-8\";");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.atRules.size());
-		assertEquals(1, handler.selectors.size());
-		assertEquals("p", handler.selectors.get(0).item(0).toString());
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals(1, handler.lexicalValues.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(18, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseCharsetRuleBad3() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@media print {@page {margin-top: 20%;}h3 {width: 80%}}@charset \"utf-8\";");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.atRules.size());
-		assertEquals(1, handler.pageRuleSelectors.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(55, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseCharsetRuleBad4() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf')}@charset \"utf-8\";");
-		parser.parseStyleSheet(re);
-
-		assertEquals(0, handler.atRules.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(41, loc.getColumnNumber());
-		assertEquals(74, handler.ptyLocators.get(1).getColumnNumber());
-
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(75, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseCharsetRuleBad5() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@font-feature-values Foo Sans, Bar {@styleset {my-style: 2;}}@charset \"utf-8\";");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.fontFeaturesNames.size());
-		assertEquals("Foo Sans", handler.fontFeaturesNames.get(0)[0]);
-		assertEquals("Bar", handler.fontFeaturesNames.get(0)[1]);
-		assertEquals(1, handler.featureMapNames.size());
-		assertEquals("styleset", handler.featureMapNames.get(0));
-		assertEquals(0, handler.atRules.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(59, loc.getColumnNumber());
-
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(62, errorHandler.getLastException().getColumnNumber());
-	}
-
-	/*
-	 * Make sure that parsing recovers from bad charset rule error.
-	 * 
-	 */
-
-	@Test
-	public void testParseCharsetRuleBadRecovery() throws CSSException, IOException {
-		Reader re = new StringReader("p{display:block;}@charset \"utf-8\";span {color: blue;}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(0, handler.atRules.size());
-		assertEquals(2, handler.selectors.size());
-		assertEquals("p", handler.selectors.get(0).item(0).toString());
-		assertEquals("span", handler.selectors.get(1).item(0).toString());
-		assertEquals(2, handler.propertyNames.size());
-		assertEquals("display", handler.propertyNames.get(0));
-		assertEquals("color", handler.propertyNames.get(1));
-		assertEquals(2, handler.lexicalValues.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(16, loc.getColumnNumber());
-		assertEquals(52, handler.ptyLocators.get(1).getColumnNumber());
-
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(18, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseImportRule() throws CSSException, IOException {
-		Reader re = new StringReader("@import url('foo.css');");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(0, list.getLength());
-		assertTrue(list.isAllMedia());
-		assertEquals("all", list.getMedia());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRule2() throws CSSException, IOException {
-		Reader re = new StringReader("@import url(foo.css);");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(0, list.getLength());
-		assertTrue(list.isAllMedia());
-		assertEquals("all", list.getMedia());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleComment() throws CSSException, IOException {
-		Reader re = new StringReader("@import/* comment */url(foo.css);");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(0, list.getLength());
-		assertTrue(list.isAllMedia());
-		assertEquals("all", list.getMedia());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleMedia() throws CSSException, IOException {
-		Reader re = new StringReader("@import url(foo.css) print;");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("print", list.item(0));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleMediaComment() throws CSSException, IOException {
-		Reader re = new StringReader("@import url(foo.css)/* comment */print;");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("print", list.item(0));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleMedia2() throws CSSException, IOException {
-		Reader re = new StringReader("@import url(foo.css) screen, tv;");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(2, list.getLength());
-		assertEquals("screen", list.item(0));
-		assertEquals("tv", list.item(1));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleMediaQuery() throws CSSException, IOException {
-		Reader re = new StringReader("@import url('foo.css') (orientation:landscape);");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("(orientation: landscape)", list.item(0));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleMediaQueryComment() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@import url('foo.css') (orientation:/* comment 1 */landscape/* comment 2 */);");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("(orientation: landscape)", list.item(0));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleMediaQuery2() throws CSSException, IOException {
-		Reader re = new StringReader("@import url('foo.css') screen and (orientation:landscape);");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("screen and (orientation: landscape)", list.item(0));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleMediaQueryLevel4() throws CSSException, IOException {
-		Reader re = new StringReader("@import url('foo.css') screen and (800px<width<=1200px);");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("screen and (800px < width <= 1200px)", list.item(0));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleMediaQueryLevel4b() throws CSSException, IOException {
-		Reader re = new StringReader("@import url('foo.css') screen and (resolution>=72dpi);");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("screen and (resolution >= 72dpi)", list.item(0));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleMediaQueryLevel4Comment() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@import url('foo.css') screen/* comment1 */and (800px/* comment2 */<width<=1200px);");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("screen and (800px < width <= 1200px)", list.item(0));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleMediaQueryLevel4calc() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@import url('foo.css') screen and (800px<width<=calc(2400px/2 + 2*100px - 50px));");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("screen and (800px < width <= calc(2400px/2 + 2*100px - 50px))", list.item(0));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleMediaQueryBad() throws CSSException, IOException {
-		Reader re = new StringReader("@import url('foo.css') screen and ((orientation:landscape);");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.importURIs.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(59, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseImportRuleNoUrl() throws CSSException, IOException {
-		Reader re = new StringReader("@import 'foo.css';");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(0, list.getLength());
-		assertTrue(list.isAllMedia());
-		assertEquals("all", list.getMedia());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleNoUrlMedia() throws CSSException, IOException {
-		Reader re = new StringReader("@import 'foo.css' print;");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(1, list.getLength());
-		assertEquals("print", list.item(0));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleNoUrlDQ() throws CSSException, IOException {
-		Reader re = new StringReader("@import \"foo.css\";");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(0, list.getLength());
-		assertTrue(list.isAllMedia());
-		assertEquals("all", list.getMedia());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleNoUrlDQMedia() throws CSSException, IOException {
-		Reader re = new StringReader("@import \"foo.css\" screen, tv;");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals("foo.css", handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(2, list.getLength());
-		assertEquals("screen", list.item(0));
-		assertEquals("tv", list.item(1));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleNoString() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@import url(https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap);");
-		parser.parseStyleSheet(re);
-		assertEquals(1, handler.importURIs.size());
-		assertEquals(
-			"https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap",
-			handler.importURIs.get(0));
-		assertEquals(1, handler.importMedias.size());
-		MediaQueryList list = handler.importMedias.get(0);
-		assertEquals(0, list.getLength());
-		assertTrue(list.isAllMedia());
-		assertEquals("all", list.getMedia());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseImportRuleBad() throws CSSException, IOException {
-		Reader re = new StringReader("foo@import url('bar.css');");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.importURIs.size());
-		assertEquals(0, handler.importMedias.size());
-		assertEquals(0, handler.selectors.size());
-		assertEquals(0, handler.endSelectors.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(1, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseImportRuleBad2() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@import url('bar.css'));a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div{display:block}");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.importURIs.size());
-		assertEquals(0, handler.importMedias.size());
-
-		assertEquals(1, handler.selectors.size());
-		SelectorList selist = handler.selectors.getFirst();
-		assertEquals(
-			"a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div",
-			selist.toString());
-		assertEquals(5, selist.getLength());
-		assertEquals("a:not([href]):not([tabindex])", selist.item(0).toString());
-		assertEquals("a:not([href]):not([tabindex]):focus", selist.item(1).toString());
-		assertEquals("code", selist.item(2).toString());
-		assertEquals("pre", selist.item(3).toString());
-		assertEquals("div", selist.item(4).toString());
-
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals("display", handler.propertyNames.getFirst());
-
-		assertEquals(1, handler.lexicalValues.size());
-		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
-		assertEquals("block", lu.getStringValue());
-		assertNull(lu.getNextLexicalUnit());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(117, loc.getColumnNumber());
-
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(23, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseImportRuleBad3() throws CSSException, IOException {
-		Reader re = new StringReader("@import url((bar.css);");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.importURIs.size());
-		assertEquals(0, handler.importMedias.size());
-		assertEquals(0, handler.selectors.size());
-		assertEquals(0, handler.endSelectors.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(13, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseImportRuleBad4() throws CSSException, IOException {
-		Reader re = new StringReader("@import url(' ' ' ');");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.importURIs.size());
-		assertEquals(0, handler.importMedias.size());
-		assertEquals(0, handler.selectors.size());
-		assertEquals(0, handler.endSelectors.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(17, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseImportRuleBad5() throws CSSException, IOException {
-		Reader re = new StringReader("@import url(a 'b');");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.importURIs.size());
-		assertEquals(0, handler.importMedias.size());
-		assertEquals(0, handler.selectors.size());
-		assertEquals(0, handler.endSelectors.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(15, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseImportRuleBad6() throws CSSException, IOException {
-		Reader re = new StringReader("@import url('a' b);");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.importURIs.size());
-		assertEquals(0, handler.importMedias.size());
-		assertEquals(0, handler.selectors.size());
-		assertEquals(0, handler.endSelectors.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(17, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseImportRuleBad7() throws CSSException, IOException {
-		Reader re = new StringReader("@import url(a b);");
-		parser.parseStyleSheet(re);
-		assertEquals(0, handler.importURIs.size());
-		assertEquals(0, handler.importMedias.size());
-		assertEquals(0, handler.selectors.size());
-		assertEquals(0, handler.endSelectors.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(15, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
 	public void testParseEmptyAtRule() throws CSSException, IOException {
 		Reader re = new StringReader("@;");
 		parser.parseStyleSheet(re);
@@ -2299,336 +1333,6 @@ public class SheetParserTest {
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(2, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseCounterStyleRule() throws CSSException, IOException {
-		Reader re = new StringReader("@counter-style foo {symbols: \\1F44D;\n suffix: \" \";\n}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.counterStyleNames.size());
-		assertEquals("foo", handler.counterStyleNames.get(0));
-		assertEquals(2, handler.propertyNames.size());
-		assertEquals("symbols", handler.propertyNames.get(0));
-		assertEquals("suffix", handler.propertyNames.get(1));
-		assertEquals(2, handler.lexicalValues.size());
-		assertEquals("\\1f44d ", handler.lexicalValues.get(0).toString());
-		assertEquals("\" \"", handler.lexicalValues.get(1).toString());
-		assertEquals(0, handler.atRules.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(36, loc.getColumnNumber());
-		assertEquals(13, handler.ptyLocators.get(1).getColumnNumber());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseCounterStyleRuleBadNameDot() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@counter-style foo. {symbols: \\1F44D; suffix: \" \";}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(0, handler.counterStyleNames.size());
-		assertEquals(0, handler.propertyNames.size());
-		assertEquals(0, handler.lexicalValues.size());
-		assertEquals(0, handler.eventSeq.size());
-		assertEquals(0, handler.atRules.size());
-
-		assertTrue(errorHandler.hasError());
-		CSSParseException ex = errorHandler.getLastException();
-		assertEquals(1, ex.getLineNumber());
-		assertEquals(21, ex.getColumnNumber());
-	}
-
-	@Test
-	public void testParsePropertyRule() throws IOException {
-		Reader re = new StringReader(
-			"@property --my-length {syntax: '<length>'; inherits: false;\ninitial-value: 24px; ignore-me:0}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.customPropertyNames.size());
-		assertEquals("--my-length", handler.customPropertyNames.get(0));
-		assertEquals(4, handler.propertyNames.size());
-		assertEquals("syntax", handler.propertyNames.get(0));
-		assertEquals("inherits", handler.propertyNames.get(1));
-		assertEquals("initial-value", handler.propertyNames.get(2));
-		assertEquals("ignore-me", handler.propertyNames.get(3));
-		assertEquals(4, handler.lexicalValues.size());
-		assertEquals("'<length>'", handler.lexicalValues.get(0).toString());
-		assertEquals("false", handler.lexicalValues.get(1).toString());
-		assertEquals("24px", handler.lexicalValues.get(2).toString());
-		assertEquals("0", handler.lexicalValues.get(3).toString());
-		assertEquals(0, handler.atRules.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(42, loc.getColumnNumber());
-		assertEquals(59, handler.ptyLocators.get(1).getColumnNumber());
-		loc = handler.ptyLocators.get(2);
-		assertEquals(2, loc.getLineNumber());
-		assertEquals(20, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(3);
-		assertEquals(2, loc.getLineNumber());
-		assertEquals(33, loc.getColumnNumber());
-
-		assertEquals("endProperty", handler.eventSeq.get(5));
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParsePropertyRuleNoNameError() throws IOException {
-		Reader re = new StringReader(
-			"@property {syntax: '<length>'; inherits: false;\ninitial-value: 24px}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(0, handler.customPropertyNames.size());
-		assertEquals(0, handler.propertyNames.size());
-		assertEquals(0, handler.lexicalValues.size());
-		assertEquals(0, handler.atRules.size());
-
-		assertEquals(0, handler.eventSeq.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(11, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParsePropertyRuleBadNameError() throws IOException {
-		Reader re = new StringReader(
-			"@property 111 {syntax: '<length>'; inherits: false;\ninitial-value: 24px}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(0, handler.customPropertyNames.size());
-		assertEquals(0, handler.propertyNames.size());
-		assertEquals(0, handler.lexicalValues.size());
-		assertEquals(0, handler.atRules.size());
-
-		assertEquals(0, handler.eventSeq.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(15, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParsePropertyRuleSyntaxDescriptorError() throws IOException {
-		Reader re = new StringReader(
-			"@property --my-length {syntax: '<foo>'; inherits: false;\ninitial-value: 24px}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.customPropertyNames.size());
-		assertEquals("--my-length", handler.customPropertyNames.get(0));
-		assertEquals(2, handler.propertyNames.size());
-		assertEquals("inherits", handler.propertyNames.get(0));
-		assertEquals("initial-value", handler.propertyNames.get(1));
-		assertEquals(2, handler.lexicalValues.size());
-		assertEquals("false", handler.lexicalValues.get(0).toString());
-		assertEquals("24px", handler.lexicalValues.get(1).toString());
-		assertEquals(0, handler.atRules.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(56, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(1);
-		assertEquals(2, loc.getLineNumber());
-		assertEquals(20, loc.getColumnNumber());
-
-		assertEquals("endProperty-Discard", handler.eventSeq.get(3));
-		assertTrue(errorHandler.hasError());
-		assertEquals(2, errorHandler.getLastException().getLineNumber());
-		assertEquals(20, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParsePropertyRuleInitialValueDescriptorError() throws IOException {
-		Reader re = new StringReader(
-			"@property --my-length {syntax: '<length>'; inherits: false;\ninitial-value: 72dpi}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.customPropertyNames.size());
-		assertEquals("--my-length", handler.customPropertyNames.get(0));
-		assertEquals(3, handler.propertyNames.size());
-		assertEquals("syntax", handler.propertyNames.get(0));
-		assertEquals("inherits", handler.propertyNames.get(1));
-		assertEquals("initial-value", handler.propertyNames.get(2));
-		assertEquals(3, handler.lexicalValues.size());
-		assertEquals("'<length>'", handler.lexicalValues.get(0).toString());
-		assertEquals("false", handler.lexicalValues.get(1).toString());
-		assertEquals("72dpi", handler.lexicalValues.get(2).toString());
-		assertEquals(0, handler.atRules.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(42, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(1);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(59, loc.getColumnNumber());
-
-		assertEquals("endProperty-Discard", handler.eventSeq.get(4));
-		assertTrue(errorHandler.hasError());
-		assertEquals(2, errorHandler.getLastException().getLineNumber());
-		assertEquals(21, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParsePropertyRuleInitialValueDescriptorErrorRelativeLength()
-		throws IOException {
-		Reader re = new StringReader(
-			"@property --my-length {syntax: '<length>'; inherits: false;\ninitial-value: 2.1em}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.customPropertyNames.size());
-		assertEquals("--my-length", handler.customPropertyNames.get(0));
-		assertEquals(3, handler.propertyNames.size());
-		assertEquals("syntax", handler.propertyNames.get(0));
-		assertEquals("inherits", handler.propertyNames.get(1));
-		assertEquals("initial-value", handler.propertyNames.get(2));
-		assertEquals(3, handler.lexicalValues.size());
-		assertEquals("'<length>'", handler.lexicalValues.get(0).toString());
-		assertEquals("false", handler.lexicalValues.get(1).toString());
-		assertEquals("2.1em", handler.lexicalValues.get(2).toString());
-		assertEquals(0, handler.atRules.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(42, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(1);
-		assertEquals(1, loc.getLineNumber());
-		assertEquals(59, loc.getColumnNumber());
-
-		assertEquals("endProperty-Discard", handler.eventSeq.get(4));
-		assertTrue(errorHandler.hasError());
-		assertEquals(2, errorHandler.getLastException().getLineNumber());
-		assertEquals(21, errorHandler.getLastException().getColumnNumber());
-	}
-
-	@Test
-	public void testParseViewportRule() throws CSSException, IOException {
-		Reader re = new StringReader("@viewport\n{width: device-width;}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.viewportCount);
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals("width", handler.propertyNames.get(0));
-		assertEquals(1, handler.lexicalValues.size());
-		assertEquals("device-width", handler.lexicalValues.get(0).toString());
-		assertEquals(0, handler.atRules.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(2, loc.getLineNumber());
-		assertEquals(21, loc.getColumnNumber());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseKeyframesRule() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@keyframes slide-right {\nfrom {margin-left: 0px;}\n50% {margin-left: 110px; opacity: 1;}\n"
-				+ "70% {opacity: 0.9;}\nto\n{margin-left: 200px;}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.keyframesNames.size());
-		assertEquals("slide-right", handler.keyframesNames.get(0));
-		assertEquals(4, handler.keyframeSelectors.size());
-		assertEquals("from", handler.keyframeSelectors.get(0).toString());
-		assertEquals("50%", handler.keyframeSelectors.get(1).toString());
-		assertEquals("70%", handler.keyframeSelectors.get(2).toString());
-		assertEquals("to", handler.keyframeSelectors.get(3).toString());
-		assertEquals(5, handler.propertyNames.size());
-		assertEquals("margin-left", handler.propertyNames.get(0));
-		assertEquals("margin-left", handler.propertyNames.get(1));
-		assertEquals("opacity", handler.propertyNames.get(2));
-		assertEquals("opacity", handler.propertyNames.get(3));
-		assertEquals("margin-left", handler.propertyNames.get(4));
-		assertEquals(5, handler.lexicalValues.size());
-		assertEquals("0px", handler.lexicalValues.get(0).toString());
-		assertEquals("110px", handler.lexicalValues.get(1).toString());
-		assertEquals("1", handler.lexicalValues.get(2).toString());
-		assertEquals("0.9", handler.lexicalValues.get(3).toString());
-		assertEquals("200px", handler.lexicalValues.get(4).toString());
-		assertEquals(0, handler.atRules.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(2, loc.getLineNumber());
-		assertEquals(23, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(1);
-		assertEquals(3, loc.getLineNumber());
-		assertEquals(24, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(2);
-		assertEquals(3, loc.getLineNumber());
-		assertEquals(36, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(3);
-		assertEquals(4, loc.getLineNumber());
-		assertEquals(18, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(4);
-		assertEquals(6, loc.getLineNumber());
-		assertEquals(20, loc.getColumnNumber());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseKeyframesRuleComment() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@keyframes/* comment */slide-right {\nfrom {margin-left: 0px;}\n50% {margin-left: 110px; opacity: 1;}\n"
-				+ "70% {opacity: 0.9;}\nto\n{margin-left: 200px;}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(1, handler.keyframesNames.size());
-		assertEquals("slide-right", handler.keyframesNames.get(0));
-		assertEquals(4, handler.keyframeSelectors.size());
-		assertEquals("from", handler.keyframeSelectors.get(0).toString());
-		assertEquals("50%", handler.keyframeSelectors.get(1).toString());
-		assertEquals("70%", handler.keyframeSelectors.get(2).toString());
-		assertEquals("to", handler.keyframeSelectors.get(3).toString());
-		assertEquals(5, handler.propertyNames.size());
-		assertEquals("margin-left", handler.propertyNames.get(0));
-		assertEquals("margin-left", handler.propertyNames.get(1));
-		assertEquals("opacity", handler.propertyNames.get(2));
-		assertEquals("opacity", handler.propertyNames.get(3));
-		assertEquals("margin-left", handler.propertyNames.get(4));
-		assertEquals(5, handler.lexicalValues.size());
-		assertEquals("0px", handler.lexicalValues.get(0).toString());
-		assertEquals("110px", handler.lexicalValues.get(1).toString());
-		assertEquals("1", handler.lexicalValues.get(2).toString());
-		assertEquals("0.9", handler.lexicalValues.get(3).toString());
-		assertEquals("200px", handler.lexicalValues.get(4).toString());
-		assertEquals(0, handler.atRules.size());
-
-		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(2, loc.getLineNumber());
-		assertEquals(23, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(1);
-		assertEquals(3, loc.getLineNumber());
-		assertEquals(24, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(2);
-		assertEquals(3, loc.getLineNumber());
-		assertEquals(36, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(3);
-		assertEquals(4, loc.getLineNumber());
-		assertEquals(18, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(4);
-		assertEquals(6, loc.getLineNumber());
-		assertEquals(20, loc.getColumnNumber());
-		assertFalse(errorHandler.hasError());
-	}
-
-	@Test
-	public void testParseKeyframesRuleErrorNameDot() throws CSSException, IOException {
-		Reader re = new StringReader(
-			"@keyframes slide.{from {margin-left: 0px;} 50% {margin-left: 110px; opacity: 1;}"
-				+ " 70% {opacity: 0.9;} to {margin-left: 200px;}}");
-		parser.parseStyleSheet(re);
-
-		assertEquals(0, handler.keyframesNames.size());
-		assertEquals(0, handler.keyframeSelectors.size());
-		assertEquals(0, handler.propertyNames.size());
-		assertEquals(0, handler.lexicalValues.size());
-		assertEquals(0, handler.eventSeq.size());
-
-		CSSParseException ex = errorHandler.getLastException();
-		assertEquals(1, ex.getLineNumber());
-		assertEquals(17, ex.getColumnNumber());
-		assertTrue(errorHandler.hasError());
 	}
 
 	@Test
@@ -2684,9 +1388,9 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		re.close();
 		assertEquals(14, handler.comments.size());
+		assertEquals(115, handler.selectors.size());
 		assertEquals("textarea", handler.selectors.get(73).toString());
 		assertEquals("hr[align=\"left\"]", handler.selectors.get(76).toString());
-		assertEquals(115, handler.selectors.size());
 		assertEquals(154, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.getFirst());
 		assertEquals("page-break-before", handler.propertyNames.getLast());
@@ -2733,7 +1437,7 @@ public class SheetParserTest {
 		assertEquals(0, handler.lexicalValues.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(19, errorHandler.getLastException().getColumnNumber());
+		assertEquals(20, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -2936,7 +1640,7 @@ public class SheetParserTest {
 		assertTrue(errorHandler.hasError());
 		assertNotNull(errorHandler.getLastException());
 		assertEquals(4, errorHandler.getLastException().getLineNumber());
-		assertEquals(13, errorHandler.getLastException().getColumnNumber());
+		assertEquals(14, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -2966,29 +1670,34 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 		re.close();
 
-		assertEquals(1, handler.viewportCount);
-
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.getFirst().toString());
-		assertEquals(2, handler.propertyNames.size());
-		assertEquals("width", handler.propertyNames.getFirst());
-		assertEquals("background-color", handler.propertyNames.get(1));
+		assertEquals(3, handler.propertyNames.size());
+		assertEquals("syntax", handler.propertyNames.getFirst());
+		assertEquals("inherits", handler.propertyNames.get(1));
+		assertEquals("background-color", handler.propertyNames.get(2));
 
-		assertEquals("device-width", handler.lexicalValues.get(0).toString());
-		LexicalUnit lu = handler.lexicalValues.get(1);
+		assertEquals("\"*\"", handler.lexicalValues.get(0).toString());
+		assertEquals("false", handler.lexicalValues.get(1).toString());
+		LexicalUnit lu = handler.lexicalValues.get(2);
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("red", lu.getStringValue());
 
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(2, loc.getLineNumber());
-		assertEquals(86, loc.getColumnNumber());
-		assertEquals(61, handler.ptyLocators.get(1).getColumnNumber());
+		assertEquals(106, loc.getColumnNumber());
+		loc = handler.ptyLocators.get(1);
+		assertEquals(3, loc.getLineNumber());
+		assertEquals(19, loc.getColumnNumber());
+		loc = handler.ptyLocators.get(2);
+		assertEquals(9, loc.getLineNumber());
+		assertEquals(61, loc.getColumnNumber());
 
 		assertEquals(8, handler.comments.size());
 		assertEquals(" pre-rule-1 ", handler.comments.get(0));
-		assertEquals(" pre-viewport-decl ", handler.comments.get(1));
-		assertEquals(" post-viewport-decl ", handler.comments.get(2));
+		assertEquals(" pre-property-decl ", handler.comments.get(1));
+		assertEquals(" post-property-decl ", handler.comments.get(2));
 		assertEquals(" pre-rule-1-webkit ", handler.comments.get(3));
 		assertEquals(" pre-rule-2 ", handler.comments.get(4));
 		assertEquals(" pre-style-decl 1 ", handler.comments.get(5));

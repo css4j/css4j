@@ -17,6 +17,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
@@ -50,6 +51,8 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	private final LinkedList<String> comments;
 
 	private final boolean allCommentsPrecede;
+
+	private short styleNesting = 0;
 
 	/*
 	 * switch for ignoring rules if a grouping rule is inside the wrong place.
@@ -159,7 +162,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		newRule();
 		if (ignoreGroupingRules == 0) {
 			// Setting namespace uri
-			parentSheet.setNamespace(prefix, uri);
+			parentSheet.registerNamespacePrefix(prefix, uri);
 			NamespaceRule rule = parentSheet.createNamespaceRule(prefix, uri);
 			if (currentRule != null) {
 				addToCurrentRule(rule);
@@ -174,7 +177,8 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	}
 
 	@Override
-	public void importStyle(String uri, MediaQueryList media, String defaultNamespaceURI) {
+	public void importStyle(String uri, String layer, BooleanCondition supportsCondition,
+			MediaQueryList media, String defaultNamespaceURI) {
 		// Ignore any '@import' rule that occurs inside a block or after any
 		// non-ignored statement other than an @charset or an @import rule
 		// (CSS 2.1 §4.1.5)
@@ -188,7 +192,8 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			if (!media.isNotAllMedia()) {
 				if (currentRule == null) { // That should be always true
 					// Importing rule from uri
-					ImportRule imp = parentSheet.createImportRule(media, uri);
+					ImportRule imp = parentSheet.createImportRule(layer, supportsCondition, media,
+							defaultNamespaceURI, uri);
 					setCommentsToRule(imp);
 					addLocalRule(imp);
 				}
@@ -386,10 +391,17 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		ignoreImports = true;
 		newRule();
 		if (ignoreGroupingRules == 0) {
-			CounterStyleRule rule = parentSheet.createCounterStyleRule(name);
-			rule.setParentRule(currentRule);
-			currentRule = rule;
-			setCommentsToRule(currentRule);
+			CounterStyleRule rule;
+			try {
+				rule = parentSheet.createCounterStyleRule(name);
+				rule.setParentRule(currentRule);
+				currentRule = rule;
+				setCommentsToRule(currentRule);
+			} catch (DOMException e) {
+				parentSheet.getErrorHandler().badAtRule(e, "counter-style");
+				ignoreGroupingRules = 256;
+				resetCommentStack();
+			}
 		} else {
 			resetCommentStack();
 		}
@@ -397,7 +409,11 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 
 	@Override
 	public void endCounterStyle() {
-		endGenericRule();
+		if (ignoreGroupingRules > 200) {
+			resetCommentStack();
+		} else {
+			endGenericRule();
+		}
 	}
 
 	@Override
@@ -425,7 +441,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		if (ignoreGroupingRules == 0) {
 			KeyframesRule kfs = (KeyframesRule) currentRule;
 			KeyframeRule rule = new KeyframeRule(kfs);
-			rule.setKeyText(KeyframesRule.keyframeSelector(keyframeSelector));
+			rule.setKeyframeSelector(keyframeSelector);
 			kfs.getCssRules().add(rule);
 			currentRule = rule;
 			setCommentsToRule(currentRule);
@@ -512,35 +528,26 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	}
 
 	@Override
-	public void startViewport() {
-		ignoreImports = true;
-		newRule();
-		if (ignoreGroupingRules == 0) {
-			ViewportRule rule = parentSheet.createViewportRule();
-			rule.setParentRule(currentRule);
-			currentRule = rule;
-			setCommentsToRule(currentRule);
-		} else {
-			resetCommentStack();
-		}
-	}
-
-	@Override
-	public void endViewport() {
-		endGenericRule();
-	}
-
-	@Override
 	public void startSelector(SelectorList selectors) {
 		ignoreImports = true;
 		newRule();
 		if (ignoreGroupingRules == 0) {
 			StyleRule styleRule = parentSheet.createStyleRule();
 			if (currentRule != null) {
+				short curType = currentRule.getType();
+				if (curType == CSSRule.NESTED_DECLARATIONS) {
+					currentRule = currentRule.getParentRule();
+				} else if (curType == CSSRule.STYLE_RULE) {
+					StyleRule cur = (StyleRule) currentRule;
+					if (cur.cssRules == null) {
+						cur.cssRules = new CSSRuleArrayList();
+					}
+				}
+				styleNesting++;
 				styleRule.setParentRule(currentRule);
 			}
 			currentRule = styleRule;
-			((CSSStyleDeclarationRule) currentRule).setSelectorList(selectors);
+			styleRule.setSelectorList(selectors);
 			setCommentsToRule(currentRule);
 		} else { // Ignoring rule for these selectors due to target media mismatch
 			resetCommentStack();
@@ -550,19 +557,23 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void endSelector(SelectorList selectors) {
 		if (ignoreGroupingRules == 0) {
-			assert (currentRule != null && currentRule.getType() == CSSRule.STYLE_RULE);
+			assert (currentRule != null && (currentRule.getType() == CSSRule.STYLE_RULE
+					|| currentRule.getType() == CSSRule.NESTED_DECLARATIONS));
 			lastRule = currentRule;
-			BaseCSSRule pRule = (BaseCSSRule) currentRule.getParentRule();
-			if (((StyleRule) currentRule).getStyle().getLength() == 0) {
-				SheetErrorHandler eh = parentSheet.getErrorHandler();
-				eh.emptyStyleRule(((StyleRule) currentRule).getSelectorText());
+			AbstractCSSRule pRule = currentRule.getParentRule();
+			if (pRule == null) {
+				// Inserting rule into sheet
+				if (currentRule != null) {
+					addLocalRule(currentRule);
+					if (styleNesting > 0) {
+						styleNesting--;
+					}
+				}
 			} else {
-				if (pRule == null) {
-					// Inserting rule into sheet
-					if (currentRule != null)
-						addLocalRule(currentRule);
-				} else {
-					((GroupingRule) pRule).addRule(currentRule);
+				((GroupingRule) pRule).addRule(currentRule);
+				if (pRule.getType() != CSSRule.STYLE_RULE
+						&& pRule.getType() != CSSRule.NESTED_DECLARATIONS && styleNesting > 0) {
+					styleNesting--;
 				}
 			}
 			currentRule = pRule;
@@ -574,15 +585,29 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	public void property(String name, LexicalUnit value, boolean important) {
 		if (ignoreGroupingRules == 0) {
 			if (currentRule != null) {
+				if (styleNesting > 0 && currentRule.getType() == CSSRule.STYLE_RULE) {
+					StyleRule styler = (StyleRule) currentRule;
+					if (styler.cssRules != null && !styler.cssRules.isEmpty()) {
+						// Got at least one nested rule
+						currentRule = new NestedDeclarations(parentSheet, sheetOrigin);
+						// The next call implies
+						// currentRule.setParentRule(styler);
+						styler.addRule(currentRule);
+					}
+				}
+
 				try {
-					((BaseCSSDeclarationRule) currentRule).getStyle().setProperty(name, value, important);
+					((ExtendedCSSDeclarationRule) currentRule).getStyle().setProperty(name, value,
+							important);
 				} catch (RuntimeException e) {
 					CSSPropertyValueException ex = new CSSPropertyValueException(e);
 					ex.setValueText(value.toString());
-					((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().wrongValue(name, ex);
+					((ExtendedCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler()
+							.wrongValue(name, ex);
 					// NSAC report
 					Locator locator = parserctl.createLocator();
-					CSSParseException pe = new CSSParseException("Invalid value for property " + name, locator, e);
+					CSSParseException pe = new CSSParseException(
+							"Invalid value for property " + name, locator, e);
 					error(pe);
 				}
 			} else {
@@ -591,7 +616,8 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 				 * never happen, and if it happens it means that the NSAC parser is
 				 * malfunctioning.
 				 */
-				parentSheet.getErrorHandler().sacMalfunction("Unexpected property " + name + ": " + value.toString());
+				parentSheet.getErrorHandler()
+						.sacMalfunction("Unexpected property " + name + ": " + value.toString());
 			}
 		} // else { Ignoring property due to target media mismatch
 	}
@@ -600,15 +626,26 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	public void lexicalProperty(String name, LexicalUnit lunit, boolean important) {
 		if (ignoreGroupingRules == 0) {
 			if (currentRule != null) {
+				if (styleNesting > 0 && currentRule.getType() == CSSRule.STYLE_RULE) {
+					StyleRule styler = (StyleRule) currentRule;
+					if (!styler.cssRules.isEmpty()) {
+						currentRule = new NestedDeclarations(parentSheet, sheetOrigin);
+						currentRule.setParentRule(styler);
+					}
+				}
+
 				try {
-					((BaseCSSDeclarationRule) currentRule).getStyle().setLexicalProperty(name, lunit, important);
+					((ExtendedCSSDeclarationRule) currentRule).getStyle().setLexicalProperty(name,
+							lunit, important);
 				} catch (RuntimeException e) {
 					CSSPropertyValueException ex = new CSSPropertyValueException(e);
 					ex.setValueText(lunit.toString());
-					((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().wrongValue(name, ex);
+					((ExtendedCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler()
+							.wrongValue(name, ex);
 					// NSAC report
 					Locator locator = parserctl.createLocator();
-					CSSParseException pe = new CSSParseException("Invalid value for property " + name, locator, e);
+					CSSParseException pe = new CSSParseException(
+							"Invalid value for property " + name, locator, e);
 					error(pe);
 				}
 			} else {
@@ -617,7 +654,8 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 				 * never happen, and if it happens it means that the NSAC parser is
 				 * malfunctioning.
 				 */
-				parentSheet.getErrorHandler().sacMalfunction("Unexpected property " + name + ": " + lunit.toString());
+				parentSheet.getErrorHandler()
+						.sacMalfunction("Unexpected property " + name + ": " + lunit.toString());
 			}
 		} // else { Ignoring property due to target media mismatch
 	}
@@ -654,14 +692,14 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 
 	@Override
 	public void warning(CSSParseException exception) throws CSSParseException {
-		if (currentRule instanceof BaseCSSDeclarationRule
-			&& ((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null) {
+		if (currentRule instanceof CSSDeclarationRule
+			&& ((CSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null) {
 			int previousIndex = -1;
-			CSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
+			CSSStyleDeclaration style = ((CSSDeclarationRule) currentRule).getStyle();
 			if (style != null) {
 				previousIndex = style.getLength() - 1;
 			}
-			((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler()
+			((CSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler()
 				.sacWarning(exception, previousIndex);
 		} else {
 			// Handle as non-specific warning
@@ -673,11 +711,11 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	public void error(CSSParseException exception) throws CSSParseException {
 		if (currentRuleCanHandleError()) {
 			int previousIndex = -1;
-			CSSStyleDeclaration style = ((BaseCSSDeclarationRule) currentRule).getStyle();
+			CSSStyleDeclaration style = ((CSSDeclarationRule) currentRule).getStyle();
 			if (style != null) {
 				previousIndex = style.getLength() - 1;
 			}
-			((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().sacError(exception, previousIndex);
+			((CSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().sacError(exception, previousIndex);
 			parentSheet.getErrorHandler().mapError(exception, currentRule);
 		} else {
 			// Handle as non-specific error
@@ -690,8 +728,8 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	 * declaration rule and contains a declaration error handler.
 	 */
 	private boolean currentRuleCanHandleError() {
-		return currentRule instanceof BaseCSSDeclarationRule
-			&& ((BaseCSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null;
+		return currentRule instanceof CSSDeclarationRule
+			&& ((CSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null;
 	}
 
 	private void nonRuleErrorHandling(CSSParseException exception) {

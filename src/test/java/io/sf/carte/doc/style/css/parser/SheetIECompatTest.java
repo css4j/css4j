@@ -61,24 +61,24 @@ public class SheetIECompatTest {
 	}
 
 	@Test
-	public void testParseStyleSheetAsteriskHack() throws CSSException, IOException {
+	public void testParseStyleSheetIEHack() throws CSSException, IOException {
 		TestDeclarationHandler handler = new TestDeclarationHandler();
 		parser.setDocumentHandler(handler);
-		Reader re = new StringReader(".foo{*width: 80%}");
+		Reader re = new StringReader(".foo{width: 80%\\9}");
 		parser.parseStyleSheet(re);
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(6, errorHandler.getLastException().getColumnNumber());
+		assertEquals(17, errorHandler.getLastException().getColumnNumber());
 		errorHandler.reset();
-		parser.setFlag(CSSParser.Flag.STARHACK);
-		re = new StringReader(".foo{*width: 80%}");
+		parser.setFlag(CSSParser.Flag.IEVALUES);
+		re = new StringReader(".foo{width: 80%\\9}");
 		parser.parseStyleSheet(re);
 		assertFalse(errorHandler.hasError());
 		assertEquals(1, handler.propertyNames.size());
-		assertEquals("*width", handler.propertyNames.getFirst());
+		assertEquals("width", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
-		assertEquals(80, lu.getFloatValue(), 0.01);
+		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
+		assertEquals("80%\\9", lu.getStringValue());
 	}
 
 }

@@ -293,6 +293,10 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		case SELECTOR_ARGUMENT:
 			return matches(simple) && matchesArgument((ArgumentCondition) cond, simple);
 		// No more conditions: text-content selectors etc. were deprecated
+		case NESTING:
+			throw new IllegalStateException("Nesting selectors should have been replaced.");
+		default:
+			break;
 		}
 		return false;
 	}

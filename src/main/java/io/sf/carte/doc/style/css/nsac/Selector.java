@@ -116,6 +116,8 @@ public interface Selector {
 		SUBSEQUENT_SIBLING,
 
 		/**
+		 * Column combinator.
+		 * 
 		 * <pre class="example">
 		 * E || F
 		 * </pre>

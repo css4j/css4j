@@ -16,12 +16,8 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
-import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
 import io.sf.carte.doc.style.css.nsac.Condition;
-import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.PositionalCondition;
-import io.sf.carte.doc.style.css.nsac.Selector;
-import io.sf.carte.doc.style.css.nsac.Selector.SelectorType;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.util.Visitor;
 
@@ -30,38 +26,11 @@ import io.sf.carte.util.Visitor;
  * the namespaceURI, localName or value of the contained
  * {@code AttributeCondition}s.
  */
-abstract public class AttributeConditionVisitor implements Visitor<AttributeCondition> {
+abstract public class AttributeConditionVisitor extends ConditionVisitor
+		implements Visitor<AttributeCondition> {
 
 	protected AttributeConditionVisitor() {
 		super();
-	}
-
-	/**
-	 * Visit a list of selectors.
-	 * 
-	 * @param list the list of selectors.
-	 */
-	public void visit(SelectorList list) {
-		int len = list.getLength();
-		for (int i = 0; i < len; i++) {
-			Selector selector = list.item(i);
-			visit(selector);
-		}
-	}
-
-	/**
-	 * Visit a selector.
-	 * 
-	 * @param selector the selector.
-	 */
-	public void visit(Selector selector) {
-		if (selector.getSelectorType() == SelectorType.CONDITIONAL) {
-			Condition cond = ((ConditionalSelector) selector).getCondition();
-			visit(cond);
-		} else if (selector instanceof CombinatorSelector) {
-			Selector sel = ((CombinatorSelector) selector).getSelector();
-			visit(sel);
-		}
 	}
 
 	/**
@@ -69,7 +38,8 @@ abstract public class AttributeConditionVisitor implements Visitor<AttributeCond
 	 * 
 	 * @param condition the condition.
 	 */
-	private void visit(Condition condition) {
+	@Override
+	protected void visit(Condition condition) {
 		if (condition instanceof AttributeCondition) {
 			visit((AttributeCondition) condition);
 		} else {
@@ -105,7 +75,8 @@ abstract public class AttributeConditionVisitor implements Visitor<AttributeCond
 	 * @throws DOMException INVALID_ACCESS_ERR if the namespaceURI is {@code null}
 	 *                      or empty.
 	 */
-	protected void setConditionNamespaceURI(AttributeCondition cond, String namespaceURI) throws DOMException {
+	protected void setConditionNamespaceURI(AttributeCondition cond, String namespaceURI)
+			throws DOMException {
 		if (namespaceURI == null) {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Null namespaceURI.");
 		}
@@ -124,7 +95,8 @@ abstract public class AttributeConditionVisitor implements Visitor<AttributeCond
 	 * @throws DOMException INVALID_ACCESS_ERR if the newLocalName is {@code null}
 	 *                      or empty.
 	 */
-	protected void setConditionLocalName(AttributeCondition cond, String newLocalName) throws DOMException {
+	protected void setConditionLocalName(AttributeCondition cond, String newLocalName)
+			throws DOMException {
 		if (newLocalName == null) {
 			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Null local name.");
 		}
@@ -138,7 +110,7 @@ abstract public class AttributeConditionVisitor implements Visitor<AttributeCond
 	/**
 	 * Sets the value of the attribute condition.
 	 * 
-	 * @param cond  the attribute condition to be set.
+	 * @param cond     the attribute condition to be set.
 	 * @param newValue the new value.
 	 * @throws DOMException INVALID_ACCESS_ERR if the {@code ConditionType} is
 	 *                      {@code CLASS} and the value is {@code null} or empty.

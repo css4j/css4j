@@ -13,8 +13,9 @@ package io.sf.carte.doc.style.css.parser;
 
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.Condition;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 
-class CombinatorConditionImpl implements CombinatorCondition, java.io.Serializable {
+class CombinatorConditionImpl extends AbstractCondition implements CombinatorCondition {
 
 	private static final long serialVersionUID = 1L;
 
@@ -38,6 +39,18 @@ class CombinatorConditionImpl implements CombinatorCondition, java.io.Serializab
 	@Override
 	public Condition getSecondCondition() {
 		return second;
+	}
+
+	@Override
+	Condition replace(SelectorList base) {
+		CombinatorConditionImpl clon = clone();
+		if (first != null) {
+			clon.first = ((AbstractCondition) clon.first).replace(base);
+		}
+		if (second != null) {
+			clon.second = ((AbstractCondition) clon.second).replace(base);
+		}
+		return clon;
 	}
 
 	@Override
@@ -88,6 +101,14 @@ class CombinatorConditionImpl implements CombinatorCondition, java.io.Serializab
 			buf.append('?');
 		}
 		return buf.toString();
+	}
+
+	@Override
+	public CombinatorConditionImpl clone() {
+		CombinatorConditionImpl clon = (CombinatorConditionImpl) super.clone();
+		clon.first = first;
+		clon.second = second;
+		return clon;
 	}
 
 }

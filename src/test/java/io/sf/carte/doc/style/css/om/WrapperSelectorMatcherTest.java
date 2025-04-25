@@ -729,7 +729,7 @@ public class WrapperSelectorMatcherTest {
 		return css;
 	}
 
-	private static String selectorListToString(SelectorList selist, CSSStyleDeclarationRule rule) {
+	private static String selectorListToString(SelectorList selist, StyleRule rule) {
 		if (selist == null) {
 			return null;
 		}

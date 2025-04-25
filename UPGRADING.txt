@@ -1,18 +1,52 @@
 UPGRADING FROM PREVIOUS VERSIONS
 ================================
 
+Upgrading to 6.0 from 5.3.1
+---------------------------
+- The CSSOM rule hierarchy has changed and now `CSSStyleRule` is a grouping rule
+  as mandated by the latest specification (same for `StyleRule` implementation).
+
+- As a consequence of the previous item, `CSSStyleDeclarationRule` was removed.
+  If you use the implementation classes, beware that the `CSSDeclarationRule`
+  interface is now generally used where `BaseCSSDeclarationRule` was.
+
+- The current CSSOM specification says that `CSSRule.setCssText(String)` should
+  do nothing. The `CSSRule` interface was updated with that default behavior,
+  but the actual implementation now throws a `DOMException.NOT_SUPPORTED_ERR`.
+  Throwing an exception is not spec-compliant but probably safer against
+  unexpected results.
+
+- `CSSStyleSheet.createImportRule(MediaQueryList, String)` was deprecated and a
+  new `createImportRule(String, BooleanCondition, MediaQueryList, String, String)`
+  was added.
+
+- `CSSStyleSheet.createViewportRule()` was deprecated for removal and now just
+  returns `null`.
+
+- `SheetErrorHandler.emptyStyleRule(String)` was removed.
+
+- `charset(String)` was added to `CSSHandler` with a default empty implementation.
+
+- The `importStyle` method in `CSSHandler` now has the signature
+  `importStyle(String, String, BooleanCondition, MediaQueryList, String)`.
+
+- The lexical parser now supports CSS Nesting, so you can no longer assume that
+  after a call to `CSSHandler.startSelector(SelectorList)`, the next call to
+  `endSelector(SelectorList)` will carry the same selector list.
+
+- Internet Explorer legacy compatibility flag `STARHACK` was deprecated for
+  removal and no longer works. If your use case requires `STARHACK`, please stay
+  with version 5.3.1.
+
+- Interface `SheetContext` now extends `NamespacePrefixMap`.
+
+
 Upgrading to 5.3 from 5.2
 -------------------------
 - `CSSRectValue` now returns typed values instead of primitives, due to the new
   handling of PROXY values in 5.x.
 
 - The `env()` fallback in `CSSEnvVariableValue` is now a `LexicalUnit`.
-
-
-Upgrading to 5.2 from 5.1
--------------------------
-- CSSOM: `CSSMathFunctionValue.getFunction()` was deprecated, use
-  `getFunctionIndex()` instead.
 
 
 Upgrading to 5.1 from 5.0

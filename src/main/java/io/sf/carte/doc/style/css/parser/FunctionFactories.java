@@ -19,11 +19,11 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.TransformFunctions;
+import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
-import io.sf.carte.doc.style.css.parser.CSSParser.LexicalUnitFactory;
 
-abstract class FunctionFactories {
+class FunctionFactories {
 
 	private final Map<String, LexicalUnitFactory> factories = createFactoryMap();
 
@@ -65,20 +65,21 @@ abstract class FunctionFactories {
 			}
 
 			@Override
-			public boolean validate(final int index, LexicalUnitImpl currentlu) {
+			public boolean validate(CSSContentHandler handler, final int index,
+					LexicalUnitImpl currentlu) {
 				String s = currentlu.parameters.getStringValue();
 				if (s == null) {
 					return false;
 				}
 				int len = s.length();
 				if (len < 3 || s.charAt(0) != '-' || s.charAt(1) != '-') {
-					error(index - len, "var() function must reference a custom property.");
+					error(handler, index - len, "var() function must reference a custom property.");
 					return false;
 				}
 				LexicalType lastType = CSSParser.findLastValue(currentlu.parameters)
 						.getLexicalUnitType();
 				if (lastType == LexicalType.OPERATOR_COMMA) {
-					addEmptyLexicalUnit();
+					addEmptyLexicalUnit(handler);
 				}
 				return true;
 			}
@@ -99,6 +100,11 @@ abstract class FunctionFactories {
 			@Override
 			public LexicalUnitImpl createUnit() {
 				return new LexicalUnitImpl(LexicalType.URI);
+			}
+
+			@Override
+			public String canonicalName(String lcName) {
+				return null;
 			}
 
 		});
@@ -396,6 +402,11 @@ abstract class FunctionFactories {
 				return new ElementReferenceUnitImpl();
 			}
 
+			@Override
+			public String canonicalName(String lcName) {
+				return null;
+			}
+
 		});
 
 		factories.put("circle", new LexicalUnitFactory() {
@@ -535,8 +546,8 @@ abstract class FunctionFactories {
 			}
 
 			@Override
-			public boolean validate(int index, LexicalUnitImpl lu) {
-				return isValidRGBColor(index, lu);
+			public boolean validate(CSSContentHandler handler, int index, LexicalUnitImpl lu) {
+				return isValidRGBColor(handler, index, lu);
 			}
 
 		};
@@ -552,8 +563,8 @@ abstract class FunctionFactories {
 			}
 
 			@Override
-			public boolean validate(int index, LexicalUnitImpl lu) {
-				return isValidHSLColor(index, lu);
+			public boolean validate(CSSContentHandler handler, int index, LexicalUnitImpl lu) {
+				return isValidHSLColor(handler, index, lu);
 			}
 
 		};
@@ -569,8 +580,9 @@ abstract class FunctionFactories {
 			}
 
 			@Override
-			public boolean validate(int index, LexicalUnitImpl currentlu) {
-				return isValidLABColor(index, currentlu, 100, 100f);
+			public boolean validate(CSSContentHandler handler, int index,
+					LexicalUnitImpl currentlu) {
+				return isValidLABColor(handler, index, currentlu, 100, 100f);
 			}
 
 		});
@@ -583,8 +595,9 @@ abstract class FunctionFactories {
 			}
 
 			@Override
-			public boolean validate(int index, LexicalUnitImpl currentlu) {
-				return isValidLCHColor(index, currentlu, 100, 100f);
+			public boolean validate(CSSContentHandler handler, int index,
+					LexicalUnitImpl currentlu) {
+				return isValidLCHColor(handler, index, currentlu, 100, 100f);
 			}
 
 		});
@@ -597,8 +610,9 @@ abstract class FunctionFactories {
 			}
 
 			@Override
-			public boolean validate(int index, LexicalUnitImpl currentlu) {
-				return isValidLABColor(index, currentlu, 1, 1f);
+			public boolean validate(CSSContentHandler handler, int index,
+					LexicalUnitImpl currentlu) {
+				return isValidLABColor(handler, index, currentlu, 1, 1f);
 			}
 
 		});
@@ -611,8 +625,9 @@ abstract class FunctionFactories {
 			}
 
 			@Override
-			public boolean validate(int index, LexicalUnitImpl currentlu) {
-				return isValidLCHColor(index, currentlu, 1, 1f);
+			public boolean validate(CSSContentHandler handler, int index,
+					LexicalUnitImpl currentlu) {
+				return isValidLCHColor(handler, index, currentlu, 1, 1f);
 			}
 
 		});
@@ -625,8 +640,9 @@ abstract class FunctionFactories {
 			}
 
 			@Override
-			public boolean validate(int index, LexicalUnitImpl currentlu) {
-				return isValidHWBColor(index, currentlu);
+			public boolean validate(CSSContentHandler handler, int index,
+					LexicalUnitImpl currentlu) {
+				return isValidHWBColor(handler, index, currentlu);
 			}
 
 		});
@@ -639,8 +655,9 @@ abstract class FunctionFactories {
 			}
 
 			@Override
-			public boolean validate(int index, LexicalUnitImpl currentlu) {
-				return isValidColorFunction(index, currentlu);
+			public boolean validate(CSSContentHandler handler, int index,
+					LexicalUnitImpl currentlu) {
+				return isValidColorFunction(handler, index, currentlu);
 			}
 
 		});
@@ -653,7 +670,8 @@ abstract class FunctionFactories {
 			}
 
 			@Override
-			public boolean validate(int index, LexicalUnitImpl currentlu) {
+			public boolean validate(CSSContentHandler handler, int index,
+					LexicalUnitImpl currentlu) {
 				return isValidColorMixFunction(index, currentlu);
 			}
 
@@ -855,7 +873,8 @@ abstract class FunctionFactories {
 		return factories;
 	}
 
-	private boolean isValidRGBColor(int index, LexicalUnitImpl currentlu) {
+	private boolean isValidRGBColor(CSSContentHandler handler, int index,
+			LexicalUnitImpl currentlu) {
 		LexicalUnitImpl lu = currentlu.parameters;
 		short valCount = 0;
 		LexicalType lastType = LexicalType.UNKNOWN;
@@ -865,8 +884,8 @@ abstract class FunctionFactories {
 		do {
 			LexicalType type = lu.getLexicalUnitType();
 			if (type == LexicalType.OPERATOR_COMMA) {
-				if (lastType == LexicalType.OPERATOR_COMMA
-						|| lastType == LexicalType.UNKNOWN || hasNoCommas) {
+				if (lastType == LexicalType.OPERATOR_COMMA || lastType == LexicalType.UNKNOWN
+						|| hasNoCommas) {
 					return false;
 				}
 				hasCommas = true;
@@ -880,39 +899,39 @@ abstract class FunctionFactories {
 					int value = lu.getIntegerValue();
 					if (value < 0) {
 						lu.intValue = 0;
-						warn(index, "Color component has value under 0.");
+						warn(handler, index, "Color component has value under 0.");
 					} else if (valCount == 3 && value > 1) {
 						lu.intValue = 1;
-						warn(index, "Color alpha has value over 1.");
+						warn(handler, index, "Color alpha has value over 1.");
 					}
 					if (value > 255) {
-						warn(index, "Color component has value over 255.");
+						warn(handler, index, "Color component has value over 255.");
 					}
 				} else if (type == LexicalType.REAL) {
 					float value = lu.getFloatValue();
 					if (value < 0f) {
 						lu.floatValue = 0f;
-						warn(index, "Color component has value under 0.");
+						warn(handler, index, "Color component has value under 0.");
 					}
 					if (valCount == 3) {
 						if (value > 1f) {
 							lu.floatValue = 1f;
-							warn(index, "Color alpha has value over 1.");
+							warn(handler, index, "Color alpha has value over 1.");
 						}
 					} else if (lastType != LexicalType.OPERATOR_SLASH) {
 						type = LexicalType.INTEGER;
 					}
 					if (value > 255f) {
-						warn(index, "Color component has value over 255.");
+						warn(handler, index, "Color component has value over 255.");
 					}
 				} else if (type == LexicalType.PERCENTAGE) {
 					float value = lu.getFloatValue();
 					if (value < 0f) {
 						lu.floatValue = 0f;
-						warn(index, "Color component has percentage under 0%.");
+						warn(handler, index, "Color component has percentage under 0%.");
 					} else if (value > 100f) {
 						lu.floatValue = 100f;
-						warn(index, "Color component has percentage over 100%.");
+						warn(handler, index, "Color component has percentage over 100%.");
 					}
 				} else if (type == LexicalType.IDENT) {
 					if (!"none".equalsIgnoreCase(lu.getStringValue())) {
@@ -938,8 +957,8 @@ abstract class FunctionFactories {
 				if (hasVar && valCount < 3) {
 					valCount = 3;
 				}
-				if (valCount == 4 || valCount < 3 || !isComponentType(lastType)
-						|| hasCommas || lu.nextLexicalUnit == null) {
+				if (valCount == 4 || valCount < 3 || !isComponentType(lastType) || hasCommas
+						|| lu.nextLexicalUnit == null) {
 					return false;
 				}
 				// Commas no longer accepted
@@ -954,7 +973,8 @@ abstract class FunctionFactories {
 		return valCount == 3 || valCount == 4 || (valCount < 3 && hasVar);
 	}
 
-	private boolean isValidHSLColor(int index, LexicalUnitImpl currentlu) {
+	private boolean isValidHSLColor(CSSContentHandler handler, int index,
+			LexicalUnitImpl currentlu) {
 		LexicalUnitImpl lu = currentlu.parameters;
 		short slaCount = 0;
 		LexicalType lastType = LexicalType.UNKNOWN; // EXT1 means angle type
@@ -980,8 +1000,7 @@ abstract class FunctionFactories {
 					// If last type was integer, real, percentage or angle,
 					// the syntax has no commas.
 					hasNoCommas = hasNoCommas || lastType == LexicalType.REAL
-							|| lastType == LexicalType.PERCENTAGE
-							|| lastType == LexicalType.INTEGER
+							|| lastType == LexicalType.PERCENTAGE || lastType == LexicalType.INTEGER
 							|| lastType == LexicalType.EXT1;
 				}
 
@@ -990,10 +1009,10 @@ abstract class FunctionFactories {
 					float value = lu.getFloatValue();
 					if (value < 0f) {
 						lu.floatValue = 0f;
-						warn(index, "Color component has value under 0%.");
+						warn(handler, index, "Color component has value under 0%.");
 					} else if (value > 100f) {
 						lu.floatValue = 100f;
-						warn(index, "Color component has value over 100%.");
+						warn(handler, index, "Color component has value over 100%.");
 					}
 				} else {
 					// To simplify the logic, consider as a percentage
@@ -1010,15 +1029,15 @@ abstract class FunctionFactories {
 					float value = lu.getFloatValue();
 					if (value < 0f) {
 						lu.floatValue = 0f;
-						warn(index, "Color component has value under 0.");
+						warn(handler, index, "Color component has value under 0.");
 					} else if (lastType == LexicalType.OPERATOR_SLASH) {
 						if (value > 1f) {
 							lu.floatValue = 1f;
-							warn(index, "Color alpha has value over 1.");
+							warn(handler, index, "Color alpha has value over 1.");
 						}
 					} else if (value > 100f) {
 						lu.floatValue = 100f;
-						warn(index, "Color component has value over 100%.");
+						warn(handler, index, "Color component has value over 100%.");
 					}
 					// Check commas
 					if (hasCommas) {
@@ -1030,14 +1049,13 @@ abstract class FunctionFactories {
 						// the syntax has no commas.
 						hasNoCommas = hasNoCommas || lastType == LexicalType.REAL
 								|| lastType == LexicalType.PERCENTAGE
-								|| lastType == LexicalType.INTEGER
-								|| lastType == LexicalType.EXT1;
+								|| lastType == LexicalType.INTEGER || lastType == LexicalType.EXT1;
 					}
 				}
 			} else if (type == LexicalType.OPERATOR_COMMA) {
 				// Check that a comma was expected at this point
-				if (lastType == LexicalType.OPERATOR_COMMA
-						|| lastType == LexicalType.UNKNOWN || hasNoCommas) {
+				if (lastType == LexicalType.OPERATOR_COMMA || lastType == LexicalType.UNKNOWN
+						|| hasNoCommas) {
 					return false;
 				}
 				hasCommas = true;
@@ -1047,10 +1065,10 @@ abstract class FunctionFactories {
 					int value = lu.getIntegerValue();
 					if (value < 0) {
 						lu.intValue = 0;
-						warn(index, "Color component has value under 0%.");
+						warn(handler, index, "Color component has value under 0%.");
 					} else if (value > 100) {
 						lu.intValue = 100;
-						warn(index, "Color component has value over 100%.");
+						warn(handler, index, "Color component has value over 100%.");
 					}
 					if (value > 1 && lastType == LexicalType.OPERATOR_SLASH) {
 						lu.intValue = 1;
@@ -1069,8 +1087,7 @@ abstract class FunctionFactories {
 						// the syntax has no commas.
 						hasNoCommas = hasNoCommas || lastType == LexicalType.REAL
 								|| lastType == LexicalType.PERCENTAGE
-								|| lastType == LexicalType.INTEGER
-								|| lastType == LexicalType.EXT1;
+								|| lastType == LexicalType.INTEGER || lastType == LexicalType.EXT1;
 					}
 				}
 			} else if (isAngleUnit(lu)) {
@@ -1106,8 +1123,7 @@ abstract class FunctionFactories {
 						// the syntax has no commas.
 						hasNoCommas = hasNoCommas || lastType == LexicalType.REAL
 								|| lastType == LexicalType.PERCENTAGE
-								|| lastType == LexicalType.INTEGER
-								|| lastType == LexicalType.EXT1;
+								|| lastType == LexicalType.INTEGER || lastType == LexicalType.EXT1;
 					}
 					// We got either S, L or alpha
 					slaCount++;
@@ -1133,7 +1149,8 @@ abstract class FunctionFactories {
 		return slaCount == 2 || slaCount == 3 || (hasVar && slaCount < 2);
 	}
 
-	private boolean isValidHWBColor(int index, LexicalUnitImpl currentlu) {
+	private boolean isValidHWBColor(CSSContentHandler handler, int index,
+			LexicalUnitImpl currentlu) {
 		LexicalUnitImpl lu = currentlu.parameters;
 		short pcntCount = 0;
 		LexicalType lastType = LexicalType.UNKNOWN; // EXT1 means angle type
@@ -1149,24 +1166,23 @@ abstract class FunctionFactories {
 				float value = lu.getFloatValue();
 				if (value < 0f) {
 					lu.floatValue = 0f;
-					warn(index, "Color component has value under 0%.");
+					warn(handler, index, "Color component has value under 0%.");
 				} else if (value > 100f) {
 					lu.floatValue = 100f;
-					warn(index, "Color component has value over 100%.");
+					warn(handler, index, "Color component has value over 100%.");
 				}
 			} else if (type == LexicalType.INTEGER) {
 				if (lastType != LexicalType.UNKNOWN) {
-					if ((lastType != LexicalType.OPERATOR_SLASH)
-							|| (pcntCount < 2 && !hasVar)) {
+					if ((lastType != LexicalType.OPERATOR_SLASH) || (pcntCount < 2 && !hasVar)) {
 						return false;
 					}
 					int value = lu.getIntegerValue();
 					if (value < 0) {
 						lu.intValue = 0;
-						warn(index, "Color alpha has value under 0.");
+						warn(handler, index, "Color alpha has value under 0.");
 					} else if (value > 1) {
 						lu.intValue = 1;
-						warn(index, "Color alpha has value over 1.");
+						warn(handler, index, "Color alpha has value over 1.");
 					}
 				}
 			} else if (isAngleUnit(lu)) {
@@ -1182,8 +1198,8 @@ abstract class FunctionFactories {
 				}
 			} else if (type == LexicalType.REAL) {
 				if (lastType != LexicalType.UNKNOWN) {
-					if (lastType != LexicalType.OPERATOR_SLASH
-							|| (pcntCount != 2 && !hasVar) || (hasVar && pcntCount > 2)) {
+					if (lastType != LexicalType.OPERATOR_SLASH || (pcntCount != 2 && !hasVar)
+							|| (hasVar && pcntCount > 2)) {
 						return false;
 					}
 					pcntCount = 3;
@@ -1191,10 +1207,10 @@ abstract class FunctionFactories {
 					float value = lu.getFloatValue();
 					if (value < 0f) {
 						lu.floatValue = 0f;
-						warn(index, "Color alpha has value under 0.");
+						warn(handler, index, "Color alpha has value under 0.");
 					} else if (value > 1f) {
 						lu.floatValue = 1f;
-						warn(index, "Color alpha has value over 1.");
+						warn(handler, index, "Color alpha has value over 1.");
 					}
 				}
 			} else if (type == LexicalType.CALC || type == LexicalType.MATH_FUNCTION
@@ -1227,8 +1243,8 @@ abstract class FunctionFactories {
 		return pcntCount >= 2 || (hasVar && pcntCount <= 1);
 	}
 
-	private boolean isValidLABColor(final int index, LexicalUnitImpl currentlu, int iUpperLightness,
-			float fUpperLightness) {
+	private boolean isValidLABColor(CSSContentHandler handler, final int index,
+			LexicalUnitImpl currentlu, int iUpperLightness, float fUpperLightness) {
 		LexicalUnitImpl lu = currentlu.parameters;
 		boolean hasVar = false;
 		if (lu == null) {
@@ -1241,30 +1257,30 @@ abstract class FunctionFactories {
 			float fL = lu.getFloatValue();
 			if (fL < 0f) {
 				lu.floatValue = 0f;
-				warn(index, "Color lightness has percentage under 0%.");
+				warn(handler, index, "Color lightness has percentage under 0%.");
 			} else if (fL > 100f) {
 				lu.floatValue = 100f;
-				warn(index, "Color lightness has percentage over 100%.");
+				warn(handler, index, "Color lightness has percentage over 100%.");
 			}
 		} else if (type == LexicalType.REAL) {
 			// Clamp
 			float fL = lu.getFloatValue();
 			if (fL < 0f) {
 				lu.floatValue = 0f;
-				warn(index, "Color lightness has value under 0.");
+				warn(handler, index, "Color lightness has value under 0.");
 			} else if (fL > fUpperLightness) {
 				lu.floatValue = fUpperLightness;
-				warn(index, "Color lightness has value over " + fUpperLightness);
+				warn(handler, index, "Color lightness has value over " + fUpperLightness);
 			}
 		} else if (type == LexicalType.INTEGER) {
 			// Clamp
 			int iL = lu.getIntegerValue();
 			if (iL < 0) {
 				lu.intValue = 0;
-				warn(index, "Color lightness has value under 0.");
+				warn(handler, index, "Color lightness has value under 0.");
 			} else if (iL > iUpperLightness) {
 				lu.intValue = iUpperLightness;
-				warn(index, "Color lightness has value over " + iUpperLightness);
+				warn(handler, index, "Color lightness has value over " + iUpperLightness);
 			}
 		} else if (type == LexicalType.VAR) {
 			hasVar = true;
@@ -1301,7 +1317,7 @@ abstract class FunctionFactories {
 					if (!hasVar || numericValueCount > 4) {
 						return false;
 					}
-					return isValidAlpha(index, lu);
+					return isValidAlpha(handler, index, lu);
 				}
 				break;
 			case OPERATOR_SLASH:
@@ -1310,7 +1326,7 @@ abstract class FunctionFactories {
 				if (lu == null || numericValueCount > 3 || (numericValueCount < 3 && !hasVar)) {
 					return false;
 				}
-				return isValidAlpha(index, lu);
+				return isValidAlpha(handler, index, lu);
 			case PERCENTAGE:
 				// Could be a or b, also alpha if the slash is inside a var()
 				numericValueCount++;
@@ -1319,7 +1335,7 @@ abstract class FunctionFactories {
 					if (!hasVar || numericValueCount > 4) {
 						return false;
 					}
-					return isValidAlpha(index, lu);
+					return isValidAlpha(handler, index, lu);
 				}
 				// If it has a var(), we don't know whether to clamp
 				// as a/b or as alpha
@@ -1328,10 +1344,10 @@ abstract class FunctionFactories {
 					float fval = lu.getFloatValue();
 					if (fval < -100f) {
 						lu.floatValue = -100f;
-						warn(index, "Color component has percentage under -100%.");
+						warn(handler, index, "Color component has percentage under -100%.");
 					} else if (fval > 100f) {
 						lu.floatValue = 100f;
-						warn(index, "Color component has percentage over 100%.");
+						warn(handler, index, "Color component has percentage over 100%.");
 					}
 				}
 				break;
@@ -1348,8 +1364,8 @@ abstract class FunctionFactories {
 				|| (hasVar && numericValueCount < 3);
 	}
 
-	private boolean isValidLCHColor(final int index, LexicalUnitImpl currentlu, int iUpperLightness,
-			float fUpperLightness) {
+	private boolean isValidLCHColor(CSSContentHandler handler, final int index,
+			LexicalUnitImpl currentlu, int iUpperLightness, float fUpperLightness) {
 		LexicalUnitImpl lu = currentlu.parameters;
 		boolean hasVar = false;
 		if (lu == null) {
@@ -1362,30 +1378,30 @@ abstract class FunctionFactories {
 			float fL = lu.getFloatValue();
 			if (fL < 0f) {
 				lu.floatValue = 0f;
-				warn(index, "Color lightness has percentage under 0%.");
+				warn(handler, index, "Color lightness has percentage under 0%.");
 			} else if (fL > 100f) {
 				lu.floatValue = 100f;
-				warn(index, "Color lightness has percentage over 100%.");
+				warn(handler, index, "Color lightness has percentage over 100%.");
 			}
 		} else if (type == LexicalType.REAL) {
 			// Clamp
 			float fL = lu.getFloatValue();
 			if (fL < 0f) {
 				lu.floatValue = 0f;
-				warn(index, "Color lightness has value under 0.");
+				warn(handler, index, "Color lightness has value under 0.");
 			} else if (fL > fUpperLightness) {
 				lu.floatValue = fUpperLightness;
-				warn(index, "Color lightness has value over " + fUpperLightness);
+				warn(handler, index, "Color lightness has value over " + fUpperLightness);
 			}
 		} else if (type == LexicalType.INTEGER) {
 			// Clamp
 			int iL = lu.getIntegerValue();
 			if (iL < 0) {
 				lu.intValue = 0;
-				warn(index, "Color lightness has value under 0.");
+				warn(handler, index, "Color lightness has value under 0.");
 			} else if (iL > iUpperLightness) {
 				lu.intValue = iUpperLightness;
-				warn(index, "Color lightness has value over " + iUpperLightness);
+				warn(handler, index, "Color lightness has value over " + iUpperLightness);
 			}
 		} else if (type == LexicalType.VAR) {
 			hasVar = true;
@@ -1408,10 +1424,10 @@ abstract class FunctionFactories {
 			float fC = lu.getFloatValue();
 			if (fC < 0f) {
 				lu.floatValue = 0f;
-				warn(index, "Color chroma has percentage under 0.");
+				warn(handler, index, "Color chroma has percentage under 0.");
 			} else if (fC > 100f) {
 				lu.floatValue = 100f;
-				warn(index, "Color chroma has percentage over 100.");
+				warn(handler, index, "Color chroma has percentage over 100.");
 			}
 		} else if (type == LexicalType.REAL) {
 			if (!hasVar) {
@@ -1419,7 +1435,7 @@ abstract class FunctionFactories {
 				float fC = lu.getFloatValue();
 				if (fC < 0f) {
 					lu.floatValue = 0f;
-					warn(index, "Color component has value under 0.");
+					warn(handler, index, "Color component has value under 0.");
 				}
 			}
 		} else if (type == LexicalType.INTEGER) {
@@ -1428,7 +1444,7 @@ abstract class FunctionFactories {
 				int iC = lu.getIntegerValue();
 				if (iC < 0) {
 					lu.intValue = 0;
-					warn(index, "Color component has value under 0.");
+					warn(handler, index, "Color component has value under 0.");
 				}
 			}
 		} else if (type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
@@ -1446,7 +1462,7 @@ abstract class FunctionFactories {
 							return false;
 						}
 					}
-					return isValidAlpha(index, lu);
+					return isValidAlpha(handler, index, lu);
 				}
 			} else {
 				return false;
@@ -1475,7 +1491,7 @@ abstract class FunctionFactories {
 						return false;
 					}
 				}
-				return isValidAlpha(index, lu);
+				return isValidAlpha(handler, index, lu);
 			} else {
 				return false;
 			}
@@ -1495,7 +1511,7 @@ abstract class FunctionFactories {
 				lu = lu.nextLexicalUnit;
 				while (lu != null) {
 					if (lu.getLexicalUnitType() != LexicalType.VAR) {
-						return isValidAlpha(index, lu);
+						return isValidAlpha(handler, index, lu);
 					}
 					lu = lu.nextLexicalUnit;
 				}
@@ -1503,13 +1519,14 @@ abstract class FunctionFactories {
 			} else if (!hasVar) {
 				return false;
 			}
-			return isValidAlpha(index, lu);
+			return isValidAlpha(handler, index, lu);
 		}
 
 		return true;
 	}
 
-	private boolean isValidColorFunction(int index, LexicalUnitImpl currentlu) {
+	private boolean isValidColorFunction(CSSContentHandler handler, int index,
+			LexicalUnitImpl currentlu) {
 		LexicalUnitImpl lu = currentlu.parameters;
 		if (lu == null) {
 			return false;
@@ -1558,12 +1575,11 @@ abstract class FunctionFactories {
 				if (lu == null) {
 					return false;
 				}
-				return isValidAlpha(index, lu);
+				return isValidAlpha(handler, index, lu);
 			case MATH_FUNCTION:
 			case FUNCTION:
 			case ATTR:
-				CSSValueSyntax syn = new SyntaxParser()
-						.parseSyntax("<number> | <percentage>");
+				CSSValueSyntax syn = new SyntaxParser().parseSyntax("<number> | <percentage>");
 				foundNumericValue = lu.shallowMatch(syn) != Match.FALSE;
 				break;
 			default:
@@ -1706,10 +1722,9 @@ abstract class FunctionFactories {
 		// Must be a comma if not var()
 		if (uType != LexicalType.OPERATOR_COMMA) {
 			// Assume the rest is right if we got the right type
-			return hasVar && (!cannotBeColor(lu, synColor)
-					|| uType == LexicalType.PERCENTAGE || uType == LexicalType.CALC
-					|| uType == LexicalType.MATH_FUNCTION || uType == LexicalType.FUNCTION
-					|| uType == LexicalType.VAR);
+			return hasVar && (!cannotBeColor(lu, synColor) || uType == LexicalType.PERCENTAGE
+					|| uType == LexicalType.CALC || uType == LexicalType.MATH_FUNCTION
+					|| uType == LexicalType.FUNCTION || uType == LexicalType.VAR);
 		} else {
 			lu = lu.getNextLexicalUnit();
 			uType = lu.getLexicalUnitType();
@@ -1757,37 +1772,37 @@ abstract class FunctionFactories {
 		return true;
 	}
 
-	private boolean isValidAlpha(final int index, LexicalUnitImpl lu) {
+	private boolean isValidAlpha(CSSContentHandler handler, final int index, LexicalUnitImpl lu) {
 		LexicalType type = lu.getLexicalUnitType();
 		switch (type) {
 		case INTEGER:
 			int iAlpha = lu.getIntegerValue();
 			if (iAlpha < 0) {
 				lu.intValue = 0;
-				warn(index, "Color alpha has value under 0.");
+				warn(handler, index, "Color alpha has value under 0.");
 			} else if (iAlpha > 1) {
 				lu.intValue = 1;
-				warn(index, "Color alpha has value over 1.");
+				warn(handler, index, "Color alpha has value over 1.");
 			}
 			break;
 		case REAL:
 			float fAlpha = lu.getFloatValue();
 			if (fAlpha < 0f) {
 				lu.floatValue = 0f;
-				warn(index, "Color alpha has value under 0.");
+				warn(handler, index, "Color alpha has value under 0.");
 			} else if (fAlpha > 1f) {
 				lu.floatValue = 1f;
-				warn(index, "Color alpha has value over 1.");
+				warn(handler, index, "Color alpha has value over 1.");
 			}
 			break;
 		case PERCENTAGE:
 			fAlpha = lu.getFloatValue();
 			if (fAlpha < 0f) {
 				lu.floatValue = 0f;
-				warn(index, "Color alpha has value under 0%.");
+				warn(handler, index, "Color alpha has value under 0%.");
 			} else if (fAlpha > 100f) {
 				lu.floatValue = 100f;
-				warn(index, "Color alpha has value over 100%.");
+				warn(handler, index, "Color alpha has value over 100%.");
 			}
 			break;
 		case IDENT:
@@ -1819,10 +1834,9 @@ abstract class FunctionFactories {
 
 	private static boolean isComponentType(LexicalType type) {
 		return type == LexicalType.INTEGER || type == LexicalType.PERCENTAGE
-				|| type == LexicalType.REAL || type == LexicalType.VAR
-				|| type == LexicalType.CALC || type == LexicalType.IDENT
-				|| type == LexicalType.MATH_FUNCTION || type == LexicalType.FUNCTION
-				|| type == LexicalType.ATTR;
+				|| type == LexicalType.REAL || type == LexicalType.VAR || type == LexicalType.CALC
+				|| type == LexicalType.IDENT || type == LexicalType.MATH_FUNCTION
+				|| type == LexicalType.FUNCTION || type == LexicalType.ATTR;
 	}
 
 	private static boolean isAngleUnit(LexicalUnit lu) {
@@ -1847,11 +1861,21 @@ abstract class FunctionFactories {
 	/**
 	 * Add an {@code EMPTY} lexical unit at the end of the current lexical chain.
 	 */
-	protected abstract void addEmptyLexicalUnit();
+	protected void addEmptyLexicalUnit(CSSContentHandler handler) {
+		if (handler instanceof LexicalProvider) {
+			((LexicalProvider) handler).addEmptyLexicalUnit();
+		} else {
+			throw new CSSException("Found var() in invalid context.");
+		}
+	}
 
-	protected abstract void warn(int index, String message);
+	protected void error(CSSContentHandler handler, int index, String message) {
+		handler.handleError(index, ParseHelper.ERR_WRONG_VALUE, message);
+	}
 
-	protected abstract void error(int index, String message);
+	protected void warn(CSSContentHandler handler, int index, String message) {
+		handler.handleWarning(index, ParseHelper.WARN_VALUE, message);
+	}
 
 	/**
 	 * Get the factory for the given function name.

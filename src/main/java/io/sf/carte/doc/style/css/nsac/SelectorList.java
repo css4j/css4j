@@ -78,4 +78,15 @@ public interface SelectorList extends Iterable<Selector> {
 		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR, "");
 	}
 
+	/**
+	 * Replace the nested selectors in this selector list, absolutizing it respect
+	 * to the supplied base.
+	 * 
+	 * @param base the absolute selector list base.
+	 * @return the absolute selector list.
+	 */
+	default SelectorList replaceNested(SelectorList base) {
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "");
+	}
+
 }

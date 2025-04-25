@@ -15,22 +15,7 @@ package io.sf.carte.doc.style.css.nsac;
 /**
  * Provides a style sheet context, useful for selector serialization.
  */
-public interface SheetContext {
-
-	/**
-	 * Has the style sheet a default namespace?
-	 * 
-	 * @return {@code true} if it has a default namespace.
-	 */
-	boolean hasDefaultNamespace();
-
-	/**
-	 * Get the namespace prefix corresponding to the given URI.
-	 * 
-	 * @param namespaceURI the namespace URI.
-	 * @return the prefix.
-	 */
-	String getNamespacePrefix(String namespaceURI);
+public interface SheetContext extends NamespacePrefixMap {
 
 	/**
 	 * Check whether the given factory flag is set.

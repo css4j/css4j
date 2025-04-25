@@ -111,7 +111,7 @@ public class SelectorMatcherTest {
 	@Test
 	public void testMatchSelector1ElementNS() throws Exception {
 		BaseCSSStyleSheet css = parseStyle(
-			"@namespace svg url('http://www.w3.org/2000/svg'); p {color: blue;} svg|svg {margin-left: 5pt;}");
+				"@namespace svg url('http://www.w3.org/2000/svg'); p {color: blue;} svg|svg {margin-left: 5pt;}");
 		SelectorList selist = ((StyleRule) css.getCssRules().item(1)).getSelectorList();
 		SelectorList svgselist = ((StyleRule) css.getCssRules().item(2)).getSelectorList();
 		CSSElement svg = doc.createElementNS(TestConfig.SVG_NAMESPACE_URI, "svg");
@@ -134,7 +134,7 @@ public class SelectorMatcherTest {
 	@Test
 	public void testMatchSelector1ElementNoNS() throws Exception {
 		BaseCSSStyleSheet css = parseStyle(
-			"@namespace url('https://www.w3.org/1999/xhtml/'); p{color: blue;} |div{margin-left: 5pt;}");
+				"@namespace url('https://www.w3.org/1999/xhtml/'); p{color: blue;} |div{margin-left: 5pt;}");
 		SelectorList selist = ((StyleRule) css.getCssRules().item(1)).getSelectorList();
 
 		DOMDocument xdoc = domImpl.createDocument("", null, null);
@@ -1230,7 +1230,7 @@ public class SelectorMatcherTest {
 		assertEquals("p.exampleclass~p", selectorListToString(selist, rule));
 
 		rule = (StyleRule) parseStyle("p#childidp1.exampleclass ~ pre#idpre {color: blue;}")
-			.getCssRules().item(0);
+				.getCssRules().item(0);
 		SelectorList selist2 = rule.getSelectorList();
 
 		CSSElement parent = createTopLevelElement("div");
@@ -1624,10 +1624,10 @@ public class SelectorMatcherTest {
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
-			"https://www.example.com/bar");
+				"https://www.example.com/bar");
 		assertEquals(-1, matcher.matches(selist));
 		elm.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href",
-			"https://www.example.com/foo");
+				"https://www.example.com/foo");
 		assertEquals(0, matcher.matches(selist));
 
 		a.removeAttribute("href");
@@ -2071,8 +2071,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p:not(:last-child, :not(p)) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p:not(:last-child,:not(p))",
-				selectorListToString(selist, rule));
+		assertEquals("p:not(:last-child,:not(p))", selectorListToString(selist, rule));
 		CSSElement parent = createTopLevelElement("div");
 		parent.setAttribute("id", "div1");
 		CSSElement elm = doc.createElement("p");
@@ -2304,8 +2303,8 @@ public class SelectorMatcherTest {
 		CSSElement style = doc.createElement("style");
 		CSSElement elm = doc.createElement("p");
 		style.setAttribute("type", "text/css");
-		style.appendChild(
-			doc.createTextNode("p:hover {text-decoration-line:underline; text-align: center;}"));
+		style.appendChild(doc
+				.createTextNode("p:hover {text-decoration-line:underline; text-align: center;}"));
 		doc.getDocumentElement().appendChild(head);
 		head.appendChild(style);
 		CSSElement body = doc.createElement("body");
@@ -2315,7 +2314,7 @@ public class SelectorMatcherTest {
 		doc.getDocumentElement().appendChild(body);
 		doc.setTargetMedium("screen");
 		assertEquals("p:hover {text-decoration-line: underline; text-align: center; }",
-			doc.getStyleSheet().toString());
+				doc.getStyleSheet().toString());
 		CSSComputedProperties styledecl = doc.getStyleSheet().getComputedStyle(elm, null);
 		assertNotNull(styledecl);
 		assertEquals("none", styledecl.getPropertyValue("text-decoration-line"));
@@ -2328,7 +2327,7 @@ public class SelectorMatcherTest {
 		assertEquals("underline", styledecl.getPropertyValue("text-decoration-line"));
 		assertEquals("center", styledecl.getPropertyValue("text-align"));
 		assertEquals("center",
-			doc.getStyleSheet().getComputedStyle(span, null).getPropertyValue("text-align"));
+				doc.getStyleSheet().getComputedStyle(span, null).getPropertyValue("text-align"));
 		styledecl = doc.getStyleSheet().getComputedStyle(body, null);
 		assertEquals("none", styledecl.getPropertyValue("text-decoration-line"));
 		styledecl = doc.getStyleSheet().getComputedStyle(span, null);
@@ -2398,7 +2397,7 @@ public class SelectorMatcherTest {
 		return css;
 	}
 
-	private static String selectorListToString(SelectorList selist, CSSStyleDeclarationRule rule) {
+	private static String selectorListToString(SelectorList selist, StyleRule rule) {
 		if (selist == null) {
 			return null;
 		}

@@ -73,7 +73,8 @@ public class BaseCSSStyleSheetFactoryTest {
 	public void testCreatePropertyDefinition() {
 		SyntaxParser parser = new SyntaxParser();
 		CSSValueSyntax syntax = parser.parseSyntax("*");
-		CSSPropertyDefinition definition = factory.createPropertyDefinition("--my-property", syntax, true, null);
+		CSSPropertyDefinition definition = factory.createPropertyDefinition("--my-property", syntax,
+				true, null);
 		assertNotNull(definition);
 		assertEquals("--my-property", definition.getName());
 		assertEquals("*", definition.getSyntax().toString());
@@ -88,7 +89,8 @@ public class BaseCSSStyleSheetFactoryTest {
 		CSSOMParser parser = new CSSOMParser();
 		LexicalUnit value = parser.parsePropertyValue(new StringReader("18px"));
 
-		CSSPropertyDefinition definition = factory.createPropertyDefinition("--my-length", syntax, true, value);
+		CSSPropertyDefinition definition = factory.createPropertyDefinition("--my-length", syntax,
+				true, value);
 		assertNotNull(definition);
 		assertEquals("--my-length", definition.getName());
 		assertEquals("<length>", definition.getSyntax().toString());

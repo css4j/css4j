@@ -35,7 +35,7 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
-import io.sf.carte.doc.style.css.om.CSSStyleDeclarationRule;
+import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
@@ -45,7 +45,7 @@ public class CalcValueTest {
 
 	private static SyntaxParser syntaxParser;
 
-	CSSStyleDeclarationRule parentStyleRule;
+	StyleRule parentStyleRule;
 	AbstractCSSStyleDeclaration style;
 
 	@BeforeAll

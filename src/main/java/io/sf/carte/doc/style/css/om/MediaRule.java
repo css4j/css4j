@@ -35,6 +35,7 @@ public class MediaRule extends GroupingRule implements CSSMediaRule {
 
 	protected MediaRule(AbstractCSSStyleSheet parentSheet, MediaQueryList mediaList, byte origin) {
 		super(parentSheet, CSSRule.MEDIA_RULE, origin);
+		cssRules = new CSSRuleArrayList();
 		this.mediaList = mediaList;
 	}
 
@@ -92,12 +93,6 @@ public class MediaRule extends GroupingRule implements CSSMediaRule {
 		context.endRuleList(wri);
 		context.writeRightCurlyBracket(wri);
 		context.endRule(wri, getTrailingComments());
-	}
-
-	@Override
-	protected void setGroupingRule(GroupingRule rule) throws DOMException {
-		MediaRule mediaRule = (MediaRule) rule;
-		this.mediaList = mediaRule.mediaList;
 	}
 
 	@Override

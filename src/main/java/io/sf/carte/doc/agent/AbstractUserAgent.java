@@ -153,9 +153,7 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	@Override
 	public String getProperty(String propertyName) {
-		if (propertyName.equals("parser.starhack")) {
-			return Boolean.toString(parserFlags.contains(Parser.Flag.STARHACK));
-		} else if (propertyName.equals("parser.ievalues")) {
+		if (propertyName.equals("parser.ievalues")) {
 			return Boolean.toString(parserFlags.contains(Parser.Flag.IEVALUES));
 		} else if (propertyName.equals("parser.ieprio")) {
 			return Boolean.toString(parserFlags.contains(Parser.Flag.IEPRIO));
@@ -167,18 +165,25 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	@Override
 	public boolean setProperty(String propertyName, String value) {
-		if (propertyName.equals("parser.starhack")) {
-			if ("true".equalsIgnoreCase(value)) {
-				parserFlags.add(Parser.Flag.STARHACK);
-			} else {
-				parserFlags.remove(Parser.Flag.STARHACK);
-			}
-			return true;
-		} else if (propertyName.equals("parser.ievalues")) {
+		if (propertyName.equals("parser.ievalues")) {
 			if ("true".equalsIgnoreCase(value)) {
 				parserFlags.add(Parser.Flag.IEVALUES);
 			} else {
 				parserFlags.remove(Parser.Flag.IEVALUES);
+			}
+			return true;
+		} else if (propertyName.equals("parser.ieprio")) {
+			if ("true".equalsIgnoreCase(value)) {
+				parserFlags.add(Parser.Flag.IEPRIO);
+			} else {
+				parserFlags.remove(Parser.Flag.IEPRIO);
+			}
+			return true;
+		} else if (propertyName.equals("parser.iepriochar")) {
+			if ("true".equalsIgnoreCase(value)) {
+				parserFlags.add(Parser.Flag.IEPRIOCHAR);
+			} else {
+				parserFlags.remove(Parser.Flag.IEPRIOCHAR);
 			}
 			return true;
 		}

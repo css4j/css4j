@@ -75,11 +75,14 @@ public class BaseCSSStyleSheetTest2 {
 
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(41).getType());
 		stylerule = (StyleRule) sheet.getCssRules().item(41);
-		assertEquals("/* The start attribute on ol elements */ol[start] {counter-reset: list-item calc(attr(start type(<integer>), 1) - 1); }", stylerule.getCssText());
+		assertEquals(
+				"/* The start attribute on ol elements */ol[start] {counter-reset: list-item calc(attr(start type(<integer>), 1) - 1); }",
+				stylerule.getCssText());
 		assertEquals("ol[start]{counter-reset:list-item calc(attr(start type(<integer>),1) - 1)}",
 				stylerule.getMinifiedCssText());
 		assertNotNull(stylerule.getPrecedingComments());
-		assertEquals(" The start attribute on ol elements ", stylerule.getPrecedingComments().get(0));
+		assertEquals(" The start attribute on ol elements ",
+				stylerule.getPrecedingComments().get(0));
 		assertNull(stylerule.getTrailingComments());
 
 		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(47).getType());
@@ -112,8 +115,12 @@ public class BaseCSSStyleSheetTest2 {
 
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(2).getType());
 		pagerule = (PageRule) sheet.getCssRules().item(2);
-		assertEquals("@page foo:left {margin-left: 10%; @top-center {content: none; }@bottom-center {content: counter(page); }}", pagerule.getCssText());
-		assertEquals("@page foo:left{margin-left:10%;@top-center{content:none}@bottom-center{content:counter(page)}}", pagerule.getMinifiedCssText());
+		assertEquals(
+				"@page foo:left {margin-left: 10%; @top-center {content: none; }@bottom-center {content: counter(page); }}",
+				pagerule.getCssText());
+		assertEquals(
+				"@page foo:left{margin-left:10%;@top-center{content:none}@bottom-center{content:counter(page)}}",
+				pagerule.getMinifiedCssText());
 
 		assertEquals(CSSRule.PAGE_RULE, sheet.getCssRules().item(3).getType());
 		pagerule = (PageRule) sheet.getCssRules().item(3);
@@ -145,10 +152,10 @@ public class BaseCSSStyleSheetTest2 {
 		re.close();
 
 		assertEquals(4, sheet.getCssRules().getLength());
-		assertEquals(CSSRule.VIEWPORT_RULE, sheet.getCssRules().item(0).getType());
-		ViewportRule vprule = (ViewportRule) sheet.getCssRules().item(0);
-		assertEquals("@viewport{width:device-width}", vprule.getMinifiedCssText());
-		assertEquals(1, vprule.getStyle().getLength());
+		assertEquals(CSSRule.PROPERTY_RULE, sheet.getCssRules().item(0).getType());
+		AbstractCSSRule vprule = sheet.getCssRules().item(0);
+		assertEquals("@property --reg-custom {syntax:\"*\";inherits:false}",
+				vprule.getMinifiedCssText());
 
 		assertEquals(CSSRule.UNKNOWN_RULE, sheet.getCssRules().item(1).getType());
 		AbstractCSSRule unknown = sheet.getCssRules().item(1);
@@ -327,7 +334,7 @@ public class BaseCSSStyleSheetTest2 {
 		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
 		AbstractCSSStyleSheet css = factory.createStyleSheet(null, null);
-		String csstext = ".foo{@transform : translateY(-5px);margin-left:0;margin-right:auto;}";
+		String csstext = ".foo{@: translateY(-5px);margin-left:0;margin-right:auto;}";
 		Reader re = new StringReader(csstext);
 		css.parseStyleSheet(re);
 		CSSRuleArrayList rules = css.getCssRules();
@@ -346,7 +353,7 @@ public class BaseCSSStyleSheetTest2 {
 		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
 		AbstractCSSStyleSheet css = factory.createStyleSheet(null, null);
-		String csstext = "@media screen and (min-width: 768px){.foo{@transform : translateY(-5px);margin-left:0;margin-right:auto;}}";
+		String csstext = "@media screen and (min-width: 768px){.foo{@: translateY(-5px);margin-left:0;margin-right:auto;}}";
 		Reader re = new StringReader(csstext);
 		css.parseStyleSheet(re);
 		CSSRuleArrayList rules = css.getCssRules();
@@ -383,7 +390,8 @@ public class BaseCSSStyleSheetTest2 {
 		assertEquals("(display: list-item) and (width: max-content)", cond.toString());
 		assertFalse(css.getErrorHandler().hasSacErrors());
 		assertFalse(css.getErrorHandler().hasOMErrors());
-		assertEquals(csstext.replace(" ", ""), css.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
+		assertEquals(csstext.replace(" ", ""),
+				css.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
 		// Visitor
 		StyleCountVisitor visitor = new StyleCountVisitor();
 		css.acceptStyleRuleVisitor(visitor);
@@ -399,7 +407,8 @@ public class BaseCSSStyleSheetTest2 {
 	}
 
 	@Test
-	public void testParseCSSStyleSheetSupportsRuleBadConditionFix() throws CSSException, IOException {
+	public void testParseCSSStyleSheetSupportsRuleBadConditionFix()
+			throws CSSException, IOException {
 		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		AbstractCSSStyleSheet css = factory.createStyleSheet(null, null);
 		String csstext = "@supports(display:list-item)and(width:max-content){li.foo{width:max-content}}";
@@ -410,12 +419,14 @@ public class BaseCSSStyleSheetTest2 {
 		assertEquals(CSSRule.SUPPORTS_RULE, rules.item(0).getType());
 		assertFalse(css.getErrorHandler().hasSacErrors());
 		assertFalse(css.getErrorHandler().hasOMErrors());
-		assertEquals(csstext, css.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
+		assertEquals(csstext,
+				css.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
 	}
 
 	@Test
 	public void testParseCSSStyleSheetIEMediaRule() throws CSSException, IOException {
-		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(EnumSet.of(Parser.Flag.IEVALUES));
+		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory(
+				EnumSet.of(Parser.Flag.IEVALUES));
 		AbstractCSSStyleSheet css = factory.createStyleSheet(null, null);
 		String csstext = "@media screen\\0 {li.foo {width: max-content}}";
 		Reader re = new StringReader(csstext);
@@ -434,10 +445,12 @@ public class BaseCSSStyleSheetTest2 {
 	@Test
 	public void testToString() throws IOException {
 		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet();
-		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
+		Reader re = SampleCSS.loadSampleCSSReader();
 		String file = readAndCloseFile(re, 600);
-		String expected = file.replace('\r', ' ').replace('\n', ' ').replace(" ", "").replace(";}", "}");
-		assertEquals(expected, sheet.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
+		String expected = file.replace('\r', ' ').replace('\n', ' ').replace(" ", "").replace(";}",
+				"}");
+		assertEquals(expected,
+				sheet.toString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
 	}
 
 	private String readAndCloseFile(Reader re, int bufCapacity) throws IOException {
@@ -466,15 +479,17 @@ public class BaseCSSStyleSheetTest2 {
 	public void testToStyleString() throws IOException {
 		AbstractCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadSampleSheet();
 		sheet.setMedia(new MediaQueryListImpl("screen"));
-		Reader re = DOMCSSStyleSheetFactoryTest.loadSampleCSSReader();
+		Reader re = SampleCSS.loadSampleCSSReader();
 		CharBuffer target = CharBuffer.allocate(620);
 		target.append("<styletype=\"text/css\"media=\"screen\">");
 		assertTrue(re.read(target) != -1);
 		re.close();
 		target.append("</style >");
 		((Buffer) target).flip(); // XXX: The cast can be removed if run with Java 9+
-		String expected = target.toString().replace('\r', ' ').replace('\n', ' ').replace(" ", "").replace(";}", "}");
-		assertEquals(expected, sheet.toStyleString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
+		String expected = target.toString().replace('\r', ' ').replace('\n', ' ').replace(" ", "")
+				.replace(";}", "}");
+		assertEquals(expected,
+				sheet.toStyleString().replace('\n', ' ').replace(" ", "").replace(";}", "}"));
 	}
 
 	private static Reader loadFilefromClasspath(String filename) {

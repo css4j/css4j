@@ -15,7 +15,7 @@ import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
-class SelectorArgumentConditionImpl implements ArgumentCondition, java.io.Serializable {
+class SelectorArgumentConditionImpl extends AbstractCondition implements ArgumentCondition {
 
 	private static final long serialVersionUID = 1L;
 
@@ -43,6 +43,15 @@ class SelectorArgumentConditionImpl implements ArgumentCondition, java.io.Serial
 	@Override
 	public SelectorList getSelectors() {
 		return arguments;
+	}
+
+	@Override
+	Condition replace(SelectorList base) {
+		SelectorArgumentConditionImpl clon = clone();
+		if (arguments != null) {
+			clon.arguments = ((SelectorListImpl) arguments).replaceNested(base);
+		}
+		return clon;
 	}
 
 	@Override
@@ -92,6 +101,14 @@ class SelectorArgumentConditionImpl implements ArgumentCondition, java.io.Serial
 		}
 		buf.append(')');
 		return buf.toString();
+	}
+
+	@Override
+	public SelectorArgumentConditionImpl clone() {
+		SelectorArgumentConditionImpl clon = (SelectorArgumentConditionImpl) super.clone();
+		clon.name = name;
+		clon.arguments = arguments;
+		return clon;
 	}
 
 }

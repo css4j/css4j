@@ -39,15 +39,6 @@ public interface SheetErrorHandler extends SACErrorHandler {
 	void badMediaList(MediaQueryList media);
 
 	/**
-	 * Notify this handler that an empty style rule (a style rule without property value
-	 * declarations) was found.
-	 * 
-	 * @param selector
-	 *            the selector for the empty rule.
-	 */
-	void emptyStyleRule(String selector);
-
-	/**
 	 * Notify this handler that an import rule was ignored for the given uri.
 	 * <p>
 	 * Imports can be ignored if they happen at the wrong place.

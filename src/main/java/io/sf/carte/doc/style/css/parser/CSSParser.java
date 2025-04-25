@@ -24,17 +24,16 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
-import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.BooleanCondition.Type;
 import io.sf.carte.doc.style.css.BooleanConditionFactory;
@@ -45,7 +44,6 @@ import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.MediaQueryHandler;
 import io.sf.carte.doc.style.css.MediaQueryList;
-import io.sf.carte.doc.style.css.UnitStringToId;
 import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
@@ -77,10 +75,10 @@ import io.sf.carte.doc.style.css.om.SupportsConditionFactory;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.AttributeConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorSelectorImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.ElementSelectorImpl;
-import io.sf.carte.doc.style.css.property.ShorthandDatabase;
+import io.sf.carte.uparser.ContentHandler;
 import io.sf.carte.uparser.TokenControl;
-import io.sf.carte.uparser.TokenHandler2;
 import io.sf.carte.uparser.TokenProducer;
+import io.sf.carte.uparser.TokenProducer3.CharacterCheck;
 import io.sf.carte.util.agent.AgentUtil;
 
 /**
@@ -143,12 +141,8 @@ public class CSSParser implements Parser, Cloneable {
 
 	/**
 	 * Set a parser flag.
-	 * <p>
-	 * Currently only <code>STARHACK</code> is supported, and it only applies to the parsing
-	 * of full sheets.
 	 * 
-	 * @param flag
-	 *            the flag.
+	 * @param flag the flag.
 	 */
 	@Override
 	public void setFlag(Flag flag) {
@@ -158,8 +152,7 @@ public class CSSParser implements Parser, Cloneable {
 	/**
 	 * Unset a parser flag.
 	 * 
-	 * @param flag
-	 *            the flag.
+	 * @param flag the flag.
 	 */
 	@Override
 	public void unsetFlag(Flag flag) {
@@ -184,7 +177,8 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	@Override
-	public void parseStyleSheet(Reader reader) throws CSSParseException, IOException, IllegalStateException {
+	public void parseStyleSheet(Reader reader)
+			throws CSSParseException, IOException, IllegalStateException {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
@@ -193,11 +187,10 @@ public class CSSParser implements Parser, Cloneable {
 		if (handler instanceof NamespaceMap) {
 			nsMap = (NamespaceMap) handler;
 		}
-
-		SheetTokenHandler handler = new SheetTokenHandler(nsMap, true);
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
+		RuleListManager manager = new RuleListManager(nsMap, true);
+		TokenProducer tp = manager.createTokenProducer();
 		tp.setAcceptEofEndingQuoted(true);
-		this.handler.parseStart(handler);
+		manager.parseStart();
 		tp.parse(reader, "/*", "*/");
 	}
 
@@ -225,18 +218,17 @@ public class CSSParser implements Parser, Cloneable {
 	 * @see #setErrorHandler
 	 */
 	@Override
-	public void parseStyleSheet(String uri) throws CSSParseException, IOException, IllegalStateException {
+	public void parseStyleSheet(String uri)
+			throws CSSParseException, IOException, IllegalStateException {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-
 		URL url;
 		try {
 			url = new URI(uri).toURL();
 		} catch (Exception e) {
 			throw new MalformedURLException(e.getMessage());
 		}
-
 		URLConnection ucon = url.openConnection();
 		ucon.setConnectTimeout(15000);
 		ucon.connect();
@@ -269,14 +261,13 @@ public class CSSParser implements Parser, Cloneable {
 		if (handler instanceof NamespaceMap) {
 			nsMap = (NamespaceMap) handler;
 		}
-
-		SheetTokenHandler handler = new SheetTokenHandler(nsMap, false);
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
+		RuleListManager manager = new RuleListManager(nsMap, false);
+		TokenProducer tp = manager.createTokenProducer();
 		tp.setAcceptEofEndingQuoted(true);
 
 		try (Reader re = AgentUtil.inputStreamToReader(is, conType, contentEncoding,
 				StandardCharsets.UTF_8)) {
-			this.handler.parseStart(handler);
+			manager.parseStart();
 			tp.parse(re, "/*", "*/"); // We do not look for CDO-CDC comments here
 		}
 	}
@@ -326,22 +317,24 @@ public class CSSParser implements Parser, Cloneable {
 		if (handler instanceof NamespaceMap) {
 			nsMap = (NamespaceMap) handler;
 		}
+		RuleListManager manager = new RuleListManager(nsMap, true);
+		TokenProducer tp = manager.createTokenProducer();
 
-		SheetTokenHandler handler = new SheetTokenHandler(nsMap, true);
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
 		tp.setAcceptEofEndingQuoted(true);
-		this.handler.parseStart(handler);
+		manager.parseStart();
 		tp.parse(re, "/*", "*/");
 	}
 
 	@Override
-	public void parseStyleDeclaration(Reader reader) throws CSSParseException, IOException, IllegalStateException {
+	public void parseStyleDeclaration(Reader reader)
+			throws CSSParseException, IOException, IllegalStateException {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
-		this.handler.parseStart(handler);
+
+		DeclarationListManager manager = new DeclarationListManager();
+		TokenProducer tp = manager.createTokenProducer();
+		manager.parseStart();
 		tp.parse(reader, "/*", "*/");
 	}
 
@@ -350,10 +343,11 @@ public class CSSParser implements Parser, Cloneable {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		DeclarationTokenHandler handler = new DeclarationTokenHandler(ShorthandDatabase.getInstance());
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
+
+		DeclarationListManager manager = new DeclarationListManager();
+		TokenProducer tp = manager.createTokenProducer();
 		Reader reader = getReaderFromSource(source);
-		this.handler.parseStart(handler);
+		manager.parseStart();
 		tp.parse(reader, "/*", "*/");
 	}
 
@@ -361,7 +355,6 @@ public class CSSParser implements Parser, Cloneable {
 		if (source == null) {
 			throw new NullPointerException("Null source.");
 		}
-
 		Reader re = source.getCharacterStream();
 		if (re == null) {
 			InputStream is = source.getByteStream();
@@ -401,12 +394,11 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			}
 		}
-
 		return re;
 	}
 
 	/**
-	 * Parse any simple (non-nesting) at-rule containing descriptors, using a
+	 * Parse any simple (non-nesting) block at-rule containing descriptors, using a
 	 * generic {@link DeclarationRuleHandler}.
 	 * <p>
 	 * In general it is recommended to use {@link #parseRule(Reader)} to parse
@@ -435,14 +427,16 @@ public class CSSParser implements Parser, Cloneable {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
+
 		if (!(this.handler instanceof DeclarationRuleHandler)) {
 			throw new IllegalStateException(
-				"Document handler needs to implement DeclarationRuleHandler.");
+					"Document handler needs to implement DeclarationRuleHandler.");
 		}
-		DeclarationTokenHandler handler = new DeclarationRuleTokenHandler(
-			ShorthandDatabase.getInstance());
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
-		this.handler.parseStart(handler);
+
+		HandlerManager manager = new GenericBlockAtRuleManager();
+
+		TokenProducer tp = manager.createTokenProducer();
+		manager.parseStart();
 		tp.parse(reader, "/*", "*/");
 	}
 
@@ -450,6 +444,7 @@ public class CSSParser implements Parser, Cloneable {
 		if (pageSelectorStr == null) {
 			throw new NullPointerException("Null page selector");
 		}
+
 		PageSelectorListImpl list = new PageSelectorListImpl();
 		StringTokenizer commast = new StringTokenizer(pageSelectorStr, ",");
 		while (commast.hasMoreTokens()) {
@@ -466,6 +461,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			}
 		}
+
 		return list;
 	}
 
@@ -526,13 +522,15 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	@Override
-	public void parseRule(Reader reader) throws CSSParseException, IOException, IllegalStateException {
+	public void parseRule(Reader reader)
+			throws CSSParseException, IOException, IllegalStateException {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		RuleTokenHandler handler = new RuleTokenHandler(null);
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
-		this.handler.parseStart(handler);
+
+		RuleManager manager = new RuleManager(null);
+		TokenProducer tp = manager.createTokenProducer();
+		manager.parseStart();
 		tp.parse(reader, "/*", "*/");
 	}
 
@@ -542,9 +540,10 @@ public class CSSParser implements Parser, Cloneable {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		RuleTokenHandler handler = new RuleTokenHandler(nsmap);
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
-		this.handler.parseStart(handler);
+
+		RuleManager manager = new RuleManager(nsmap);
+		TokenProducer tp = manager.createTokenProducer();
+		manager.parseStart();
 		tp.parse(reader, "/*", "*/");
 	}
 
@@ -552,34 +551,32 @@ public class CSSParser implements Parser, Cloneable {
 		if (this.handler == null) {
 			throw new IllegalStateException("No document handler was set.");
 		}
-		RuleTokenHandler handler = new RuleTokenHandler(null);
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
+
+		RuleManager manager = new RuleManager(null);
+		TokenProducer tp = manager.createTokenProducer();
 		Reader re = getReaderFromSource(source);
-		this.handler.parseStart(handler);
+		manager.parseStart();
 		tp.parse(re, "/*", "*/");
 	}
 
 	public void parsePageRuleBody(String blockList) throws CSSParseException {
-		int[] allowInWords = { 45, 95 }; // -_
-		PageTokenHandler handler = new PageTokenHandler();
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		this.handler.parseStart(handler);
+		PageManager manager = new PageManager();
+		TokenProducer tp = manager.createTokenProducer();
+		manager.parseStart();
 		tp.parse(blockList, "/*", "*/");
 	}
 
 	public void parseKeyFramesBody(String blockList) throws CSSParseException {
-		int[] allowInWords = { 45, 95 }; // -_
-		KeyFrameBlockListTH handler = new KeyFrameBlockListTH();
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		this.handler.parseStart(handler);
+		KeyframesManager manager = new KeyframesManager();
+		TokenProducer tp = manager.createTokenProducer();
+		manager.parseStart();
 		tp.parse(blockList, "/*", "*/");
 	}
 
 	public void parseFontFeatureValuesBody(String blockList) throws CSSParseException {
-		int[] allowInWords = { 45, 95 }; // -_
-		FontFeatureValuesTH handler = new FontFeatureValuesTH();
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		this.handler.parseStart(handler);
+		FontFeatureValuesManager manager = new FontFeatureValuesManager();
+		TokenProducer tp = manager.createTokenProducer();
+		manager.parseStart();
 		tp.parse(blockList, "/*", "*/");
 	}
 
@@ -636,21 +633,43 @@ public class CSSParser implements Parser, Cloneable {
 	 *                            reached.
 	 */
 	public BooleanCondition parseSupportsCondition(String conditionText, CSSRule rule,
-			SheetContext parentStyleSheet)
-			throws CSSParseException, CSSBudgetException {
-		int[] allowInWords = { 45, 46 }; // -.
-		SupportsTokenHandler handler = new SupportsTokenHandler(rule, parentStyleSheet);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+			SheetContext parentStyleSheet) throws CSSParseException, CSSBudgetException {
+		SupportsManager manager = new SupportsManager(rule, parentStyleSheet);
+		TokenProducer tp = manager.createTokenProducer();
 		try {
 			tp.parse(conditionText, "/*", "*/");
 		} catch (IndexOutOfBoundsException e) {
 			throw new CSSBudgetException("Nested conditions exceed limit", e);
 		}
-		if (handler.errorCode == 0) {
-			return handler.getCondition();
+		SupportsTokenHandler supportsHandler = manager.getInitialTokenHandler();
+
+		if (supportsHandler.errorCode == 0) {
+			return supportsHandler.getCondition();
 		} else {
 			return null;
 		}
+	}
+
+	private class SupportsManager extends CSSParserHandlerManager {
+
+		private SupportsTokenHandler supportsHandler;
+
+		SupportsManager(CSSRule rule, SheetContext parentStyleSheet) {
+			this.supportsHandler = new SupportsTokenHandler(rule, parentStyleSheet) {
+
+				@Override
+				public HandlerManager getManager() {
+					return SupportsManager.this;
+				}
+
+			};
+		}
+
+		@Override
+		protected SupportsTokenHandler getInitialTokenHandler() {
+			return supportsHandler;
+		}
+
 	}
 
 	/**
@@ -667,26 +686,38 @@ public class CSSParser implements Parser, Cloneable {
 	/**
 	 * Parse a media query string into the given handler.
 	 * 
-	 * @param media
-	 *            the media query text.
-	 * @param queryFactory
-	 *            the query factory.
-	 * @param mqhandler
-	 *            the media query list handler.
-	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was reached.
+	 * @param media        the media query text.
+	 * @param queryFactory the query factory.
+	 * @param mqhandler    the media query list handler.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was
+	 *                            reached.
 	 */
 	@Override
-	public void parseMediaQueryList(String media, MediaQueryFactory queryFactory, MediaQueryHandler mqhandler)
-			throws CSSBudgetException {
-		int[] allowInWords = { 45, 46 }; // -.
-		MediaQueryTokenHandler handler = new MediaQueryTokenHandler(queryFactory, mqhandler);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+	public void parseMediaQueryList(String media, MediaQueryFactory queryFactory,
+			MediaQueryHandler mqhandler) throws CSSBudgetException {
+		MediaQueryManager manager = new MediaQueryManager(queryFactory, mqhandler);
+		parseMediaQueryList(media, manager, mqhandler);
+	}
+
+	/**
+	 * Parse a media query string into the given handler.
+	 * 
+	 * @param media     the media query text.
+	 * @param manager   the query manager.
+	 * @param mqhandler the media query list handler.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was
+	 *                            reached.
+	 */
+	private void parseMediaQueryList(String media, MediaQueryManager manager,
+			MediaQueryHandler mqhandler) throws CSSBudgetException {
+		TokenProducer tp = manager.createTokenProducer();
 		mqhandler.startQuery();
+
 		try {
 			tp.parse(media, "/*", "*/");
 		} catch (IndexOutOfBoundsException e) {
-			CSSParseException ex = handler.createException(0, ParseHelper.ERR_UNSUPPORTED,
-					"Nested queries exceed limit.");
+			CSSParseException ex = manager.getInitialTokenHandler().createException(0,
+					ParseHelper.ERR_UNSUPPORTED, "Nested queries exceed limit.");
 			ex.initCause(e);
 			mqhandler.invalidQuery(ex);
 			throw new CSSBudgetException("Nested queries exceed limit", e);
@@ -696,26 +727,25 @@ public class CSSParser implements Parser, Cloneable {
 	/**
 	 * Parse a media query string.
 	 * 
-	 * @param media
-	 *            the media query text.
-	 * @param owner
-	 *            the node that owns the responsibility to handle the errors in
-	 *            the query list.
-	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was reached.
+	 * @param media the media query text.
+	 * @param owner the node that owns the responsibility to handle the errors in
+	 *              the query list.
+	 * @throws CSSBudgetException if a hard-coded limit in nested expressions was
+	 *                            reached.
 	 */
 	@Override
 	public MediaQueryList parseMediaQueryList(String media, Node owner) throws CSSBudgetException {
-		int[] allowInWords = { 45, 46 }; // -.
 		MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
 		MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(owner);
-		MediaQueryTokenHandler handler = new MediaQueryTokenHandler(mediaQueryFactory, mqhandler);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		MediaQueryManager manager = new MediaQueryManager(mediaQueryFactory, mqhandler);
+		TokenProducer tp = manager.createTokenProducer();
 		mqhandler.startQuery();
+
 		try {
 			tp.parse(media, "/*", "*/");
 		} catch (IndexOutOfBoundsException e) {
-			CSSParseException ex = handler.createException(0, ParseHelper.ERR_UNSUPPORTED,
-					"Nested queries exceed limit.");
+			CSSParseException ex = manager.getInitialTokenHandler().createException(0,
+					ParseHelper.ERR_UNSUPPORTED, "Nested queries exceed limit.");
 			ex.initCause(e);
 			mqhandler.invalidQuery(ex);
 			throw new CSSBudgetException("Nested queries exceed limit", e);
@@ -728,68 +758,51 @@ public class CSSParser implements Parser, Cloneable {
 		return new NSACMediaQueryFactory();
 	}
 
-	private MediaQueryList parseMediaQueryList(String media) {
-		int[] allowInWords = { 45, 46 }; // -.
-		MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
-		MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(null);
-		MediaQueryTokenHandler handler = new MediaQueryTokenHandler(mediaQueryFactory, mqhandler);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
-		mqhandler.startQuery();
-		try {
-			tp.parse(media, "/*", "*/");
-		} catch (IndexOutOfBoundsException e) {
-			CSSParseException ex = handler.createException(0, ParseHelper.ERR_UNSUPPORTED, "Nested queries exceed limit.");
-			mqhandler.invalidQuery(ex);
-			if (errorHandler != null) {
-				errorHandler.error(ex);
-			}
+	private class MediaQueryManager extends CSSParserHandlerManager {
+
+		private final MediaQueryTokenHandler mqhandler;
+
+		MediaQueryManager(MediaQueryFactory mediaQueryFactory, MediaQueryHandler mqhandler) {
+			this.mqhandler = new MediaQueryTokenHandler(mediaQueryFactory, mqhandler) {
+
+				@Override
+				public HandlerManager getManager() {
+					return MediaQueryManager.this;
+				}
+
+			};
 		}
 
-		return mqhandler.getMediaQueryList();
+		@Override
+		protected MediaQueryTokenHandler getInitialTokenHandler() {
+			return mqhandler;
+		}
+
 	}
 
-	abstract private static class DelegateHandler implements TokenHandler2 {
+	private interface DelegateHandler extends ContentHandler<RuntimeException> {
 
-		public void preBooleanHandling(int index, Type type) {
+		default void preBooleanHandling(int index, Type type) {
 		}
 
 		@Override
-		public void tokenStart(TokenControl control) {
+		default void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
 			// Not called
 		}
 
 		@Override
-		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+		default void commented(int index, int commentType, String comment) {
 			// Not called
 		}
 
-		@Override
-		public void quotedNewlineChar(int index, int codePoint) {
-			// Not called
-		}
-
-		@Override
-		public void control(int index, int codePoint) {
-			// Not called
-		}
-
-		@Override
-		public void commented(int index, int commentType, String comment) {
-			// Not called
-		}
-
-		@Override
-		public void error(int index, byte errCode, CharSequence context) {
-			// Not called
-		}
-
-		boolean isAllowedTopLevel() {
+		default boolean isAllowedTopLevel() {
 			return false;
 		}
 
 	}
 
-	private class ConditionTokenHandler<F extends BooleanConditionFactory> extends CSSTokenHandler {
+	abstract private class ConditionTokenHandler<F extends BooleanConditionFactory>
+			extends DefaultTokenHandler {
 
 		final F conditionFactory;
 
@@ -804,7 +817,8 @@ public class CSSParser implements Parser, Cloneable {
 		private int opDepthIndex = 0;
 
 		/**
-		 * Number of unclosed left parentheses at each operation level (up to <code>opDepthIndex</code>).
+		 * Number of unclosed left parentheses at each operation level (up to
+		 * <code>opDepthIndex</code>).
 		 */
 		private final short[] opParenDepth = new short[32]; // Limited to 32 nested expressions
 
@@ -820,6 +834,10 @@ public class CSSParser implements Parser, Cloneable {
 		ConditionTokenHandler(F conditionFactory) {
 			super();
 			this.conditionFactory = conditionFactory;
+		}
+
+		@Override
+		protected void initializeBuffer() {
 			buffer = new StringBuilder(64);
 		}
 
@@ -832,21 +850,29 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
+		short getCurrentParenDepth() {
+			return opParenDepth[opDepthIndex];
+		}
+
+		@Override
+		boolean isTopLevel() {
+			return topLevel;
+		}
+
+		@Override
 		public void word(int index, CharSequence word) {
-			if (!parseError) {
-				if (!readingPredicate) {
-					if (buffer.length() == 0) {
-						processWord(index, word.toString());
-					} else {
-						unexpectedTokenError(index, word);
-					}
-				} else if (getCurrentParenDepth() > 1 || predicateHandler.isAllowedTopLevel()) {
-					predicateHandler.word(index, word);
-				} else {
+			if (!readingPredicate) {
+				if (buffer.length() == 0) {
 					processWord(index, word.toString());
+				} else {
+					unexpectedTokenError(index, word);
 				}
-				prevcp = 65;
+			} else if (getCurrentParenDepth() > 1 || predicateHandler.isAllowedTopLevel()) {
+				predicateHandler.word(index, word);
+			} else {
+				processWord(index, word.toString());
 			}
+			prevcp = 65;
 		}
 
 		private void processWord(int index, String word) {
@@ -942,6 +968,12 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
+		void processBuffer(int index, int triggerCp) {
+			// Not called
+			unexpectedCharError(index, triggerCp);
+		}
+
+		@Override
 		public void leftParenthesis(int index) {
 			opParenDepth[opDepthIndex]++;
 			predicateHandler.leftParenthesis(index);
@@ -964,7 +996,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		void handleLeftCurlyBracket(int index) {
-			unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+			unexpectedLeftCurlyBracketError(index);
 		}
 
 		@Override
@@ -1008,18 +1040,24 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
-		short getCurrentParenDepth() {
-			return opParenDepth[opDepthIndex];
-		}
-
 		@Override
 		public void character(int index, int codepoint) {
-			if (!parseError) {
+			if (!isInError()) {
 				if (!readingPredicate) {
 					if (codepoint == 44) { // ','
 						predicateHandler.character(index, codepoint);
 					} else {
-						unexpectedCharError(index, codepoint);
+						if (getCurrentParenDepth() == 0 && opDepthIndex == 0) {
+							if (codepoint == TokenProducer.CHAR_SEMICOLON) {
+								endOfCondition(index);
+								handleSemicolon(index);
+							} else {
+								unexpectedCharError(index, codepoint);
+							}
+						} else {
+							unexpectedCharError(index, codepoint);
+							handleErrorRecovery();
+						}
 					}
 				} else {
 					predicateHandler.character(index, codepoint);
@@ -1029,14 +1067,19 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
+		protected void handleSemicolon(int index) {
+			unexpectedSemicolonError(index);
+		}
+
 		@Override
 		public void quoted(int index, CharSequence quoted, int quoteCp) {
-			if (!parseError) {
+			if (!isInError()) {
 				if (readingPredicate) {
 					predicateHandler.quoted(index, quoted, quoteCp);
 					prevcp = 65;
 				} else {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected: '" + quoted + '\'');
+					reportError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Unexpected: '" + quoted + '\'');
 				}
 			}
 		}
@@ -1048,7 +1091,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void escaped(int index, int codepoint) {
-			if (!parseError) {
+			if (!isInError()) {
 				if (readingPredicate) {
 					predicateHandler.escaped(index, codepoint);
 				} else if (prevcp == TokenProducer.CHAR_LEFT_PAREN) {
@@ -1064,7 +1107,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void separator(int index, int codepoint) {
-			if (!parseError) {
+			if (!isInError()) {
 				if (readingPredicate) {
 					predicateHandler.separator(index, codepoint);
 				}
@@ -1072,14 +1115,12 @@ public class CSSParser implements Parser, Cloneable {
 			}
 		}
 
-		@Override
-		public void control(int index, int codepoint) {
-			super.control(index, codepoint);
-			if (escapedTokenIndex != -1 && CSSParser.bufferEndsWithEscapedCharOrWS(buffer)) {
-				escapedTokenIndex = -1;
-				buffer.append(' '); // break the escape
-			}
-		}
+		/*
+		 * @Override public void control(int index, int codepoint) {
+		 * super.control(index, codepoint); if (isEscapedIdent() &&
+		 * CSSParser.bufferEndsWithEscapedCharOrWS(buffer)) { resetEscapedTokenIndex();
+		 * buffer.append(' '); // break the escape } }
+		 */
 
 		@Override
 		public void commented(int index, int commentType, String comment) {
@@ -1096,28 +1137,29 @@ public class CSSParser implements Parser, Cloneable {
 		void endOfCondition(int index) {
 			if (opParenDepth[opDepthIndex] != 0) {
 				handleError(index, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
-			} else if (!parseError) {
+			} else if (!isInError()) {
 				predicateHandler.endOfStream(index);
 			}
 		}
 
 		@Override
-		protected void handleError(int index, byte errCode, String message) throws CSSParseException {
+		void reportError(int index, byte errCode, String message) throws CSSParseException {
 			throw createException(index, errCode, message);
 		}
 
 		@Override
-		void resetHandler() {
+		protected void resetHandler() {
 			// do not reset parendepth nor opDepthIndex or opParenDepth[].
 			prevcp = 32;
 			parseError = false;
 			currentCond = null;
 			buffer.setLength(0);
+			resetEscapedTokenIndex();
 		}
 
 	}
 
-	private class SupportsTokenHandler
+	abstract private class SupportsTokenHandler
 			extends ConditionTokenHandler<io.sf.carte.doc.style.css.SupportsConditionFactory> {
 
 		/*
@@ -1133,6 +1175,10 @@ public class CSSParser implements Parser, Cloneable {
 			setPredicateHandler(new SupportsDelegateHandler());
 		}
 
+		SupportsTokenHandler(CSSRule rule) {
+			this(rule, (SheetContext) handler.getStyleSheet());
+		}
+
 		BooleanCondition getCondition() {
 			BooleanCondition condition = currentCond;
 			if (condition != null) {
@@ -1143,48 +1189,74 @@ public class CSSParser implements Parser, Cloneable {
 			return condition;
 		}
 
+		private SelectorList parseSelectors(String seltext) throws CSSException {
+			SelectorTokenHandler selectorHandler = new SelectorTokenHandler(
+					new NSACSelectorFactory()) {
+
+				@Override
+				public void reportError(CSSParseException ex) throws CSSParseException {
+					throw ex;
+				}
+
+			};
+
+			selectorHandler.setManager(getManager());
+			CharacterCheck ccheck = new IdentCharacterCheck();
+			TokenProducer tp = new TokenProducer(ccheck, streamSizeLimit);
+			tp.setContentHandler(selectorHandler);
+			tp.setErrorHandler(selectorHandler);
+			tp.setControlHandler(new ChildControlTokenHandler(getControlHandler(), 0));
+			tp.parse(seltext, "/*", "*/");
+
+			return selectorHandler.getTrimmedSelectorList();
+		}
+
 		@Override
-		protected void handleError(int index, byte errCode, String message) {
-			if (!parseError) {
+		void reportError(int index, byte errCode, String message) {
+			if (!isInError()) {
 				if (errorCode == 0) {
 					errorCode = errCode;
 					errorException = createException(index, errCode, message);
-					handleError(errorException);
+					reportError(errorException);
 				}
-				parseError = true;
+				setParseError();
 			}
 		}
 
 		@Override
-		protected void handleError(int index, byte errCode, String message, Throwable cause) {
-			if (!parseError) {
+		void handleError(int index, byte errCode, String message, Throwable cause) {
+			if (!isInError()) {
 				if (errorCode == 0) {
 					errorCode = errCode;
 					errorException = createException(index, errCode, message);
 					errorException.initCause(cause);
 					handleError(errorException);
 				}
-				parseError = true;
+				setParseError();
 			}
 		}
 
 		@Override
-		protected void handleError(CSSParseException ex) throws CSSParseException {
+		public void reportError(CSSParseException ex) throws CSSParseException {
+			if (errorCode == 0) {
+				errorCode = ParseHelper.ERR_RULE_SYNTAX;
+				errorException = ex;
+			}
 			if (rule != null) {
-				rule.getParentStyleSheet().getErrorHandler().ruleParseError(rule, errorException);
-				parseError = true;
+				rule.getParentStyleSheet().getErrorHandler().ruleParseError(rule, ex);
+				setParseError();
 			} else {
-				super.handleError(ex);
+				super.reportError(ex);
 			}
 		}
 
 		@Override
-		void resetHandler() {
+		protected void resetHandler() {
 			super.resetHandler();
 			errorCode = 0;
 		}
 
-		private class SupportsDelegateHandler extends DelegateHandler {
+		private class SupportsDelegateHandler implements DelegateHandler {
 
 			/**
 			 * Are we reading a value instead of processing a property name ?
@@ -1207,7 +1279,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			boolean isAllowedTopLevel() {
+			public boolean isAllowedTopLevel() {
 				return functionToken;
 			}
 
@@ -1233,6 +1305,7 @@ public class CSSParser implements Parser, Cloneable {
 						// Function token
 						String fname = buffer.toString();
 						buffer.setLength(0);
+						resetEscapedTokenIndex();
 						if (!"selector".equalsIgnoreCase(fname)) {
 							unexpectedTokenError(index, "Unknown function: " + fname);
 							return;
@@ -1274,7 +1347,7 @@ public class CSSParser implements Parser, Cloneable {
 						}
 						readingValue = false;
 						readingPredicate = false;
-						escapedTokenIndex = -1;
+						resetEscapedTokenIndex();
 					} else {
 						buffer.append(')');
 					}
@@ -1282,7 +1355,7 @@ public class CSSParser implements Parser, Cloneable {
 					if (valueParendepth == getCurrentParenDepth()) {
 						functionToken = false;
 						readingPredicate = false;
-						escapedTokenIndex = -1;
+						resetEscapedTokenIndex();
 						prevcp = TokenProducer.CHAR_RIGHT_PAREN;
 
 						BooleanCondition newCond;
@@ -1291,13 +1364,7 @@ public class CSSParser implements Parser, Cloneable {
 						buffer.setLength(0);
 						try {
 							list = parseSelectors(s);
-							if (!parseError) {
-								newCond = conditionFactory.createSelectorFunction(list);
-							} else {
-								// The library does not support such selector
-								newCond = conditionFactory.createFalseCondition("selector(" + s + ')');
-								parseError = false;
-							}
+							newCond = conditionFactory.createSelectorFunction(list);
 						} catch (CSSBudgetException e) {
 							handleError(index, ParseHelper.ERR_UNSUPPORTED,
 									"Hit a limit while parsing @supports condition selector.", e);
@@ -1381,7 +1448,8 @@ public class CSSParser implements Parser, Cloneable {
 					bufferAppend(codepoint);
 				} else {
 					if (codepoint == 58 && getCurrentParenDepth() > 0) {
-						BooleanCondition newCond = conditionFactory.createPredicate(buffer.toString());
+						BooleanCondition newCond = conditionFactory
+								.createPredicate(buffer.toString());
 						if (currentCond != null) {
 							currentCond.addCondition(newCond);
 						}
@@ -1390,7 +1458,7 @@ public class CSSParser implements Parser, Cloneable {
 						valueParendepth = getCurrentParenDepth();
 						valueParendepth--;
 						readingValue = true;
-						escapedTokenIndex = -1;
+						resetEscapedTokenIndex();
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -1408,13 +1476,14 @@ public class CSSParser implements Parser, Cloneable {
 					buffer.append(c).append(quoted).append(c);
 					prevcp = 65;
 				} else {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected: '" + quoted + '\'');
+					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Unexpected: '" + quoted + '\'');
 				}
 			}
 
 			@Override
 			public void escaped(int index, int codepoint) {
-				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
+				if (isEscapedCodepoint(codepoint)) {
 					setEscapedTokenStart(index);
 					buffer.append('\\');
 				}
@@ -1423,7 +1492,7 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			public void separator(int index, int cp) {
-				if (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)) {
+				if (isEscapedIdent() && bufferEndsWithEscapedCharOrWS(buffer)) {
 					buffer.append(' ');
 				}
 			}
@@ -1431,11 +1500,12 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			public void endOfStream(int len) {
 				if (readingPredicate) {
-					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of file");
+					unexpectedEOFError(len);
 				} else if (buffer.length() != 0) {
-					handleError(len, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token: " + buffer);
+					reportError(len, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Unexpected token: " + buffer);
 				} else if (currentCond == null) {
-					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "No condition found");
+					unexpectedEOFError(len, "No condition found");
 				}
 			}
 
@@ -1443,7 +1513,7 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	private class MediaQueryTokenHandler extends ConditionTokenHandler<MediaQueryFactory> {
+	abstract private class MediaQueryTokenHandler extends ConditionTokenHandler<MediaQueryFactory> {
 
 		private final HashSet<String> mediaTypes = new HashSet<>(10);
 
@@ -1451,8 +1521,8 @@ public class CSSParser implements Parser, Cloneable {
 			super(conditionFactory);
 			setPredicateHandler(new MediaQueryDelegateHandler(mqhandler));
 			// initialize media types
-			String[] mediaTypesArray = { "all", "braille", "embossed", "handheld", "print", "projection", "screen",
-					"speech", "tty", "tv" };
+			String[] mediaTypesArray = { "all", "braille", "embossed", "handheld", "print",
+					"projection", "screen", "speech", "tty", "tv" };
 			Collections.addAll(mediaTypes, mediaTypesArray);
 		}
 
@@ -1497,35 +1567,53 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		protected void handleError(int index, byte errCode, String message) {
-			if (!parseError) {
-				MediaQueryDelegateHandler mqhelper = getPredicateHandler();
+		public void unexpectedEOFError(int len, String message) {
+			reportError(len, ParseHelper.ERR_UNEXPECTED_EOF, message);
+		}
+
+		@Override
+		void unexpectedTokenError(int index, CharSequence token) {
+			reportError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected: " + token);
+		}
+
+		@Override
+		void reportError(int index, byte errCode, String message) {
+			if (!isInError()) {
 				CSSParseException ex = createException(index, errCode, message);
-				mqhelper.handler.invalidQuery(ex);
-				if (!mqhelper.handler.reportsErrors() && errorHandler != null) {
-					handleError(ex);
-				}
-				parseError = true;
+				reportError(ex);
 			}
 		}
 
 		@Override
-		protected void handleError(int index, byte errCode, String message, Throwable cause) {
-			if (!parseError) {
-				MediaQueryDelegateHandler mqhelper = getPredicateHandler();
+		public void reportError(CSSParseException ex) throws CSSParseException {
+			MediaQueryDelegateHandler mqhelper = getPredicateHandler();
+			mqhelper.handler.invalidQuery(ex);
+			if (!mqhelper.handler.reportsErrors() && errorHandler != null) {
+				super.reportError(ex);
+			}
+			setParseError();
+		}
+
+		@Override
+		public void handleError(int index, byte errCode, String message) {
+			if (!isInError()) {
+				CSSParseException ex = createException(index, errCode, message);
+				reportError(ex);
+			}
+		}
+
+		@Override
+		void handleError(int index, byte errCode, String message, Throwable cause) {
+			if (!isInError()) {
 				CSSParseException ex = createException(index, errCode, message);
 				ex.initCause(cause);
-				mqhelper.handler.invalidQuery(ex);
-				if (!mqhelper.handler.reportsErrors() && errorHandler != null) {
-					handleError(ex);
-				}
-				parseError = true;
+				reportError(ex);
 			}
 		}
 
 		@Override
-		void handleWarning(int index, byte errCode, String message, Throwable cause) {
-			if (!parseError) {
+		public void handleWarning(int index, byte errCode, String message, Throwable cause) {
+			if (!isInError()) {
 				MediaQueryDelegateHandler mqhelper = getPredicateHandler();
 				CSSParseException ex = createException(index, errCode, message);
 				if (cause != null) {
@@ -1541,11 +1629,11 @@ public class CSSParser implements Parser, Cloneable {
 		@Override
 		CSSParseException createException(int index, byte errCode, String message) {
 			setCurrentLocation(index);
-			Locator locator = createLocator();
+			Locator locator = getControlHandler().createLocator();
 			return new CSSMediaParseException(message, locator);
 		}
 
-		class MediaQueryDelegateHandler extends DelegateHandler {
+		class MediaQueryDelegateHandler implements DelegateHandler {
 
 			private final MediaQueryHandler handler;
 			private byte stage = 0;
@@ -1590,20 +1678,20 @@ public class CSSParser implements Parser, Cloneable {
 					buffer.append(word);
 				} else if (ParseHelper.equalsIgnoreCase(word, "not")) {
 					if (stage != 0) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+						reportError(index, ParseHelper.ERR_RULE_SYNTAX,
 								"Found 'not' at the wrong parsing stage");
 					} else {
 						negativeQuery = true;
 					}
 				} else if (ParseHelper.equalsIgnoreCase(word, "only")) {
 					if (stage != 0) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+						reportError(index, ParseHelper.ERR_RULE_SYNTAX,
 								"Found 'only' at the wrong parsing stage");
 					} else {
 						handler.onlyPrefix();
 					}
 				} else if (ParseHelper.equalsIgnoreCase(word, "or")) {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Found 'or'");
+					reportError(index, ParseHelper.ERR_RULE_SYNTAX, "Found 'or'");
 				} else { // rest of cases are collected to buffer
 					if (!appendWord(index, word, WORD_UNQUOTED)) {
 						return;
@@ -1613,9 +1701,9 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			private boolean appendWord(int index, CharSequence word, int quote) {
-				if (buffer.length() != 0 && escapedTokenIndex == -1 && isPrevCpWhitespace()) {
+				if (buffer.length() != 0 && !isEscapedIdent() && isPrevCpWhitespace()) {
 					if (stage == 1) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+						reportError(index, ParseHelper.ERR_RULE_SYNTAX,
 								"Found white space between media");
 						return false;
 					}
@@ -1643,7 +1731,7 @@ public class CSSParser implements Parser, Cloneable {
 				switch (type) {
 				case AND:
 					if (stage > 1) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+						reportError(index, ParseHelper.ERR_RULE_SYNTAX,
 								"Found 'and' at the wrong parsing stage");
 						return;
 					}
@@ -1740,7 +1828,7 @@ public class CSSParser implements Parser, Cloneable {
 								firstValue = featureName;
 								featureName = tempstr;
 							} else if (!isValidFeatureSyntax(featureName)) {
-								handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								reportError(index, ParseHelper.ERR_RULE_SYNTAX,
 										"Wrong feature expression near " + featureName + " "
 												+ firstValue + ")");
 								prevcp = TokenProducer.CHAR_RIGHT_PAREN;
@@ -1765,11 +1853,11 @@ public class CSSParser implements Parser, Cloneable {
 						} else if (stage == 3 && !spaceFound) {
 							handleMediaPredicate(index, buffer.toString());
 						} else {
-							handleError(index, ParseHelper.ERR_EXPR_SYNTAX, buffer.toString());
+							reportError(index, ParseHelper.ERR_EXPR_SYNTAX, buffer.toString());
 						}
 						buffer.setLength(0);
 						spaceFound = false;
-						escapedTokenIndex = -1;
+						resetEscapedTokenIndex();
 					} else {
 						unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
 					}
@@ -1786,16 +1874,20 @@ public class CSSParser implements Parser, Cloneable {
 
 			private LexicalUnit parseMediaFeature(int index, String feature) {
 				Reader re = new StringReader(feature);
+				HandlerManager manager = MediaQueryTokenHandler.this.getManager();
 				LexicalUnit lunit;
 				try {
-					lunit = parsePropertyValue(re, getCurrentLine(), getPrevLineLength() - index);
-				} catch (CSSException | IOException e) {
-					return null;
+					lunit = parsePropertyValue(re, manager, index);
+				} catch (RuntimeException e) {
+					lunit = null;
+				} catch (IOException e) {
+					throw new IllegalStateException(e);
 				}
-				LexicalUnit nlu = lunit.getNextLexicalUnit();
-				if (nlu != null && (nlu.getLexicalUnitType() != LexicalType.OPERATOR_SLASH
-						|| nlu.getNextLexicalUnit() == null)) {
-					handleError(index, ParseHelper.ERR_EXPR_SYNTAX,
+				LexicalUnit nlu;
+				if (lunit == null || ((nlu = lunit.getNextLexicalUnit()) != null
+						&& (nlu.getLexicalUnitType() != LexicalType.OPERATOR_SLASH
+								|| nlu.getNextLexicalUnit() == null))) {
+					reportError(index, ParseHelper.ERR_EXPR_SYNTAX,
 							"Invalid feature value: " + feature);
 					lunit = null;
 				}
@@ -1824,7 +1916,7 @@ public class CSSParser implements Parser, Cloneable {
 					LexicalUnit value, String valueSerialization) {
 				BooleanCondition condition;
 				if (value == null) {
-					handleError(index, ParseHelper.ERR_WRONG_VALUE, valueSerialization);
+					reportError(index, ParseHelper.ERR_WRONG_VALUE, valueSerialization);
 					clearPredicate();
 					return;
 				} else {
@@ -1857,12 +1949,12 @@ public class CSSParser implements Parser, Cloneable {
 					LexicalUnit value1, LexicalUnit value2) {
 				BooleanCondition condition;
 				if (value1 == null) {
-					handleError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
+					reportError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
 					clearPredicate();
 					return;
 				} else if (value2 == null) {
 					String s = buffer.toString();
-					handleError(index, ParseHelper.ERR_WRONG_VALUE, s);
+					reportError(index, ParseHelper.ERR_WRONG_VALUE, s);
 					clearPredicate();
 					return;
 				} else {
@@ -1935,15 +2027,16 @@ public class CSSParser implements Parser, Cloneable {
 							featureName = rawBuffer();
 							stage = 4;
 						} else {
-							handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Empty feature name");
+							reportError(index, ParseHelper.ERR_RULE_SYNTAX, "Empty feature name");
 						}
 					} else if (codepoint == 44) { // ,
-						if (!parseError) {
+						if (!isInError()) {
 							if (getCurrentParenDepth() != 0) {
-								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Unmatched parenthesis");
+								reportError(index, ParseHelper.ERR_RULE_SYNTAX,
+										"Unmatched parenthesis");
 								return;
 							} else if (stage == 0) {
-								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "No media found");
+								reportError(index, ParseHelper.ERR_RULE_SYNTAX, "No media found");
 							}
 							processBuffer(index);
 							endQuery(index);
@@ -1953,7 +2046,7 @@ public class CSSParser implements Parser, Cloneable {
 						}
 						handler.startQuery();
 					} else if (codepoint == 46) { // .
-						if (stage == 4 || stage == 3 || stage == 7 || functionToken) {
+						if (stage == 4 || stage == 3 || stage == 6 || stage == 7 || functionToken) {
 							buffer.append('.');
 						} else {
 							unexpectedCharError(index, '.');
@@ -1965,14 +2058,26 @@ public class CSSParser implements Parser, Cloneable {
 							unexpectedCharError(index, codepoint);
 						}
 					} else if (codepoint == 59) {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, ";");
+						if (stage == 1 && getCurrentParenDepth() == 0) {
+							if (!isInError()) {
+								processBuffer(index);
+								endQuery(index);
+							} else {
+								handler.endQuery();
+								clearQuery();
+							}
+							handleSemicolon(index);
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
 					} else if (codepoint == 60) { // <
 						// rangeType:
 						// = 1, < 2, > 4,
 						// <= 3, >= 5
 						// a <= foo < b ; 19
 						// a >= foo > b ; 37
-						if (stage < 3 || (rangeType > 3 && ((rangeType & 16) != 0 || (rangeType & 4) != 0))) {
+						if (stage < 3 || (rangeType > 3
+								&& ((rangeType & 16) != 0 || (rangeType & 4) != 0))) {
 							unexpectedCharError(index, codepoint);
 						} else {
 							if (stage != 6 && stage != 7) {
@@ -1997,7 +2102,8 @@ public class CSSParser implements Parser, Cloneable {
 								stage = 7;
 							}
 						}
-					} else if (codepoint == 62 || (rangeType >= 4 && ((rangeType & 32) != 0 || (rangeType & 2) != 0))) { // >
+					} else if (codepoint == 62 || (rangeType >= 4
+							&& ((rangeType & 32) != 0 || (rangeType & 2) != 0))) { // >
 						if (stage < 3) {
 							unexpectedCharError(index, codepoint);
 						} else {
@@ -2041,7 +2147,8 @@ public class CSSParser implements Parser, Cloneable {
 					}
 					handler.condition(currentCond);
 				} else if (negativeQuery && mediaType == null) {
-					handleError(index, ParseHelper.ERR_EXPR_SYNTAX, "Negative query without media.");
+					reportError(index, ParseHelper.ERR_EXPR_SYNTAX,
+							"Negative query without media.");
 				}
 				handler.endQuery();
 				clearQuery();
@@ -2071,12 +2178,13 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			public void quoted(int index, CharSequence quoted, int quoteCp) {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected: '" + quoted + '\'');
+				reportError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+						"Unexpected: '" + quoted + '\'');
 			}
 
 			@Override
 			public void escaped(int index, int codepoint) {
-				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
+				if (isEscapedCodepoint(codepoint)) {
 					setEscapedTokenStart(index);
 					buffer.append('\\');
 				}
@@ -2090,7 +2198,7 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			public void separator(int index, int cp) {
-				if (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)) {
+				if (isEscapedIdent() && bufferEndsWithEscapedCharOrWS(buffer)) {
 					buffer.append(' ');
 				}
 			}
@@ -2112,16 +2220,17 @@ public class CSSParser implements Parser, Cloneable {
 					} else if (stage == 0) {
 						emptyQuery(len);
 					} else {
-						handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "No valid query found");
+						unexpectedEOFError(len, "No valid query found");
 					}
 				} else if (readingPredicate || stage > 1) {
-					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of file");
+					unexpectedEOFError(len, "Unexpected end of file");
 					handler.endQuery();
 				} else if (buffer.length() != 0) {
-					handleError(len, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token: " + buffer);
+					reportError(len, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Unexpected token: " + buffer);
 					handler.endQuery();
 				} else if (currentCond != null && isEmptyNotCondition()) {
-					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "No valid query found");
+					unexpectedEOFError(len, "No valid query found");
 					handler.endQuery();
 				} else {
 					endQuery(len);
@@ -2140,8 +2249,8 @@ public class CSSParser implements Parser, Cloneable {
 	 * @return <code>true</code> if the string looks like a media feature.
 	 */
 	private static boolean isKnownFeature(String string) {
-		return string.startsWith("min-") || string.startsWith("max-") || MediaQueryDatabase.isMediaFeature(string)
-				|| string.startsWith("device-");
+		return string.startsWith("min-") || string.startsWith("max-")
+				|| MediaQueryDatabase.isMediaFeature(string) || string.startsWith("device-");
 	}
 
 	private static boolean isValidFeatureSyntax(String string) {
@@ -2155,60 +2264,60 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	@Override
-	public SelectorList parseSelectors(Reader reader) throws CSSParseException, CSSBudgetException, IOException {
-		SelectorTokenHandler handler = new SelectorTokenHandler();
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
+	public SelectorList parseSelectors(Reader reader)
+			throws CSSParseException, CSSBudgetException, IOException {
+		SelectorManager manager = new SelectorManager();
+		TokenProducer tp = manager.createTokenProducer();
 		tp.parse(reader, "/*", "*/");
-		return handler.getTrimmedSelectorList();
+		return manager.getTrimmedSelectorList();
 	}
 
 	@Override
 	public SelectorList parseSelectors(String selectorText, NamespaceMap nsmap)
 			throws CSSParseException {
-		int[] allowInWords = { 45, 95 }; // -_
-		SelectorTokenHandler handler = new SelectorTokenHandler(nsmap);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		SelectorManager manager = new SelectorManager(nsmap);
+		TokenProducer tp = manager.createTokenProducer();
 		tp.parse(selectorText);
-		return handler.getTrimmedSelectorList();
+		return manager.getTrimmedSelectorList();
 	}
 
 	public SelectorList parseSelectors(InputSource source) throws CSSParseException, IOException {
 		Reader re = getReaderFromSource(source);
-		SelectorTokenHandler handler = new SelectorTokenHandler(null);
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
+		SelectorManager manager = new SelectorManager();
+		TokenProducer tp = manager.createTokenProducer();
 		tp.parse(re, "/*", "*/");
-		return handler.getTrimmedSelectorList();
+		return manager.getTrimmedSelectorList();
 	}
 
 	public SelectorList parseSelectors(String seltext) throws CSSException {
-		int[] allowInWords = { 45, 95 }; // -_
-		SelectorTokenHandler handler = new SelectorTokenHandler();
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+		SelectorManager manager = new SelectorManager();
+		TokenProducer tp = manager.createTokenProducer();
 		tp.parse(seltext, "/*", "*/");
-		return handler.getTrimmedSelectorList();
+		return manager.getTrimmedSelectorList();
 	}
 
-	private SelectorList parseSelectors(String seltext, NSACSelectorFactory factory) throws CSSParseException {
-		int[] allowInWords = { 45, 95 }; // -_
-		SelectorTokenHandler handler = new SelectorTokenHandler(factory);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+	private SelectorList parseSelectors(String seltext, NSACSelectorFactory factory)
+			throws CSSParseException {
+		SelectorManager manager = new SelectorManager(factory);
+		TokenProducer tp = manager.createTokenProducer();
 		tp.parse(seltext);
-		return handler.getTrimmedSelectorList();
+		return manager.getTrimmedSelectorList();
 	}
 
-	private SelectorList parseSelectorArgument(String seltext, NSACSelectorFactory factory) throws CSSParseException {
-		int[] allowInWords = { 45, 95 }; // -_
-		SelectorTokenHandler handler = new SelectorArgumentTokenHandler(factory);
-		TokenProducer tp = new TokenProducer(handler, allowInWords);
+	private SelectorList parseSelectorArgument(String seltext, NSACSelectorFactory factory)
+			throws CSSParseException {
+		SelectorArgumentManager manager = new SelectorArgumentManager(factory);
+		TokenProducer tp = manager.createTokenProducer();
 		tp.parse(seltext);
-		return handler.getTrimmedSelectorList();
+		return manager.getTrimmedSelectorList();
 	}
 
 	@Override
 	public Condition parsePseudoElement(String pseudoElement) throws CSSException {
 		SelectorList peList = parseSelectors(pseudoElement);
 		Selector sel;
-		if (peList.getLength() == 1 && (sel = peList.item(0)).getSelectorType() == SelectorType.CONDITIONAL) {
+		if (peList.getLength() == 1
+				&& (sel = peList.item(0)).getSelectorType() == SelectorType.CONDITIONAL) {
 			Condition cond = ((ConditionalSelector) sel).getCondition();
 			ConditionType condType = cond.getConditionType();
 			if (condType == ConditionType.PSEUDO_ELEMENT) {
@@ -2227,36 +2336,44 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	@Override
-	public LexicalUnit parsePropertyValue(Reader reader)
-			throws CSSParseException, IOException {
-		PropertyTokenHandler handler = new PropertyTokenHandler();
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
+	public LexicalUnit parsePropertyValue(Reader reader) throws CSSParseException, IOException {
+		DeclarationValueManager manager = new DeclarationValueManager();
+		TokenProducer tp = manager.createTokenProducer();
 		tp.parse(reader, "/*", "*/");
-		return handler.getLexicalUnit();
+		return manager.getLexicalUnit();
 	}
 
-	private LexicalUnit parsePropertyValue(Reader reader, int currentLine, int prevLineLength)
+	private LexicalUnit parsePropertyValue(Reader reader, HandlerManager parent, int index)
 			throws CSSParseException, IOException {
-		PropertyTokenHandler handler = new PropertyTokenHandler(currentLine, prevLineLength);
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
+		DeclarationValueManager manager = new DeclarationValueManager() {
+
+			@Override
+			protected ControlTokenHandler createControlTokenHandler() {
+				return new ChildControlTokenHandler(parent.getControlHandler(), index);
+			}
+
+		};
+		manager.getControlHandler().setCurrentLocation(index);
+		TokenProducer tp = manager.createTokenProducer();
 		tp.parse(reader, "/*", "*/");
-		return handler.getLexicalUnit();
+		return manager.getLexicalUnit();
 	}
 
-	public LexicalUnit parsePropertyValue(String propertyName, Reader reader) throws CSSParseException, IOException {
-		PropertyTokenHandler handler = new PropertyTokenHandler(propertyName);
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
+	public LexicalUnit parsePropertyValue(String propertyName, Reader reader)
+			throws CSSParseException, IOException {
+		DeclarationValueManager manager = new DeclarationValueManager(propertyName);
+		TokenProducer tp = manager.createTokenProducer();
 		tp.parse(reader, "/*", "*/");
-		return handler.getLexicalUnit();
+		return manager.getLexicalUnit();
 	}
 
 	public LexicalUnit parsePropertyValue(InputSource source)
 			throws CSSParseException, IOException {
 		Reader re = getReaderFromSource(source);
-		PropertyTokenHandler handler = new PropertyTokenHandler();
-		TokenProducer tp = new TokenProducer(handler, new IdentCharacterCheck(), streamSizeLimit);
+		DeclarationValueManager manager = new DeclarationValueManager();
+		TokenProducer tp = manager.createTokenProducer();
 		tp.parse(re, "/*", "*/");
-		return handler.getLexicalUnit();
+		return manager.getLexicalUnit();
 	}
 
 	@Override
@@ -2331,7 +2448,7 @@ public class CSSParser implements Parser, Cloneable {
 		return false;
 	}
 
-	private static boolean isDigit(char c) {
+	static boolean isDigit(char c) {
 		return c >= 0x30 && c <= 0x39;
 	}
 
@@ -2345,7 +2462,7 @@ public class CSSParser implements Parser, Cloneable {
 	 * @param s the identifier to test; cannot contain hex escapes.
 	 * @return true if is a valid identifier.
 	 */
-	static boolean isValidIdentifier(String s) {
+	private static boolean isValidIdentifier(String s) {
 		int len = s.length();
 		int idx;
 		char c = s.charAt(0);
@@ -2357,6 +2474,34 @@ public class CSSParser implements Parser, Cloneable {
 		} else if (len > 1) {
 			c = s.charAt(1);
 			if (!isNameStartChar(c) && c != '-' && c != '\\') {
+				return false;
+			}
+			idx = 2;
+		} else {
+			return false;
+		}
+		while (idx < len) {
+			c = s.charAt(idx);
+			if (!isNameChar(c)) {
+				return false;
+			}
+			idx++;
+		}
+		return true;
+	}
+
+	private static boolean isValidPseudoName(String s) {
+		int len = s.length();
+		int idx;
+		char c = s.charAt(0);
+		if (c != '-') {
+			if (!isNameStartChar(c)) {
+				return false;
+			}
+			idx = 1;
+		} else if (len > 1) {
+			c = s.charAt(1);
+			if (!isNameStartChar(c)) {
 				return false;
 			}
 			idx = 2;
@@ -2412,6 +2557,28 @@ public class CSSParser implements Parser, Cloneable {
 		return true;
 	}
 
+	static String safeUnescapeIdentifier(int index, String inputString) {
+		return ParseHelper.unescapeStringValue(inputString, true, true);
+	}
+
+	/**
+	 * Verify that the given identifier does not start in a way which is forbidden
+	 * by the specification.
+	 * <p>
+	 * If the processing reached this, the rest of the identifier should be fine.
+	 * </p>
+	 * 
+	 * @param s the identifier to test.
+	 * @return true if it starts as a valid identifier.
+	 */
+	static boolean isNotForbiddenIdentStart(String s) {
+		char c = s.charAt(0);
+		if (c != '-') {
+			return !isDigit(c) && c != '+';
+		}
+		return (s.length() > 1 && !isDigit(c = s.charAt(1))) || c == '\\';
+	}
+
 	@Override
 	public CSSParser clone() {
 		CSSParser parser = new CSSParser(this);
@@ -2461,1374 +2628,209 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	abstract class NestedRuleTH extends ControlTokenHandler {
+	private class PageManager extends DescriptorRuleListManager {
 
-		private final String blockRuleName;
-		private byte stage = STAGE_WAIT_SELECTOR;
-		private int curlyBracketDepth = 0;
-		private DeclarationTokenHandler declarationHandler;
+		private PageRuleTH pageTH = new PageRuleTH() {
 
-		/* @formatter:off
-		 * 
-		 * Stages
-		 * 
-		 * @rule selector  { nested-selector  {  declaration-list }  }
-		 *      1        2  3               4  5                   3  6
-		 * 
-		 * @formatter:on
-		 */
-		static final byte STAGE_WAIT_SELECTOR = 1;
-		static final byte STAGE_WAIT_BLOCK_LIST = 2;
-		private static final byte STAGE_WAIT_NESTED_SELECTOR = 3;
-		private static final byte STAGE_FOUND_NESTED_SELECTOR = 4;
-		static final byte STAGE_DECLARATION_LIST = 5;
-		private static final byte STAGE_END_BLOCK_LIST = 6;
-		static final byte STAGE_SELECTOR_ERROR = 9;
-		static final byte STAGE_NESTED_SELECTOR_ERROR = 10;
+			@Override
+			public void character(int index, int codePoint) {
+				if (codePoint != TokenProducer.CHAR_COMMERCIAL_AT || this.stage != 0) {
+					super.character(index, codePoint);
+				}
+			}
 
-		NestedRuleTH(int bufSize, String blockRuleName) {
+		};
+
+		private PageManager() {
 			super();
-			this.blockRuleName = blockRuleName;
-			declarationHandler = new NestedRuleDeclarationTokenHandler();
-			buffer = new StringBuilder(bufSize);
-		}
-
-		DeclarationTokenHandler getDeclarationHandler() {
-			return declarationHandler;
-		}
-
-		void setDeclarationHandler(DeclarationTokenHandler declarationHandler) {
-			this.declarationHandler = declarationHandler;
-		}
-
-		byte getStage() {
-			return stage;
-		}
-
-		void setStage(byte stage) {
-			this.stage = stage;
-		}
-
-		int getCurlyBracketDepth() {
-			return curlyBracketDepth;
 		}
 
 		@Override
-		public void word(int index, CharSequence word) {
-			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.word(index, word);
-			} else {
-				if (stage == STAGE_WAIT_BLOCK_LIST || stage == STAGE_END_BLOCK_LIST) {
-					unexpectedTokenError(index, word);
-				} else if (!parseError) {
-					buffer.append(word);
-					if (stage == STAGE_WAIT_NESTED_SELECTOR) {
-						stage = STAGE_FOUND_NESTED_SELECTOR;
-					}
-					prevcp = 65;
-				}
-			}
+		protected PageRuleTH getInitialTokenHandler() {
+			return pageTH;
 		}
 
 		@Override
-		public void separator(int index, int codePoint) {
-			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.separator(index, codePoint);
-			} else if (!parseError) {
-				if (buffer.length() != 0) {
-					checkNameSelector();
-					if (prevcp != 32) {
-						if (prevcp != 10) {
-							buffer.append(' ');
-						} else {
-							return;
-						}
-					} else {
-						return;
-					}
-				}
-				prevcp = 32;
-			}
-		}
-
-		void checkNameSelector() {
-		}
-
-		@Override
-		public void quoted(int index, CharSequence quoted, int quoteCp) {
-			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.quoted(index, quoted, quoteCp);
-			} else {
-				if (stage == STAGE_WAIT_SELECTOR) {
-					waitSelectorQuoted(index, quoted, quoteCp);
-				} else {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-							"Expected " + blockRuleName + " selector, found '" + quoted + "'");
-				}
-			}
-		}
-
-		void waitSelectorQuoted(int index, CharSequence quoted, int quoteCp) {
-			buffer.append(quoted);
-		}
-
-		@Override
-		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-			quoted(index, quoted, quoteCp);
-		}
-
-		@Override
-		public void leftCurlyBracket(int index) {
-			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.leftCurlyBracket(index);
-			} else {
-				curlyBracketDepth++;
-				if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_WAIT_BLOCK_LIST) {
-					if (buffer.length() != 0) {
-						processSelector(index, unescapeBuffer(index).trim());
-						if (!parseError) {
-							prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
-							startBlockList(index);
-						}
-					} else {
-						emptySelector(index);
-					}
-				} else if (stage == STAGE_FOUND_NESTED_SELECTOR) {
-					if (processNestedSelector(index)) {
-						prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
-						stage = STAGE_DECLARATION_LIST;
-						declarationHandler.curlyBracketDepth = 1;
-					}
-				} else if (!parseError) {
-					unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET,
-							STAGE_SELECTOR_ERROR);
-				}
-			}
-		}
-
-		@Override
-		public void leftParenthesis(int index) {
-			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.leftParenthesis(index);
-			} else {
-				unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN,
-						STAGE_NESTED_SELECTOR_ERROR);
-			}
-		}
-
-		@Override
-		public void leftSquareBracket(int index) {
-			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.leftSquareBracket(index);
-			} else {
-				unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET,
-						STAGE_NESTED_SELECTOR_ERROR);
-			}
-		}
-
-		protected void startBlockList(int index) {
-			stage = STAGE_WAIT_NESTED_SELECTOR;
-		}
-
-		protected void emptySelector(int index) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, blockRuleName + " must have a name.");
-		}
-
-		void processSelector(int index, String name) {
-			if ("initial".equalsIgnoreCase(name) || "inherit".equalsIgnoreCase(name) || "unset".equalsIgnoreCase(name)
-					|| "none".equalsIgnoreCase(name) || "reset".equalsIgnoreCase(name)) {
-				handleError(index, ParseHelper.ERR_INVALID_IDENTIFIER, "A CSS keyword is not a valid custom ident.");
-			}
-		}
-
-		abstract boolean processNestedSelector(int index);
-
-		abstract void endBlockList(int index);
-
-		@Override
-		public void rightCurlyBracket(int index) {
-			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.rightCurlyBracket(index);
-				if (curlyBracketDepth == 1) {
-					endBlock();
-				} else if (curlyBracketDepth == 0) {
-					endBlockList(index);
-					stage = STAGE_END_BLOCK_LIST;
-				}
-				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
-			} else {
-				curlyBracketDepth--;
-				handleRightCurlyBracket(index);
-			}
-		}
-
-		protected void handleRightCurlyBracket(int index) {
-			if (curlyBracketDepth == 0) {
-				// Body of rule ends
-				endBlockList(index);
-				stage = STAGE_END_BLOCK_LIST;
-				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
-			} else if (curlyBracketDepth == 1 && stage == STAGE_NESTED_SELECTOR_ERROR) {
-				stage = STAGE_WAIT_NESTED_SELECTOR;
-				parseError = false;
-			}
-		}
-
-		@Override
-		public void rightParenthesis(int index) {
-			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.rightParenthesis(index);
-			} else if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_WAIT_BLOCK_LIST) {
-				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN, STAGE_SELECTOR_ERROR);
-			} else {
-				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN,
-						STAGE_NESTED_SELECTOR_ERROR);
-			}
-			prevcp = TokenProducer.CHAR_RIGHT_PAREN;
-		}
-
-		@Override
-		public void rightSquareBracket(int index) {
-			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.rightSquareBracket(index);
-			} else if (stage == STAGE_WAIT_SELECTOR || stage == STAGE_WAIT_BLOCK_LIST) {
-				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET,
-						STAGE_SELECTOR_ERROR);
-			} else {
-				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET,
-						STAGE_NESTED_SELECTOR_ERROR);
-			}
-			prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
-		}
-
-		protected void endBlock() {
-			stage = STAGE_WAIT_NESTED_SELECTOR;
-		}
-
-		@Override
-		public void character(int index, int codePoint) {
-			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.character(index, codePoint);
-			} else if (!parseError) {
-				char[] chars = Character.toChars(codePoint);
-				if (stage == STAGE_WAIT_NESTED_SELECTOR || stage == STAGE_FOUND_NESTED_SELECTOR) {
-					if (isValidNestedSelectorCharacter(codePoint)) {
-						buffer.append(chars);
-						prevcp = codePoint;
-					} else {
-						buffer.setLength(0);
-						unexpectedCharError(index, codePoint, STAGE_NESTED_SELECTOR_ERROR);
-					}
-					return;
-				} else if (stage == STAGE_WAIT_SELECTOR && isValidSelectorCharacter(codePoint)) {
-					buffer.append(chars);
-					prevcp = codePoint;
-					return;
-				}
-				unexpectedCharError(index, codePoint, STAGE_SELECTOR_ERROR);
-			}
-		}
-
-		abstract boolean isValidNestedSelectorCharacter(int codePoint);
-
-		abstract boolean isValidSelectorCharacter(int codePoint);
-
-		@Override
-		public void escaped(int index, int codePoint) {
-			if (stage == STAGE_DECLARATION_LIST) {
-				declarationHandler.escaped(index, codePoint);
-			} else if (!parseError) {
-				char[] chars = Character.toChars(codePoint);
-				if (stage == STAGE_WAIT_BLOCK_LIST || stage == STAGE_END_BLOCK_LIST) {
-					unexpectedTokenError(index, new String(chars));
-				} else {
-					if (ParseHelper.isHexCodePoint(codePoint)) {
-						setEscapedTokenStart(index);
-						buffer.append('\\');
-					}
-					buffer.append(chars);
-					if (stage == STAGE_WAIT_NESTED_SELECTOR) {
-						stage = STAGE_FOUND_NESTED_SELECTOR;
-					}
-					prevcp = 65;
-				}
+		protected void reportRuleEnd(int index) {
+			if (pageTH.stage > 0) {
+				handler.endPage(pageTH.pageSelectorList);
 			}
 		}
 
 		@Override
 		public void endOfStream(int len) {
-			if (curlyBracketDepth != 0) {
-				if (stage == STAGE_DECLARATION_LIST) {
-					curlyBracketDepth--;
-					declarationHandler.endOfStream(len);
-					endBlock();
-				} else if (stage == STAGE_END_BLOCK_LIST) {
-					return;
-				}
-				handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of " + blockRuleName + " rule.");
-				endBlockList(len);
-			} else if (stage != STAGE_END_BLOCK_LIST) {
-				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Malformed " + blockRuleName + " rule.",
-						STAGE_SELECTOR_ERROR);
-				endBlockList(len);
-			}
-		}
-
-		@Override
-		public void commented(int index, int commentType, String comment) {
-			if (!parseError && buffer.length() == 0 && curlyBracketDepth == 1 && parendepth == 0
-					&& stage == STAGE_WAIT_NESTED_SELECTOR) {
-				super.commented(index, commentType, comment);
-			} else {
-				separator(index, 12);
-				prevcp = 12;
-			}
-		}
-
-		void unexpectedCharError(int index, int codepoint, byte stageToSet) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-					"Unexpected '" + new String(Character.toChars(codepoint)) + "'", stageToSet);
-		}
-
-		protected void handleError(int index, byte errCode, String message, byte stageToSet) throws CSSParseException {
-			if (!parseError && stage != STAGE_SELECTOR_ERROR) {
-				super.handleError(index, errCode, message);
-				stage = stageToSet;
-			}
-		}
-
-		@Override
-		protected void handleError(CSSParseException ex) throws CSSParseException {
-			super.handleError(ex);
-			if (stage <= STAGE_WAIT_BLOCK_LIST) {
-				abortRule();
-			}
-		}
-
-		protected void abortRule() {
-		}
-
-		private class NestedRuleDeclarationTokenHandler extends DeclarationTokenHandler {
-
-			private NestedRuleDeclarationTokenHandler() {
-				super(null);
-			}
-
-			@Override
-			protected void handleRightCurlyBracket(int index) {
-				resetHandler();
-				NestedRuleTH.this.curlyBracketDepth--;
-				NestedRuleTH.this.stage = STAGE_WAIT_NESTED_SELECTOR;
-				NestedRuleTH.this.prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
-			}
-
-			@Override
-			TokenControl getTokenControl() {
-				return NestedRuleTH.this.getTokenControl();
-			}
-
-			@Override
-			void setCurrentLocation(int index) {
-				NestedRuleTH.this.setCurrentLocation(index);
-			}
-
-			@Override
-			protected void handleProperty(int index, String propertyName, LexicalUnitImpl lunit,
-					boolean priorityImportant) {
-				if (!priorityImportant) {
-					super.handleProperty(index, propertyName, lunit, priorityImportant);
-				} else {
-					handleError(index, ParseHelper.ERR_WRONG_VALUE, "Values with important priority are not accepted ("
-							+ propertyName + ':' + lunit.toString() + "!important).");
-				}
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				NestedRuleTH.this.control(index, codepoint);
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return NestedRuleTH.this.createException(index, errCode, message);
-			}
-
-		}
-
-		class RootDeclarationTokenHandler extends DeclarationTokenHandler {
-
-			private final DeclarationTokenHandler nestedDeclarationHandler;
-
-			RootDeclarationTokenHandler(DeclarationTokenHandler nestedDeclarationHandler) {
-				super(ShorthandDatabase.getInstance());
-				this.nestedDeclarationHandler = nestedDeclarationHandler;
-			}
-
-			@Override
-			protected void handleRightCurlyBracket(int index) {
-				NestedRuleTH.this.curlyBracketDepth--;
-				NestedRuleTH.this.setStage(STAGE_END_BLOCK_LIST);
-			}
-
-			@Override
-			protected void handleAtKeyword(int index) {
-				if (propertyName == null && buffer.length() == 0 && getCurlyBracketDepth() == 1) {
-					declarationHandler = nestedDeclarationHandler;
-					NestedRuleTH.this.setStage(STAGE_WAIT_NESTED_SELECTOR);
-					NestedRuleTH.this.prevcp = 64;
-				} else {
-					unexpectedCharError(index, 64);
-				}
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				super.endOfStream(len);
-				setStage(STAGE_END_BLOCK_LIST);
-				NestedRuleTH.this.endOfStream(len);
-			}
-
-			@Override
-			protected void endDeclarationList() {
-			}
-
-			@Override
-			TokenControl getTokenControl() {
-				return NestedRuleTH.this.getTokenControl();
-			}
-
-			@Override
-			void setCurrentLocation(int index) {
-				NestedRuleTH.this.setCurrentLocation(index);
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				NestedRuleTH.this.control(index, codepoint);
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return NestedRuleTH.this.createException(index, errCode, message);
-			}
-
 		}
 
 	}
 
-	private class PageTokenHandler extends NestedRuleTH {
+	private class KeyframesManager extends DescriptorRuleListManager {
 
-		private PageSelectorList pageSelectorList = null;
+		private KeyframesTH ruleTH = new KeyframesTH() {
 
-		private final DeclarationTokenHandler rootDeclarationHandler;
-
-		private PageTokenHandler() {
-			super(64, "@page");
-			this.rootDeclarationHandler = new RootDeclarationTokenHandler(getDeclarationHandler());
-			setDeclarationHandler(rootDeclarationHandler);
-		}
-
-		@Override
-		boolean processNestedSelector(int index) {
-			String name = rawBuffer().trim();
-			if (isMarginRuleName(name)) {
-				handler.startMargin(name);
-			} else {
-				handleError(index, ParseHelper.ERR_INVALID_IDENTIFIER, "Unknown margin rule name.");
-				setStage(STAGE_NESTED_SELECTOR_ERROR);
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		void processSelector(int index, String selector) {
-			super.processSelector(index, selector);
-			if (!parseError) {
-				try {
-					pageSelectorList = parsePageSelectorList(selector);
-				} catch (DOMException e) {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX, e.getMessage());
-					setStage(STAGE_SELECTOR_ERROR);
-					return;
-				}
-				handler.startPage(pageSelectorList);
-			}
-		}
-
-		@Override
-		protected void emptySelector(int index) {
-			handler.startPage(null);
-			setStage(STAGE_DECLARATION_LIST);
-		}
-
-		@Override
-		protected void startBlockList(int index) {
-			setStage(STAGE_DECLARATION_LIST);
-		}
-
-		@Override
-		protected void endBlock() {
-			handler.endMargin();
-			setDeclarationHandler(rootDeclarationHandler);
-			setStage(STAGE_DECLARATION_LIST);
-		}
-
-		@Override
-		void endBlockList(int index) {
-			if (getStage() != STAGE_SELECTOR_ERROR) {
-				if (buffer.length() > 0 || prevcp == TokenProducer.CHAR_COMMERCIAL_AT) {
-					buffer.setLength(0);
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Unexpected end of rule.");
-				}
-				handler.endPage(pageSelectorList);
-			}
-			pageSelectorList = null;
-		}
-
-		@Override
-		boolean isValidNestedSelectorCharacter(int codePoint) {
-			return false;
-		}
-
-		@Override
-		boolean isValidSelectorCharacter(int codePoint) {
-			return codePoint == TokenProducer.CHAR_COLON || codePoint == TokenProducer.CHAR_COMMA;
-		}
-
-		private boolean isMarginRuleName(String ruleName) {
-			StringTokenizer st = new StringTokenizer(ruleName, "-");
-			while (st.hasMoreElements()) {
-				String s = st.nextToken();
-				if (!"top".equals(s) && !"left".equals(s) && !"center".equals(s) && !"right".equals(s)
-						&& !"corner".equals(s) && !"bottom".equals(s) && !"middle".equals(s)) {
-					return false;
+			@Override
+			public void character(int index, int codePoint) {
+				if (codePoint != TokenProducer.CHAR_COMMERCIAL_AT || this.keyframesName != null) {
+					super.character(index, codePoint);
 				}
 			}
-			return true;
+
+		};
+
+		KeyframesManager() {
+			super();
+		}
+
+		@Override
+		protected CSSTokenHandler getInitialTokenHandler() {
+			return ruleTH;
+		}
+
+		@Override
+		protected void reportRuleEnd(int index) {
+			if (ruleTH.keyframesName != null) {
+				handler.endKeyframes();
+			}
+		}
+
+		@Override
+		public void endOfStream(int len) {
 		}
 
 	}
 
-	private class KeyFrameBlockListTH extends NestedRuleTH {
-		KeyFrameBlockListTH() {
-			super(64, "@keyframes");
+	private class FontFeatureValuesManager extends DescriptorRuleListManager {
+
+		private FontFeatureValuesTH ruleTH = new FontFeatureValuesTH() {
+
+			@Override
+			public void character(int index, int codePoint) {
+				if (codePoint != TokenProducer.CHAR_COMMERCIAL_AT || this.stage != 0) {
+					super.character(index, codePoint);
+				}
+			}
+
+		};
+
+		FontFeatureValuesManager() {
+			super();
 		}
 
 		@Override
-		void checkNameSelector() {
-			if (getStage() == STAGE_WAIT_SELECTOR && (escapedTokenIndex == -1 || isPrevCpWhitespace())) {
-				setStage(STAGE_WAIT_BLOCK_LIST);
+		protected CSSTokenHandler getInitialTokenHandler() {
+			return ruleTH;
+		}
+
+		@Override
+		protected void reportRuleEnd(int index) {
+			if (ruleTH.stage == 4) {
+				handler.endFontFeatures();
 			}
 		}
 
 		@Override
-		void waitSelectorQuoted(int index, CharSequence quoted, int quoteCp) {
-			if (buffer.length() == 0) {
-				buffer.append(quoted);
-				setStage(STAGE_WAIT_BLOCK_LIST);
-				prevcp = 65;
-			} else {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-						"@keyframes name must be a single identifier or string");
-			}
-		}
-
-		@Override
-		boolean processNestedSelector(int index) {
-			String selector = rawBuffer();
-			LexicalUnit kfsel;
-			try {
-				kfsel = parsePropertyValue(new StringReader(selector));
-				handler.startKeyframe(kfsel);
-			} catch (CSSException e) {
-				handleError(index, ParseHelper.ERR_WRONG_VALUE, e.getMessage());
-				setStage(STAGE_SELECTOR_ERROR);
-				return false;
-			} catch (IOException e) {
-				// Should not happen
-			}
-			return true;
-		}
-
-		@Override
-		void processSelector(int index, String name) {
-			super.processSelector(index, name);
-			if (!parseError) {
-				handler.startKeyframes(name);
-			}
-		}
-
-		@Override
-		protected void endBlock() {
-			super.endBlock();
-			handler.endKeyframe();
-		}
-
-		@Override
-		void endBlockList(int index) {
-			handler.endKeyframes();
-		}
-
-		@Override
-		boolean isValidNestedSelectorCharacter(int codePoint) {
-			return codePoint == TokenProducer.CHAR_PERCENT_SIGN || codePoint == TokenProducer.CHAR_COMMA
-					|| codePoint == TokenProducer.CHAR_FULL_STOP;
-		}
-
-		@Override
-		boolean isValidSelectorCharacter(int codePoint) {
-			return false;
+		public void endOfStream(int len) {
 		}
 
 	}
 
-	private class FontFeatureValuesTH extends NestedRuleTH {
-		FontFeatureValuesTH() {
-			super(32, "@font-feature-values");
-		}
+	/**
+	 * Single-rule manager.
+	 */
+	private class RuleManager extends RuleListManager {
 
-		@Override
-		boolean processNestedSelector(int index) {
-			String selector = unescapeBuffer(index);
-			if (selector.length() > 1 && selector.charAt(0) == '@') {
-				handler.startFeatureMap(selector.substring(1).trim());
-			} else {
-				handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Bad feature name: " + selector);
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		void processSelector(int index, String name) {
-			String[] familyName = name.split("\\s*,\\s*");
-			for (String fontName : familyName) {
-				super.processSelector(index, fontName);
-			}
-			if (!parseError) {
-				handler.startFontFeatures(familyName);
-			}
-		}
-
-		@Override
-		protected void endBlock() {
-			super.endBlock();
-			handler.endFeatureMap();
-		}
-
-		@Override
-		void endBlockList(int index) {
-			handler.endFontFeatures();
-		}
-
-		@Override
-		boolean isValidNestedSelectorCharacter(int codePoint) {
-			return codePoint == TokenProducer.CHAR_COMMERCIAL_AT;
-		}
-
-		@Override
-		boolean isValidSelectorCharacter(int codePoint) {
-			return codePoint == TokenProducer.CHAR_HYPHEN_MINUS || codePoint == TokenProducer.CHAR_COMMA;
-		}
-
-	}
-
-	private class RuleTokenHandler extends SheetTokenHandler {
-
-		RuleTokenHandler(NamespaceMap nsMap) {
+		RuleManager(NamespaceMap nsMap) {
 			super(nsMap, false);
 		}
 
 		@Override
-		protected void endRuleBody() {
-			if (getCurlyBracketDepth() == 0) {
-				contextHandler = new RuleEndContentHandler();
-			} else {
-				super.endRuleBody();
+		public void endManagement(int index) {
+			super.endManagement(index);
+			if (getCurrentCondition() == null && rulesFound()) {
+				getControlHandler().yieldHandling(new RuleEndContentHandler());
 			}
 		}
 
-		@Override
-		protected void resetRuleState() {
-			super.resetRuleState();
-			contextHandler = new RuleEndContentHandler();
-		}
-
-		private class RuleEndContentHandler extends CSSTokenHandler {
-
-			private boolean foundControl = false;
+		private class RuleEndContentHandler extends ParseEndContentHandler {
 
 			RuleEndContentHandler() {
 				super();
 			}
 
 			@Override
-			public void word(int index, CharSequence word) {
-				reportError(index);
-			}
-
-			@Override
-			public void separator(int index, int codePoint) {
-			}
-
-			@Override
-			public void quoted(int index, CharSequence quoted, int quoteCp) {
-				reportError(index);
-			}
-
-			@Override
-			public void quotedWithControl(int index, CharSequence quoted, int quote) {
-				reportError(index);
-			}
-
-			@Override
-			public void leftParenthesis(int index) {
-				reportError(index);
-			}
-
-			@Override
-			public void leftSquareBracket(int index) {
-				reportError(index);
-			}
-
-			@Override
-			public void leftCurlyBracket(int index) {
-				reportError(index);
-			}
-
-			@Override
-			public void rightParenthesis(int index) {
-				reportError(index);
-			}
-
-			@Override
-			public void rightSquareBracket(int index) {
-				reportError(index);
-			}
-
-			@Override
-			public void rightCurlyBracket(int index) {
-				reportError(index);
-			}
-
-			@Override
-			public void character(int index, int codePoint) {
-				reportError(index);
-			}
-
-			@Override
-			public void escaped(int index, int codePoint) {
-				reportError(index);
-			}
-
-			@Override
-			void setCurrentLocation(int index) {
-				RuleTokenHandler.this.setCurrentLocation(index);
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				RuleTokenHandler.this.control(index, codepoint);
-				this.foundControl = true;
-			}
-
-			@Override
-			public void commented(int index, int commentType, String comment) {
-				if (!foundControl && !parseError && commentType == 0) {
-					handler.comment(comment, isPreviousCpLF());
-				}
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				// handler was checked for not null before instantiation of RuleTokenHandler
-				handler.endOfStream();
-			}
-
-			@Override
-			public void error(int index, byte errCode, CharSequence context) {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Found tokens after rule");
-			}
-
-			private void reportError(int index) {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Found tokens after rule");
-			}
-
-			@Override
-			protected void handleError(int index, byte errCode, String message) {
-				if (!parseError && errorHandler != null) {
-					handleError(createException(index, errCode, message));
-				}
-				parseError = true;
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return RuleTokenHandler.this.createException(index, errCode, message);
+			public HandlerManager getManager() {
+				return RuleManager.this;
 			}
 
 		}
+
 	}
 
-	class SheetTokenHandler extends ControlTokenHandler {
+	/**
+	 * {@code <rule-list>} manager.
+	 */
+	private class RuleListManager extends DeclarationRuleListManager {
 
-		CSSTokenHandler contextHandler;
-		private final DeclarationTokenHandler declarationHandler;
-		private final SelectorTokenHandler selectorHandler;
-
-		private String ruleFirstPart = null;
-		private String ruleSecondPart = null;
-
-		private int curlyBracketDepth = 0;
-
-		private byte ruleType = 0;
-
-		private static final byte MEDIA_RULE = 4;
-		private static final byte FONT_FACE_RULE = 5;
-		private static final byte SUPPORTS_RULE = 12;
-
-		// @formatter:off
-		//
-		// Stage: 0 initial
-		// Non-nested: 32 charset (at beginning, ignored),
-		//             34 namespace (expecting first token)
-		//             35 namespace (expecting second token)
-		//             36 namespace (expecting second token as url)
-		//             37 namespace (received second token as url)
-		//             38 import (expecting first token)
-		//             39 import (expecting first token as url)
-		//             40 import (expecting second token or final)
-		// Stage 2: media, font-face, supports
-		// Other rules (stage 5): document, ...
-		// Separate handlers for page, font-feature-values, counter-style,
-		//                       keyframes, viewport
-		// Stage 7: nested rule inside a stage-2 rule, unless:
-		// Stage 10: nested font-face rule inside a grouping rule
-		//
-		// @formatter:on
-		private byte stage = 0;
-
-		private static final byte STAGE_INITIAL = 0;
-		private static final byte STAGE_CHARSET_RULE = 32;
-		private static final byte STAGE_NS_RULE_EXPECT_FIRST_TOKEN = 34;
-		private static final byte STAGE_NS_RULE_EXPECT_SECOND_TOKEN = 35;
-		private static final byte STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL = 36;
-		private static final byte STAGE_NS_RULE_RCVD_SECOND_TOKEN_AS_URL = 37;
-		private static final byte STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN = 38;
-		private static final byte STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL = 39;
-		private static final byte STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN = 41;
-		private static final byte STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL = 40;
-		private static final byte STAGE_GROUPING_OR_FONTFACE_RULE = 2;
-		private static final byte STAGE_UNKNOWN_RULE = 5;
-		private static final byte STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10 = 7;
-		private static final byte STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING = 10;
-
-		// Next field is to check for @charset rules in bad place
-		private boolean rulesFound = false;
+		private final RuleListDeclarationManager declarationManager;
+		private final StyleRuleSelectorTH selectorHandler;
 
 		private ConditionWrapper currentCondition = null;
 
 		private final boolean topLevel;
 
-		SheetTokenHandler(NamespaceMap nsMap, boolean topLevel) {
+		// Next field is to check for @charset rules in bad place
+		boolean rulesFound = false;
+
+		RuleListManager(NamespaceMap nsMap, boolean topLevel) {
 			super();
 			this.topLevel = topLevel;
-			buffer = new StringBuilder(512);
-			declarationHandler = new MyDeclarationTokenHandler();
-			selectorHandler = new MySelectorTokenHandler(nsMap);
-			contextHandler = selectorHandler;
+			declarationManager = new RuleListDeclarationManager();
+			selectorHandler = createSelectorTokenHandler(nsMap);
+			selectorHandler.setManager(this);
 		}
 
-		int getCurlyBracketDepth() {
-			return curlyBracketDepth;
+		RuleListManager(NamespaceMap nsMap, boolean topLevel, DeclarationRuleListManager parent) {
+			super(parent);
+			this.topLevel = topLevel;
+			this.rulesFound = true;
+			declarationManager = new RuleListDeclarationManager();
+			selectorHandler = createSelectorTokenHandler(nsMap);
+			selectorHandler.setManager(this);
 		}
 
-		@Override
-		public void word(int index, CharSequence word) {
-			if (contextHandler != null) {
-				contextHandler.word(index, word);
-			} else if (stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN) {
-				handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-					"Unexpected token: '" + word + '\'');
-			} else {
-				buffer.append(word);
-			}
-			prevcp = 65;
+		protected StyleRuleSelectorTH createSelectorTokenHandler(NamespaceMap nsMap) {
+			return new StyleRuleSelectorTH(nsMap);
 		}
 
-		@Override
-		public void separator(int index, int codepoint) {
-			if (contextHandler != null) {
-				contextHandler.separator(index, codepoint);
-			} else {
-				if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
-					if (buffer.length() != 0) {
-						stage = STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN;
-					}
-				} else if (stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN) {
-					// Do nothing
-				} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
-					if (buffer.length() != 0) {
-						processFirstPart(index);
-						stage = STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL;
-					}
-				} else if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
-					if (ruleFirstPart == null) {
-						if (buffer.length() != 0) {
-							ruleFirstPart = buffer.toString();
-							buffer.setLength(0);
-							stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN;
-						}
-					} else {
-						stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN;
-					}
-				} else if (buffer.length() != 0
-						&& (!isPrevCpWhitespace() || (escapedTokenIndex != -1 && bufferEndsWithEscapedCharOrWS(buffer)))) {
-					buffer.append(' ');
-				}
-				setWhitespacePrevCp();
-			}
+		ConditionWrapper getCurrentCondition() {
+			return currentCondition;
 		}
 
 		@Override
-		protected void setHandlerPreviousCp(int cp) {
-			super.setHandlerPreviousCp(cp);
-			if (contextHandler != null) {
-				contextHandler.setHandlerPreviousCp(cp);
-			}
+		void setRulesFound() {
+			rulesFound = true;
 		}
 
 		@Override
-		protected boolean isPreviousCpLF() {
-			if (contextHandler != null) {
-				return contextHandler.isPreviousCpLF();
-			}
-			return super.isPreviousCpLF();
+		boolean rulesFound() {
+			return rulesFound;
 		}
 
 		@Override
-		public void quoted(int index, CharSequence quoted, int quoteCp) {
-			if (contextHandler != null) {
-				contextHandler.quoted(index, quoted, quoteCp);
-			} else if (stage == STAGE_UNKNOWN_RULE
-				|| stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
-				char c = (char) quoteCp;
-				buffer.append(c).append(quoted).append(c);
-			} else if (stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN
-				|| (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL
-					&& prevcp != TokenProducer.CHAR_LEFT_PAREN && !isPrevCpWhitespace())) {
-				handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-					"Expected ')', found '" + quoted + '\'');
-			} else {
-				if (ruleFirstPart == null) {
-					ruleFirstPart = quoted.toString();
-					if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
-						stage = STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN;
-					} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
-						stage = STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL;
-					}
-				} else if (ruleSecondPart == null) {
-					ruleSecondPart = quoted.toString();
-				} else { // We fill the buffer so the error is found later
-					buffer.append(quoted);
-				}
-				prevcp = 65;
-			}
-		}
-
-		@Override
-		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-			quoted(index, quoted, quoteCp);
-		}
-
-		@Override
-		public void leftCurlyBracket(int index) {
-			if (contextHandler != null) {
-				contextHandler.leftCurlyBracket(index);
-			} else {
-				prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
-				curlyBracketDepth++;
-				if (stage == STAGE_GROUPING_OR_FONTFACE_RULE) {
-					if (curlyBracketDepth == 1) {
-						if (ruleType == FONT_FACE_RULE) {
-							startFontFaceRule(index);
-						}
-						buffer.setLength(0);
-					}
-				} else if (stage == STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING
-						&& curlyBracketDepth >= 2) {
-					startFontFaceRule(index);
-				} else {
-					buffer.append('{');
-				}
-			}
-		}
-
-		@Override
-		public void leftParenthesis(int index) {
-			if (contextHandler != null) {
-				contextHandler.leftParenthesis(index);
-			} else {
-				prevcp = TokenProducer.CHAR_LEFT_PAREN;
-				parendepth++;
-				if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
-					if (bufferEquals("url")) { // "url("
-						stage = STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL;
-					} else {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-								"Unexpected '(' after " + buffer);
-					}
-				} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-							"Unexpected '(' after " + buffer);
-				} else if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN) {
-					if (bufferEquals("url")) { // "url("
-						stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
-					} else {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-								"Unexpected '(' after " + buffer);
-					}
-				} else if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
-					if (bufferEquals("url")) { // "url("
-						// Default namespace
-						ruleFirstPart = "";
-						stage = STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL;
-					} else {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-								"Unexpected '(' after " + buffer);
-					}
-				} else {
-					buffer.append('(');
-				}
-			}
-		}
-
-		@Override
-		public void leftSquareBracket(int index) {
-			if (contextHandler != null) {
-				contextHandler.leftSquareBracket(index);
-			} else {
-				buffer.append('[');
-				prevcp = TokenProducer.CHAR_LEFT_SQ_BRACKET;
-			}
-		}
-
-		private void startFontFaceRule(int index) {
-			if (buffer.length() != 0) {
-				handleError(index - buffer.length(), ParseHelper.ERR_UNEXPECTED_TOKEN,
-						"Unexpected token in @font-face rule: " + buffer);
-			} else {
-				handler.startFontFace();
-				declarationHandler.curlyBracketDepth = 1;
-				contextHandler = declarationHandler;
-				curlyBracketDepth--;
-			}
-		}
-
-		@Override
-		public void rightParenthesis(int index) {
-			if (contextHandler != null) {
-				contextHandler.rightParenthesis(index);
-			} else {
-				decrParenDepth(index);
-				if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL) { // Ignore final ')' for URI
-					processBuffer(index);
-					if (ruleSecondPart != null) {
-						stage = STAGE_NS_RULE_RCVD_SECOND_TOKEN_AS_URL;
-					} else {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-								"Empty URI in namespace rule");
-					}
-				} else if (stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL
-						|| stage == STAGE_IMPORT_RULE_EXPECT_CLOSING_PAREN) {
-					processFirstPart(index);
-					stage = STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL;
-				} else {
-					buffer.append(')');
-				}
-				prevcp = TokenProducer.CHAR_RIGHT_PAREN;
-			}
-		}
-
-		@Override
-		public void rightSquareBracket(int index) {
-			if (contextHandler != null) {
-				contextHandler.rightSquareBracket(index);
-			} else {
-				buffer.append(']');
-				prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
-			}
-		}
-
-		@Override
-		public void rightCurlyBracket(int index) {
-			if (contextHandler != null) {
-				contextHandler.rightCurlyBracket(index);
-			} else {
-				curlyBracketDepth--;
-				buffer.append('}');
-				if (curlyBracketDepth == 0) {
-					// Body of rule ends
-					if (!parseError) {
-						handler.ignorableAtRule(buffer.toString());
-						stage = STAGE_INITIAL;
-					}
-					buffer.setLength(0);
-					endRuleBody();
-				} else if (!parseError && curlyBracketDepth == 1
-						&& stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
-					handler.ignorableAtRule(buffer.toString());
-					buffer.setLength(0);
-					stage = STAGE_GROUPING_OR_FONTFACE_RULE;
-					switchContextToStage2();
-				}
-				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
-			}
-		}
-
-		protected void endRuleBody() {
-			setSelectorHandler();
-		}
-
-		void setSelectorHandler() {
+		public void restoreInitialHandler() {
+			super.restoreInitialHandler();
 			selectorHandler.resetHandler();
-			contextHandler = selectorHandler;
-			rulesFound = true;
-		}
-
-		private void switchContextToStage2() {
-			if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
-				contextHandler = selectorHandler;
-				selectorHandler.prevcp = 32;
-			} else if (ruleType == FONT_FACE_RULE) {
-				declarationHandler.curlyBracketDepth = 1;
-				contextHandler = declarationHandler;
-			}
-		}
-
-		@Override
-		public void character(int index, int codepoint) {
-			if (contextHandler != null) {
-				contextHandler.character(index, codepoint);
-			} else {
-				prevcp = codepoint;
-				if (codepoint == 59) { // ;
-					if (curlyBracketDepth == 0) {
-						// End of rule
-						if (parendepth == 0) {
-							if (stage != STAGE_INITIAL) {
-								endOfAtRule(index);
-							} else {
-								handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Empty @-rule.");
-								resetRuleState();
-							}
-						} else if (stage != STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL) {
-							handleError(index, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parentheses in rule.");
-							resetRuleState();
-						} else {
-							buffer.append(';');
-							prevcp = codepoint;
-							return;
-						}
-						setSelectorHandler();
-					} else {
-						buffer.append(';');
-					}
-				} else if (isAllowedChar(codepoint)) {
-					bufferAppend(codepoint);
-				} else {
-					unexpectedCharError(index, codepoint);
-				}
-			}
-		}
-
-		private void endOfAtRule(int index) {
-			processBuffer(index);
-			if (buffer.length() != 0) {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-						"Malformed @-rule, unexpected <" + buffer.toString() + ">");
-			}
-			if (stage == STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL
-					|| stage == STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN) {
-				if (ruleSecondPart != null) {
-					currentCondition = newMediaList(ruleSecondPart);
-				} else {
-					currentCondition = null; // A dangling value may be there from a malformed rule
-				}
-				if (ruleFirstPart != null) {
-					if (currentCondition == null) {
-						currentCondition = newMediaListAll();
-					}
-					handler.importStyle(ruleFirstPart, currentCondition.getMediaList(), null);
-				} else if (!parseError) {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Malformed @-rule");
-				}
-			} else if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN || stage == STAGE_NS_RULE_RCVD_SECOND_TOKEN_AS_URL) {
-				if (ruleSecondPart != null) {
-					namespaceDeclaration(ruleFirstPart, ruleSecondPart);
-				} else {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "No URI in namespace rule");
-				}
-			} else if (stage == STAGE_NS_RULE_EXPECT_FIRST_TOKEN) {
-				namespaceDeclaration("", ruleFirstPart);
-			} else if (stage == STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL) { // Bad namespace rule
-				handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Bad URI in namespace rule");
-			}
-			resetRuleState();
-			rulesFound = true;
-		}
-
-		private ConditionWrapper newMediaListAll() {
-			MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
-			MediaQueryList mqAll = mediaQueryFactory.createAllMedia();
-			return new ConditionWrapper(mqAll, currentCondition);
-		}
-
-		private ConditionWrapper newMediaList(String media) {
-			MediaQueryList list = parseMediaQueryList(media);
-			return new ConditionWrapper(list, currentCondition);
-		}
-
-		void namespaceDeclaration(String prefix, String uri) {
-			handler.namespaceDeclaration(prefix, uri);
-			selectorHandler.factory.registerNamespacePrefix(prefix, uri);
-		}
-
-		void resetRuleState() {
-			resetHandler();
-			if (currentCondition != null) {
-				currentCondition = currentCondition.getParent();
-				if (currentCondition == null) {
-					stage = STAGE_INITIAL;
-				} else if (currentCondition.isMediaCondition()) {
-					ruleType = MEDIA_RULE;
-				} else {
-					ruleType = SUPPORTS_RULE;
-				}
-			} else {
-				stage = STAGE_INITIAL;
-			}
-			ruleFirstPart = null;
-			ruleSecondPart = null;
-			buffer.setLength(0);
-		}
-
-		private boolean isAllowedChar(int codePoint) {
-			switch (stage) {
-			case STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN_AS_URL:
-			case STAGE_NS_RULE_EXPECT_SECOND_TOKEN_AS_URL:
-			case STAGE_UNKNOWN_RULE:
-			case STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10:
-				return true;
-			case STAGE_IMPORT_RULE_EXPECT_SECOND_TOKEN_OR_FINAL:
-				return codePoint == TokenProducer.CHAR_COLON || isImportMediaRuleAllowedChar(codePoint);
-			}
-			return false;
-		}
-
-		private boolean isImportMediaRuleAllowedChar(int codePoint) {
-			final int[] allowedChars = { TokenProducer.CHAR_PERCENT_SIGN, TokenProducer.CHAR_ASTERISK,
-					TokenProducer.CHAR_PLUS, TokenProducer.CHAR_COMMA, TokenProducer.CHAR_HYPHEN_MINUS,
-					TokenProducer.CHAR_FULL_STOP, TokenProducer.CHAR_SLASH, TokenProducer.CHAR_LESS_THAN,
-					TokenProducer.CHAR_EQUALS, TokenProducer.CHAR_GREATER_THAN };
-			return Arrays.binarySearch(allowedChars, codePoint) >= 0;
-		}
-
-		private void processFirstPart(int index) {
-			if (buffer.length() != 0) {
-				// Trim possible trailing space
-				trimBufferTail();
-				if (ruleFirstPart == null) {
-					ruleFirstPart = buffer.toString();
-					buffer.setLength(0);
-				} else {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-						"Unexpected token: " + buffer.toString());
-				}
-			} else if (ruleFirstPart == null) {
-				handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Empty rule.");
-			}
-		}
-
-		private void processBuffer(int index) {
-			if (buffer.length() != 0) {
-				// Trim possible trailing space
-				trimBufferTail();
-				if (ruleFirstPart == null) {
-					ruleFirstPart = buffer.toString();
-					buffer.setLength(0);
-				} else if (ruleSecondPart == null) {
-					ruleSecondPart = buffer.toString();
-					buffer.setLength(0);
-				}
-			}
-		}
-
-		private void trimBufferTail() {
-			if (buffer.charAt(buffer.length() - 1) == ' ') {
-				buffer.setLength(buffer.length() - 1);
-			}
-		}
-
-		private boolean bufferEquals(String lcWord) {
-			if (ParseHelper.equalsIgnoreCase(buffer, lcWord)) {
-				buffer.setLength(0);
-				return true;
-			}
-			return false;
-		}
-
-		@Override
-		public void escaped(int index, int codepoint) {
-			if (contextHandler != null) {
-				contextHandler.escaped(index, codepoint);
-			} else if (!parseError) {
-				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
-					setEscapedTokenStart(index);
-					buffer.append('\\');
-				}
-				bufferAppend(codepoint);
-			}
-			prevcp = 65;
+			selectorHandler.resetParseError();
 		}
 
 		@Override
 		public void endOfStream(int len) {
-			if (contextHandler != null) {
-				contextHandler.endOfStream(len);
-				return;
-			} else {
-				if (ruleType == FONT_FACE_RULE) {
-					handler.endFontFace();
-					if (stage == STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING) {
-						closeGroupingRules();
-					}
-				} else if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
-					closeGroupingRules();
-				} else if (stage != 0 && !parseError) {
-					if (curlyBracketDepth == 0) {
-						endOfAtRule(len);
-					} else if (buffer.length() != 0) {
-						do {
-							curlyBracketDepth--;
-							buffer.append('}');
-						} while (curlyBracketDepth > 0);
-						// Body of rule ends
-						handler.ignorableAtRule(buffer.toString());
-						handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
-						endDocument();
-						return;
-					}
-				}
+			// Mark the end of rule
+			SelectorListImpl selist = selectorHandler.getSelectorList();
+			if (!selist.isEmpty()) {
+				handler.endSelector(selist);
+				selectorHandler.selist = selectorHandler.new ParserSelectorListImpl();
 			}
-			if (curlyBracketDepth != 0 && !parseError) {
-				handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
-			}
-			endDocument();
-		}
-
-		private void closeGroupingRules() {
+			selectorHandler.resetHandler();
 			while (currentCondition != null) {
 				if (currentCondition.isMediaCondition()) {
 					handler.endMedia(currentCondition.getMediaList());
@@ -3837,845 +2839,123 @@ public class CSSParser implements Parser, Cloneable {
 				}
 				currentCondition = currentCondition.getParent();
 			}
-		}
-
-		private void setSelectorHandler(int prevcp) {
-			contextHandler = selectorHandler;
-			selectorHandler.parseError = false;
-			selectorHandler.prevcp = 32;
-			selectorHandler.stage = STAGE_INITIAL;
-			this.prevcp = prevcp;
+			super.endOfStream(len);
 		}
 
 		@Override
-		public void commented(int index, int commentType, String comment) {
-			if (stage == STAGE_UNKNOWN_RULE || stage == STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10) {
-				// Unknown rule
-				if (commentType == 0) {
-					buffer.append("/*").append(comment).append("*/");
-				}
-			} else if (contextHandler != null) {
-				contextHandler.commented(index, commentType, comment);
+		public void endManagement(int index) {
+			// Mark the end of rule
+			SelectorListImpl selist = selectorHandler.getSelectorList();
+			if (!selist.isEmpty()) {
+				handler.endSelector(selist);
+				selectorHandler.selist = selectorHandler.new ParserSelectorListImpl();
 			} else {
-				separator(index, 12);
+				selectorHandler.resetHandler();
+				if (currentCondition != null) {
+					if (currentCondition.isMediaCondition()) {
+						handler.endMedia(currentCondition.getMediaList());
+					} else {
+						handler.endSupports(currentCondition.getCondition());
+					}
+					currentCondition = currentCondition.getParent();
+				} else {
+					HandlerManager parentMgr = getParentManager();
+					if (parentMgr == null) {
+						if (!getControlHandler().isInErrorRecovery()) {
+							selectorHandler.unexpectedCharError(index,
+									TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
+						}
+						selectorHandler.resetSelectorHandler(true);
+					} else {
+						yieldManagement(parentMgr);
+					}
+					return;
+				}
 			}
+			restoreInitialHandler();
 		}
 
 		@Override
-		protected void handleError(CSSParseException ex) throws CSSParseException {
-			if (contextHandler != null) {
-				contextHandler.handleError(ex);
-			} else {
-				super.handleError(ex);
-				buffer.setLength(0);
-				this.stage = 127;
-			}
+		public boolean isTopManager() {
+			return super.isTopManager() && currentCondition == null;
 		}
 
-		private class AtRuleLauncherTH extends ControlTokenHandler {
-
-			/*
-			 * We use buffer, escapedTokenIndex and prevcp from SheetTokenHandler.
-			 */
-
-			private AtRuleLauncherTH() {
-				super();
-			}
-
-			@Override
-			public void word(int index, CharSequence word) {
-				SheetTokenHandler.this.buffer.append(word);
-				SheetTokenHandler.this.prevcp = 65;
-			}
-
-			@Override
-			public void separator(int index, int codePoint) {
-				if (SheetTokenHandler.this.isPrevCpWhitespace()) {
-					// Got two consecutive whitespaces. Check stage.
-					if (SheetTokenHandler.this.escapedTokenIndex != -1
-							&& bufferEndsWithEscapedChar(SheetTokenHandler.this.buffer)) {
-						SheetTokenHandler.this.buffer.append(' ');
-					} else {
-						startNewRule(index);
-					}
-				} else {
-					SheetTokenHandler.this.setWhitespacePrevCp();
-					if (SheetTokenHandler.this.escapedTokenIndex == -1
-							|| !bufferEndsWithEscapedChar(SheetTokenHandler.this.buffer)) {
-						startNewRule(index);
-					} else {
-						SheetTokenHandler.this.buffer.append(' ');
-					}
-				}
-			}
-
-			@Override
-			public void quoted(int index, CharSequence quoted, int quote) {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token: " + quote + quoted + quote);
-			}
-
-			@Override
-			public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-				quoted(index, quoted, quoteCp);
-			}
-
-			@Override
-			public void leftParenthesis(int index) {
-				startNewRule(index);
-				if (contextHandler != null) {
-					contextHandler.leftParenthesis(index);
-				} else {
-					SheetTokenHandler.this.leftParenthesis(index);
-				}
-			}
-
-			@Override
-			public void leftSquareBracket(int index) {
-				unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
-			}
-
-			@Override
-			public void leftCurlyBracket(int index) {
-				startNewRule(index);
-				if (contextHandler != null) {
-					contextHandler.leftCurlyBracket(index);
-				} else {
-					SheetTokenHandler.this.leftCurlyBracket(index);
-				}
-			}
-
-			@Override
-			public void rightParenthesis(int index) {
-				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
-			}
-
-			@Override
-			public void rightSquareBracket(int index) {
-				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
-			}
-
-			@Override
-			public void rightCurlyBracket(int index) {
-				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
-			}
-
-			@Override
-			public void character(int index, int codePoint) {
-				startNewRule(index);
-				if (contextHandler != null) {
-					contextHandler.character(index, codePoint);
-				} else {
-					SheetTokenHandler.this.character(index, codePoint);
-				}
-			}
-
-			@Override
-			public void commented(int index, int commentType, String comment) {
-				startNewRule(index);
-				if (contextHandler != null) {
-					contextHandler.commented(index, commentType, comment);
-				} else {
-					SheetTokenHandler.this.commented(index, commentType, comment);
-				}
-			}
-
-			@Override
-			public void escaped(int index, int codePoint) {
-				if (ParseHelper.isHexCodePoint(codePoint) || codePoint == 92) {
-					SheetTokenHandler.this.setEscapedTokenStart(index);
-					SheetTokenHandler.this.buffer.append('\\');
-				}
-				SheetTokenHandler.this.buffer.appendCodePoint(codePoint);
-				SheetTokenHandler.this.prevcp = 65;
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
-				// Now contextHandler is null
-				SheetTokenHandler.this.endOfStream(len);
-			}
-
-			@Override
-			protected void handleError(CSSParseException ex) throws CSSParseException {
-				contextHandler = null;
-				SheetTokenHandler.this.handleError(ex);
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return SheetTokenHandler.this.createException(index, errCode, message);
-			}
-
+		@Override
+		protected String defaultNamespaceURI() {
+			return selectorHandler.factory.getNamespaceURI("");
 		}
 
-		private void startNewRule(int index) {
-			String atRule = unescapeBuffer(index);
-			if (atRule.length() > 2) {
-				if (stage == 0) {
-					startRule(index, atRule);
-				} else { // stage == 2
-					startNestedRule(index, atRule);
+		@Override
+		protected CSSTokenHandler createNamespaceRuleTH() {
+			return new NamespaceRuleTH() {
+
+				@Override
+				protected void registerNamespacePrefix(String prefix, String uri) {
+					selectorHandler.factory.registerNamespacePrefix(prefix, uri);
 				}
-			} else {
-				handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Malformed @-rule.");
-				contextHandler = null;
-			}
+
+			};
 		}
 
-		private void startRule(int index, String word) {
-			contextHandler = null;
-			// Obtain a lowercase rule name
-			String ruleName = word.substring(1).toLowerCase(Locale.ROOT);
-			if ("charset".equals(ruleName)) {
-				if (!rulesFound) {
-					stage = STAGE_CHARSET_RULE;
-					buffer.setLength(0);
-				} else {
-					handleError(index - 8, ParseHelper.ERR_RULE_SYNTAX, "@charset must be the first rule");
-				}
-			} else if ("import".equals(ruleName)) {
-				stage = STAGE_IMPORT_RULE_EXPECT_FIRST_TOKEN;
-				buffer.setLength(0);
-			} else if ("namespace".equals(ruleName)) {
-				stage = STAGE_NS_RULE_EXPECT_FIRST_TOKEN;
-				buffer.setLength(0);
-			} else if ("media".equals(ruleName)) {
-				ruleType = MEDIA_RULE;
-				stage = 2;
-				buffer.setLength(0);
-				setMediaQueryHandler();
+		@Override
+		protected CSSTokenHandler createUnknownRuleHandler(int index, String ruleName) {
+			CSSTokenHandler ruleHandler;
+			if ("media".equals(ruleName)) {
+				ruleHandler = createMediaQueryHandler();
 			} else if ("supports".equals(ruleName)) {
-				ruleType = SUPPORTS_RULE;
-				stage = 2;
-				buffer.setLength(0);
-				contextHandler = new MySupportsTokenHandler();
-			} else if ("font-face".equals(ruleName)) {
-				ruleType = FONT_FACE_RULE;
-				stage = 2;
-				buffer.setLength(0);
-			} else if ("page".equals(ruleName)) {
-				buffer.setLength(0);
-				contextHandler = new MyPageTH();
-			} else if ("viewport".equals(ruleName)) {
-				buffer.setLength(0);
-				contextHandler = new ViewportTokenHandler();
-			} else if ("counter-style".equals(ruleName)) {
-				buffer.setLength(0);
-				contextHandler = new CounterStyleTokenHandler();
-			} else if ("keyframes".equals(ruleName)) {
-				buffer.setLength(0);
-				contextHandler = new MyKeyFrameBlockListTH();
-			} else if ("font-feature-values".equals(ruleName)) {
-				buffer.setLength(0);
-				contextHandler = new MyFontFeatureValuesTH();
-			} else if ("property".equals(ruleName)) {
-				buffer.setLength(0);
-				contextHandler = new PropertyRuleTokenHandler();
+				ruleHandler = new MySupportsRuleTH();
 			} else {
-				buffer.append(word);
-				if (isPrevCpWhitespace()) {
-					buffer.append(' ');
-				}
-				stage = STAGE_UNKNOWN_RULE;
+				ruleHandler = super.createUnknownRuleHandler(index, ruleName);
 			}
+
+			return ruleHandler;
 		}
 
-		private void startNestedRule(int index, String word) {
-			contextHandler = null;
-			// Obtain a lowercase rule name
-			String ruleName = word.substring(1).toLowerCase(Locale.ROOT);
-			if ("page".equals(ruleName)) {
-				buffer.setLength(0);
-				contextHandler = new MyPageTH();
-			} else if ("font-face".equals(ruleName)) {
-				if (ruleType == MEDIA_RULE || ruleType == SUPPORTS_RULE) {
-					// Nested font-face rule inside @media or @supports
-					ruleType = FONT_FACE_RULE;
-					stage = STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING;
-					buffer.setLength(0);
-				} else {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-							"Unexpected rule: @font-face.");
-				}
-			} else if ("media".equals(ruleName)) {
-				// Nested media rule inside grouping rule?
-				if (ruleType == SUPPORTS_RULE) {
-					ruleType = MEDIA_RULE;
-				} else if (ruleType != MEDIA_RULE) {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-							"Unexpected: @" + ruleName);
-					return;
-				}
-				buffer.setLength(0);
-				setMediaQueryHandler();
-			} else if ("supports".equals(ruleName)) {
-				// Nested supports rule inside grouping rule?
-				if (ruleType == MEDIA_RULE) {
-					ruleType = SUPPORTS_RULE;
-				} else if (ruleType != SUPPORTS_RULE) {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-							"Unexpected: @" + ruleName);
-					return;
-				}
-				buffer.setLength(0);
-				contextHandler = new MySupportsTokenHandler();
-			} else if ("viewport".equals(ruleName)) {
-				buffer.setLength(0);
-				contextHandler = new ViewportTokenHandler();
-			} else if ("counter-style".equals(ruleName)) {
-				buffer.setLength(0);
-				contextHandler = new CounterStyleTokenHandler();
-			} else if ("keyframes".equals(ruleName)) {
-				buffer.setLength(0);
-				contextHandler = new MyKeyFrameBlockListTH();
-			} else if ("font-feature-values".equals(ruleName)) {
-				buffer.setLength(0);
-				contextHandler = new MyFontFeatureValuesTH();
-			} else if ("charset".equals(ruleName)) {
-				handleError(index - 8, ParseHelper.ERR_RULE_SYNTAX, "@charset must be the first rule");
-			} else if ("property".equals(ruleName)) {
-				handleError(index - 9, ParseHelper.ERR_RULE_SYNTAX, "@property rules cannot be nested");
-			} else {
-				// Nested rule
-				buffer.append(word);
-				if (isPrevCpWhitespace()) {
-					buffer.append(' ');
-				}
-				stage = STAGE_NESTED_RULE_INSIDE_GROUPING_OR_FONTFACE_EXCEPT_10;
-			}
-		}
+		private class StyleRuleSelectorTH extends SelectorTokenHandler {
 
-		private class ViewportTokenHandler extends MyDeclarationRuleTokenHandler {
-
-			private ViewportTokenHandler() {
-				super(ShorthandDatabase.getInstance());
-				setRuleName("viewport");
-				setStage(STAGE_RULE_NAME_SELECTOR);
-			}
-
-			@Override
-			protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
-				if (ruleSecondPart == null) {
-					handler.startViewport();
-				} else {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-							"Unexpected token after @viewport: " + ruleSecondPart);
-					setStage(INVALID_RULE);
-				}
-			}
-
-			@Override
-			protected void endAtRule(int index) {
-				handler.endViewport();
-				endRuleBody();
-			}
-
-		}
-
-		private class MyDeclarationRuleTokenHandler extends DeclarationRuleTokenHandler {
-
-			MyDeclarationRuleTokenHandler(ShorthandDatabase propertyDatabase) {
-				super(propertyDatabase);
-				setStage(STAGE_RULE_NAME_SELECTOR);
-			}
-
-			@Override
-			void setCurrentLocation(int index) {
-				SheetTokenHandler.this.setCurrentLocation(index);
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
-			}
-
-			@Override
-			public void tokenStart(TokenControl control) {
-				SheetTokenHandler.this.tokenStart(control);
-			}
-
-			@Override
-			TokenControl getTokenControl() {
-				return SheetTokenHandler.this.getTokenControl();
-			}
-
-			@Override
-			void skipDeclarationBlock() {
-				contextHandler = new MyIgnoredDeclarationTokenHandler();
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				super.endOfStream(len);
-				contextHandler = null;
-				SheetTokenHandler.this.endOfStream(len);
-			}
-
-			@Override
-			protected void endDeclarationList() {
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return SheetTokenHandler.this.createException(index, errCode, message);
-			}
-
-		}
-
-		private class CounterStyleTokenHandler extends MyDeclarationRuleTokenHandler {
-
-			private CounterStyleTokenHandler() {
-				super(ShorthandDatabase.getInstance());
-				setRuleName("counter-style");
-				setStage(STAGE_RULE_NAME_SELECTOR);
-			}
-
-			@Override
-			protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
-				if (ruleSecondPart != null && isValidIdentifier(ruleSecondPart)) {
-					try {
-						handler.startCounterStyle(ruleSecondPart);
-					} catch (DOMException e) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-							"Wrong name for @counter-style rule: " + ruleSecondPart, e);
-						setStage(INVALID_RULE);
-					}
-				} else {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-						"Wrong name for @counter-style rule: " + ruleSecondPart);
-					setStage(INVALID_RULE);
-				}
-			}
-
-			@Override
-			protected void endAtRule(int index) {
-				handler.endCounterStyle();
-				endRuleBody();
-			}
-
-		}
-
-		private class MyPageTH extends PageTokenHandler {
-
-			MyPageTH() {
-				super();
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
-			}
-
-			@Override
-			TokenControl getTokenControl() {
-				return SheetTokenHandler.this.getTokenControl();
-			}
-
-			@Override
-			void setCurrentLocation(int index) {
-				SheetTokenHandler.this.setCurrentLocation(index);
-			}
-
-			@Override
-			void endBlockList(int index) {
-				super.endBlockList(index);
-				endRuleBody();
-			}
-
-			@Override
-			protected void abortRule() {
-				contextHandler = null;
-				SheetTokenHandler.this.curlyBracketDepth += getCurlyBracketDepth();
-				SheetTokenHandler.this.parseError = true;
-				SheetTokenHandler.this.stage = 127;
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				super.endOfStream(len);
-				contextHandler = null;
-				SheetTokenHandler.this.endOfStream(len);
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return SheetTokenHandler.this.createException(index, errCode, message);
-			}
-
-		}
-
-		private class MyKeyFrameBlockListTH extends KeyFrameBlockListTH {
-
-			MyKeyFrameBlockListTH() {
-				super();
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
-			}
-
-			@Override
-			TokenControl getTokenControl() {
-				return SheetTokenHandler.this.getTokenControl();
-			}
-
-			@Override
-			void setCurrentLocation(int index) {
-				SheetTokenHandler.this.setCurrentLocation(index);
-			}
-
-			@Override
-			void endBlockList(int index) {
-				super.endBlockList(index);
-				endRuleBody();
-			}
-
-			@Override
-			protected void abortRule() {
-				contextHandler = null;
-				SheetTokenHandler.this.curlyBracketDepth += getCurlyBracketDepth();
-				SheetTokenHandler.this.parseError = true;
-				SheetTokenHandler.this.stage = 127;
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				super.endOfStream(len);
-				contextHandler = null;
-				SheetTokenHandler.this.endOfStream(len);
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return SheetTokenHandler.this.createException(index, errCode, message);
-			}
-
-		}
-
-		private class MyFontFeatureValuesTH extends FontFeatureValuesTH {
-
-			MyFontFeatureValuesTH() {
-				super();
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
-			}
-
-			@Override
-			TokenControl getTokenControl() {
-				return SheetTokenHandler.this.getTokenControl();
-			}
-
-			@Override
-			void setCurrentLocation(int index) {
-				SheetTokenHandler.this.setCurrentLocation(index);
-			}
-
-			@Override
-			void endBlockList(int index) {
-				super.endBlockList(index);
-				endRuleBody();
-			}
-
-			@Override
-			protected void abortRule() {
-				contextHandler = null;
-				SheetTokenHandler.this.curlyBracketDepth += getCurlyBracketDepth();
-				SheetTokenHandler.this.parseError = true;
-				SheetTokenHandler.this.stage = 127;
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				super.endOfStream(len);
-				contextHandler = null;
-				SheetTokenHandler.this.endOfStream(len);
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return SheetTokenHandler.this.createException(index, errCode, message);
-			}
-
-		}
-
-		private class PropertyRuleTokenHandler extends MyDeclarationRuleTokenHandler {
-
-			private CSSValueSyntax syntax = null;
-
-			private boolean isUniversalSyntax, hasInherits;
-
-			private LexicalUnit initialValue = null;
-
-			private PropertyRuleTokenHandler() {
-				super(ShorthandDatabase.getInstance());
-				setRuleName("property");
-				setStage(STAGE_RULE_NAME_SELECTOR);
-			}
-
-			@Override
-			protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
-				if (ruleSecondPart == null) {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Null name in @property rule.");
-					setStage(INVALID_RULE);
-				} else {
-					try {
-						ruleSecondPart = ParseHelper.parseIdent(ruleSecondPart);
-					} catch (DOMException e) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Bad name in @property rule: " + ruleSecondPart,
-								e);
-						setStage(INVALID_RULE);
-						return;
-					}
-					handler.startProperty(ruleSecondPart);
-				}
-			}
-
-			@Override
-			protected void handleProperty(int index, String propertyName, LexicalUnitImpl lunit,
-					boolean priorityImportant) {
-				if ("syntax".equalsIgnoreCase(propertyName)) {
-					if (lunit.getLexicalUnitType() != LexicalType.STRING) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-								"'syntax' descriptor in @property rule must be a string.");
-						return;
-					}
-					String s = lunit.getStringValue().trim();
-					SyntaxParser parser = new SyntaxParser();
-					try {
-						syntax = parser.parseSyntax(s);
-					} catch (CSSException e) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-								"Wrong 'syntax' descriptor in @property rule: '" + s + '\'');
-						return;
-					}
-					isUniversalSyntax = syntax.getCategory() == CSSValueSyntax.Category.universal;
-				} else if ("inherits".equalsIgnoreCase(propertyName)) {
-					String s;
-					if (lunit.getLexicalUnitType() != LexicalType.IDENT
-							|| (!"true".equals(s = lunit.getStringValue().toLowerCase(Locale.ROOT))
-									&& !"false".equals(s))) {
-						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-								"'inherits' descriptor in @property rule must be either 'true' or 'false'.");
-						return;
-					}
-					hasInherits = true;
-				} else if ("initial-value".equalsIgnoreCase(propertyName)) {
-					handleLexicalProperty(index, propertyName, lunit, priorityImportant);
-					initialValue = lunit;
-					return;
-				}
-				super.handleProperty(index, propertyName, lunit, priorityImportant);
-			}
-
-			@Override
-			protected void endAtRule(int index) {
-				if (syntax == null) {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-							"@property rule lacks mandatory 'syntax' descriptor.");
-					handler.endProperty(true);
-				} else if (!hasInherits) {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-							"@property rule lacks mandatory 'inherits' descriptor.");
-					handler.endProperty(true);
-				} else if (!isUniversalSyntax
-						&& (initialValue == null || initialValue.matches(syntax) != CSSValueSyntax.Match.TRUE
-								|| (initialValue.getLexicalUnitType() == LexicalType.DIMENSION
-										&& CSSUnit.isRelativeLengthUnitType(initialValue.getCssUnit())))) {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-							"@property rule lacks a valid 'initial-value' descriptor.");
-					handler.endProperty(true);
-				} else {
-					handler.endProperty(false);
-				}
-				endRuleBody();
-			}
-
-		}
-
-		private class MySupportsTokenHandler extends SupportsTokenHandler {
-
-			MySupportsTokenHandler() {
-				super(null, (SheetContext) handler.getStyleSheet());
-			}
-
-			@Override
-			void setCurrentLocation(int index) {
-				SheetTokenHandler.this.setCurrentLocation(index);
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
-			}
-
-			@Override
-			void endOfCondition(int index) {
-				super.endOfCondition(index);
-				BooleanCondition cond = getCondition();
-				currentCondition = new ConditionWrapper(cond, currentCondition);
-				handler.startSupports(cond);
-				setSelectorHandler();
-			}
-
-			@Override
-			void handleLeftCurlyBracket(int index) {
-				endOfCondition(index);
-				SheetTokenHandler.this.curlyBracketDepth++;
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
-				contextHandler = null;
-				SheetTokenHandler.this.endOfStream(len);
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return SheetTokenHandler.this.createException(index, errCode, message);
-			}
-
-		}
-
-		private class MyMediaQueryTokenHandler extends MediaQueryTokenHandler {
-
-			MyMediaQueryTokenHandler(MediaQueryFactory conditionFactory, MediaQueryHandler mqhandler) {
-				super(conditionFactory, mqhandler);
-				mqhandler.startQuery();
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
-			}
-
-			@Override
-			void endOfCondition(int index) {
-				super.endOfCondition(index);
-				MediaQueryList mql = getPredicateHandler().getMediaQueryHandler().getMediaQueryList();
-				currentCondition = new ConditionWrapper(mql, currentCondition);
-				handler.startMedia(currentCondition.getMediaList());
-				setSelectorHandler();
-			}
-
-			@Override
-			void handleLeftCurlyBracket(int index) {
-				endOfCondition(index);
-				SheetTokenHandler.this.curlyBracketDepth++;
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
-				contextHandler = null;
-				SheetTokenHandler.this.endOfStream(len);
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return SheetTokenHandler.this.createException(index, errCode, message);
-			}
-
-		}
-
-		private void setMediaQueryHandler() {
-			MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
-			MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(null);
-			contextHandler = new MyMediaQueryTokenHandler(mediaQueryFactory, mqhandler);
-		}
-
-		private class MySelectorTokenHandler extends SelectorTokenHandler {
-
-			MySelectorTokenHandler(NamespaceMap nsMap) {
+			StyleRuleSelectorTH(NamespaceMap nsMap) {
 				super(nsMap);
 			}
 
 			@Override
 			public void leftCurlyBracket(int index) {
-				declarationHandler.curlyBracketDepth = 1;
-				contextHandler = declarationHandler;
-				if (!parseError) {
-					selectorHandler.processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET, true);
-					if (!parseError) {
-						if (addCurrentSelector(index)) {
-							selist.trimToSize();
-							handler.startSelector(selist);
-						} else {
-							unexpectedCharError(index, 123);
-						}
+				processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET, true);
+				if (!isInError()) {
+					if (addCurrentSelector(index)) {
+						selist.trimToSize();
+						handler.startSelector(selist);
+						yieldManagement(declarationManager);
+						setRulesFound();
+					} else {
+						unexpectedLeftCurlyBracketError(index);
 					}
+				} else {
+					sendLeftCurlyBracketEvent(index, this);
 				}
-				MySelectorTokenHandler.this.stage = STAGE_INITIAL;
-				if (parseError) {
-					buffer.setLength(0);
-					ignoreRule();
-				}
-			}
-
-			private void ignoreRule() {
-				selist.clear();
-				currentsel = null;
-				contextHandler = new MyIgnoredDeclarationTokenHandler();
+				buffer.setLength(0);
+				resetEscapedTokenIndex();
+				stage = STAGE_INITIAL;
 			}
 
 			@Override
 			public void rightCurlyBracket(int index) {
-				if (SheetTokenHandler.this.stage == STAGE_GROUPING_OR_FONTFACE_RULE) {
-					final byte ruleType = SheetTokenHandler.this.ruleType;
-					if (ruleType == MEDIA_RULE) {
-						handler.endMedia(currentCondition.getMediaList());
-						currentCondition = currentCondition.getParent();
-						if (currentCondition == null) {
-							resetSelectorHandler(true);
-						} else {
-							if (!currentCondition.isMediaCondition()) {
-								SheetTokenHandler.this.ruleType = SUPPORTS_RULE;
-							}
-							resetSelectorHandler(false);
-						}
-						return;
-					} else if (ruleType == SUPPORTS_RULE) {
-						handler.endSupports(currentCondition.getCondition());
-						currentCondition = currentCondition.getParent();
-						if (currentCondition == null) {
-							resetSelectorHandler(true);
-						} else {
-							if (currentCondition.isMediaCondition()) {
-								SheetTokenHandler.this.ruleType = MEDIA_RULE;
-							}
-							resetSelectorHandler(false);
-						}
-						return;
-					} else if (SheetTokenHandler.this.curlyBracketDepth == 0) {
-						resetSelectorHandler(true);
-						return;
+				processBuffer(index, 32, true);
+				// Check whether we got an error in selectors
+				if (!parseError) {
+					if (!selist.isEmpty() || currentsel != null) {
+						// Report error
+						unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
 					}
+					resetHandler();
+					selist.clear();
 				}
-				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '}'");
-				// Do error recovery if no more closing brackets are expected
-				if (SheetTokenHandler.this.curlyBracketDepth <= 0) {
-					resetSelectorHandler(true);
-					SheetTokenHandler.this.curlyBracketDepth = 0;
-				}
+				RuleListManager.this.endManagement(index);
 			}
 
 			private void resetSelectorHandler(boolean resetSheetStage) {
-				resetHandler();
-				contextHandler = selectorHandler;
-				SheetTokenHandler.this.curlyBracketDepth--;
+				RuleListManager.this.restoreInitialHandler();
 				if (resetSheetStage) {
-					SheetTokenHandler.this.ruleType = 0;
-					SheetTokenHandler.this.stage = STAGE_INITIAL;
+					RuleListManager.this.resetHandler();
 				}
 			}
 
@@ -4686,29 +2966,20 @@ public class CSSParser implements Parser, Cloneable {
 
 			@Override
 			protected void handleAtKeyword(int index) {
-				// At-rule
-				if (prevcp == ';') {
-					parseError = false;
-					stage = STAGE_INITIAL;
-				} else if (stage > 0) {
-					int len = buffer.length();
-					if (len != 0) {
-						String message;
-						int cp = buffer.codePointAt(0);
-						if (Character.isAlphabetic(cp)) {
-							message = "Unknown token: " + buffer.toString();
-						} else {
-							message = "Unknown token starting with code point U+" + Integer.toHexString(cp);
-						}
-						handleError(index - len, ParseHelper.ERR_UNEXPECTED_TOKEN, message);
-					} else {
-						unexpectedCharError(index, 64);
-					}
-					return;
+				if (buffer.length() == 0) {
+					// At-rule
+					RuleListManager.this.handleAtKeyword(index);
+				} else {
+					super.handleAtKeyword(index);
 				}
-				contextHandler = new AtRuleLauncherTH();
-				SheetTokenHandler.this.prevcp = 64;
-				SheetTokenHandler.this.buffer.append('@');
+			}
+
+			@Override
+			protected void handleSemicolon(int index) {
+				// Report error and resume processing
+				unexpectedSemicolonError(index);
+				resetHandler();
+				resetParseError();
 			}
 
 			@Override
@@ -4717,166 +2988,2348 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			TokenControl getTokenControl() {
-				return SheetTokenHandler.this.getTokenControl();
-			}
-
-			@Override
-			void setCurrentLocation(int index) {
-				SheetTokenHandler.this.setCurrentLocation(index);
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
+			public HandlerManager getManager() {
+				return RuleListManager.this;
 			}
 
 			@Override
 			public void endOfStream(int len) {
-				if (stage != 0) {
-					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
-				}
-				contextHandler = null;
-				SheetTokenHandler.this.endOfStream(len);
-			}
-
-			@Override
-			protected void handleError(int index, byte errCode, String message) {
-				MySelectorTokenHandler.this.stage = 127;
-				if (!parseError) {
-					CSSParseException ex;
-					if (prevcp == endcp) {
-						ex = createException(index, errCode, "Expected end of file");
-					} else {
-						ex = createException(index, errCode, message);
+				processBuffer(len, 32, true);
+				// Check whether we got an error in selectors
+				if (!isInError()) {
+					if (!selist.isEmpty() || currentsel != null) {
+						// Report EOF
+						unexpectedEOFError(len);
+						selist.clear();
+						// Manager's endOfStream() resets the handler
+						//resetHandler();
+					} else if (!getManager().isTopManager()) {
+						handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF,
+								"Unexpected end of stream");
 					}
-					handleError(ex);
 				}
-				selist.clear();
-				buffer.setLength(0);
+				RuleListManager.this.endOfStream(len);
 			}
 
 			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return SheetTokenHandler.this.createException(index, errCode, message);
+			public void handleErrorRecovery() {
+				// Ignore declaration
+				yieldHandling(new IgnoredDeclarationTokenHandler() {
+
+					@Override
+					protected void endDeclarationBlock(int index) {
+						yieldHandling(RuleListManager.this.selectorHandler);
+					}
+
+				});
 			}
 
 		}
 
-		private class MyDeclarationTokenHandler extends DeclarationTokenHandler {
+		private class RuleListDeclarationManager extends DeclarationRuleListManager {
 
-			MyDeclarationTokenHandler() {
-				super(ShorthandDatabase.getInstance());
+			RuleListDeclarationManager() {
+				super(RuleListManager.this);
 			}
 
 			@Override
-			protected void handleRightCurlyBracket(int index) {
-				setSelectorHandler(125);
-				closeRule();
-				rulesFound = true;
-				resetHandler();
+			protected void expectSelector(int index) {
+				yieldToNestedRuleHandler();
 			}
 
-			private void closeRule() {
-				if (ruleType == FONT_FACE_RULE) {
-					handler.endFontFace();
-					if (SheetTokenHandler.this.stage == STAGE_NESTED_FONTFACE_RULE_INSIDE_GROUPING) {
-						if (currentCondition.isMediaCondition()) {
-							ruleType = MEDIA_RULE;
-						} else {
-							ruleType = SUPPORTS_RULE;
+			@Override
+			protected void expectSelector(int index, int triggerCp) {
+				CSSTokenHandler selh = yieldToNestedRuleHandler();
+				selh.character(index, triggerCp);
+			}
+
+			private SelectorTokenHandler yieldToNestedRuleHandler() {
+				NestedRuleManager nested = new NestedRuleManager();
+				SelectorTokenHandler selh = nested.getInitialTokenHandler();
+				getControlHandler().yieldHandling(selh);
+				return selh;
+			}
+
+			private class NestedRuleManager extends RuleListManager {
+
+				NestedRuleManager() {
+					super(RuleListManager.this.selectorHandler.nsMap, RuleListManager.this.topLevel,
+							RuleListManager.this.declarationManager);
+				}
+
+				@Override
+				protected SelectorTokenHandler getInitialTokenHandler() {
+					SelectorTokenHandler selh = super.getInitialTokenHandler();
+					NSACSelectorFactory factory = selh.factory;
+					Condition cond = factory.createCondition(ConditionType.NESTING);
+					selh.currentsel = factory
+							.createConditionalSelector((SimpleSelector) selh.currentsel, cond);
+					return selh;
+				}
+
+				@Override
+				protected StyleRuleSelectorTH createSelectorTokenHandler(NamespaceMap nsMap) {
+					return new StyleRuleSelectorTH(nsMap) {
+
+						@Override
+						void unexpectedCharError(int index, int codepoint) {
+							if (codepoint == TokenProducer.CHAR_SEMICOLON
+									&& getManager().getParentManager() != null) {
+								String msg = "Unexpected '"
+										+ new String(Character.toChars(codepoint)) + "'";
+								CSSParseException ex = createException(index,
+										ParseHelper.ERR_UNEXPECTED_CHAR, msg);
+								reportError(ex);
+								RuleListManager.this.declarationManager.restoreInitialHandler();
+								//this.parseError = false;
+							} else {
+								super.unexpectedCharError(index, codepoint);
+							}
 						}
-						buffer.setLength(0);
-						SheetTokenHandler.this.stage = STAGE_GROUPING_OR_FONTFACE_RULE;
-					} else {
-						ruleType = 0;
-						SheetTokenHandler.this.stage = STAGE_INITIAL;
-					}
-				} else {
-					// Mark the end of rule (not of selector)
-					handler.endSelector(SheetTokenHandler.this.selectorHandler.selist);
-					SheetTokenHandler.this.selectorHandler.selist = new MySelectorListImpl();
+
+						@Override
+						public void handleErrorRecovery() {
+							// Handle as a declaration error
+							yieldHandling(new IgnoredDeclarationTokenHandler() {
+
+								@Override
+								protected void resumeDeclarationList() {
+									RuleListManager.this.declarationManager.restoreInitialHandler();
+								}
+
+								@Override
+								protected void endDeclarationBlock(int index) {
+									RuleListManager.this.rightCurlyBracket(index);
+								}
+
+							});
+						}
+
+						@Override
+						protected void handleSemicolon(int index) {
+							super.handleSemicolon(index);
+							if (getControlHandler().getCurrentHandler() == this) {
+								RuleListManager.this.declarationManager.restoreInitialHandler();
+							}
+						}
+
+					};
+				}
+
+			}
+
+			@Override
+			public void endManagement(int index) {
+				RuleListManager.this.endManagement(index);
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				RuleListManager.this.endOfStream(len);
+			}
+
+		}
+
+		private class MySupportsRuleTH extends SupportsTokenHandler {
+
+			MySupportsRuleTH() {
+				super(null);
+			}
+
+			@Override
+			void endOfCondition(int index) {
+				super.endOfCondition(index);
+				if (!isInError()) {
+					BooleanCondition cond = getCondition();
+					currentCondition = new ConditionWrapper(cond, currentCondition);
+					handler.startSupports(cond);
+					RuleListManager.this.restoreInitialHandler();
 				}
 			}
 
 			@Override
-			protected void handleAtKeyword(int index) {
-				if (propertyName == null && buffer.length() == 0 && getCurlyBracketDepth() == 1
-						&& SheetTokenHandler.this.selectorHandler.getSelectorList().getLength() == 0) {
-					contextHandler = new AtRuleLauncherTH();
-					SheetTokenHandler.this.prevcp = 64;
-					SheetTokenHandler.this.buffer.append('@');
-				} else {
-					unexpectedCharError(index, 64);
-				}
+			void handleLeftCurlyBracket(int index) {
+				endOfCondition(index);
 			}
 
 			@Override
-			TokenControl getTokenControl() {
-				return SheetTokenHandler.this.getTokenControl();
+			public void endOfStream(int len) {
+				unexpectedEOFError(len);
+				RuleListManager.this.endOfStream(len);
 			}
 
 			@Override
-			void setCurrentLocation(int index) {
-				SheetTokenHandler.this.setCurrentLocation(index);
+			public HandlerManager getManager() {
+				return RuleListManager.this;
+			}
+
+		}
+
+		class MyMediaQueryTokenHandler extends RuleMediaQueryTH {
+
+			MyMediaQueryTokenHandler(MediaQueryFactory conditionFactory,
+					MediaQueryHandler mqhandler) {
+				super(conditionFactory, mqhandler);
 			}
 
 			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
+			protected void startMedia(MediaQueryList mql) {
+				currentCondition = new ConditionWrapper(mql, currentCondition);
+				handler.startMedia(currentCondition.getMediaList());
+				RuleListManager.this.restoreInitialHandler();
 			}
 
 			@Override
 			public void endOfStream(int len) {
 				super.endOfStream(len);
-
-				if (curlyBracketDepth > 0) {
-					// We need to close rule
-					closeRule();
-					curlyBracketDepth--;
-					// If sheet-level curlyBracketDepth is zero, warn here.
-					// Otherwise, the responsibility for the warning will be at
-					// sheet level.
-					if (SheetTokenHandler.this.curlyBracketDepth == 0 && !parseError) {
-						handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
-					}
-				}
-
-				contextHandler = null;
-				SheetTokenHandler.this.endOfStream(len);
+				RuleListManager.this.endOfStream(len);
 			}
 
 			@Override
-			protected void endDeclarationList() {
-			}
-
-			@Override
-			CSSParseException createException(int index, byte errCode, String message) {
-				return SheetTokenHandler.this.createException(index, errCode, message);
+			public RuleListManager getManager() {
+				return RuleListManager.this;
 			}
 
 		}
 
-		private class MyIgnoredDeclarationTokenHandler extends IgnoredDeclarationTokenHandler {
+		@Override
+		protected SelectorTokenHandler getInitialTokenHandler() {
+			return selectorHandler;
+		}
 
-			MyIgnoredDeclarationTokenHandler() {
+		private MediaQueryTokenHandler createMediaQueryHandler() {
+			MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
+			MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(null);
+			return new MyMediaQueryTokenHandler(mediaQueryFactory, mqhandler);
+		}
+
+	}
+
+	/**
+	 * Parse either at-rules or descriptors.
+	 */
+	abstract class DescriptorRuleListManager extends DeclarationRuleListManager {
+
+		DescriptorRuleListManager() {
+			super();
+		}
+
+		DescriptorRuleListManager(HandlerManager parent) {
+			super(parent);
+		}
+
+		@Override
+		protected ValueTokenHandler createValueTokenHandler() {
+			return new DeclValueTokenHandler() {
+
+				@Override
+				protected void setPriorityHandler(int index) {
+					getControlHandler().getCurrentHandler().handleError(index,
+							ParseHelper.ERR_RULE_SYNTAX,
+							"Important priorities are invalid in descriptors.");
+				}
+
+			};
+		}
+
+		@Override
+		public void endManagement(int index) {
+			reportRuleEnd(index);
+			super.endManagement(index);
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			reportRuleEnd(len);
+			super.endOfStream(len);
+		}
+
+		abstract protected void reportRuleEnd(int index);
+
+	}
+
+	/**
+	 * {@code <declaration-rule-list>} manager.
+	 */
+	private class DeclarationRuleListManager extends DeclarationListManager {
+
+		boolean foundControl = false;
+
+		private DeclarationRuleListManager() {
+			super();
+		}
+
+		DeclarationRuleListManager(HandlerManager parent) {
+			super(parent);
+		}
+
+		void setRulesFound() {
+		}
+
+		boolean rulesFound() {
+			return false;
+		}
+
+		@Override
+		protected ControlTokenHandler createControlTokenHandler() {
+			return new CSSControlTokenHandler() {
+
+				@Override
+				public void control(int index, int codepoint) {
+					super.control(index, codepoint);
+					foundControl = true;
+				}
+
+			};
+		}
+
+		@Override
+		protected CSSTokenHandler getInitialTokenHandler() {
+			propertyName = null;
+			return super.getInitialTokenHandler();
+		}
+
+		protected String defaultNamespaceURI() {
+			return null;
+		}
+
+		@Override
+		protected void handleAtKeyword(int index) {
+			if (propertyName == null) {
+				getControlHandler().yieldHandling(new AtRuleLauncher());
+			} else {
+				getControlHandler().getCurrentHandler().unexpectedCharError(index, 64);
+			}
+		}
+
+		class AtRuleLauncher extends IdentTokenHandler {
+
+			AtRuleLauncher() {
 				super();
 			}
 
 			@Override
-			protected void endDeclarationBlock() {
-				setSelectorHandler(125);
+			public void commented(int index, int commentType, String comment) {
+				if (buffer.length() > 0) {
+					processBuffer(index, 12);
+					AbstractTokenHandler curh = getControlHandler().getCurrentHandler();
+					if (curh != this) {
+						curh.commented(index, commentType, comment);
+					}
+				} else {
+					// Comment right after @
+					unexpectedTokenError(index, comment);
+				}
 			}
 
 			@Override
-			public void control(int index, int codepoint) {
-				SheetTokenHandler.this.control(index, codepoint);
+			public void separator(int index, int codepoint) {
+				if (getEscapedTokenIndex() != -1 && bufferEndsWithEscapedChar(buffer)) {
+					buffer.append(' ');
+				} else {
+					if (buffer.length() > 0) {
+						processBuffer(index, codepoint);
+						AbstractTokenHandler curh = getControlHandler().getCurrentHandler();
+						if (curh != this) {
+							curh.separator(index, codepoint);
+						}
+						setWhitespacePrevCp();
+					} else {
+						// Whitespace right after @
+						unexpectedCharError(index, codepoint);
+					}
+				}
+			}
+
+			@Override
+			public void character(int index, int codePoint) throws RuntimeException {
+				if (codePoint == TokenProducer.CHAR_SEMICOLON) {
+					if (unexpectedSemicolonError(index)) {
+						getManager().restoreInitialHandler();
+					}
+				} else if (buffer.length() > 0) {
+					processBuffer(index, codePoint);
+					AbstractTokenHandler curh = getControlHandler().getCurrentHandler();
+					if (curh != this) {
+						curh.character(index, codePoint);
+					}
+				} else {
+					unexpectedCharError(index, codePoint);
+				}
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+				AbstractTokenHandler curhnd = getControlHandler().getCurrentHandler();
+				if (curhnd != this) {
+					curhnd.leftCurlyBracket(index);
+				}
+			}
+
+			@Override
+			public void leftParenthesis(int index) {
+				processBuffer(index, TokenProducer.CHAR_LEFT_PAREN);
+				AbstractTokenHandler curhnd = getControlHandler().getCurrentHandler();
+				if (curhnd != this) {
+					curhnd.leftParenthesis(index);
+				}
+			}
+
+			/**
+			 * Please only call this if buffer is not empty.
+			 */
+			@Override
+			void processBuffer(int index, int triggerCp) {
+				String atRule = unescapeBuffer(index);
+				if (atRule.length() > 2) {
+					handleAtRule(index, atRule);
+				} else {
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Malformed @-rule.");
+				}
 			}
 
 			@Override
 			public void endOfStream(int len) {
-				contextHandler = null; // avoid circular loop and help gc
-				SheetTokenHandler.this.endOfStream(len);
+				unexpectedEOFError(len);
+				DeclarationRuleListManager.this.endOfStream(len);
+			}
+
+		}
+
+		private void handleAtRule(int index, String ruleName) {
+			CSSTokenHandler rulehandler = createRuleHandler(index, ruleName);
+			if (rulehandler != null) {
+				getControlHandler().yieldHandling(rulehandler);
+				setRulesFound();
+			} // If rule handler is null, it was an out-of-place @charset rule
+		}
+
+		protected CSSTokenHandler createRuleHandler(int index, String ruleName) {
+			CSSTokenHandler ruleHandler;
+			if ("charset".equals(ruleName)) {
+				if (!rulesFound()) {
+					ruleHandler = new CharsetRuleTH();
+				} else {
+					getControlHandler().getCurrentHandler().handleError(index - 8,
+							ParseHelper.ERR_RULE_SYNTAX, "@charset must be the first rule");
+					return null;
+				}
+			} else if ("import".equals(ruleName)) {
+				ruleHandler = new ImportRuleTH();
+			} else if ("namespace".equals(ruleName)) {
+				ruleHandler = createNamespaceRuleTH();
+			} else if ("font-face".equals(ruleName)) {
+				ruleHandler = new FontFaceTH();
+			} else if ("page".equals(ruleName)) {
+				ruleHandler = new PageRuleTH();
+			} else if ("counter-style".equals(ruleName)) {
+				ruleHandler = new CounterStyleTH();
+			} else if ("keyframes".equals(ruleName)) {
+				ruleHandler = new KeyframesTH();
+			} else if ("font-feature-values".equals(ruleName)) {
+				ruleHandler = new FontFeatureValuesTH();
+			} else if ("property".equals(ruleName)) {
+				ruleHandler = new PropertyTH();
+			} else {
+				ruleHandler = createUnknownRuleHandler(index, ruleName);
+			}
+
+			return ruleHandler;
+		}
+
+		protected CSSTokenHandler createNamespaceRuleTH() {
+			return new NamespaceRuleTH();
+		}
+
+		protected CSSTokenHandler createUnknownRuleHandler(int index, String ruleName) {
+			return new UnknownRuleTokenHandler(ruleName);
+		}
+
+		/**
+		 * Abstract rule handler.
+		 */
+		abstract class AbstractRuleHandler extends DefaultTokenHandler {
+
+			AbstractRuleHandler() {
+				super();
+			}
+
+			@Override
+			public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+				quoted(index, quoted, quoteCp);
+			}
+
+			@Override
+			public void commented(int index, int commentType, String comment) {
+				separator(index, 12);
+				prevcp = 12;
+			}
+
+			/**
+			 * Utility method to trim the buffer tail.
+			 */
+			void trimBufferTail() {
+				int lenm1 = buffer.length() - 1;
+				if (buffer.charAt(lenm1) == ' ') {
+					buffer.setLength(lenm1);
+				}
+			}
+
+			@Override
+			public HandlerManager getManager() {
+				return DeclarationRuleListManager.this;
+			}
+
+			@Override
+			public void handleErrorRecovery() {
+				// Error: ignore declaration
+				yieldHandling(new IgnoredDeclarationTokenHandler() {
+
+					@Override
+					protected void endDeclarationBlock(int index) {
+						reportRuleEnd(index);
+						super.endDeclarationBlock(index);
+					}
+
+				});
+			}
+
+			void endRuleBody(int index) {
+				reportRuleEnd(index);
+				endRule();
+			}
+
+			/**
+			 * Report the rule (or the rule end if a start was reported) to the CSS handler
+			 * and reset this handler.
+			 * 
+			 * @param index the index at which the rule end is reported.
+			 */
+			abstract protected void reportRuleEnd(int index);
+
+			protected void endRule() {
+				restoreInitialHandler();
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				getManager().endOfStream(len);
+			}
+
+		}
+
+		/**
+		 * Charset at-rule handler.
+		 */
+		class CharsetRuleTH extends AbstractRuleHandler {
+
+			private String charset = null;
+
+			CharsetRuleTH() {
+				super();
+			}
+
+			@Override
+			public void quoted(int index, CharSequence quoted, int quote) {
+				if (charset == null) {
+					charset = quoted.toString();
+				} else {
+					unexpectedTokenError(index, quoted);
+				}
+			}
+
+			@Override
+			public void character(int index, int codepoint) {
+				prevcp = codepoint;
+				if (codepoint == 59) { // ;
+					endRuleBody(index);
+				} else {
+					unexpectedCharError(index, codepoint);
+				}
+			}
+
+			@Override
+			public void commented(int index, int commentType, String comment) {
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				unexpectedTokenError(index, word);
+			}
+
+			@Override
+			public void escaped(int index, int codePoint) {
+				unexpectedCharError(index, '\\');
+			}
+
+			@Override
+			public void separator(int index, int codepoint) {
+			}
+
+			@Override
+			protected void reportRuleEnd(int index) {
+				if (charset != null) {
+					handler.charset(charset);
+				}
+			}
+
+			@Override
+			void processBuffer(int index, int triggerCp) {
+			}
+
+			@Override
+			public void handleErrorRecovery() {
+				// Error: ignore rule
+				yieldHandling(new IgnoredDeclarationTokenHandler());
+			}
+
+		}
+
+		/**
+		 * Statement at-rule handler.
+		 */
+		abstract class StatementAtRuleHandler extends AbstractRuleHandler {
+
+			StatementAtRuleHandler() {
+				super();
+			}
+
+			@Override
+			protected void initializeBuffer() {
+				buffer = new StringBuilder(100);
+			}
+
+			@Override
+			protected void resetHandler() {
+				super.resetHandler();
+				buffer.setLength(0);
+			}
+
+		}
+
+		abstract class RuleMediaQueryTH extends MediaQueryTokenHandler {
+
+			RuleMediaQueryTH(MediaQueryFactory conditionFactory, MediaQueryHandler mqhandler) {
+				super(conditionFactory, mqhandler);
+				mqhandler.startQuery();
+			}
+
+			@Override
+			void endOfCondition(int index) {
+				super.endOfCondition(index);
+				MediaQueryList mql = getPredicateHandler().getMediaQueryHandler()
+						.getMediaQueryList();
+				startMedia(mql);
+			}
+
+			abstract protected void startMedia(MediaQueryList mql);
+
+			@Override
+			void handleLeftCurlyBracket(int index) {
+				endOfCondition(index);
+			}
+
+			@Override
+			public DeclarationRuleListManager getManager() {
+				return DeclarationRuleListManager.this;
+			}
+
+		}
+
+		/**
+		 * {@code @import} rule handler.
+		 */
+		class ImportRuleTH extends StatementAtRuleHandler {
+
+			private String importURL = null;
+
+			private String layerName = null;
+
+			private MediaQueryList mediaQuery = null;
+
+			private BooleanCondition supportsCondition = null;
+
+			ImportRuleTH() {
+				super();
+			}
+
+			@Override
+			public void separator(int index, int codepoint) {
+				if (getEscapedTokenIndex() != -1 && bufferEndsWithEscapedChar(buffer)) {
+					buffer.append(' ');
+				} else {
+					processBuffer(index, 32);
+					setWhitespacePrevCp();
+				}
+			}
+
+			@Override
+			public void character(int index, int codepoint) {
+				if (codepoint == 59) { // ;
+					handleSemicolon(index);
+					prevcp = codepoint;
+				} else if (codepoint == TokenProducer.CHAR_COMMA) { // ,
+					processBuffer(index, codepoint);
+				} else {
+					unexpectedCharError(index, codepoint);
+				}
+			}
+
+			private void handleSemicolon(int index) {
+				// End of rule
+				if (parendepth == 0) {
+					processBuffer(index, TokenProducer.CHAR_SEMICOLON);
+					if (!isInError() && importURL != null) {
+						if (mediaQuery == null) {
+							// MQ handler did not end the rule body
+							endRuleBody(index);
+						}
+					} else {
+						if (unexpectedSemicolonError(index)) {
+							restoreInitialHandler();
+						}
+					}
+				} else {
+					handleError(index, ParseHelper.ERR_UNMATCHED_PARENTHESIS,
+							"Unmatched parentheses in rule.");
+				}
+				resetHandler();
+			}
+
+			@Override
+			public void quoted(int index, CharSequence quoted, int quoteCp) {
+				if (importURL == null && buffer.length() == 0) {
+					importURL = quoted.toString();
+					prevcp = 65;
+				} else {
+					unexpectedTokenError(index, quoted);
+				}
+			}
+
+			@Override
+			public void leftParenthesis(int index) {
+				parendepth++;
+				if (prevcp == 65) {
+					prevcp = TokenProducer.CHAR_LEFT_PAREN;
+					// Trim possible trailing space
+					// prevcp 65 implies non-empty buffer
+					trimBufferTail();
+					if (ParseHelper.equalsIgnoreCase(buffer, "url")) {
+						buffer.setLength(0);
+						if (importURL == null) {
+							yieldHandling(new URLTokenHandler(ImportRuleTH.this) {
+
+								@Override
+								protected void setURL(String url, LexicalUnitImpl urlUnit) {
+									if (url != null) {
+										importURL = url;
+									} else {
+										ImportRuleTH.this.unexpectedCharError(index,
+												TokenProducer.CHAR_RIGHT_PAREN);
+									}
+								}
+
+							});
+							return;
+						}
+					} else if (ParseHelper.equalsIgnoreCase(buffer, "supports")) {
+						buffer.setLength(0);
+						if (supportsCondition == null) {
+							SupportsTokenHandler th = new SupportsTokenHandler(null) {
+
+								@Override
+								public void rightParenthesis(int index) {
+									super.rightParenthesis(index);
+									if (getCurrentParenDepth() == 0 && isTopLevel()) {
+										endOfCondition(index);
+									}
+								}
+
+								@Override
+								void endOfCondition(int index) {
+									super.endOfCondition(index);
+									if (!isInError()) {
+										supportsCondition = getCondition();
+										yieldHandling(ImportRuleTH.this);
+									}
+								}
+
+								@Override
+								public void endOfStream(int len) {
+									unexpectedEOFError(len);
+									ImportRuleTH.this.endOfStream(len);
+								}
+
+								@Override
+								public HandlerManager getManager() {
+									return ImportRuleTH.this.getManager();
+								}
+
+							};
+							th.leftParenthesis(index);
+							yieldHandling(th);
+							return;
+						}
+					} else if (ParseHelper.equalsIgnoreCase(buffer, "layer")) {
+						// layer()
+						buffer.setLength(0);
+						if (layerName == null) {
+							IdentTokenHandler th = new IdentTokenHandler() {
+
+								@Override
+								public void word(int index, CharSequence word) {
+									if (layerName == null) {
+										super.word(index, word);
+									} else {
+										unexpectedTokenError(index, word);
+									}
+								}
+
+								@Override
+								public void character(int index, int codePoint)
+										throws RuntimeException {
+									if (codePoint == TokenProducer.CHAR_FULL_STOP
+											&& layerName == null) {
+										buffer.append('.');
+									} else {
+										super.character(index, codePoint);
+									}
+								}
+
+								@Override
+								public void rightParenthesis(int index) {
+									processBuffer(index, TokenProducer.CHAR_RIGHT_PAREN);
+									if (layerName != null) {
+										ImportRuleTH.this.parendepth--;
+										yieldHandling(ImportRuleTH.this);
+									} else {
+										unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
+									}
+								}
+
+								@Override
+								void processBuffer(int index, int triggerCp) {
+									if (buffer.length() != 0) {
+										String s = unescapeBuffer(index);
+										if (s.indexOf('.') != -1) {
+											StringTokenizer st = new StringTokenizer(s, ".");
+											while (st.hasMoreElements()) {
+												if (!checkValidCustomIdent(index, st.nextToken())) {
+													return;
+												}
+											}
+										} else if (!checkValidCustomIdent(index, s)) {
+											return;
+										}
+										layerName = s;
+									}
+								}
+
+								@Override
+								public void endOfStream(int len) {
+									processBuffer(len, 0);
+									if (!isInError()) {
+										unexpectedEOFError(len);
+									}
+									ImportRuleTH.this.endOfStream(len);
+								}
+
+								@Override
+								public void handleErrorRecovery() {
+									ImportRuleTH.this.handleErrorRecovery();
+								}
+
+								@Override
+								public HandlerManager getManager() {
+									return ImportRuleTH.this.getManager();
+								}
+
+							};
+							th.parendepth++;
+							yieldHandling(th);
+							return;
+						}
+					}
+				} else if (importURL != null) {
+					// Media query starts
+					prevcp = TokenProducer.CHAR_LEFT_PAREN;
+					MediaQueryTokenHandler th = createMediaQueryHandler();
+					int len = buffer.length();
+					if (len != 0) {
+						th.word(index - len, buffer);
+						buffer.setLength(0);
+						resetEscapedTokenIndex();
+					}
+					th.leftParenthesis(index);
+					yieldHandling(th);
+					return;
+				}
+				unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+			}
+
+			@Override
+			void processBuffer(int index, int triggerCp) {
+				int len = buffer.length();
+				if (len != 0) {
+					// Trim possible trailing space
+					trimBufferTail();
+					String s = unescapeBuffer(index);
+					if ("layer".equalsIgnoreCase(s)) {
+						if (layerName == null) {
+							layerName = "";
+							buffer.setLength(0);
+							resetEscapedTokenIndex();
+							return;
+						}
+					} else if (importURL != null) {
+						// Media query
+						MediaQueryTokenHandler th = createMediaQueryHandler();
+						th.word(index, s);
+						if (triggerCp != 32) {
+							th.character(index, triggerCp);
+						} else {
+							th.separator(index, 32);
+						}
+						if (triggerCp != TokenProducer.CHAR_SEMICOLON) {
+							yieldHandling(th);
+						}
+						return;
+					}
+					handleError(index - len, ParseHelper.ERR_RULE_SYNTAX,
+							"Unexpected token: '" + s + '\'');
+				}
+			}
+
+			@Override
+			protected void reportRuleEnd(int index) {
+				processBuffer(index, 32);
+				if (!isInError()) {
+					if (importURL != null) {
+						if (mediaQuery == null) {
+							mediaQuery = getMediaQueryFactory().createAllMedia();
+						} else if (mediaQuery.hasErrors()) {
+							if (mediaQuery.isNotAllMedia()) {
+								reportError(index, ParseHelper.ERR_RULE_SYNTAX,
+										"Invalid media query.");
+								resetHandler();
+								return;
+							} else {
+								handleWarning(index, ParseHelper.ERR_RULE_SYNTAX,
+										"Media query has errors.");
+							}
+						}
+						String defaultNSURI = DeclarationRuleListManager.this.defaultNamespaceURI();
+						handler.importStyle(importURL, layerName, supportsCondition, mediaQuery,
+								defaultNSURI);
+					} else {
+						reportError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Malformed @-rule.");
+					}
+				}
+			}
+
+			@Override
+			protected void resetHandler() {
+				super.resetHandler();
+				importURL = null;
+				layerName = null;
+				mediaQuery = null;
+				supportsCondition = null;
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				reportRuleEnd(len);
+				if (importURL == null && !isInError()) {
+					handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+				}
+				super.endOfStream(len);
+			}
+
+			private MediaQueryTokenHandler createMediaQueryHandler() {
+				MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
+				MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(null);
+				return new ImportMediaQueryTokenHandler(mediaQueryFactory, mqhandler);
+			}
+
+			class ImportMediaQueryTokenHandler extends RuleMediaQueryTH {
+
+				ImportMediaQueryTokenHandler(MediaQueryFactory conditionFactory,
+						MediaQueryHandler mqhandler) {
+					super(conditionFactory, mqhandler);
+				}
+
+				@Override
+				protected void startMedia(MediaQueryList mql) {
+					mediaQuery = mql;
+					getManager().restoreInitialHandler();
+				}
+
+				@Override
+				protected void handleSemicolon(int index) {
+					mediaQuery = getPredicateHandler().getMediaQueryHandler().getMediaQueryList();
+					endRuleBody(index);
+				}
+
+				@Override
+				public void endOfStream(int len) {
+					super.endOfStream(len);
+					ImportRuleTH.this.endOfStream(len);
+				}
+
+			}
+
+		}
+
+		/**
+		 * Generic namespace rule handler.
+		 */
+		class NamespaceRuleTH extends StatementAtRuleHandler {
+
+			private String nsPrefix = null;
+			private String namespaceURI = null;
+
+			NamespaceRuleTH() {
+				super();
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				if (namespaceURI == null) {
+					super.word(index, word);
+				} else {
+					unexpectedTokenError(index, word);
+				}
+			}
+
+			/**
+			 * Process the buffer.
+			 * <p>
+			 * Please call this only if the buffer is not empty.
+			 * </p>
+			 */
+			@Override
+			void processBuffer(int index, int triggerCp) {
+				// Trim possible trailing space
+				trimBufferTail();
+				if (nsPrefix == null) {
+					nsPrefix = unescapeBuffer(index);
+				}
+			}
+
+			@Override
+			public void quoted(int index, CharSequence quoted, int quoteCp) {
+				prevcp = 65;
+				if (namespaceURI == null) {
+					if (quoted.length() > 0) {
+						namespaceURI = quoted.toString();
+						if (nsPrefix == null) {
+							nsPrefix = "";
+						}
+						return;
+					} else if (nsPrefix == null) {
+						// Legacy sheets could have a '' for the default NS prefix
+						nsPrefix = "";
+						return;
+					}
+				}
+				unexpectedTokenError(index, quoted);
+			}
+
+			@Override
+			public void character(int index, int codepoint) {
+				prevcp = codepoint;
+				if (codepoint == TokenProducer.CHAR_SEMICOLON) { // ;
+					if (buffer.length() != 0) {
+						processBuffer(index, codepoint);
+					}
+					handleSemicolon(index);
+				} else {
+					unexpectedCharError(index, codepoint);
+				}
+			}
+
+			private void handleSemicolon(int index) {
+				// End of rule
+				if (namespaceURI != null) {
+					endRuleBody(index);
+				} else {
+					reportError(index, ParseHelper.ERR_RULE_SYNTAX, "Incomplete @-rule.");
+					getManager().restoreInitialHandler();
+				}
+			}
+
+			@Override
+			public void leftParenthesis(int index) {
+				parendepth++;
+				if (namespaceURI == null && prevcp == 65 && bufferEqualsAndClear("url")) {
+					if (nsPrefix == null) {
+						nsPrefix = "";
+					}
+					yieldHandling(new URLTokenHandler(NamespaceRuleTH.this) {
+
+						@Override
+						protected void setURL(String url, LexicalUnitImpl urlUnit) {
+							if (url != null) {
+								namespaceURI = url;
+							} else {
+								NamespaceRuleTH.this.unexpectedCharError(index,
+										TokenProducer.CHAR_RIGHT_PAREN);
+							}
+						}
+
+					});
+				} else {
+					unexpectedCharError(index, '(');
+				}
+
+				prevcp = TokenProducer.CHAR_LEFT_PAREN;
+			}
+
+			@Override
+			protected void reportRuleEnd(int index) {
+				if (!isInError()) {
+					if (buffer.length() != 0) {
+						processBuffer(index, 32);
+						if (isInError()) {
+							resetHandler();
+							return;
+						}
+					}
+					if (nsPrefix == null) {
+						reportError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Malformed @-rule.");
+						return;
+					}
+					if (namespaceURI != null) {
+						namespaceDeclaration(nsPrefix, namespaceURI);
+					} else {
+						reportError(index, ParseHelper.ERR_RULE_SYNTAX, "No URI in namespace rule");
+						return;
+					}
+				}
+				resetHandler();
+			}
+
+			void namespaceDeclaration(String prefix, String uri) {
+				handler.namespaceDeclaration(prefix, uri);
+				registerNamespacePrefix(prefix, uri);
+			}
+
+			protected void registerNamespacePrefix(String prefix, String uri) {
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				reportRuleEnd(len);
+				if (parendepth == 0) {
+					if (!isInError()) {
+						handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF,
+								"Unexpected end of stream");
+					}
+				} else if (!isInError()) {
+					unexpectedEOFError(len);
+				}
+				super.endOfStream(len);
+			}
+
+			@Override
+			protected void resetHandler() {
+				super.resetHandler();
+				nsPrefix = null;
+				namespaceURI = null;
+			}
+
+		}
+
+		/**
+		 * Unknown rule handler.
+		 */
+		class UnknownRuleTokenHandler extends AbstractRuleHandler {
+
+			private int curlyBracketDepth = 0;
+
+			private int sqBracketDepth = 0;
+
+			UnknownRuleTokenHandler(String ruleName) {
+				super();
+				if (ruleName == null || ruleName.isEmpty()) {
+					throw new IllegalArgumentException();
+				}
+				buffer = new StringBuilder(300);
+				buffer.append('@').append(ruleName);
+				prevcp = 64;
+			}
+
+			@Override
+			public void separator(int index, int codepoint) {
+				if (!isPrevCpWhitespace()
+						|| (isEscapedIdent() && bufferEndsWithEscapedCharOrWS(buffer))) {
+					buffer.append(' ');
+				}
+				setWhitespacePrevCp();
+			}
+
+			@Override
+			public void quoted(int index, CharSequence quoted, int quoteCp) {
+				char c = (char) quoteCp;
+				buffer.append(c).append(quoted).append(c);
+				prevcp = 64;
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				buffer.append('{');
+				curlyBracketDepth++;
+				prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
+			}
+
+			@Override
+			public void leftParenthesis(int index) {
+				buffer.append('(');
+				parendepth++;
+				prevcp = TokenProducer.CHAR_LEFT_PAREN;
+			}
+
+			@Override
+			public void leftSquareBracket(int index) {
+				buffer.append('[');
+				sqBracketDepth++;
+				prevcp = TokenProducer.CHAR_LEFT_SQ_BRACKET;
+			}
+
+			@Override
+			public void rightParenthesis(int index) {
+				buffer.append(')');
+				parendepth--;
+				prevcp = TokenProducer.CHAR_RIGHT_PAREN;
+			}
+
+			@Override
+			public void rightSquareBracket(int index) {
+				buffer.append(']');
+				sqBracketDepth--;
+				prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
+			}
+
+			@Override
+			public void rightCurlyBracket(int index) {
+				buffer.append('}');
+				curlyBracketDepth--;
+				if (syntaxCheck()) {
+					// Body of rule ends
+					endRuleBody(index);
+				}
+				prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
+			}
+
+			@Override
+			public void character(int index, int codepoint) {
+				bufferAppend(codepoint);
+				prevcp = codepoint;
+				if (codepoint == 59) { // ;
+					if (syntaxCheck()) {
+						// End of statement at-rule
+						endRuleBody(index);
+					}
+				}
+			}
+
+			private boolean syntaxCheck() {
+				return curlyBracketDepth == 0 && parendepth == 0 && sqBracketDepth == 0;
+			}
+
+			@Override
+			public void commented(int index, int commentType, String comment) {
+				// Unknown rule
+				if (commentType == 0) {
+					buffer.append("/*").append(comment).append("*/");
+				}
+			}
+
+			@Override
+			protected void reportRuleEnd(int index) {
+				trimBufferTail();
+				handler.ignorableAtRule(buffer.toString());
+				resetHandler();
+			}
+
+			@Override
+			void processBuffer(int index, int triggerCp) {
+				/*
+				 * Can only be called from endOfStream()
+				 */
+				reportRuleEnd(index);
+			}
+
+		}
+
+		/**
+		 * Block rule handler.
+		 */
+		abstract class AbstractBlockRuleHandler extends AbstractRuleHandler {
+
+			AbstractBlockRuleHandler() {
+				super();
+			}
+
+			void expectRuleBody(int index) {
+				yieldManagement(new DescriptorListManager(getManager()) {
+
+					@Override
+					protected void reportRuleEnd(int index) {
+						AbstractBlockRuleHandler.this.reportRuleEnd(index);
+					}
+
+				});
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				unexpectedEOFError(len);
+				super.endOfStream(len);
+			}
+
+		}
+
+		/**
+		 * Handles a counter-style at-rule.
+		 */
+		class CounterStyleTH extends AbstractBlockRuleHandler {
+
+			private String counterStyleName = null;
+
+			CounterStyleTH() {
+				super();
+			}
+
+			@Override
+			protected void initializeBuffer() {
+				buffer = new StringBuilder(64);
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				if (counterStyleName == null) {
+					super.word(index, word);
+				} else {
+					unexpectedTokenError(index, word);
+				}
+			}
+
+			@Override
+			public void escaped(int index, int codePoint) {
+				if (counterStyleName == null) {
+					super.escaped(index, codePoint);
+				} else {
+					unexpectedCharError(index, codePoint);
+				}
+			}
+
+			@Override
+			public void character(int index, int codePoint) {
+				unexpectedCharError(index, codePoint);
+			}
+
+			@Override
+			void processBuffer(int index, int triggerCp) {
+				int len = buffer.length();
+				if (len != 0) {
+					String name = unescapeBuffer(index);
+					if (checkValidCustomIdent(index, name)) {
+						counterStyleName = name;
+					}
+				}
+			}
+
+			@Override
+			protected void reportRuleEnd(int index) {
+				if (counterStyleName != null) {
+					handler.endCounterStyle();
+				}
+			}
+
+			@Override
+			protected void resetHandler() {
+				super.resetHandler();
+				this.counterStyleName = null;
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				if (counterStyleName == null) {
+					// The next call does not produce errors
+					processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+					if (counterStyleName == null) {
+						unexpectedLeftCurlyBracketError(index);
+						return;
+					}
+				}
+
+				handler.startCounterStyle(counterStyleName);
+
+				expectRuleBody(index);
+			}
+
+			@Override
+			public void reportError(CSSParseException ex) throws CSSParseException {
+				super.reportError(ex);
+				counterStyleName = null;
+			}
+
+		}
+
+		/**
+		 * Handles a page at-rule.
+		 */
+		class PageRuleTH extends AbstractBlockRuleHandler {
+
+			private PageSelectorListImpl pageSelectorList = new PageSelectorListImpl();
+
+			//
+			// stage
+			//  0 initial / comma found
+			//  1 ident found
+			//  2 ':' found
+			//  1 word appended to ':'
+			//  3 whitespace after ident/pseudo-page
+			//
+			private static final int STAGE_TOKEN_PROCESSED = 1;
+			private static final int STAGE_EXPECT_PSEUDOPAGE_NAME = 2;
+			private static final int STAGE_EXPECT_RULE_BODY = 3;
+			private static final int STAGE_RULE_BODY = 4;
+
+			short stage = 0;
+
+			PageRuleTH() {
+				super();
+			}
+
+			@Override
+			protected void initializeBuffer() {
+				buffer = new StringBuilder(64);
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				switch (stage) {
+				case 0:
+				case STAGE_EXPECT_PSEUDOPAGE_NAME:
+					buffer.append(word);
+					stage = STAGE_TOKEN_PROCESSED;
+					break;
+				default:
+					unexpectedTokenError(index, word);
+				}
+			}
+
+			@Override
+			public void separator(int index, int codepoint) {
+				switch (stage) {
+				case 0:
+				case STAGE_EXPECT_RULE_BODY:
+					break;
+				case STAGE_TOKEN_PROCESSED:
+					if (getEscapedTokenIndex() != -1 && bufferEndsWithEscapedChar(buffer)) {
+						buffer.append(' ');
+					} else {
+						stage = STAGE_EXPECT_RULE_BODY;
+					}
+					break;
+				default:
+					unexpectedCharError(index, codepoint);
+				}
+			}
+
+			@Override
+			public void character(int index, int codePoint) {
+				switch (codePoint) {
+				case TokenProducer.CHAR_COLON:
+					if (stage <= STAGE_TOKEN_PROCESSED) {
+						buffer.append(':');
+						stage = STAGE_EXPECT_PSEUDOPAGE_NAME;
+						return;
+					}
+					break;
+				case TokenProducer.CHAR_COMMA:
+					if (stage == STAGE_TOKEN_PROCESSED) {
+						processBuffer(index, codePoint);
+						stage = 0;
+						return;
+					} else if (stage == STAGE_EXPECT_RULE_BODY) {
+						stage = 0;
+						return;
+					}
+					break;
+				default:
+				}
+				unexpectedCharError(index, codePoint);
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				if (stage == STAGE_EXPECT_PSEUDOPAGE_NAME) {
+					unexpectedLeftCurlyBracketError(index);
+					return;
+				}
+
+				processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+
+				if (isInError()) {
+					sendLeftCurlyBracketEvent(index, this);
+					return;
+				}
+
+				PageSelectorList psList;
+				if (pageSelectorList.isEmpty()) {
+					psList = null;
+				} else {
+					psList = pageSelectorList;
+				}
+
+				handler.startPage(psList);
+
+				stage = STAGE_RULE_BODY;
+
+				/*
+				 * Now we expect margin rules or the allowed descriptors.
+				 */
+				expectRuleBody(index);
+			}
+
+			@Override
+			void expectRuleBody(int index) {
+				yieldManagement(new MarginRuleListManager(getManager()));
+			}
+
+			@Override
+			void processBuffer(int index, int triggerCp) {
+				int len = buffer.length();
+				if (len != 0) {
+					String selector = unescapeBuffer(index);
+					AbstractPageSelector sel = parsePageSelector(selector);
+					if (sel != null) {
+						pageSelectorList.add(sel);
+					} else {
+						unexpectedTokenError(index - len, selector);
+					}
+				}
+			}
+
+			@Override
+			protected void reportRuleEnd(int index) {
+				if (stage == STAGE_RULE_BODY) {
+					handler.endPage(pageSelectorList);
+				}
+			}
+
+			@Override
+			protected void resetHandler() {
+				super.resetHandler();
+				pageSelectorList.clear();
+				stage = 0;
+			}
+
+			private class MarginRuleListManager extends DescriptorRuleListManager {
+
+				MarginRuleListManager(HandlerManager parent) {
+					super(parent);
+				}
+
+				@Override
+				protected CSSTokenHandler createUnknownRuleHandler(int index, String ruleName) {
+					return new MarginRuleTH(ruleName);
+				}
+
+				@Override
+				protected void reportRuleEnd(int index) {
+					PageRuleTH.this.reportRuleEnd(index);
+				}
+
+				/**
+				 * Margin rule handler.
+				 */
+				class MarginRuleTH extends NoSelectorRuleHandler {
+
+					private final String ruleName;
+
+					MarginRuleTH(String ruleName) {
+						super();
+						this.ruleName = ruleName;
+					}
+
+					@Override
+					public void leftCurlyBracket(int index) {
+						handler.startMargin(ruleName);
+						super.leftCurlyBracket(index);
+					}
+
+					@Override
+					protected void reportRuleEnd(int index) {
+						handler.endMargin();
+					}
+
+					@Override
+					public HandlerManager getManager() {
+						return MarginRuleListManager.this;
+					}
+
+				}
+
+			}
+
+		}
+
+		/**
+		 * Handles a an at-rule that has no selector nor preamble.
+		 */
+		abstract class NoSelectorRuleHandler extends AbstractBlockRuleHandler {
+
+			protected NoSelectorRuleHandler() {
+				super();
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				unexpectedTokenError(index, word);
+			}
+
+			@Override
+			public void escaped(int index, int codepoint) {
+				unexpectedCharError(index - 1, '\\');
+			}
+
+			@Override
+			public void separator(int index, int codepoint) {
+			}
+
+			@Override
+			void processBuffer(int index, int triggerCp) {
+			}
+
+			@Override
+			public void character(int index, int codePoint) {
+				if (codePoint == TokenProducer.CHAR_SEMICOLON) {
+					if (unexpectedSemicolonError(index)) {
+						getManager().restoreInitialHandler();
+					}
+					resetParseError();
+				} else {
+					unexpectedCharError(index, codePoint);
+				}
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				expectRuleBody(index);
+			}
+
+			@Override
+			public void handleErrorRecovery() {
+				// Avoid calling reportRuleEnd() when recovering
+				yieldHandling(new IgnoredDeclarationTokenHandler() {
+
+					@Override
+					protected void endDeclarationBlock(int index) {
+						NoSelectorRuleHandler.this.endRule();
+						super.endDeclarationBlock(index);
+					}
+
+				});
+			}
+
+		}
+
+		/**
+		 * Handles a font-face at-rule.
+		 */
+		class FontFaceTH extends NoSelectorRuleHandler {
+
+			FontFaceTH() {
+				super();
+			}
+
+			@Override
+			protected void reportRuleEnd(int index) {
+				handler.endFontFace();
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				handler.startFontFace();
+				expectRuleBody(index);
+			}
+
+		}
+
+		/**
+		 * Handles a font-feature-values at-rule, where the preamble is a
+		 * comma-separated string list.
+		 */
+		class FontFeatureValuesTH extends AbstractBlockRuleHandler {
+
+			private LinkedList<String> familyList = new LinkedList<>();
+
+			//
+			// stage
+			//  0 initial
+			//  1 ident found
+			//  2 string found
+			//  3 comma found
+			//  4 processing body
+			//
+			private static final short STAGE_IDENT_FOUND = 1;
+			private static final short STAGE_STRING_FOUND = 2;
+			private static final short STAGE_COMMA_FOUND = 3;
+			private static final short STAGE_PROCESSING_BODY = 4;
+
+			short stage = 0;
+
+			FontFeatureValuesTH() {
+				super();
+			}
+
+			@Override
+			protected void initializeBuffer() {
+				buffer = new StringBuilder(72);
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				if (stage == 1) {
+					buffer.append(' ');
+				}
+				super.word(index, word);
+				stage = STAGE_IDENT_FOUND;
+			}
+
+			@Override
+			public void separator(int index, int codepoint) {
+				if (getEscapedTokenIndex() != -1 && bufferEndsWithEscapedChar(buffer)) {
+					buffer.append(' ');
+				}
+				setWhitespacePrevCp();
+			}
+
+			@Override
+			public void character(int index, int codePoint) {
+				switch (codePoint) {
+				case TokenProducer.CHAR_COMMA:
+					if (stage == STAGE_IDENT_FOUND) {
+						processBuffer(index, codePoint);
+						stage = STAGE_COMMA_FOUND;
+						break;
+					} else if (stage == STAGE_STRING_FOUND) {
+						stage = STAGE_COMMA_FOUND;
+						break;
+					}
+				default:
+					unexpectedCharError(index, codePoint);
+					break;
+				case TokenProducer.CHAR_SEMICOLON:
+					unexpectedSemicolonError(index);
+				}
+			}
+
+			@Override
+			public void quoted(int index, CharSequence quoted, int quote) {
+				if (stage != STAGE_IDENT_FOUND) {
+					familyList.add(quoted.toString());
+					stage = STAGE_STRING_FOUND;
+				} else {
+					unexpectedTokenError(index, quoted);
+				}
+			}
+
+			@Override
+			protected void reportRuleEnd(int index) {
+				if (stage == STAGE_PROCESSING_BODY) {
+					handler.endFontFeatures();
+				}
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				// The next call does not produce any error
+				processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+
+				if (familyList.isEmpty()) {
+					unexpectedLeftCurlyBracketError(index);
+					return;
+				}
+
+				String[] ff = new String[familyList.size()];
+				ff = familyList.toArray(ff);
+				handler.startFontFeatures(ff);
+
+				stage = STAGE_PROCESSING_BODY;
+
+				/*
+				 * Now we expect font-feature-value-type rules or the font-display descriptor.
+				 */
+				expectRuleBody(index);
+			}
+
+			@Override
+			void expectRuleBody(int index) {
+				yieldManagement(new FontFeatureListManager(getManager()) {
+
+					@Override
+					protected void reportRuleEnd(int index) {
+						FontFeatureValuesTH.this.reportRuleEnd(index);
+					}
+
+				});
+			}
+
+			@Override
+			void processBuffer(int index, int triggerCp) {
+				if (buffer.length() != 0) {
+					String ff = unescapeBuffer(index);
+					if (checkValidCustomIdent(index, ff)) {
+						familyList.add(ff);
+					}
+				}
+			}
+
+			@Override
+			protected void resetHandler() {
+				super.resetHandler();
+				familyList.clear();
+				stage = 0;
+			}
+
+		}
+
+		/**
+		 * Parse either font feature at-rules or the 'font-display' descriptor.
+		 */
+		abstract class FontFeatureListManager extends DescriptorRuleListManager {
+
+			FontFeatureListManager(HandlerManager parent) {
+				super(parent);
+			}
+
+			@Override
+			public void rightCurlyBracket(int index) {
+				endManagement(index);
+			}
+
+			@Override
+			protected CSSTokenHandler createUnknownRuleHandler(int index, String ruleName) {
+				return new FontFeatureTH(ruleName);
+			}
+
+			/**
+			 * font feature handler.
+			 */
+			class FontFeatureTH extends NoSelectorRuleHandler {
+
+				private String featureMapName;
+
+				FontFeatureTH(String ruleName) {
+					super();
+					this.featureMapName = ruleName;
+				}
+
+				@Override
+				public void leftCurlyBracket(int index) {
+					handler.startFeatureMap(featureMapName);
+					super.leftCurlyBracket(index);
+				}
+
+				@Override
+				protected void reportRuleEnd(int index) {
+					handler.endFeatureMap();
+				}
+
+				@Override
+				public HandlerManager getManager() {
+					return FontFeatureListManager.this;
+				}
+
+			}
+
+		}
+
+		/**
+		 * Handles a keyframes at-rule, where the preamble is a string or a
+		 * custom-ident.
+		 */
+		class KeyframesTH extends AbstractBlockRuleHandler {
+
+			String keyframesName = null;
+
+			KeyframesTH() {
+				super();
+			}
+
+			@Override
+			protected void initializeBuffer() {
+				buffer = new StringBuilder(64);
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				if (keyframesName == null) {
+					super.word(index, word);
+				} else {
+					unexpectedTokenError(index, word);
+				}
+			}
+
+			@Override
+			public void escaped(int index, int codePoint) {
+				if (keyframesName == null) {
+					super.escaped(index, codePoint);
+				} else {
+					unexpectedCharError(index, codePoint);
+				}
+			}
+
+			@Override
+			public void character(int index, int codePoint) {
+				unexpectedCharError(index, codePoint);
+			}
+
+			@Override
+			public void quoted(int index, CharSequence quoted, int quote) {
+				String s = quoted.toString();
+				if (keyframesName == null) {
+					if (checkValidCustomIdent(index, s)) {
+						keyframesName = s;
+					}
+				} else {
+					unexpectedTokenError(index, s);
+				}
+			}
+
+			@Override
+			void processBuffer(int index, int triggerCp) {
+				int len = buffer.length();
+				if (len != 0) {
+					if (keyframesName == null) {
+						String s = unescapeBuffer(index);
+						if (checkValidCustomIdent(index, s)) {
+							keyframesName = s;
+						}
+					} else {
+						unexpectedTokenError(index - len, buffer);
+					}
+				}
+			}
+
+			@Override
+			protected void reportRuleEnd(int index) {
+				if (keyframesName != null) {
+					handler.endKeyframes();
+				}
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+
+				if (isInError()) {
+					sendLeftCurlyBracketEvent(index, this);
+					return;
+				}
+
+				if (keyframesName == null) {
+					unexpectedLeftCurlyBracketError(index);
+					return;
+				}
+
+				handler.startKeyframes(keyframesName);
+
+				/*
+				 * Now we expect keyframe blocks.
+				 */
+				expectRuleBody(index);
+			}
+
+			@Override
+			void expectRuleBody(int index) {
+				yieldManagement(new KeyframeListManager(getManager()) {
+
+					@Override
+					public void endManagement(int index) {
+						KeyframesTH.this.reportRuleEnd(index);
+						restoreManagement(DeclarationRuleListManager.this);
+					}
+
+					@Override
+					public void endOfStream(int len) {
+						KeyframesTH.this.reportRuleEnd(index);
+						DeclarationRuleListManager.this.endOfStream(len);
+					}
+
+				});
+			}
+
+			@Override
+			public void reportError(CSSParseException ex) throws CSSParseException {
+				super.reportError(ex);
+				this.keyframesName = null;
+			}
+
+			@Override
+			protected void resetHandler() {
+				super.resetHandler();
+				this.keyframesName = null;
+			}
+
+		}
+
+		abstract class KeyframeListManager extends CSSParserHandlerManager {
+
+			KeyframeListManager(HandlerManager parent) {
+				super(parent);
+			}
+
+			@Override
+			protected CSSTokenHandler getInitialTokenHandler() {
+				return new KeyframeTH();
+			}
+
+			@Override
+			public void rightCurlyBracket(int index) {
+				endManagement(index);
+			}
+
+			/**
+			 * Keyframe-block handler.
+			 */
+			class KeyframeTH extends DeclarationIdentTokenHandler {
+
+				private LexicalUnitImpl keyframeSelector = null;
+
+				private LexicalUnitImpl currentlu = null;
+
+				KeyframeTH() {
+					super();
+				}
+
+				@Override
+				protected void initializeBuffer() {
+					buffer = new StringBuilder(50);
+				}
+
+				@Override
+				public void commented(int index, int commentType, String comment) {
+					separator(index, 12);
+					if (keyframeSelector == null && currentlu == null && commentType == 0) {
+						handler.comment(comment, isPreviousCpLF());
+					}
+					prevcp = 12;
+				}
+
+				@Override
+				void processBuffer(int index, int triggerCp) {
+					int len = buffer.length();
+					if (len != 0) {
+						String raw = buffer.toString();
+						if (isValidIdentifier(raw)) {
+							String s = unescapeBuffer(index);
+							if (checkValidCustomIdent(index, s)) {
+								LexicalUnitImpl sel = new LexicalUnitImpl(LexicalType.IDENT);
+								sel.value = s;
+								sel.identCssText = raw;
+								setCurrentLexicalUnit(sel);
+							}
+						} else if ("0".equals(raw)) {
+							LexicalUnitImpl sel = new LexicalUnitImpl(LexicalType.INTEGER);
+							sel.intValue = 0;
+							sel.setCssUnit(CSSUnit.CSS_NUMBER);
+							setCurrentLexicalUnit(sel);
+						} else {
+							unexpectedTokenError(index, "Invalid identifier: " + raw);
+						}
+					}
+				}
+
+				@Override
+				public void character(int index, int codePoint) {
+					switch (codePoint) {
+					case '%':
+						if (buffer.length() > 0) {
+							String s = rawBuffer();
+							try {
+								float pcnt = Float.parseFloat(s);
+								LexicalUnitImpl sel = new LexicalUnitImpl(LexicalType.PERCENTAGE);
+								sel.floatValue = pcnt;
+								sel.dimensionUnitText = "%";
+								sel.setCssUnit(CSSUnit.CSS_PERCENTAGE);
+								setCurrentLexicalUnit(sel);
+								return;
+							} catch (NumberFormatException e) {
+							}
+						}
+						break;
+					case ',':
+						processBuffer(index, codePoint);
+						if (keyframeSelector == null) {
+							break;
+						}
+						setCurrentLexicalUnit(new LexicalUnitImpl(LexicalType.OPERATOR_COMMA));
+						prevcp = codePoint;
+						return;
+					case '-':
+						if (buffer.length() == 0) {
+							break;
+						}
+					case '.':
+					case '+':
+						buffer.append((char) codePoint);
+						return;
+					default:
+					}
+					unexpectedCharError(index, codePoint);
+				}
+
+				private void setCurrentLexicalUnit(LexicalUnitImpl sel) {
+					if (currentlu != null) {
+						currentlu.nextLexicalUnit = sel;
+						sel.previousLexicalUnit = currentlu;
+					} else {
+						keyframeSelector = sel;
+					}
+					currentlu = sel;
+				}
+
+				@Override
+				public void leftCurlyBracket(int index) {
+					if (keyframeSelector == null) {
+						processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+						if (isInError()) {
+							sendLeftCurlyBracketEvent(index, this);
+							return;
+						}
+						if (keyframeSelector == null) {
+							unexpectedLeftCurlyBracketError(index);
+							return;
+						}
+					}
+
+					handler.startKeyframe(keyframeSelector);
+
+					keyframeSelector = null;
+
+					/*
+					 * Now we expect a <declaration-list>.
+					 */
+					yieldManagement(new DescriptorListManager(getManager()) {
+
+						@Override
+						public void endManagement(int index) {
+							reportRuleEnd(index);
+							restoreManagement(KeyframeListManager.this);
+						}
+
+						@Override
+						public void endOfStream(int len) {
+							reportRuleEnd(index);
+							KeyframeListManager.this.endOfStream(len);
+						}
+
+						@Override
+						protected void reportRuleEnd(int index) {
+							handler.endKeyframe();
+						}
+
+					});
+				}
+
+				@Override
+				protected void resetHandler() {
+					super.resetHandler();
+					keyframeSelector = null;
+					currentlu = null;
+				}
+
+				@Override
+				public HandlerManager getManager() {
+					return KeyframeListManager.this;
+				}
+
+			}
+
+		}
+
+		/**
+		 * Handles a property at-rule, where the preamble is a custom property name.
+		 */
+		class PropertyTH extends AbstractBlockRuleHandler {
+
+			private String customPropertyName = null;
+
+			private CSSValueSyntax syntax = null;
+
+			private boolean isUniversalSyntax, hasInherits;
+
+			private LexicalUnit initialValue = null;
+
+			private boolean ruleStarted = false;
+
+			PropertyTH() {
+				super();
+			}
+
+			@Override
+			protected void initializeBuffer() {
+				buffer = new StringBuilder(64);
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				if (customPropertyName == null) {
+					super.word(index, word);
+				} else {
+					unexpectedTokenError(index, word);
+				}
+			}
+
+			@Override
+			public void escaped(int index, int codePoint) {
+				if (customPropertyName == null) {
+					super.escaped(index, codePoint);
+				} else {
+					unexpectedCharError(index, codePoint);
+				}
+			}
+
+			@Override
+			public void character(int index, int codePoint) {
+				unexpectedCharError(index, codePoint);
+			}
+
+			@Override
+			void processBuffer(int index, int triggerCp) {
+				int len = buffer.length();
+				if (len != 0) {
+					if (customPropertyName == null) {
+						String name = unescapeBuffer(index);
+						if (name.startsWith("--")) {
+							customPropertyName = name;
+							return;
+						}
+					}
+					unexpectedTokenError(index - len, buffer);
+				}
+			}
+
+			@Override
+			protected void reportRuleEnd(int index) {
+				if (ruleStarted) {
+					if (syntax == null) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								"@property rule lacks mandatory 'syntax' descriptor.");
+						handler.endProperty(true);
+					} else if (!hasInherits) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								"@property rule lacks mandatory 'inherits' descriptor.");
+						handler.endProperty(true);
+					} else if (!isUniversalSyntax && (initialValue == null
+							|| initialValue.matches(syntax) != CSSValueSyntax.Match.TRUE
+							|| (initialValue.getLexicalUnitType() == LexicalType.DIMENSION
+									&& CSSUnit.isRelativeLengthUnitType(
+											initialValue.getCssUnit())))) {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+								"@property rule lacks a valid 'initial-value' descriptor.");
+						handler.endProperty(true);
+					} else {
+						handler.endProperty(false);
+					}
+				}
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				if (customPropertyName == null) {
+					processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+					if (isInError()) {
+						sendLeftCurlyBracketEvent(index, this);
+						return;
+					}
+					if (customPropertyName == null) {
+						unexpectedLeftCurlyBracketError(index);
+						return;
+					}
+				}
+
+				ruleStarted = true;
+
+				handler.startProperty(customPropertyName);
+
+				/*
+				 * Now we expect a <declaration-list>
+				 */
+				expectRuleBody(index);
+			}
+
+			@Override
+			void expectRuleBody(int index) {
+				yieldManagement(new DescriptorListManager(getManager()) {
+
+					@Override
+					protected void handleProperty(int index, String propertyName,
+							LexicalUnitImpl lunit, boolean priorityImportant) {
+						if ("syntax".equalsIgnoreCase(propertyName)) {
+							if (lunit.getLexicalUnitType() != LexicalType.STRING) {
+								handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+										"'syntax' descriptor in @property rule must be a string.");
+								return;
+							}
+							String s = lunit.getStringValue().trim();
+							SyntaxParser parser = new SyntaxParser();
+							try {
+								syntax = parser.parseSyntax(s);
+							} catch (CSSException e) {
+								handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+										"Wrong 'syntax' descriptor in @property rule: '" + s
+												+ '\'');
+								return;
+							}
+							isUniversalSyntax = syntax
+									.getCategory() == CSSValueSyntax.Category.universal;
+						} else if ("inherits".equalsIgnoreCase(propertyName)) {
+							String s;
+							if (lunit.getLexicalUnitType() != LexicalType.IDENT || (!"true"
+									.equals(s = lunit.getStringValue().toLowerCase(Locale.ROOT))
+									&& !"false".equals(s))) {
+								handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+										"'inherits' descriptor in @property rule must be either 'true' or 'false'.");
+								return;
+							}
+							hasInherits = true;
+						} else if ("initial-value".equalsIgnoreCase(propertyName)) {
+							handleLexicalProperty(index, propertyName, lunit, priorityImportant);
+							initialValue = lunit;
+							return;
+						}
+						super.handleProperty(index, propertyName, lunit, priorityImportant);
+					}
+
+					@Override
+					public void endManagement(int index) {
+						reportRuleEnd(index);
+						restoreManagement(DeclarationRuleListManager.this);
+					}
+
+					@Override
+					protected void reportRuleEnd(int index) {
+						PropertyTH.this.reportRuleEnd(index);
+					}
+
+				});
+			}
+
+			@Override
+			protected void resetHandler() {
+				super.resetHandler();
+				customPropertyName = null;
+				syntax = null;
+				initialValue = null;
+				hasInherits = false;
 			}
 
 		}
@@ -4902,11 +5355,68 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	class SelectorTokenHandler extends ControlTokenHandler {
+	private class SelectorArgumentManager extends SelectorManager {
+
+		SelectorArgumentManager(NSACSelectorFactory factory) {
+			super(new SelectorArgumentTokenHandler(factory));
+		}
+
+	}
+
+	class SelectorManager extends CSSParserHandlerManager {
+
+		SelectorTokenHandler selectorHandler;
+
+		SelectorManager(SelectorTokenHandler selectorHandler) {
+			super();
+			this.selectorHandler = selectorHandler;
+			this.selectorHandler.setManager(this);
+		}
+
+		SelectorManager() {
+			this(new NSACSelectorFactory());
+		}
+
+		SelectorManager(NamespaceMap nsMap) {
+			super();
+			if (nsMap == null) {
+				this.selectorHandler = new SelectorTokenHandler(new NSACSelectorFactory());
+			} else {
+				this.selectorHandler = new SelectorTokenHandler(nsMap);
+			}
+			this.selectorHandler.setManager(this);
+		}
+
+		SelectorManager(NSACSelectorFactory factory) {
+			super();
+			this.selectorHandler = new SelectorTokenHandler(factory);
+			this.selectorHandler.setManager(this);
+		}
+
+		@Override
+		protected SelectorTokenHandler getInitialTokenHandler() {
+			return selectorHandler;
+		}
+
+		public SelectorList getSelectorList() {
+			return selectorHandler.getSelectorList();
+		}
+
+		SelectorListImpl getTrimmedSelectorList() {
+			return selectorHandler.getTrimmedSelectorList();
+		}
+
+		NSACSelectorFactory getSelectorFactory() {
+			return selectorHandler.factory;
+		}
+
+	}
+
+	class SelectorTokenHandler extends ManagerCallbackTokenHandler {
 
 		NSACSelectorFactory factory;
-		private NamespaceMap nsMap;
-		MySelectorListImpl selist = new MySelectorListImpl();
+		NamespaceMap nsMap;
+		ParserSelectorListImpl selist = new ParserSelectorListImpl();
 		Selector currentsel = null;
 
 		// TODO: handle default namespace if set
@@ -4914,6 +5424,7 @@ public class CSSParser implements Parser, Cloneable {
 		byte stage = 0;
 		private boolean functionToken;
 
+		static final byte STAGE_INITIAL = 0;
 		private static final byte STAGE_COMBINATOR_OR_END = 2;
 		private static final byte STAGE_ATTR_START = 4;
 		private static final byte STAGE_ATTR_EXPECT_SYMBOL_OR_CLOSE = 7;
@@ -4924,9 +5435,10 @@ public class CSSParser implements Parser, Cloneable {
 		private static final byte STAGE_EXPECT_PSEUDOCLASS_NAME = 10;
 		private static final byte STAGE_EXPECT_PSEUDOCLASS_ARGUMENT = 11;
 
-		SelectorTokenHandler() {
-			this(new NSACSelectorFactory());
-		}
+		/**
+		 * The curly bracket depth.
+		 */
+		int curlyBracketDepth;
 
 		SelectorTokenHandler(NamespaceMap nsMap) {
 			super();
@@ -4943,7 +5455,7 @@ public class CSSParser implements Parser, Cloneable {
 			super();
 			this.factory = factory;
 			this.nsMap = factory;
-			buffer = new StringBuilder(64);
+			buffer = new StringBuilder(100);
 		}
 
 		SelectorListImpl getSelectorList() {
@@ -4960,7 +5472,8 @@ public class CSSParser implements Parser, Cloneable {
 			if (buffer.length() != 0 && isPrevCpWhitespace()) {
 				buffer.append(' ');
 			}
-			if (stage == STAGE_ATTR_START && prevcp != 65 && prevcp != TokenProducer.CHAR_VERTICAL_LINE) {
+			if (stage == STAGE_ATTR_START && prevcp != 65
+					&& prevcp != TokenProducer.CHAR_VERTICAL_LINE) {
 				unexpectedTokenError(index, word);
 			} else {
 				if (stage == 0) {
@@ -4978,7 +5491,8 @@ public class CSSParser implements Parser, Cloneable {
 						} else if (c == 's' || c == 'S') {
 							setAttributeConditionFlag(AttributeCondition.Flag.CASE_S);
 						} else {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Expected 'i', found: '" + c + '\'');
+							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+									"Expected 'i', found: '" + c + '\'');
 						}
 						if (buffer.length() != 0) {
 							handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
@@ -4986,7 +5500,8 @@ public class CSSParser implements Parser, Cloneable {
 							buffer.setLength(0);
 						}
 					} else {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Expected 'i', found: '" + word + "'");
+						handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+								"Expected 'i', found: '" + word + "'");
 					}
 				} else if (stage == 1) {
 					if (prevcp != '*') {
@@ -5005,42 +5520,40 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void separator(int index, int codepoint) {
-			if (!parseError) {
-				if (escapedTokenIndex != -1 && bufferEndsWithEscapedChar(buffer)) {
-					buffer.append(' ');
-					return;
+			if (isEscapedIdent() && bufferEndsWithEscapedChar(buffer)) {
+				buffer.append(' ');
+				return;
+			}
+			if (prevcp == ':' || prevcp == '.' || prevcp == '#'
+					|| (prevcp == TokenProducer.CHAR_VERTICAL_LINE
+							&& getActiveSelector() == null)) {
+				unexpectedCharError(index, codepoint);
+				return;
+			}
+			if (stage == STAGE_ATTR_SYMBOL) {
+				if (buffer.length() != 0) {
+					setAttributeSelectorValue(index, unescapeBuffer(index));
+					stage = STAGE_ATTR_POST_SYMBOL;
 				}
-				if (prevcp == ':' || prevcp == '.' || prevcp == '#'
-						|| (prevcp == TokenProducer.CHAR_VERTICAL_LINE
-								&& getActiveSelector() == null)) {
+			} else if (stage == 1 || stage == STAGE_EXPECT_ID_OR_CLASSNAME
+					|| stage == STAGE_EXPECT_PSEUDOELEM_NAME
+					|| stage == STAGE_EXPECT_PSEUDOCLASS_NAME) {
+				processBuffer(index, codepoint, false);
+				if (prevcp == 65 || prevcp == 42 || prevcp == 41 || prevcp == 93) {
+					// letter-or-digit, *, ), ]
+					stage = STAGE_COMBINATOR_OR_END;
+				}
+			} else if (stage == STAGE_ATTR_START) {
+				if (buffer.length() != 0) {
+					stage = STAGE_ATTR_EXPECT_SYMBOL_OR_CLOSE;
+				} else if (namespacePrefix != null) {
 					unexpectedCharError(index, codepoint);
-					return;
 				}
-				if (stage == STAGE_ATTR_SYMBOL) {
-					if (buffer.length() != 0) {
-						setAttributeSelectorValue(index, unescapeBuffer(index));
-						stage = STAGE_ATTR_POST_SYMBOL;
-					}
-				} else if (stage == 1 || stage == STAGE_EXPECT_ID_OR_CLASSNAME
-						|| stage == STAGE_EXPECT_PSEUDOELEM_NAME
-						|| stage == STAGE_EXPECT_PSEUDOCLASS_NAME) {
-					processBuffer(index, codepoint, false);
-					if (prevcp == 65 || prevcp == 42 || prevcp == 41 || prevcp == 93) {
-						// letter-or-digit, *, ), ]
-						stage = STAGE_COMBINATOR_OR_END;
-					}
-				} else if (stage == STAGE_ATTR_START) {
-					if (buffer.length() != 0) {
-						stage = STAGE_ATTR_EXPECT_SYMBOL_OR_CLOSE;
-					} else if (namespacePrefix != null) {
-						unexpectedCharError(index, codepoint);
-					}
-					return;
-				}
-				if (prevcp != 44) {
-					// If previous cp was a comma, we keep it
-					setWhitespacePrevCp();
-				}
+				return;
+			}
+			if (prevcp != 44) {
+				// If previous cp was a comma, we keep it
+				setWhitespacePrevCp();
 			}
 		}
 
@@ -5056,11 +5569,11 @@ public class CSSParser implements Parser, Cloneable {
 				s = "";
 			}
 			buffer.setLength(0);
-			escapedTokenIndex = -1;
+			resetEscapedTokenIndex();
 			return s;
 		}
 
-		private void processBuffer(int index, int triggerCp, boolean lastStage) {
+		void processBuffer(int index, int triggerCp, boolean lastStage) {
 			if (prevcp == 42) { // *
 				if (currentsel == null || currentsel.getSelectorType() != SelectorType.UNIVERSAL) {
 					setSimpleSelector(index, factory.getUniversalSelector(namespacePrefix));
@@ -5123,7 +5636,8 @@ public class CSSParser implements Parser, Cloneable {
 				} else if (stage == STAGE_ATTR_POST_SYMBOL) {
 					setAttributeSelectorValue(index, unescapeBuffer(index));
 				} else {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected: <" + buffer + ">");
+					handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Unexpected: <" + buffer + ">");
 					buffer.setLength(0);
 				}
 			} else if (namespacePrefix != null) {
@@ -5133,6 +5647,12 @@ public class CSSParser implements Parser, Cloneable {
 			} else if (stage > 1 && stage != 11) {
 				unexpectedCharError(index, triggerCp);
 			}
+		}
+
+		@Override
+		void processBuffer(int index, int triggerCp) {
+			// DO NOT CALL THIS FROM SELECTOR HANDLER
+			throw new IllegalStateException();
 		}
 
 		@Override
@@ -5172,7 +5692,8 @@ public class CSSParser implements Parser, Cloneable {
 			if (currentsel instanceof CombinatorSelectorImpl) {
 				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
 				if (!(simple instanceof ConditionalSelectorImpl)) {
-					throw new IllegalStateException("Descendant selector has no conditional simple selector");
+					throw new IllegalStateException(
+							"Descendant selector has no conditional simple selector");
 				}
 				cond = ((ConditionalSelectorImpl) simple).condition;
 			} else if (currentsel instanceof ConditionalSelectorImpl) {
@@ -5188,7 +5709,8 @@ public class CSSParser implements Parser, Cloneable {
 					if (oldValue == null) {
 						attrcond.setValue(value.toString());
 					} else {
-						StringBuilder buf = new StringBuilder(oldValue.length() + value.length() + 1);
+						StringBuilder buf = new StringBuilder(
+								oldValue.length() + value.length() + 1);
 						buf.append(oldValue);
 						if (isPrevCpWhitespace()) {
 							buf.append(' ');
@@ -5198,7 +5720,8 @@ public class CSSParser implements Parser, Cloneable {
 					return;
 				}
 			}
-			handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token in selector: <" + value + ">");
+			handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+					"Unexpected token in selector: <" + value + ">");
 		}
 
 		private void setAttributeConditionFlag(AttributeCondition.Flag flag) {
@@ -5238,14 +5761,14 @@ public class CSSParser implements Parser, Cloneable {
 			if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
 				buffer.append('(');
 				prevcp = TokenProducer.CHAR_LEFT_PAREN;
-			} else if (!parseError) {
+			} else if (!isInError()) {
 				if (prevcp != 65 || buffer.length() == 0
 						|| stage != STAGE_EXPECT_PSEUDOCLASS_NAME) {
 					unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
 				} else {
 					newConditionalSelector(index, TokenProducer.CHAR_LEFT_PAREN,
 							ConditionType.PSEUDO_CLASS);
-					if (!parseError) {
+					if (!isInError()) {
 						stage = STAGE_EXPECT_PSEUDOCLASS_ARGUMENT;
 						functionToken = true;
 					}
@@ -5259,7 +5782,7 @@ public class CSSParser implements Parser, Cloneable {
 			if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
 				buffer.append('[');
 				prevcp = TokenProducer.CHAR_LEFT_SQ_BRACKET;
-			} else if (!parseError) {
+			} else if (!isInError()) {
 				if (prevcp != 65 && isNotSeparator(prevcp) && prevcp != 42 && prevcp != 44
 						&& prevcp != 93 && prevcp != 41 && prevcp != 43 && prevcp != 62
 						&& prevcp != 125 && prevcp != 126 && prevcp != 124) {
@@ -5275,7 +5798,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void leftCurlyBracket(int index) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '{'");
+			unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
 		}
 
 		@Override
@@ -5336,6 +5859,7 @@ public class CSSParser implements Parser, Cloneable {
 								((PseudoConditionImpl) cond).argument = s;
 							}
 							buffer.setLength(0);
+							resetEscapedTokenIndex();
 							stage = 1;
 						} else {
 							if (condtype == ConditionType.LANG
@@ -5442,7 +5966,8 @@ public class CSSParser implements Parser, Cloneable {
 						buffer.append(' ');
 					}
 					bufferAppend(codepoint);
-				} else if (stage == STAGE_ATTR_START || stage == STAGE_ATTR_EXPECT_SYMBOL_OR_CLOSE) {
+				} else if (stage == STAGE_ATTR_START
+						|| stage == STAGE_ATTR_EXPECT_SYMBOL_OR_CLOSE) {
 					if (codepoint == TokenProducer.CHAR_VERTICAL_LINE) {
 						if (stage == STAGE_ATTR_START) {
 							if (namespacePrefix == null) {
@@ -5463,19 +5988,23 @@ public class CSSParser implements Parser, Cloneable {
 						}
 						// Process the buffer according to the previous character
 						if (prevcp == TokenProducer.CHAR_VERTICAL_LINE) { // |
-							newConditionalSelector(index, codepoint, ConditionType.BEGIN_HYPHEN_ATTRIBUTE);
+							newConditionalSelector(index, codepoint,
+									ConditionType.BEGIN_HYPHEN_ATTRIBUTE);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 126) { // ~
-							newConditionalSelector(index, codepoint, ConditionType.ONE_OF_ATTRIBUTE);
+							newConditionalSelector(index, codepoint,
+									ConditionType.ONE_OF_ATTRIBUTE);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 36) { // $
 							newConditionalSelector(index, codepoint, ConditionType.ENDS_ATTRIBUTE);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 94) { // ^
-							newConditionalSelector(index, codepoint, ConditionType.BEGINS_ATTRIBUTE);
+							newConditionalSelector(index, codepoint,
+									ConditionType.BEGINS_ATTRIBUTE);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 42) { // *
-							newConditionalSelector(index, codepoint, ConditionType.SUBSTRING_ATTRIBUTE);
+							newConditionalSelector(index, codepoint,
+									ConditionType.SUBSTRING_ATTRIBUTE);
 							stage = STAGE_ATTR_SYMBOL;
 						} else if (prevcp == 65) {
 							newConditionalSelector(index, codepoint, ConditionType.ATTRIBUTE);
@@ -5484,20 +6013,24 @@ public class CSSParser implements Parser, Cloneable {
 							unexpectedCharError(index, codepoint);
 						}
 					} else if (buffer.length() == 0) {
-						if (codepoint != TokenProducer.CHAR_TILDE && codepoint != TokenProducer.CHAR_DOLLAR
+						if (codepoint != TokenProducer.CHAR_TILDE
+								&& codepoint != TokenProducer.CHAR_DOLLAR
 								&& codepoint != TokenProducer.CHAR_CIRCUMFLEX_ACCENT
 								&& codepoint != TokenProducer.CHAR_ASTERISK) {
-							if (stage == STAGE_ATTR_START && ParseHelper.isValidXMLStartCharacter(codepoint)) {
+							if (stage == STAGE_ATTR_START
+									&& ParseHelper.isValidXMLStartCharacter(codepoint)) {
 								bufferAppend(codepoint);
 								prevcp = 65;
 								return;
 							}
 							unexpectedCharError(index, codepoint);
 						}
-					} else if (codepoint != TokenProducer.CHAR_TILDE && codepoint != TokenProducer.CHAR_DOLLAR
+					} else if (codepoint != TokenProducer.CHAR_TILDE
+							&& codepoint != TokenProducer.CHAR_DOLLAR
 							&& codepoint != TokenProducer.CHAR_CIRCUMFLEX_ACCENT
 							&& codepoint != TokenProducer.CHAR_ASTERISK) {
-						if (stage == STAGE_ATTR_START && ParseHelper.isValidXMLCharacter(codepoint)) {
+						if (stage == STAGE_ATTR_START
+								&& ParseHelper.isValidXMLCharacter(codepoint)) {
 							bufferAppend(codepoint);
 							prevcp = 65;
 							return;
@@ -5513,8 +6046,10 @@ public class CSSParser implements Parser, Cloneable {
 								.getUniversalSelector(namespacePrefix);
 						namespacePrefix = null;
 						stage = 1;
-					} else if (stage == 1 && namespacePrefix != null && prevcp == TokenProducer.CHAR_VERTICAL_LINE) {
-						setSimpleSelector(index, factory.createUniversalSelector(getNamespaceURI(index)));
+					} else if (stage == 1 && namespacePrefix != null
+							&& prevcp == TokenProducer.CHAR_VERTICAL_LINE) {
+						setSimpleSelector(index,
+								factory.createUniversalSelector(getNamespaceURI(index)));
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -5528,41 +6063,54 @@ public class CSSParser implements Parser, Cloneable {
 						unexpectedCharError(index, codepoint);
 						return;
 					}
-					if (codepoint == TokenProducer.CHAR_TILDE) { // ~
+					switch (codepoint) {
+					case TokenProducer.CHAR_TILDE: // ~
 						if (stage == STAGE_COMBINATOR_OR_END) {
 							stage = 1;
 						} else {
 							processBuffer(index, codepoint, false);
+							if (isInError()) {
+								return;
+							}
 						}
 						newCombinatorSelector(index, SelectorType.SUBSEQUENT_SIBLING, codepoint);
-					} else if (codepoint == 46) { // .
+						break;
+					case 46: // .
 						if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
 							processBuffer(index, codepoint, false);
-							newConditionalSelector(index, codepoint, ConditionType.CLASS);
-							stage = STAGE_EXPECT_ID_OR_CLASSNAME;
+							if (!isInError()) {
+								newConditionalSelector(index, codepoint, ConditionType.CLASS);
+								stage = STAGE_EXPECT_ID_OR_CLASSNAME;
+							}
 						} else {
 							unexpectedCharError(index, codepoint);
 						}
-					} else if (codepoint == 35) { // #
+						break;
+					case 35: // #
 						if (stage != STAGE_EXPECT_ID_OR_CLASSNAME || buffer.length() != 0) {
 							processBuffer(index, codepoint, false);
-							newConditionalSelector(index, codepoint, ConditionType.ID);
-							stage = STAGE_EXPECT_ID_OR_CLASSNAME;
+							if (!isInError()) {
+								newConditionalSelector(index, codepoint, ConditionType.ID);
+								stage = STAGE_EXPECT_ID_OR_CLASSNAME;
+							}
 						} else {
 							unexpectedCharError(index, codepoint);
 						}
-					} else if (codepoint == 58) { // :
+						break;
+					case 58: // :
 						if (prevcp == 58) {
 							stage = STAGE_EXPECT_PSEUDOELEM_NAME;
 						} else {
 							processBuffer(index, codepoint, false);
 							stage = STAGE_EXPECT_PSEUDOCLASS_NAME;
 						}
-					} else if (codepoint == TokenProducer.CHAR_GREATER_THAN) { // >
+						break;
+					case TokenProducer.CHAR_GREATER_THAN: // >
 						if (stage == STAGE_COMBINATOR_OR_END) {
 							stage = 1;
 						} else if (stage == 1 && equalSequences("--", buffer)) {
-							if (isTopLevel() && prevcp == 65 && escapedTokenIndex == -1 && !functionToken) {
+							if (isTopLevel() && prevcp == 65 && !isEscapedIdent()
+									&& !functionToken) {
 								buffer.setLength(0);
 								stage = 0;
 								prevcp = 32;
@@ -5571,40 +6119,48 @@ public class CSSParser implements Parser, Cloneable {
 							unexpectedCharError(index, codepoint);
 						}
 						processBuffer(index, codepoint, false);
-						if (stage < 2) {
+						if (stage < 2 && !isInError()) {
 							newCombinatorSelector(index, SelectorType.CHILD, codepoint);
 						} else {
 							unexpectedCharError(index, codepoint);
 						}
-					} else if (codepoint == 43) { // +
+						break;
+					case 43: // +
 						if (stage == STAGE_COMBINATOR_OR_END) {
 							stage = 1;
 						}
 						processBuffer(index, codepoint, false);
-						newCombinatorSelector(index, SelectorType.DIRECT_ADJACENT, codepoint);
-					} else if (codepoint == TokenProducer.CHAR_VERTICAL_LINE) {
+						if (!isInError()) {
+							newCombinatorSelector(index, SelectorType.DIRECT_ADJACENT, codepoint);
+						}
+						break;
+					case TokenProducer.CHAR_VERTICAL_LINE:
 						// |
-						if (stage == STAGE_EXPECT_ID_OR_CLASSNAME || stage == STAGE_EXPECT_PSEUDOCLASS_NAME
+						if (stage == STAGE_EXPECT_ID_OR_CLASSNAME
+								|| stage == STAGE_EXPECT_PSEUDOCLASS_NAME
 								|| stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
 							processBuffer(index, codepoint, false);
+							if (isInError()) {
+								return;
+							}
 							try {
 								int ncp = getTokenControl().skipNextCodepoint();
 								if (ncp != TokenProducer.CHAR_VERTICAL_LINE) {
 									if (ncp == -1) {
-										handleError(index + 1, ParseHelper.ERR_UNEXPECTED_EOF,
-											"EOF while processing column combinator selector");
+										unexpectedEOFError(index + 1,
+												"EOF while processing column combinator selector");
 									} else {
 										unexpectedCharError(index + 1, ncp);
 									}
 								} else {
 									newCombinatorSelector(index, SelectorType.COLUMN_COMBINATOR,
-										TokenProducer.CHAR_VERTICAL_LINE);
+											TokenProducer.CHAR_VERTICAL_LINE);
 									prevcp = 32;
 									return;
 								}
 							} catch (IOException e) {
 								handleError(index + 1, ParseHelper.ERR_IO,
-									"I/O Error when processing column combinator selector", e);
+										"I/O Error when processing column combinator selector", e);
 							}
 						} else if (stage == STAGE_COMBINATOR_OR_END) {
 							stage = 1;
@@ -5615,7 +6171,8 @@ public class CSSParser implements Parser, Cloneable {
 						} else {
 							unexpectedCharError(index, codepoint);
 						}
-					} else if (codepoint == 44) { // ,
+						break;
+					case 44: // ,
 						if (functionToken) {
 							if (prevcp == 44) { // Consecutive commas
 								unexpectedCharError(index, codepoint);
@@ -5625,7 +6182,7 @@ public class CSSParser implements Parser, Cloneable {
 							}
 						} else {
 							processBuffer(index, codepoint, true);
-							if (!parseError) {
+							if (!isInError()) {
 								if (addCurrentSelector(index)) {
 									stage = 0;
 								} else {
@@ -5633,13 +6190,32 @@ public class CSSParser implements Parser, Cloneable {
 								}
 							}
 						}
-					} else if (codepoint == 64) { // @
-						handleAtKeyword(index);
-					} else if (codepoint == 45) { // -
+						break;
+					case 64: // @
+						if (stage == 0 && selist.isEmpty()) {
+							handleAtKeyword(index);
+						} else {
+							unexpectedCharError(index, 64);
+						}
+						break;
+					case 45: // -
 						buffer.append('-');
-					} else if (codepoint == 95) { // _
+						break;
+					case 95: // _
 						buffer.append('_');
-					} else {
+						break;
+					case TokenProducer.CHAR_AMPERSAND: // &
+						if (buffer.length() != 0 || (stage > STAGE_COMBINATOR_OR_END
+								&& stage != STAGE_EXPECT_PSEUDOCLASS_ARGUMENT)) {
+							unexpectedCharError(index, codepoint);
+						} else {
+							if (stage == STAGE_COMBINATOR_OR_END) {
+								stage = 1;
+							}
+							newConditionalSelector(index, codepoint, ConditionType.NESTING);
+						}
+						break;
+					default:
 						if (stage < 8) {
 							if (stage == 0) {
 								if (ParseHelper.isValidXMLStartCharacter(codepoint)) {
@@ -5653,9 +6229,18 @@ public class CSSParser implements Parser, Cloneable {
 								prevcp = 65;
 								return;
 							}
-							if (codepoint == TokenProducer.CHAR_LESS_THAN && isTopLevel()) {
-								processBuffer(index, codepoint, false);
-								handleCDO();
+							if (codepoint == TokenProducer.CHAR_LESS_THAN) {
+								if (isTopLevel()) {
+									processBuffer(index, codepoint, false);
+									if (!isInError()) {
+										handleCDO();
+									}
+									prevcp = 32;
+									return;
+								}
+							} else if (codepoint == TokenProducer.CHAR_SEMICOLON
+									&& parendepth == 0) {
+								handleSemicolon(index);
 								prevcp = 32;
 								return;
 							}
@@ -5690,19 +6275,22 @@ public class CSSParser implements Parser, Cloneable {
 						return;
 					}
 				}
-				newCombinatorSelector(index, SelectorType.COLUMN_COMBINATOR, TokenProducer.CHAR_VERTICAL_LINE);
+				newCombinatorSelector(index, SelectorType.COLUMN_COMBINATOR,
+						TokenProducer.CHAR_VERTICAL_LINE);
 			} else if (stage == 0 && buffer.length() == 0 && currentsel == null) {
 				namespacePrefix = null;
-				newCombinatorSelector(index, SelectorType.COLUMN_COMBINATOR, TokenProducer.CHAR_VERTICAL_LINE);
+				newCombinatorSelector(index, SelectorType.COLUMN_COMBINATOR,
+						TokenProducer.CHAR_VERTICAL_LINE);
 			} else {
 				unexpectedCharError(index, TokenProducer.CHAR_VERTICAL_LINE);
 			}
 		}
 
 		/**
-		 * Test whether the given code point represents a special CSS character that could be
-		 * processed through this <code>character</code> method (thus excluding group delimiters
-		 * like <code>(</code> and <code>)</code>, and code points previously tested.
+		 * Test whether the given code point represents a special CSS character that
+		 * could be processed through this <code>character</code> method (thus excluding
+		 * group delimiters like <code>(</code> and <code>)</code>, and code points
+		 * previously tested.
 		 * <p>
 		 * Characters tested so far:
 		 * 
@@ -5710,20 +6298,21 @@ public class CSSParser implements Parser, Cloneable {
 		 *  * . # : > + ~ | , @ - _
 		 * </pre>
 		 * 
-		 * @param cp
-		 *            the code point to test.
-		 * @return <code>true</code> if it is an untested character with special meaning, <code>false</code> otherwise.
+		 * @param cp the code point to test.
+		 * @return <code>true</code> if it is an untested character with special
+		 *         meaning, <code>false</code> otherwise.
 		 */
 		private boolean isUnexpectedCharacter(int cp) {
-			return cp == 0x21 || cp == 0x24 || cp == 0x25 || cp == 0x26 || cp == 0x2f || (cp >= 0x3b && cp <= 0x3f)
-					|| cp == 0x5e || cp == 0x60;
+			return cp == 0x21 || cp == 0x24 || cp == 0x25 || cp == 0x26 || cp == 0x2f
+					|| (cp >= 0x3b && cp <= 0x3f) || cp == 0x5e || cp == 0x60;
 			// x21 !, x24 $, x25 %, x26 & x2f /, x3b ;, x3c <,
 			// x3d =, x3e >, x3f ?, x5e ^, x60 `
 		}
 
 		private void handleCDO() {
-			TokenHandler2 cdoCdcTH = new CDOTokenHandler(getTokenControl());
-			getTokenControl().setTokenHandler(cdoCdcTH);
+			CDOTokenHandler cdoCdcTH = new CDOTokenHandler(getManager());
+			cdoCdcTH.setYieldHandler(this);
+			yieldHandling(cdoCdcTH);
 		}
 
 		private void readNamespacePrefix(int index, int codepoint) {
@@ -5740,6 +6329,10 @@ public class CSSParser implements Parser, Cloneable {
 			unexpectedCharError(index, 64);
 		}
 
+		protected void handleSemicolon(int index) {
+			unexpectedCharError(index, TokenProducer.CHAR_SEMICOLON);
+		}
+
 		private void newConditionalSelector(int index, int triggerCp, ConditionType condtype) {
 			String name = rawBuffer();
 			String lcname = name.toLowerCase(Locale.ROOT).intern();
@@ -5750,7 +6343,8 @@ public class CSSParser implements Parser, Cloneable {
 					condition = factory.createCondition(ConditionType.LANG);
 				} else if ("first-child".equals(lcname)) {
 					if (triggerCp == '(') {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Positional pseudo-class cannot have argument");
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+								"Positional pseudo-class cannot have argument");
 						return;
 					}
 					condition = factory.createPositionalCondition();
@@ -5758,7 +6352,8 @@ public class CSSParser implements Parser, Cloneable {
 					condition = factory.createPositionalCondition(true);
 				} else if ("last-child".equals(lcname)) {
 					if (triggerCp == '(') {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Positional pseudo-class cannot have argument");
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+								"Positional pseudo-class cannot have argument");
 						return;
 					}
 					condition = factory.createPositionalCondition();
@@ -5774,7 +6369,8 @@ public class CSSParser implements Parser, Cloneable {
 					((PositionalConditionImpl) condition).offset = 1;
 				} else if ("last-of-type".equals(lcname)) {
 					if (triggerCp == '(') {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Positional pseudo-class cannot have argument");
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+								"Positional pseudo-class cannot have argument");
 						return;
 					}
 					condition = factory.createPositionalCondition();
@@ -5790,13 +6386,15 @@ public class CSSParser implements Parser, Cloneable {
 					((PositionalConditionImpl) condition).forwardCondition = false;
 				} else if ("only-child".equals(lcname)) {
 					if (triggerCp == '(') {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Positional pseudo-class cannot have argument");
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+								"Positional pseudo-class cannot have argument");
 						return;
 					}
 					condition = factory.createCondition(ConditionType.ONLY_CHILD);
 				} else if ("only-of-type".equals(lcname)) {
 					if (triggerCp == '(') {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Positional pseudo-class cannot have argument");
+						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+								"Positional pseudo-class cannot have argument");
 						return;
 					}
 					condition = factory.createCondition(ConditionType.ONLY_TYPE);
@@ -5812,8 +6410,8 @@ public class CSSParser implements Parser, Cloneable {
 					condition = factory.createCondition(ConditionType.SELECTOR_ARGUMENT);
 					((SelectorArgumentConditionImpl) condition).setName(lcname);
 				} else { // Other pseudo-classes
-					if ("first-line".equals(lcname) || "first-letter".equals(lcname) || "before".equals(lcname)
-							|| "after".equals(lcname)) {
+					if ("first-line".equals(lcname) || "first-letter".equals(lcname)
+							|| "before".equals(lcname) || "after".equals(lcname)) {
 						// Old-syntax pseudo-element
 						condtype = ConditionType.PSEUDO_ELEMENT;
 					}
@@ -5852,10 +6450,12 @@ public class CSSParser implements Parser, Cloneable {
 				case SUBSTRING_ATTRIBUTE:
 				case BEGINS_ATTRIBUTE:
 					if (namespacePrefix != null) {
-						((AttributeConditionImpl) condition).setNamespaceURI(getNamespaceURI(index));
+						((AttributeConditionImpl) condition)
+								.setNamespaceURI(getNamespaceURI(index));
 					}
 					if (isNotForbiddenIdentStart(name)) {
-						((AttributeConditionImpl) condition).setLocalName(safeUnescapeIdentifier(index, name).trim());
+						((AttributeConditionImpl) condition)
+								.setLocalName(safeUnescapeIdentifier(index, name).trim());
 					} else {
 						handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 								"Invalid pseudo-class: " + name);
@@ -5875,13 +6475,18 @@ public class CSSParser implements Parser, Cloneable {
 					andcond.first = ((ConditionalSelectorImpl) simple).getCondition();
 					andcond.second = condition;
 					((CombinatorSelectorImpl) currentsel).simpleSelector = factory
-							.createConditionalSelector(((ConditionalSelectorImpl) simple).getSimpleSelector(), andcond);
+							.createConditionalSelector(
+									((ConditionalSelectorImpl) simple).getSimpleSelector(),
+									andcond);
 				} else {
 					((CombinatorSelectorImpl) currentsel).simpleSelector = factory
-							.createConditionalSelector(((CombinatorSelectorImpl) currentsel).simpleSelector, condition);
+							.createConditionalSelector(
+									((CombinatorSelectorImpl) currentsel).simpleSelector,
+									condition);
 				}
 			} else {
-				if (currentsel != null && currentsel.getSelectorType() == SelectorType.CONDITIONAL) {
+				if (currentsel != null
+						&& currentsel.getSelectorType() == SelectorType.CONDITIONAL) {
 					CombinatorConditionImpl andcond = (CombinatorConditionImpl) factory
 							.createCondition(ConditionType.AND);
 					andcond.first = ((ConditionalSelectorImpl) currentsel).getCondition();
@@ -5889,7 +6494,8 @@ public class CSSParser implements Parser, Cloneable {
 					currentsel = factory.createConditionalSelector(
 							((ConditionalSelectorImpl) currentsel).getSimpleSelector(), andcond);
 				} else {
-					currentsel = factory.createConditionalSelector((SimpleSelector) currentsel, condition);
+					currentsel = factory.createConditionalSelector((SimpleSelector) currentsel,
+							condition);
 				}
 			}
 		}
@@ -5938,7 +6544,8 @@ public class CSSParser implements Parser, Cloneable {
 					}
 				} else if (!namespacePrefix.equals("*")) {
 					handleError(index - buffer.length() - namespacePrefix.length() - 1,
-							ParseHelper.ERR_UNKNOWN_NAMESPACE, "Unknown namespace prefix: " + namespacePrefix);
+							ParseHelper.ERR_UNKNOWN_NAMESPACE,
+							"Unknown namespace prefix: " + namespacePrefix);
 				}
 			} else {
 				// |E (elements without a namespace)
@@ -5959,7 +6566,8 @@ public class CSSParser implements Parser, Cloneable {
 				((CombinatorSelectorImpl) currentsel).simpleSelector = simple;
 			} else if (currentsel != null) {
 				handleError(index - buffer.length(), ParseHelper.ERR_UNEXPECTED_TOKEN,
-						"Unexpected token after '" + currentsel.toString() + "': " + simple.toString());
+						"Unexpected token after '" + currentsel.toString() + "': "
+								+ simple.toString());
 			} else {
 				currentsel = simple;
 			}
@@ -5980,9 +6588,11 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void escaped(int index, int codepoint) {
-			if (stage == STAGE_ATTR_START || stage == STAGE_ATTR_SYMBOL || stage == STAGE_EXPECT_ID_OR_CLASSNAME
-					|| stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT || stage == 0 || stage == STAGE_COMBINATOR_OR_END) {
-				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 92) {
+			if (stage == STAGE_ATTR_START || stage == STAGE_ATTR_SYMBOL
+					|| stage == STAGE_EXPECT_ID_OR_CLASSNAME
+					|| stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT || stage == 0
+					|| stage == STAGE_COMBINATOR_OR_END) {
+				if (isEscapedCodepoint(codepoint)) {
 					setEscapedTokenStart(index);
 					buffer.append('\\');
 				} else if (Character.isISOControl(codepoint)) {
@@ -6023,13 +6633,13 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void endOfStream(int len) {
-			if (!parseError) {
-				processBuffer(len, 32, true);
-				if (!parseError && !addCurrentSelector(len)) {
-					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF,
-						"Unexpected end of stream");
-				}
+			processBuffer(len, 32, true);
+			// Check whether we got an error in selectors
+			if (!parseError && !addCurrentSelector(len)) {
+				// Report EOF
+				unexpectedEOFError(len);
 			}
+			getManager().endOfStream(len);
 		}
 
 		boolean addCurrentSelector(int index) {
@@ -6106,16 +6716,22 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		void resetHandler() {
+		protected void resetHandler() {
 			super.resetHandler();
 			stage = 0;
 			functionToken = false;
-			escapedTokenIndex = -1;
 			buffer.setLength(0);
 			namespacePrefix = null;
 			currentsel = null;
 			// selist is cleared by 'error', but clearing could be needed here too
 			// selist.clear();
+		}
+
+		@Override
+		public void reportError(CSSParseException ex) throws CSSParseException {
+			super.reportError(ex);
+			selist.clear();
+			resetHandler();
 		}
 
 		@Override
@@ -6128,2543 +6744,7 @@ public class CSSParser implements Parser, Cloneable {
 			selist.clear();
 		}
 
-		@Override
-		protected void handleError(int index, byte errCode, String message) {
-			// We do not want to report secondary errors. Check for parse error state
-			if (!parseError) {
-				stage = 127;
-				if (prevcp == endcp && endcp != -1) {
-					throw createException(index, errCode,
-							"Expected end of file, found " + new String(Character.toChars(prevcp)));
-				} else {
-					throw createException(index, errCode, message);
-				}
-			}
-		}
-
-	}
-
-	private class CDOTokenHandler extends CSSTokenHandler {
-
-		private final TokenControl parserctl;
-		private final CSSTokenHandler parent;
-
-		CDOTokenHandler(TokenControl parserctl) {
-			super();
-			this.prevcp = TokenProducer.CHAR_LESS_THAN;
-			this.parserctl = parserctl;
-			this.parent = (CSSTokenHandler) parserctl.getContentHandler();
-		}
-
-		@Override
-		public void word(int index, CharSequence word) {
-			if (!equalSequences("--", word) || this.prevcp != TokenProducer.CHAR_EXCLAMATION) {
-				parent.unexpectedTokenError(index, word);
-			}
-			yieldHandling();
-		}
-
-		@Override
-		public void character(int index, int codePoint) {
-			if (codePoint == TokenProducer.CHAR_EXCLAMATION && this.prevcp == TokenProducer.CHAR_LESS_THAN) {
-				this.prevcp = codePoint;
-				return;
-			}
-			parent.unexpectedCharError(index, codePoint);
-			yieldHandling();
-		}
-
-		void yieldHandling() {
-			parserctl.setTokenHandler(parent);
-		}
-
-		@Override
-		public void commented(int index, int commentType, String comment) {
-			parent.unexpectedTokenError(index, comment);
-			yieldHandling();
-		}
-
-		@Override
-		public void control(int index, int codePoint) {
-			parent.control(index, codePoint);
-			parent.unexpectedCharError(index, codePoint);
-			yieldHandling();
-		}
-
-		@Override
-		public void endOfStream(int len) {
-			parent.handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "EOF while processing CDO/CDC.");
-			parent.endOfStream(len);
-		}
-
-		@Override
-		public void separator(int index, int codePoint) {
-			parent.unexpectedCharError(index, codePoint);
-			yieldHandling();
-		}
-
-		@Override
-		public void quoted(int index, CharSequence quoted, int quote) {
-			char quotec = (char) quote;
-			StringBuilder buf = new StringBuilder(quoted.length() + 2);
-			buf.append(quotec).append(quoted).append(quotec);
-			parent.unexpectedTokenError(index, buf);
-			yieldHandling();
-		}
-
-		@Override
-		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-			quoted(index, quoted, quoteCp);
-		}
-
-		@Override
-		public void leftParenthesis(int index) {
-			parent.unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
-			yieldHandling();
-		}
-
-		@Override
-		public void leftSquareBracket(int index) {
-			parent.unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
-			yieldHandling();
-		}
-
-		@Override
-		public void leftCurlyBracket(int index) {
-			parent.unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
-			yieldHandling();
-		}
-
-		@Override
-		public void rightParenthesis(int index) {
-			parent.unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
-			yieldHandling();
-		}
-
-		@Override
-		public void rightSquareBracket(int index) {
-			parent.unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
-			yieldHandling();
-		}
-
-		@Override
-		public void rightCurlyBracket(int index) {
-			parent.unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
-			yieldHandling();
-		}
-
-		@Override
-		public void escaped(int index, int codePoint) {
-			parent.unexpectedCharError(index, codePoint);
-			yieldHandling();
-		}
-
-	}
-
-	class DeclarationRuleTokenHandler extends DeclarationTokenHandler {
-
-		private String ruleFirstPart = null;
-		private byte stage = 0;
-
-		static final byte STAGE_FOUND_AT_CHAR = 1;
-		static final byte STAGE_RULE_NAME_SELECTOR = 2;
-		static final byte STAGE_RULE_BODY = 3;
-		static final byte STAGE_RULE_END = 4;
-		static final byte INVALID_RULE = 127;
-
-		DeclarationRuleTokenHandler(ShorthandDatabase propertyDatabase) {
-			super(propertyDatabase, 0);
-		}
-
-		void setRuleName(String ruleName) {
-			this.ruleFirstPart = ruleName;
-		}
-
-		void setStage(byte stage) {
-			this.stage = stage;
-		}
-
-		@Override
-		void addWord(int index, CharSequence word) {
-			if (prevcp == 64 && stage == STAGE_FOUND_AT_CHAR) { // Got an at-rule
-				ruleFirstPart = word.toString().toLowerCase(Locale.ROOT);
-				buffer.setLength(0);
-				stage = STAGE_RULE_NAME_SELECTOR;
-			} else if (stage != INVALID_RULE) {
-				super.addWord(index, word);
-				if (stage < STAGE_RULE_NAME_SELECTOR) {
-					stage = STAGE_RULE_NAME_SELECTOR;
-				}
-			}
-		}
-
-		@Override
-		protected void handleAtKeyword(int index) {
-			if (propertyName != null || buffer.length() != 0 || stage != 0) {
-				unexpectedCharError(index, 64);
-			} else if (stage != INVALID_RULE) {
-				// This should not be needed, but is done here to leave some 'trace'
-				// in case this is not dealt with properly
-				buffer.append('@');
-				stage = STAGE_FOUND_AT_CHAR;
-				prevcp = 64;
-			}
-		}
-
-		@Override
-		protected void handleLeftCurlyBracket(int index) {
-			curlyBracketDepth++;
-			if (stage != INVALID_RULE) {
-				if (stage == STAGE_RULE_NAME_SELECTOR) {
-					String ruleSecondPart = null;
-					if (buffer.length() != 0) {
-						ruleSecondPart = unescapeBuffer(index);
-					}
-					prevcp = 32;
-					stage = STAGE_RULE_BODY;
-					startAtRule(index, ruleFirstPart, ruleSecondPart);
-					if (stage == INVALID_RULE) {
-						skipDeclarationBlock();
-					}
-				} else {
-					unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
-				}
-			} else {
-				skipDeclarationBlock();
-			}
-		}
-
-		void skipDeclarationBlock() {
-			getTokenControl().setTokenHandler(new IgnoredDeclarationRuleTokenHandler());
-		}
-
-		protected void startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
-			((DeclarationRuleHandler) handler).startAtRule(ruleFirstPart, ruleSecondPart);
-		}
-
-		@Override
-		protected void handleRightCurlyBracket(int index) {
-			if (stage == STAGE_RULE_BODY) {
-				endAtRule(index);
-				resetHandler();
-				ruleFirstPart = null;
-				stage = STAGE_RULE_END;
-			} else if (stage != INVALID_RULE) {
-				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
-			}
-		}
-
-		protected void endAtRule(int index) {
-			((DeclarationRuleHandler) handler).endAtRule();
-		}
-
-		@Override
-		public void character(int index, int codepoint) {
-			if (stage != INVALID_RULE) {
-				if (getCurlyBracketDepth() != 0) {
-					super.character(index, codepoint);
-				} else if (codepoint == 64) {
-					handleAtKeyword(index);
-				} else {
-					bufferAppend(codepoint);
-					prevcp = codepoint;
-				}
-			}
-		}
-
-		@Override
-		protected void processBuffer(int index) {
-			if (getCurlyBracketDepth() != 0) {
-				super.processBuffer(index);
-			}
-		}
-
-		@Override
-		public void commented(int index, int commentType, String comment) {
-			if (!parseError && buffer.length() == 0 && propertyName == null
-					&& (curlyBracketDepth == 1 || ruleFirstPart == null) && parendepth == 0 && commentType == 0) {
-				handler.comment(comment, isPreviousCpLF());
-				prevcp = 12;
-			} else {
-				separator(index, 32);
-				// The above call may have left prevcp as 10
-				prevcp = 32;
-			}
-		}
-
-		@Override
-		public void endOfStream(int len) {
-			super.endOfStream(len);
-			if (stage != STAGE_RULE_END) {
-				if (stage == STAGE_RULE_BODY) {
-					handleWarning(len, ParseHelper.WARN_UNEXPECTED_EOF, "Unexpected end of stream");
-					endAtRule(len);
-				} else if (!parseError) {
-					handleError(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
-				}
-			}
-		}
-
-		private class IgnoredDeclarationRuleTokenHandler extends IgnoredDeclarationTokenHandler {
-
-			IgnoredDeclarationRuleTokenHandler() {
-				super();
-			}
-
-			@Override
-			protected void endDeclarationBlock() {
-			}
-
-			@Override
-			public void control(int index, int codepoint) {
-				DeclarationRuleTokenHandler.this.control(index, codepoint);
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				DeclarationRuleTokenHandler.this.endOfStream(len);
-			}
-
-		}
-
-	}
-
-	/**
-	 * Small extension to {@code CSSHandler} to deal with declaration rules.
-	 */
-	public interface DeclarationRuleHandler extends CSSHandler {
-
-		/**
-		 * Marks the start of a declaration rule.
-		 * 
-		 * @param ruleName
-		 *            the name of the rule.
-		 * @param modifier
-		 *            the modifier string (the contents of whatever is after the rule name and
-		 *            before the style declaration), or <code>null</code> if no modifier was
-		 *            found.
-		 */
-		void startAtRule(String ruleName, String modifier);
-
-		/**
-		 * Marks the end of a declaration rule.
-		 */
-		void endAtRule();
-
-	}
-
-	class PropertyTokenHandler extends DeclarationTokenHandler {
-		PropertyTokenHandler() {
-			super(null);
-			this.propertyName = "";
-		}
-
-		PropertyTokenHandler(int currentLine, int prevLineLength) {
-			super(currentLine, prevLineLength);
-			this.propertyName = "";
-		}
-
-		PropertyTokenHandler(String propertyName) {
-			super(ShorthandDatabase.getInstance());
-			this.propertyName = propertyName;
-		}
-
-		@Override
-		protected void handleAtKeyword(int index) {
-			throw createException(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '@'");
-		}
-
-		@Override
-		protected void endOfPropertyDeclaration(int index) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ';'");
-		}
-
-		@Override
-		protected boolean isDeclarationContext() {
-			return true;
-		}
-
-		@Override
-		public void endOfStream(int len) {
-			if (parendepth != 0) {
-				handleError(len, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
-			} else {
-				processBuffer(len);
-				if (getLexicalUnit() == null) {
-					handleError(len, ParseHelper.ERR_EXPR_SYNTAX, "No value found");
-				}
-			}
-		}
-
-		@Override
-		protected void endDeclarationList() {
-		}
-
-		@Override
-		protected void handleError(int index, byte errCode, String message) {
-			if (prevcp == endcp && endcp != -1) {
-				throw createException(index, errCode,
-						"Expected end of file, found " + new String(Character.toChars(prevcp)));
-			} else {
-				throw createException(index, errCode, message);
-			}
-		}
-	}
-
-	class DeclarationTokenHandler extends ControlTokenHandler {
-
-		private LexicalUnitImpl lunit = null;
-		private LexicalUnitImpl currentlu = null;
-		String propertyName = null;
-		private final ShorthandDatabase propertyDatabase;
-		private boolean hexColor = false;
-		private boolean unicodeRange = false;
-		private boolean readPriority = false;
-		private boolean priorityImportant = false;
-		int curlyBracketDepth;
-		private int squareBracketDepth;
-		private boolean functionToken = false;
-		private final boolean flagIEValues;
-
-		private final FunctionFactories functionFactories = new FunctionFactories() {
-
-			@Override
-			protected void warn(int index, String message) {
-				handleWarning(index, ParseHelper.WARN_VALUE, message);
-			}
-
-			@Override
-			protected void error(int index, String message) {
-				handleError(index, ParseHelper.ERR_WRONG_VALUE, message);
-			}
-
-			@Override
-			protected void addEmptyLexicalUnit() {
-				LexicalUnitImpl empty = newLexicalUnit(LexicalType.EMPTY);
-				empty.value = "";
-			}
-
-		};
-
-		DeclarationTokenHandler(ShorthandDatabase propertyDatabase) {
-			this(propertyDatabase, 1);
-		}
-
-		DeclarationTokenHandler(int currentLine, int prevLineLength) {
-			super(currentLine, prevLineLength);
-			this.curlyBracketDepth = 1;
-			flagIEValues = CSSParser.this.parserFlags.contains(Flag.IEVALUES);
-			buffer = new StringBuilder(128);
-			this.propertyDatabase = null;
-		}
-
-		DeclarationTokenHandler(ShorthandDatabase propertyDatabase, int initialCurlyBracketDepth) {
-			super();
-			this.curlyBracketDepth = initialCurlyBracketDepth;
-			flagIEValues = CSSParser.this.parserFlags.contains(Flag.IEVALUES);
-			buffer = new StringBuilder(128);
-			this.propertyDatabase = propertyDatabase;
-		}
-
-		LexicalUnit getLexicalUnit() {
-			return parseError ? null : lunit;
-		}
-
-		int getCurlyBracketDepth() {
-			return curlyBracketDepth;
-		}
-
-		boolean allowSemicolonArgument() {
-			return "switch".equalsIgnoreCase(currentlu.value);
-		}
-
-		@Override
-		public void word(int index, CharSequence word) {
-			if (!parseError) {
-				addWord(index, word);
-			}
-			prevcp = 65; // A
-		}
-
-		void addWord(int index, CharSequence word) {
-			if (prevcp == '\\') {
-				buffer.append('\\');
-			}
-			buffer.append(word);
-		}
-
-		@Override
-		public void leftParenthesis(int index) {
-			parendepth++;
-			// If we reach here expecting hexColor or unicodeRange, we are in error
-			if (hexColor || unicodeRange) {
-				unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
-			} else if (!parseError) {
-				if (prevcp != 65) {
-					if (!functionToken) {
-						// Not a function token
-						unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
-						prevcp = TokenProducer.CHAR_LEFT_PAREN;
-					} else if (buffer.length() == 0) {
-						// Sub-values
-						newFunctionOrExpressionUnit(new SubExpressionUnitImpl());
-					} else {
-						handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-								"Unexpected token: " + buffer.toString());
-						buffer.setLength(0);
-					}
-					prevcp = TokenProducer.CHAR_LEFT_PAREN;
-				} else {
-					newFunction(index);
-					prevcp = 32;
-				}
-			}
-		}
-
-		private void newFunction(int index) {
-			if (functionToken && currentlu.getLexicalUnitType() == LexicalType.URI) {
-				// Special case
-
-				// "For legacy reasons, a url() can be written without quotation
-				// marks around the URL itself, in which case it is specially-parsed
-				// as a <url-token> [CSS-SYNTAX-3]. Because of this special parsing,
-				// url() is only able to specify its URL literally"
-
-				buffer.setLength(0);
-				escapedTokenIndex = -1;
-				unexpectedCharError(index, '(');
-				return;
-			}
-
-			LexicalUnitImpl lu;
-			String raw;
-			String name = unescapeStringValue(index);
-			String lcName = name.toLowerCase(Locale.ROOT);
-
-			LexicalUnitFactory factory = functionFactories.getFactory(lcName);
-
-			if (factory == null) {
-				if (name.isEmpty()) {
-					handleError(index, ParseHelper.ERR_WRONG_VALUE, "Unexpected character '('.");
-					buffer.setLength(0);
-					escapedTokenIndex = -1;
-					return;
-				} else if (isNotForbiddenIdentStart(raw = buffer.toString())) {
-					if (name.charAt(0) == '-' && name.length() > 3) {
-						/*
-						 * If CSS Functions & Mixins is implemented, should check for
-						 * custom functions (and add a CUSTOM_FUNCTION type).
-						 */
-						// Prefixed function or calc() (for example -o-calc())
-						lu = newFunctionOrExpressionUnit(new PrefixedFunctionUnitImpl());
-					} else if (lcName.endsWith("-gradient")) {
-						name = lcName;
-						lu = newFunctionOrExpressionUnit(new ImageFunctionUnitImpl(LexicalType.GRADIENT));
-					} else {
-						lu = newFunctionOrExpressionUnit(new LexicalUnitImpl(LexicalType.FUNCTION));
-					}
-					lu.value = name;
-					functionToken = true;
-				} else {
-					handleError(index, ParseHelper.ERR_WRONG_VALUE, "Unexpected: " + raw);
-					buffer.setLength(0);
-					escapedTokenIndex = -1;
-					return;
-				}
-			} else {
-				lu = factory.createUnit();
-				if (functionToken) {
-					currentlu.addFunctionParameter(lu);
-					currentlu = lu;
-				} else {
-					if (currentlu != null) {
-						currentlu.nextLexicalUnit = lu;
-						lu.previousLexicalUnit = currentlu;
-					}
-					currentlu = lu;
-					if (lunit == null) {
-						lunit = lu;
-					}
-					functionToken = true;
-				}
-
-				if (lu.getLexicalUnitType() != LexicalType.URI
-						&& lu.getLexicalUnitType() != LexicalType.ELEMENT_REFERENCE) {
-					lu.value = factory.canonicalName(lcName);
-				}
-			}
-
-			buffer.setLength(0);
-			escapedTokenIndex = -1;
-		}
-
-		@Override
-		public void leftCurlyBracket(int index) {
-			// If we reach here expecting hexColor or unicodeRange, we are in error
-			if (hexColor || unicodeRange) {
-				unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
-			} else if (!parseError) {
-				handleLeftCurlyBracket(index);
-			} else {
-				skipDeclaration(index);
-			}
-			prevcp = TokenProducer.CHAR_LEFT_CURLY_BRACKET;
-		}
-
-		protected void handleLeftCurlyBracket(int index) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '{'");
-			skipDeclaration(index);
-		}
-
-		protected void skipDeclaration(int index) {
-			TokenHandler2 ignoreth = new CallbackIgnoredDeclarationTH(getTokenControl());
-			getTokenControl().setTokenHandler(ignoreth);
-		}
-
-		@Override
-		public void leftSquareBracket(int index) {
-			squareBracketDepth++;
-			// If we reach here expecting hexColor or unicodeRange, we are in error
-			if (hexColor || unicodeRange) {
-				unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
-			} else if (!parseError) {
-				if (propertyName != null) {
-					processBuffer(index);
-					newLexicalUnit(LexicalType.LEFT_BRACKET);
-					prevcp = 32;
-				} else {
-					unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
-				}
-			}
-		}
-
-		/**
-		 * Create a non-function (nor expression) lexical unit, add it as the current
-		 * value.
-		 * 
-		 * @param unitType the unit type. Cannot be a function or expression.
-		 * @return the lexical unit that should be processed as the current unit,
-		 *         generally the newly created value.
-		 */
-		private LexicalUnitImpl newLexicalUnit(LexicalType unitType) {
-			LexicalUnitImpl lu;
-			if (functionToken) {
-				if (currentlu.getLexicalUnitType() == LexicalType.URI) {
-					// Special case
-					return currentlu;
-				} else {
-					lu = new LexicalUnitImpl(unitType);
-					currentlu.addFunctionParameter(lu);
-				}
-			} else {
-				lu = new LexicalUnitImpl(unitType);
-				if (currentlu != null) {
-					currentlu.nextLexicalUnit = lu;
-					lu.previousLexicalUnit = currentlu;
-				}
-				currentlu = lu;
-				if (lunit == null) {
-					lunit = lu;
-				}
-			}
-			return lu;
-		}
-
-		/**
-		 * Add a non-function (nor expression) lexical unit as the current value.
-		 * 
-		 * @param lu the lexical unit to add.
-		 * @return the lexical unit that should be processed as the current unit.
-		 */
-		private LexicalUnitImpl addPlainLexicalUnit(LexicalUnitImpl lu) {
-			if (functionToken) {
-				if (currentlu.getLexicalUnitType() == LexicalType.URI) {
-					// Special case
-					return currentlu;
-				} else {
-					currentlu.addFunctionParameter(lu);
-				}
-			} else {
-				if (currentlu != null) {
-					currentlu.nextLexicalUnit = lu;
-					lu.previousLexicalUnit = currentlu;
-				}
-				currentlu = lu;
-				if (lunit == null) {
-					lunit = lu;
-				}
-			}
-			return lu;
-		}
-
-		private LexicalUnitImpl newFunctionOrExpressionUnit(LexicalUnitImpl lu) {
-			if (functionToken) {
-				currentlu.addFunctionParameter(lu);
-				currentlu = lu;
-			} else {
-				if (currentlu != null) {
-					currentlu.nextLexicalUnit = lu;
-					lu.previousLexicalUnit = currentlu;
-				}
-				currentlu = lu;
-				if (lunit == null) {
-					lunit = lu;
-				}
-			}
-			return lu;
-		}
-
-		private SyntaxUnitImpl newSyntaxUnit() {
-			assert functionToken;
-
-			SyntaxUnitImpl lu = new SyntaxUnitImpl();
-			currentlu.addFunctionParameter(lu);
-			return lu;
-		}
-
-		@Override
-		public void rightParenthesis(int index) {
-			processBuffer(index);
-			decrParenDepth(index);
-			if (functionToken) {
-				checkFunction(index);
-				if (currentlu.ownerLexicalUnit != null) {
-					currentlu = currentlu.ownerLexicalUnit;
-				} else {
-					functionToken = false;
-				}
-			}
-			prevcp = TokenProducer.CHAR_RIGHT_PAREN;
-		}
-
-		private void checkFunction(int index) {
-			LexicalType type = currentlu.getLexicalUnitType();
-			// We allow empty functions only for URI, ELEMENT_REFERENCE and FUNCTION
-			if (currentlu.parameters == null) {
-				switch (type) {
-				case URI:
-				if (!currentlu.isParameter() && parendepth != 0) {
-					unexpectedCharError(index, ')');
-				}
-				break;
-				case FUNCTION:
-					break;
-				case ELEMENT_REFERENCE:
-					if (currentlu.value != null) {
-						break;
-					}
-				default:
-					unexpectedCharError(index, ')');
-				}
-				return;
-			}
-
-			LexicalUnitFactory factory = functionFactories.getFactory(currentlu.getFunctionName());
-
-			if (factory == null || factory.validate(index, currentlu)) {
-				return;
-			}
-
-			// Report a generic error
-			String s;
-			try {
-				s = "Wrong value: " + currentlu.toString();
-			} catch (Exception e) {
-				s = "Wrong value.";
-			}
-			handleError(index, ParseHelper.ERR_WRONG_VALUE, s);
-		}
-
-		private boolean isVarOrLastParamIsOperand() {
-			if (currentlu.getLexicalUnitType() == LexicalType.VAR) {
-				return true;
-			}
-			LexicalType type = findLastValue(currentlu.parameters).getLexicalUnitType();
-			return type != LexicalType.OPERATOR_COMMA && !typeIsAlgebraicOperator(type);
-		}
-
-		private boolean lastParamIsAlgebraicOperator() {
-			LexicalType type = findLastValue(currentlu.parameters).getLexicalUnitType();
-			return typeIsAlgebraicOperator(type);
-		}
-
-		private boolean lastParamIsMultOrSlashOperator() {
-			LexicalType type = findLastValue(currentlu.parameters).getLexicalUnitType();
-			return type == LexicalType.OPERATOR_MULTIPLY || type == LexicalType.OPERATOR_SLASH;
-		}
-
-		@Override
-		public void rightCurlyBracket(int index) {
-			if (parendepth != 0 || squareBracketDepth != 0) {
-				parseError = true;
-				parendepth = 0;
-				squareBracketDepth = 0;
-			}
-			if (curlyBracketDepth == 1) {
-				endOfPropertyDeclaration(index);
-				handleRightCurlyBracket(index);
-			} else if (curlyBracketDepth == 2) {
-				int len = buffer.length();
-				if (len != 0) {
-					unexpectedTokenError(index - len, buffer);
-					buffer.setLength(0);
-				}
-			} else {
-				parseError = true;
-			}
-			curlyBracketDepth--;
-			prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
-		}
-
-		protected void handleRightCurlyBracket(int index) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '}'");
-		}
-
-		@Override
-		public void rightSquareBracket(int index) {
-			squareBracketDepth--;
-			if (!parseError) {
-				if (propertyName != null) {
-					processBuffer(index);
-					newLexicalUnit(LexicalType.RIGHT_BRACKET);
-				} else {
-					unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
-				}
-				prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
-			}
-		}
-
-		@Override
-		public void character(int index, int codepoint) {
-			// ! 33
-			// # 35
-			// % 37
-			// + 43
-			// , 44
-			// . 46
-			// / 47
-			// : 58
-			// ; 59
-			// < 60
-			// = 61
-			// > 62
-			// @ 64
-			if (functionToken && currentlu.getLexicalUnitType() == LexicalType.URI) {
-				bufferAppend(codepoint);
-			} else if (codepoint == TokenProducer.CHAR_SEMICOLON) {
-				handleSemicolon(index);
-			} else if (!parseError) {
-				if (propertyName == null) {
-					if (codepoint == TokenProducer.CHAR_HYPHEN_MINUS) { // -
-						// TokenProducer is supposed to send only isolated '-'
-						buffer.append('-');
-						codepoint = 65;
-					} else if (codepoint == TokenProducer.CHAR_LOW_LINE) { // _
-						// TokenProducer is supposed to send only isolated '_'
-						buffer.append('_');
-						codepoint = 65;
-					} else if (codepoint == TokenProducer.CHAR_COLON) { // :
-						// Here we should have the property name in buffer
-						if (buffer.length() != 0) {
-							setPropertyName(index);
-							codepoint = 32;
-						} else {
-							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ':'");
-						}
-					} else if (codepoint == TokenProducer.CHAR_COMMERCIAL_AT) {
-						handleAtKeyword(index);
-					} else {
-						badPropertyName(index, codepoint);
-						return;
-					}
-				} else if (readPriority) {
-					processBuffer(index);
-					String compatText;
-					// !
-					if (codepoint == TokenProducer.CHAR_EXCLAMATION && priorityImportant
-							&& parserFlags.contains(Flag.IEPRIOCHAR) && (compatText = setFullIdentCompat()) != null) {
-						warnIdentCompat(index, compatText);
-						lunit.setUnitType(LexicalType.COMPAT_PRIO);
-						lunit.setCssUnit(CSSUnit.CSS_INVALID);
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
-				} else if (codepoint == 44) { // ,
-					if (!functionToken || currentlu.parameters == null || !addToIdentCompat()) {
-						processBuffer(index);
-					}
-					newLexicalUnit(LexicalType.OPERATOR_COMMA);
-				} else if (codepoint == TokenProducer.CHAR_EXCLAMATION) { // !
-					if (!functionToken) {
-						processBuffer(index);
-						readPriority = true;
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
-				} else if (!hexColor) {
-					if (codepoint == 45) { // -
-						if (!unicodeRange && prevcp != 65) {
-							processBuffer(index);
-						}
-						buffer.append('-');
-						codepoint = 65;
-					} else if (!unicodeRange) {
-						if (codepoint == 95) { // _
-							buffer.append('_');
-							codepoint = 65;
-						} else if (codepoint == 46) { // .
-							handleFullStop(index);
-						} else if (codepoint == 37) { // %
-							if (prevcp == 65 && isDigit(buffer.charAt(buffer.length() - 1))) {
-								buffer.append('%');
-							} else {
-								processBuffer(index);
-								newLexicalUnit(LexicalType.OPERATOR_MOD);
-							}
-						} else if (codepoint == 35) { // #
-							if (buffer.length() != 0) {
-								if (functionToken
-										&& currentlu.getLexicalUnitType() != LexicalType.ELEMENT_REFERENCE) {
-									buffer.append('#');
-								} else {
-									unexpectedCharError(index, codepoint);
-								}
-							} else if (currentlu == null
-									|| currentlu.getLexicalUnitType() != LexicalType.ELEMENT_REFERENCE) {
-								hexColor = true;
-							} else if (currentlu.value == null) {
-								buffer.append('#');
-							} else {
-								unexpectedCharError(index, codepoint);
-							}
-						} else if (codepoint == 58) { // :
-							// Progid hack ?
-							handleColon(index);
-						} else if (codepoint == 43) { // +
-							// Are we in a unicode range ?
-							char c;
-							if (buffer.length() == 1 && ((c = buffer.charAt(0)) == 'U' || c == 'u')) {
-								buffer.setLength(0);
-								unicodeRange = true;
-							} else if (buffer.length() == 0
-									|| (c = buffer.charAt(buffer.length() - 1)) != 'E'
-											&& c != 'e') {
-								// No scientific notation
-								if (functionToken) {
-									processBuffer(index);
-									boolean prevCpWS = isPrevCpWhitespace();
-									if (((prevCpWS
-											&& currentlu.getLexicalUnitType() == LexicalType.CALC)
-											|| flagIEValues) && currentlu.parameters != null
-											&& !lastParamIsAlgebraicOperator()) {
-										// We are either in calc() plus operator context
-										// or in IE compatibility
-										newLexicalUnit(LexicalType.OPERATOR_PLUS);
-									} else if (prevCpWS || currentlu.parameters == null
-											|| lastParamIsMultOrSlashOperator()) {
-										// We are in sign context
-										buffer.append('+');
-										codepoint = 65;
-									} else {
-										unexpectedCharError(index, codepoint);
-									}
-								} else if (isPrevCpWhitespace()) {
-									buffer.append('+');
-									codepoint = 65;
-								} else if (isCustomProperty()) {
-									processBuffer(index);
-									newCustomPropertyOperator(index, codepoint,
-											LexicalType.OPERATOR_PLUS);
-								} else {
-									unexpectedCharError(index, codepoint);
-								}
-							} else {
-								buffer.append('+');
-								codepoint = 65;
-							}
-						} else if (codepoint == 47) { // '/'
-							processBuffer(index);
-							if (!functionToken || (currentlu.parameters != null
-									&& (isVarOrLastParamIsOperand() || currentlu
-											.getLexicalUnitType() == LexicalType.ATTR))) {
-								newLexicalUnit(LexicalType.OPERATOR_SLASH);
-							} else {
-								unexpectedCharError(index, codepoint);
-							}
-						} else if (functionToken) {
-							if (codepoint == TokenProducer.CHAR_ASTERISK) { // '*'
-								processBuffer(index);
-								if (currentlu.parameters != null && isVarOrLastParamIsOperand()) {
-									newLexicalUnit(LexicalType.OPERATOR_MULTIPLY);
-								} else {
-									unexpectedCharError(index, codepoint);
-								}
-							} else if (currentlu.getLexicalUnitType() == LexicalType.TYPE_FUNCTION) {
-								if (codepoint == TokenProducer.CHAR_LESS_THAN
-										|| codepoint == TokenProducer.CHAR_GREATER_THAN) {
-									bufferAppend(codepoint);
-								} else {
-									unexpectedCharError(index, codepoint);
-								}
-							} else if (codepoint == 61 && handleEqualsSignInsideFunction(index)) {
-								codepoint = 65;
-							} else {
-								unexpectedCharError(index, codepoint);
-							}
-						} else if (isCustomProperty()) {
-							if (codepoint == TokenProducer.CHAR_ASTERISK) { // '*'
-								processBuffer(index);
-								newCustomPropertyOperator(index, codepoint, LexicalType.OPERATOR_MULTIPLY);
-							} else {
-								unexpectedCharError(index, codepoint);
-							}
-						} else if (codepoint != TokenProducer.CHAR_COMMERCIAL_AT
-								&& codepoint != TokenProducer.CHAR_QUESTION_MARK
-								&& codepoint != TokenProducer.CHAR_ASTERISK) {
-							bufferAppend(codepoint);
-						} else {
-							unexpectedCharError(index, codepoint);
-						}
-					} else if (codepoint == TokenProducer.CHAR_QUESTION_MARK && buffer.length() < 6) {
-						bufferAppend(codepoint);
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
-				} else {
-					unexpectedCharError(index, codepoint);
-				}
-			}
-			prevcp = codepoint;
-		}
-
-		private void setPropertyName(int index) {
-			String raw = buffer.toString();
-			if (escapedTokenIndex == -1) {
-				if (isNotForbiddenIdentStart(raw)
-						|| (raw.charAt(0) == '*' && CSSParser.this.parserFlags.contains(Flag.STARHACK))) {
-					propertyName = raw;
-					buffer.setLength(0);
-					return;
-				}
-			} else if (isNotForbiddenIdentStart(raw)) {
-				propertyName = unescapeBuffer(index);
-				if (!parseError && !isValidIdentifier(propertyName)) {
-					handleWarning(index - buffer.length(), ParseHelper.WARN_PROPERTY_NAME,
-							"Suspicious property name: " + raw);
-				}
-				return;
-			}
-			handleError(index - buffer.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
-					"Invalid property name: '" + raw + '\'');
-		}
-
-		private void newCustomPropertyOperator(int index, int codepoint, LexicalType operator) {
-			if (currentlu == null) {
-				newLexicalUnit(operator);
-				return;
-			} else {
-				// This method is not being called if we are in calc()
-				assert currentlu.parameters == null;
-
-				LexicalType type;
-				if (!typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
-						&& type != LexicalType.OPERATOR_COMMA) {
-					newLexicalUnit(operator);
-					return;
-				}
-			}
-			unexpectedCharError(index, codepoint);
-		}
-
-		private boolean handleEqualsSignInsideFunction(int index) {
-			/*
-			 * IE Hacks: progid / expression hack: check whether this is 'filter' property, or
-			 * we are in 'expression' hack.
-			 * Note: propertyName has already been checked as not-null here.
-			 */
-			if (flagIEValues && (this.propertyName.length() == 0 || this.propertyName.endsWith("filter")
-					|| "expression".equalsIgnoreCase(currentlu.getFunctionName()))) {
-				if (prevcp == 65 || isPrevCpWhitespace() || prevcp == TokenProducer.CHAR_RIGHT_SQ_BRACKET) {
-					// Could be a MS gradient or expression
-					LexicalUnitImpl lu;
-					int buflen = buffer.length();
-					if (buflen != 0) {
-						if (escapedTokenIndex == -1) {
-							buffer.append('=');
-							String s = buffer.toString();
-							newLexicalUnit(LexicalType.COMPAT_IDENT).value = s;
-							buffer.setLength(0);
-							hexColor = false;
-							warnIdentCompat(index - buflen, s);
-							return true;
-						}
-					} else if ((lu = currentlu.parameters) != null) {
-						// We are in functional context, find last argument
-						lu = findLastValue(lu);
-						// Add '=' to the last parameter if ident, or to buffer if not empty
-						LexicalType lutype = lu.getLexicalUnitType();
-						if (lutype == LexicalType.IDENT) {
-							lu.setUnitType(LexicalType.COMPAT_IDENT);
-							String s = lu.getStringValue();
-							lu.value += '=';
-							warnIdentCompat(index - s.length(), s);
-							return true;
-						} else if (lutype == LexicalType.COMPAT_IDENT) {
-							lu.value += '=';
-							return true;
-						} else if (lutype == LexicalType.RIGHT_BRACKET) {
-							newLexicalUnit(LexicalType.COMPAT_IDENT).value = "=";
-							warnIdentCompat(index, "=");
-							return true;
-						}
-					}
-				}
-			}
-			return false;
-		}
-
-		private boolean isCustomProperty() {
-			return propertyName.startsWith("--");
-		}
-
-		/**
-		 * If the latest processed value was a <code>COMPAT_IDENT</code>, add the contents of
-		 * the current buffer -if any- to it.
-		 * 
-		 * @return <code>true</code> if the latest processed value was a <code>COMPAT_IDENT</code> and the
-		 *         buffer was either empty or contained no escaped content.
-		 */
-		private boolean addToIdentCompat() {
-			if (escapedTokenIndex == -1) {
-				// We are in functional context, find last argument
-				LexicalUnitImpl lu = findLastValue(currentlu.parameters);
-				// Add buffer to the last parameter if ident
-				LexicalType lutype = lu.getLexicalUnitType();
-				if (lutype == LexicalType.COMPAT_IDENT) {
-					if (hexColor) {
-						lu.value += '#';
-						hexColor = false;
-					}
-					if (buffer.length() != 0) {
-						lu.value += buffer;
-						buffer.setLength(0);
-					}
-					prevcp = 65;
-					return true;
-				}
-			}
-			return false;
-		}
-
-		private boolean checkLastIdentCompat() {
-			LexicalUnitImpl lu = currentlu.parameters;
-			if (lu != null) {
-				lu = findLastValue(lu);
-				// Add buffer to the last parameter if compat ident
-				if (lu.getLexicalUnitType() == LexicalType.COMPAT_IDENT) {
-					if (hexColor) {
-						lu.value += '#';
-						hexColor = false;
-					}
-					lu.value += buffer;
-					buffer.setLength(0);
-					return true;
-				}
-			}
-			return false;
-		}
-
-		private void handleFullStop(int index) {
-			if (prevcp == 65) {
-				buffer.append('.');
-			} else if (buffer.length() == 0) {
-				LexicalUnitImpl lastValue;
-				if (prevcp == 45 && functionToken && escapedTokenIndex == -1
-						&& this.currentlu.parameters != null && (lastValue = findLastValue(currentlu.parameters))
-								.getLexicalUnitType() == LexicalType.OPERATOR_MINUS) {
-					LexicalUnitImpl prev = lastValue.previousLexicalUnit;
-					if (prev != null) {
-						prev.nextLexicalUnit = null;
-					} else {
-						currentlu.parameters = null;
-					}
-					buffer.append('-');
-				}
-				buffer.append('0').append('.');
-			} else {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '.'");
-			}
-		}
-
-		private void handleColon(int index) {
-			int buflen = buffer.length();
-			if (buflen != 0) {
-				if (buflen != 6 || !flagIEValues || !ParseHelper.equalsIgnoreCase(buffer, "progid")) {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ':'");
-				} else {
-					buffer.append(':');
-					handleWarning(index, ParseHelper.WARN_PROGID_HACK, "Progid hack applied");
-				}
-			}
-		}
-
-		protected void handleAtKeyword(int index) {
-			unexpectedCharError(index, 64);
-		}
-
-		private void handleSemicolon(int index) {
-			if (isDeclarationContext() && squareBracketDepth == 0) {
-				if (parendepth == 0) {
-					endOfPropertyDeclaration(index);
-					return;
-				} else if (parendepth == 1 && functionToken && allowSemicolonArgument()) {
-					processBuffer(index);
-					newLexicalUnit(LexicalType.OPERATOR_SEMICOLON);
-					return;
-				}
-			}
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ';'");
-		}
-
-		protected boolean isDeclarationContext() {
-			return curlyBracketDepth == 1;
-		}
-
-		protected void badPropertyName(int index, int codepoint) {
-			if (buffer.length() == 0 && codepoint == TokenProducer.CHAR_ASTERISK
-					&& parserFlags.contains(Flag.STARHACK)) {
-				// IE asterisk hack
-				if (errorHandler != null) {
-					errorHandler.warning(createException(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-							"Unexpected character: * (IE hack)"));
-				}
-				buffer.append('*');
-			} else {
-				unexpectedCharError(index, codepoint);
-			}
-		}
-
-		protected void endOfPropertyDeclaration(int index) {
-			if (propertyName != null) {
-				processBuffer(index);
-				if (!parseError) {
-					if (!isCustomProperty()) {
-						if (lunit != null) {
-							handleProperty(index, propertyName, lunit, priorityImportant);
-						} else {
-							handleError(index, ParseHelper.ERR_EXPR_SYNTAX,
-									"Found property name (" + propertyName + ") but no value");
-						}
-					} else {
-						if (lunit == null) {
-							lunit = new LexicalUnitImpl(LexicalType.EMPTY);
-							lunit.value = "";
-						}
-						handleLexicalProperty(index, propertyName, lunit, priorityImportant);
-					}
-				}
-				propertyName = null;
-			} else if (buffer.length() != 0) {
-				unexpectedTokenError(index, buffer);
-			}
-			// Reset other state fields
-			resetHandler();
-		}
-
-		protected void handleProperty(int index, String propertyName, LexicalUnitImpl lunit,
-				boolean priorityImportant) {
-			setCurrentLocation(index);
-			handler.property(propertyName, lunit, priorityImportant);
-		}
-
-		void handleLexicalProperty(int index, String propertyName, LexicalUnitImpl lunit,
-				boolean priorityImportant) {
-			setCurrentLocation(index);
-			handler.lexicalProperty(propertyName, lunit, priorityImportant);
-		}
-
-		@Override
-		void resetHandler() {
-			super.resetHandler();
-			lunit = null;
-			currentlu = null;
-			priorityImportant = false;
-			readPriority = false;
-			functionToken = false;
-			hexColor = false;
-			unicodeRange = false;
-			buffer.setLength(0);
-		}
-
-		protected void processBuffer(int index) {
-			if (parseError) {
-				buffer.setLength(0);
-				return;
-			}
-			int buflen = buffer.length();
-			if (buflen != 0) {
-				if (this.propertyName == null) {
-					// Set the property name
-					setPropertyName(index);
-				} else if (readPriority) {
-					String prio = unescapeBuffer(index);
-					if ("important".equalsIgnoreCase(prio)) {
-						priorityImportant = true;
-					} else {
-						checkIEPrioHack(index - buflen, prio);
-					}
-				} else if (functionToken) {
-					switch (currentlu.getLexicalUnitType()) {
-					case URI:
-						// uri
-						if (currentlu.value == null) {
-							currentlu.value = rawBuffer();
-						} else {
-							handleError(index, ParseHelper.ERR_WRONG_VALUE,
-								"Unexpected token in url: '" + rawBuffer() + '\'');
-						}
-						break;
-					case ELEMENT_REFERENCE:
-						String s = unescapeStringValue(index);
-						if (s.length() > 1 && s.charAt(0) == '#') {
-							currentlu.value = s.substring(1);
-						} else {
-							handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE, "Wrong element reference: " + s);
-							functionToken = false;
-						}
-						buffer.setLength(0);
-						break;
-					case TYPE_FUNCTION:
-						String syn = unescapeStringValue(index);
-						buffer.setLength(0);
-						SyntaxUnitImpl synLU = newSyntaxUnit();
-						try {
-							synLU.syntax = new SyntaxParser().parseSyntax(syn);
-						} catch (CSSException e) {
-							handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE,
-									"Invalid syntax: " + syn);
-						}
-						break;
-					default:
-						if (escapedTokenIndex != -1 || !checkLastIdentCompat()) {
-							if (!hexColor) {
-								parseNonHexcolorValue(index);
-							} else {
-								if (!parseHexColor(buflen)) {
-									handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE,
-											"Wrong color value #" + buffer);
-								}
-								buffer.setLength(0);
-								hexColor = false;
-							}
-						}
-					}
-				} else if (hexColor) {
-					if (!parseHexColor(buflen)) {
-						handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE, "Wrong color value #" + buffer);
-					}
-					buffer.setLength(0);
-					hexColor = false;
-				} else if (unicodeRange) {
-					parseUnicodeRange(index, buflen);
-				} else {
-					parseNonHexcolorValue(index);
-				}
-			} else if (hexColor) {
-				handleError(index, ParseHelper.ERR_WRONG_VALUE, "Empty hex color value");
-			} else if (unicodeRange) {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Bad unicode range");
-			}
-		}
-
-		/**
-		 * Parse a value that is not an hex color.
-		 * 
-		 * @param index the parsing index.
-		 */
-		private void parseNonHexcolorValue(int index) {
-			// Unescape and check for unit
-			String raw = buffer.toString();
-			int buflen = raw.length();
-			String cssText;
-			String str;
-
-			if (escapedTokenIndex != -1) {
-				// We are in escaped context
-				int escsz = index - escapedTokenIndex;
-				int nonescLen = buflen - escsz;
-				if (nonescLen <= 0) {
-					try {
-						str = unescapeIdentifier(index, raw);
-						cssText = ParseHelper.safeEscape(str, true, true);
-					} catch (DOMNullCharacterException e) {
-						// NULL characters are valid, but if we find them with IEVALUES set...
-						if (flagIEValues) {
-							setIdentCompat(index - buflen, raw);
-							escapedTokenIndex = -1;
-							buffer.setLength(0);
-							return;
-						} else {
-							str = safeUnescapeIdentifier(index, raw);
-							cssText = safeNullEscape(raw);
-						}
-					}
-				} else {
-					CharSequence rawPart = buffer.subSequence(0, nonescLen);
-					cssText = buffer.substring(nonescLen);
-					try {
-						str = unescapeIdentifier(index, cssText);
-						cssText = ParseHelper.safeEscape(str, true, true);
-					} catch (DOMNullCharacterException e) {
-						if (flagIEValues) {
-							setIdentCompat(index - buflen, raw);
-							escapedTokenIndex = -1;
-							buffer.setLength(0);
-							return;
-						} else {
-							str = safeUnescapeIdentifier(index, cssText);
-							cssText = safeNullEscape(cssText);
-						}
-					}
-					str = rawPart + str;
-					rawPart = ParseHelper.escapeAllBackslash(rawPart);
-					cssText = ParseHelper.escapeCssCharsAndFirstChar(rawPart) + cssText;
-				}
-				escapedTokenIndex = -1;
-				if (!createIdentifierOrKeyword(index, raw, str, cssText)) {
-					checkForIEValue(index, raw);
-				}
-			} else {
-				str = buffer.toString();
-				cssText = ParseHelper.escapeCssCharsAndFirstChar(raw).toString();
-				createIdentifierOrNumberOrKeyword(index, raw, str, cssText);
-			}
-			buffer.setLength(0);
-		}
-
-		private void createIdentifierOrNumberOrKeyword(int index, String raw, String ident,
-			String cssText) {
-			// Unless the first character is whitespace, try parsing a numeric value
-			int cp = ident.codePointAt(0);
-			if (cp != 32) {
-				int len = ident.length();
-				int i = len - 1;
-				for (; i >= 0; i--) {
-					cp = ident.codePointAt(i);
-					if (!Character.isLetter(cp) && cp != 37) { // Not letter nor %
-						// Either not ending in [0-9] range or not parsable as a number
-						if ((cp < 48 || cp > 57 || !parseNumber(index, ident, i + 1))
-								&& !newIdentifier(raw, ident, cssText)) {
-							// Check for a single '+' or '-'
-							if (raw.length() == 1) {
-								char c = raw.charAt(0);
-								if (c == '+') {
-									newOperator(index, '+', LexicalType.OPERATOR_PLUS);
-									return;
-								} else if (c == '-') {
-									newOperator(index, '-', LexicalType.OPERATOR_MINUS);
-									return;
-								}
-							} else {
-								checkForIEValue(index, raw);
-							}
-						}
-						break;
-					}
-				}
-				if (i != -1) {
-					// We are done
-					return;
-				}
-			}
-
-			if (!createIdentifierOrKeyword(index, raw, ident, cssText)) {
-				handleError(index - raw.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
-					"Invalid identifier: " + raw);
-			}
-		}
-
-		private boolean parseNumber(int index, String s, int i) {
-			String unit = null;
-			LexicalUnitImpl lu;
-			if (i != s.length()) {
-				// Parse number
-				String strnum = s.substring(0, i);
-				float flval;
-				try {
-					flval = Float.parseFloat(strnum);
-				} catch (NumberFormatException e) {
-					return false;
-				}
-
-				// Unit
-				unit = s.substring(i);
-				unit = unit.trim().toLowerCase(Locale.ROOT);
-				short cssUnit = UnitStringToId.unitFromString(unit);
-				final LexicalType unitType;
-				if (cssUnit == CSSUnit.CSS_PERCENTAGE) {
-					unitType = LexicalType.PERCENTAGE;
-				} else {
-					unitType = LexicalType.DIMENSION;
-				}
-
-				// Create a new dimension/percentage lexical unit
-				lu = newLexicalUnit(unitType);
-				lu.floatValue = flval;
-				lu.dimensionUnitText = unit;
-				lu.setCssUnit(cssUnit);
-			} else { // No unit
-				if (s.lastIndexOf('.', i) == -1) {
-					int intval;
-					try {
-						intval = Integer.parseInt(s);
-					} catch (NumberFormatException e) {
-						// Maybe it is exponent syntax ("1E2")
-						float flval;
-						try {
-							flval = Float.parseFloat(s);
-						} catch (NumberFormatException e1) {
-							return false;
-						}
-						lu = newNumberUnit(LexicalType.REAL);
-						lu.floatValue = flval;
-						return true;
-					}
-					lu = newNumberUnit(LexicalType.INTEGER);
-					lu.intValue = intval;
-				} else {
-					float flval;
-					try {
-						flval = Float.parseFloat(s);
-					} catch (NumberFormatException e) {
-						return false;
-					}
-					if (flval == 0f) {
-						lu = newNumberUnit(LexicalType.INTEGER);
-						lu.intValue = (int) flval;
-					} else {
-						lu = newNumberUnit(LexicalType.REAL);
-						lu.floatValue = flval;
-					}
-				}
-			}
-			return true;
-		}
-
-		private void newOperator(int index, int codePoint, LexicalType operator) {
-			LexicalType type;
-			if (this.currentlu == null) {
-				if (isCustomProperty()) {
-					newLexicalUnit(operator);
-					return;
-				}
-			} else if (currentlu.parameters != null) {
-				if (isVarOrLastParamIsOperand()) {
-					newLexicalUnit(operator);
-					return;
-				}
-			} else if (isCustomProperty() && !typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
-					&& type != LexicalType.OPERATOR_COMMA) {
-				newLexicalUnit(operator);
-				return;
-			}
-			unexpectedCharError(index, codePoint);
-		}
-
-		private boolean createIdentifierOrKeyword(int index, String raw, String ident,
-			String cssText) {
-			if (ident.equalsIgnoreCase("inherit")) {
-				newLexicalUnit(LexicalType.INHERIT);
-			} else if (ident.equalsIgnoreCase("initial")) {
-				newLexicalUnit(LexicalType.INITIAL);
-			} else if (ident.equalsIgnoreCase("unset")) {
-				newLexicalUnit(LexicalType.UNSET);
-			} else if (ident.equalsIgnoreCase("revert")) {
-				newLexicalUnit(LexicalType.REVERT);
-			} else {
-				return newIdentifier(raw, ident, cssText);
-			}
-			return true;
-		}
-
-		private boolean newIdentifier(String raw, String ident, String cssText) {
-			if (isNotForbiddenIdentStart(raw)) {
-				if (propertyDatabase != null) {
-					String lcident = ident.toLowerCase(Locale.ROOT);
-					if (lcident != ident) {
-						if (propertyDatabase.isShorthand(propertyName)) {
-							// Only if no Custom Ident was previously found.
-							if (!isPreviousValueCustomIdent()) {
-								String[] longhands = propertyDatabase
-									.getLonghandProperties(propertyName);
-								for (String longhand : longhands) {
-									if (isIdentifierValueOf(longhand, lcident)) {
-										ident = lcident;
-									}
-								}
-							}
-						} else if (isIdentifierValueOf(propertyName, lcident)) {
-							ident = lcident;
-						}
-					}
-				}
-				LexicalUnitImpl lu = newLexicalUnit(LexicalType.IDENT);
-				lu.value = ident;
-				lu.identCssText = cssText;
-				return true;
-			}
-			return false;
-		}
-
-		private boolean isIdentifierValueOf(String propertyName, String lcident) {
-			return propertyDatabase.isIdentifierValue(propertyName, lcident)
-				|| "none".equals(lcident);
-		}
-
-		private boolean isPreviousValueCustomIdent() {
-			String s;
-			return currentlu != null && currentlu.getLexicalUnitType() == LexicalType.IDENT
-				&& (s = currentlu.getStringValue()) != s.toLowerCase(Locale.ROOT);
-		}
-
-		private String safeNullEscape(String raw) {
-			CharSequence seq = ParseHelper.escapeCssChars(ParseHelper.escapeBackslash(raw));
-			// Add a whitespace to \0 if there isn't
-			String cssText;
-			int seqlen = seq.length();
-			if (seq.charAt(seqlen - 1) == '0') {
-				StringBuilder sb = new StringBuilder(seqlen + 1);
-				sb.append(seq).append(' ');
-				cssText = sb.toString();
-			} else {
-				cssText = seq.toString();
-			}
-			return cssText;
-		}
-
-		private void checkForIEValue(int index, String raw) {
-			int rawlen = raw.length();
-			if (!flagIEValues || rawlen <= 2 || raw.charAt(rawlen - 2) != '\\'
-				|| !isIEHackSuffix(raw.codePointAt(rawlen - 1))
-				|| !setIdentCompat(index - rawlen, raw)) {
-				handleError(index - rawlen, ParseHelper.ERR_INVALID_IDENTIFIER,
-					"Invalid identifier: " + raw);
-			}
-		}
-
-		private boolean isIEHackSuffix(int codepoint) {
-			return codepoint == '9' || codepoint == '0';
-		}
-
-		private void checkIEPrioHack(int index, String prio) {
-			String compatText;
-			buffer.append('!').append(prio);
-			if (parserFlags.contains(Flag.IEPRIO) && "ie".equals(prio)
-				&& (compatText = setFullIdentCompat()) != null) {
-				warnIdentCompat(index, compatText);
-			} else {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid priority: " + prio);
-			}
-		}
-
-		/**
-		 * Attempts to set a compat identifier as the current working value.
-		 * 
-		 * @param index     the index at which the value was found.
-		 * @param lastvalue the contents of the buffer.
-		 * @return <code>true</code> if the compat ident unit was set,
-		 *         <code>false</code> if an error was encountered in the process and the
-		 *         unit was not set. An error must be flagged in that case.
-		 */
-		private boolean setIdentCompat(int index, String lastvalue) {
-			if (currentlu != null) {
-				String prev;
-				try {
-					prev = currentlu.toString();
-				} catch (RuntimeException e) {
-					lunit.reset();
-					return false;
-				}
-				currentlu.reset();
-				LexicalUnitImpl lu = new LexicalUnitImpl(LexicalType.COMPAT_IDENT);
-				lu.value = prev + ' ' + lastvalue;
-				if (currentlu == lunit) {
-					lunit = lu;
-				} else {
-					currentlu.replaceBy(lu);
-				}
-				currentlu = lu;
-			} else {
-				newLexicalUnit(LexicalType.COMPAT_IDENT).value = lastvalue;
-			}
-			warnIdentCompat(index, lastvalue);
-			return true;
-		}
-
-		/**
-		 * Attempts to set a compat identifier as the root working value.
-		 * 
-		 * @return the compat ident string, or null if an error was encountered when
-		 *         setting it. An error must be flagged in that case.
-		 */
-		private String setFullIdentCompat() {
-			String newval;
-			if (!hexColor) {
-				newval = rawBuffer();
-			} else {
-				hexColor = false;
-				newval = '#' + rawBuffer();
-			}
-			if (lunit != null) {
-				try {
-					newval = lunit.toString() + newval;
-				} catch (RuntimeException e) {
-					return null;
-				} finally {
-					lunit.reset();
-				}
-				lunit = new LexicalUnitImpl(LexicalType.COMPAT_IDENT);
-				lunit.value = newval;
-			} else {
-				newLexicalUnit(LexicalType.COMPAT_IDENT).value = newval;
-			}
-			return newval;
-		}
-
-		private void warnIdentCompat(int index, String ident) {
-			handleWarning(index, ParseHelper.WARN_IDENT_COMPAT, "Found compat ident: " + ident);
-		}
-
-		private void parseUnicodeRange(int index, int buflen) {
-			LexicalUnitImpl lu1;
-			LexicalUnitImpl lu2 = null;
-			String s = rawBuffer();
-			int idx = s.indexOf('-');
-			if (idx == -1) {
-				byte check = rangeLengthCheck(s);
-				if (check == 1) {
-					lu1 = new LexicalUnitImpl(LexicalType.INTEGER);
-					lu1.intValue = Integer.parseInt(s, 16);
-				} else if (check == 2) {
-					lu1 = new UnicodeWildcardUnitImpl();
-					lu1.value = s;
-				} else {
-					handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
-					return;
-				}
-			} else if (idx > 0 && idx < s.length() - 1) {
-				String range1 = s.substring(0, idx);
-				String range2 = s.substring(idx + 1);
-				byte check = rangeLengthCheck(range1);
-				if (check == 1) {
-					lu1 = new LexicalUnitImpl(LexicalType.INTEGER);
-					lu1.intValue = Integer.parseInt(range1, 16);
-				} else {
-					handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
-					return;
-				}
-				check = rangeLengthCheck(range2);
-				if (check == 1) {
-					lu2 = new LexicalUnitImpl(LexicalType.INTEGER);
-					lu2.intValue = Integer.parseInt(range2, 16);
-				} else {
-					handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
-					return;
-				}
-			} else {
-				handleError(index - buflen, ParseHelper.ERR_UNEXPECTED_TOKEN, "Invalid unicode range: " + s);
-				return;
-			}
-			LexicalUnitImpl range = addPlainLexicalUnit(new UnicodeRangeUnitImpl());
-			range.addFunctionParameter(lu1);
-			if (lu2 != null) {
-				range.addFunctionParameter(lu2);
-			}
-			unicodeRange = false;
-		}
-
-		private byte rangeLengthCheck(String range) {
-			byte wildcardCount = 0;
-			int len = range.length();
-			if (len < 7) {
-				for (int i = 0; i < len; i++) {
-					if (range.charAt(i) == '?') {
-						wildcardCount++;
-					} else if (wildcardCount != 0) {
-						return 0;
-					}
-				}
-				if (wildcardCount == 0) {
-					return (byte) 1;
-				}
-				if (wildcardCount != 6) {
-					return (byte) 2;
-				}
-			}
-			return 0;
-		}
-
-		private boolean parseHexColor(int buflen) {
-			try {
-				if (buflen == 3) {
-					newFunctionOrExpressionUnit(new RGBColorUnitImpl());
-					currentlu.value = "rgb";
-					boolean prevft = functionToken;
-					functionToken = true;
-					parseHexComponent(0, 1, true);
-					parseHexComponent(1, 2, true);
-					parseHexComponent(2, 3, true);
-					recoverOwnerUnit();
-					functionToken = prevft;
-				} else if (buflen == 6) {
-					newFunctionOrExpressionUnit(new RGBColorUnitImpl());
-					currentlu.value = "rgb";
-					boolean prevft = functionToken;
-					functionToken = true;
-					parseHexComponent(0, 2, false);
-					parseHexComponent(2, 4, false);
-					parseHexComponent(4, 6, false);
-					recoverOwnerUnit();
-					functionToken = prevft;
-				} else if (buflen == 8) {
-					newFunctionOrExpressionUnit(new RGBColorUnitImpl());
-					currentlu.value = "rgb";
-					boolean prevft = functionToken;
-					functionToken = true;
-					parseHexComponent(0, 2, false);
-					parseHexComponent(2, 4, false);
-					parseHexComponent(4, 6, false);
-					int comp = hexComponent(6, 8, false);
-					newLexicalUnit(LexicalType.OPERATOR_SLASH);
-					newNumberUnit(LexicalType.REAL).floatValue = comp / 255f;
-					recoverOwnerUnit();
-					functionToken = prevft;
-				} else if (buflen == 4) {
-					newFunctionOrExpressionUnit(new RGBColorUnitImpl());
-					currentlu.value = "rgb";
-					boolean prevft = functionToken;
-					functionToken = true;
-					parseHexComponent(0, 1, true);
-					parseHexComponent(1, 2, true);
-					parseHexComponent(2, 3, true);
-					int comp = hexComponent(3, 4, true);
-					newLexicalUnit(LexicalType.OPERATOR_SLASH);
-					newNumberUnit(LexicalType.REAL).floatValue = comp / 255f;
-					recoverOwnerUnit();
-					functionToken = prevft;
-				} else {
-					return false;
-				}
-			} catch (NumberFormatException e) {
-				return false;
-			}
-			return true;
-		}
-
-		private void parseHexComponent(int start, int end, boolean doubleDigit) {
-			int comp = hexComponent(start, end, doubleDigit);
-			newNumberUnit(LexicalType.INTEGER).intValue = comp;
-		}
-
-		private LexicalUnitImpl newNumberUnit(LexicalType sacType) {
-			LexicalUnitImpl lu = newLexicalUnit(sacType);
-			lu.setCssUnit(CSSUnit.CSS_NUMBER);
-			return lu;
-		}
-
-		private int hexComponent(int start, int end, boolean doubleDigit) {
-			String s;
-			if (doubleDigit) {
-				CharSequence seq = buffer.subSequence(start, end);
-				s = new StringBuilder(2).append(seq).append(seq).toString();
-			} else {
-				s = buffer.substring(start, end);
-			}
-			return Integer.parseInt(s, 16);
-		}
-
-		private void recoverOwnerUnit() {
-			currentlu.identCssText = "#" + buffer;
-			if (currentlu.ownerLexicalUnit != null) {
-				currentlu = currentlu.ownerLexicalUnit;
-			}
-		}
-
-		@Override
-		public void quoted(int index, CharSequence quoted, int quoteChar) {
-			if (!hexColor && !unicodeRange && !readPriority && propertyName != null) {
-				processBuffer(index);
-				if (!parseError) {
-					String s = quoted.toString();
-					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING);
-					if (lu.value != null) {
-						handleError(index, ParseHelper.ERR_WRONG_VALUE,
-							"Unexpected string: " + quoteChar + quoted + quoteChar);
-					}
-					lu.value = safeUnescapeIdentifier(index, s);
-					char c = (char) quoteChar;
-					StringBuilder buf = new StringBuilder(s.length() + 2);
-					buf.append(c).append(s).append(c);
-					lu.identCssText = buf.toString();
-					prevcp = 65;
-				}
-			} else {
-				char c = (char) quoteChar;
-				StringBuilder buf = new StringBuilder(quoted.length() + 2);
-				buf.append(c).append(quoted).append(c);
-				unexpectedTokenError(index, buf.toString());
-			}
-		}
-
-		@Override
-		public void quotedWithControl(int index, CharSequence quoted, int quoteChar) {
-			if (!hexColor && !unicodeRange && !readPriority && propertyName != null) {
-				processBuffer(index);
-				if (!parseError) {
-					String s = quoted.toString();
-					LexicalUnitImpl lu = newLexicalUnit(LexicalType.STRING);
-					if (lu.value != null) {
-						handleError(index, ParseHelper.ERR_WRONG_VALUE,
-							"Unexpected string: " + quoteChar + quoted + quoteChar);
-					}
-					lu.value = safeUnescapeIdentifier(index, s);
-					char c = (char) quoteChar;
-					lu.identCssText = c + ParseHelper.escapeControl(s) + c;
-					prevcp = 65;
-				}
-			} else {
-				char c = (char) quoteChar;
-				StringBuilder buf = new StringBuilder(quoted.length() + 2);
-				buf.append(c).append(quoted).append(c);
-				unexpectedTokenError(index, buf.toString());
-			}
-		}
-
-		@Override
-		public void escaped(int index, int codepoint) {
-			if (!parseError && (unicodeRange || isEscapedContentError(index, codepoint))) {
-				unexpectedCharError(index, codepoint);
-			}
-		}
-
-		private boolean isEscapedContentError(int index, int codepoint) {
-			if (isEscapedContext(prevcp) && !hexColor) {
-				// We add a backslash if is an hex, \ (0x5c), + (0x2b) , - (0x2d)
-				// or whitespace (0x20) to avoid confusions with numbers and
-				// operators
-				if (ParseHelper.isHexCodePoint(codepoint) || codepoint == 0x5c || codepoint == 0x2b
-						|| codepoint == 0x2d || codepoint == 0x20) {
-					setEscapedTokenStart(index);
-					buffer.append('\\');
-				}
-				prevcp = 65;
-				bufferAppend(codepoint);
-			} else if (flagIEValues && isIEHackSuffix(codepoint) // \9 \0
-					&& (lunit != null || buffer.length() != 0)) {
-				buffer.append('\\');
-				bufferAppend(codepoint);
-				String compatText = setFullIdentCompat();
-				escapedTokenIndex = -1;
-				if (compatText != null) {
-					warnIdentCompat(index, compatText);
-					prevcp = codepoint;
-				} else {
-					return true;
-				}
-			} else {
-				return true;
-			}
-			return false;
-		}
-
-		private boolean isEscapedContext(int prevcp) {
-			return prevcp == 65 || isPrevCpWhitespace() || prevcp == TokenProducer.CHAR_COLON
-					|| prevcp == TokenProducer.CHAR_COMMA || prevcp == TokenProducer.CHAR_SEMICOLON
-					|| prevcp == TokenProducer.CHAR_LEFT_CURLY_BRACKET
-					|| (readPriority && prevcp == TokenProducer.CHAR_EXCLAMATION);
-		}
-
-		@Override
-		public void separator(int index, int codepoint) {
-			if (!parseError) {
-				if (escapedTokenIndex != -1 && bufferEndsWithEscapedChar(buffer)) {
-					buffer.append(' ');
-					return;
-				}
-				processBuffer(index);
-			}
-			setWhitespacePrevCp();
-		}
-
-		@Override
-		protected void highControl(int index, int codepoint) {
-			// High control characters are somehow accepted in identifiers
-			// (accept any 'non-ASCII code point')
-			// https://www.w3.org/TR/css-syntax-3/#non-ascii-code-point
-			if (!parseError) {
-				if (!hexColor && !unicodeRange && !readPriority && propertyName != null) {
-					bufferAppend(codepoint);
-				} else {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected control: " + codepoint);
-				}
-			}
-		}
-
-		@Override
-		public void commented(int index, int commentType, String comment) {
-			if (!parseError && buffer.length() == 0 && propertyName == null && curlyBracketDepth == 1 && parendepth == 0
-					&& squareBracketDepth == 0) {
-				super.commented(index, commentType, comment);
-				prevcp = 12;
-			} else {
-				separator(index, 32);
-				// The above call may have left prevcp as 10
-				prevcp = 32;
-			}
-		}
-
-		@Override
-		public void endOfStream(int len) {
-			if (parendepth != 0) {
-				handleError(len, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
-			} else if (propertyName != null) {
-				processBuffer(len);
-				endOfPropertyDeclaration(len);
-			} else if (buffer.length() != 0) {
-				handleError(len, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected token: " + buffer);
-			}
-			endDeclarationList();
-		}
-
-		protected void endDeclarationList() {
-			endDocument();
-		}
-
-		@Override
-		public void error(int index, byte errCode, CharSequence context) {
-			super.error(index, errCode, context);
-			lunit = null;
-		}
-
-	}
-
-	static LexicalUnitImpl findLastValue(LexicalUnitImpl lu) {
-		LexicalUnitImpl nextlu;
-		while ((nextlu = lu.nextLexicalUnit) != null) {
-			lu = nextlu;
-		}
-		return lu;
-	}
-
-	private static boolean typeIsAlgebraicOperator(LexicalType type) {
-		return type == LexicalType.OPERATOR_PLUS || type == LexicalType.OPERATOR_MINUS
-				|| type == LexicalType.OPERATOR_MULTIPLY || type == LexicalType.OPERATOR_SLASH;
-	}
-
-	interface LexicalUnitFactory {
-
-		LexicalUnitImpl createUnit();
-
-		/**
-		 * Get the name of the function with a canonical capitalization.
-		 * 
-		 * @param lcName the lower case name.
-		 * @return the canonical name.
-		 */
-		default String canonicalName(String lcName) {
-			return lcName;
-		}
-
-		/**
-		 * Validate the given function lexical unit.
-		 * <p>
-		 * If validation fails, it may report the error and return {@code true}, or just
-		 * return {@code false}.
-		 * </p>
-		 * <p>
-		 * Validation may report warnings.
-		 * </p>
-		 * 
-		 * @param index the index at which the lexical unit ends.
-		 * @param lu    the lexical unit. Parameters cannot be null.
-		 * @return {@code true} if validated successfully, or it didn't but the error
-		 *         was already reported; {@code false} if a generic error should be
-		 *         reported.
-		 */
-		default boolean validate(final int index, LexicalUnitImpl lu) {
-			/*
-			 * Check that the function does not end with an algebraic operator.
-			 */
-			LexicalType type = findLastValue(lu.parameters).getLexicalUnitType();
-			return !typeIsAlgebraicOperator(type);
-		}
-
-	}
-
-	abstract private class IgnoredDeclarationTokenHandler extends CSSTokenHandler {
-
-		private int curlyBracketDepth = 1;
-
-		IgnoredDeclarationTokenHandler() {
-			super();
-		}
-
-		@Override
-		public void word(int index, CharSequence word) {
-		}
-
-		@Override
-		public void separator(int index, int codePoint) {
-		}
-
-		@Override
-		public void quoted(int index, CharSequence quoted, int quoteCp) {
-		}
-
-		@Override
-		public void quotedWithControl(int index, CharSequence quoted, int quote) {
-		}
-
-		@Override
-		public void leftParenthesis(int index) {
-		}
-
-		@Override
-		public void leftSquareBracket(int index) {
-		}
-
-		@Override
-		public void rightParenthesis(int index) {
-		}
-
-		@Override
-		public void rightSquareBracket(int index) {
-		}
-
-		@Override
-		public void leftCurlyBracket(int index) {
-			curlyBracketDepth++;
-		}
-
-		@Override
-		public void rightCurlyBracket(int index) {
-			curlyBracketDepth--;
-			if (curlyBracketDepth == 0) {
-				endDeclarationBlock();
-			}
-		}
-
-		abstract protected void endDeclarationBlock();
-
-		@Override
-		public void character(int index, int codePoint) {
-		}
-
-		@Override
-		public void escaped(int index, int codePoint) {
-		}
-
-	}
-
-	private class CallbackIgnoredDeclarationTH extends IgnoredDeclarationTokenHandler {
-
-		private final TokenControl parserctl;
-		private final TokenHandler2 parent;
-
-		@SuppressWarnings("deprecation")
-		CallbackIgnoredDeclarationTH(TokenControl parserctl) {
-			super();
-			this.parserctl = parserctl;
-			this.parent = (TokenHandler2) parserctl.getTokenHandler();
-		}
-
-		@Override
-		protected void endDeclarationBlock() {
-			parserctl.setTokenHandler(parent);
-		}
-
-		@Override
-		public void control(int index, int codepoint) {
-			parent.control(index, codepoint);
-		}
-
-		@Override
-		public void endOfStream(int len) {
-			parent.endOfStream(len);
-		}
-
-	}
-
-	abstract class ControlTokenHandler extends CSSTokenHandler {
-
-		private TokenControl parserctl = null;
-
-		ControlTokenHandler() {
-			super();
-		}
-
-		ControlTokenHandler(int currentLine, int prevLineLength) {
-			super(currentLine, prevLineLength);
-		}
-
-		@Override
-		public void tokenStart(TokenControl control) {
-			this.parserctl = control;
-		}
-
-		TokenControl getTokenControl() {
-			return parserctl;
-		}
-
-	}
-
-	/**
-	 * The abstract base class for CSS token handlers.
-	 */
-	abstract class CSSTokenHandler implements TokenHandler2, ParserControl {
-
-		private int line;
-		private int prevlinelength;
-		private boolean foundCp13andNotYet10or12 = false;
-		private int column;
-
-		int prevcp = 32;
-		int endcp = -1;
-		short parendepth = 0;
-		StringBuilder buffer;
-		int escapedTokenIndex = -1;
-
-		boolean parseError = false;
-
-		CSSTokenHandler() {
-			super();
-			line = 1;
-			prevlinelength = -1;
-		}
-
-		CSSTokenHandler(int currentLine, int prevLineLength) {
-			super();
-			line = currentLine;
-			prevlinelength = prevLineLength;
-		}
-
-		boolean isTopLevel() {
-			return false;
-		}
-
-		@Override
-		public CSSErrorHandler getErrorHandler() {
-			return errorHandler;
-		}
-
-		@Override
-		public void setDocumentHandler(CSSHandler handler) {
-			CSSParser.this.setDocumentHandler(handler);
-		}
-
-		@Override
-		public void setErrorHandler(CSSErrorHandler handler) {
-			CSSParser.this.setErrorHandler(handler);
-		}
-
-		@Override
-		public Locator createLocator() {
-			return new LocatorImpl(line, column);
-		}
-
-		int getCurrentLine() {
-			return line;
-		}
-
-		int getPrevLineLength() {
-			return prevlinelength;
-		}
-
-		void setCurrentLocation(int index) {
-			this.column = index - prevlinelength;
-		}
-
-		@Override
-		public void tokenStart(TokenControl control) {
-		}
-
-		@Override
-		public void control(int index, int codepoint) {
-			/*
-			 * Replace any U+000D CARRIAGE RETURN (CR) code points, U+000C FORM FEED (FF) code points,
-			 * or pairs of U+000D CARRIAGE RETURN (CR) followed by U+000A LINE FEED (LF), by a single
-			 * U+000A LINE FEED (LF) code point.
-			 */
-			if (codepoint == 10) { // LF \n
-				separator(index, 10);
-				if (!foundCp13andNotYet10or12) {
-					line++;
-					prevlinelength = index;
-				} else {
-					foundCp13andNotYet10or12 = false;
-					prevlinelength++;
-				}
-				setHandlerPreviousCp(10);
-			} else if (codepoint == 12) { // FF
-				separator(index, 10);
-				setHandlerPreviousCp(10);
-				if (!foundCp13andNotYet10or12) {
-					line++;
-				} else {
-					foundCp13andNotYet10or12 = false;
-				}
-				prevlinelength = index;
-			} else if (codepoint == 13) { // CR
-				line++;
-				prevlinelength = index;
-				foundCp13andNotYet10or12 = true;
-			} else if (codepoint == 9) { // TAB
-				separator(index, 9);
-			} else if (codepoint < 0x80) {
-				unexpectedCharError(index, codepoint);
-			} else {
-				highControl(index, codepoint);
-			}
-		}
-
-		protected void setHandlerPreviousCp(int cp) {
-			prevcp = cp;
-		}
-
-		protected void highControl(int index, int codepoint) {
-			// High control characters are excluded in XML and HTML for security reasons
-			if (!parseError) {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected control: " + codepoint);
-			}
-		}
-
-		void decrParenDepth(int index) {
-			parendepth--;
-			if (parendepth < 0 && !parseError) {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected character: ')'");
-			}
-		}
-
-		/**
-		 * Return true if previous codepoint is whitespace (codepoints 32 and 10).
-		 * 
-		 * @return true if previous codepoint is whitespace.
-		 */
-		boolean isPrevCpWhitespace() {
-			return prevcp == 32 || prevcp == 10;
-		}
-
-		void setWhitespacePrevCp() {
-			if (prevcp != 10) {
-				prevcp = 32;
-			}
-		}
-
-		@Override
-		public void quotedNewlineChar(int index, int codepoint) {
-			if (codepoint == 10) { // LF \n
-				if (prevcp != 13) {
-					line++;
-					prevlinelength = index;
-				}
-			} else if (codepoint == 12) { // FF
-				line++;
-				prevlinelength = index;
-			} else if (codepoint == 13) { // CR
-				line++;
-				prevlinelength = index;
-				prevcp = codepoint;
-			}
-		}
-
-		@Override
-		public void commented(int index, int commentType, String comment) {
-			if (commentType == 0) {
-				handler.comment(comment, isPreviousCpLF());
-			}
-			prevcp = 12;
-		}
-
-		protected boolean isPreviousCpLF() {
-			return prevcp == 10;
-		}
-
-		void setEscapedTokenStart(int index) {
-			if (escapedTokenIndex == -1) {
-				escapedTokenIndex = index - 1;
-			}
-		}
-
-		void bufferAppend(int codepoint) {
-			buffer.appendCodePoint(codepoint);
-		}
-
-		String rawBuffer() {
-			escapedTokenIndex = -1;
-			String s = buffer.toString();
-			buffer.setLength(0);
-			return s;
-		}
-
-		String unescapeBuffer(int index) {
-			String s = unescapeStringValue(index);
-			buffer.setLength(0);
-			escapedTokenIndex = -1;
-			return s;
-		}
-
-		String unescapeStringValue(int index) {
-			String s;
-			if (escapedTokenIndex != -1) {
-				int escsz = index - escapedTokenIndex;
-				int rawlen = buffer.length() - escsz;
-				if (rawlen <= 0) {
-					s = safeUnescapeIdentifier(index, buffer.toString());
-				} else {
-					CharSequence rawseq = buffer.subSequence(0, rawlen);
-					s = rawseq + safeUnescapeIdentifier(index, buffer.substring(rawlen));
-				}
-			} else {
-				s = buffer.toString();
-			}
-			return s;
-		}
-
-		String safeUnescapeIdentifier(int index, String inputString) {
-			return ParseHelper.unescapeStringValue(inputString, true, true);
-		}
-
-		String unescapeIdentifier(int index, String inputString) throws DOMNullCharacterException {
-			return ParseHelper.unescapeStringValue(inputString, true, false);
-		}
-
-		/**
-		 * Verify that the given identifier does not start in a way which is forbidden
-		 * by the specification.
-		 * <p>
-		 * If the processing reached this, the rest of the identifier should be fine.
-		 * </p>
-		 * 
-		 * @param s the identifier to test.
-		 * @return true if it starts as a valid identifier.
-		 */
-		boolean isNotForbiddenIdentStart(String s) {
-			char c = s.charAt(0);
-			if (c != '-') {
-				return !isDigit(c) && c != '+';
-			}
-			return (s.length() > 1 && !isDigit(c = s.charAt(1))) || c == '\\';
-		}
-
-		boolean isValidPseudoName(String s) {
-			int len = s.length();
-			int idx;
-			char c = s.charAt(0);
-			if (c != '-') {
-				if (!isNameStartChar(c)) {
-					return false;
-				}
-				idx = 1;
-			} else if (len > 1) {
-				c = s.charAt(1);
-				if (!isNameStartChar(c)) {
-					return false;
-				}
-				idx = 2;
-			} else {
-				return false;
-			}
-			while (idx < len) {
-				c = s.charAt(idx);
-				if (!isNameChar(c)) {
-					return false;
-				}
-				idx++;
-			}
-			return true;
-		}
-
-		void resetHandler() {
-			prevcp = 32;
-			parendepth = 0;
-			parseError = false;
-		}
-
-		@Override
-		public void error(int index, byte errCode, CharSequence context) {
-			handleError(index, errCode, "Syntax error near " + context);
-		}
-
-		protected void handleError(int index, byte errCode, String message) throws CSSParseException {
-			if (!parseError) {
-				CSSParseException ex;
-				if (prevcp == endcp) {
-					ex = createException(index, errCode, "Unexpected end of file");
-				} else {
-					ex = createException(index, errCode, message);
-				}
-				handleError(ex);
-			}
-		}
-
-		protected void handleError(int index, byte errCode, String message, Throwable cause) throws CSSParseException {
-			if (!parseError) {
-				CSSParseException ex = createException(index, errCode, message);
-				ex.initCause(cause);
-				handleError(ex);
-			}
-		}
-
-		protected void handleError(CSSParseException ex) throws CSSParseException {
-			if (errorHandler != null) {
-				errorHandler.error(ex);
-			} else {
-				throw ex;
-			}
-			parseError = true;
-		}
-
-		void unexpectedCharError(int index, int codepoint) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-					"Unexpected '" + new String(Character.toChars(codepoint)) + "'");
-		}
-
-		void unexpectedTokenError(int index, CharSequence token) {
-			handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Unexpected: " + token);
-		}
-
-		final void handleWarning(int index, byte errCode, String message) {
-			handleWarning(index, errCode, message, null);
-		}
-
-		void handleWarning(int index, byte errCode, String message, Throwable cause) {
-			if (!parseError && errorHandler != null) {
-				CSSParseException ex = createException(index, errCode, message);
-				if (cause != null) {
-					ex.initCause(cause);
-				}
-				if (errorHandler != null) {
-					errorHandler.warning(ex);
-				}
-			}
-		}
-
-		CSSParseException createException(int index, byte errCode, String message) {
-			setCurrentLocation(index);
-			Locator locator = createLocator();
-			if (errCode == ParseHelper.ERR_UNKNOWN_NAMESPACE) {
-				return new CSSNamespaceParseException(message, locator);
-			}
-			return new CSSParseException(message, locator);
-		}
-
-		void endDocument() {
-			if (handler != null) {
-				handler.endOfStream();
-			}
-		}
-
-		class MySelectorListImpl extends SelectorListImpl {
+		class ParserSelectorListImpl extends SelectorListImpl {
 
 			private static final long serialVersionUID = 1L;
 
@@ -8684,11 +6764,1523 @@ public class CSSParser implements Parser, Cloneable {
 						message += ": " + sel.toString();
 					} catch (RuntimeException e) {
 					}
-					errorHandler.warning(createException(index - selsz, ParseHelper.WARN_DUPLICATE_SELECTOR, message));
+					errorHandler.warning(createException(index - selsz,
+							ParseHelper.WARN_DUPLICATE_SELECTOR, message));
 				}
 				return false;
 			}
 
+		}
+
+	}
+
+	private class CDOTokenHandler extends ManagerCallbackTokenHandler {
+
+		CDOTokenHandler(HandlerManager parent) {
+			super(parent);
+			this.prevcp = TokenProducer.CHAR_LESS_THAN;
+		}
+
+		@Override
+		void processBuffer(int index, int triggerCp) {
+		}
+
+		@Override
+		public void word(int index, CharSequence word) {
+			if (!equalSequences("--", word) || this.prevcp != TokenProducer.CHAR_EXCLAMATION) {
+				unexpectedTokenError(index, word);
+			} else {
+				yieldHandling();
+			}
+		}
+
+		@Override
+		public void character(int index, int codePoint) {
+			if (codePoint == TokenProducer.CHAR_EXCLAMATION
+					&& this.prevcp == TokenProducer.CHAR_LESS_THAN) {
+				this.prevcp = codePoint;
+				return;
+			}
+			unexpectedCharError(index, codePoint);
+		}
+
+		@Override
+		public void commented(int index, int commentType, String comment) {
+			unexpectedTokenError(index, comment);
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			unexpectedEOFError(len, "EOF while processing CDO/CDC.");
+			getManager().endOfStream(len);
+		}
+
+		@Override
+		public void separator(int index, int codePoint) {
+			unexpectedCharError(index, codePoint);
+		}
+
+		@Override
+		public void quoted(int index, CharSequence quoted, int quote) {
+			unexpectedTokenError(index, quoted);
+		}
+
+		@Override
+		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+			quoted(index, quoted, quoteCp);
+		}
+
+		@Override
+		public void leftParenthesis(int index) {
+			unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+		}
+
+		@Override
+		public void leftSquareBracket(int index) {
+			unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+		}
+
+		@Override
+		public void leftCurlyBracket(int index) {
+			getYieldHandler().unexpectedLeftCurlyBracketError(index);
+		}
+
+		@Override
+		public void rightParenthesis(int index) {
+			unexpectedCharError(index, TokenProducer.CHAR_RIGHT_PAREN);
+		}
+
+		@Override
+		public void rightSquareBracket(int index) {
+			unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+		}
+
+		@Override
+		public void rightCurlyBracket(int index) {
+			unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
+		}
+
+		@Override
+		public void escaped(int index, int codePoint) {
+			unexpectedCharError(index, codePoint);
+		}
+
+		@Override
+		void unexpectedCharError(int index, int codepoint) {
+			getYieldHandler().unexpectedCharError(index, codepoint);
+		}
+
+		@Override
+		void unexpectedTokenError(int index, CharSequence token) {
+			getYieldHandler().unexpectedTokenError(index, token);
+		}
+
+		@Override
+		public void unexpectedEOFError(int len, String message) {
+			getYieldHandler().unexpectedEOFError(len, message);
+		}
+
+	}
+
+	abstract private class ParseEndContentHandler extends DefaultTokenHandler {
+
+		boolean foundControl = false;
+
+		ParseEndContentHandler() {
+			super();
+		}
+
+		@Override
+		void processBuffer(int index, int triggerCp) {
+		}
+
+		@Override
+		public void word(int index, CharSequence word) {
+			reportError(index);
+		}
+
+		@Override
+		public void separator(int index, int codePoint) {
+		}
+
+		@Override
+		public void rightCurlyBracket(int index) {
+			reportError(index);
+		}
+
+		@Override
+		public void character(int index, int codePoint) {
+			unexpectedCharError(index, codePoint);
+		}
+
+		@Override
+		public void escaped(int index, int codePoint) {
+			reportError(index);
+		}
+
+		@Override
+		public void commented(int index, int commentType, String comment) {
+			if (!foundControl && !parseError && commentType == 0) {
+				handler.comment(comment, isPreviousCpLF());
+			}
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			// handler should be checked for not null before instantiation
+			handler.endOfStream();
+		}
+
+		private void reportError(int index) {
+			handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN, "Found tokens after rule");
+		}
+
+		@Override
+		public void handleError(int index, byte errCode, String message) {
+			if (!isInError() && errorHandler != null) {
+				handleError(createException(index, errCode, message));
+			}
+			setParseError();
+		}
+
+	}
+
+	private class GenericBlockAtRuleManager extends CSSParserHandlerManager {
+
+		GenericBlockAtRuleManager() {
+			super();
+		}
+
+		void endAtRule() {
+			((DeclarationRuleHandler) handler).endAtRule();
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			super.endOfStream(len);
+			endDocument();
+		}
+
+		@Override
+		protected CSSTokenHandler getInitialTokenHandler() {
+			return new IdentTokenHandler() {
+
+				private String atRule = null;
+
+				@Override
+				public void character(int index, int codePoint) throws RuntimeException {
+					if (codePoint == TokenProducer.CHAR_COMMERCIAL_AT
+							&& prevcp != TokenProducer.CHAR_COMMERCIAL_AT) {
+						prevcp = codePoint;
+					} else {
+						unexpectedCharError(index, codePoint);
+					}
+				}
+
+				@Override
+				void processBuffer(int index, int triggerCp) {
+					atRule = unescapeBuffer(index);
+					if (atRule.length() > 2) {
+						BlockRuleTH th = new BlockRuleTH(atRule);
+						yieldHandling(th);
+					} else {
+						handleError(index, ParseHelper.ERR_RULE_SYNTAX, "Malformed @-rule.");
+					}
+				}
+
+				@Override
+				public void leftCurlyBracket(int index) {
+					processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+					if (!isInError()) {
+						sendLeftCurlyBracketEvent(index, this);
+					}
+				}
+
+				@Override
+				public void separator(int index, int codepoint) {
+					if (buffer.length() > 0) {
+						processBuffer(index, codepoint);
+					}
+				}
+
+				@Override
+				public void commented(int index, int commentType, String comment) {
+					separator(index, 12);
+					if (!parseError && buffer.length() == 0 && atRule == null && commentType == 0) {
+						handler.comment(comment, isPreviousCpLF());
+					}
+					prevcp = 12;
+				}
+
+				@Override
+				public void handleErrorRecovery() {
+					// Error: ignore declaration
+					yieldHandling(new IgnoredDeclarationTokenHandler());
+				}
+
+				@Override
+				public void endOfStream(int len) {
+					if (prevcp != 32 || buffer.length() > 0) {
+						unexpectedEOFError(len);
+					}
+					GenericBlockAtRuleManager.this.endOfStream(len);
+				}
+
+			};
+		}
+
+		/**
+		 * Generic block at-rule preamble + body handler.
+		 */
+		private class BlockRuleTH extends DefaultTokenHandler {
+
+			private String ruleName = null;
+
+			BlockRuleTH(String ruleName) {
+				super();
+				this.ruleName = ruleName;
+			}
+
+			@Override
+			protected void initializeBuffer() {
+				this.buffer = new StringBuilder(64);
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				String rulePreamble = null;
+				if (buffer.length() != 0) {
+					rulePreamble = unescapeBuffer(index);
+				}
+				if (!startAtRule(index, ruleName, rulePreamble)) {
+					handleErrorRecovery();
+					sendLeftCurlyBracketEvent(index, this);
+				} else {
+					getManager().yieldManagement(new DeclarationListManager(getManager()) {
+
+						@Override
+						public void endManagement(int index) {
+							GenericBlockAtRuleManager.this.endAtRule();
+							getControlHandler().yieldHandling(new RuleEndContentHandler());
+						}
+
+						@Override
+						public void endOfStream(int len) {
+							GenericBlockAtRuleManager.this.endAtRule();
+							GenericBlockAtRuleManager.this.endOfStream(len);
+						}
+
+					});
+				}
+			}
+
+			protected boolean startAtRule(int index, String ruleFirstPart, String ruleSecondPart) {
+				return ((DeclarationRuleHandler) handler).startAtRule(ruleFirstPart,
+						ruleSecondPart);
+			}
+
+			@Override
+			public void character(int index, int codepoint) {
+				bufferAppend(codepoint);
+				prevcp = codepoint;
+			}
+
+			@Override
+			protected void processBuffer(int index, int triggerCp) {
+			}
+
+			@Override
+			public void commented(int index, int commentType, String comment) {
+				if (!parseError && buffer.length() == 0 && ruleName == null && parendepth == 0
+						&& commentType == 0) {
+					handler.comment(comment, isPreviousCpLF());
+					separator(index, 12);
+					prevcp = 12;
+				} else {
+					separator(index, 32);
+					// The above call may have left prevcp as 10
+					prevcp = 32;
+				}
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				unexpectedEOFError(len);
+				getManager().endOfStream(len);
+			}
+
+			@Override
+			public void handleErrorRecovery() {
+				// Error: ignore declaration
+				yieldHandling(new IgnoredDeclarationTokenHandler());
+			}
+
+			@Override
+			protected void resetHandler() {
+				super.resetHandler();
+				this.ruleName = null;
+			}
+
+			@Override
+			public HandlerManager getManager() {
+				return GenericBlockAtRuleManager.this;
+			}
+
+		}
+
+		private class RuleEndContentHandler extends ParseEndContentHandler {
+
+			RuleEndContentHandler() {
+				super();
+			}
+
+			@Override
+			public HandlerManager getManager() {
+				return GenericBlockAtRuleManager.this;
+			}
+
+		}
+
+	}
+
+	/**
+	 * Small extension to {@code CSSHandler} to deal with declaration rules.
+	 */
+	public interface DeclarationRuleHandler extends CSSHandler {
+
+		/**
+		 * Marks the start of a declaration rule.
+		 * 
+		 * @param ruleName the name of the rule.
+		 * @param modifier the modifier string (the contents of whatever is after the
+		 *                 rule name and before the style declaration), or
+		 *                 <code>null</code> if no modifier was found.
+		 * @return true if the start was successful.
+		 */
+		boolean startAtRule(String ruleName, String modifier);
+
+		/**
+		 * Marks the end of a declaration rule.
+		 */
+		void endAtRule();
+
+	}
+
+	/**
+	 * Parse descriptors.
+	 */
+	abstract private class DescriptorListManager extends DeclarationListManager {
+
+		DescriptorListManager(HandlerManager parent) {
+			super(parent);
+		}
+
+		@Override
+		protected ValueTokenHandler createValueTokenHandler() {
+			return new DeclValueTokenHandler() {
+
+				@Override
+				protected void setPriorityHandler(int index) {
+					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+							"Important priorities are invalid in descriptors.");
+				}
+
+			};
+		}
+
+		@Override
+		public void endManagement(int index) {
+			reportRuleEnd(index);
+			super.endManagement(index);
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			reportRuleEnd(len);
+			super.endOfStream(len);
+		}
+
+		abstract protected void reportRuleEnd(int index);
+
+	}
+
+	/**
+	 * {@code <declaration-list>} manager.
+	 */
+	private class DeclarationListManager extends ListHandlerManager {
+
+		String propertyName = null;
+
+		private final ValueTokenHandler valueth;
+
+		private boolean priorityImportant = false;
+
+		DeclarationListManager() {
+			super();
+			// Handler instantiation always last
+			valueth = createValueTokenHandler();
+		}
+
+		DeclarationListManager(HandlerManager parent) {
+			super(parent);
+			// Handler instantiation always last
+			valueth = createValueTokenHandler();
+		}
+
+		protected ValueTokenHandler createValueTokenHandler() {
+			return new DeclValueTokenHandler();
+		}
+
+		@Override
+		protected CSSTokenHandler getInitialTokenHandler() {
+			return new PropertyNameTokenHandler();
+		}
+
+		@Override
+		public void restoreInitialHandler() {
+			super.restoreInitialHandler();
+			propertyName = null;
+			priorityImportant = false;
+		}
+
+		class PropertyNameTokenHandler extends DeclarationIdentTokenHandler {
+
+			PropertyNameTokenHandler() {
+				super();
+			}
+
+			private void yieldHandling() {
+				yieldHandling(valueth);
+			}
+
+			@Override
+			void processBuffer(int index, int triggerCp) {
+				setPropertyName(index);
+				setWhitespacePrevCp();
+			}
+
+			@Override
+			public void word(int index, CharSequence word) {
+				if (propertyName == null) {
+					super.word(index, word);
+				} else {
+					unexpectedTokenError(index, word);
+				}
+			}
+
+			@Override
+			public void escaped(int index, int codepoint) {
+				if (propertyName == null) {
+					super.escaped(index, codepoint);
+				} else {
+					unexpectedCharError(index, codepoint);
+				}
+			}
+
+			@Override
+			public void character(int index, int codepoint) {
+				if (propertyName == null) {
+					// ! 33
+					// : 58
+					// ; 59
+					switch (codepoint) {
+					case TokenProducer.CHAR_HYPHEN_MINUS: // -
+					case TokenProducer.CHAR_LOW_LINE: // _
+						// TokenProducer is supposed to send only isolated '-' and '_'
+						buffer.append((char) codepoint);
+						prevcp = 65;
+						return;
+					case TokenProducer.CHAR_COLON: // :
+						// The property name may be in buffer
+						if (buffer.length() != 0) {
+							processBuffer(index, codepoint);
+							if (!isInError()) {
+								// Yield to next
+								yieldHandling();
+							}
+							return;
+						}
+						// pass-through
+					case TokenProducer.CHAR_AMPERSAND: // &
+						if (buffer.length() == 0) {
+							expectSelector(index);
+							return;
+						}
+						break;
+					case TokenProducer.CHAR_NUMBER_SIGN: // #
+					case TokenProducer.CHAR_ASTERISK: // *
+					case TokenProducer.CHAR_PLUS: // +
+					case TokenProducer.CHAR_FULL_STOP: // .
+					case TokenProducer.CHAR_GREATER_THAN: // >
+					case TokenProducer.CHAR_TILDE: // ~
+					case TokenProducer.CHAR_VERTICAL_LINE: // |
+						if (buffer.length() == 0) {
+							expectSelector(index, codepoint);
+							return;
+						}
+						break;
+					case TokenProducer.CHAR_COMMERCIAL_AT: // @
+						if (buffer.length() == 0) {
+							handleAtKeyword(index);
+							return;
+						}
+						break;
+					case TokenProducer.CHAR_SEMICOLON: // ;
+						if (unexpectedSemicolonError(index)) {
+							getManager().restoreInitialHandler();
+						}
+						resetParseError();
+						return;
+					default:
+						break;
+					}
+				} else if (codepoint == TokenProducer.CHAR_COLON) {
+					// Expect a value, now yield to next
+					yieldHandling();
+					return;
+				}
+				unexpectedCharError(index, codepoint);
+			}
+
+			/**
+			 * Set the property name.
+			 * <p>
+			 * Buffer must have contents.
+			 * </p>
+			 * 
+			 * @param index the parse index.
+			 */
+			private void setPropertyName(int index) {
+				String raw = buffer.toString();
+				if (!isEscapedIdent()) {
+					if (isNotForbiddenIdentStart(raw)) {
+						propertyName = raw;
+						buffer.setLength(0);
+						return;
+					}
+				} else if (isNotForbiddenIdentStart(raw)) {
+					propertyName = unescapeBuffer(index);
+					if (!parseError && !isValidIdentifier(propertyName)) {
+						handleWarning(index - buffer.length(), ParseHelper.WARN_PROPERTY_NAME,
+								"Suspicious property name: " + raw);
+					}
+					return;
+				}
+				handleError(index - buffer.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
+						"Invalid property name: '" + raw + '\'');
+			}
+
+			@Override
+			public void commented(int index, int commentType, String comment) {
+				if (!parseError && buffer.length() == 0 && propertyName == null && parendepth == 0
+						&& valueth.getSquareBracketDepth() == 0) {
+					super.commented(index, commentType, comment);
+					prevcp = 12;
+				} else {
+					separator(index, 32);
+					// The above call may have left prevcp as 10
+					prevcp = 32;
+				}
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				if (propertyName != null) {
+					unexpectedEOFError(len);
+				} else if (!getManager().isTopManager() && !isInError()) {
+					handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+				}
+				DeclarationListManager.this.endOfStream(len);
+			}
+
+		}
+
+		private class PriorityTokenHandler extends DeclarationIdentTokenHandler {
+
+			PriorityTokenHandler() {
+				super();
+			}
+
+			/**
+			 * Please call this only if the buffer is not empty
+			 */
+			@Override
+			void processBuffer(int index, int triggerCp) {
+				String prio = unescapeBuffer(index);
+				if ("important".equalsIgnoreCase(prio) && !priorityImportant) {
+					priorityImportant = true;
+				} else {
+					// Possible legacy IE hack
+					checkIEPrioHack(index, prio);
+				}
+			}
+
+			private void checkIEPrioHack(int index, String prio) {
+				String compatText;
+				buffer.append('!').append(prio);
+				if (parserFlags.contains(Flag.IEPRIO) && "ie".equals(prio)
+						&& (compatText = valueth.setFullIdentCompat(rawBuffer())) != null) {
+					valueth.warnIdentCompat(index, compatText);
+				} else {
+					valueth.handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+							"Invalid priority: " + prio);
+				}
+			}
+
+			@Override
+			public void character(int index, int codepoint) {
+				// ! 33
+				// ; 59
+				if (buffer.length() != 0) {
+					processBuffer(index, codepoint);
+					if (isInError()) {
+						return;
+					}
+				}
+				String compatText;
+				switch (codepoint) {
+				case TokenProducer.CHAR_SEMICOLON: // ;
+					if (!priorityImportant) {
+						// Previous '!' was an error unless IE
+						if (!parserFlags.contains(Flag.IEPRIO) || valueth.getLexicalUnit()
+								.getLexicalUnitType() != LexicalType.COMPAT_IDENT) {
+							// Error recovery not needed
+							valueth.reportError(index - 1, ParseHelper.ERR_UNEXPECTED_CHAR,
+									"Unexpected '!'.");
+							valueth.resetParseError();
+							// Must reset handler as it is not reset by error recovery
+							valueth.resetHandler();
+							// Now reset this handler
+							resetHandler();
+							propertyName = null;
+							// Restore property name handler
+							DeclarationListManager.this.restoreInitialHandler();
+							break;
+						}
+					}
+					DeclarationListManager.this.endOfPropertyDeclaration(index);
+					DeclarationListManager.this.restoreInitialHandler();
+					break;
+				case TokenProducer.CHAR_EXCLAMATION: // !
+					if (priorityImportant && parserFlags.contains(Flag.IEPRIOCHAR)
+							&& (compatText = valueth.setFullIdentCompat(rawBuffer())) != null) {
+						valueth.warnIdentCompat(index, compatText);
+						LexicalUnitImpl lunit = valueth.getLexicalUnit();
+						lunit.setUnitType(LexicalType.COMPAT_PRIO);
+						lunit.setCssUnit(CSSUnit.CSS_INVALID);
+						break;
+					}
+					// pass-through
+				default:
+					valueth.unexpectedCharError(index, codepoint);
+				}
+			}
+
+			@Override
+			public void rightCurlyBracket(int index) {
+				if (buffer.length() != 0) {
+					processBuffer(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
+				}
+				super.rightCurlyBracket(index);
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				DeclarationListManager.this.endOfPropertyDeclaration(len);
+				if (!isInError() && DeclarationListManager.this.getParentManager() != null) {
+					unexpectedEOFError(len);
+				}
+				DeclarationListManager.this.endOfStream(len);
+			}
+
+		}
+
+		abstract class DeclarationIdentTokenHandler extends IdentTokenHandler {
+
+			DeclarationIdentTokenHandler() {
+				super();
+			}
+
+			@Override
+			public void handleErrorRecovery() {
+				DeclarationListManager.this.valueth.resetParseError();
+				super.handleErrorRecovery();
+			}
+
+		}
+
+		protected void handleAtKeyword(int index) {
+			getControlHandler().getCurrentHandler().unexpectedCharError(index,
+					TokenProducer.CHAR_COMMERCIAL_AT);
+		}
+
+		protected void expectSelector(int index) {
+			getControlHandler().getCurrentHandler().unexpectedCharError(index,
+					TokenProducer.CHAR_AMPERSAND);
+		}
+
+		protected void expectSelector(int index, int triggerCp) {
+			getControlHandler().getCurrentHandler().unexpectedCharError(index, triggerCp);
+		}
+
+		protected void endOfPropertyDeclaration(int index) {
+			// Buffer must have been processed before reaching this
+			if (propertyName != null) {
+				if (!valueth.isInError()) {
+					LexicalUnitImpl lunit = valueth.getLexicalUnit();
+					if (!isCustomProperty()) {
+						if (lunit != null) {
+							handleProperty(index, propertyName, lunit, priorityImportant);
+						} else {
+							getControlHandler().getCurrentHandler().handleError(index,
+									ParseHelper.ERR_EXPR_SYNTAX,
+									"Found property name (" + propertyName + ") but no value");
+						}
+					} else {
+						if (lunit == null) {
+							lunit = new LexicalUnitImpl(LexicalType.EMPTY);
+							lunit.value = "";
+						}
+						handleLexicalProperty(index, propertyName, lunit, priorityImportant);
+					}
+					valueth.resetHandler();
+				}
+			}
+
+			// Reset other state fields
+			resetHandler();
+		}
+
+		private boolean isCustomProperty() {
+			return propertyName.startsWith("--");
+		}
+
+		protected void handleProperty(int index, String propertyName, LexicalUnitImpl lunit,
+				boolean priorityImportant) {
+			getControlHandler().setCurrentLocation(index);
+			handler.property(propertyName, lunit, priorityImportant);
+		}
+
+		void handleLexicalProperty(int index, String propertyName, LexicalUnitImpl lunit,
+				boolean priorityImportant) {
+			getControlHandler().setCurrentLocation(index);
+			handler.lexicalProperty(propertyName, lunit, priorityImportant);
+		}
+
+		protected void resetHandler() {
+			propertyName = null;
+			priorityImportant = false;
+		}
+
+		@Override
+		public void rightCurlyBracket(int index) {
+			endOfPropertyDeclaration(index);
+			endManagement(index);
+		}
+
+		class DeclValueTokenHandler extends BaseValueTokenHandler {
+
+			DeclValueTokenHandler() {
+				super();
+			}
+
+			@Override
+			String getPropertyName() {
+				return propertyName;
+			}
+
+			@Override
+			public void leftCurlyBracket(int index) {
+				// Process buffer first, an error could be produced already
+				processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
+				super.leftCurlyBracket(index);
+			}
+
+			@Override
+			protected void setPriorityHandler(int index) {
+				yieldHandling(new PriorityTokenHandler());
+			}
+
+			@Override
+			protected void endOfPropertyDeclaration(int index) {
+				DeclarationListManager.this.endOfPropertyDeclaration(index);
+				// wake up declaration handler
+				restoreInitialHandler();
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				if (!getManager().isTopManager() && !isInError()) {
+					handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+				}
+			}
+
+			@Override
+			protected boolean isCustomProperty() {
+				return DeclarationListManager.this.isCustomProperty();
+			}
+
+			@Override
+			public DeclarationListManager getManager() {
+				return DeclarationListManager.this;
+			}
+
+		}
+
+	}
+
+	/**
+	 * Manager that only parses values ({@code <declaration-value>}) .
+	 */
+	private class DeclarationValueManager extends CSSParserHandlerManager {
+
+		private final String propertyName;
+
+		private ValueTokenHandler valueth = new ValueOnlyTokenHandler();
+
+		DeclarationValueManager() {
+			this("");
+		}
+
+		DeclarationValueManager(HandlerManager parent) {
+			super(parent);
+			this.propertyName = "";
+		}
+
+		DeclarationValueManager(String propertyName) {
+			super();
+			this.propertyName = propertyName;
+		}
+
+		LexicalUnit getLexicalUnit() {
+			return valueth.getLexicalUnit();
+		}
+
+		@Override
+		protected CSSTokenHandler getInitialTokenHandler() {
+			return valueth;
+		}
+
+		@Override
+		protected ControlTokenHandler createControlTokenHandler() {
+			return new CSSControlTokenHandler() {
+
+				@Override
+				public void tokenStart(TokenControl control) {
+					super.tokenStart(control);
+					yieldHandling(valueth);
+					valueth.prevcp = 32; // XXX should not be necessary
+				}
+
+			};
+		}
+
+		private class ValueOnlyTokenHandler extends BaseValueTokenHandler {
+
+			ValueOnlyTokenHandler() {
+				super();
+			}
+
+			@Override
+			String getPropertyName() {
+				return propertyName;
+			}
+
+			@Override
+			protected void endOfValue(int index) {
+				unexpectedCharError(index, ';');
+			}
+
+			@Override
+			public void rightCurlyBracket(int index) {
+				// We aren't in declaration context
+				// Process buffer first, an error could be produced already
+				super.rightCurlyBracket(index);
+				unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				if (!isInError() && getLexicalUnit() == null) {
+					handleError(len, ParseHelper.ERR_EXPR_SYNTAX, "No value found");
+				}
+			}
+
+			@Override
+			public void handleErrorRecovery() {
+			}
+
+			@Override
+			ControlTokenHandler getControlHandler() {
+				return DeclarationValueManager.this.getControlHandler();
+			}
+
+			@Override
+			public HandlerManager getManager() {
+				return DeclarationValueManager.this;
+			}
+
+		}
+
+	}
+
+	private class URLTokenHandler extends CallbackTokenHandler {
+
+		private String url = null;
+
+		private boolean allowModifiers;
+
+		private LexicalUnitImpl urlUnit = null;
+
+		private LexicalUnitImpl modifier = null;
+
+		private boolean legacySyntax = false;
+
+		URLTokenHandler(CSSContentHandler caller) {
+			super(caller);
+			parendepth = 1;
+			this.allowModifiers = false;
+		}
+
+		URLTokenHandler(LexicalProvider caller) {
+			super(caller);
+			parendepth = 1;
+			urlUnit = caller.getCurrentLexicalUnit();
+			this.allowModifiers = urlUnit != null;
+		}
+
+		@Override
+		protected void initializeBuffer() {
+			buffer = new StringBuilder(256);
+		}
+
+		@Override
+		public HandlerManager getManager() {
+			return caller.getManager();
+		}
+
+		@Override
+		public void word(int index, CharSequence word) {
+			if (url == null || allowModifiers) {
+				super.word(index, word);
+			} else {
+				unexpectedTokenError(index, word);
+			}
+		}
+
+		@Override
+		public void leftCurlyBracket(int index) {
+			if (url == null || allowModifiers) {
+				buffer.append('{');
+			} else {
+				unexpectedLeftCurlyBracketError(index);
+			}
+		}
+
+		@Override
+		public void rightCurlyBracket(int index) {
+			appendIfValid(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
+		}
+
+		private void appendIfValid(int index, int codePoint) {
+			if (url == null || allowModifiers) {
+				bufferAppend(codePoint);
+			} else {
+				unexpectedCharError(index, codePoint);
+			}
+		}
+
+		@Override
+		public void leftSquareBracket(int index) {
+			appendIfValid(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+		}
+
+		@Override
+		public void rightSquareBracket(int index) {
+			appendIfValid(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+		}
+
+		@Override
+		void processBuffer(int index, int triggerCp) {
+			if (buffer.length() > 0) {
+				if (url == null) {
+					legacySyntax = true;
+					allowModifiers = false;
+					url = rawBuffer();
+				} else if (allowModifiers) {
+					String mod = unescapeBuffer(index);
+					LexicalUnitImpl lu = new LexicalUnitImpl(LexicalType.IDENT);
+					lu.value = mod;
+					addModifier(lu);
+				} else {
+					unexpectedTokenError(index, buffer);
+				}
+			}
+		}
+
+		private void addModifier(LexicalUnitImpl lu) {
+			if (modifier == null) {
+				modifier = lu;
+				urlUnit.parameters = lu;
+			} else {
+				modifier.nextLexicalUnit = lu;
+				lu.previousLexicalUnit = modifier;
+				modifier = lu;
+				lu.ownerLexicalUnit = urlUnit;
+			}
+		}
+
+		@Override
+		public void separator(int index, int codepoint) {
+			if (isEscapedIdent() && bufferEndsWithEscapedCharOrWS(buffer)) {
+				buffer.append(' ');
+			} else if (url == null) {
+				processBuffer(index, codepoint);
+			} else if (legacySyntax) {
+				unexpectedCharError(index, codepoint);
+			}
+		}
+
+		@Override
+		public void quoted(int index, CharSequence quoted, int quote) {
+			if (url == null) {
+				url = quoted.toString();
+			} else {
+				unexpectedCharError(index, quote);
+			}
+		}
+
+		@Override
+		public void character(int index, int codePoint) {
+			appendIfValid(index, codePoint);
+		}
+
+		@Override
+		public void escaped(int index, int codePoint) {
+			if (url != null && !allowModifiers) {
+				unexpectedCharError(index, codePoint);
+			} else {
+				if (isEscapedCodepoint(codePoint)) {
+					setEscapedTokenStart(index);
+					buffer.append('\\');
+				}
+				bufferAppend(codePoint);
+			}
+		}
+
+		@Override
+		public void leftParenthesis(int index) {
+			parendepth++;
+			if (url != null && buffer.length() > 0 && allowModifiers) {
+				String mod = unescapeBuffer(index);
+				LexicalUnitImpl lu = new GenericFunctionUnitImpl();
+				lu.value = mod;
+				addModifier(lu);
+				yieldHandling(
+						new ValueTokenHandler(CSSParser.this.parserFlags.contains(Flag.IEVALUES)) {
+
+							@Override
+							void decrParenDepth(int index) {
+								parendepth--;
+								if (parendepth < 0 && !isInError()) {
+									URLTokenHandler.this.parendepth--;
+									yieldHandling(URLTokenHandler.this);
+								}
+							}
+
+							@Override
+							public void handleErrorRecovery() {
+								URLTokenHandler.this.handleErrorRecovery();
+							}
+
+							@Override
+							public CSSErrorHandler getErrorHandler() {
+								return URLTokenHandler.this.getErrorHandler();
+							}
+
+							@Override
+							public HandlerManager getManager() {
+								return URLTokenHandler.this.getManager();
+							}
+
+						});
+			} else {
+				unexpectedCharError(index, '(');
+			}
+		}
+
+		@Override
+		public void rightParenthesis(int index) {
+			parendepth--;
+			if (parendepth == 0) {
+				processBuffer(index, ')');
+				// Decrease caller parentheses depth, which must be 1 or higher,
+				// otherwise this handler would have not been instantiated.
+				// So we call decrParenDepth() which does not check the depth.
+				caller.decrParenDepth();
+				endFunctionArgument();
+			}
+			// Cannot reach this
+		}
+
+		private void endFunctionArgument() {
+			getControlHandler().yieldHandling(caller);
+			setURL(url, urlUnit);
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			super.endOfStream(len);
+			if (!isInError()) {
+				caller.unexpectedEOFError(len);
+			} else {
+				caller.setParseError();
+			}
+			caller.endOfStream(len);
+		}
+
+		@Override
+		protected void resetHandler() {
+			super.resetHandler();
+			url = null;
+			urlUnit = null;
+			modifier = null;
+		}
+
+		protected void setURL(String url, LexicalUnitImpl urlUnit) {
+		}
+
+	}
+
+	static LexicalUnitImpl findLastValue(LexicalUnitImpl lu) {
+		LexicalUnitImpl nextlu;
+		while ((nextlu = lu.nextLexicalUnit) != null) {
+			lu = nextlu;
+		}
+		return lu;
+	}
+
+	static boolean typeIsAlgebraicOperator(LexicalType type) {
+		return type == LexicalType.OPERATOR_PLUS || type == LexicalType.OPERATOR_MINUS
+				|| type == LexicalType.OPERATOR_MULTIPLY || type == LexicalType.OPERATOR_SLASH;
+	}
+
+	private void endDocument() {
+		if (handler != null) {
+			handler.endOfStream();
+		}
+	}
+
+	abstract private class ListHandlerManager extends CSSParserHandlerManager {
+
+		ListHandlerManager() {
+			super();
+		}
+
+		ListHandlerManager(HandlerManager parent) {
+			super(parent);
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			HandlerManager parent = getParentManager();
+			if (parent != null) {
+				parent.endOfStream(len);
+			} else {
+				endDocument();
+			}
+		}
+
+	}
+
+	abstract private class CSSParserHandlerManager extends HandlerManager {
+
+		CSSParserHandlerManager() {
+			super();
+		}
+
+		CSSParserHandlerManager(HandlerManager parent) {
+			super(parent);
+		}
+
+		@Override
+		protected ControlTokenHandler createControlTokenHandler() {
+			return new CSSControlTokenHandler();
+		}
+
+		/**
+		 * Create a token producer configured for the initial stage of parsing.
+		 * 
+		 * @return the parser.
+		 */
+		@Override
+		public TokenProducer createTokenProducer() {
+			CharacterCheck ccheck = new IdentCharacterCheck();
+			TokenProducer tp = new TokenProducer(ccheck, streamSizeLimit);
+			CSSTokenHandler ini = getInitialTokenHandler();
+			tp.setContentHandler(ini);
+			tp.setErrorHandler(ini);
+			tp.setControlHandler(getControlHandler());
+			return tp;
+		}
+
+		/**
+		 * Call the {@link CSSHandler#parseStart(ParserControl)} event of the handler.
+		 */
+		@Override
+		public void parseStart() {
+			handler.parseStart(getControlHandler());
+		}
+
+		@Override
+		protected CSSErrorHandler getErrorHandler() {
+			return errorHandler;
+		}
+
+		abstract class IdentTokenHandler extends DefaultTokenHandler {
+
+			IdentTokenHandler() {
+				super();
+			}
+
+			@Override
+			protected void initializeBuffer() {
+				buffer = new StringBuilder();
+			}
+
+			@Override
+			public void commented(int index, int commentType, String comment) {
+				separator(index, 12);
+				if (buffer.length() == 0 && commentType == 0) {
+					handler.comment(comment, isPreviousCpLF());
+				}
+				prevcp = 12;
+			}
+
+			@Override
+			public void character(int index, int codePoint) throws RuntimeException {
+				unexpectedCharError(index, codePoint);
+			}
+
+			@Override
+			ControlTokenHandler getControlHandler() {
+				return CSSParserHandlerManager.this.getControlHandler();
+			}
+
+			@Override
+			public HandlerManager getManager() {
+				return CSSParserHandlerManager.this;
+			}
+
+		}
+
+		abstract class BaseValueTokenHandler extends ValueTokenHandler {
+
+			BaseValueTokenHandler() {
+				super(CSSParser.this.parserFlags.contains(Flag.IEVALUES));
+			}
+
+			@Override
+			public CSSErrorHandler getErrorHandler() {
+				return errorHandler;
+			}
+
+			@Override
+			public void handleErrorRecovery() {
+				yieldHandling(new IgnoredDeclarationTokenHandler());
+			}
+
+			@Override
+			public HandlerManager getManager() {
+				return CSSParserHandlerManager.this;
+			}
+
+		}
+
+	}
+
+	abstract private class ManagerCallbackTokenHandler extends DefaultTokenHandler {
+
+		private HandlerManager manager;
+
+		private CSSTokenHandler yieldHandler;
+
+		/**
+		 * Instantiate a new handler which has no manager.
+		 */
+		ManagerCallbackTokenHandler() {
+			super();
+		}
+
+		/**
+		 * Instantiate a new handler.
+		 * 
+		 * @param manager the manager.
+		 */
+		ManagerCallbackTokenHandler(HandlerManager manager) {
+			super();
+			setManager(manager);
+		}
+
+		/**
+		 * Sets the manager that has the token control and manages handlers.
+		 * 
+		 * @param manager the manager.
+		 */
+		public void setManager(HandlerManager manager) {
+			this.manager = manager;
+		}
+
+		@Override
+		public HandlerManager getManager() {
+			return manager;
+		}
+
+		@Override
+		public void endOfStream(int len) {
+			super.endOfStream(len);
+			manager.endOfStream(len);
+		}
+
+		/**
+		 * Set the yield handler.
+		 * 
+		 * @param yieldHandler the handler to yield the control when finished.
+		 */
+		public void setYieldHandler(CSSTokenHandler yieldHandler) {
+			this.yieldHandler = yieldHandler;
+		}
+
+		CSSTokenHandler getYieldHandler() {
+			return yieldHandler;
+		}
+
+		protected void yieldHandling() {
+			if (yieldHandler != null) {
+				yieldHandling(yieldHandler);
+			}
+		}
+
+		@Override
+		public void handleErrorRecovery() {
+			// Error: ignore declaration
+			yieldHandling(new IgnoredDeclarationTokenHandler() {
+
+				@Override
+				protected void endDeclarationBlock(int index) {
+					yieldHandling(ManagerCallbackTokenHandler.this);
+				}
+
+			});
+		}
+
+	}
+
+	/**
+	 * The abstract default class for CSS token handlers that use a buffer.
+	 */
+	abstract private class DefaultTokenHandler extends BufferTokenHandler {
+
+		DefaultTokenHandler() {
+			super();
+		}
+
+		/**
+		 * Checks the buffer for equality, and clears it.
+		 * 
+		 * @param lcWord the lowercase word to compare to.
+		 * @return true if equals.
+		 */
+		boolean bufferEqualsAndClear(String lcWord) {
+			if (ParseHelper.equalsIgnoreCase(buffer, lcWord)) {
+				buffer.setLength(0);
+				resetEscapedTokenIndex();
+				return true;
+			}
+			return false;
+		}
+
+		boolean checkValidCustomIdent(int index, String name) {
+			if ("initial".equalsIgnoreCase(name) || "inherit".equalsIgnoreCase(name)
+					|| "unset".equalsIgnoreCase(name) || "none".equalsIgnoreCase(name)
+					|| "reset".equalsIgnoreCase(name)) {
+				handleError(index, ParseHelper.ERR_INVALID_IDENTIFIER,
+						"A CSS keyword is not a valid custom ident.");
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public void commented(int index, int commentType, String comment) {
+			separator(index, 12);
+			if (commentType == 0) {
+				handler.comment(comment, isPreviousCpLF());
+			}
+			prevcp = 12;
+		}
+
+		@Override
+		public CSSErrorHandler getErrorHandler() {
+			return errorHandler;
+		}
+
+		@Override
+		public void handleErrorRecovery() {
+			yieldHandling(new IgnoredDeclarationTokenHandler());
+		}
+
+	}
+
+	/**
+	 * The ControlHandler for CSS.
+	 */
+	private class ChildControlTokenHandler extends CSSControlTokenHandler {
+
+		private final int offset;
+
+		ChildControlTokenHandler(ControlTokenHandler copyMe, int offset) {
+			super(copyMe);
+			this.offset = offset;
+		}
+
+		@Override
+		void setCurrentLocation(int index) {
+			super.setCurrentLocation(index + offset);
+		}
+
+	}
+
+	/**
+	 * The ControlHandler for CSS.
+	 */
+	private class CSSControlTokenHandler extends ControlTokenHandler {
+
+		CSSControlTokenHandler() {
+			super();
+		}
+
+		CSSControlTokenHandler(ControlTokenHandler copyMe) {
+			super(copyMe);
+		}
+
+		@Override
+		public void setDocumentHandler(CSSHandler handler) {
+			CSSParser.this.setDocumentHandler(handler);
+		}
+
+		@Override
+		public void setErrorHandler(CSSErrorHandler handler) {
+			CSSParser.this.setErrorHandler(handler);
+		}
+
+		@Override
+		public CSSErrorHandler getErrorHandler() {
+			return errorHandler;
 		}
 
 	}
