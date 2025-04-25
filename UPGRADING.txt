@@ -43,6 +43,9 @@ Upgrading to 6.0 from 5.3.1
 - `CSSValue` primitive types `ATTR` and `VAR`, which were deprecated for removal,
   have been removed.
 
+- The archaic cookie management code which was deprecated for removal was
+  removed.
+
 
 Upgrading to 5.3 from 5.2
 -------------------------

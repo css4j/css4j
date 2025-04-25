@@ -92,16 +92,6 @@ public interface UserAgent {
 		boolean setProperty(String propertyName, String value);
 
 		/**
-		 * Gets the global, useragent-wide default cookie config.
-		 *
-		 * @return the default user-agent cookie config.
-		 */
-		@Deprecated(forRemoval = true)
-		default CookieConfig getCookieConfig() {
-			return null;
-		}
-
-		/**
 		 * Gets the authentication credentials for the given URL.
 		 *
 		 * @param url

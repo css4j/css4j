@@ -34,7 +34,7 @@ import io.sf.carte.doc.style.css.nsac.Parser;
  */
 abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentControl, java.io.Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private static final String HEADER_AUTHORIZATION = "Authorization";
 
@@ -111,22 +111,6 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 	@Override
 	public UserAgent.AgentControl getAgentControl() {
 		return this;
-	}
-
-	/**
-	 * Gets the global, useragent-wide default cookie config.
-	 * 
-	 * @return null
-	 */
-	@Override
-	@Deprecated(forRemoval = true)
-	public CookieConfig getCookieConfig() {
-		return null;
-	}
-
-	@Deprecated(forRemoval = true)
-	public Set<Cookie> getCookies(String host) {
-		return null;
 	}
 
 	/**
