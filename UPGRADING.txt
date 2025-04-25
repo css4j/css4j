@@ -40,6 +40,9 @@ Upgrading to 6.0 from 5.3.1
 
 - Interface `SheetContext` now extends `NamespacePrefixMap`.
 
+- `CSSValue` primitive types `ATTR` and `VAR`, which were deprecated for removal,
+  have been removed.
+
 
 Upgrading to 5.3 from 5.2
 -------------------------

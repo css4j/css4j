@@ -429,20 +429,6 @@ public interface CSSValue extends Cloneable {
 		RATIO,
 
 		/**
-		 * {@code attr()} function.
-		 * @deprecated look for {@link CSSValue.Type#LEXICAL LEXICAL} instead.
-		 */
-		@Deprecated(forRemoval = true)
-		ATTR,
-
-		/**
-		 * Custom property reference.
-		 * @deprecated look for {@link CSSValue.Type#LEXICAL LEXICAL} instead.
-		 */
-		@Deprecated(forRemoval = true)
-		VAR,
-
-		/**
 		 * Environment variable. See {@link CSSEnvVariableValue}.
 		 */
 		ENV,
