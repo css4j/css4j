@@ -21,9 +21,22 @@ interface LexicalProvider extends CSSContentHandler {
 	LexicalUnitImpl getCurrentLexicalUnit();
 
 	/**
+	 * Set the current lexical unit.
+	 * 
+	 * @param currentlu the current lexical unit.
+	 */
+	void setCurrentLexicalUnit(LexicalUnitImpl currentlu);
+
+	boolean isCurrentUnitAFunction();
+
+	LexicalUnitImpl addPlainLexicalUnit(LexicalUnitImpl lu);
+
+	/**
 	 * Add an {@code EMPTY} lexical unit at the end of the current lexical chain.
 	 */
 	void addEmptyLexicalUnit();
+
+	void endFunctionArgument(int index);
 
 	/**
 	 * Legacy IE value compatibility is enabled.

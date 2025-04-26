@@ -339,7 +339,7 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyRangeList() throws CSSException {
-		LexicalUnit lunit = parsePropertyValue("U+022, U+0025-00FF, U+4??, U+FF00");
+		LexicalUnit lunit = parsePropertyValue("U+022, U+0025-00FF, U+4?? , U+FF00");
 		assertEquals(LexicalType.UNICODE_RANGE, lunit.getLexicalUnitType());
 		assertEquals("U+22, U+25-ff, U+4??, U+ff00", lunit.toString());
 		LexicalUnit subv = lunit.getSubValues();
@@ -391,6 +391,24 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyRangeWildcard2() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("U+??? ");
+		assertEquals(LexicalType.UNICODE_RANGE, lu.getLexicalUnitType());
+		assertEquals("U+???", lu.toString());
+		LexicalUnit subv = lu.getSubValues();
+		assertNotNull(subv);
+		assertEquals(LexicalType.UNICODE_WILDCARD, subv.getLexicalUnitType());
+		assertEquals("???", subv.getStringValue());
+		assertNull(subv.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, lu, "<unicode-range>");
+		assertMatch(Match.TRUE, lu, "<unicode-range>#");
+		assertMatch(Match.FALSE, lu, "<custom-ident>+");
+		assertMatch(Match.FALSE, lu, "<resolution>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyRangeWildcard2EOF() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("U+???");
 		assertEquals(LexicalType.UNICODE_RANGE, lu.getLexicalUnitType());
 		assertEquals("U+???", lu.toString());
@@ -405,6 +423,39 @@ public class PropertyParserTest {
 		assertMatch(Match.FALSE, lu, "<custom-ident>+");
 		assertMatch(Match.FALSE, lu, "<resolution>");
 		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyFunctionRange() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("function(U+0025-00FF) ident");
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+
+		assertEquals(LexicalType.UNICODE_RANGE, param.getLexicalUnitType());
+		assertEquals("U+25-ff", param.toString());
+		LexicalUnit subv = param.getSubValues();
+		assertNotNull(subv);
+		assertEquals(LexicalType.INTEGER, subv.getLexicalUnitType());
+		assertEquals(37, subv.getIntegerValue());
+		subv = subv.getNextLexicalUnit();
+		assertNotNull(subv);
+		assertEquals(LexicalType.INTEGER, subv.getLexicalUnitType());
+		assertEquals(255, subv.getIntegerValue());
+		assertNull(subv.getNextLexicalUnit());
+
+		assertMatch(Match.TRUE, param, "<unicode-range>");
+		assertMatch(Match.TRUE, param, "<unicode-range>#");
+		assertMatch(Match.FALSE, param, "<custom-ident>+");
+		assertMatch(Match.FALSE, param, "<resolution>");
+		assertMatch(Match.TRUE, param, "*");
+
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("ident", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
 	}
 
 	@Test
@@ -3073,6 +3124,14 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyUrlModifierIdent() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("url('a' b)");
+		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
+		assertEquals("a", lu.getStringValue());
+		assertEquals("url('a' b)", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueURL_Var() throws CSSException {
 		CSSParseException ex = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("url(var(--image))"));
@@ -3174,12 +3233,7 @@ public class PropertyParserTest {
 	}
 
 	@Test
-	public void testParsePropertyBadUrl6() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("url('a' b)"));
-	}
-
-	@Test
-	public void testParsePropertyBadUrl7() throws CSSException {
+	public void testParsePropertyBadUrlLegacySyntaxModifier() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("url(a b)"));
 	}
 

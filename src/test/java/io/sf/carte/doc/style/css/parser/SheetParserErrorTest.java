@@ -178,7 +178,7 @@ class SheetParserErrorTest {
 		String s = "|\u0211 :Z,<**\u0000\u0000\u0000 *";
 		parser.parseStyleSheet(new InputSource(new StringReader(s)));
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(12, errorHandler.getLastException().getColumnNumber());
+		assertEquals(8, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test

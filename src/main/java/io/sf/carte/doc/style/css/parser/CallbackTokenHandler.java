@@ -13,38 +13,144 @@ package io.sf.carte.doc.style.css.parser;
 
 import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
+import io.sf.carte.uparser.TokenProducer;
 
 abstract class CallbackTokenHandler extends BufferTokenHandler {
 
 	final CSSContentHandler caller;
 
+	private CSSContentHandler rootHandler;
+
+	/**
+	 * Construct a new CallbackTokenHandler.
+	 * 
+	 * @param caller the caller handler. By default, the caller handler will also be
+	 *               the root handler.
+	 */
 	CallbackTokenHandler(CSSContentHandler caller) {
 		super();
 		this.caller = caller;
+		this.rootHandler = caller;
 	}
 
 	protected CSSContentHandler getCaller() {
 		return caller;
 	}
 
+	CSSContentHandler getRootHandler() {
+		return rootHandler;
+	}
+
+	/**
+	 * Sets the root handler.
+	 * <p>
+	 * The root handler is responsible for error management and, in the case of
+	 * lexical handlers, semicolon handling.
+	 * </p>
+	 * 
+	 * @param rootHandler the root handler.
+	 */
+	void setRootHandler(CSSContentHandler rootHandler) {
+		this.rootHandler = rootHandler;
+	}
+
+	@Override
+	public void leftParenthesis(int index) {
+		getRootHandler().incrParenDepth();
+		unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+	}
+
+	@Override
+	public void leftCurlyBracket(int index) {
+		rootHandler.reportError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '{'");
+		handleErrorRecovery();
+		CSSTokenHandler cur = getControlHandler().getCurrentHandler();
+		if (cur != this) {
+			cur.leftCurlyBracket(index);
+		}
+	}
+
+	@Override
+	public void rightParenthesis(int index) {
+		processBuffer(index, TokenProducer.CHAR_RIGHT_PAREN);
+		caller.rightParenthesis(index);
+	}
+
+	@Override
+	public void rightCurlyBracket(int index) {
+		processBuffer(index, TokenProducer.CHAR_RIGHT_PAREN);
+		caller.rightCurlyBracket(index);
+	}
+
+	@Override
+	public void character(int index, int codePoint) {
+		if (codePoint == TokenProducer.CHAR_SEMICOLON) {
+			handleSemicolon(index);
+		} else {
+			unexpectedCharError(index, codePoint);
+		}
+	}
+
+	void handleSemicolon(int index) {
+		processBuffer(index, TokenProducer.CHAR_SEMICOLON);
+		caller.character(index, TokenProducer.CHAR_SEMICOLON);
+	}
+
 	@Override
 	public void handleErrorRecovery() {
-		caller.handleErrorRecovery();
+		rootHandler.handleErrorRecovery();
 	}
 
 	@Override
 	public void reportError(CSSParseException ex) throws CSSParseException {
-		caller.reportError(ex);
+		rootHandler.reportError(ex);
+		setParseError();
+	}
+
+	@Override
+	public void setParseError() {
+		super.setParseError();
+		caller.setParseError();
 	}
 
 	@Override
 	public void handleWarning(int index, byte errCode, String message, Throwable cause) {
-		caller.handleWarning(index, errCode, message, cause);
+		rootHandler.handleWarning(index, errCode, message, cause);
+	}
+
+	@Override
+	public boolean isInError() {
+		return rootHandler.isInError();
+	}
+
+	@Override
+	public void endOfStream(int len) {
+		processBuffer(len, 0);
+		CSSTokenHandler cur = getControlHandler().getCurrentHandler();
+		if (cur != this) {
+			cur.endOfStream(len);
+		} else {
+			caller.endOfStream(len);
+		}
 	}
 
 	@Override
 	public CSSErrorHandler getErrorHandler() {
-		return caller.getErrorHandler();
+		return rootHandler.getErrorHandler();
+	}
+
+	@Override
+	public HandlerManager getManager() {
+		return rootHandler.getManager();
+	}
+
+	void yieldHandling(CallbackTokenHandler yieldHandler) {
+		yieldHandler.setRootHandler(rootHandler);
+		super.yieldHandling(yieldHandler);
+	}
+
+	void yieldBack() {
+		super.yieldHandling(caller);
 	}
 
 }

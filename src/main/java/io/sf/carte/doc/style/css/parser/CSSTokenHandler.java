@@ -42,6 +42,14 @@ abstract class CSSTokenHandler extends AbstractTokenHandler implements CSSConten
 	}
 
 	/**
+	 * Increase the parentheses depth by one.
+	 */
+	@Override
+	public void incrParenDepth() {
+		parendepth++;
+	}
+
+	/**
 	 * Decrease the parentheses depth by one.
 	 */
 	@Override
@@ -154,7 +162,7 @@ abstract class CSSTokenHandler extends AbstractTokenHandler implements CSSConten
 		return getControlHandler().getTokenControl();
 	}
 
-	protected void yieldHandling(CSSTokenHandler yieldHandler) {
+	protected void yieldHandling(CSSContentHandler yieldHandler) {
 		getControlHandler().yieldHandling(yieldHandler);
 	}
 

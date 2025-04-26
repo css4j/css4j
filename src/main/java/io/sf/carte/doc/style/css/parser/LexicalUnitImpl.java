@@ -393,16 +393,6 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			return identCssText != null ? identCssText : value;
 		case STRING:
 			return identCssText;
-		case URI:
-			String quri;
-			if (identCssText != null) {
-				quri = identCssText;
-			} else if (value != null) {
-				quri = ParseHelper.quote(value, '\'');
-			} else {
-				quri = "";
-			}
-			return "url(" + quri + ")";
 		case INHERIT:
 			return "inherit";
 		case INITIAL:
@@ -630,7 +620,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			}
 			// pass-through
 		case url:
-			if (type == LexicalType.URI || type == LexicalType.SRC) {
+			// URI is handled by its own unit
+			if (type == LexicalType.SRC) {
 				return Match.TRUE;
 			}
 			break;

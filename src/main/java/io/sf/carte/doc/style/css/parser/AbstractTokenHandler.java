@@ -102,7 +102,7 @@ abstract class AbstractTokenHandler
 		reportError(ex);
 	}
 
-	void reportError(int index, byte errCode, String message) throws CSSParseException {
+	public void reportError(int index, byte errCode, String message) throws CSSParseException {
 		CSSParseException ex = createException(index, errCode, message);
 		reportError(ex);
 	}
@@ -151,7 +151,7 @@ abstract class AbstractTokenHandler
 	/**
 	 * @return {@code true} if the handler is in error state.
 	 */
-	boolean isInError() {
+	public boolean isInError() {
 		return parseError;
 	}
 

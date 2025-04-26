@@ -99,12 +99,26 @@ class FunctionFactories {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.URI);
+				return new URLUnitImpl();
 			}
 
 			@Override
 			public String canonicalName(String lcName) {
 				return null;
+			}
+
+			@Override
+			public void handle(ValueTokenHandler parent) {
+				URLTokenHandler handler = new URLTokenHandler(parent) {
+
+					@Override
+					public void rightParenthesis(int index) {
+						super.rightParenthesis(index);
+						parent.endFunctionArgument(index);
+					}
+
+				};
+				parent.yieldHandling(handler);
 			}
 
 		});

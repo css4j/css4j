@@ -20,11 +20,18 @@ interface CSSContentHandler
 		extends ContentHandler<RuntimeException>, TokenErrorHandler<RuntimeException> {
 
 	/**
+	 * Increase the parentheses depth by one.
+	 */
+	void incrParenDepth();
+
+	/**
 	 * Decrease the parentheses depth by one.
 	 */
 	void decrParenDepth();
 
 	void setParseError();
+
+	void reportError(int index, byte errCode, String message) throws CSSParseException;
 
 	void reportError(CSSParseException ex) throws CSSParseException;
 
@@ -35,6 +42,8 @@ interface CSSContentHandler
 	void handleWarning(int index, byte errCode, String message, Throwable cause);
 
 	void unexpectedEOFError(int len) throws CSSParseException;
+
+	boolean isInError();
 
 	void handleErrorRecovery();
 

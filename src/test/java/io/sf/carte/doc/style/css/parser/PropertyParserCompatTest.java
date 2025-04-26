@@ -143,14 +143,22 @@ public class PropertyParserCompatTest {
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals("StartColorStr=#bd0afa", lu.getStringValue());
+		assertEquals("StartColorStr=", lu.getStringValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		assertEquals("#bd0afa", lu.getCssText());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
-		assertEquals("EndColorStr=#d0df9f", lu.getStringValue());
+		assertEquals("EndColorStr=", lu.getStringValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		assertEquals("#d0df9f", lu.getCssText());
 		assertNull(lu.getNextLexicalUnit());
 
 		LexicalUnit clone = lu.clone();
