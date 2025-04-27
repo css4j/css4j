@@ -3590,7 +3590,7 @@ public class PropertyParserTest {
 	public void testParsePropertyValueElementReferenceNoID() throws CSSException {
 		CSSParseException ex = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("element(#)"));
-		assertEquals(9, ex.getColumnNumber());
+		assertEquals(10, ex.getColumnNumber());
 	}
 
 	@Test

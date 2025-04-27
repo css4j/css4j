@@ -34,6 +34,11 @@ abstract public class DefaultErrorHandler extends AbstractErrorHandler {
 	}
 
 	@Override
+	public boolean hasInlineErrors() {
+		return inlineStyleErrors != null || super.hasInlineErrors();
+	}
+
+	@Override
 	public void linkedStyleError(Node node, String message) {
 		if (linkedStyleErrors == null) {
 			linkedStyleErrors = new LinkedHashMap<>();

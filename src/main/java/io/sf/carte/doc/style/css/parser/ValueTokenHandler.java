@@ -5,7 +5,6 @@ import java.util.Locale;
 import io.sf.carte.doc.DOMNullCharacterException;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.UnitStringToId;
-import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.uparser.TokenProducer;
@@ -25,7 +24,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	private final ShorthandDatabase propertyDatabase;
 
 	private int squareBracketDepth;
-	private boolean functionToken = false;
+	boolean functionToken = false;
 	private final boolean flagIEValues;
 
 	private static final FunctionFactories functionFactories = new FunctionFactories();
@@ -95,7 +94,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	public void leftParenthesis(int index) {
 		parendepth++;
 		if (prevcp != 65) {
-			if (!functionToken) {
+			if (!isCurrentUnitAFunction()) {
 				// Not a function token
 				unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
 				prevcp = TokenProducer.CHAR_LEFT_PAREN;
@@ -188,7 +187,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	public void rightParenthesis(int index) {
 		processBuffer(index, TokenProducer.CHAR_RIGHT_PAREN);
 		decrParenDepth(index);
-		if (functionToken) {
+		if (isCurrentUnitAFunction() && !isInError()) {
 			checkFunction(index);
 			endFunctionArgument(index);
 		}
@@ -214,7 +213,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	 */
 	private LexicalUnitImpl newLexicalUnit(LexicalType unitType) {
 		LexicalUnitImpl lu = new LexicalUnitImpl(unitType);
-		if (functionToken) {
+		if (isCurrentUnitAFunction()) {
 			currentlu.addFunctionParameter(lu);
 		} else {
 			if (currentlu != null) {
@@ -237,7 +236,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	 */
 	@Override
 	public LexicalUnitImpl addPlainLexicalUnit(LexicalUnitImpl lu) {
-		if (functionToken) {
+		if (isCurrentUnitAFunction()) {
 			currentlu.addFunctionParameter(lu);
 		} else {
 			if (currentlu != null) {
@@ -253,7 +252,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	}
 
 	private LexicalUnitImpl addFunctionOrExpressionUnit(LexicalUnitImpl lu) {
-		if (functionToken) {
+		if (isCurrentUnitAFunction()) {
 			currentlu.addFunctionParameter(lu);
 		} else {
 			if (currentlu != null) {
@@ -265,14 +264,6 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			}
 		}
 		currentlu = lu;
-		return lu;
-	}
-
-	private SyntaxUnitImpl newSyntaxUnit() {
-		assert functionToken;
-
-		SyntaxUnitImpl lu = new SyntaxUnitImpl();
-		currentlu.addFunctionParameter(lu);
 		return lu;
 	}
 
@@ -407,21 +398,11 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 					newLexicalUnit(LexicalType.OPERATOR_MOD);
 				}
 			} else if (codepoint == 35) { // #
-				if (buffer.length() != 0) {
-					if (functionToken
-							&& currentlu.getLexicalUnitType() != LexicalType.ELEMENT_REFERENCE) {
-						buffer.append('#');
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
-				} else if (currentlu == null
-						|| currentlu.getLexicalUnitType() != LexicalType.ELEMENT_REFERENCE) {
+				if (buffer.length() == 0) {
 					// Handle hex color
 					yieldHandling(new HexColorTH(this));
 					prevcp = 65;
 					return;
-				} else if (currentlu.value == null) {
-					buffer.append('#');
 				} else {
 					unexpectedCharError(index, codepoint);
 				}
@@ -486,13 +467,6 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
-				} else if (currentlu.getLexicalUnitType() == LexicalType.TYPE_FUNCTION) {
-					if (codepoint == TokenProducer.CHAR_LESS_THAN
-							|| codepoint == TokenProducer.CHAR_GREATER_THAN) {
-						bufferAppend(codepoint);
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
 				} else if (codepoint == 61 && handleEqualsSignInsideFunction(index)) {
 					codepoint = 65;
 				} else {
@@ -523,7 +497,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			}
 			if (parendepth > 0) {
 				if (!isInError()) {
-					if (functionToken && allowSemicolonArgument()) {
+					if (isCurrentUnitAFunction() && allowSemicolonArgument()) {
 						newLexicalUnit(LexicalType.OPERATOR_SEMICOLON);
 					} else {
 						unexpectedCharError(index, ';');
@@ -663,7 +637,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			buffer.append('.');
 		} else if (buffer.length() == 0) {
 			LexicalUnitImpl lastValue;
-			if (prevcp == 45 && functionToken && !isEscapedIdent()
+			if (prevcp == 45 && isCurrentUnitAFunction() && !isEscapedIdent()
 					&& this.currentlu.parameters != null
 					&& (lastValue = CSSParser.findLastValue(currentlu.parameters))
 							.getLexicalUnitType() == LexicalType.OPERATOR_MINUS) {
@@ -700,7 +674,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	@Override
 	protected void processBuffer(int index, int triggerCp) {
 		// XXX next block can probably be removed
-		// This can be reached in error in unexpected ';' or EOF
+		// This can be reached in error due to unexpected ';' or EOF
 		// In those cases, buffer should be empty.
 		if (parseError) {
 			buffer.setLength(0);
@@ -708,34 +682,9 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 		}
 		int buflen = buffer.length();
 		if (buflen != 0) {
-			if (functionToken) {
-				switch (currentlu.getLexicalUnitType()) {
-				case ELEMENT_REFERENCE:
-					String s = unescapeStringValue(index);
-					if (s.length() > 1 && s.charAt(0) == '#') {
-						currentlu.value = s.substring(1);
-					} else {
-						handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE,
-								"Wrong element reference: " + s);
-						functionToken = false;
-					}
-					buffer.setLength(0);
-					break;
-				case TYPE_FUNCTION:
-					String syn = unescapeStringValue(index);
-					buffer.setLength(0);
-					SyntaxUnitImpl synLU = newSyntaxUnit();
-					try {
-						synLU.syntax = new SyntaxParser().parseSyntax(syn);
-					} catch (CSSException e) {
-						handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE,
-								"Invalid syntax: " + syn);
-					}
-					break;
-				default:
-					if (isEscapedIdent() || !checkLastIdentCompat()) {
-						parseNonHexcolorValue(index);
-					}
+			if (isCurrentUnitAFunction()) {
+				if (isEscapedIdent() || !checkLastIdentCompat()) {
+					parseNonHexcolorValue(index);
 				}
 			} else {
 				parseNonHexcolorValue(index);

@@ -29,6 +29,27 @@ interface CSSContentHandler
 	 */
 	void decrParenDepth();
 
+	/**
+	 * Unexpected left square bracket error.
+	 * 
+	 * @param index the index.
+	 */
+	void unexpectedLeftSquareBracketError(int index);
+
+	/**
+	 * Unexpected right square bracket error.
+	 * 
+	 * @param index the index.
+	 */
+	void unexpectedRightSquareBracketError(int index);
+
+	/**
+	 * Unexpected right curly bracket error.
+	 * 
+	 * @param index the index.
+	 */
+	void unexpectedRightCurlyBracketError(int index);
+
 	void setParseError();
 
 	void reportError(int index, byte errCode, String message) throws CSSParseException;

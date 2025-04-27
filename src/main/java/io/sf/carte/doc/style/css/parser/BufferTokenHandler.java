@@ -237,6 +237,39 @@ abstract class BufferTokenHandler extends CSSTokenHandler implements CSSContentH
 	}
 
 	@Override
+	public void unexpectedLeftSquareBracketError(int index) {
+		if (!isInError()) {
+			super.unexpectedLeftSquareBracketError(index);
+		}
+		AbstractTokenHandler curh = getControlHandler().getCurrentHandler();
+		if (curh != this) {
+			curh.leftSquareBracket(index);
+		}
+	}
+
+	@Override
+	public void unexpectedRightCurlyBracketError(int index) {
+		if (!isInError()) {
+			super.unexpectedRightCurlyBracketError(index);
+		}
+		AbstractTokenHandler curh = getControlHandler().getCurrentHandler();
+		if (curh != this) {
+			curh.rightCurlyBracket(index);
+		}
+	}
+
+	@Override
+	public void unexpectedRightSquareBracketError(int index) {
+		if (!isInError()) {
+			super.unexpectedRightSquareBracketError(index);
+		}
+		AbstractTokenHandler curh = getControlHandler().getCurrentHandler();
+		if (curh != this) {
+			curh.rightSquareBracket(index);
+		}
+	}
+
+	@Override
 	protected void yieldHandling(CSSContentHandler yieldHandler) {
 		ControlTokenHandler ctl = getControlHandler();
 		if (ctl.getCurrentHandler() instanceof IgnoredDeclarationTokenHandler) {

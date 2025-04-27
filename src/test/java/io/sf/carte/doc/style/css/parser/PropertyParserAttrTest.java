@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -732,6 +733,35 @@ public class PropertyParserAttrTest {
 	}
 
 	@Test
+	public void testParsePropertyValueAttrURLImage() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("attr(data-img type(<url> | <image>))");
+		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
+		assertEquals("attr", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("data-img", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		assertEquals("<url> | <image>", param.getParameters().getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("attr(data-img type(<url> | <image>))", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<url>");
+		assertMatch(Match.TRUE, lu, "<image>");
+		assertMatch(Match.TRUE, lu, "<url>#");
+		assertMatch(Match.TRUE, lu, "<image>#");
+		assertMatch(Match.TRUE, lu, "<url>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>#");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <url>+");
+		assertMatch(Match.TRUE, lu, "<custom-ident> | <image>");
+		assertMatch(Match.FALSE, lu, "<percentage>");
+		assertMatch(Match.FALSE, lu, "<color>");
+		assertEquals(Match.TRUE, lu.matches(universalSyntax));
+	}
+
+	@Test
 	public void testParsePropertyValueAttrURLFallback() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-img type(<url>), 'foo.png')");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
@@ -824,6 +854,54 @@ public class PropertyParserAttrTest {
 		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
+	/*
+	 * This may not work in web browsers.
+	 */
+	@Test
+	public void testParsePropertyValueAttrTypeVar() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("attr(data-width type(var(--data-syn)), 5%)");
+		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
+		assertEquals("attr", lu.getFunctionName());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("data-width", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+		LexicalUnit typeparam = param.getParameters();
+		assertEquals(LexicalType.VAR, typeparam.getLexicalUnitType());
+		LexicalUnit varparam = typeparam.getParameters();
+		assertNotNull(varparam);
+		assertEquals(LexicalType.IDENT, varparam.getLexicalUnitType());
+		assertEquals("--data-syn", varparam.getStringValue());
+		assertNull(varparam.getNextLexicalUnit());
+		assertNull(typeparam.getNextLexicalUnit());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(5f, param.getFloatValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("attr(data-width type(var(--data-syn)), 5%)", lu.toString());
+
+		assertMatch(Match.PENDING, lu, "<percentage>");
+		assertMatch(Match.PENDING, lu, "<length-percentage>#");
+		assertMatch(Match.PENDING, lu, "<string> | <percentage>");
+		assertMatch(Match.PENDING, lu, "<color>");
+		assertEquals(Match.TRUE, lu.matches(universalSyntax));
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+	}
+
 	@Test
 	public void testParsePropertyValueAttrVarFallback() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-width type(<length>), var(--data-width))");
@@ -861,13 +939,31 @@ public class PropertyParserAttrTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrError() throws CSSException {
-		try {
-			parsePropertyValue("attr()");
-			fail("Must throw exception");
-		} catch (CSSParseException e) {
-			assertEquals(6, e.getColumnNumber());
-		}
+	public void testParsePropertyValueAttrEmptyError() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("attr()"));
+		assertEquals(6, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParsePropertyValueAttrQuotedError() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("attr(\"<percentage>\")"));
+		assertEquals(20, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParsePropertyValueAttrQuotedTypeError() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("attr(data-pcnt type(\"<percentage>\"))"));
+		assertEquals(21, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParsePropertyValueAttrInvalidTypeError() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("attr(data-pcnt type(&percentage>))"));
+		assertEquals(21, ex.getColumnNumber());
 	}
 
 	@Test

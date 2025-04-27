@@ -113,6 +113,33 @@ abstract class AbstractTokenHandler
 		unexpectedCharError(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET);
 	}
 
+	/**
+	 * Unexpected left square bracket error.
+	 * 
+	 * @param index the index.
+	 */
+	public void unexpectedLeftSquareBracketError(int index) {
+		unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+	}
+
+	/**
+	 * Unexpected right curly bracket error.
+	 * 
+	 * @param index the index.
+	 */
+	public void unexpectedRightCurlyBracketError(int index) {
+		unexpectedCharError(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
+	}
+
+	/**
+	 * Unexpected right square bracket error.
+	 * 
+	 * @param index the index.
+	 */
+	public void unexpectedRightSquareBracketError(int index) {
+		unexpectedCharError(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+	}
+
 	void unexpectedCharError(int index, int codepoint) {
 		handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
 				"Unexpected '" + new String(Character.toChars(codepoint)) + "'");

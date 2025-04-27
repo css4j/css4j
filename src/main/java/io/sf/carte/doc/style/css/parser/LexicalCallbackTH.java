@@ -75,7 +75,7 @@ abstract class LexicalCallbackTH extends CallbackTokenHandler implements Lexical
 
 	@Override
 	public void setCurrentLexicalUnit(LexicalUnitImpl currentlu) {
-		this.currentlu = currentlu;
+		addPlainLexicalUnit(currentlu);
 	}
 
 	@Override

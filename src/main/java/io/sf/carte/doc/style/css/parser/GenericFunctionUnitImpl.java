@@ -19,9 +19,13 @@ class GenericFunctionUnitImpl extends FunctionUnitImpl {
 		super(LexicalType.FUNCTION);
 	}
 
+	public GenericFunctionUnitImpl(LexicalType type) {
+		super(type);
+	}
+
 	@Override
 	FunctionUnitImpl instantiateLexicalUnit() {
-		return new GenericFunctionUnitImpl();
+		return new GenericFunctionUnitImpl(getLexicalUnitType());
 	}
 
 }

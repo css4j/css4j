@@ -81,7 +81,8 @@ abstract class AbstractErrorHandler implements ErrorHandler, java.io.Serializabl
 		return null;
 	}
 
-	protected boolean hasInlineErrors() {
+	@Override
+	public boolean hasInlineErrors() {
 		if (inlineErrorHandlerMap != null) {
 			for (StyleDeclarationErrorHandler handler : inlineErrorHandlerMap.values()) {
 				if (handler.hasErrors()) {

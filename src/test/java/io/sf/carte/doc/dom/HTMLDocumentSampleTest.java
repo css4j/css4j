@@ -1817,7 +1817,8 @@ public class HTMLDocumentSampleTest {
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(0f, marginLeft.getFloatValue(CSSUnit.CSS_PERCENTAGE));
-		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+		assertTrue(xhtmlDoc.getErrorHandler().hasInlineErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasWarnings());
 	}

@@ -60,6 +60,9 @@ class AttrUnitImpl extends FunctionUnitImpl {
 					try {
 						attrSyntax = typeParam.getSyntax();
 					} catch (IllegalStateException e) {
+						if (typeParam.getLexicalUnitType() == LexicalType.VAR) {
+							return Match.PENDING;
+						}
 						return Match.FALSE; // Error
 					}
 					break;

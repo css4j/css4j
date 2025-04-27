@@ -46,13 +46,27 @@ class FunctionFactories {
 				return new AttrUnitImpl();
 			}
 
+			@Override
+			public boolean validate(CSSContentHandler handler, int index, LexicalUnitImpl lu) {
+				LexicalType type;
+				return lu.parameters != null
+						&& ((type = lu.parameters.getLexicalUnitType()) == LexicalType.IDENT
+								|| type == LexicalType.VAR)
+						&& LexicalUnitFactory.super.validate(handler, index, lu);
+			}
+
 		});
 
 		factories.put("type", new LexicalUnitFactory() {
 
 			@Override
 			public LexicalUnitImpl createUnit() {
-				return new LexicalUnitImpl(LexicalType.TYPE_FUNCTION);
+				return new GenericFunctionUnitImpl(LexicalType.TYPE_FUNCTION);
+			}
+
+			@Override
+			public void handle(ValueTokenHandler parent) {
+				parent.yieldHandling(new TypeFunctionTH(parent));
 			}
 
 		});
@@ -419,6 +433,11 @@ class FunctionFactories {
 			@Override
 			public String canonicalName(String lcName) {
 				return null;
+			}
+
+			@Override
+			public void handle(ValueTokenHandler parent) {
+				parent.yieldHandling(new ElementReferenceTH(parent));
 			}
 
 		});

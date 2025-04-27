@@ -56,8 +56,14 @@ abstract class CallbackTokenHandler extends BufferTokenHandler {
 
 	@Override
 	public void leftParenthesis(int index) {
+		// Increase the paren depth in the root, so it is given correctly to the error handler
 		getRootHandler().incrParenDepth();
 		unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+	}
+
+	@Override
+	public void leftSquareBracket(int index) {
+		getRootHandler().unexpectedLeftSquareBracketError(index);
 	}
 
 	@Override
@@ -74,6 +80,12 @@ abstract class CallbackTokenHandler extends BufferTokenHandler {
 	public void rightParenthesis(int index) {
 		processBuffer(index, TokenProducer.CHAR_RIGHT_PAREN);
 		caller.rightParenthesis(index);
+	}
+
+	@Override
+	public void rightSquareBracket(int index) {
+		processBuffer(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+		caller.rightSquareBracket(index);
 	}
 
 	@Override
@@ -151,6 +163,56 @@ abstract class CallbackTokenHandler extends BufferTokenHandler {
 
 	void yieldBack() {
 		super.yieldHandling(caller);
+	}
+
+	class CallbackValueTokenHandler extends ValueTokenHandler {
+
+		CallbackValueTokenHandler() {
+			super(false);
+		}
+
+		@Override
+		public void endFunctionArgument(int index) {
+			super.endFunctionArgument(index);
+			checkFunctionCallback(index);
+		}
+
+		protected void checkFunctionCallback(int index) {
+			if (parendepth <= 0 && !isInError()) {
+				CallbackTokenHandler.this.rightParenthesis(index);
+			}
+		}
+
+		@Override
+		public void handleErrorRecovery() {
+			CallbackTokenHandler.this.handleErrorRecovery();
+		}
+
+		@Override
+		public boolean isInError() {
+			return CallbackTokenHandler.this.isInError();
+		}
+
+		@Override
+		public void reportError(CSSParseException ex) throws CSSParseException {
+			CallbackTokenHandler.this.reportError(ex);
+		}
+
+		@Override
+		protected void handleError(CSSParseException ex) throws CSSParseException {
+			CallbackTokenHandler.this.handleError(ex);
+		}
+
+		@Override
+		public CSSErrorHandler getErrorHandler() {
+			return CallbackTokenHandler.this.getErrorHandler();
+		}
+
+		@Override
+		public HandlerManager getManager() {
+			return CallbackTokenHandler.this.getManager();
+		}
+
 	}
 
 }

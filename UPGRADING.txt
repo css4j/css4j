@@ -25,6 +25,8 @@ Upgrading to 6.0 from 5.3.1
 
 - `SheetErrorHandler.emptyStyleRule(String)` was removed.
 
+- Added `hasInlineErrors()` to `ErrorHandler`.
+
 - `charset(String)` was added to `CSSHandler` with a default empty implementation.
 
 - The `importStyle` method in `CSSHandler` now has the signature

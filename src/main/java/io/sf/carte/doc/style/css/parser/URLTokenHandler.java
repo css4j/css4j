@@ -11,9 +11,7 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import io.sf.carte.doc.style.css.nsac.CSSErrorHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
-import io.sf.carte.uparser.TokenProducer;
 
 class URLTokenHandler extends CallbackTokenHandler {
 
@@ -66,7 +64,11 @@ class URLTokenHandler extends CallbackTokenHandler {
 
 	@Override
 	public void rightCurlyBracket(int index) {
-		appendIfValid(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
+		if (url == null || allowModifiers) {
+			buffer.append('}');
+		} else {
+			unexpectedRightCurlyBracketError(index);
+		}
 	}
 
 	private void appendIfValid(int index, int codePoint) {
@@ -79,12 +81,20 @@ class URLTokenHandler extends CallbackTokenHandler {
 
 	@Override
 	public void leftSquareBracket(int index) {
-		appendIfValid(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+		if (url == null || allowModifiers) {
+			buffer.append('[');
+		} else {
+			unexpectedLeftSquareBracketError(index);
+		}
 	}
 
 	@Override
 	public void rightSquareBracket(int index) {
-		appendIfValid(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+		if (url == null || allowModifiers) {
+			buffer.append(']');
+		} else {
+			unexpectedRightSquareBracketError(index);
+		}
 	}
 
 	@Override
@@ -176,37 +186,25 @@ class URLTokenHandler extends CallbackTokenHandler {
 			LexicalUnitImpl lu = new GenericFunctionUnitImpl();
 			lu.value = mod;
 			addModifier(lu);
-			yieldHandling(
-					new ValueTokenHandler(false) {
-
-						@Override
-						void decrParenDepth(int index) {
-							parendepth--;
-							if (parendepth < 0 && !isInError()) {
-								URLTokenHandler.this.parendepth--;
-								yieldHandling(URLTokenHandler.this);
-							}
-						}
-
-						@Override
-						public void handleErrorRecovery() {
-							URLTokenHandler.this.handleErrorRecovery();
-						}
-
-						@Override
-						public CSSErrorHandler getErrorHandler() {
-							return URLTokenHandler.this.getErrorHandler();
-						}
-
-						@Override
-						public HandlerManager getManager() {
-							return URLTokenHandler.this.getManager();
-						}
-
-					});
+			yieldHandling(new ModifierValueTokenHandler());
 		} else {
 			unexpectedCharError(index, '(');
 		}
+	}
+
+	class ModifierValueTokenHandler extends CallbackValueTokenHandler {
+
+		ModifierValueTokenHandler() {
+			super();
+			parendepth = 2; // url('url' modifier(
+			functionToken = true;
+		}
+
+		@Override
+		public boolean isCurrentUnitAFunction() {
+			return true;
+		}
+
 	}
 
 	@Override

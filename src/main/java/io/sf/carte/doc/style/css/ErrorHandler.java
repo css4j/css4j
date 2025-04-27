@@ -57,6 +57,13 @@ public interface ErrorHandler {
 	boolean hasComputedStyleErrors(CSSElement element);
 
 	/**
+	 * Check whether this handler has processed inline style errors.
+	 * 
+	 * @return <code>true</code> if this handler processed inline style errors.
+	 */
+	boolean hasInlineErrors();
+
+	/**
 	 * Check whether this handler has processed any media-related errors.
 	 * 
 	 * @return <code>true</code> if this handler processed any media-related errors.
