@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.parser;
 
 import java.util.Locale;
 
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
@@ -52,6 +53,10 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 	LexicalUnitImpl parameters = null;
 
 	LexicalUnitImpl ownerLexicalUnit = null;
+
+	private StringList precedingComments;
+
+	private StringList trailingComments;
 
 	public LexicalUnitImpl(LexicalType unitType) {
 		super();
@@ -310,12 +315,51 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		}
 	}
 
+	/**
+	 * Get the list of preceding comments.
+	 * 
+	 * @return the list of preceding comments, or {@code null} if none.
+	 */
+	@Override
+	public StringList getPrecedingComments() {
+		return precedingComments;
+	}
+
+	boolean addPrecedingComments(StringList comments) {
+		if (precedingComments == null) {
+			precedingComments = comments;
+		} else {
+			precedingComments.addAll(comments);
+		}
+		return true;
+	}
+
+	/**
+	 * Get the list of trailing comments.
+	 * 
+	 * @return the list of trailing comments, or {@code null} if none.
+	 */
+	@Override
+	public StringList getTrailingComments() {
+		return trailingComments;
+	}
+
+	boolean addTrailingComments(StringList comments) {
+		if (trailingComments == null) {
+			trailingComments = comments;
+		} else {
+			trailingComments.addAll(comments);
+		}
+		return true;
+	}
+
 	void reset() {
 		intValue = 0;
 		floatValue = 0;
 		dimensionUnitText = "";
 		parameters = null;
 		nextLexicalUnit = null;
+		precedingComments = null;
 	}
 
 	@Override

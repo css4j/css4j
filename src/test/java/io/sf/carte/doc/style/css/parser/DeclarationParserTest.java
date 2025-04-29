@@ -23,6 +23,7 @@ import java.io.StringReader;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
@@ -97,6 +98,28 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationEmptyCommentEOF() throws CSSException {
+		parseStyleDeclaration("--Box-shadow-inset:/* empty */");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("--Box-shadow-inset", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.EMPTY, lu.getLexicalUnitType());
+		assertEquals("", lu.getStringValue());
+		assertEquals("", lu.toString());
+
+		StringList comments = lu.getPrecedingComments();
+		assertNotNull(comments);
+		assertEquals(1, comments.getLength());
+		assertEquals(" empty ", comments.item(0));
+
+		assertNull(lu.getNextLexicalUnit());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
 	public void testParseStyleDeclarationEmptyWS_EOF() throws CSSException {
 		parseStyleDeclaration("--Box-shadow-inset :");
 		assertEquals(1, handler.propertyNames.size());
@@ -122,6 +145,28 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.EMPTY, lu.getLexicalUnitType());
 		assertEquals("", lu.getStringValue());
 		assertEquals("", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationEmptyWS_CommentEOF() throws CSSException {
+		parseStyleDeclaration("--Box-shadow-inset: /* empty */ ");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("--Box-shadow-inset", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.EMPTY, lu.getLexicalUnitType());
+		assertEquals("", lu.getStringValue());
+		assertEquals("", lu.toString());
+
+		StringList comments = lu.getPrecedingComments();
+		assertNotNull(comments);
+		assertEquals(1, comments.getLength());
+		assertEquals(" empty ", comments.item(0));
+
 		assertNull(lu.getNextLexicalUnit());
 
 		assertFalse(errorHandler.hasError());
@@ -388,6 +433,25 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationBadUrlModifier() throws CSSException {
+		parseStyleDeclaration("background-image: url('image.png' format(+;width:0;));height:100px;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+
+		assertEquals("height", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
+		assertEquals(100f, lu.getFloatValue(), 1e-5f);
+		assertNull(lu.getNextLexicalUnit());
+
+		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
+		assertEquals(43, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
 	public void testParseStyleDeclarationBad() {
 		parseStyleDeclaration("list-style: @");
 		assertEquals(0, handler.propertyNames.size());
@@ -427,6 +491,28 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.EMPTY, lu.getLexicalUnitType());
 		assertEquals("", lu.getStringValue());
 		assertEquals("", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationEmptyComment() {
+		parseStyleDeclaration("--My-property:/* empty */;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("--My-property", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.EMPTY, lu.getLexicalUnitType());
+		assertEquals("", lu.getStringValue());
+		assertEquals("", lu.toString());
+
+		StringList comments = lu.getPrecedingComments();
+		assertNotNull(comments);
+		assertEquals(1, comments.getLength());
+		assertEquals(" empty ", comments.item(0));
+
 		assertNull(lu.getNextLexicalUnit());
 
 		assertFalse(errorHandler.hasError());
@@ -509,7 +595,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclaration3() throws CSSException {
-		parseStyleDeclaration("font-family: Times New Roman; color: yellow; width: calc(100% - 3em);");
+		parseStyleDeclaration(
+				"font-family: Times New Roman; color: yellow; width: calc(100% - 3em);");
 		assertEquals(3, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		assertEquals("color", handler.propertyNames.get(1));
@@ -617,6 +704,7 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("bar", lu.getStringValue());
 		assertEquals("bar", lu.toString());
+		assertEquals("(skipped)!rtl:ignore", lu.getTrailingComments().item(0));
 		assertNull(lu.getNextLexicalUnit());
 		assertEquals(3, handler.comments.size());
 		assertEquals("!rtl:ignore", handler.comments.get(0));
@@ -1047,14 +1135,13 @@ public class DeclarationParserTest {
 	@Test
 	public void testParseStyleDeclarationEscapedPropertyValue6() throws CSSException {
 		parseStyleDeclaration(
-			"font-family: \\5FAE\\8F6F\\96C5\\9ED1,Arial,\\5b8b\\4f53,sans-serif");
+				"font-family: \\5FAE\\8F6F\\96C5\\9ED1,Arial,\\5b8b\\4f53,sans-serif");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("font-family", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("微软雅黑", lu.getStringValue());
-		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , Arial, \\5b8b\\4f53 , sans-serif",
-			lu.toString());
+		assertEquals("\\5fae\\8f6f\\96c5\\9ed1 , Arial, \\5b8b\\4f53 , sans-serif", lu.toString());
 		lu = lu.getNextLexicalUnit();
 		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
 		lu = lu.getNextLexicalUnit();
@@ -2004,7 +2091,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBorderImage() throws CSSException {
-		parseStyleDeclaration("border-image: url('/img/border.png') 25% 30% 12% 20% fill / 2pt / 1 round;");
+		parseStyleDeclaration(
+				"border-image: url('/img/border.png') 25% 30% 12% 20% fill / 2pt / 1 round;");
 		assertEquals("border-image", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
@@ -2059,6 +2147,19 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationBackgroundImage() throws CSSException {
+		parseStyleDeclaration(
+				"background-image: url('ignore.png';)/* ignore */;background-image: url('/img/back.png');");
+		assertEquals("background-image", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
+		assertEquals("/img/back.png", lu.getStringValue());
+		assertEquals("url('/img/back.png')", lu.toString());
+		lu = lu.getNextLexicalUnit();
+		assertNull(lu);
+	}
+
+	@Test
 	public void testParseStyleDeclarationBackgroundImageGradient() throws CSSException {
 		parseStyleDeclaration("background-image: linear-gradient(35deg);");
 		assertEquals(1, handler.lexicalValues.size());
@@ -2089,7 +2190,7 @@ public class DeclarationParserTest {
 	@Test
 	public void testParseStyleDeclarationBackgroundImageGradient2() throws CSSException {
 		parseStyleDeclaration(
-			"background-image: linear-gradient(180deg,transparent,99%,rgba(0,0,0,.5));");
+				"background-image: linear-gradient(180deg,transparent,99%,rgba(0,0,0,.5));");
 		assertEquals("background-image", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.GRADIENT, lu.getLexicalUnitType());
@@ -2130,14 +2231,14 @@ public class DeclarationParserTest {
 
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("linear-gradient(180deg, transparent, 99%, rgba(0, 0, 0, 0.5))",
-			lu.toString());
+				lu.toString());
 		assertNull(lu.getNextLexicalUnit());
 	}
 
 	@Test
 	public void testParseStyleDeclarationPrefixedGradient() throws CSSException {
 		parseStyleDeclaration(
-			"background-image: -o-linear-gradient(top,transparent,99%,rgba(0,0,0,0.5));");
+				"background-image: -o-linear-gradient(top,transparent,99%,rgba(0,0,0,0.5));");
 		assertEquals("background-image", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.PREFIXED_FUNCTION, lu.getLexicalUnitType());
@@ -2177,7 +2278,7 @@ public class DeclarationParserTest {
 
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("-o-linear-gradient(top, transparent, 99%, rgba(0, 0, 0, 0.5))",
-			lu.toString());
+				lu.toString());
 		assertNull(lu.getNextLexicalUnit());
 	}
 
@@ -2242,6 +2343,24 @@ public class DeclarationParserTest {
 		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
 		assertEquals("foo", lu.getStringValue());
 		assertEquals("'foo'", lu.toString());
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
+	public void testParseStyleDeclarationContentStringComment() throws CSSException {
+		parseStyleDeclaration("content: 'foo' /* after */;");
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("content", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
+		assertEquals("foo", lu.getStringValue());
+		assertEquals("'foo'", lu.toString());
+
+		assertNotNull(lu.getTrailingComments());
+		StringList after = lu.getTrailingComments();
+		assertEquals(1, after.getLength());
+		assertEquals(" after ", after.item(0));
+
 		assertFalse(errorHandler.hasError());
 	}
 
@@ -3479,7 +3598,8 @@ public class DeclarationParserTest {
 		assertEquals("filter", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
-		assertEquals("progid:DXImageTransform.Microsoft.gradient(startColorstr= '#bd0afa', endColorstr= '#d0df9f')",
+		assertEquals(
+				"progid:DXImageTransform.Microsoft.gradient(startColorstr= '#bd0afa', endColorstr= '#d0df9f')",
 				lu.toString());
 		assertEquals("progid:DXImageTransform.Microsoft.gradient", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
@@ -3650,11 +3770,13 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationProgidEscaped() throws CSSException {
-		parseStyleDeclaration("filter: progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)");
+		parseStyleDeclaration(
+				"filter: progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)");
 		assertEquals("filter", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
-		assertEquals("progid:DXImageTransform.Microsoft.gradient(enabled=false)", lu.getStringValue());
+		assertEquals("progid:DXImageTransform.Microsoft.gradient(enabled=false)",
+				lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 
 		assertFalse(errorHandler.hasError());
@@ -3718,7 +3840,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationIEExpression2Error() throws CSSException {
-		parseStyleDeclaration("zoom:expression(this.runtimeStyle['zoom'] = '1',this.innerHTML = '&#xe03a;')");
+		parseStyleDeclaration(
+				"zoom:expression(this.runtimeStyle['zoom'] = '1',this.innerHTML = '&#xe03a;')");
 		assertTrue(errorHandler.hasError());
 		assertFalse(errorHandler.hasWarning());
 
@@ -3728,11 +3851,13 @@ public class DeclarationParserTest {
 	@Test
 	public void testParseStyleDeclarationIEExpression2() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
-		parseStyleDeclaration("zoom:expression(this.runtimeStyle['zoom']='1',this.innerHTML='&#xe03a;')");
+		parseStyleDeclaration(
+				"zoom:expression(this.runtimeStyle['zoom']='1',this.innerHTML='&#xe03a;')");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("zoom", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals("expression(this\\.runtimeStyle['zoom'] = '1', this.innerHTML= '&#xe03a;')", lu.toString());
+		assertEquals("expression(this\\.runtimeStyle['zoom'] = '1', this.innerHTML= '&#xe03a;')",
+				lu.toString());
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
 		assertEquals("expression", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
@@ -3780,11 +3905,13 @@ public class DeclarationParserTest {
 	@Test
 	public void testParseStyleDeclarationIEExpression2WS() throws CSSException {
 		parser.setFlag(Parser.Flag.IEVALUES);
-		parseStyleDeclaration("zoom:expression(this.runtimeStyle['zoom'] = '1',this.innerHTML = '&#xe03a;')");
+		parseStyleDeclaration(
+				"zoom:expression(this.runtimeStyle['zoom'] = '1',this.innerHTML = '&#xe03a;')");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals("zoom", handler.propertyNames.getFirst());
 		LexicalUnit lu = handler.lexicalValues.getFirst();
-		assertEquals("expression(this\\.runtimeStyle['zoom'] = '1', this.innerHTML= '&#xe03a;')", lu.toString());
+		assertEquals("expression(this\\.runtimeStyle['zoom'] = '1', this.innerHTML= '&#xe03a;')",
+				lu.toString());
 		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
 		assertEquals("expression", lu.getFunctionName());
 		assertNull(lu.getNextLexicalUnit());
@@ -3859,7 +3986,8 @@ public class DeclarationParserTest {
 		LexicalUnit subv = lu.getSubValues();
 		assertNotNull(subv);
 		assertEquals(LexicalType.IDENT, subv.getLexicalUnitType());
-		assertEquals("document.documentElement.clientHeight-this.offsetHeight", subv.getStringValue());
+		assertEquals("document.documentElement.clientHeight-this.offsetHeight",
+				subv.getStringValue());
 		assertNull(subv.getNextLexicalUnit());
 
 		assertFalse(errorHandler.hasError());

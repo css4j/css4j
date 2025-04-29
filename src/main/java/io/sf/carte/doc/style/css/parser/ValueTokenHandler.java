@@ -3,6 +3,8 @@ package io.sf.carte.doc.style.css.parser;
 import java.util.Locale;
 
 import io.sf.carte.doc.DOMNullCharacterException;
+import io.sf.carte.doc.LinkedStringList;
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.UnitStringToId;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
@@ -19,7 +21,11 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	/**
 	 * The lexical unit currently being processed.
 	 */
-	private LexicalUnitImpl currentlu = null;
+	LexicalUnitImpl currentlu = null;
+
+	StringList precedingComments = null;
+
+	StringList trailingComments = null;
 
 	private final ShorthandDatabase propertyDatabase;
 
@@ -78,8 +84,8 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	 */
 	@Override
 	public void addEmptyLexicalUnit() {
-		LexicalUnitImpl empty = newLexicalUnit(LexicalType.EMPTY);
-		empty.value = "";
+		EmptyUnitImpl empty = new EmptyUnitImpl();
+		addPlainLexicalUnit(empty);
 	}
 
 	int getSquareBracketDepth() {
@@ -108,8 +114,8 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			}
 			prevcp = TokenProducer.CHAR_LEFT_PAREN;
 		} else {
-			newFunction(index);
 			prevcp = 32;
+			newFunction(index);
 		}
 	}
 
@@ -164,6 +170,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 				if (lunit == null) {
 					lunit = lu;
 				}
+				setPrecedingComments(lu);
 				functionToken = true;
 			}
 
@@ -179,6 +186,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	public void leftSquareBracket(int index) {
 		squareBracketDepth++;
 		processBuffer(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+		setTrailingComments();
 		newLexicalUnit(LexicalType.LEFT_BRACKET);
 		prevcp = 32;
 	}
@@ -191,11 +199,14 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			checkFunction(index);
 			endFunctionArgument(index);
 		}
+		precedingComments = null;
+		trailingComments = null;
 		prevcp = TokenProducer.CHAR_RIGHT_PAREN;
 	}
 
 	@Override
 	public void endFunctionArgument(int index) {
+		setTrailingComments();
 		if (currentlu.ownerLexicalUnit != null) {
 			currentlu = currentlu.ownerLexicalUnit;
 		} else {
@@ -213,19 +224,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	 */
 	private LexicalUnitImpl newLexicalUnit(LexicalType unitType) {
 		LexicalUnitImpl lu = new LexicalUnitImpl(unitType);
-		if (isCurrentUnitAFunction()) {
-			currentlu.addFunctionParameter(lu);
-		} else {
-			if (currentlu != null) {
-				currentlu.nextLexicalUnit = lu;
-				lu.previousLexicalUnit = currentlu;
-			}
-			currentlu = lu;
-			if (lunit == null) {
-				lunit = lu;
-			}
-		}
-		return lu;
+		return addPlainLexicalUnit(lu);
 	}
 
 	/**
@@ -236,12 +235,20 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	 */
 	@Override
 	public LexicalUnitImpl addPlainLexicalUnit(LexicalUnitImpl lu) {
+		setPrecedingComments(lu);
 		if (isCurrentUnitAFunction()) {
+			LexicalUnitImpl param = currentlu.parameters;
+			if (param != null) {
+				setLastParameterTrailingComments(param);
+				// Set preceding comments, just in case there was e.g. a comma
+				setPrecedingComments(lu);
+			}
 			currentlu.addFunctionParameter(lu);
 		} else {
 			if (currentlu != null) {
 				currentlu.nextLexicalUnit = lu;
 				lu.previousLexicalUnit = currentlu;
+				setTrailingComments(currentlu);
 			}
 			currentlu = lu;
 			if (lunit == null) {
@@ -252,12 +259,22 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	}
 
 	private LexicalUnitImpl addFunctionOrExpressionUnit(LexicalUnitImpl lu) {
+		setPrecedingComments(lu);
 		if (isCurrentUnitAFunction()) {
+			LexicalUnitImpl param = currentlu.parameters;
+			if (param != null) {
+				setLastParameterTrailingComments(param);
+				// Set preceding comments, just in case there was e.g. a comma
+				setPrecedingComments(lu);
+			}
 			currentlu.addFunctionParameter(lu);
 		} else {
 			if (currentlu != null) {
 				currentlu.nextLexicalUnit = lu;
 				lu.previousLexicalUnit = currentlu;
+				setTrailingComments(currentlu);
+				// Set preceding comments, just in case there was e.g. a comma
+				setPrecedingComments(lu);
 			}
 			if (lunit == null) {
 				lunit = lu;
@@ -333,6 +350,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 		} else {
 			processBuffer(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
 		}
+		setTrailingComments();
 		endOfPropertyDeclaration(index);
 		getManager().rightCurlyBracket(index);
 		prevcp = TokenProducer.CHAR_RIGHT_CURLY_BRACKET;
@@ -342,6 +360,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	public void rightSquareBracket(int index) {
 		squareBracketDepth--;
 		processBuffer(index, TokenProducer.CHAR_RIGHT_SQ_BRACKET);
+		setTrailingComments();
 		newLexicalUnit(LexicalType.RIGHT_BRACKET);
 		prevcp = TokenProducer.CHAR_RIGHT_SQ_BRACKET;
 	}
@@ -369,7 +388,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 					processBuffer(index, codepoint);
 					// Spare a isInError() call
 				}
-				newLexicalUnit(LexicalType.OPERATOR_COMMA);
+				newOperator(LexicalType.OPERATOR_COMMA);
 			} else if (codepoint == TokenProducer.CHAR_EXCLAMATION) { // !
 				if (!functionToken) {
 					processBuffer(index, codepoint);
@@ -395,7 +414,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 					buffer.append('%');
 				} else {
 					processBuffer(index, codepoint);
-					newLexicalUnit(LexicalType.OPERATOR_MOD);
+					newOperator(LexicalType.OPERATOR_MOD);
 				}
 			} else if (codepoint == 35) { // #
 				if (buffer.length() == 0) {
@@ -429,7 +448,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 								&& !lastParamIsAlgebraicOperator()) {
 							// We are either in calc() plus operator context
 							// or in IE compatibility
-							newLexicalUnit(LexicalType.OPERATOR_PLUS);
+							newOperator(LexicalType.OPERATOR_PLUS);
 						} else if (prevCpWS || currentlu.parameters == null
 								|| lastParamIsMultOrSlashOperator()) {
 							// We are in sign context
@@ -455,7 +474,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 				processBuffer(index, codepoint);
 				if (!functionToken || (currentlu.parameters != null && (isVarOrLastParamIsOperand()
 						|| currentlu.getLexicalUnitType() == LexicalType.ATTR))) {
-					newLexicalUnit(LexicalType.OPERATOR_SLASH);
+					newOperator(LexicalType.OPERATOR_SLASH);
 				} else {
 					unexpectedCharError(index, codepoint);
 				}
@@ -463,7 +482,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 				if (codepoint == TokenProducer.CHAR_ASTERISK) { // '*'
 					processBuffer(index, codepoint);
 					if (currentlu.parameters != null && isVarOrLastParamIsOperand()) {
-						newLexicalUnit(LexicalType.OPERATOR_MULTIPLY);
+						newOperator(LexicalType.OPERATOR_MULTIPLY);
 					} else {
 						unexpectedCharError(index, codepoint);
 					}
@@ -494,11 +513,12 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 		if (squareBracketDepth == 0 && parendepth >= 0) {
 			if (!isInError()) { // Could be in unexpected ; error
 				processBuffer(index, TokenProducer.CHAR_SEMICOLON);
+				setTrailingComments();
 			}
 			if (parendepth > 0) {
 				if (!isInError()) {
 					if (isCurrentUnitAFunction() && allowSemicolonArgument()) {
-						newLexicalUnit(LexicalType.OPERATOR_SEMICOLON);
+						newOperator(LexicalType.OPERATOR_SEMICOLON);
 					} else {
 						unexpectedCharError(index, ';');
 					}
@@ -529,7 +549,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 
 	private void newCustomPropertyOperator(int index, int codepoint, LexicalType operator) {
 		if (currentlu == null) {
-			newLexicalUnit(operator);
+			newOperator(operator);
 			return;
 		} else {
 			// This method is not being called if we are in calc()
@@ -538,7 +558,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			LexicalType type;
 			if (!CSSParser.typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
 					&& type != LexicalType.OPERATOR_COMMA) {
-				newLexicalUnit(operator);
+				newOperator(operator);
 				return;
 			}
 		}
@@ -681,14 +701,9 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			return;
 		}
 		int buflen = buffer.length();
-		if (buflen != 0) {
-			if (isCurrentUnitAFunction()) {
-				if (isEscapedIdent() || !checkLastIdentCompat()) {
-					parseNonHexcolorValue(index);
-				}
-			} else {
-				parseNonHexcolorValue(index);
-			}
+		if (buflen != 0
+				&& (!isCurrentUnitAFunction() || isEscapedIdent() || !checkLastIdentCompat())) {
+			parseNonHexcolorValue(index);
 		}
 	}
 
@@ -875,21 +890,26 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 		LexicalType type;
 		if (this.currentlu == null) {
 			if (isCustomProperty()) {
-				newLexicalUnit(operator);
+				newOperator(operator);
 				return;
 			}
 		} else if (currentlu.parameters != null) {
 			if (isVarOrLastParamIsOperand()) {
-				newLexicalUnit(operator);
+				newOperator(operator);
 				return;
 			}
 		} else if (isCustomProperty()
 				&& !CSSParser.typeIsAlgebraicOperator(type = currentlu.getLexicalUnitType())
 				&& type != LexicalType.OPERATOR_COMMA) {
-			newLexicalUnit(operator);
+			newOperator(operator);
 			return;
 		}
 		unexpectedCharError(index, codePoint);
+	}
+
+	private LexicalUnitImpl newOperator(LexicalType operator) {
+		LexicalUnitImpl lu = new OperatorUnitImpl(operator);
+		return addPlainLexicalUnit(lu);
 	}
 
 	protected boolean isCustomProperty() {
@@ -997,6 +1017,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 				lunit.reset();
 				return false;
 			}
+			StringList preceding = currentlu.getPrecedingComments();
 			currentlu.reset();
 			LexicalUnitImpl lu = new LexicalUnitImpl(LexicalType.COMPAT_IDENT);
 			lu.value = prev + ' ' + lastvalue;
@@ -1006,6 +1027,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 				currentlu.replaceBy(lu);
 			}
 			currentlu = lu;
+			lu.addPrecedingComments(preceding);
 		} else {
 			newLexicalUnit(LexicalType.COMPAT_IDENT).value = lastvalue;
 		}
@@ -1023,6 +1045,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	String setFullIdentCompat(String rawBuffer) {
 		String newval = rawBuffer;
 		if (lunit != null) {
+			StringList preceding = lunit.getPrecedingComments();
 			try {
 				newval = lunit.toString() + newval;
 			} catch (RuntimeException e) {
@@ -1032,6 +1055,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			}
 			lunit = new LexicalUnitImpl(LexicalType.COMPAT_IDENT);
 			lunit.value = newval;
+			lunit.addPrecedingComments(preceding);
 		} else {
 			newLexicalUnit(LexicalType.COMPAT_IDENT).value = newval;
 		}
@@ -1144,9 +1168,148 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 
 	@Override
 	public void commented(int index, int commentType, String comment) {
-		separator(index, 32);
-		// The above call may have left prevcp as 10
-		prevcp = 32;
+		if (buffer.length() != 0) {
+			processBuffer(index, 12);
+			if (commentType == 0) {
+				addTrailingComment(comment);
+				setTrailingComments();
+			}
+		} else if (commentType == 0) {
+			if (!isPrevCpWhitespace() && (prevcp != 12 || haveTrailingComments())) {
+				addTrailingComment(comment);
+			} else {
+				addPrecedingComment(comment);
+				trailingComments = null;
+			}
+		}
+		prevcp = 12;
+	}
+
+	private void addPrecedingComment(String comment) {
+		if (precedingComments == null) {
+			precedingComments = new LinkedStringList();
+		}
+		precedingComments.add(comment);
+	}
+
+	void setPrecedingComments(LexicalUnitImpl lu) {
+		if (precedingComments != null) {
+			if (!lu.addPrecedingComments(precedingComments) && currentlu != null) {
+				LexicalUnitImpl plu = lu.previousLexicalUnit;
+				if (plu == null) {
+					if (isCurrentUnitAFunction()) {
+						plu = currentlu.parameters;
+						if (plu != null) {
+							plu = CSSParser.findLastValue(plu);
+						} else {
+							// Unlikely case that first parameter is an operator
+							precedingComments = null;
+							return;
+						}
+					} else {
+						plu = currentlu;
+					}
+				}
+				// Add comments to previous unit
+				plu.addTrailingComments(precedingComments);
+			}
+			precedingComments = null;
+		}
+	}
+
+	private void addTrailingComment(String comment) {
+		if (trailingComments == null) {
+			trailingComments = new LinkedStringList();
+		}
+		trailingComments.add(comment);
+	}
+
+	void setTrailingComments() {
+		if (currentlu != null) {
+			LexicalUnitImpl lu = currentlu;
+			if (functionToken) {
+				if (lu.parameters != null) {
+					lu = CSSParser.findLastValue(lu.parameters);
+				} else {
+					return;
+				}
+			}
+			setTrailingComments(lu);
+		}
+	}
+
+	private void setTrailingComments(LexicalUnitImpl lu) {
+		if (trailingComments != null) {
+			if (precedingComments != null) {
+				trailingComments.addAll(precedingComments);
+				precedingComments = null;
+			}
+			if (!lu.addTrailingComments(trailingComments)) {
+				// Preceding comments for the next unit
+				if (precedingComments != null) {
+					precedingComments.addAll(trailingComments);
+				} else {
+					precedingComments = trailingComments;
+				}
+			}
+			trailingComments = null;
+		} else if (precedingComments != null) {
+			lu.addTrailingComments(precedingComments);
+			precedingComments = null;
+		}
+	}
+
+	private void setLastParameterTrailingComments(LexicalUnitImpl param) {
+		if (trailingComments != null) {
+			if (precedingComments != null) {
+				trailingComments.addAll(precedingComments);
+				precedingComments = null;
+			}
+			LexicalUnitImpl lu = CSSParser.findLastValue(param);
+			if (!lu.addTrailingComments(trailingComments)) {
+				// Preceding comments for the next unit
+				if (precedingComments != null) {
+					precedingComments.addAll(trailingComments);
+				} else {
+					precedingComments = trailingComments;
+				}
+			}
+			trailingComments = null;
+		} else if (precedingComments != null) {
+			LexicalUnitImpl lu = CSSParser.findLastValue(param);
+			lu.addTrailingComments(precedingComments);
+			precedingComments = null;
+		}
+	}
+
+	private boolean haveTrailingComments() {
+		if (trailingComments == null) {
+			LexicalUnitImpl lu = currentlu;
+			if (lu == null) {
+				return false;
+			}
+			if (isCurrentUnitAFunction()) {
+				if (lu.parameters != null) {
+					lu = CSSParser.findLastValue(lu.parameters);
+				}
+			}
+			return lu.getTrailingComments() != null;
+		}
+		return true;
+	}
+
+	@Override
+	public StringList getPrecedingCommentsAndClear() {
+		StringList ret = precedingComments;
+		precedingComments = null;
+		return ret;
+	}
+
+	@Override
+	public StringList getTrailingCommentsAndClear() {
+		StringList ret = trailingComments;
+		trailingComments = null;
+		return ret;
 	}
 
 	@Override
@@ -1156,6 +1319,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 		} else {
 			if (!isInError()) { // Could be in unexpected EOF error
 				processBuffer(len, 0);
+				setTrailingComments();
 			}
 			// The next call checks for error at the manager level
 			endOfPropertyDeclaration(len);
@@ -1175,10 +1339,12 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	}
 
 	@Override
-	protected void resetHandler() {
+	public void resetHandler() {
 		super.resetHandler();
 		lunit = null;
 		currentlu = null;
+		precedingComments = null;
+		trailingComments = null;
 		functionToken = false;
 		buffer.setLength(0);
 	}

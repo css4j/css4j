@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import io.sf.carte.doc.StringList;
+
 interface LexicalProvider extends CSSContentHandler {
 
 	/**
@@ -44,5 +46,13 @@ interface LexicalProvider extends CSSContentHandler {
 	 * @return {@code true} if IE value compatibility is enabled.
 	 */
 	boolean hasLegacySupport();
+
+	/*
+	 * Comment management.
+	 */
+
+	StringList getPrecedingCommentsAndClear();
+
+	StringList getTrailingCommentsAndClear();
 
 }

@@ -22,6 +22,7 @@ import java.io.StringReader;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
@@ -226,6 +227,18 @@ public class IdentifierValueTest {
 		assertEquals("a\\f1 b", value.getCssText());
 		assertEquals("añb", value.getMinifiedCssText(""));
 		assertEquals("añb", value.getStringValue());
+	}
+
+	@Test
+	public void testParsePropertyComments() throws IOException {
+		ValueFactory factory = new ValueFactory();
+		StyleValue value = factory.parseProperty("/* pre */ident /* after */");
+		assertEquals(CSSValue.Type.IDENT, value.getPrimitiveType());
+		assertEquals("ident", value.getCssText());
+		assertEquals("ident", value.getMinifiedCssText());
+		assertEquals("ident", ((CSSTypedValue) value).getStringValue());
+		assertEquals(" pre ", value.getPrecedingComments().item(0));
+		assertEquals(" after ", value.getTrailingComments().item(0));
 	}
 
 	@Test

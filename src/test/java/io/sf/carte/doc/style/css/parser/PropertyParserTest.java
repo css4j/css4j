@@ -28,6 +28,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
@@ -74,6 +75,26 @@ public class PropertyParserTest {
 
 		assertMatch(Match.PENDING, lu, "<length>#");
 		assertMatch(Match.PENDING, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyInitialComments() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("/* pre *//* pre2 */initial/* after *//* after2 */");
+		assertEquals(LexicalType.INITIAL, lu.getLexicalUnitType());
+		assertEquals("initial", lu.getCssText());
+		assertNull(lu.getNextLexicalUnit());
+
+		StringList pre = lu.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(2, pre.getLength());
+		assertEquals(" pre ", pre.item(0));
+		assertEquals(" pre2 ", pre.item(1));
+
+		StringList after = lu.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(2, after.getLength());
+		assertEquals(" after ", after.item(0));
+		assertEquals(" after2 ", after.item(1));
 	}
 
 	@Test
@@ -825,7 +846,8 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyBorderImage() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("url('/img/border.png') 25% 30% 12% 20% fill / 2pt / 1 round");
+		LexicalUnit lu = parsePropertyValue(
+				"url('/img/border.png') 25% 30% 12% 20% fill / 2pt / 1 round");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("/img/border.png", lu.getStringValue());
 		lu = lu.getNextLexicalUnit();
@@ -947,9 +969,11 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyProgidEscaped() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)");
+		LexicalUnit lu = parsePropertyValue(
+				"progid\\:DXImageTransform\\.Microsoft\\.gradient\\(enabled\\=false\\)");
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
-		assertEquals("progid:DXImageTransform.Microsoft.gradient(enabled=false)", lu.getStringValue());
+		assertEquals("progid:DXImageTransform.Microsoft.gradient(enabled=false)",
+				lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 	}
 
@@ -1094,6 +1118,72 @@ public class PropertyParserTest {
 
 		assertShallowMatch(Match.TRUE, lu, "<length>");
 		assertShallowMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyUnitsListComments() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("/* pre1 */2em/* after1 */ .85em/* after2 */");
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
+		assertEquals(2f, lu.getFloatValue(), 1e-5f);
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(0.85, nlu.getFloatValue(), 1e-5f);
+		assertEquals("em", nlu.getDimensionUnitText());
+		assertEquals(LexicalType.DIMENSION, nlu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, nlu.getCssUnit());
+		assertSame(lu, nlu.getPreviousLexicalUnit());
+
+		StringList pre = lu.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(1, pre.getLength());
+		assertEquals(" pre1 ", pre.item(0));
+
+		StringList after = lu.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(1, after.getLength());
+		assertEquals(" after1 ", after.item(0));
+
+		StringList after2 = nlu.getTrailingComments();
+		assertNotNull(after2);
+		assertEquals(1, after2.getLength());
+		assertEquals(" after2 ", after2.item(0));
+	}
+
+	@Test
+	public void testParsePropertyUnitsListComments2() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"/* pre1 */2em/* after1 */ /* pre2 */ .85em /* after2 */");
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
+		assertEquals(2f, lu.getFloatValue(), 1e-5f);
+		LexicalUnit nlu = lu.getNextLexicalUnit();
+		assertNotNull(nlu);
+		assertEquals(0.85, nlu.getFloatValue(), 1e-5f);
+		assertEquals("em", nlu.getDimensionUnitText());
+		assertEquals(LexicalType.DIMENSION, nlu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_EM, nlu.getCssUnit());
+		assertSame(lu, nlu.getPreviousLexicalUnit());
+
+		StringList pre = lu.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(1, pre.getLength());
+		assertEquals(" pre1 ", pre.item(0));
+
+		StringList after = lu.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(1, after.getLength());
+		assertEquals(" after1 ", after.item(0));
+
+		StringList pre2 = nlu.getPrecedingComments();
+		assertNotNull(pre2);
+		assertEquals(1, pre2.getLength());
+		assertEquals(" pre2 ", pre2.item(0));
+
+		StringList after2 = nlu.getTrailingComments();
+		assertNotNull(after2);
+		assertEquals(1, after2.getLength());
+		assertEquals(" after2 ", after2.item(0));
 	}
 
 	@Test
@@ -1589,6 +1679,24 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyPercentComments() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("/* pre */1%/* after */");
+		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
+		assertEquals(1f, lu.getFloatValue(), 1e-5f);
+		assertEquals("%", lu.getDimensionUnitText());
+
+		StringList pre = lu.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(1, pre.getLength());
+		assertEquals(" pre ", pre.item(0));
+
+		StringList after = lu.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(1, after.getLength());
+		assertEquals(" after ", after.item(0));
+	}
+
+	@Test
 	public void testParsePropertyPercentPlusSign() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("+1%");
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
@@ -1904,6 +2012,87 @@ public class PropertyParserTest {
 		assertMatch(Match.TRUE, lu, "<basic-shape>");
 		assertMatch(Match.FALSE, lu, "<custom-ident>");
 		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueCircleFunctionAtComments() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"/* pre-func */circle(/* pre1 */ 5vw/* after1 */ /* pre2 */ at/* after2 */ /* pre3 */right/* after3 */ center /* after params */)/* after-func */");
+		assertEquals("circle", lu.getFunctionName());
+		assertEquals(LexicalType.CIRCLE_FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_VW, param.getCssUnit());
+		assertEquals(5f, param.getFloatValue(), 1e-5f);
+
+		StringList ppre = param.getPrecedingComments();
+		assertNotNull(ppre);
+		assertEquals(1, ppre.getLength());
+		assertEquals(" pre1 ", ppre.item(0));
+
+		StringList pafter = param.getTrailingComments();
+		assertNotNull(pafter);
+		assertEquals(1, pafter.getLength());
+		assertEquals(" after1 ", pafter.item(0));
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("at", param.getStringValue());
+
+		StringList ppre2 = param.getPrecedingComments();
+		assertNotNull(ppre2);
+		assertEquals(1, ppre2.getLength());
+		assertEquals(" pre2 ", ppre2.item(0));
+
+		StringList pafter2 = param.getTrailingComments();
+		assertNotNull(pafter2);
+		assertEquals(1, pafter2.getLength());
+		assertEquals(" after2 ", pafter2.item(0));
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("right", param.getStringValue());
+
+		StringList ppre3 = param.getPrecedingComments();
+		assertNotNull(ppre3);
+		assertEquals(1, ppre3.getLength());
+		assertEquals(" pre3 ", ppre3.item(0));
+
+		StringList pafter3 = param.getTrailingComments();
+		assertNotNull(pafter3);
+		assertEquals(1, pafter3.getLength());
+		assertEquals(" after3 ", pafter3.item(0));
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("center", param.getStringValue());
+
+		assertNull(param.getPrecedingComments());
+
+		StringList afterParams = param.getTrailingComments();
+		assertNotNull(afterParams);
+		assertEquals(1, afterParams.getLength());
+		assertEquals(" after params ", afterParams.item(0));
+
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("circle(5vw at right center)", lu.toString());
+
+		StringList pre = lu.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(1, pre.getLength());
+		assertEquals(" pre-func ", pre.item(0));
+
+		StringList after = lu.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(1, after.getLength());
+		assertEquals(" after-func ", after.item(0));
 	}
 
 	@Test
@@ -2903,7 +3092,8 @@ public class PropertyParserTest {
 
 	@Test
 	public void testParsePropertyValueFunctionCustom() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("-webkit-linear-gradient(transparent, #fff)");
+		LexicalUnit lu = parsePropertyValue(
+				"-webkit-linear-gradient(transparent /* zero alpha */,/* white */ #fff)");
 		assertEquals("-webkit-linear-gradient", lu.getFunctionName());
 		assertEquals(LexicalType.PREFIXED_FUNCTION, lu.getLexicalUnitType());
 		assertNull(lu.getNextLexicalUnit());
@@ -2911,14 +3101,26 @@ public class PropertyParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
 		assertEquals("transparent", param.getStringValue());
+		StringList after = param.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(1, after.getLength());
+		assertEquals(" zero alpha ", after.item(0));
+
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.RGBCOLOR, param.getLexicalUnitType());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("rgb", param.getFunctionName());
+
+		StringList pre = param.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(1, pre.getLength());
+		assertEquals(" white ", pre.item(0));
+
 		param = param.getParameters();
 		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
 		assertEquals(255, param.getIntegerValue());
@@ -3048,11 +3250,11 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueURL2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-			"url(data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/)");
+				"url(data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/)");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/", lu.getStringValue());
 		assertEquals("url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')",
-			lu.toString());
+				lu.toString());
 
 		lu = parsePropertyValue("url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
@@ -3062,44 +3264,44 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueURLSQ() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-			"url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')");
+				"url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/", lu.getStringValue());
 		assertEquals("url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')",
-			lu.toString());
+				lu.toString());
 	}
 
 	@Test
 	public void testParsePropertyValueURLDQ() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-			"url(\"data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/\")");
+				"url(\"data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/\")");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/", lu.getStringValue());
 		assertEquals("url(\"data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/\")",
-			lu.toString());
+				lu.toString());
 	}
 
 	@Test
 	public void testParsePropertyValueURLSemicolon() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-			"url(data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/)");
+				"url(data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/)");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/", lu.getStringValue());
 		assertEquals("url('data:image/png;base64,MTIzNDU2Nzg5MGFiY2RlZmckJSYvKCk/')",
-			lu.toString());
+				lu.toString());
 	}
 
 	@Test
 	public void testParsePropertyValueURLSemicolon2() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-			"url(https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap)");
+				"url(https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap)");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals(
-			"https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap",
-			lu.getStringValue());
+				"https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap",
+				lu.getStringValue());
 		assertEquals(
-			"url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap')",
-			lu.toString());
+				"url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,200;0,300;0,400;0,500;0,700;1,400;1,500;1,700&display=swap')",
+				lu.toString());
 	}
 
 	@Test
@@ -3129,6 +3331,66 @@ public class PropertyParserTest {
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("a", lu.getStringValue());
 		assertEquals("url('a' b)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyUrlModifierFunction() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("url('a' format('b'))");
+		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
+		assertEquals("a", lu.getStringValue());
+		assertEquals("url('a' format('b'))", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyUrlModifierFunctionComments() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"/* pre-url */url(/* pre-str */ 'a' /* ignored */ format('b') /* ignored 2 */)/* after-url *//* after-url2 */ ident /* after-ident */");
+		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
+		assertEquals("a", lu.getStringValue());
+		assertEquals("url('a' format('b')) ident", lu.toString());
+
+		StringList pre = lu.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(1, pre.getLength());
+		assertEquals(" pre-url ", pre.item(0));
+
+		StringList after = lu.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(2, after.getLength());
+		assertEquals(" after-url ", after.item(0));
+		assertEquals(" after-url2 ", after.item(1));
+
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+
+		LexicalUnit nextlu = lu.getNextLexicalUnit();
+		assertNotNull(nextlu);
+		assertEquals(LexicalType.IDENT, nextlu.getLexicalUnitType());
+		assertEquals("ident", nextlu.getStringValue());
+
+		StringList afterIdent = nextlu.getTrailingComments();
+		assertNotNull(afterIdent);
+		assertEquals(1, afterIdent.getLength());
+		assertEquals(" after-ident ", afterIdent.item(0));
+	}
+
+	@Test
+	public void testParsePropertyValueURLComments() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("/* pre */ url(imag/image.png) /* after */");
+		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
+		assertEquals("imag/image.png", lu.getStringValue());
+		assertEquals("url('imag/image.png')", lu.toString());
+
+		StringList pre = lu.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(1, pre.getLength());
+		assertEquals(" pre ", pre.item(0));
+
+		StringList after = lu.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(1, after.getLength());
+		assertEquals(" after ", after.item(0));
 	}
 
 	@Test
@@ -3230,6 +3492,13 @@ public class PropertyParserTest {
 		CSSParseException ex = assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("url(a 'b')"));
 		assertEquals(7, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParsePropertyBadUrl6() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("url(http'https://www.example.com/')"));
+		assertEquals(9, ex.getColumnNumber());
 	}
 
 	@Test
@@ -3433,6 +3702,86 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueVarEmptyFallbackComments() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("var(/* pre */--data-radius/* tra */,/* empty */)");
+		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
+		assertEquals("var", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--data-radius", param.getStringValue());
+
+		StringList pre = param.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(1, pre.getLength());
+		assertEquals(" pre ", pre.item(0));
+
+		StringList after = param.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(1, after.getLength());
+		assertEquals(" tra ", after.item(0));
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+
+		assertEquals(LexicalType.EMPTY, param.getLexicalUnitType());
+		assertEquals("/* empty */", param.getCssText());
+
+		StringList ecomments = param.getPrecedingComments();
+		assertNotNull(ecomments);
+		assertEquals(1, ecomments.getLength());
+		assertEquals(" empty ", ecomments.item(0));
+
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("var(--data-radius,/* empty */)", lu.toString());
+
+	}
+
+	@Test
+	public void testParsePropertyValueVarEmptyFallbackWSComments() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("var(/* pre */ --data-radius /* tra */, /* empty */)");
+		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
+		assertEquals("var", lu.getFunctionName());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--data-radius", param.getStringValue());
+
+		StringList pre = param.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(1, pre.getLength());
+		assertEquals(" pre ", pre.item(0));
+
+		StringList after = param.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(1, after.getLength());
+		assertEquals(" tra ", after.item(0));
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+
+		assertEquals(LexicalType.EMPTY, param.getLexicalUnitType());
+		assertEquals("/* empty */", param.getCssText());
+
+		StringList ecomments = param.getPrecedingComments();
+		assertNotNull(ecomments);
+		assertEquals(1, ecomments.getLength());
+		assertEquals(" empty ", ecomments.item(0));
+
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("var(--data-radius,/* empty */)", lu.toString());
+
+	}
+
+	@Test
 	public void testParsePropertyValueVarLengthList() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("var(--foo) 12.3px");
 		assertEquals(LexicalType.VAR, lu.getLexicalUnitType());
@@ -3599,7 +3948,8 @@ public class PropertyParserTest {
 				"linear-gradient(linear, left top, left bottom, from(#bd0afa), to(#d0df9f))");
 		assertEquals(LexicalType.GRADIENT, lunit.getLexicalUnitType());
 		assertEquals("linear-gradient", lunit.getFunctionName());
-		assertEquals("linear-gradient(linear, left top, left bottom, from(#bd0afa), to(#d0df9f))", lunit.toString());
+		assertEquals("linear-gradient(linear, left top, left bottom, from(#bd0afa), to(#d0df9f))",
+				lunit.toString());
 		LexicalUnit lu = lunit.getParameters();
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
@@ -3690,7 +4040,7 @@ public class PropertyParserTest {
 	@Test
 	public void testParsePropertyValueMask() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
-			"url(https://www.example.com/foo.svg) no-repeat center/1.3128205128ex .8ex");
+				"url(https://www.example.com/foo.svg) no-repeat center/1.3128205128ex .8ex");
 		assertEquals(LexicalType.URI, lu.getLexicalUnitType());
 		assertEquals("https://www.example.com/foo.svg", lu.getStringValue());
 

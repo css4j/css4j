@@ -16,6 +16,7 @@ import java.util.LinkedList;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValueItem;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -32,6 +33,10 @@ abstract public class PrimitiveValue extends StyleValue implements CSSPrimitiveV
 
 	private final Type primitiveType;
 
+	private StringList precedingComments = null;
+
+	private StringList trailingComments = null;
+
 	private boolean subproperty = false;
 
 	protected PrimitiveValue(Type unitType) {
@@ -43,6 +48,8 @@ abstract public class PrimitiveValue extends StyleValue implements CSSPrimitiveV
 		super();
 		this.subproperty = copied.subproperty;
 		this.primitiveType = copied.primitiveType;
+		this.precedingComments = copied.precedingComments;
+		this.trailingComments = copied.trailingComments;
 	}
 
 	@Override
@@ -78,6 +85,24 @@ abstract public class PrimitiveValue extends StyleValue implements CSSPrimitiveV
 	}
 
 	@Override
+	public StringList getPrecedingComments() {
+		return precedingComments;
+	}
+
+	void setPrecedingComments(StringList precedingComments) {
+		this.precedingComments = precedingComments;
+	}
+
+	@Override
+	public StringList getTrailingComments() {
+		return trailingComments;
+	}
+
+	void setTrailingComments(StringList trailingComments) {
+		this.trailingComments = trailingComments;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
@@ -96,6 +121,7 @@ abstract public class PrimitiveValue extends StyleValue implements CSSPrimitiveV
 		if (!(obj instanceof PrimitiveValue)) {
 			return false;
 		}
+		// Comments aren't taken into account
 		PrimitiveValue other = (PrimitiveValue) obj;
 		return primitiveType == other.primitiveType;
 	}

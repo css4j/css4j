@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
@@ -202,7 +203,8 @@ public class PropertyParserAttrTest {
 
 	@Test
 	public void testParsePropertyValueAttrInteger() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>)) attr(data-b type(<number>))");
+		LexicalUnit lu = parsePropertyValue(
+				"attr(data-a type(<integer>)) attr(data-b type(<number>))");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 		LexicalUnit param = lu.getParameters();
@@ -243,7 +245,8 @@ public class PropertyParserAttrTest {
 
 	@Test
 	public void testParsePropertyValueAttrIntegerComma() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>)),attr(data-b type(<number>))");
+		LexicalUnit lu = parsePropertyValue(
+				"attr(data-a type(<integer>)),attr(data-b type(<number>))");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -290,7 +293,8 @@ public class PropertyParserAttrTest {
 
 	@Test
 	public void testParsePropertyValueAttrIntegerFallbackComma() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>), auto),attr(data-b type(<number>), none)");
+		LexicalUnit lu = parsePropertyValue(
+				"attr(data-a type(<integer>), auto),attr(data-b type(<number>), none)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -337,7 +341,8 @@ public class PropertyParserAttrTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a type(<integer>), auto), attr(data-b type(<number>), none)", lu.toString());
+		assertEquals("attr(data-a type(<integer>), auto), attr(data-b type(<number>), none)",
+				lu.toString());
 
 		assertMatch(Match.PENDING, lu, "<number>#");
 		assertMatch(Match.FALSE, lu, "<number>+");
@@ -356,7 +361,8 @@ public class PropertyParserAttrTest {
 
 	@Test
 	public void testParsePropertyValueAttrIntegerFallbackWSList() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a type(<integer>), auto) attr(data-b type(<number>), none)");
+		LexicalUnit lu = parsePropertyValue(
+				"attr(data-a type(<integer>), auto) attr(data-b type(<number>), none)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -399,7 +405,8 @@ public class PropertyParserAttrTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a type(<integer>), auto) attr(data-b type(<number>), none)", lu.toString());
+		assertEquals("attr(data-a type(<integer>), auto) attr(data-b type(<number>), none)",
+				lu.toString());
 
 		assertMatch(Match.PENDING, lu, "<number>+");
 		assertMatch(Match.FALSE, lu, "<number>#");
@@ -417,7 +424,8 @@ public class PropertyParserAttrTest {
 
 	@Test
 	public void testParsePropertyValueAttrIntegerFallbackWSList2() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a string, 1) attr(data-b type(<integer>), 'foo')");
+		LexicalUnit lu = parsePropertyValue(
+				"attr(data-a string, 1) attr(data-b type(<integer>), 'foo')");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -480,7 +488,8 @@ public class PropertyParserAttrTest {
 
 	@Test
 	public void testParsePropertyValueAttrLengthPercentageFallbackWSList() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-a type(<length>), 4%) attr(data-b type(<percentage>), 6px)");
+		LexicalUnit lu = parsePropertyValue(
+				"attr(data-a type(<length>), 4%) attr(data-b type(<percentage>), 6px)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 
@@ -524,7 +533,8 @@ public class PropertyParserAttrTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a type(<length>), 4%) attr(data-b type(<percentage>), 6px)", lu.toString());
+		assertEquals("attr(data-a type(<length>), 4%) attr(data-b type(<percentage>), 6px)",
+				lu.toString());
 
 		assertMatch(Match.TRUE, lu, "<length-percentage>+");
 		assertMatch(Match.FALSE, lu, "<length-percentage>#");
@@ -585,7 +595,9 @@ public class PropertyParserAttrTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a type(<integer>), auto) attr(data-b type(<number>), var(--data-b-fb))", lu.toString());
+		assertEquals(
+				"attr(data-a type(<integer>), auto) attr(data-b type(<number>), var(--data-b-fb))",
+				lu.toString());
 
 		assertMatch(Match.PENDING, lu, "<number>+");
 		assertMatch(Match.FALSE, lu, "<number>#");
@@ -655,7 +667,9 @@ public class PropertyParserAttrTest {
 		assertNull(param.getNextLexicalUnit());
 		assertNull(nlu.getNextLexicalUnit());
 
-		assertEquals("attr(data-a type(<integer>), var(--data-a-fb)) attr(data-b type(<number>), var(--data-b-fb))", lu.toString());
+		assertEquals(
+				"attr(data-a type(<integer>), var(--data-a-fb)) attr(data-b type(<number>), var(--data-b-fb))",
+				lu.toString());
 
 		assertMatch(Match.PENDING, lu, "<number>+");
 		assertMatch(Match.FALSE, lu, "<number>#");
@@ -799,10 +813,31 @@ public class PropertyParserAttrTest {
 
 	@Test
 	public void testParsePropertyValueAttrFlex() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("attr(data-flex type(<flex>), 2fr)");
+		LexicalUnit lu = parsePropertyValue(
+				"attr(data-flex type(/* pre1 *//* pre2 */<flex>/* tra1 *//* tra2 */), 2fr)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
 		assertEquals("attr(data-flex type(<flex>), 2fr)", lu.toString());
+
+		LexicalUnit param = lu.getParameters().getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.TYPE_FUNCTION, param.getLexicalUnitType());
+
+		param = param.getParameters();
+
+		assertEquals(LexicalType.SYNTAX, param.getLexicalUnitType());
+
+		StringList pre = param.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(2, pre.getLength());
+		assertEquals(" pre1 ", pre.item(0));
+		assertEquals(" pre2 ", pre.item(1));
+
+		StringList after = param.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(2, after.getLength());
+		assertEquals(" tra1 ", after.item(0));
+		assertEquals(" tra2 ", after.item(1));
 
 		assertMatch(Match.TRUE, lu, "<flex>");
 		assertMatch(Match.TRUE, lu, "<flex>#");

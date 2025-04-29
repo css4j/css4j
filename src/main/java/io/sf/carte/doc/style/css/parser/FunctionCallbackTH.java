@@ -78,15 +78,6 @@ abstract class FunctionCallbackTH extends LexicalCallbackTH {
 		}
 	}
 
-	@Override
-	public void endFunctionArgument(int index) {
-		if (currentlu != null && currentlu.ownerLexicalUnit != null) {
-			currentlu = currentlu.ownerLexicalUnit;
-		} else {
-			getCaller().endFunctionArgument(index);
-		}
-	}
-
 	class FunctionCallbackValueTH extends CallbackValueTokenHandler {
 
 		FunctionCallbackValueTH() {

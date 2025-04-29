@@ -22,6 +22,7 @@ import io.sf.carte.doc.style.css.TransformFunctions;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.uparser.TokenProducer;
 
 class FunctionFactories {
 
@@ -67,6 +68,8 @@ class FunctionFactories {
 			@Override
 			public void handle(ValueTokenHandler parent) {
 				parent.yieldHandling(new TypeFunctionTH(parent));
+				// Change prevcp to 41 for comments
+				parent.prevcp = TokenProducer.CHAR_RIGHT_PAREN;
 			}
 
 		});
@@ -133,6 +136,8 @@ class FunctionFactories {
 
 				};
 				parent.yieldHandling(handler);
+				// Change prevcp to 41 for comments
+				parent.prevcp = TokenProducer.CHAR_RIGHT_PAREN;
 			}
 
 		});
@@ -438,6 +443,8 @@ class FunctionFactories {
 			@Override
 			public void handle(ValueTokenHandler parent) {
 				parent.yieldHandling(new ElementReferenceTH(parent));
+				// Change prevcp to 41 for comments
+				parent.prevcp = TokenProducer.CHAR_RIGHT_PAREN;
 			}
 
 		});

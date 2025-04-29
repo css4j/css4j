@@ -150,6 +150,24 @@ public class FunctionValueTest {
 	}
 
 	@Test
+	public void testCommentsWS() {
+		style.setCssText("property: /* pre */foo(one two three) /* after */; ");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("property");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
+		assertEquals("foo(one two three)", style.getPropertyValue("property"));
+		assertEquals("property: foo(one two three); ", style.getCssText());
+		assertEquals("property:foo(one two three)", style.getMinifiedCssText());
+		assertEquals(1, val.getArguments().size());
+		assertEquals("one two three", val.getArguments().get(0).getCssText());
+
+		assertEquals(" pre ", val.getPrecedingComments().item(0));
+		assertEquals(" after ", val.getTrailingComments().item(0));
+
+		assertTrue(val.equals(val.clone()));
+	}
+
+	@Test
 	public void testGetCssTextCustomCalc() {
 		style.setCssText("width: -webkit-calc(100% - 24px*2); ");
 		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("width");

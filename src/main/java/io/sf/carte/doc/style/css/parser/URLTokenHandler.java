@@ -71,14 +71,6 @@ class URLTokenHandler extends CallbackTokenHandler {
 		}
 	}
 
-	private void appendIfValid(int index, int codePoint) {
-		if (url == null || allowModifiers) {
-			bufferAppend(codePoint);
-		} else {
-			unexpectedCharError(index, codePoint);
-		}
-	}
-
 	@Override
 	public void leftSquareBracket(int index) {
 		if (url == null || allowModifiers) {
@@ -121,13 +113,15 @@ class URLTokenHandler extends CallbackTokenHandler {
 	private void addModifier(LexicalUnitImpl lu) {
 		if (modifier == null) {
 			modifier = lu;
-			urlUnit.parameters = lu;
+			if (urlUnit != null) {
+				urlUnit.parameters = lu;
+			}
 		} else {
 			modifier.nextLexicalUnit = lu;
 			lu.previousLexicalUnit = modifier;
 			modifier = lu;
-			lu.ownerLexicalUnit = urlUnit;
 		}
+		lu.ownerLexicalUnit = urlUnit;
 	}
 
 	@Override
@@ -143,7 +137,7 @@ class URLTokenHandler extends CallbackTokenHandler {
 
 	@Override
 	public void quoted(int index, CharSequence quoted, int quote) {
-		if (url == null) {
+		if (url == null && buffer.length() == 0) {
 			String escaped = quoted.toString();
 			url = CSSParser.safeUnescapeIdentifier(index, escaped);
 			if (urlUnit != null) {
@@ -156,13 +150,18 @@ class URLTokenHandler extends CallbackTokenHandler {
 				urlUnit.identCssText = buf.toString();
 			}
 		} else {
-			unexpectedCharError(index, quote);
+			unexpectedTokenError(index + buffer.length(), quoted);
 		}
 	}
 
 	@Override
 	public void character(int index, int codePoint) {
-		appendIfValid(index, codePoint);
+		if (url == null || (allowModifiers
+				&& (codePoint == '-' || (codePoint == '_' && buffer.length() > 0)))) {
+			bufferAppend(codePoint);
+		} else {
+			unexpectedCharError(index, codePoint);
+		}
 	}
 
 	@Override
@@ -196,13 +195,25 @@ class URLTokenHandler extends CallbackTokenHandler {
 
 		ModifierValueTokenHandler() {
 			super();
-			parendepth = 2; // url('url' modifier(
+			currentlu = modifier;
+
 			functionToken = true;
 		}
 
 		@Override
-		public boolean isCurrentUnitAFunction() {
-			return true;
+		public void endFunctionArgument(int index) {
+			setTrailingComments();
+			LexicalUnitImpl owner = currentlu.ownerLexicalUnit;
+			if (owner != null && owner != urlUnit) {
+				currentlu = owner;
+			} else {
+				functionToken = false;
+				if (!isInError()) {
+					// Back to URL handler
+					URLTokenHandler.this.decrParenDepth();
+					yieldHandling(URLTokenHandler.this);
+				}
+			}
 		}
 
 	}
@@ -222,8 +233,15 @@ class URLTokenHandler extends CallbackTokenHandler {
 	}
 
 	void endFunctionArgument(int index) {
-		getControlHandler().yieldHandling(caller);
+		yieldBack();
 		setURL(url, urlUnit);
+	}
+
+	protected void setURL(String url, LexicalUnitImpl urlUnit) {
+		if (urlUnit != null && caller instanceof LexicalProvider) {
+			// Set the result
+			((LexicalProvider) caller).setCurrentLexicalUnit(urlUnit);
+		}
 	}
 
 	@Override
@@ -238,14 +256,11 @@ class URLTokenHandler extends CallbackTokenHandler {
 	}
 
 	@Override
-	protected void resetHandler() {
+	public void resetHandler() {
 		super.resetHandler();
 		url = null;
 		urlUnit = null;
 		modifier = null;
-	}
-
-	protected void setURL(String url, LexicalUnitImpl urlUnit) {
 	}
 
 }

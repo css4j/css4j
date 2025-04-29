@@ -189,11 +189,11 @@ abstract class AbstractTokenHandler
 		this.parseError = true;
 	}
 
-	void resetParseError() {
+	public void resetParseError() {
 		parseError = false;
 	}
 
-	protected void resetHandler() {
+	public void resetHandler() {
 		prevcp = 32;
 	}
 
@@ -218,7 +218,7 @@ abstract class AbstractTokenHandler
 
 	@Override
 	public void leftSquareBracket(int index) {
-		unexpectedCharError(index, TokenProducer.CHAR_LEFT_SQ_BRACKET);
+		unexpectedLeftSquareBracketError(index);
 	}
 
 	@Override

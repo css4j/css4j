@@ -13,6 +13,7 @@
  */
 package io.sf.carte.doc.style.css.nsac;
 
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
@@ -955,6 +956,20 @@ public interface LexicalUnit {
 	 * @return the parsable serialization of this unit.
 	 */
 	String getCssText();
+
+	/**
+	 * Get the list of preceding comments.
+	 * 
+	 * @return the list of preceding comments, or {@code null} if none.
+	 */
+	StringList getPrecedingComments();
+
+	/**
+	 * Get the list of trailing comments.
+	 * 
+	 * @return the list of trailing comments, or {@code null} if none.
+	 */
+	StringList getTrailingComments();
 
 	/**
 	 * Verify whether this value matches the given grammar.

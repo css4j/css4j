@@ -44,8 +44,7 @@ abstract class CallbackTokenHandler extends BufferTokenHandler {
 	/**
 	 * Sets the root handler.
 	 * <p>
-	 * The root handler is responsible for error management and, in the case of
-	 * lexical handlers, semicolon handling.
+	 * The root handler is responsible for error recovery.
 	 * </p>
 	 * 
 	 * @param rootHandler the root handler.
@@ -56,24 +55,8 @@ abstract class CallbackTokenHandler extends BufferTokenHandler {
 
 	@Override
 	public void leftParenthesis(int index) {
-		// Increase the paren depth in the root, so it is given correctly to the error handler
-		getRootHandler().incrParenDepth();
+		incrParenDepth();
 		unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
-	}
-
-	@Override
-	public void leftSquareBracket(int index) {
-		getRootHandler().unexpectedLeftSquareBracketError(index);
-	}
-
-	@Override
-	public void leftCurlyBracket(int index) {
-		rootHandler.reportError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected '{'");
-		handleErrorRecovery();
-		CSSTokenHandler cur = getControlHandler().getCurrentHandler();
-		if (cur != this) {
-			cur.leftCurlyBracket(index);
-		}
 	}
 
 	@Override
@@ -110,29 +93,27 @@ abstract class CallbackTokenHandler extends BufferTokenHandler {
 
 	@Override
 	public void handleErrorRecovery() {
-		rootHandler.handleErrorRecovery();
+		yieldHandling(new CallbackIgnoredDeclarationTH());
 	}
 
-	@Override
-	public void reportError(CSSParseException ex) throws CSSParseException {
-		rootHandler.reportError(ex);
-		setParseError();
+	private class CallbackIgnoredDeclarationTH extends IgnoredDeclarationTokenHandler {
+
+		CallbackIgnoredDeclarationTH() {
+			super();
+		}
+
+		@Override
+		public void resetHandler() {
+			rootHandler.resetHandler();
+			rootHandler.resetParseError();
+		}
+
 	}
 
 	@Override
 	public void setParseError() {
 		super.setParseError();
 		caller.setParseError();
-	}
-
-	@Override
-	public void handleWarning(int index, byte errCode, String message, Throwable cause) {
-		rootHandler.handleWarning(index, errCode, message, cause);
-	}
-
-	@Override
-	public boolean isInError() {
-		return rootHandler.isInError();
 	}
 
 	@Override
@@ -169,6 +150,7 @@ abstract class CallbackTokenHandler extends BufferTokenHandler {
 
 		CallbackValueTokenHandler() {
 			super(false);
+			this.parendepth = CallbackTokenHandler.this.parendepth;
 		}
 
 		@Override
@@ -178,7 +160,7 @@ abstract class CallbackTokenHandler extends BufferTokenHandler {
 		}
 
 		protected void checkFunctionCallback(int index) {
-			if (parendepth <= 0 && !isInError()) {
+			if (!functionToken && !isInError()) {
 				CallbackTokenHandler.this.rightParenthesis(index);
 			}
 		}

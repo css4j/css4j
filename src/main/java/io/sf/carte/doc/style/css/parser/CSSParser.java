@@ -1148,7 +1148,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		protected void resetHandler() {
+		public void resetHandler() {
 			// do not reset parendepth nor opDepthIndex or opParenDepth[].
 			prevcp = 32;
 			parseError = false;
@@ -1251,7 +1251,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		protected void resetHandler() {
+		public void resetHandler() {
 			super.resetHandler();
 			errorCode = 0;
 		}
@@ -2955,7 +2955,7 @@ public class CSSParser implements Parser, Cloneable {
 			private void resetSelectorHandler(boolean resetSheetStage) {
 				RuleListManager.this.restoreInitialHandler();
 				if (resetSheetStage) {
-					RuleListManager.this.resetHandler();
+					RuleListManager.this.resetFields();
 				}
 			}
 
@@ -3601,7 +3601,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void resetHandler() {
+			public void resetHandler() {
 				super.resetHandler();
 				buffer.setLength(0);
 			}
@@ -3929,7 +3929,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void resetHandler() {
+			public void resetHandler() {
 				super.resetHandler();
 				importURL = null;
 				layerName = null;
@@ -4133,7 +4133,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void resetHandler() {
+			public void resetHandler() {
 				super.resetHandler();
 				nsPrefix = null;
 				namespaceURI = null;
@@ -4349,7 +4349,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void resetHandler() {
+			public void resetHandler() {
 				super.resetHandler();
 				this.counterStyleName = null;
 			}
@@ -4523,7 +4523,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void resetHandler() {
+			public void resetHandler() {
 				super.resetHandler();
 				pageSelectorList.clear();
 				stage = 0;
@@ -4792,7 +4792,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void resetHandler() {
+			public void resetHandler() {
 				super.resetHandler();
 				familyList.clear();
 				stage = 0;
@@ -4973,7 +4973,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void resetHandler() {
+			public void resetHandler() {
 				super.resetHandler();
 				this.keyframesName = null;
 			}
@@ -5140,7 +5140,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 
 				@Override
-				protected void resetHandler() {
+				public void resetHandler() {
 					super.resetHandler();
 					keyframeSelector = null;
 					currentlu = null;
@@ -5324,7 +5324,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void resetHandler() {
+			public void resetHandler() {
 				super.resetHandler();
 				customPropertyName = null;
 				syntax = null;
@@ -6716,7 +6716,7 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		protected void resetHandler() {
+		public void resetHandler() {
 			super.resetHandler();
 			stage = 0;
 			functionToken = false;
@@ -7116,7 +7116,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void resetHandler() {
+			public void resetHandler() {
 				super.resetHandler();
 				this.ruleName = null;
 			}
@@ -7542,6 +7542,7 @@ public class CSSParser implements Parser, Cloneable {
 						if (lunit == null) {
 							lunit = new LexicalUnitImpl(LexicalType.EMPTY);
 							lunit.value = "";
+							valueth.setPrecedingComments(lunit);
 						}
 						handleLexicalProperty(index, propertyName, lunit, priorityImportant);
 					}
@@ -7550,7 +7551,7 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			// Reset other state fields
-			resetHandler();
+			resetFields();
 		}
 
 		private boolean isCustomProperty() {
@@ -7569,7 +7570,7 @@ public class CSSParser implements Parser, Cloneable {
 			handler.lexicalProperty(propertyName, lunit, priorityImportant);
 		}
 
-		protected void resetHandler() {
+		void resetFields() {
 			propertyName = null;
 			priorityImportant = false;
 		}
@@ -7643,11 +7644,6 @@ public class CSSParser implements Parser, Cloneable {
 
 		DeclarationValueManager() {
 			this("");
-		}
-
-		DeclarationValueManager(HandlerManager parent) {
-			super(parent);
-			this.propertyName = "";
 		}
 
 		DeclarationValueManager(String propertyName) {

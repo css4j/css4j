@@ -171,7 +171,7 @@ abstract class CSSTokenHandler extends AbstractTokenHandler implements CSSConten
 	 */
 
 	@Override
-	protected void resetHandler() {
+	public void resetHandler() {
 		super.resetHandler();
 		parendepth = 0;
 	}

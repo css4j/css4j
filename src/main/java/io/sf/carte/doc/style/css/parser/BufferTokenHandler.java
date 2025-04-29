@@ -186,7 +186,7 @@ abstract class BufferTokenHandler extends CSSTokenHandler implements CSSContentH
 	 */
 
 	@Override
-	protected void resetHandler() {
+	public void resetHandler() {
 		super.resetHandler();
 		resetEscapedTokenIndex();
 	}
@@ -343,8 +343,7 @@ abstract class BufferTokenHandler extends CSSTokenHandler implements CSSContentH
 			if (isRecoverable()) {
 				if (curlyBracketDepth < 0) {
 					endDeclarationBlock(index);
-					BufferTokenHandler.this.resetParseError();
-					BufferTokenHandler.this.resetHandler();
+					resetHandler();
 				} else if (curlyBracketDepth == 0) {
 					resumeDeclarationRuleList();
 				}
@@ -359,16 +358,20 @@ abstract class BufferTokenHandler extends CSSTokenHandler implements CSSContentH
 		public void character(int index, int codePoint) {
 			if (codePoint == TokenProducer.CHAR_SEMICOLON && curlyBracketDepth == 0
 					&& isRecoverable()) {
-				BufferTokenHandler.this.resetHandler();
-				BufferTokenHandler.this.resetParseError();
+				resetHandler();
 				resumeDeclarationList();
 			}
 		}
 
 		protected void resumeDeclarationRuleList() {
+			resetHandler();
+			resumeDeclarationList();
+		}
+
+		@Override
+		public void resetHandler() {
 			BufferTokenHandler.this.resetHandler();
 			BufferTokenHandler.this.resetParseError();
-			resumeDeclarationList();
 		}
 
 		protected void resumeDeclarationList() {
@@ -393,19 +396,12 @@ abstract class BufferTokenHandler extends CSSTokenHandler implements CSSContentH
 		}
 
 		@Override
-		protected void resetHandler() {
-			super.resetHandler();
-			sqBracketDepth = 0;
-		}
-
-		@Override
 		public boolean isInError() {
 			return true;
 		}
 
 		@Override
 		public void reportError(CSSParseException ex) throws CSSParseException {
-			BufferTokenHandler.this.reportError(ex);
 		}
 
 		@Override

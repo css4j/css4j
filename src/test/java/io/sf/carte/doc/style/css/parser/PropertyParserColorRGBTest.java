@@ -22,6 +22,7 @@ import java.io.StringReader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
@@ -1828,6 +1829,70 @@ public class PropertyParserColorRGBTest {
 		LexicalUnit clone = lu.clone();
 		assertEquals(lu, clone);
 		assertEquals(lu.hashCode(), clone.hashCode());
+	}
+
+	@Test
+	public void testParsePropertyValueColorHex3Comments() throws CSSException {
+		LexicalUnit lunit = parsePropertyValue("/* pre */ #fd3 /* after */");
+		assertEquals(LexicalType.RGBCOLOR, lunit.getLexicalUnitType());
+		assertEquals("rgb", lunit.getFunctionName());
+		assertEquals("#fd3", lunit.toString());
+		assertNull(lunit.getNextLexicalUnit());
+		LexicalUnit lu = lunit.getParameters();
+		assertNotNull(lu);
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(255, lu.getIntegerValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(221, lu.getIntegerValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(51, lu.getIntegerValue());
+		assertNull(lu.getNextLexicalUnit());
+
+		StringList pre = lunit.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(1, pre.getLength());
+		assertEquals(" pre ", pre.item(0));
+
+		StringList after = lunit.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(1, after.getLength());
+		assertEquals(" after ", after.item(0));
+	}
+
+	@Test
+	public void testParsePropertyValueColorHex3Comments2() throws CSSException {
+		LexicalUnit lunit = parsePropertyValue("/* pre */ #fd3/* after */");
+		assertEquals(LexicalType.RGBCOLOR, lunit.getLexicalUnitType());
+		assertEquals("rgb", lunit.getFunctionName());
+		assertEquals("#fd3", lunit.toString());
+		assertNull(lunit.getNextLexicalUnit());
+		LexicalUnit lu = lunit.getParameters();
+		assertNotNull(lu);
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(255, lu.getIntegerValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(221, lu.getIntegerValue());
+		lu = lu.getNextLexicalUnit();
+		assertNotNull(lu);
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(51, lu.getIntegerValue());
+		assertNull(lu.getNextLexicalUnit());
+
+		StringList pre = lunit.getPrecedingComments();
+		assertNotNull(pre);
+		assertEquals(1, pre.getLength());
+		assertEquals(" pre ", pre.item(0));
+
+		StringList after = lunit.getTrailingComments();
+		assertNotNull(after);
+		assertEquals(1, after.getLength());
+		assertEquals(" after ", after.item(0));
 	}
 
 	@Test

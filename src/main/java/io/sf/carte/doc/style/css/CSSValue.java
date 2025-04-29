@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.util.SimpleWriter;
 
@@ -537,6 +538,24 @@ public interface CSSValue extends Cloneable {
 	 * @throws IOException if an error happened while writing.
 	 */
 	void writeCssText(SimpleWriter wri) throws IOException;
+
+	/**
+	 * Get the list of preceding comments.
+	 * 
+	 * @return the list of preceding comments, or {@code null} if none.
+	 */
+	default StringList getPrecedingComments() {
+		return null;
+	}
+
+	/**
+	 * Get the list of trailing comments.
+	 * 
+	 * @return the list of trailing comments, or {@code null} if none.
+	 */
+	default StringList getTrailingComments() {
+		return null;
+	}
 
 	/**
 	 * Verify if this value matches the given grammar.

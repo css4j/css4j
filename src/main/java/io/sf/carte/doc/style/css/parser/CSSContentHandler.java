@@ -52,6 +52,8 @@ interface CSSContentHandler
 
 	void setParseError();
 
+	void resetParseError();
+
 	void reportError(int index, byte errCode, String message) throws CSSParseException;
 
 	void reportError(CSSParseException ex) throws CSSParseException;
@@ -81,5 +83,7 @@ interface CSSContentHandler
 
 	@Override
 	void endOfStream(int len);
+
+	void resetHandler();
 
 }

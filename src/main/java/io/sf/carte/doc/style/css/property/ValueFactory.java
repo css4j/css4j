@@ -1289,7 +1289,12 @@ public class ValueFactory implements CSSValueFactory {
 			ex.initCause(e);
 			throw ex;
 		}
+
 		primi.setSubproperty(subp);
+
+		primi.setPrecedingComments(lunit.getPrecedingComments());
+		primi.setTrailingComments(lunit.getTrailingComments());
+
 		return setter;
 	}
 
