@@ -1398,7 +1398,7 @@ public class HTMLDocumentSampleTest {
 		/*
 		 * attr() value, string expected type, do not reparse.
 		 */
-		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin string)");
+		elm.getOverrideStyle(null).setCssText("margin-left:attr(leftmargin raw-string)");
 		style = elm.getComputedStyle(null);
 		marginLeft = (CSSTypedValue) style.getPropertyCSSValue("margin-left");
 		assertEquals(CSSValue.Type.STRING, marginLeft.getPrimitiveType());

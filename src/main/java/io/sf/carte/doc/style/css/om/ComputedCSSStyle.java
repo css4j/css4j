@@ -1535,7 +1535,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				switch (lu.getLexicalUnitType()) {
 				case IDENT:
 					String attrtype = lu.getStringValue().toLowerCase(Locale.ROOT);
-					if (!"string".equals(attrtype)) {
+					if (!"raw-string".equals(attrtype)) {
 						unitConv = UnitStringToId.unitFromString(attrtype);
 						if (unitConv == CSSUnit.CSS_OTHER) {
 							computedStyleError(propertyName, attr.getCssText(),
