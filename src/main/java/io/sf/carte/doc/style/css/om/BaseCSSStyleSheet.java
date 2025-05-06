@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.w3c.dom.DOMException;
@@ -65,9 +64,6 @@ import io.sf.carte.util.agent.AgentUtil;
 
 /**
  * CSS Style Sheet Object Model implementation base class.
- * 
- * @author Carlos Amengual
- * 
  */
 abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
@@ -90,27 +86,22 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	/**
 	 * URI-to-prefix map.
 	 */
-	private Map<String, String> namespaces = new HashMap<>();
+	private HashMap<String, String> namespaces = new HashMap<>();
 
 	private boolean disabled = false;
 
 	private SheetErrorHandler sheetErrorHandler = null;
 
-	private static final int MAX_IMPORT_RECURSION = 8; // Allows 6 nested imports
-
 	/**
 	 * Constructs a style sheet.
 	 * 
-	 * @param title
-	 *            the advisory title.
-	 * @param media
-	 *            the media this sheet is for.
-	 * @param ownerRule
-	 *            the owner rule.
-	 * @param origin
-	 *            the sheet origin.
+	 * @param title     the advisory title.
+	 * @param media     the media this sheet is for.
+	 * @param ownerRule the owner rule.
+	 * @param origin    the sheet origin.
 	 */
-	protected BaseCSSStyleSheet(String title, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
+	protected BaseCSSStyleSheet(String title, MediaQueryList media, AbstractCSSRule ownerRule,
+			byte origin) {
 		super(title);
 		this.ownerRule = ownerRule;
 		if (media == null) {
@@ -185,33 +176,38 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		return cssRules;
 	}
 
+	int getCurrentInsertionIndex() {
+		return currentInsertionIndex;
+	}
+
+	void setCurrentInsertionIndex(int currentInsertionIndex) {
+		this.currentInsertionIndex = currentInsertionIndex;
+	}
+
 	/**
-	 * Used to insert a new rule into the style sheet. The new rule now becomes
-	 * part of the cascade.
+	 * Used to insert a new rule into the style sheet. The new rule now becomes part
+	 * of the cascade.
 	 * 
-	 * @param rule
-	 *            The parsable text representing the rule. For rule sets this
-	 *            contains both the selector and the style declaration. For
-	 *            at-rules, this specifies both the at-identifier and the rule
-	 *            content.
-	 * @param index
-	 *            The index within the style sheet's rule list of the rule
-	 *            before which to insert the specified rule. If the specified
-	 *            index is equal to the length of the style sheet's rule
-	 *            collection, the rule will be added to the end of the style
-	 *            sheet.
+	 * @param rule  The parsable text representing the rule. For rule sets this
+	 *              contains both the selector and the style declaration. For
+	 *              at-rules, this specifies both the at-identifier and the rule
+	 *              content.
+	 * @param index The index within the style sheet's rule list of the rule before
+	 *              which to insert the specified rule. If the specified index is
+	 *              equal to the length of the style sheet's rule collection, the
+	 *              rule will be added to the end of the style sheet.
 	 * @return The index within the style sheet's rule collection of the newly
 	 *         inserted rule.
-	 * @throws DOMException
-	 *             HIERARCHY_REQUEST_ERR: Raised if the rule cannot be inserted
-	 *             at the specified index e.g. if an <code>@import</code> rule
-	 *             is inserted after a standard rule set or other at-rule. <br>
-	 *             INDEX_SIZE_ERR: Raised if the specified index is not a valid
-	 *             insertion point. <br>
-	 *             NO_MODIFICATION_ALLOWED_ERR: Raised if this style sheet is
-	 *             readonly. <br>
-	 *             SYNTAX_ERR: Raised if the specified rule has a syntax error
-	 *             and is unparsable.
+	 * @throws DOMException HIERARCHY_REQUEST_ERR: Raised if the rule cannot be
+	 *                      inserted at the specified index e.g. if an
+	 *                      <code>@import</code> rule is inserted after a standard
+	 *                      rule set or other at-rule. <br>
+	 *                      INDEX_SIZE_ERR: Raised if the specified index is not a
+	 *                      valid insertion point. <br>
+	 *                      NO_MODIFICATION_ALLOWED_ERR: Raised if this style sheet
+	 *                      is readonly. <br>
+	 *                      SYNTAX_ERR: Raised if the specified rule has a syntax
+	 *                      error and is unparsable.
 	 */
 	@Override
 	public int insertRule(String rule, int index) throws DOMException {
@@ -243,9 +239,11 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		if (currentInsertionIndex != index && handler.getOutOfRuleException() != null) {
 			DOMException ex;
 			if (handler.getOutOfRuleException().getClass() == CSSNamespaceParseException.class) {
-				ex = new DOMException(DOMException.NAMESPACE_ERR, handler.getOutOfRuleException().getMessage());
+				ex = new DOMException(DOMException.NAMESPACE_ERR,
+						handler.getOutOfRuleException().getMessage());
 			} else {
-				ex = new DOMException(DOMException.SYNTAX_ERR, handler.getOutOfRuleException().getMessage());
+				ex = new DOMException(DOMException.SYNTAX_ERR,
+						handler.getOutOfRuleException().getMessage());
 			}
 			ex.initCause(handler.getOutOfRuleException());
 			throw ex;
@@ -254,26 +252,27 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	/**
-	 * Inserts a rule in the current insertion point (generally after the last rule).
+	 * Inserts a rule in the current insertion point (generally after the last
+	 * rule).
 	 * 
-	 * @param cssrule
-	 *            the rule to be inserted.
-	 * @throws DOMException
-	 *             NAMESPACE_ERR if the rule could not be added due to a namespace-related
-	 *             error.
+	 * @param cssrule the rule to be inserted.
+	 * @throws DOMException NAMESPACE_ERR if the rule could not be added due to a
+	 *                      namespace-related error.
 	 */
 	@Override
 	public void addRule(AbstractCSSRule cssrule) throws DOMException {
-		if (cssrule.getType() == CSSRule.NAMESPACE_RULE) {
-			CSSNamespaceRule nsrule = (CSSNamespaceRule) cssrule;
-			if (namespaces.containsKey(nsrule.getNamespaceURI())) {
-				throw new DOMException(DOMException.NAMESPACE_ERR,
-						"Rule for this namespace URI already exists: " + nsrule.getNamespaceURI());
-			}
-			registerNamespace(nsrule);
-		}
+		cssrule.addToSheetAsLocal(this);
 		cssrule.setParentStyleSheet(this);
-		addLocalRule(cssrule);
+	}
+
+	@Override
+	void addNamespaceRule(CSSNamespaceRule nsrule) {
+		if (namespaces.containsKey(nsrule.getNamespaceURI())) {
+			throw new DOMException(DOMException.NAMESPACE_ERR,
+					"Rule for this namespace URI already exists: " + nsrule.getNamespaceURI());
+		}
+		registerNamespace(nsrule);
+		addLocalRule(nsrule);
 	}
 
 	@Override
@@ -292,12 +291,12 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	/**
-	 * Inserts a local rule in the current insertion point (generally after the
-	 * last rule).
+	 * Inserts a local rule in the current insertion point (generally after the last
+	 * rule).
 	 * 
-	 * @param cssrule
-	 *            the rule to be inserted.
+	 * @param cssrule the rule to be inserted.
 	 */
+	@Override
 	protected void addLocalRule(CSSRule cssrule) {
 		currentInsertionIndex = cssRules.insertRule(cssrule, ++currentInsertionIndex);
 	}
@@ -305,14 +304,14 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	/**
 	 * Deletes a rule from the style sheet.
 	 * 
-	 * @param index
-	 *            The index within the style sheet's rule list of the rule to
-	 *            remove.
-	 * @throws DOMException
-	 *             INDEX_SIZE_ERR: Raised if the specified index does not
-	 *             correspond to a rule in the style sheet's rule list. <br>
-	 *             NAMESPACE_ERR: Raised if the rule is a namespace rule and
-	 *             this style sheet contains style rules with that namespace.
+	 * @param index The index within the style sheet's rule list of the rule to
+	 *              remove.
+	 * @throws DOMException INDEX_SIZE_ERR: Raised if the specified index does not
+	 *                      correspond to a rule in the style sheet's rule list.
+	 *                      <br>
+	 *                      NAMESPACE_ERR: Raised if the rule is a namespace rule
+	 *                      and this style sheet contains style rules with that
+	 *                      namespace.
 	 */
 	@Override
 	public void deleteRule(int index) throws DOMException {
@@ -333,107 +332,64 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		for (CSSRule rule : cssRules) {
 			if (rule.getType() == CSSRule.STYLE_RULE) {
 				StyleRule stylerule = (StyleRule) rule;
-				if (selectorListHasNamespace(stylerule.getSelectorList(), namespaceURI)) {
+				if (selectorListHasNamespace(stylerule.getAbsoluteSelectorList(), namespaceURI)) {
 					return true;
 				}
 			}
+			// Namespace rules aren't supposed to be nested, so do not scan
+			// grouping rules.
 		}
 		return false;
 	}
 
 	/**
-	 * Adds the rules contained by the supplied style sheet, if that sheet is
-	 * not disabled.
+	 * Adds the rules contained by the supplied style sheet, if that sheet is not
+	 * disabled.
 	 * <p>
 	 * If the provided sheet does not target all media, a media rule is created.
 	 * 
-	 * @param sheet
-	 *            the sheet whose rules are to be added.
+	 * @param sheet the sheet whose rules are to be added.
 	 */
 	@Override
 	public void addStyleSheet(AbstractCSSStyleSheet sheet) {
 		if (!sheet.getDisabled()) {
 			MediaQueryList mediaList = sheet.getMedia();
 			if (mediaList.isAllMedia()) { // all media
+				mergeNamespaces((BaseCSSStyleSheet) sheet);
 				CSSRuleArrayList otherRules = sheet.getCssRules();
-				addRuleList(otherRules, sheet, 0);
+				addRuleList(otherRules, 0);
 			} else if (!mediaList.isNotAllMedia()) {
 				CSSRuleArrayList otherRules = sheet.getCssRules();
-				// Create a Media rule
+				// Add as Media rule
 				MediaRule mrule = createMediaRule(mediaList);
-				addToMediaRule(mrule, otherRules, sheet, 0);
+				mrule.addRuleList(otherRules, 0);
 				addLocalRule(mrule);
 			}
 			getErrorHandler().mergeState(sheet.getErrorHandler());
 		}
 	}
 
-	private void addRuleList(CSSRuleArrayList otherRules, AbstractCSSStyleSheet sheet, int importCount) {
-		int orl = otherRules.getLength();
-		for (int i = 0; i < orl; i++) {
-			AbstractCSSRule oRule = otherRules.item(i);
-			if (oRule.getType() != CSSRule.IMPORT_RULE) {
-				addLocalRule(oRule.clone(sheet));
-			} else {
-				importCount++;
-				if (importCount >= MAX_IMPORT_RECURSION) {
-					DOMException ex = new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
-							"Too many nested imports");
-					String cssText = oRule.getCssText();
-					sheet.getErrorHandler().badAtRule(ex, cssText);
-					getErrorHandler().badAtRule(ex, cssText);
-					return;
-				}
-				// We clone with 'sheet' as parent, to receive the errors
-				ImportRule imp = (ImportRule) oRule.clone(sheet);
-				AbstractCSSStyleSheet impSheet = imp.getStyleSheet();
-				CSSRuleArrayList impRules = impSheet.getCssRules();
-				MediaQueryList media = imp.getMedia();
-				if (media.isAllMedia()) {
-					addRuleList(impRules, impSheet, importCount);
-				} else if (!media.isNotAllMedia()) {
-					// Create a Media rule
-					MediaRule mrule = createMediaRule(imp.getMedia());
-					addToMediaRule(mrule, impRules, impSheet, importCount);
-					addLocalRule(mrule);
-				}
+	@SuppressWarnings("unchecked")
+	private void mergeNamespaces(BaseCSSStyleSheet sheet) {
+		if (namespaces != null) {
+			if (sheet.namespaces != null) {
+				namespaces.putAll(sheet.namespaces);
 			}
+		} else if (sheet.namespaces != null) {
+			namespaces = (HashMap<String, String>) sheet.namespaces.clone();
 		}
+
 	}
 
-	private void addToMediaRule(MediaRule mrule, CSSRuleArrayList otherRules, AbstractCSSStyleSheet sheet,
-			int importCount) {
-		// Fill the media rule
+	@Override
+	int addRuleList(CSSRuleArrayList otherRules, int importCount) {
 		int orl = otherRules.getLength();
 		for (int i = 0; i < orl; i++) {
 			AbstractCSSRule oRule = otherRules.item(i);
-			if (oRule.getType() != CSSRule.IMPORT_RULE) {
-				mrule.addRule(oRule.clone(sheet));
-			} else {
-				importCount++;
-				if (importCount == MAX_IMPORT_RECURSION) {
-					DOMException ex = new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
-							"Too many nested imports");
-					String cssText = oRule.getCssText();
-					sheet.getErrorHandler().badAtRule(ex, cssText);
-					getErrorHandler().badAtRule(ex, cssText);
-					return;
-				}
-				// We clone with 'sheet' as parent, to receive the errors
-				ImportRule imp = (ImportRule) oRule.clone(sheet);
-				AbstractCSSStyleSheet impSheet = imp.getStyleSheet();
-				CSSRuleArrayList impRules = impSheet.getCssRules();
-				MediaQueryList media = imp.getMedia();
-				if (mrule.getMedia().equals(media)) {
-					addToMediaRule(mrule, impRules, impSheet, importCount);
-				} else {
-					// Create a Media rule
-					MediaRule nestedMRule = createMediaRule(media);
-					addToMediaRule(nestedMRule, impRules, impSheet, importCount);
-					mrule.addRule(nestedMRule);
-				}
-			}
+			importCount = oRule.addToSheet(this, importCount);
 		}
+
+		return importCount;
 	}
 
 	private static boolean selectorListHasNamespace(SelectorList selist, String namespaceURI) {
@@ -452,16 +408,16 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			return namespaceURI.equals(((ElementSelector) sel).getNamespaceURI());
 		case CONDITIONAL:
 			ConditionalSelector csel = (ConditionalSelector) sel;
-			return selectorHasNamespace(csel.getSimpleSelector(), namespaceURI) ||
-					conditionHasNamespace(csel.getCondition(), namespaceURI);
+			return selectorHasNamespace(csel.getSimpleSelector(), namespaceURI)
+					|| conditionHasNamespace(csel.getCondition(), namespaceURI);
 		case CHILD:
 		case DESCENDANT:
 		case DIRECT_ADJACENT:
 		case SUBSEQUENT_SIBLING:
 		case COLUMN_COMBINATOR:
 			CombinatorSelector dsel = (CombinatorSelector) sel;
-			return selectorHasNamespace(dsel.getSelector(), namespaceURI) ||
-					selectorHasNamespace(dsel.getSecondSelector(), namespaceURI);
+			return selectorHasNamespace(dsel.getSelector(), namespaceURI)
+					|| selectorHasNamespace(dsel.getSecondSelector(), namespaceURI);
 		default:
 			return false;
 		}
@@ -479,8 +435,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			return namespaceURI.equals(acond.getNamespaceURI());
 		case AND:
 			CombinatorCondition ccond = (CombinatorCondition) condition;
-			return conditionHasNamespace(ccond.getFirstCondition(), namespaceURI) ||
-					conditionHasNamespace(ccond.getSecondCondition(), namespaceURI);
+			return conditionHasNamespace(ccond.getFirstCondition(), namespaceURI)
+					|| conditionHasNamespace(ccond.getSecondCondition(), namespaceURI);
 		case POSITIONAL:
 			SelectorList oflist = ((PositionalCondition) condition).getOfList();
 			if (oflist != null) {
@@ -496,6 +452,25 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		default:
 		}
 		return false;
+	}
+
+	void prioritySplit(AbstractCSSStyleSheet importantSheet, AbstractCSSStyleSheet normalSheet) {
+		/*
+		 * For performance, create two declarations and reuse them.
+		 */
+		AbstractCSSStyleDeclaration userImportantStyle = normalSheet.createStyleDeclaration();
+		AbstractCSSStyleDeclaration userNormalStyle = normalSheet.createStyleDeclaration();
+		for (AbstractCSSRule r : cssRules) {
+			if (r.getType() == CSSRule.STYLE_RULE) {
+				userImportantStyle.clear();
+				userNormalStyle.clear();
+				StyleRule rule = (StyleRule) r;
+				rule.prioritySplit(importantSheet, normalSheet, importantSheet, normalSheet,
+						userImportantStyle, userNormalStyle);
+			} else {
+				r.prioritySplit(importantSheet, normalSheet, importantSheet, normalSheet);
+			}
+		}
 	}
 
 	@Override
@@ -665,8 +640,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	/**
 	 * Gets the namespace prefix associated to the given URI.
 	 * 
-	 * @param uri
-	 *            the namespace URI string.
+	 * @param uri the namespace URI string.
 	 * @return the namespace prefix.
 	 */
 	@Override
@@ -688,7 +662,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	/**
 	 * Has this style sheet defined a default namespace ?
 	 * 
-	 * @return <code>true</code> if a default namespace was defined, <code>false</code> otherwise.
+	 * @return <code>true</code> if a default namespace was defined,
+	 *         <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean hasDefaultNamespace() {
@@ -805,15 +780,14 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	/**
-	 * Returns a list of rules that apply to a style where the given longhand property
-	 * is set (either explicitly or through a shorthand).
+	 * Returns a list of rules that apply to a style where the given longhand
+	 * property is set (either explicitly or through a shorthand).
 	 * <p>
 	 * Grouping rules are scanned too, regardless of the medium or condition.
 	 * 
-	 * @param longhandPropertyName
-	 *            the longhand property name.
-	 * @return the list of rules, or <code>null</code> if no rules declare that property,
-	 *         or the property is a shorthand.
+	 * @param longhandPropertyName the longhand property name.
+	 * @return the list of rules, or <code>null</code> if no rules declare that
+	 *         property, or the property is a shorthand.
 	 */
 	@Override
 	public CSSRuleArrayList getRulesForProperty(String longhandPropertyName) {
@@ -834,6 +808,14 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 				if (((BaseCSSStyleDeclaration) stylerule.getStyle()).isPropertySet(propertyName)) {
 					subset.add(stylerule);
 				}
+				if (stylerule.getCssRules() == null) {
+					break;
+				}
+				// pass-through
+			case CSSRule.MEDIA_RULE:
+			case CSSRule.SUPPORTS_RULE:
+				GroupingRule grouping = (GroupingRule) rule;
+				scanRulesForPropertyDeclaration(grouping.getCssRules(), propertyName, subset);
 				break;
 			case CSSRule.PAGE_RULE: // @page rules can contain properties as well as descriptors
 				BaseCSSDeclarationRule declrule = (BaseCSSDeclarationRule) rule;
@@ -841,25 +823,19 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 					subset.add(declrule);
 				}
 				break;
-			case CSSRule.MEDIA_RULE:
-			case CSSRule.SUPPORTS_RULE:
-				GroupingRule grouping = (GroupingRule) rule;
-				scanRulesForPropertyDeclaration(grouping.getCssRules(), propertyName, subset);
-				break;
 			}
 		}
 	}
 
 	/**
-	 * Returns an array of selectors that apply to a style where the given longhand property
-	 * is set (either explicitly or through a shorthand).
+	 * Returns an array of selectors that apply to a style where the given longhand
+	 * property is set (either explicitly or through a shorthand).
 	 * <p>
 	 * Grouping rules are scanned too, regardless of the medium or condition.
 	 * 
-	 * @param longhandPropertyName
-	 *            the longhand property name.
-	 * @return the array of selectors, or <code>null</code> if no rules declare that property,
-	 *         or the property is a shorthand.
+	 * @param longhandPropertyName the longhand property name.
+	 * @return the array of selectors, or <code>null</code> if no rules declare that
+	 *         property, or the property is a shorthand.
 	 */
 	@Override
 	public Selector[] getSelectorsForProperty(String longhandPropertyName) {
@@ -878,12 +854,15 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			case CSSRule.STYLE_RULE:
 				StyleRule stylerule = (StyleRule) rule;
 				if (((BaseCSSStyleDeclaration) stylerule.getStyle()).isPropertySet(propertyName)) {
-					SelectorList list = stylerule.getSelectorList();
+					SelectorList list = stylerule.getAbsoluteSelectorList();
 					for (int i = 0; i < list.getLength(); i++) {
 						selectors.add(list.item(i));
 					}
 				}
-				break;
+				if (stylerule.getCssRules() == null) {
+					break;
+				}
+				// pass-through
 			case CSSRule.MEDIA_RULE:
 			case CSSRule.SUPPORTS_RULE:
 				GroupingRule grouping = (GroupingRule) rule;
@@ -894,20 +873,18 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	/**
-	 * Returns an array of selectors that apply to a style where the given property was
-	 * explicitly set to the given declared value.
+	 * Returns an array of selectors that apply to a style where the given property
+	 * was explicitly set to the given declared value.
 	 * <p>
 	 * Media rules are scanned too, regardless of the specific medium.
 	 * </p>
 	 * <p>
-	 * Beware that using this method with computed instead of declared values may not give the
-	 * expected results.
+	 * Beware that using this method with computed instead of declared values may
+	 * not give the expected results.
 	 * </p>
 	 * 
-	 * @param propertyName
-	 *            the property name.
-	 * @param declaredValue
-	 *            the property's declared value.
+	 * @param propertyName  the property name.
+	 * @param declaredValue the property's declared value.
 	 * @return the array of selectors, or <code>null</code> if no rules contain that
 	 *         property-value pair.
 	 */
@@ -927,12 +904,15 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			case CSSRule.STYLE_RULE:
 				StyleRule stylerule = (StyleRule) rule;
 				if (value.equalsIgnoreCase(stylerule.getStyle().getPropertyValue(propertyName))) {
-					SelectorList list = stylerule.getSelectorList();
+					SelectorList list = stylerule.getAbsoluteSelectorList();
 					for (int i = 0; i < list.getLength(); i++) {
 						selectors.add(list.item(i));
 					}
 				}
-				break;
+				if (stylerule.getCssRules() == null) {
+					break;
+				}
+				// pass-through
 			case CSSRule.MEDIA_RULE:
 			case CSSRule.SUPPORTS_RULE:
 				GroupingRule grouping = (GroupingRule) rule;
@@ -958,16 +938,19 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	private static StyleRule scanRulesForSelector(CSSRuleArrayList rules,
-		SelectorList selectorList) {
+			SelectorList selectorList) {
 		for (CSSRule rule : rules) {
 			switch (rule.getType()) {
 			case CSSRule.STYLE_RULE:
 				StyleRule stylerule = (StyleRule) rule;
-				SelectorList list = stylerule.getSelectorList();
+				SelectorList list = stylerule.getAbsoluteSelectorList();
 				if (list.equals(selectorList)) {
 					return stylerule;
 				}
-				break;
+				if (stylerule.getCssRules() == null) {
+					break;
+				}
+				// pass-through
 			case CSSRule.MEDIA_RULE:
 			case CSSRule.SUPPORTS_RULE:
 				GroupingRule grouping = (GroupingRule) rule;
@@ -1001,16 +984,19 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	private static void scanRulesForSelector(CSSRuleArrayList rules, Selector selector,
-		CSSRuleArrayList styleRules) {
+			CSSRuleArrayList styleRules) {
 		for (CSSRule rule : rules) {
 			switch (rule.getType()) {
 			case CSSRule.STYLE_RULE:
 				StyleRule stylerule = (StyleRule) rule;
-				SelectorList list = stylerule.getSelectorList();
+				SelectorList list = stylerule.getAbsoluteSelectorList();
 				if (list.contains(selector)) {
 					styleRules.add(stylerule);
 				}
-				break;
+				if (stylerule.getCssRules() == null) {
+					break;
+				}
+				// pass-through
 			case CSSRule.MEDIA_RULE:
 			case CSSRule.SUPPORTS_RULE:
 				GroupingRule grouping = (GroupingRule) rule;
@@ -1036,7 +1022,10 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			case CSSRule.STYLE_RULE:
 				StyleRule stylerule = (StyleRule) rule;
 				visitor.visit(stylerule);
-				break;
+				if (stylerule.getCssRules() == null) {
+					break;
+				}
+				// pass-through
 			case CSSRule.MEDIA_RULE:
 			case CSSRule.SUPPORTS_RULE:
 				GroupingRule grouping = (GroupingRule) rule;
@@ -1061,19 +1050,26 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		for (CSSRule rule : rules) {
 			switch (rule.getType()) {
 			case CSSRule.STYLE_RULE:
+				CSSDeclarationRule declRule = (CSSDeclarationRule) rule;
+				visitor.visit(declRule);
+				GroupingRule grouping = (GroupingRule) rule;
+				if (grouping.cssRules != null) {
+					acceptDeclarationRuleVisitor(grouping.cssRules, visitor);
+				}
+				break;
+			case CSSRule.MEDIA_RULE:
+			case CSSRule.SUPPORTS_RULE:
+				grouping = (GroupingRule) rule;
+				acceptDeclarationRuleVisitor(grouping.getCssRules(), visitor);
+				break;
 			case CSSRule.FONT_FACE_RULE:
 			case CSSRule.KEYFRAME_RULE:
 			case CSSRule.MARGIN_RULE:
 			case CSSRule.COUNTER_STYLE_RULE:
 			case CSSRule.PROPERTY_RULE:
 			case CSSRule.NESTED_DECLARATIONS:
-				CSSDeclarationRule declRule = (CSSDeclarationRule) rule;
+				declRule = (CSSDeclarationRule) rule;
 				visitor.visit(declRule);
-				break;
-			case CSSRule.MEDIA_RULE:
-			case CSSRule.SUPPORTS_RULE:
-				GroupingRule grouping = (GroupingRule) rule;
-				acceptDeclarationRuleVisitor(grouping.getCssRules(), visitor);
 				break;
 			case CSSRule.PAGE_RULE:
 				PageRule pageRule = (PageRule) rule;
@@ -1196,13 +1192,13 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * @return the new NSAC sheet handler.
 	 */
 	SheetHandler createSheetHandler(short commentMode) {
-		return new SheetHandler(this, getOrigin(), commentMode);
+		return createSheetHandler(getOrigin(), commentMode);
 	}
 
 	/**
 	 * Creates a NSAC sheet handler that fills this style sheet.
 	 * 
-	 * @param origin the origin for this style sheet.
+	 * @param origin      the origin for this style sheet.
 	 * @param commentMode the comment processing mode.
 	 * @return the new NSAC sheet handler.
 	 */
@@ -1245,7 +1241,8 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * @throws IOException  if a problem is found reading the sheet.
 	 */
 	@Override
-	public boolean parseStyleSheet(Reader reader, short commentMode) throws DOMException, IOException {
+	public boolean parseStyleSheet(Reader reader, short commentMode)
+			throws DOMException, IOException {
 		if (sheetErrorHandler != null) {
 			sheetErrorHandler.reset();
 		}
@@ -1269,8 +1266,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		return !getErrorHandler().hasSacErrors();
 	}
 
-	private void parseStyleSheet(Reader reader, Parser parser)
-			throws DOMException, IOException {
+	private void parseStyleSheet(Reader reader, Parser parser) throws DOMException, IOException {
 		try {
 			parser.parseStyleSheet(reader);
 		} catch (CSSNamespaceParseException e) {
@@ -1283,7 +1279,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			throw ex;
 		} catch (CSSParseException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, "Parse error at ["
-				+ e.getLineNumber() + ',' + e.getColumnNumber() + "]: " + e.getMessage());
+					+ e.getLineNumber() + ',' + e.getColumnNumber() + "]: " + e.getMessage());
 			ex.initCause(e);
 			throw ex;
 		} catch (CSSException e) {

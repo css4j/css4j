@@ -139,6 +139,12 @@ public class PropertyRule extends BaseCSSDeclarationRule implements CSSPropertyR
 	}
 
 	@Override
+	int addToSheet(AbstractCSSStyleSheet sheet, int importCount) {
+		sheet.addPropertyRule(this);
+		return importCount;
+	}
+
+	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();

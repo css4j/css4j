@@ -24,8 +24,9 @@ import java.util.StringTokenizer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.css.CSSRuleList;
+
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSRuleList;
 
 public class StyleRuleTest2 {
 
@@ -143,7 +144,7 @@ public class StyleRuleTest2 {
 	}
 
 	StyleRule styleRuleFor(String selectorText, String propertyName) {
-		CSSRuleList rules = sheet.getCssRules();
+		CSSRuleList<?> rules = sheet.getCssRules();
 		for (int i = 0; i < rules.getLength(); i++) {
 			CSSRule rule = rules.item(i);
 			if (rule instanceof StyleRule) {

@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import static org.junit.Assert.assertSame;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -32,7 +33,10 @@ class TestCSSHandler extends TestDeclarationHandler {
 	LinkedList<String> atRules = new LinkedList<>();
 	List<SelectorList> selectors = new ArrayList<>();
 	List<SelectorList> nestedSelectors = new ArrayList<>();
+	List<SelectorList> endNestedSelectors = new ArrayList<>();
 	LinkedList<SelectorList> endSelectors = new LinkedList<>();
+	List<SelectorList> selectorStack = new ArrayList<>();
+	List<SelectorList> propertySelectors = new ArrayList<>();
 	LinkedList<String> importURIs = new LinkedList<>();
 	LinkedList<String> importLayers = new LinkedList<>();
 	LinkedList<BooleanCondition> importSupportsConditions = new LinkedList<>();
@@ -73,20 +77,31 @@ class TestCSSHandler extends TestDeclarationHandler {
 		} else {
 			this.selectors.add(selectors);
 		}
+		selectorStack.add(selectors);
 		this.eventSeq.add("startSelector");
 	}
 
 	@Override
 	public void endSelector(SelectorList selectors) {
-		if (!this.nestedSelectors.remove(selectors)) {
+		if (!this.nestedSelectors.contains(selectors)) {
 			this.endSelectors.add(selectors);
+		} else {
+			endNestedSelectors.add(selectors);
 		}
+		assertSame(selectors, selectorStack.removeLast());
 		this.eventSeq.add("endSelector");
 	}
 
 	@Override
 	public void property(String name, LexicalUnit value, boolean important) {
 		super.property(name, value, important);
+		SelectorList selist;
+		if (!selectorStack.isEmpty()) {
+			selist = selectorStack.getLast();
+		} else {
+			selist = null;
+		}
+		propertySelectors.add(selist);
 		this.eventSeq.add("property");
 	}
 
@@ -264,7 +279,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 		for (int i = 0; i < sz; i++) {
 			assertEquals(selectors.get(i), endSelectors.get(i));
 		}
-		assertEquals(0, nestedSelectors.size());
+		assertEquals(nestedSelectors.size(), endNestedSelectors.size());
 		assertTrue(selectors.equals(endSelectors));
 		assertEquals(mediaRuleLists.size(), endMediaCount);
 		assertEquals(pageRuleSelectors.size(), endPageCount);

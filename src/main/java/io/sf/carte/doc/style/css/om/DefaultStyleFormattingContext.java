@@ -14,8 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.util.List;
 
-import org.w3c.dom.css.CSSRule;
-
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.parser.ParseHelper;

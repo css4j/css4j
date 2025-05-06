@@ -27,13 +27,14 @@ import io.sf.carte.doc.style.css.StyleDatabase;
 
 /**
  * Dummy device factory, useful for testing.
- * 
- * @author Carlos Amengual
- *
  */
 public class DummyDeviceFactory extends AbstractDeviceFactory {
 
 	private final StyleDatabase dummyDatabase = new DummyStyleDatabase();
+
+	private float deviceWidth = 1024f;
+
+	private float deviceHeight = 768f;
 
 	public DummyDeviceFactory() {
 		super();
@@ -52,10 +53,18 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 		return dummyDatabase;
 	}
 
+	public void setViewportWidth(float deviceWidth) {
+		this.deviceWidth = deviceWidth;
+	}
+
+	public void setViewportHeight(float deviceHeight) {
+		this.deviceHeight = deviceHeight;
+	}
+
 	/**
 	 * A dumb style database useful for testing.
 	 */
-	public static class DummyStyleDatabase extends AbstractStyleDatabase {
+	public class DummyStyleDatabase extends AbstractStyleDatabase {
 
 		private static final long serialVersionUID = 1L;
 
@@ -126,12 +135,12 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 
 		@Override
 		public float getDeviceHeight() {
-			return 768;
+			return deviceHeight;
 		}
 
 		@Override
 		public float getDeviceWidth() {
-			return 1024;
+			return deviceWidth;
 		}
 
 	}

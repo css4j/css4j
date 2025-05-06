@@ -310,6 +310,15 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			return StylableDocumentWrapper.this.getBaseURI();
 		}
 
+		@Override
+		void removeAllChild() throws DOMException {
+			Node node;
+			while ((node = this.rawnode.getLastChild()) != null) {
+				this.rawnode.removeChild(node);
+				StylableDocumentWrapper.this.nodemap.remove(node);
+			}
+		}
+
 	}
 
 	class MyDocumentType extends MyNode implements DocumentType {
@@ -1407,6 +1416,15 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		public void resetLinkedSheet() {
 			needsUpdate = true;
 			onStyleModify();
+		}
+
+		@Override
+		public void normalize() {
+			if (definedSheet != null) {
+				CDATASection cdata = document.createCDATASection(definedSheet.toString());
+				removeAllChild();
+				this.rawnode.appendChild(cdata);
+			}
 		}
 
 	}

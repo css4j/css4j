@@ -52,7 +52,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 
 	private final boolean allCommentsPrecede;
 
-	private short styleNesting = 0;
+	private SelectorList absoluteSelector = null;
 
 	/*
 	 * switch for ignoring rules if a grouping rule is inside the wrong place.
@@ -211,17 +211,12 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		ignoreImports = true;
 		newRule();
 		if (ignoreGroupingRules == 0) {
-			SheetErrorHandler eh;
 			if (currentRule != null) {
-				short ruleType = currentRule.getType();
-				if (ruleType == CSSRule.MEDIA_RULE || ruleType == CSSRule.SUPPORTS_RULE) {
+				if (checkGroupingRule(CSSRule.MEDIA_RULE)) {
 					SupportsRule rule = new SupportsRule(parentSheet, condition, sheetOrigin);
 					addToCurrentRule(rule);
 					currentRule = rule;
 					setCommentsToRule(currentRule);
-				} else if ((eh = parentSheet.getErrorHandler()) != null) {
-					eh.sacMalfunction("Unexpected supports rule inside of: " + currentRule.getCssText());
-					ignoreGroupingRules = 1;
 				}
 			} else {
 				currentRule = new SupportsRule(parentSheet, condition, sheetOrigin);
@@ -243,6 +238,9 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			resetCommentStack();
 		} else {
 			if (currentRule != null) {
+				while (currentRule.getType() == CSSRule.NESTED_DECLARATIONS) {
+					currentRule = currentRule.getParentRule();
+				}
 				lastRule = currentRule;
 				AbstractCSSRule pRule = currentRule.getParentRule();
 				if (pRule == null) {
@@ -258,23 +256,42 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		}
 	}
 
+	private boolean checkGroupingRule(short ruleType) {
+		if (!(currentRule instanceof GroupingRule)) {
+			while (currentRule.getType() == CSSRule.NESTED_DECLARATIONS) {
+				currentRule = currentRule.getParentRule();
+			}
+			if (!(currentRule instanceof GroupingRule)) {
+				SheetErrorHandler eh;
+				if ((eh = parentSheet.getErrorHandler()) != null) {
+					eh.sacMalfunction("Unexpected rule of type " + ruleType + " inside of: "
+							+ currentRule.getCssText());
+				}
+				ignoreGroupingRules = 1;
+				return false;
+			}
+		}
+		if (currentRule.getType() == CSSRule.STYLE_RULE) {
+			StyleRule styleR = (StyleRule) currentRule;
+			if (styleR.cssRules == null) {
+				styleR.cssRules = new CSSRuleArrayList();
+			}
+		}
+		return true;
+	}
+
 	@Override
 	public void startMedia(MediaQueryList media) {
 		// Starting @media block
 		ignoreImports = true;
 		newRule();
 		if (ignoreGroupingRules == 0) {
-			SheetErrorHandler eh;
 			if (currentRule != null) {
-				short ruleType = currentRule.getType();
-				if (ruleType == CSSRule.MEDIA_RULE || ruleType == CSSRule.SUPPORTS_RULE) {
+				if (checkGroupingRule(CSSRule.MEDIA_RULE)) {
 					MediaRule rule = new MediaRule(parentSheet, media, sheetOrigin);
 					addToCurrentRule(rule);
 					currentRule = rule;
 					setCommentsToRule(currentRule);
-				} else if ((eh = parentSheet.getErrorHandler()) != null) {
-					eh.sacMalfunction("Unexpected media rule inside of: " + currentRule.getCssText());
-					ignoreGroupingRules = 1;
 				}
 			} else {
 				currentRule = new MediaRule(parentSheet, media, sheetOrigin);
@@ -377,8 +394,12 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	}
 
 	private void addCurrentRuleToRule(AbstractCSSRule rule) {
+		GroupingRule grouping = (GroupingRule) rule;
+		if (grouping.cssRules == null) {
+			grouping.cssRules = new CSSRuleArrayList(10);
+		}
 		try {
-			((GroupingRule) rule).addRule(currentRule);
+			grouping.addRule(currentRule);
 		} catch (ClassCastException e) {
 			DOMException ex = new DOMException(DOMException.SYNTAX_ERR,
 					"Found @-rule inside a non-grouping rule of type: " + rule.getType());
@@ -543,11 +564,17 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 						cur.cssRules = new CSSRuleArrayList();
 					}
 				}
-				styleNesting++;
 				styleRule.setParentRule(currentRule);
 			}
 			currentRule = styleRule;
-			styleRule.setSelectorList(selectors);
+			styleRule.selectorList = selectors;
+			styleRule.updateSelectorText();
+			if (absoluteSelector != null) {
+				absoluteSelector = selectors.replaceNested(absoluteSelector);
+			} else {
+				absoluteSelector = selectors;
+			}
+			styleRule.setAbsoluteSelectorList(absoluteSelector);
 			setCommentsToRule(currentRule);
 		} else { // Ignoring rule for these selectors due to target media mismatch
 			resetCommentStack();
@@ -559,43 +586,45 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		if (ignoreGroupingRules == 0) {
 			assert (currentRule != null && (currentRule.getType() == CSSRule.STYLE_RULE
 					|| currentRule.getType() == CSSRule.NESTED_DECLARATIONS));
+			while (currentRule.getType() == CSSRule.NESTED_DECLARATIONS) {
+				currentRule = currentRule.getParentRule();
+			}
 			lastRule = currentRule;
 			AbstractCSSRule pRule = currentRule.getParentRule();
 			if (pRule == null) {
 				// Inserting rule into sheet
 				if (currentRule != null) {
 					addLocalRule(currentRule);
-					if (styleNesting > 0) {
-						styleNesting--;
-					}
 				}
+				absoluteSelector = null;
 			} else {
 				((GroupingRule) pRule).addRule(currentRule);
-				if (pRule.getType() != CSSRule.STYLE_RULE
-						&& pRule.getType() != CSSRule.NESTED_DECLARATIONS && styleNesting > 0) {
-					styleNesting--;
-				}
+				resetAbsoluteSelector(pRule);
 			}
 			currentRule = pRule;
 		}
 		resetCommentStack();
 	}
 
+	private void resetAbsoluteSelector(AbstractCSSRule parent) {
+		AbstractCSSRule nextParent;
+		do {
+			nextParent = parent.getParentRule();
+			if (parent.getType() == CSSRule.STYLE_RULE) {
+				absoluteSelector = ((StyleRule) parent).getAbsoluteSelectorList();
+				return;
+			}
+			parent = nextParent;
+		} while (parent != null);
+		// No style ancestors
+		absoluteSelector = null;
+	}
+
 	@Override
 	public void property(String name, LexicalUnit value, boolean important) {
 		if (ignoreGroupingRules == 0) {
 			if (currentRule != null) {
-				if (styleNesting > 0 && currentRule.getType() == CSSRule.STYLE_RULE) {
-					StyleRule styler = (StyleRule) currentRule;
-					if (styler.cssRules != null && !styler.cssRules.isEmpty()) {
-						// Got at least one nested rule
-						currentRule = new NestedDeclarations(parentSheet, sheetOrigin);
-						// The next call implies
-						// currentRule.setParentRule(styler);
-						styler.addRule(currentRule);
-					}
-				}
-
+				checkNestedDeclarations();
 				try {
 					((ExtendedCSSDeclarationRule) currentRule).getStyle().setProperty(name, value,
 							important);
@@ -626,13 +655,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	public void lexicalProperty(String name, LexicalUnit lunit, boolean important) {
 		if (ignoreGroupingRules == 0) {
 			if (currentRule != null) {
-				if (styleNesting > 0 && currentRule.getType() == CSSRule.STYLE_RULE) {
-					StyleRule styler = (StyleRule) currentRule;
-					if (!styler.cssRules.isEmpty()) {
-						currentRule = new NestedDeclarations(parentSheet, sheetOrigin);
-						currentRule.setParentRule(styler);
-					}
-				}
+				checkNestedDeclarations();
 
 				try {
 					((ExtendedCSSDeclarationRule) currentRule).getStyle().setLexicalProperty(name,
@@ -658,6 +681,25 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 						.sacMalfunction("Unexpected property " + name + ": " + lunit.toString());
 			}
 		} // else { Ignoring property due to target media mismatch
+	}
+
+	private void checkNestedDeclarations() {
+		short type = currentRule.getType();
+		if (type == CSSRule.STYLE_RULE) {
+			GroupingRule groupingR = (GroupingRule) currentRule;
+			if (groupingR.cssRules != null) {
+				// Got at least one nested rule
+				currentRule = new NestedDeclarations(parentSheet, sheetOrigin);
+				// The next call implies
+				// currentRule.setParentRule(groupingR);
+				groupingR.addRule(currentRule);
+			}
+		} else if (currentRule instanceof GroupingRule) {
+			// Other grouping rules
+			GroupingRule groupingR = (GroupingRule) currentRule;
+			currentRule = new NestedDeclarations(parentSheet, sheetOrigin);
+			groupingR.addRule(currentRule);
+		}
 	}
 
 	private void resetCurrentRule() {
@@ -693,14 +735,14 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void warning(CSSParseException exception) throws CSSParseException {
 		if (currentRule instanceof CSSDeclarationRule
-			&& ((CSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null) {
+				&& ((CSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null) {
 			int previousIndex = -1;
 			CSSStyleDeclaration style = ((CSSDeclarationRule) currentRule).getStyle();
 			if (style != null) {
 				previousIndex = style.getLength() - 1;
 			}
 			((CSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler()
-				.sacWarning(exception, previousIndex);
+					.sacWarning(exception, previousIndex);
 		} else {
 			// Handle as non-specific warning
 			parentSheet.getErrorHandler().handleSacWarning(exception);
@@ -715,7 +757,8 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			if (style != null) {
 				previousIndex = style.getLength() - 1;
 			}
-			((CSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().sacError(exception, previousIndex);
+			((CSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler().sacError(exception,
+					previousIndex);
 			parentSheet.getErrorHandler().mapError(exception, currentRule);
 		} else {
 			// Handle as non-specific error
@@ -729,7 +772,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	 */
 	private boolean currentRuleCanHandleError() {
 		return currentRule instanceof CSSDeclarationRule
-			&& ((CSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null;
+				&& ((CSSDeclarationRule) currentRule).getStyleDeclarationErrorHandler() != null;
 	}
 
 	private void nonRuleErrorHandling(CSSParseException exception) {

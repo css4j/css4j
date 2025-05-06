@@ -11,8 +11,7 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.dom.css.CSSRule;
-
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 

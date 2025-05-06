@@ -24,14 +24,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DocumentType;
-import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.css.CSSRuleList;
 
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleSheet;
+import io.sf.carte.doc.style.css.om.CSSRuleArrayList;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.property.NumberValue;
@@ -161,7 +161,7 @@ public class CSSDOMImplementationTest {
 
 	private StyleRule defaultStyleRule(String selectorText, String propertyName) {
 		BaseCSSStyleSheet sheet = DOMCSSStyleSheetFactoryTest.loadXHTMLSheet();
-		CSSRuleList rules = sheet.getCssRules();
+		CSSRuleArrayList rules = sheet.getCssRules();
 		for (int i = 0; i < rules.getLength(); i++) {
 			CSSRule rule = rules.item(i);
 			if (rule instanceof StyleRule) {

@@ -10,7 +10,7 @@ ul, ol {margin-top: 1em; margin-bottom: 2em;}
 li {margin-top: 1em; margin-bottom: 1em; }
 /* Comment before frame */
 frame {display: block; border: none ! important; }
-@media (max-aspect-ratio: 160/100 and (min-width: 300px) {
+@media (max-aspect-ratio 160/100) and (min-width: 300px) {
     ul > li { color: yellow }
 }
 /* Comment before frameset */

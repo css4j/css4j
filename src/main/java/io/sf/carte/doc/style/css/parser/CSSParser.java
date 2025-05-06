@@ -802,7 +802,7 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	abstract private class ConditionTokenHandler<F extends BooleanConditionFactory>
-			extends DefaultTokenHandler {
+			extends ManagerCallbackTokenHandler {
 
 		final F conditionFactory;
 
@@ -1049,7 +1049,7 @@ public class CSSParser implements Parser, Cloneable {
 					} else {
 						if (getCurrentParenDepth() == 0 && opDepthIndex == 0) {
 							if (codepoint == TokenProducer.CHAR_SEMICOLON) {
-								endOfCondition(index);
+								endOfCondition(index, false);
 								handleSemicolon(index);
 							} else {
 								unexpectedCharError(index, codepoint);
@@ -1082,11 +1082,6 @@ public class CSSParser implements Parser, Cloneable {
 							"Unexpected: '" + quoted + '\'');
 				}
 			}
-		}
-
-		@Override
-		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-			quoted(index, quoted, quoteCp);
 		}
 
 		@Override
@@ -1131,15 +1126,25 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void endOfStream(int len) {
-			endOfCondition(len);
+			endOfCondition(len, true);
 		}
 
-		void endOfCondition(int index) {
-			if (opParenDepth[opDepthIndex] != 0) {
+		/**
+		 * Finalize the condition.
+		 * 
+		 * @param index
+		 * @param eof   {@code true} if called from end of stream.
+		 * @return true if successful, false if parentheses don't match (error requires
+		 *         recovery).
+		 */
+		boolean endOfCondition(int index, boolean eof) {
+			if (opParenDepth[opDepthIndex] != 0 & !eof) {
 				handleError(index, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
+				return false;
 			} else if (!isInError()) {
 				predicateHandler.endOfStream(index);
 			}
+			return true;
 		}
 
 		@Override
@@ -1159,7 +1164,7 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	abstract private class SupportsTokenHandler
+	private class SupportsTokenHandler
 			extends ConditionTokenHandler<io.sf.carte.doc.style.css.SupportsConditionFactory> {
 
 		/*
@@ -1513,7 +1518,7 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	abstract private class MediaQueryTokenHandler extends ConditionTokenHandler<MediaQueryFactory> {
+	private class MediaQueryTokenHandler extends ConditionTokenHandler<MediaQueryFactory> {
 
 		private final HashSet<String> mediaTypes = new HashSet<>(10);
 
@@ -1521,7 +1526,7 @@ public class CSSParser implements Parser, Cloneable {
 			super(conditionFactory);
 			setPredicateHandler(new MediaQueryDelegateHandler(mqhandler));
 			// initialize media types
-			String[] mediaTypesArray = { "all", "braille", "embossed", "handheld", "print",
+			String[] mediaTypesArray = { "all", "aural", "braille", "embossed", "handheld", "print",
 					"projection", "screen", "speech", "tty", "tv" };
 			Collections.addAll(mediaTypes, mediaTypesArray);
 		}
@@ -2585,49 +2590,6 @@ public class CSSParser implements Parser, Cloneable {
 		return parser;
 	}
 
-	private static class ConditionWrapper {
-
-		private final Object condition;
-		private final ConditionWrapper parent;
-		private final boolean mediaCondition;
-
-		ConditionWrapper(MediaQueryList mediaList, ConditionWrapper parent) {
-			super();
-			this.condition = mediaList;
-			this.parent = parent;
-			mediaCondition = true;
-		}
-
-		ConditionWrapper(BooleanCondition cond, ConditionWrapper parent) {
-			super();
-			this.condition = cond;
-			this.parent = parent;
-			mediaCondition = false;
-		}
-
-		MediaQueryList getMediaList() {
-			return (MediaQueryList) condition;
-		}
-
-		BooleanCondition getCondition() {
-			return (BooleanCondition) condition;
-		}
-
-		ConditionWrapper getParent() {
-			return parent;
-		}
-
-		boolean isMediaCondition() {
-			return mediaCondition;
-		}
-
-		@Override
-		public String toString() {
-			return condition != null ? condition.toString() : "";
-		}
-
-	}
-
 	private class PageManager extends DescriptorRuleListManager {
 
 		private PageRuleTH pageTH = new PageRuleTH() {
@@ -2745,7 +2707,7 @@ public class CSSParser implements Parser, Cloneable {
 		@Override
 		public void endManagement(int index) {
 			super.endManagement(index);
-			if (getCurrentCondition() == null && rulesFound()) {
+			if (rulesFound()) {
 				getControlHandler().yieldHandling(new RuleEndContentHandler());
 			}
 		}
@@ -2768,41 +2730,97 @@ public class CSSParser implements Parser, Cloneable {
 	/**
 	 * {@code <rule-list>} manager.
 	 */
-	private class RuleListManager extends DeclarationRuleListManager {
+	private class RuleListManager extends BlockContentsManager {
 
-		private final RuleListDeclarationManager declarationManager;
-		private final StyleRuleSelectorTH selectorHandler;
+		RuleListManager(NamespaceMap nsMap, boolean topLevel) {
+			super(nsMap, topLevel);
+		}
 
-		private ConditionWrapper currentCondition = null;
+		RuleListManager(BlockContentsManager parent) {
+			super(parent);
+		}
+
+		@Override
+		protected SelectorTokenHandler getInitialTokenHandler() {
+			return selectorHandler;
+		}
+
+		@Override
+		protected StyleRuleSelectorTH createSelectorTokenHandler(NamespaceMap nsMap) {
+			return new StyleRuleSelectorTH(nsMap) {
+
+				@Override
+				protected void handleSemicolon(int index) {
+					// Report error and resume processing
+					unexpectedSemicolonError(index);
+					resetHandler();
+					resetParseError();
+				}
+
+				@Override
+				public void handleErrorRecovery() {
+					// Ignore declaration
+					yieldHandling(new IgnoredDeclarationTokenHandler() {
+
+						@Override
+						protected void endDeclarationBlock(int index) {
+							yieldHandling(RuleListManager.this.selectorHandler);
+						}
+
+					});
+				}
+
+			};
+		}
+
+	}
+
+	/**
+	 * {@code <block-contents>} manager.
+	 */
+	private class BlockContentsManager extends DeclarationRuleListManager {
+
+		final BlockContentsDeclarationManager declarationManager;
+		final StyleRuleSelectorTH selectorHandler;
 
 		private final boolean topLevel;
 
 		// Next field is to check for @charset rules in bad place
 		boolean rulesFound = false;
 
-		RuleListManager(NamespaceMap nsMap, boolean topLevel) {
+		BlockContentsManager(NamespaceMap nsMap, boolean topLevel) {
 			super();
 			this.topLevel = topLevel;
-			declarationManager = new RuleListDeclarationManager();
+			declarationManager = createDeclarationManager();
 			selectorHandler = createSelectorTokenHandler(nsMap);
 			selectorHandler.setManager(this);
 		}
 
-		RuleListManager(NamespaceMap nsMap, boolean topLevel, DeclarationRuleListManager parent) {
+		BlockContentsManager(BlockContentsManager parent) {
 			super(parent);
-			this.topLevel = topLevel;
+			this.topLevel = parent.topLevel;
 			this.rulesFound = true;
-			declarationManager = new RuleListDeclarationManager();
-			selectorHandler = createSelectorTokenHandler(nsMap);
+			declarationManager = createDeclarationManager();
+			selectorHandler = createSelectorTokenHandler(parent.selectorHandler.nsMap);
 			selectorHandler.setManager(this);
+		}
+
+		BlockContentsManager(BlockContentsDeclarationManager parent) {
+			super(parent);
+			BlockContentsManager parentMan = parent.getParentManager();
+			this.topLevel = parentMan.topLevel;
+			this.rulesFound = true;
+			declarationManager = createDeclarationManager();
+			selectorHandler = createSelectorTokenHandler(parentMan.selectorHandler.nsMap);
+			selectorHandler.setManager(this);
+		}
+
+		protected BlockContentsDeclarationManager createDeclarationManager() {
+			return new BlockContentsDeclarationManager();
 		}
 
 		protected StyleRuleSelectorTH createSelectorTokenHandler(NamespaceMap nsMap) {
 			return new StyleRuleSelectorTH(nsMap);
-		}
-
-		ConditionWrapper getCurrentCondition() {
-			return currentCondition;
 		}
 
 		@Override
@@ -2828,16 +2846,6 @@ public class CSSParser implements Parser, Cloneable {
 			SelectorListImpl selist = selectorHandler.getSelectorList();
 			if (!selist.isEmpty()) {
 				handler.endSelector(selist);
-				selectorHandler.selist = selectorHandler.new ParserSelectorListImpl();
-			}
-			selectorHandler.resetHandler();
-			while (currentCondition != null) {
-				if (currentCondition.isMediaCondition()) {
-					handler.endMedia(currentCondition.getMediaList());
-				} else {
-					handler.endSupports(currentCondition.getCondition());
-				}
-				currentCondition = currentCondition.getParent();
 			}
 			super.endOfStream(len);
 		}
@@ -2850,34 +2858,21 @@ public class CSSParser implements Parser, Cloneable {
 				handler.endSelector(selist);
 				selectorHandler.selist = selectorHandler.new ParserSelectorListImpl();
 			} else {
-				selectorHandler.resetHandler();
-				if (currentCondition != null) {
-					if (currentCondition.isMediaCondition()) {
-						handler.endMedia(currentCondition.getMediaList());
-					} else {
-						handler.endSupports(currentCondition.getCondition());
+				HandlerManager parentMgr = getParentManager();
+				if (parentMgr == null) {
+					if (!getControlHandler().isInErrorRecovery()) {
+						selectorHandler.unexpectedCharError(index,
+								TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
 					}
-					currentCondition = currentCondition.getParent();
 				} else {
-					HandlerManager parentMgr = getParentManager();
-					if (parentMgr == null) {
-						if (!getControlHandler().isInErrorRecovery()) {
-							selectorHandler.unexpectedCharError(index,
-									TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
-						}
-						selectorHandler.resetSelectorHandler(true);
-					} else {
-						yieldManagement(parentMgr);
-					}
+					resetFields();
+					selectorHandler.resetHandler();
+					yieldManagement(parentMgr);
 					return;
 				}
 			}
+			resetFields();
 			restoreInitialHandler();
-		}
-
-		@Override
-		public boolean isTopManager() {
-			return super.isTopManager() && currentCondition == null;
 		}
 
 		@Override
@@ -2898,23 +2893,43 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		protected CSSTokenHandler createUnknownRuleHandler(int index, String ruleName) {
-			CSSTokenHandler ruleHandler;
+		protected ManagerCallbackTokenHandler createUnknownRuleHandler(int index, String ruleName) {
+			ManagerCallbackTokenHandler ruleHandler;
 			if ("media".equals(ruleName)) {
 				ruleHandler = createMediaQueryHandler();
 			} else if ("supports".equals(ruleName)) {
-				ruleHandler = new MySupportsRuleTH();
+				ruleHandler = createSupportsConditionHandler();
 			} else {
-				ruleHandler = super.createUnknownRuleHandler(index, ruleName);
+				// Unknown rule handler comes with a default manager set
+				ruleHandler = (ManagerCallbackTokenHandler) super.createUnknownRuleHandler(index,
+						ruleName);
 			}
 
 			return ruleHandler;
 		}
 
-		private class StyleRuleSelectorTH extends SelectorTokenHandler {
+		protected MediaQueryTokenHandler createMediaQueryHandler() {
+			MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
+			MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(null);
+			MediaQueryTokenHandler th = new MediaRuleMediaQueryTH(mediaQueryFactory, mqhandler);
+			th.setManager(this);
+			return th;
+		}
+
+		protected SupportsTokenHandler createSupportsConditionHandler() {
+			SupportsRuleTH th = new SupportsRuleTH();
+			th.setManager(this);
+			return th;
+		}
+
+		class StyleRuleSelectorTH extends SelectorTokenHandler {
 
 			StyleRuleSelectorTH(NamespaceMap nsMap) {
 				super(nsMap);
+			}
+
+			StyleRuleSelectorTH(NSACSelectorFactory factory) {
+				super(factory);
 			}
 
 			@Override
@@ -2949,14 +2964,7 @@ public class CSSParser implements Parser, Cloneable {
 					resetHandler();
 					selist.clear();
 				}
-				RuleListManager.this.endManagement(index);
-			}
-
-			private void resetSelectorHandler(boolean resetSheetStage) {
-				RuleListManager.this.restoreInitialHandler();
-				if (resetSheetStage) {
-					RuleListManager.this.resetFields();
-				}
+				BlockContentsManager.this.endManagement(index);
 			}
 
 			@Override
@@ -2968,7 +2976,7 @@ public class CSSParser implements Parser, Cloneable {
 			protected void handleAtKeyword(int index) {
 				if (buffer.length() == 0) {
 					// At-rule
-					RuleListManager.this.handleAtKeyword(index);
+					BlockContentsManager.this.handleAtKeyword(index);
 				} else {
 					super.handleAtKeyword(index);
 				}
@@ -2980,16 +2988,12 @@ public class CSSParser implements Parser, Cloneable {
 				unexpectedSemicolonError(index);
 				resetHandler();
 				resetParseError();
+				BlockContentsManager.this.declarationManager.restoreInitialHandler();
 			}
 
 			@Override
 			boolean isTopLevel() {
 				return topLevel;
-			}
-
-			@Override
-			public HandlerManager getManager() {
-				return RuleListManager.this;
 			}
 
 			@Override
@@ -3008,17 +3012,22 @@ public class CSSParser implements Parser, Cloneable {
 								"Unexpected end of stream");
 					}
 				}
-				RuleListManager.this.endOfStream(len);
+				BlockContentsManager.this.endOfStream(len);
 			}
 
 			@Override
 			public void handleErrorRecovery() {
-				// Ignore declaration
+				// Handle as a declaration error
 				yieldHandling(new IgnoredDeclarationTokenHandler() {
 
 					@Override
+					protected void resumeDeclarationList() {
+						BlockContentsManager.this.declarationManager.restoreInitialHandler();
+					}
+
+					@Override
 					protected void endDeclarationBlock(int index) {
-						yieldHandling(RuleListManager.this.selectorHandler);
+						BlockContentsManager.this.rightCurlyBracket(index);
 					}
 
 				});
@@ -3026,181 +3035,317 @@ public class CSSParser implements Parser, Cloneable {
 
 		}
 
-		private class RuleListDeclarationManager extends DeclarationRuleListManager {
+		/*
+		 * The declaration manager of a <block-contents>.
+		 */
+		private class BlockContentsDeclarationManager extends DeclarationRuleListManager {
 
-			RuleListDeclarationManager() {
-				super(RuleListManager.this);
+			BlockContentsDeclarationManager() {
+				super(BlockContentsManager.this);
 			}
 
 			@Override
-			protected void expectSelector(int index) {
-				yieldToNestedRuleHandler();
-			}
-
-			@Override
-			protected void expectSelector(int index, int triggerCp) {
-				CSSTokenHandler selh = yieldToNestedRuleHandler();
-				selh.character(index, triggerCp);
-			}
-
-			private SelectorTokenHandler yieldToNestedRuleHandler() {
-				NestedRuleManager nested = new NestedRuleManager();
-				SelectorTokenHandler selh = nested.getInitialTokenHandler();
-				getControlHandler().yieldHandling(selh);
-				return selh;
-			}
-
-			private class NestedRuleManager extends RuleListManager {
-
-				NestedRuleManager() {
-					super(RuleListManager.this.selectorHandler.nsMap, RuleListManager.this.topLevel,
-							RuleListManager.this.declarationManager);
-				}
-
-				@Override
-				protected SelectorTokenHandler getInitialTokenHandler() {
-					SelectorTokenHandler selh = super.getInitialTokenHandler();
-					NSACSelectorFactory factory = selh.factory;
-					Condition cond = factory.createCondition(ConditionType.NESTING);
-					selh.currentsel = factory
-							.createConditionalSelector((SimpleSelector) selh.currentsel, cond);
-					return selh;
-				}
-
-				@Override
-				protected StyleRuleSelectorTH createSelectorTokenHandler(NamespaceMap nsMap) {
-					return new StyleRuleSelectorTH(nsMap) {
-
-						@Override
-						void unexpectedCharError(int index, int codepoint) {
-							if (codepoint == TokenProducer.CHAR_SEMICOLON
-									&& getManager().getParentManager() != null) {
-								String msg = "Unexpected '"
-										+ new String(Character.toChars(codepoint)) + "'";
-								CSSParseException ex = createException(index,
-										ParseHelper.ERR_UNEXPECTED_CHAR, msg);
-								reportError(ex);
-								RuleListManager.this.declarationManager.restoreInitialHandler();
-								//this.parseError = false;
-							} else {
-								super.unexpectedCharError(index, codepoint);
-							}
-						}
-
-						@Override
-						public void handleErrorRecovery() {
-							// Handle as a declaration error
-							yieldHandling(new IgnoredDeclarationTokenHandler() {
-
-								@Override
-								protected void resumeDeclarationList() {
-									RuleListManager.this.declarationManager.restoreInitialHandler();
-								}
-
-								@Override
-								protected void endDeclarationBlock(int index) {
-									RuleListManager.this.rightCurlyBracket(index);
-								}
-
-							});
-						}
-
-						@Override
-						protected void handleSemicolon(int index) {
-							super.handleSemicolon(index);
-							if (getControlHandler().getCurrentHandler() == this) {
-								RuleListManager.this.declarationManager.restoreInitialHandler();
-							}
-						}
-
-					};
-				}
-
+			protected BlockContentsManager getParentManager() {
+				return BlockContentsManager.this;
 			}
 
 			@Override
 			public void endManagement(int index) {
-				RuleListManager.this.endManagement(index);
+				BlockContentsManager.this.endManagement(index);
 			}
 
 			@Override
 			public void endOfStream(int len) {
-				RuleListManager.this.endOfStream(len);
+				BlockContentsManager.this.endOfStream(len);
+			}
+
+			@Override
+			protected CSSTokenHandler createUnknownRuleHandler(int index, String ruleName) {
+				ManagerCallbackTokenHandler th = BlockContentsManager.this
+						.createUnknownRuleHandler(index, ruleName);
+				th.setManager(this);
+				return th;
+			}
+
+			@Override
+			protected void expectSelector(int index) {
+				SelectorTokenHandler selh = yieldToNestedRuleHandler();
+				setNestingSelector(selh);
+			}
+
+			@Override
+			protected void expectSelector(int index, int triggerCp) {
+				SelectorTokenHandler selh = yieldToNestedRuleHandler();
+				selh.character(index, triggerCp);
+			}
+
+			@Override
+			protected void expectCompoundSelector(int index, int triggerCp) {
+				SelectorTokenHandler selh = yieldToNestedRuleHandler();
+				setNestingSelector(selh);
+				selh.character(index, triggerCp);
+			}
+
+			private void setNestingSelector(SelectorTokenHandler selh) {
+				NSACSelectorFactory factory = selh.factory;
+				Condition cond = factory.createCondition(ConditionType.NESTING);
+				selh.currentsel = factory
+						.createConditionalSelector((SimpleSelector) selh.currentsel, cond);
+				selh.prevcp = 65;
+				selh.stage = 1;
+			}
+
+			private SelectorTokenHandler yieldToNestedRuleHandler() {
+				NestedRuleManager nested = new NestedRuleManager();
+				SelectorTokenHandler selh = nested.selectorHandler;
+				getControlHandler().yieldHandling(selh);
+				return selh;
+			}
+
+			private class NestedRuleManager extends BlockContentsManager {
+
+				NestedRuleManager() {
+					super(BlockContentsDeclarationManager.this);
+				}
+
+				@Override
+				protected StyleRuleSelectorTH createSelectorTokenHandler(NamespaceMap nsMap) {
+					NSACSelectorFactory factory = BlockContentsManager.this.selectorHandler.factory;
+					StyleRuleSelectorTH selh = new StyleRuleSelectorTH(factory);
+					return selh;
+				}
+
+				@Override
+				public void restoreInitialHandler() {
+					selectorHandler.resetHandler();
+					selectorHandler.resetParseError();
+					yieldManagement(getParentManager());
+				}
+
+				@Override
+				public void endManagement(int index) {
+					// Mark the end of rule
+					SelectorListImpl selist = selectorHandler.getSelectorList();
+					if (!selist.isEmpty()) {
+						handler.endSelector(selist);
+						//selectorHandler.selist = selectorHandler.new ParserSelectorListImpl();
+					}
+					resetFields();
+					yieldManagement(BlockContentsDeclarationManager.this);
+				}
+
+				@Override
+				public void endOfStream(int len) {
+					SelectorListImpl selist = selectorHandler.getSelectorList();
+					if (!selist.isEmpty()) {
+						handler.endSelector(selist);
+						//selectorHandler.selist = selectorHandler.new ParserSelectorListImpl();
+					}
+					BlockContentsManager.this.endOfStream(len);
+				}
+
 			}
 
 		}
 
-		private class MySupportsRuleTH extends SupportsTokenHandler {
+		private class SupportsRuleTH extends SupportsTokenHandler {
 
-			MySupportsRuleTH() {
+			private BooleanCondition currentSupportsCondition;
+
+			SupportsRuleTH() {
 				super(null);
 			}
 
 			@Override
-			void endOfCondition(int index) {
-				super.endOfCondition(index);
-				if (!isInError()) {
-					BooleanCondition cond = getCondition();
-					currentCondition = new ConditionWrapper(cond, currentCondition);
-					handler.startSupports(cond);
-					RuleListManager.this.restoreInitialHandler();
+			boolean endOfCondition(int index, boolean eof) {
+				boolean ret = super.endOfCondition(index, eof);
+				if (ret) {
+					currentSupportsCondition = getCondition();
+					handler.startSupports(currentSupportsCondition);
 				}
+				return ret;
 			}
 
 			@Override
 			void handleLeftCurlyBracket(int index) {
-				endOfCondition(index);
-			}
+				if (endOfCondition(index, false)) {
+					DeclarationRuleListManager declMan;
+					if (BlockContentsManager.this.selectorHandler.selist.isEmpty()) {
+						// Non-nested context: <rule-list>
+						declMan = new RuleListManager(BlockContentsManager.this) {
 
-			@Override
-			public void endOfStream(int len) {
-				unexpectedEOFError(len);
-				RuleListManager.this.endOfStream(len);
-			}
+							@Override
+							public void endManagement(int index) {
+								SelectorListImpl selist = selectorHandler.getSelectorList();
+								if (!selist.isEmpty()) {
+									super.endManagement(index);
+								} else {
+									handler.endSupports(currentSupportsCondition);
+									yieldManagement(SupportsRuleTH.this.getManager());
+								}
+							}
 
-			@Override
-			public HandlerManager getManager() {
-				return RuleListManager.this;
-			}
+							@Override
+							public void endOfStream(int len) {
+								SelectorListImpl selist = selectorHandler.getSelectorList();
+								if (!selist.isEmpty()) {
+									handler.endSelector(selist);
+								}
+								handler.endSupports(currentSupportsCondition);
+								HandlerManager parent = getParentManager();
+								if (parent != null) {
+									parent.endOfStream(len);
+								} else {
+									endDocument();
+								}
+							}
 
-		}
-
-		class MyMediaQueryTokenHandler extends RuleMediaQueryTH {
-
-			MyMediaQueryTokenHandler(MediaQueryFactory conditionFactory,
-					MediaQueryHandler mqhandler) {
-				super(conditionFactory, mqhandler);
-			}
-
-			@Override
-			protected void startMedia(MediaQueryList mql) {
-				currentCondition = new ConditionWrapper(mql, currentCondition);
-				handler.startMedia(currentCondition.getMediaList());
-				RuleListManager.this.restoreInitialHandler();
+						};
+					} else {
+						declMan = new SupportsBlockBlockDeclarationManager();
+					}
+					yieldManagement(declMan);
+				}
 			}
 
 			@Override
 			public void endOfStream(int len) {
 				super.endOfStream(len);
-				RuleListManager.this.endOfStream(len);
+				if (!isInError()) {
+					unexpectedEOFError(len);
+				}
+				getManager().endOfStream(len);
+			}
+
+			private class SupportsBlockBlockDeclarationManager
+					extends BlockContentsDeclarationManager {
+
+				SupportsBlockBlockDeclarationManager() {
+					super();
+				}
+
+				@Override
+				public void endManagement(int index) {
+					handler.endSupports(currentSupportsCondition);
+					yieldManagement(SupportsRuleTH.this.getManager());
+				}
+
+				@Override
+				public void endOfStream(int len) {
+					SelectorListImpl selist = selectorHandler.getSelectorList();
+					if (!selist.isEmpty()) {
+						handler.endSelector(selist);
+					}
+					handler.endSupports(currentSupportsCondition);
+					HandlerManager parent = getParentManager();
+					if (parent != null) {
+						parent.endOfStream(len);
+					} else {
+						endDocument();
+					}
+				}
+
+			}
+
+		}
+
+		class MediaRuleMediaQueryTH extends RuleMediaQueryTH {
+
+			private MediaQueryList currentMediaCondition;
+
+			MediaRuleMediaQueryTH(MediaQueryFactory conditionFactory, MediaQueryHandler mqhandler) {
+				super(conditionFactory, mqhandler);
 			}
 
 			@Override
-			public RuleListManager getManager() {
-				return RuleListManager.this;
+			boolean endOfCondition(int index, boolean eof) {
+				boolean ret = super.endOfCondition(index, eof);
+				currentMediaCondition = getPredicateHandler().getMediaQueryHandler()
+						.getMediaQueryList();
+				return ret;
 			}
 
-		}
+			@Override
+			void handleLeftCurlyBracket(int index) {
+				if (endOfCondition(index, false)) {
+					handler.startMedia(currentMediaCondition);
+					DeclarationRuleListManager declMan;
+					if (BlockContentsManager.this.selectorHandler.selist.isEmpty()) {
+						// Non-nested context: <rule-list>
+						declMan = new RuleListManager(BlockContentsManager.this) {
 
-		@Override
-		protected SelectorTokenHandler getInitialTokenHandler() {
-			return selectorHandler;
-		}
+							@Override
+							public void endManagement(int index) {
+								SelectorListImpl selist = selectorHandler.getSelectorList();
+								if (!selist.isEmpty()) {
+									super.endManagement(index);
+								} else {
+									handler.endMedia(currentMediaCondition);
+									yieldManagement(MediaRuleMediaQueryTH.this.getManager());
+								}
+							}
 
-		private MediaQueryTokenHandler createMediaQueryHandler() {
-			MediaQueryFactory mediaQueryFactory = getMediaQueryFactory();
-			MediaQueryHandler mqhandler = mediaQueryFactory.createMediaQueryHandler(null);
-			return new MyMediaQueryTokenHandler(mediaQueryFactory, mqhandler);
+							@Override
+							public void endOfStream(int len) {
+								SelectorListImpl selist = selectorHandler.getSelectorList();
+								if (!selist.isEmpty()) {
+									handler.endSelector(selist);
+								}
+								handler.endMedia(currentMediaCondition);
+								HandlerManager parent = getParentManager();
+								if (parent != null) {
+									parent.endOfStream(len);
+								} else {
+									endDocument();
+								}
+							}
+
+						};
+					} else {
+						declMan = new BlockContentsDeclarationManager() {
+
+							@Override
+							public void endManagement(int index) {
+								handler.endMedia(currentMediaCondition);
+								yieldManagement(MediaRuleMediaQueryTH.this.getManager());
+							}
+
+							@Override
+							public void endOfStream(int len) {
+								SelectorListImpl selist = selectorHandler.getSelectorList();
+								if (!selist.isEmpty()) {
+									handler.endSelector(selist);
+								}
+								handler.endMedia(currentMediaCondition);
+								HandlerManager parent = getParentManager();
+								if (parent != null) {
+									parent.endOfStream(len);
+								} else {
+									endDocument();
+								}
+							}
+
+						};
+					}
+					yieldManagement(declMan);
+				} else {
+					handleErrorRecovery();
+				}
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				super.endOfStream(len);
+				// Mark the end of rule
+				if (currentMediaCondition != null) {
+					handler.endMedia(currentMediaCondition);
+				}
+				if (!isInError()) {
+					unexpectedEOFError(len);
+				}
+				getManager().endOfStream(len);
+			}
+
 		}
 
 	}
@@ -3456,24 +3601,9 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-				quoted(index, quoted, quoteCp);
-			}
-
-			@Override
 			public void commented(int index, int commentType, String comment) {
 				separator(index, 12);
 				prevcp = 12;
-			}
-
-			/**
-			 * Utility method to trim the buffer tail.
-			 */
-			void trimBufferTail() {
-				int lenm1 = buffer.length() - 1;
-				if (buffer.charAt(lenm1) == ' ') {
-					buffer.setLength(lenm1);
-				}
 			}
 
 			@Override
@@ -3615,26 +3745,6 @@ public class CSSParser implements Parser, Cloneable {
 				mqhandler.startQuery();
 			}
 
-			@Override
-			void endOfCondition(int index) {
-				super.endOfCondition(index);
-				MediaQueryList mql = getPredicateHandler().getMediaQueryHandler()
-						.getMediaQueryList();
-				startMedia(mql);
-			}
-
-			abstract protected void startMedia(MediaQueryList mql);
-
-			@Override
-			void handleLeftCurlyBracket(int index) {
-				endOfCondition(index);
-			}
-
-			@Override
-			public DeclarationRuleListManager getManager() {
-				return DeclarationRuleListManager.this;
-			}
-
 		}
 
 		/**
@@ -3708,6 +3818,11 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
+				unexpectedTokenError(index, quoted);
+			}
+
+			@Override
 			public void leftParenthesis(int index) {
 				parendepth++;
 				if (prevcp == 65) {
@@ -3742,22 +3857,25 @@ public class CSSParser implements Parser, Cloneable {
 								public void rightParenthesis(int index) {
 									super.rightParenthesis(index);
 									if (getCurrentParenDepth() == 0 && isTopLevel()) {
-										endOfCondition(index);
+										endOfCondition(index, false);
 									}
 								}
 
 								@Override
-								void endOfCondition(int index) {
-									super.endOfCondition(index);
-									if (!isInError()) {
-										supportsCondition = getCondition();
+								boolean endOfCondition(int index, boolean eof) {
+									boolean ret = super.endOfCondition(index, eof);
+									supportsCondition = getCondition();
+									if (ret) {
 										yieldHandling(ImportRuleTH.this);
 									}
+									return ret;
 								}
 
 								@Override
 								public void endOfStream(int len) {
-									unexpectedEOFError(len);
+									endOfCondition(len, true);
+									handleWarning(index, ParseHelper.WARN_UNEXPECTED_EOF,
+											"Unexpected EOF in @import supports condition.");
 									ImportRuleTH.this.endOfStream(len);
 								}
 
@@ -3830,7 +3948,8 @@ public class CSSParser implements Parser, Cloneable {
 								public void endOfStream(int len) {
 									processBuffer(len, 0);
 									if (!isInError()) {
-										unexpectedEOFError(len);
+										handleWarning(index, ParseHelper.WARN_UNEXPECTED_EOF,
+												"Unexpected EOF in @import layer declaration.");
 									}
 									ImportRuleTH.this.endOfStream(len);
 								}
@@ -3960,21 +4079,38 @@ public class CSSParser implements Parser, Cloneable {
 				}
 
 				@Override
-				protected void startMedia(MediaQueryList mql) {
-					mediaQuery = mql;
-					getManager().restoreInitialHandler();
+				void handleLeftCurlyBracket(int index) {
+					if (endOfCondition(index, false)) {
+						super.handleLeftCurlyBracket(index);
+					} else {
+						// Already in error
+						AbstractTokenHandler curh = getControlHandler().getCurrentHandler();
+						if (curh != this) {
+							curh.leftCurlyBracket(index);
+						}
+					}
 				}
 
 				@Override
 				protected void handleSemicolon(int index) {
 					mediaQuery = getPredicateHandler().getMediaQueryHandler().getMediaQueryList();
-					endRuleBody(index);
+					if (getCurrentParenDepth() <= 0) {
+						ImportRuleTH.this.endRuleBody(index);
+					} else if (getControlHandler().getCurrentHandler() != this) {
+						handleErrorRecovery();
+					}
 				}
 
 				@Override
 				public void endOfStream(int len) {
 					super.endOfStream(len);
+					mediaQuery = getPredicateHandler().getMediaQueryHandler().getMediaQueryList();
 					ImportRuleTH.this.endOfStream(len);
+				}
+
+				@Override
+				public DeclarationRuleListManager getManager() {
+					return DeclarationRuleListManager.this;
 				}
 
 			}
@@ -4144,20 +4280,42 @@ public class CSSParser implements Parser, Cloneable {
 		/**
 		 * Unknown rule handler.
 		 */
-		class UnknownRuleTokenHandler extends AbstractRuleHandler {
+		class UnknownRuleTokenHandler extends ManagerCallbackTokenHandler {
 
 			private int curlyBracketDepth = 0;
 
 			private int sqBracketDepth = 0;
 
 			UnknownRuleTokenHandler(String ruleName) {
-				super();
+				super(DeclarationRuleListManager.this);
 				if (ruleName == null || ruleName.isEmpty()) {
 					throw new IllegalArgumentException();
 				}
-				buffer = new StringBuilder(300);
 				buffer.append('@').append(ruleName);
 				prevcp = 64;
+			}
+
+			@Override
+			protected void initializeBuffer() {
+				buffer = new StringBuilder(300);
+			}
+
+			@Override
+			public void handleErrorRecovery() {
+				// Not called
+
+				/* @formatter: off
+				yieldHandling(new IgnoredDeclarationTokenHandler() {
+
+					@Override
+					protected void endDeclarationBlock(int index) {
+						reportRuleEnd(index);
+						super.endDeclarationBlock(index);
+					}
+
+				});
+				* @formatter:on
+				*/
 			}
 
 			@Override
@@ -4246,8 +4404,12 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			}
 
-			@Override
-			protected void reportRuleEnd(int index) {
+			void endRuleBody(int index) {
+				reportRuleEnd(index);
+				restoreInitialHandler();
+			}
+
+			void reportRuleEnd(int index) {
 				trimBufferTail();
 				handler.ignorableAtRule(buffer.toString());
 				resetHandler();
@@ -4256,9 +4418,14 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			void processBuffer(int index, int triggerCp) {
 				/*
-				 * Can only be called from endOfStream()
+				 * Not called
 				 */
-				reportRuleEnd(index);
+			}
+
+			@Override
+			public void endOfStream(int len) {
+				reportRuleEnd(len);
+				getManager().endOfStream(len);
 			}
 
 		}
@@ -6210,11 +6377,20 @@ public class CSSParser implements Parser, Cloneable {
 							unexpectedCharError(index, codepoint);
 						} else {
 							if (stage == STAGE_COMBINATOR_OR_END) {
-								stage = 1;
+								processBuffer(index, codepoint, false);
 							}
+							stage = 1;
 							newConditionalSelector(index, codepoint, ConditionType.NESTING);
 						}
 						break;
+					case TokenProducer.CHAR_SEMICOLON:
+						if (parendepth == 0) {
+							handleSemicolon(index);
+							prevcp = 32;
+						} else {
+							unexpectedCharError(index, codepoint);
+						}
+						return;
 					default:
 						if (stage < 8) {
 							if (stage == 0) {
@@ -6238,11 +6414,6 @@ public class CSSParser implements Parser, Cloneable {
 									prevcp = 32;
 									return;
 								}
-							} else if (codepoint == TokenProducer.CHAR_SEMICOLON
-									&& parendepth == 0) {
-								handleSemicolon(index);
-								prevcp = 32;
-								return;
 							}
 						} else if (!isUnexpectedCharacter(codepoint)) {
 							bufferAppend(codepoint);
@@ -6826,11 +6997,6 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		@Override
-		public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-			quoted(index, quoted, quoteCp);
-		}
-
-		@Override
 		public void leftParenthesis(int index) {
 			unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
 		}
@@ -7301,21 +7467,26 @@ public class CSSParser implements Parser, Cloneable {
 							return;
 						}
 						// pass-through
-					case TokenProducer.CHAR_AMPERSAND: // &
+					case TokenProducer.CHAR_NUMBER_SIGN: // #
+					case TokenProducer.CHAR_FULL_STOP: // .
 						if (buffer.length() == 0) {
-							expectSelector(index);
+							expectSelector(index, codepoint);
 							return;
 						}
 						break;
-					case TokenProducer.CHAR_NUMBER_SIGN: // #
-					case TokenProducer.CHAR_ASTERISK: // *
-					case TokenProducer.CHAR_PLUS: // +
-					case TokenProducer.CHAR_FULL_STOP: // .
 					case TokenProducer.CHAR_GREATER_THAN: // >
+					case TokenProducer.CHAR_PLUS: // +
 					case TokenProducer.CHAR_TILDE: // ~
 					case TokenProducer.CHAR_VERTICAL_LINE: // |
+					case TokenProducer.CHAR_ASTERISK: // *
 						if (buffer.length() == 0) {
-							expectSelector(index, codepoint);
+							expectCompoundSelector(index, codepoint);
+							return;
+						}
+						break;
+					case TokenProducer.CHAR_AMPERSAND: // &
+						if (buffer.length() == 0) {
+							expectSelector(index);
 							return;
 						}
 						break;
@@ -7523,6 +7694,10 @@ public class CSSParser implements Parser, Cloneable {
 
 		protected void expectSelector(int index, int triggerCp) {
 			getControlHandler().getCurrentHandler().unexpectedCharError(index, triggerCp);
+		}
+
+		protected void expectCompoundSelector(int index, int triggerCp) {
+			expectSelector(index, triggerCp);
 		}
 
 		protected void endOfPropertyDeclaration(int index) {
@@ -7871,6 +8046,9 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
+	/*
+	 * This should be extended by handlers that are used at multiple levels.
+	 */
 	abstract private class ManagerCallbackTokenHandler extends DefaultTokenHandler {
 
 		private HandlerManager manager;
@@ -7911,7 +8089,7 @@ public class CSSParser implements Parser, Cloneable {
 		@Override
 		public void endOfStream(int len) {
 			super.endOfStream(len);
-			manager.endOfStream(len);
+			getManager().endOfStream(len);
 		}
 
 		/**
@@ -7940,7 +8118,7 @@ public class CSSParser implements Parser, Cloneable {
 
 				@Override
 				protected void endDeclarationBlock(int index) {
-					yieldHandling(ManagerCallbackTokenHandler.this);
+					getManager().rightCurlyBracket(index);
 				}
 
 			});

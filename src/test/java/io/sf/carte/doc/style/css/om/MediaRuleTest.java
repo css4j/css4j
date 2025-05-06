@@ -30,12 +30,12 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.css.CSSRuleList;
 
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSRuleList;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryFactory;
@@ -68,7 +68,7 @@ public class MediaRuleTest {
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals(0, rule.insertRule("p {border-top: 1px dashed yellow; }", 0));
 		assertEquals(1, rule.insertRule("span.reddish {color: red; }", 1));
-		CSSRuleList rules = rule.getCssRules();
+		CSSRuleList<?> rules = rule.getCssRules();
 		assertEquals(2, rules.getLength());
 		assertTrue(rule == rule.getCssRules().item(0).getParentRule());
 	}
@@ -332,6 +332,26 @@ public class MediaRuleTest {
 		assertEquals("@media{div.foo{margin:1em;}}", rule.getMinifiedCssText());
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
 		assertFalse(sheet.getErrorHandler().hasOMErrors());
+		CSSDocument cssdoc = cssStyle.getOwnerDocument();
+		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
+		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
+	}
+
+	@Test
+	public void testParseIgnoreMissingRightParen() throws DOMException, ParserConfigurationException {
+		CSSElement cssStyle = styleElement(
+				"@media (max-width:1600px{ .foo{bottom: 20px!important; })@media {div.foo{margin:1em}}}p{top:0}");
+		AbstractCSSStyleSheet sheet = (AbstractCSSStyleSheet) ((LinkStyle<?>) cssStyle).getSheet();
+		assertEquals(1, sheet.getCssRules().getLength());
+
+		assertEquals(CSSRule.STYLE_RULE, sheet.getCssRules().item(0).getType());
+		StyleRule rule = (StyleRule) sheet.getCssRules().item(0);
+		assertEquals("p", rule.getSelectorText());
+		assertEquals(1, rule.getStyle().getLength());
+
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+		assertFalse(sheet.getErrorHandler().hasOMErrors());
+
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
 		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());

@@ -71,7 +71,8 @@ public interface MediaQueryList extends MediaList, EventTarget {
 	 * Does the associated media query list match the state of the rendered Document?
 	 * 
 	 * @param medium
-	 *            the lowercase name of the medium to test for.
+	 *            the lowercase name of the medium to test for, <code>null</code> or
+	 *            <code>all</code> if all media.
 	 * @param canvas
 	 *            the canvas where the document is to be rendered.
 	 * @return <code>true</code> if the associated media query list matches the state

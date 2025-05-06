@@ -27,11 +27,11 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.css.CSSRule;
 
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
@@ -241,6 +241,10 @@ public class ImportRuleTest {
 		assertEquals(9, gcs.getLength());
 		assertEquals("background-color", gcs.item(0));
 		assertEquals("color", gcs.item(1));
+
+		factory.getDeviceFactory().setViewportWidth(200f);
+		gcs = cssBody.getComputedStyle(null);
+		assertEquals(2, gcs.getLength());
 	}
 
 	@Test

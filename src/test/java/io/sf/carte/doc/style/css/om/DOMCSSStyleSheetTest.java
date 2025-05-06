@@ -25,10 +25,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSMediaRule;
-import org.w3c.dom.css.CSSRule;
-import org.w3c.dom.css.CSSRuleList;
 import org.w3c.dom.stylesheets.MediaList;
 
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.CSSRuleList;
 import io.sf.carte.doc.style.css.StyleDatabaseRequiredException;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
@@ -86,8 +86,8 @@ public class DOMCSSStyleSheetTest {
 			System.err.println(sheet2.getErrorHandler().toString());
 		}
 		assertTrue(parseok);
-		CSSRuleList rules = sheet.getCssRules();
-		CSSRuleList rules2 = sheet2.getCssRules();
+		CSSRuleList<?> rules = sheet.getCssRules();
+		CSSRuleList<?> rules2 = sheet2.getCssRules();
 		assertEquals(rules.getLength(), rules2.getLength());
 		int n = rules.getLength();
 		for (int i = 0; i < n; i++) {

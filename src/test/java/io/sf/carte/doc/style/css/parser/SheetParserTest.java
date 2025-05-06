@@ -543,6 +543,29 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseSheetCDONLRuleNLCDC() throws CSSException, IOException {
+
+		Reader re = new StringReader("<!-- \r.foo {margin-left:auto}\r -->");
+		parser.parseStyleSheet(re);
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(".foo", handler.selectors.get(0).toString());
+		assertEquals(0, handler.comments.size());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("margin-left", handler.propertyNames.getFirst());
+		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("auto", lu.getStringValue());
+
+		Locator loc = handler.ptyLocators.get(0);
+		assertEquals(2, loc.getLineNumber());
+		assertEquals(23, loc.getColumnNumber());
+
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseSheetCommentCDOCDCRule() throws CSSException, IOException {
 
 		Reader re = new StringReader("<!-- --> .foo {margin-left:auto}");
@@ -904,7 +927,7 @@ public class SheetParserTest {
 
 		assertTrue(errorHandler.hasError());
 		assertEquals(13, errorHandler.getLastException().getLineNumber());
-		assertEquals(35, errorHandler.getLastException().getColumnNumber());
+		assertEquals(33, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test
@@ -1140,7 +1163,7 @@ public class SheetParserTest {
 	@Test
 	public void testParseStyleSheetMediaQueryError() throws CSSException, IOException {
 		Reader re = new StringReader(
-			"@media handheld,only screen and (max-width:1600px .foo{bottom: 20px!important;.bar{top: 1vw!important;}}@media {div.foo{margin:1em}}");
+			"@media handheld,only screen and (max-width:1600px .foo){bottom: 20px!important;.bar{top: 1vw!important;}}@media {div.foo{margin:1em}}");
 		parser.parseStyleSheet(re);
 
 		assertEquals(2, handler.mediaRuleLists.size());
@@ -1150,7 +1173,7 @@ public class SheetParserTest {
 		assertEquals(2, handler.priorities.size());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(63, errorHandler.getLastException().getColumnNumber());
+		assertEquals(64, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test

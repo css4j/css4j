@@ -60,7 +60,7 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsConditionBad() {
-		SupportsRule rule = sheet.createSupportsRule();
+		SupportsRule rule = createSupportsRule();
 		CSSParser parser = new CSSOMParser();
 		BooleanCondition cond = parser.parseSupportsCondition(" ", rule);
 		assertNull(cond);
@@ -76,7 +76,7 @@ public class SupportsRuleTest {
 
 	@Test
 	public void testParseSupportsConditionBad2() {
-		SupportsRule rule = sheet.createSupportsRule();
+		SupportsRule rule = createSupportsRule();
 		CSSParser parser = new CSSOMParser();
 		BooleanCondition cond = parser.parseSupportsCondition("(", rule);
 		assertNull(cond);
@@ -586,6 +586,10 @@ public class SupportsRuleTest {
 		assertEquals(rule.getCssText(), clon.getCssText());
 		assertTrue(rule.equals(clon));
 		assertEquals(rule.hashCode(), clon.hashCode());
+	}
+
+	private SupportsRule createSupportsRule() {
+		return new SupportsRule(sheet, sheet.getOrigin());
 	}
 
 	private SupportsRule parseStyleSheet(String cssText) {

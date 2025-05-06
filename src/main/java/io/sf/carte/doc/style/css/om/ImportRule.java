@@ -30,13 +30,12 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Implementation of CSSImportRule.
- * 
- * @author Carlos Amengual
- * 
  */
 public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 
 	private static final long serialVersionUID = 1L;
+
+	private static final int MAX_IMPORT_RECURSION = 8; // Allows 7 nested imports
 
 	private AbstractCSSStyleSheet importedSheet = null;
 
@@ -143,6 +142,71 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 		}
 		// load & Parse
 		return importedSheet.loadStyleSheet(styleSheetURL, "");
+	}
+
+	@Override
+	int addToSheet(AbstractCSSStyleSheet sheet, int importCount) {
+		if (layerName != null) {
+			// No layer support yet
+			return importCount;
+		}
+
+		importCount++;
+		if (importCount >= MAX_IMPORT_RECURSION) {
+			handleTooManyNested(sheet);
+			return importCount;
+		}
+
+		// We clone with same parent, to receive the errors
+		ImportRule imp = (ImportRule) clone();
+		AbstractCSSStyleSheet impSheet = imp.getStyleSheet();
+		CSSRuleArrayList impRules = impSheet.getCssRules();
+		MediaQueryList media = imp.getMedia();
+		if (media.isAllMedia()) {
+			importCount = sheet.addRuleList(impRules, importCount);
+		} else if (!media.isNotAllMedia()) {
+			// Add as a Media rule
+			MediaRule mrule = sheet.createMediaRule(media);
+			importCount = mrule.addRuleList(impRules, importCount);
+			sheet.addLocalRule(mrule);
+		}
+
+		return importCount;
+	}
+
+	private void handleTooManyNested(AbstractCSSStyleSheet sheet) {
+		DOMException ex = new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+				"Too many nested imports");
+		String cssText = getCssText();
+		if (sheet != null) {
+			sheet.getErrorHandler().badAtRule(ex, cssText);
+		}
+		getParentStyleSheet().getErrorHandler().badAtRule(ex, cssText);
+	}
+
+	@Override
+	int addToMediaRule(MediaRule mrule, int importCount) {
+		importCount++;
+		if (importCount == MAX_IMPORT_RECURSION) {
+			handleTooManyNested(null);
+			return importCount;
+		}
+		// We clone with same parent, to receive the errors
+		ImportRule imp = (ImportRule) clone();
+		AbstractCSSStyleSheet impSheet = imp.getStyleSheet();
+		CSSRuleArrayList impRules = impSheet.getCssRules();
+		MediaQueryList media = imp.getMedia();
+		if (mrule.getMedia().equals(media)) {
+			// Add to the same media rule
+			importCount = mrule.addRuleList(impRules, importCount);
+		} else {
+			// Add as a new media rule
+			AbstractCSSStyleSheet parent = getParentStyleSheet();
+			MediaRule mrule2 = parent.createMediaRule(mediaList);
+			mrule.addRule(mrule2);
+			importCount = mrule2.addRuleList(impRules, importCount);
+		}
+		return importCount;
 	}
 
 	@Override

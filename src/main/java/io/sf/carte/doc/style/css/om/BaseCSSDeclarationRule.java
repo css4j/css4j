@@ -16,8 +16,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSRule;
 
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -26,9 +26,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Abstract class to be inherited by CSS rules which have a CSSStyleDeclaration.
- *
- * @author Carlos Amengual
- *
  */
 abstract public class BaseCSSDeclarationRule extends BaseCSSRule
 		implements ExtendedCSSDeclarationRule {

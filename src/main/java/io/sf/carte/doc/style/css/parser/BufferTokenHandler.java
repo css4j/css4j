@@ -135,6 +135,16 @@ abstract class BufferTokenHandler extends CSSTokenHandler implements CSSContentH
 		buffer.appendCodePoint(codepoint);
 	}
 
+	/**
+	 * Utility method to trim the buffer tail.
+	 */
+	void trimBufferTail() {
+		int lenm1 = buffer.length() - 1;
+		if (buffer.charAt(lenm1) == ' ') {
+			buffer.setLength(lenm1);
+		}
+	}
+
 	String rawBuffer() {
 		resetEscapedTokenIndex();
 		String s = buffer.toString();
@@ -290,6 +300,9 @@ abstract class BufferTokenHandler extends CSSTokenHandler implements CSSContentH
 		IgnoredDeclarationTokenHandler() {
 			super();
 			this.parendepth = BufferTokenHandler.this.getCurrentParenDepth();
+			if (this.parendepth < 0) {
+				this.parendepth = 0;
+			}
 		}
 
 		@Override
@@ -340,7 +353,7 @@ abstract class BufferTokenHandler extends CSSTokenHandler implements CSSContentH
 		@Override
 		public void rightCurlyBracket(int index) {
 			curlyBracketDepth--;
-			if (isRecoverable()) {
+			if (parendepth <= 0 && sqBracketDepth <= 0) {
 				if (curlyBracketDepth < 0) {
 					endDeclarationBlock(index);
 					resetHandler();
@@ -350,14 +363,10 @@ abstract class BufferTokenHandler extends CSSTokenHandler implements CSSContentH
 			}
 		}
 
-		boolean isRecoverable() {
-			return parendepth == 0 && sqBracketDepth == 0;
-		}
-
 		@Override
 		public void character(int index, int codePoint) {
 			if (codePoint == TokenProducer.CHAR_SEMICOLON && curlyBracketDepth == 0
-					&& isRecoverable()) {
+					&& parendepth == 0 && sqBracketDepth == 0) {
 				resetHandler();
 				resumeDeclarationList();
 			}

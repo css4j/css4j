@@ -22,6 +22,7 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSGroupingRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
@@ -31,13 +32,14 @@ import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
 /**
  * Implementation of CSSGroupingRule.
  * 
  */
-abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRule {
+abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRule, RuleStore {
 
 	private static final long serialVersionUID = 1L;
 
@@ -53,12 +55,18 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 			setPrecedingComments(new LinkedStringList());
 			getPrecedingComments().addAll(copyfrom.getPrecedingComments());
 		}
-		cssRules = new CSSRuleArrayList(copyfrom.getCssRules().getLength());
-		for (AbstractCSSRule rule : copyfrom.getCssRules()) {
+		cssRules = cloneRuleList(parentSheet, copyfrom.getCssRules());
+	}
+
+	CSSRuleArrayList cloneRuleList(AbstractCSSStyleSheet parentSheet,
+			CSSRuleArrayList otherRules) {
+		CSSRuleArrayList rules = new CSSRuleArrayList(otherRules.getLength());
+		for (AbstractCSSRule rule : otherRules) {
 			AbstractCSSRule cloned = rule.clone(parentSheet);
 			cloned.setParentRule(this);
-			cssRules.add(cloned);
+			rules.add(cloned);
 		}
+		return rules;
 	}
 
 	@Override
@@ -200,19 +208,51 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 	}
 
 	/**
-	 * Adds the given rule to the end of the rule list.
-	 * <p>
-	 * Does not modify the insertion-index internal state of the rule.
+	 * Adds the given rule at the current insertion point (generally after the last
+	 * rule).
 	 * 
-	 * @param cssrule
-	 *            the rule to add.
-	 * @return the index at which the rule was inserted.
+	 * @param cssrule the rule to add.
 	 */
-	int addRule(AbstractCSSRule cssrule) {
-		int len = cssRules.getLength();
+	@Override
+	public void addRule(AbstractCSSRule cssrule) {
 		cssRules.add(cssrule);
 		cssrule.setParentRule(this);
-		return len;
+	}
+
+	@Override
+	int addRuleList(CSSRuleArrayList otherRules, int importCount) {
+		for (AbstractCSSRule oRule : otherRules) {
+			addRule(oRule);
+		}
+		return importCount;
+	}
+
+	void updateDescendantsAbsoluteSelectorList(SelectorList parentList) {
+		if (cssRules != null) {
+			// Update absolute selectors in descendants
+			for (AbstractCSSRule rule : cssRules) {
+				if (rule instanceof GroupingRule) {
+					if (rule.getType() == CSSRule.STYLE_RULE) {
+						StyleRule styleRule = (StyleRule) rule;
+						parentList = styleRule.getSelectorList().replaceNested(parentList);
+						styleRule.setAbsoluteSelectorList(parentList);
+					}
+					((GroupingRule) rule).updateDescendantsAbsoluteSelectorList(parentList);
+				}
+			}
+		}
+	}
+
+	@Override
+	void prioritySplit(AbstractCSSStyleSheet importantSheet, AbstractCSSStyleSheet normalSheet,
+			RuleStore importantStore, RuleStore normalStore) {
+		/*
+		 * This method isn't intended to be used directly, but to be called by
+		 * subclasses with the proper stores.
+		 */
+		for (AbstractCSSRule r : cssRules) {
+			r.prioritySplit(importantSheet, normalSheet, importantStore, normalStore);
+		}
 	}
 
 	private class RuleHandler extends SheetHandler {

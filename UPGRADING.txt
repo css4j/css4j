@@ -42,6 +42,10 @@ Upgrading to 6.0 from 5.3.1
 
 - Interface `SheetContext` now extends `NamespacePrefixMap`.
 
+- The rule in method `insertRule(CSSRule, int)` in `CSSRuleArrayList` is now a
+  native `CSSRule` instead of a legacy `org.w3c.dom.css.CSSRule` (after all the
+  rule is cast to an `AbstractCSSRule` in that method).
+
 - `CSSValue` primitive types `ATTR` and `VAR`, which were deprecated for removal,
   have been removed.
 

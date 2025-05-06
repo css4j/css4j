@@ -15,17 +15,18 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.CSSFontFaceRule;
 import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.SelectorMatcher;
+import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet.Cascade;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * Implementation of CSSFontFaceRule.
- * 
- * @author Carlos Amengual
- * 
  */
 public class FontFaceRule extends BaseCSSDeclarationRule implements CSSFontFaceRule {
 
@@ -33,6 +34,17 @@ public class FontFaceRule extends BaseCSSDeclarationRule implements CSSFontFaceR
 
 	public FontFaceRule(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, CSSRule.FONT_FACE_RULE, origin);
+	}
+
+	@Override
+	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+		DeviceFactory df = getParentStyleSheet().getStyleSheetFactory().getDeviceFactory();
+		if (df != null) {
+			StyleDatabase sdb = df.getStyleDatabase(targetMedium);
+			if (sdb != null) {
+				sdb.loadFontFaceRule(this);
+			}
+		}
 	}
 
 	@Override

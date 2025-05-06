@@ -100,7 +100,7 @@ abstract class HandlerManager {
 		if (manager.parentManager == null) {
 			// Yielding to a child
 			manager.parentManager = this;
-		} else if (manager.parentManager != this) {
+		} else if (manager.parentManager != this && manager.parentManager != parentManager) {
 			throw new IllegalStateException("Possible hierarchy inconsistency");
 		}
 	}
@@ -126,14 +126,16 @@ abstract class HandlerManager {
 	 * Call it when ending management.
 	 */
 	public void endManagement(int index) {
-		if (parentManager != null) {
-			yieldManagement(parentManager);
+		HandlerManager p = getParentManager();
+		if (p != null) {
+			yieldManagement(p);
 		}
 	}
 
 	public void endOfStream(int len) {
-		if (parentManager != null) {
-			parentManager.endOfStream(len);
+		HandlerManager p = getParentManager();
+		if (p != null) {
+			p.endOfStream(len);
 		}
 	}
 

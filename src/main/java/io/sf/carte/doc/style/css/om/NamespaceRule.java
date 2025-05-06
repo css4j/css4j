@@ -74,6 +74,17 @@ public class NamespaceRule extends BaseCSSRule implements CSSNamespaceRule {
 	}
 
 	@Override
+	int addToSheet(AbstractCSSStyleSheet sheet, int importCount) {
+		addToSheetAsLocal(sheet);
+		return importCount;
+	}
+
+	@Override
+	void addToSheetAsLocal(AbstractCSSStyleSheet sheet) {
+		sheet.addNamespaceRule(this);
+	}
+
+	@Override
 	public String getCssText() {
 		if (namespaceURI == null) {
 			return null;

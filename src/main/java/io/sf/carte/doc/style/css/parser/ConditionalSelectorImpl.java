@@ -51,8 +51,12 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 	Selector replace(SelectorList base) {
 		Condition replCond;
 
+		CombinatorConditionImpl comb;
+		Selector base0;
+
 		if (condition.getConditionType() == ConditionType.NESTING) {
-			if (base.getLength() == 1 && selector == null) {
+			if (base.getLength() == 1
+					&& (selector == null || selector.getSelectorType() == SelectorType.UNIVERSAL)) {
 				return base.item(0);
 			} else {
 				SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) getSelectorFactory()
@@ -61,6 +65,15 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 				is.setName("is");
 				replCond = is;
 			}
+		} else if (condition.getConditionType() == ConditionType.AND
+				&& (comb = (CombinatorConditionImpl) condition).first
+						.getConditionType() == ConditionType.NESTING
+				&& base.getLength() == 1
+				&& (selector == null || selector.getSelectorType() == SelectorType.UNIVERSAL)
+				&& (base0 = base.item(0)) instanceof SimpleSelector) {
+			ConditionalSelectorImpl newsel = getSelectorFactory()
+					.createConditionalSelector((SimpleSelector) base0, comb.second);
+			return newsel;
 		} else {
 			replCond = ((AbstractCondition) condition).replace(base);
 		}
@@ -99,7 +112,12 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 				return false;
 			}
 		} else if (!condition.equals(other.condition)) {
-			return false;
+			if (selector == null || selector.getSelectorType() != SelectorType.CONDITIONAL) {
+				return false;
+			}
+			// Possible different decomposition of same selector
+			// check serializations
+			return toString().equals(other.toString());
 		}
 		if (selector == null) {
 			if (other.selector != null) {

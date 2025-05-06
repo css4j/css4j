@@ -197,6 +197,8 @@ class SelectorSerializer {
 					+ conditionalSelectorText(ccond.getSecondCondition(), null);
 		case SELECTOR_ARGUMENT:
 			return selectorArgumentText((ArgumentCondition) condition, simpleSelector);
+		case NESTING:
+			return "&";
 		default:
 			// return null to ease the identification of unhandled cases.
 			return null;

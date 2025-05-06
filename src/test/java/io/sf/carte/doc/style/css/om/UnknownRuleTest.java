@@ -22,7 +22,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.DOMException;
-import org.w3c.dom.css.CSSRule;
+
+import io.sf.carte.doc.style.css.CSSRule;
 
 public class UnknownRuleTest {
 

@@ -69,6 +69,11 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 	}
 
 	@Override
+	public DummyDeviceFactory getDeviceFactory() {
+		return (DummyDeviceFactory) super.getDeviceFactory();
+	}
+
+	@Override
 	public StylableDocumentWrapper createCSSDocument(Document document) {
 		return new MyStylableDocumentWrapper(document);
 	}

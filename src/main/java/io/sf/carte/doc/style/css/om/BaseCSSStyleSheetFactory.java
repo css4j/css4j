@@ -238,14 +238,14 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	}
 
 	private void loadUserStyleSheet(String url, Reader re) throws DOMException, IOException {
-		AbstractCSSStyleSheet cssSheet = createDocumentStyleSheet(ORIGIN_USER);
+		BaseDocumentCSSStyleSheet cssSheet = createDocumentStyleSheet(ORIGIN_USER);
 		cssSheet.parseStyleSheet(re);
 		this.userImportantSheet = createDocumentStyleSheet(ORIGIN_USER_IMPORTANT);
 		this.userNormalSheet = createDocumentStyleSheet(ORIGIN_USER);
 		this.userImportantSheet.setHref(url);
 		this.userNormalSheet.setHref(url);
 		userNormalSheet.getCssRules().ensureCapacity(cssSheet.getCssRules().getLength());
-		prioritySplit(cssSheet, userImportantSheet, userNormalSheet);
+		cssSheet.prioritySplit(userImportantSheet, userNormalSheet);
 	}
 
 	/**
@@ -273,40 +273,6 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	@Override
 	protected AbstractCSSStyleSheet getUserNormalStyleSheet() {
 		return userNormalSheet;
-	}
-
-	static void prioritySplit(AbstractCSSStyleSheet cssSheet, AbstractCSSStyleSheet importantSheet,
-			AbstractCSSStyleSheet normalSheet) {
-		AbstractCSSStyleDeclaration userImportantStyle = cssSheet.createStyleDeclaration();
-		AbstractCSSStyleDeclaration userNormalStyle = cssSheet.createStyleDeclaration();
-		CSSRuleArrayList rules = cssSheet.getCssRules();
-		int rl = rules.getLength();
-		for (int i = 0; i < rl; i++) {
-			AbstractCSSRule r = rules.item(i);
-			if (r.getType() == CSSRule.STYLE_RULE) {
-				userImportantStyle.clear();
-				userNormalStyle.clear();
-				StyleRule rule = (StyleRule) r;
-				AbstractCSSStyleDeclaration st = rule.getStyle();
-				st.prioritySplit(userImportantStyle, userNormalStyle);
-				if (!userImportantStyle.isEmpty()) {
-					StyleRule newrule = importantSheet.createStyleRule();
-					newrule.setSelectorList(rule.getSelectorList());
-					BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) newrule.getStyle();
-					style.setProperties((BaseCSSStyleDeclaration) userImportantStyle);
-					importantSheet.addRule(newrule);
-				}
-				if (!userNormalStyle.isEmpty()) {
-					StyleRule newrule = normalSheet.createStyleRule();
-					newrule.setSelectorList(rule.getSelectorList());
-					BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) newrule.getStyle();
-					style.setProperties((BaseCSSStyleDeclaration) userNormalStyle);
-					normalSheet.addRule(newrule);
-				}
-			} else {
-				normalSheet.addRule(r.clone(normalSheet));
-			}
-		}
 	}
 
 	/**

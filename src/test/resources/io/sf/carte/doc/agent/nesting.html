@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Example CSS Nesting file</title>
+<meta name="referrer" content="same-origin"/>
+<style type="text/css"><![CDATA[
+body {
+  font-family: Arial, Helvetica;
+  font-size: 12pt;
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-top: 3em;
+  margin-bottom: 4em;
+  & #span1 {
+    font-size: 6pt;
+    color:#ffe4f5;
+  }
+  --my-color: #233f5a;
+  @media all {
+    >div {font-size: 15pt; color:#fd8eab}
+    --my-text-align: left;
+  }
+  background-color: white;
+  @media screen {
+    & .cls {
+      font-size: 21pt;
+      + ul {
+        margin-left: 18px;
+      }
+      --my-bg-color: white;
+    }
+  }
+  width: 900px;
+}
+h1 {
+  &#h1 {
+    background: url(headerbg.png);
+  }
+  font-size: 3em;
+  font-weight: bold;
+  margin: .67em 0;
+}
+h2 {
+  font-size: 2.5em;
+  font-weight: bold;
+  margin: .83em 0;
+}
+h3 {
+  font-size: 1.8em;
+  font-weight: bold;
+  margin: 1em 0;
+  border-width: 2pt;
+  border-style: none;
+  #firstH3 {
+    font-family: 'Font H3', Nope;
+    @font-feature-values The Font {
+      @swash {
+        swishy: 1;
+      }
+    }
+    color: navy;
+  }
+  content: "  foo  bar  ";
+}
+p {
+  margin-right: 1%;
+  &#listpara { /* Equivalent to p#listpara */
+    font-family: 'Does Not Exist', Neither, Helvetica; padding-left: inherit;
+  }
+  background-color: #8ad;
+  @media print {
+    &>span { font-size: 150%}
+    &#span1 {font-size: 8pt}
+  }
+  @media screen {
+    .small & { font-size: 14pt; }
+    &+p {font-size: 16pt}
+    ~#span1 {font-size: 20pt}
+  }
+}
+p.boldmargin {font-weight: bold; margin-left: 2%; border: solid blue; }
+p.smallitalic {font-size: small; font-style: italic; margin-left: 2%;}
+#tablepara {color: green; margin: 1em 2em 3em;}
+#tablerow1 {margin: 5pt; }
+#cell12 {padding:4pt 6pt;margin-left:5pt;}
+ul, ol {
+  @supports(text-align:match-parent){
+    padding-left:0;
+    :not(&)~p{
+      text-align:match-parent;
+    }
+    padding-right:1px;
+  }
+  margin-top: 1em;
+  margin-bottom: 2em;
+}
+li {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+div {
+  margin-top: 2em;
+  margin-bottom: 3em;
+  &.test1 {
+    background-position: 20% 0%;
+    padding-left: calc((10% - 3em) - max(6px, 1em));
+  }
+}
+]]></style>
+</head>
+<body>
+<h1 id="h1">Header 1</h1>
+<p id="para1" class="boldmargin">Paragraph <span ID="entity" class="ent&quot;ity">&lt;&gt;</span></p><p id="para2">Paragraph 2 with a <span id="span1">span</span>.</p>
+<h2 id="h2">Header 2</h2>
+<p id="smip" class="smallitalic">New paragraph</p>
+<p id="tablepara">Then, one <span>table</span>:</p>
+<table class="tableclass">
+<tr id="tablerow1" style="margin: 10px"><th>Header 1</th><th>Header 2</th><th>Header 3</th></tr>
+<tr><td>Cell</td><td>Cell</td><td id="cell12">Cell</td></tr>
+<tr><td>Cell</td><td>Cell</td><td>Cell</td></tr>
+<tr><td>Cell</td><td>Cell</td><td>Cell</td></tr>
+<tr><td>Cell</td><td>Cell</td><td>Cell</td></tr>
+<tr><td>Cell</td><td>Cell</td><td>Cell</td></tr>
+<tr><td>Cell</td><td>Cell</td><td>Cell</td></tr>
+<tr><td>Cell</td><td>Cell</td><td><img id="fooimg" src="foo.png" alt="Foo image" height="180" width="200"/></td></tr>
+</table>
+<h3 id="firstH3">Header 3</h3>
+<div id="div1" class="test1 cls" data-foo="bar" data-bar="foo">
+<p id="listpara" class="cls">Now, a <nonexistenttag>list</nonexistenttag>:</p>
+<ul id="ul1">
+<li ID="ul1li1" class="liclass" STYLE="color: blue">List item 1</li>
+<li class="liclass">List item 2</li>
+<li class="liclass">List item 3</li>
+<li class="liclass">List item 4</li>
+<li class="liclass">List <span ID="entiacute">&iacute;tem</span> 5</li>
+<li class="liclass"><a href="li6dir" id="inflink">List item &infin;</a></li>
+</ul>
+<form id="loginform1" action="/servlet/login1">
+<label for="name">Username:</label>
+<input type="text" id="username" name="Username" data-default-user="foo_user" value="foo_user"/>
+<label for="passwd">Password:</label>
+<input type="text" id="passwd" name="Password"/>
+<button type="submit">Login</button>
+</form>
+<!-- An html-friendly svg element -->
+<svg viewBox="0 0 100 100" id="svg1" xmlns="http://www.w3.org/2000/svg">
+  <style><![CDATA[
+text.foo {
+  font-size: 9pt;
+}
+svg {
+  color:#78e;
+  & span {
+    color:#3aa;
+  }
+  font-size: 8pt;
+}
+g {
+  &.label {
+    &:first-child {
+      transform: translate(0,20px);
+      text-align:center;
+    }
+    &:nth-last-child(2) {
+      transform: translate(4px,50px);
+      background-color: #eec;
+    }
+    stroke: currentColor;
+    & > div {
+      display: inline-block;
+      white-space: nowrap;
+    }
+  }
+  & > foreignObject {
+    width:80%;
+    height:60%;
+  }
+  & div {
+    font-size: 9pt;
+  }
+  > rect {
+   fill: #469;
+  }
+}
+]]></style>
+  <rect x="0" y="0" width="100" height="100" />
+  <g class="label">
+    <foreignObject height="24" width="90">
+      <div>
+        Foreign Object
+      </div>
+    </foreignObject>
+  </g>
+  <g transform="translate(4,50)" class="label" id="foAspan">
+    <foreignObject height="20" width="80">
+      <div>
+        <span>A Span</span>
+      </div>
+    </foreignObject>
+  </g>
+  <g transform="translate(0,80)" class="label">
+    <foreignObject height="40" width="96">
+      <math>
+        <sqrt><mn>-1</mn></sqrt>
+      </math>
+    </foreignObject>
+  </g>
+</svg>
+</div>
+</body>
+</html>

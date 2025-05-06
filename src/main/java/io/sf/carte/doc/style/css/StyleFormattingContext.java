@@ -14,8 +14,6 @@ package io.sf.carte.doc.style.css;
 import java.io.IOException;
 import java.util.List;
 
-import org.w3c.dom.css.CSSRule;
-
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -44,9 +42,11 @@ public interface StyleFormattingContext extends DeclarationFormattingContext {
 	void deepenCurrentContext();
 
 	/**
-	 * Notify this context that the style was serialized for the given rule.
+	 * Notify this context that the contents of the given rule, either a declaration
+	 * or a rule list, were serialized.
 	 * <p>
-	 * It is called before {@link #endStyleDeclaration(SimpleWriter)}.
+	 * It is generally called before {@link #endStyleDeclaration(SimpleWriter)} and
+	 * {@link #endRuleList(SimpleWriter)}.
 	 * </p>
 	 * 
 	 * @param rule the rule being serialized.

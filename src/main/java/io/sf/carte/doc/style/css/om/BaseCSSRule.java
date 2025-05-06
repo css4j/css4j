@@ -126,6 +126,20 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 	}
 
 	@Override
+	int addToSheet(AbstractCSSStyleSheet sheet, int importCount) {
+		AbstractCSSRule clone = clone();
+		sheet.addLocalRule(clone);
+		return importCount;
+	}
+
+	@Override
+	int addToMediaRule(MediaRule mrule, int importCount) {
+		AbstractCSSRule clon = clone();
+		mrule.addRule(clon);
+		return importCount;
+	}
+
+	@Override
 	public void enablePrecedingComments() {
 		if (precedingComments == null) {
 			precedingComments = new LinkedStringList();

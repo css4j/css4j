@@ -15,17 +15,21 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
+import org.w3c.dom.Node;
 
+import io.sf.carte.doc.style.css.CSSCanvas;
+import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSMediaRule;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet.Cascade;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * Implementation of CSSMediaRule.
- * 
  */
 public class MediaRule extends GroupingRule implements CSSMediaRule {
 
@@ -47,6 +51,57 @@ public class MediaRule extends GroupingRule implements CSSMediaRule {
 	@Override
 	public MediaQueryList getMedia() {
 		return mediaList;
+	}
+
+	@Override
+	int addRuleList(CSSRuleArrayList otherRules, int importCount) {
+		// Fill the media rule
+		int orl = otherRules.getLength();
+		for (int i = 0; i < orl; i++) {
+			AbstractCSSRule oRule = otherRules.item(i);
+			importCount = oRule.addToMediaRule(this, importCount);
+		}
+
+		return importCount;
+	}
+
+	@Override
+	void prioritySplit(AbstractCSSStyleSheet importantSheet, AbstractCSSStyleSheet normalSheet,
+			RuleStore importantStore, RuleStore normalStore) {
+		MediaRule impRule = importantSheet.createMediaRule(mediaList);
+		MediaRule normalRule = importantSheet.createMediaRule(mediaList);
+
+		super.prioritySplit(importantSheet, normalSheet, impRule, normalRule);
+
+		if (!impRule.getCssRules().isEmpty()) {
+			importantStore.addRule(impRule);
+		}
+		if (!normalRule.getCssRules().isEmpty()) {
+			normalStore.addRule(normalRule);
+		}
+	}
+
+	@Override
+	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+		MediaQueryList mediaList = getMedia();
+		// If we target a specific media, account for matching @media rules
+		if (mediaList.matches(targetMedium, getCanvas())) {
+			CSSRuleArrayList ruleList = getCssRules();
+			ruleList.cascade(cascade, matcher, targetMedium);
+		}
+	}
+
+	private CSSCanvas getCanvas() {
+		Node owner = getParentStyleSheet().getOwnerNode();
+		CSSCanvas canvas = null;
+		if (owner != null) {
+			CSSDocument doc = (CSSDocument) owner.getOwnerDocument();
+			if (doc == null) {
+				doc = (CSSDocument) owner;
+			}
+			canvas = doc.getCanvas();
+		}
+		return canvas;
 	}
 
 	@Override

@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,7 +23,6 @@ import java.util.TreeMap;
 
 import org.w3c.dom.DOMException;
 
-import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
@@ -30,9 +31,7 @@ import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
-import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
-import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.om.StyleRule.RuleSpecificity;
 
@@ -100,7 +99,8 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		myCopy.cssRules.ensureCapacity(cssRules.getLength());
 		for (AbstractCSSRule rule : cssRules) {
 			int type = rule.getType();
-			if ((type == CSSRule.MEDIA_RULE && !((MediaRule) rule).getMedia().matches(targetMedium, canvas))
+			if ((type == CSSRule.MEDIA_RULE
+					&& !((MediaRule) rule).getMedia().matches(targetMedium, canvas))
 					|| (type == CSSRule.IMPORT_RULE
 							&& !((ImportRule) rule).getMedia().matches(targetMedium, canvas))) {
 				continue;
@@ -112,58 +112,6 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 			}
 		}
 	}
-
-	@Override
-	protected void addLocalRule(CSSRule rule) {
-		if (rule.getType() == CSSRule.PROPERTY_RULE) {
-			registerProperty((CSSPropertyDefinition) rule);
-		} else {
-			super.addLocalRule(rule);
-		}
-	}
-
-	/**
-	 * Gets the target medium for this sheet.
-	 * 
-	 * @return the target medium, or null if is for all media.
-	 */
-	@Override
-	public String getTargetMedium() {
-		return targetMedium;
-	}
-
-	/**
-	 * Gets the computed style for the given element and pseudo-element.
-	 * 
-	 * @param elm
-	 *            the element.
-	 * @param pseudoElt
-	 *            the pseudo-element condition.
-	 * @return the computed style declaration.
-	 */
-	@Override
-	abstract public ComputedCSSStyle getComputedStyle(CSSElement elm, Condition pseudoElt);
-
-	abstract protected ComputedCSSStyle createComputedCSSStyle();
-
-	/**
-	 * Clone this style sheet.
-	 * 
-	 * @return the cloned style sheet.
-	 */
-	@Override
-	abstract public BaseDocumentCSSStyleSheet clone();
-
-	/**
-	 * Clone this style sheet, but only preserving rules targeting the given
-	 * medium.
-	 * 
-	 * @param targetMedium
-	 *            the medium.
-	 * @return a medium-specific pseudo-clone of this sheet.
-	 */
-	@Override
-	abstract public BaseDocumentCSSStyleSheet clone(String targetMedium);
 
 	/**
 	 * Get the definition for the given property.
@@ -186,19 +134,106 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		registeredPropertyMap.put(definition.getName(), definition);
 	}
 
+	@Override
+	void addPropertyRule(PropertyRule propertyRule) {
+		registerProperty(propertyRule);
+	}
+
+	@Override
+	public int insertRule(String ruleText, int index) throws DOMException {
+		InternalSheet sheet = new InternalSheet();
+		sheet.insertRule(ruleText, 0);
+		AbstractCSSRule r = sheet.getCssRules().item(0);
+		if (r != null) {
+			int curIndex = getCurrentInsertionIndex();
+			setCurrentInsertionIndex(index - 1);
+			r.addToSheet(this, 0);
+			setCurrentInsertionIndex(curIndex + 1);
+		}
+		return index;
+	}
+
+	@Override
+	public boolean parseStyleSheet(Reader reader, short commentMode)
+			throws DOMException, IOException {
+		InternalSheet sheet = new InternalSheet();
+		boolean result = sheet.parseStyleSheet(reader, commentMode);
+		addStyleSheet(sheet);
+		return result;
+	}
+
+	private class InternalSheet extends BaseCSSStyleSheet {
+
+		private static final long serialVersionUID = 1L;
+
+		InternalSheet() {
+			super(null, BaseDocumentCSSStyleSheet.this.getMedia(),
+					null, BaseDocumentCSSStyleSheet.this.getOrigin());
+		}
+
+		@Override
+		public BaseCSSStyleSheetFactory getStyleSheetFactory() {
+			return BaseDocumentCSSStyleSheet.this.getStyleSheetFactory();
+		}
+
+		@Override
+		public AbstractCSSStyleSheet clone() {
+			BaseCSSStyleSheet myClone = (BaseCSSStyleSheet) getStyleSheetFactory()
+					.createStyleSheet(null, getMedia());
+			copyAllTo(myClone);
+			return myClone;
+		}
+
+	}
+
+	/**
+	 * Gets the target medium for this sheet.
+	 * 
+	 * @return the target medium, or null if is for all media.
+	 */
+	@Override
+	public String getTargetMedium() {
+		return targetMedium;
+	}
+
+	/**
+	 * Gets the computed style for the given element and pseudo-element.
+	 * 
+	 * @param elm       the element.
+	 * @param pseudoElt the pseudo-element condition.
+	 * @return the computed style declaration.
+	 */
+	@Override
+	abstract public ComputedCSSStyle getComputedStyle(CSSElement elm, Condition pseudoElt);
+
+	abstract protected ComputedCSSStyle createComputedCSSStyle();
+
+	/**
+	 * Clone this style sheet.
+	 * 
+	 * @return the cloned style sheet.
+	 */
+	@Override
+	abstract public BaseDocumentCSSStyleSheet clone();
+
+	/**
+	 * Clone this style sheet, but only preserving rules targeting the given medium.
+	 * 
+	 * @param targetMedium the medium.
+	 * @return a medium-specific pseudo-clone of this sheet.
+	 */
+	@Override
+	abstract public BaseDocumentCSSStyleSheet clone(String targetMedium);
+
 	/**
 	 * Compute the style for an element.
 	 * 
-	 * @param style
-	 *            a base, empty style to be filled with the computed style.
-	 * @param matcher
-	 *            the selector matcher.
-	 * @param pseudoElt
-	 *            the pseudo-element.
-	 * @param inlineStyle
-	 *            the inline style for the element.
-	 * @return the computed CSS style, or an empty style declaration if none
-	 *         applied or the sheet is disabled.
+	 * @param style       a base, empty style to be filled with the computed style.
+	 * @param matcher     the selector matcher.
+	 * @param pseudoElt   the pseudo-element.
+	 * @param inlineStyle the inline style for the element.
+	 * @return the computed CSS style, or an empty style declaration if none applied
+	 *         or the sheet is disabled.
 	 */
 	protected ComputedCSSStyle computeStyle(ComputedCSSStyle style, SelectorMatcher matcher,
 			Condition pseudoElt, InlineStyle inlineStyle) {
@@ -231,8 +266,8 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		 */
 		Iterator<StyleRule> styleit = matchingStyles.iterator();
 		/*
-		 * Now we add all the styles to form a single declaration. We add them
-		 * according to the order specified by the sorted set.
+		 * Now we add all the styles to form a single declaration. We add them according
+		 * to the order specified by the sorted set.
 		 * 
 		 * Each more specific style is added, starting with the less specific
 		 * declaration.
@@ -293,8 +328,8 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		 */
 		Iterator<StyleRule> styleit = matchingStyles.iterator();
 		/*
-		 * Now we add all the styles to form a single declaration. We add them
-		 * according to the order specified by the sorted set.
+		 * Now we add all the styles to form a single declaration. We add them according
+		 * to the order specified by the sorted set.
 		 * 
 		 * Each more specific style is added, starting with the less specific
 		 * declaration.
@@ -343,6 +378,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 	}
 
 	class Cascade {
+
 		private final SortedMap<StyleRule.RuleSpecificity, LinkedList<StyleRule>> matchingStyles = new TreeMap<>(
 				new StyleRule.SpecificityComparator());
 
@@ -351,51 +387,8 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		}
 
 		void cascade(SelectorMatcher matcher, String targetMedium, CSSRuleArrayList list) {
-			for (CSSRule rule : list) {
-				short type = rule.getType();
-				if (type != CSSRule.STYLE_RULE) {
-					if (type == CSSRule.MEDIA_RULE) {
-						scanMediaRule(matcher, targetMedium, getCanvas(), (MediaRule) rule);
-					} else if (type == CSSRule.FONT_FACE_RULE) {
-						processFontFaceRule((FontFaceRule) rule, targetMedium);
-					} else if (type == CSSRule.SUPPORTS_RULE) {
-						SupportsRule supports = (SupportsRule) rule;
-						DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
-						StyleDatabase sdb;
-						if (df != null && (sdb = df.getStyleDatabase(targetMedium)) != null
-								&& supports.supports(sdb)) {
-							CSSRuleArrayList rules = supports.getCssRules();
-							cascade(matcher, targetMedium, rules);
-						}
-					} // we find no @import rules here
-					continue;
-				}
-				StyleRule stylerule = (StyleRule) rule;
-				int selIdx = matcher.matches(stylerule.getSelectorList());
-				if (selIdx != -1) {
-					add(stylerule.getSpecificity(selIdx, matcher));
-				}
-			}
-		}
-
-		private void scanMediaRule(SelectorMatcher matcher, String targetMedium, CSSCanvas canvas,
-			MediaRule mediaRule) {
-			MediaQueryList mediaList = mediaRule.getMedia();
-			// If we target a specific media, account for matching @media rules
-			if (targetMedium != null ? mediaList.matches(targetMedium, canvas)
-				: mediaList.isAllMedia()) {
-				CSSRuleArrayList ruleList = mediaRule.getCssRules();
-				cascade(matcher, targetMedium, ruleList);
-			}
-		}
-
-		private void processFontFaceRule(FontFaceRule rule, String targetMedium) {
-			DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
-			if (df != null) {
-				StyleDatabase sdb = df.getStyleDatabase(targetMedium);
-				if (sdb != null) {
-					sdb.loadFontFaceRule(rule);
-				}
+			for (AbstractCSSRule rule : list) {
+				rule.cascade(this, matcher, targetMedium);
 			}
 		}
 
@@ -409,32 +402,11 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 			}
 		}
 
-		public void cascade(SelectorMatcher matcher, String targetMedium, CSSRuleArrayList list, byte origin) {
+		public void cascade(SelectorMatcher matcher, String targetMedium, CSSRuleArrayList list,
+				byte origin) {
 			for (AbstractCSSRule rule : list) {
 				if (rule.getOrigin() >= origin) {
-					short type = rule.getType();
-					if (type != CSSRule.STYLE_RULE) {
-						if (type == CSSRule.MEDIA_RULE) {
-							scanMediaRule(matcher, targetMedium, getCanvas(), (MediaRule) rule);
-						} else if (type == CSSRule.FONT_FACE_RULE) {
-							processFontFaceRule((FontFaceRule) rule, targetMedium);
-						} else if (type == CSSRule.SUPPORTS_RULE) {
-							SupportsRule supports = (SupportsRule) rule;
-							DeviceFactory df = getStyleSheetFactory().getDeviceFactory();
-							StyleDatabase sdb;
-							if (df != null && (sdb = df.getStyleDatabase(targetMedium)) != null
-									&& supports.supports(sdb)) {
-								CSSRuleArrayList rules = supports.getCssRules();
-								cascade(matcher, targetMedium, rules);
-							}
-						} // we find no @import rules here
-						continue;
-					}
-					StyleRule stylerule = (StyleRule) rule;
-					int selIdx = matcher.matches(stylerule.getSelectorList());
-					if (selIdx != -1) {
-						add(stylerule.getSpecificity(selIdx, matcher));
-					}
+					rule.cascade(this, matcher, targetMedium);
 				}
 			}
 		}
@@ -496,5 +468,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 			}
 
 		}
+
 	}
+
 }

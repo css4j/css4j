@@ -1,0 +1,137 @@
+body {
+  font-family: Arial, Helvetica;
+  font-size: 12pt;
+  margin-left: 5%;
+  margin-right: 5%;
+  margin-top: 3em;
+  margin-bottom: 4em;
+  & #span1 {
+    font-size: 6pt;
+    color:#ffe4f5;
+  }
+  --my-color: #233f5a;
+  @media all {
+    >div {font-size: 15pt; color:#fd8eab}
+    --my-text-align: left;
+  }
+  background-color: white;
+  @media screen {
+    &.cls {
+      font-size: 21pt;
+      + ul {
+        margin-left: 18px;
+      }
+      --my-bg-color: #226;
+    }
+  }
+  width: 900px;
+}
+h1 {
+  &#h1 {
+    background: url(headerbg.png);
+  }
+  font-size: 3em;
+  font-weight: bold;
+  margin: .67em 0;
+}
+h2 {
+  font-size: 2.5em;
+  font-weight: bold;
+  margin: .83em 0;
+}
+h3 {
+  font-size: 1.8em;
+  font-weight: bold;
+  margin: 1em 0;
+  border-width: 2pt;
+  border-style: none;
+  #firstH3 {
+    font-family: 'Font H3', Nope;
+    @font-feature-values Font H3 {
+      @swash {
+        swishy: 1;
+      }
+    }
+    color: navy;
+  }
+  content: "  foo  bar  ";
+}
+p {
+  margin-right: 1%;
+  &#listpara { /* Equivalent to p#listpara */
+    font-family: 'Does Not Exist', Neither, Helvetica; padding-left: inherit;
+  }
+  background-color: #8ad;
+  @media print {
+    &>span { font-size: 150%}
+    &#span1 {font-size: 8pt}
+  }
+  @media screen {
+    .small & { font-size: 14pt; }
+    &+p {font-size: 16pt}
+    ~#span1 {font-size: 20pt}
+  }
+}
+p.boldmargin {font-weight: bold; margin-left: 2%; border: solid blue; }
+p.smallitalic {font-size: small; font-style: italic; margin-left: 2%;}
+#tablepara {color: green; margin: 1em 2em 3em;}
+#tablerow1 {margin: 5pt; }
+#cell12 {padding:4pt 6pt;margin-left:5pt;}
+ul, ol {
+  @supports(text-align:match-parent){
+    padding-left:0;
+    :not(&)~p{
+      text-align:match-parent;
+    }
+    padding-right:1px;
+  }
+  margin-top: 1em;
+  margin-bottom: 2em;
+}
+li {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+div {
+  margin-top: 2em;
+  margin-bottom: 3em;
+  &.test1 {
+    background-position: 20% 0%;
+    padding-left: calc((10% - 3em) - max(6px, 1em));
+  }
+}
+
+svg {
+  color:#78e;
+  & span {
+    color:#3aa;
+  }
+  font-size: 8pt;
+}
+g {
+  &.label {
+    &:first-child {
+      transform: translate(0,20px);
+      text-align:center;
+    }
+    &:nth-last-child(2) {
+      transform: translate(4px,50px);
+      background-color: #eec;
+    }
+    stroke: currentColor;
+    & > div {
+      display: inline-block;
+      white-space: nowrap;
+    }
+  }
+  & > foreignObject {
+    width:80%;
+    height:60%;
+  }
+  & div {
+    font-size: 9pt;
+  }
+  > rect {
+   fill: #469;
+  }
+}

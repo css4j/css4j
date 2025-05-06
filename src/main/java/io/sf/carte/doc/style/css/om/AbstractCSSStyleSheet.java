@@ -27,6 +27,7 @@ import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSNamespaceRule;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
@@ -37,12 +38,9 @@ import io.sf.carte.util.Visitor;
 
 /**
  * Abstract class to be inherited by all CSS style sheets.
- * 
- * @author Carlos Amengual
- *
  */
 abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
-		implements CSSStyleSheet<AbstractCSSRule>, SheetContext {
+		implements CSSStyleSheet<AbstractCSSRule>, SheetContext, RuleStore {
 
 	private static final long serialVersionUID = 1L;
 
@@ -104,11 +102,11 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 	 * Even if a specific media is set at the <code>InputSource</code>, this method
 	 * does not alter the sheet's current media attribute.
 	 * <p>
-	 * If <code>commentMode</code> is not {@code COMMENTS_IGNORE}, the comments
-	 * preceding a rule shall be available through
-	 * {@link AbstractCSSRule#getPrecedingComments()}, and if {@code COMMENTS_AUTO}
-	 * was set also the trailing ones, through the method
-	 * {@link AbstractCSSRule#getTrailingComments()}.
+	 * If <code>commentMode</code> is not {@link CSSStyleSheet#COMMENTS_IGNORE
+	 * COMMENTS_IGNORE}, the comments preceding a rule shall be available through
+	 * {@link AbstractCSSRule#getPrecedingComments()}, and if
+	 * {@link CSSStyleSheet#COMMENTS_AUTO COMMENTS_AUTO} was set also the trailing
+	 * ones, through the method {@link AbstractCSSRule#getTrailingComments()}.
 	 * <p>
 	 * This method resets the state of this sheet's error handler.
 	 * <p>
@@ -120,7 +118,8 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 	 * @param commentMode {@code 0} if comments have to be ignored, {@code 1} if all
 	 *                    comments are considered as preceding a rule, {@code 2} if
 	 *                    the parser should try to figure out which comments are
-	 *                    preceding and trailing a rule (auto mode).
+	 *                    preceding and trailing a rule (auto mode). See the
+	 *                    {@code COMMENTS} constants in {@link CSSStyleSheet}.
 	 * @return <code>true</code> if the NSAC parser reported no errors or fatal
 	 *         errors, false otherwise.
 	 * @throws DOMException if raised by the error handler.
@@ -141,6 +140,26 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 	 */
 	@Override
 	abstract public void addStyleSheet(AbstractCSSStyleSheet sheet);
+
+	abstract int addRuleList(CSSRuleArrayList otherRules, int importCount);
+
+	@Override
+	abstract public void addRule(AbstractCSSRule cssrule) throws DOMException;
+
+	/**
+	 * Inserts a local rule in the current insertion point (generally after the
+	 * last rule).
+	 * 
+	 * @param cssrule
+	 *            the rule to be inserted.
+	 */
+	abstract void addLocalRule(CSSRule cssrule);
+
+	abstract void addNamespaceRule(CSSNamespaceRule nsrule);
+
+	void addPropertyRule(PropertyRule propertyRule) {
+		addLocalRule(propertyRule);
+	}
 
 	/**
 	 * Load the styles from <code>url</code> into this style sheet.

@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Objects;
 
 import org.w3c.dom.DOMException;
@@ -29,23 +31,23 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet.Cascade;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * CSS style rule.
- * 
- * @author Carlos Amengual
- * 
  */
 public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSSDeclarationRule {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
-	private SelectorList selectorList = null;
+	SelectorList selectorList = null;
 
-	private String selectorText = "";
+	private SelectorList absSelectorList = null;
+
+	String selectorText = "";
 
 	private BaseCSSStyleDeclaration declaration = null;
 
@@ -196,6 +198,7 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 		}
 		this.selectorList = selectorList;
 		updateSelectorText();
+		updateAbsoluteSelectorList();
 	}
 
 	void updateSelectorText() {
@@ -208,9 +211,116 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 		this.selectorText = sb.toString();
 	}
 
+	private void updateAbsoluteSelectorList() {
+		this.absSelectorList = selectorList;
+		AbstractCSSRule parent = getParentRule();
+		if (parent != null) {
+			LinkedList<SelectorList> selStack = new LinkedList<>();
+			AbstractCSSRule anc = null;
+			do {
+				if (parent.getType() == CSSRule.STYLE_RULE) {
+					anc = parent;
+					selStack.add(((StyleRule) anc).getSelectorList());
+				}
+				parent = getParentRule();
+			} while (parent != null);
+			if (anc != null) {
+				Iterator<SelectorList> it = selStack.descendingIterator();
+				this.absSelectorList = it.next();
+				while (it.hasNext()) {
+					SelectorList list = it.next();
+					this.absSelectorList = list.replaceNested(absSelectorList);
+				}
+				this.absSelectorList = selectorList.replaceNested(absSelectorList);
+			}
+		}
+
+		updateDescendantsAbsoluteSelectorList(absSelectorList);
+	}
+
 	@Override
 	public SelectorList getSelectorList() {
 		return this.selectorList;
+	}
+
+	SelectorList getAbsoluteSelectorList() {
+		return absSelectorList;
+	}
+
+	void setAbsoluteSelectorList(SelectorList absSelectorList) {
+		this.absSelectorList = absSelectorList;
+	}
+
+	@Override
+	void prioritySplit(AbstractCSSStyleSheet importantSheet, AbstractCSSStyleSheet normalSheet,
+			RuleStore importantStore, RuleStore normalStore) {
+		AbstractCSSStyleDeclaration userImportantStyle = normalSheet.createStyleDeclaration();
+		AbstractCSSStyleDeclaration userNormalStyle = normalSheet.createStyleDeclaration();
+		prioritySplit(importantSheet, normalSheet, importantStore, normalStore, userImportantStyle,
+				userNormalStyle);
+	}
+
+	void prioritySplit(AbstractCSSStyleSheet importantSheet, AbstractCSSStyleSheet normalSheet,
+			RuleStore importantStore, RuleStore normalStore,
+			AbstractCSSStyleDeclaration userImportantStyle,
+			AbstractCSSStyleDeclaration userNormalStyle) {
+		AbstractCSSStyleDeclaration st = getStyle();
+		st.prioritySplit(userImportantStyle, userNormalStyle);
+
+		StyleRule importantrule = null;
+		if (!userImportantStyle.isEmpty()) {
+			importantrule = importantSheet.createStyleRule();
+			copySelectorsTo(importantrule);
+			BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) importantrule.getStyle();
+			style.setProperties((BaseCSSStyleDeclaration) userImportantStyle);
+			importantStore.addRule(importantrule);
+		}
+
+		StyleRule normalrule = null;
+		if (!userNormalStyle.isEmpty()) {
+			normalrule = normalSheet.createStyleRule();
+			copySelectorsTo(normalrule);
+			BaseCSSStyleDeclaration style = (BaseCSSStyleDeclaration) normalrule.getStyle();
+			style.setProperties((BaseCSSStyleDeclaration) userNormalStyle);
+			normalStore.addRule(normalrule);
+		}
+
+		if (cssRules != null) {
+			if (importantrule == null) {
+				importantrule = importantSheet.createStyleRule();
+				copySelectorsTo(importantrule);
+			}
+			if (normalrule == null) {
+				normalrule = normalSheet.createStyleRule();
+				copySelectorsTo(normalrule);
+			}
+
+			super.prioritySplit(importantSheet, normalSheet, importantrule, normalrule);
+
+			if (importantrule.getParentRule() == null && importantrule.getCssRules() != null) {
+				importantStore.addRule(importantrule);
+			}
+			if (normalrule.getParentRule() == null && normalrule.getCssRules() != null) {
+				normalStore.addRule(normalrule);
+			}
+		}
+	}
+
+	void copySelectorsTo(StyleRule otherRule) {
+		otherRule.selectorList = getSelectorList();
+		otherRule.selectorText = selectorText;
+		otherRule.setAbsoluteSelectorList(getAbsoluteSelectorList());
+	}
+
+	@Override
+	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+		int selIdx = matcher.matches(getAbsoluteSelectorList());
+		if (selIdx != -1) {
+			cascade.add(getSpecificity(selIdx, matcher));
+		}
+		if (cssRules != null) {
+			cssRules.cascade(cascade, matcher, targetMedium);
+		}
 	}
 
 	/**
@@ -225,7 +335,7 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 	 * @return the specificity.
 	 */
 	RuleSpecificity getSpecificity(int index, SelectorMatcher matcher) {
-		return new RuleSpecificity(getSelectorList().item(index), matcher);
+		return new RuleSpecificity(getAbsoluteSelectorList().item(index), matcher);
 	}
 
 	class RuleSpecificity extends Specificity {
@@ -305,6 +415,9 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 			context.writeLeftCurlyBracket(wri);
 			context.startStyleDeclaration(wri);
 			getStyle().writeCssText(wri, context);
+			if (cssRules != null) {
+				cssRules.writeCssText(wri, context);
+			}
 			context.endCurrentContext(this);
 			context.endStyleDeclaration(wri);
 			context.writeRightCurlyBracket(wri);
@@ -315,8 +428,21 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 	@Override
 	public String getMinifiedCssText() {
 		String seltext = getSelectorText();
-		if (seltext.length() != 0) {
-			return seltext + '{' + getStyle().getMinifiedCssText() + '}';
+		int len = seltext.length();
+		if (len != 0) {
+			String ministyle = getStyle().getMinifiedCssText();
+			int slen = ministyle.length();
+			StringBuilder buf = new StringBuilder(len + slen + 3);
+			buf.append(seltext).append('{');
+			if (slen > 0) {
+				buf.append(ministyle);
+			}
+			if (cssRules != null) {
+				buf.append(';');
+				buf.append(cssRules.toMinifiedString());
+			}
+			buf.append('}');
+			return buf.toString();
 		}
 		return "";
 	}
@@ -375,6 +501,12 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 		rule.setWrappedStyle((BaseCSSStyleDeclaration) getStyle(), oldHrefContext);
 		rule.selectorList = getSelectorList();
 		rule.selectorText = getSelectorText();
+		rule.absSelectorList = getAbsoluteSelectorList();
+		rule.setPrecedingComments(getPrecedingComments());
+		rule.setTrailingComments(getTrailingComments());
+		if (cssRules != null) {
+			rule.cssRules = cloneRuleList(parentSheet, cssRules);
+		}
 		if (hasErrorsOrWarnings()) {
 			rule.setStyleDeclarationErrorHandler(getStyleDeclarationErrorHandler());
 		}

@@ -17,7 +17,9 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet.Cascade;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -60,6 +62,14 @@ abstract public class AbstractCSSRule implements CSSRule, java.io.Serializable {
 	@Override
 	abstract public AbstractCSSStyleSheet getParentStyleSheet();
 
+	/**
+	 * Set the style sheet that is parent of this rule.
+	 * 
+	 * @param parentSheet
+	 *            the parent style sheet.
+	 */
+	abstract void setParentStyleSheet(AbstractCSSStyleSheet parentSheet);
+
 	@Override
 	abstract public AbstractCSSRule getParentRule();
 
@@ -71,6 +81,33 @@ abstract public class AbstractCSSRule implements CSSRule, java.io.Serializable {
 	 * @return the origin of this rule.
 	 */
 	abstract public byte getOrigin();
+
+	/**
+	 * Add to a new style sheet, cloning if necessary.
+	 * 
+	 * @param sheet       the new sheet.
+	 * @param importCount the count of {@code @import} recursions.
+	 * @return the final count of {@code @import} recursions.
+	 */
+	abstract int addToSheet(AbstractCSSStyleSheet sheet, int importCount);
+
+	void addToSheetAsLocal(AbstractCSSStyleSheet sheet) {
+		sheet.addLocalRule(this);
+	}
+
+	abstract int addToMediaRule(MediaRule mrule, int importCount);
+
+	int addRuleList(CSSRuleArrayList otherRules, int importCount) {
+		return importCount;
+	}
+
+	void prioritySplit(AbstractCSSStyleSheet importantSheet, AbstractCSSStyleSheet normalSheet,
+			RuleStore importantStore, RuleStore normalStore) {
+		normalStore.addRule(clone(normalSheet));
+	}
+
+	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+	}
 
 	/**
 	 * If this rule does not contain a preceding comment list, create one.
@@ -99,11 +136,13 @@ abstract public class AbstractCSSRule implements CSSRule, java.io.Serializable {
 	abstract public AbstractCSSRule clone(AbstractCSSStyleSheet parentSheet);
 
 	/**
-	 * Set the style sheet that is parent of this rule.
+	 * Obtain a copy of this rule.
 	 * 
-	 * @param parentSheet
-	 *            the parent style sheet.
+	 * @return a clone of this rule.
 	 */
-	abstract void setParentStyleSheet(AbstractCSSStyleSheet parentSheet);
+	@Override
+	public AbstractCSSRule clone() {
+		return clone(getParentStyleSheet());
+	}
 
 }

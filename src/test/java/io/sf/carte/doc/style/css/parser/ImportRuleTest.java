@@ -276,13 +276,14 @@ public class ImportRuleTest {
 	}
 
 	@Test
-	public void testParseImportRuleMediaQueryBadEOF() throws CSSException, IOException {
+	public void testParseImportRuleMediaQueryMissingRightParenEOF()
+			throws CSSException, IOException {
 		Reader re = new StringReader("@import url('foo.css') screen and ((orientation:landscape)");
 		parser.parseStyleSheet(re);
-		assertEquals(0, handler.importURIs.size());
-		assertTrue(errorHandler.hasError());
-		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(59, errorHandler.getLastException().getColumnNumber());
+		assertEquals(1, handler.importURIs.size());
+		assertEquals(1, handler.importMedias.size());
+		assertEquals("screen and (orientation: landscape)", handler.importMedias.get(0).toString());
+		assertFalse(errorHandler.hasError());
 	}
 
 	@Test

@@ -1103,7 +1103,9 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			}
 			lu.value = CSSParser.safeUnescapeIdentifier(index, s);
 			char c = (char) quoteChar;
-			lu.identCssText = c + ParseHelper.escapeControl(s) + c;
+			StringBuilder buf = new StringBuilder(s.length() + 2);
+			buf.append(c).append(ParseHelper.escapeControl(s)).append(c);
+			lu.identCssText = buf.toString();
 			prevcp = 65;
 		}
 	}

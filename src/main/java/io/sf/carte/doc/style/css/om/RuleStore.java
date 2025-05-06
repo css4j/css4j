@@ -11,23 +11,17 @@
 
 package io.sf.carte.doc.style.css.om;
 
-import org.w3c.dom.css.CSSRule;
-
 /**
  * Implemented by classes which are CSS rule stores.
- * 
- * @author Carlos Amengual
- * 
  */
 interface RuleStore {
+
 	/**
-	 * Insert the given CSS rule at the given index.
+	 * Append the given CSS rule at the current insertion point.
 	 * 
 	 * @param cssrule
 	 *            the rule.
-	 * @param index
-	 *            the index at which to insert the rule.
-	 * @return the index at which the rule was finally inserted.
 	 */
-	int insertRule(CSSRule cssrule, int index);
+	void addRule(AbstractCSSRule cssrule);
+
 }

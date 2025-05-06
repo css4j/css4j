@@ -14,22 +14,19 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.w3c.dom.css.CSSRule;
-
+import io.sf.carte.doc.style.css.CSSRule;
+import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet.Cascade;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
 /**
  * Stores a list of CSS rules, implementing CSSRuleList.
- * 
- * @author Carlos Amengual
- * 
  */
-public class CSSRuleArrayList extends AbstractRuleList<AbstractCSSRule>
-		implements RuleStore {
+public class CSSRuleArrayList extends AbstractRuleList<AbstractCSSRule> {
 
-	private static final long serialVersionUID = 2L;
+	private static final long serialVersionUID = 3L;
 
 	/**
 	 * Constructs an empty rule list with the specified initial capacity.
@@ -62,7 +59,6 @@ public class CSSRuleArrayList extends AbstractRuleList<AbstractCSSRule>
 	 *            the index at which to insert the rule.
 	 * @return the index at which the rule was finally inserted.
 	 */
-	@Override
 	public int insertRule(CSSRule cssrule, int index) {
 		if (index > size()) {
 			index = size();
@@ -71,6 +67,12 @@ public class CSSRuleArrayList extends AbstractRuleList<AbstractCSSRule>
 		}
 		add(index, (AbstractCSSRule) cssrule);
 		return index;
+	}
+
+	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+		for (AbstractCSSRule rule : this) {
+			rule.cascade(cascade, matcher, targetMedium);
+		}
 	}
 
 	@Override

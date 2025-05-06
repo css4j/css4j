@@ -17,15 +17,18 @@ import java.util.List;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSResourceLimitException;
 import io.sf.carte.doc.style.css.CSSSupportsRule;
+import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.DeclarationCondition;
 import io.sf.carte.doc.style.css.nsac.SelectorFunction;
+import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet.Cascade;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -158,6 +161,33 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			break;
 		}
 		return false;
+	}
+
+	@Override
+	void prioritySplit(AbstractCSSStyleSheet importantSheet, AbstractCSSStyleSheet normalSheet,
+			RuleStore importantStore, RuleStore normalStore) {
+		SupportsRule impRule = importantSheet.createSupportsRule(condition);
+		SupportsRule normalRule = normalSheet.createSupportsRule(condition);
+
+		super.prioritySplit(importantSheet, normalSheet, impRule, normalRule);
+
+		if (!impRule.getCssRules().isEmpty()) {
+			importantStore.addRule(impRule);
+		}
+		if (!normalRule.getCssRules().isEmpty()) {
+			normalStore.addRule(normalRule);
+		}
+	}
+
+	@Override
+	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+		DeviceFactory df = getParentStyleSheet().getStyleSheetFactory().getDeviceFactory();
+		StyleDatabase sdb;
+		if (df != null && (sdb = df.getStyleDatabase(targetMedium)) != null
+				&& supports(sdb)) {
+			CSSRuleArrayList rules = getCssRules();
+			rules.cascade(cascade, matcher, targetMedium);
+		}
 	}
 
 	@Override

@@ -186,7 +186,8 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 	/**
 	 * Does this list match the given medium-canvas combination?
 	 * 
-	 * @param medium the lowercase name of the medium to test for.
+	 * @param medium the lowercase name of the medium to test for, <code>null</code>
+	 *               if all media.
 	 * @param canvas the canvas where the document is to be rendered, or null if no
 	 *               canvas.
 	 * @return <code>true</code> if this list matches the supplied media name and
@@ -203,6 +204,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 				return true;
 			}
 		}
+
 		return false;
 	}
 

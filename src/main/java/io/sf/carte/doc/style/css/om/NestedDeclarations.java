@@ -10,7 +10,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 package io.sf.carte.doc.style.css.om;
-
 import io.sf.carte.doc.style.css.CSSNestedDeclarations;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
@@ -25,18 +24,20 @@ class NestedDeclarations extends BaseCSSDeclarationRule implements CSSNestedDecl
 
 	private static final long serialVersionUID = 1L;
 
-	protected NestedDeclarations(AbstractCSSStyleSheet parentSheet, byte origin) {
+	public NestedDeclarations(AbstractCSSStyleSheet parentSheet, byte origin) {
 		super(parentSheet, CSSRule.NESTED_DECLARATIONS, origin);
 	}
 
 	@Override
-	public StyleRule getParentRule() {
-		return (StyleRule) super.getParentRule();
-	}
-
-	@Override
 	public StyleDeclarationErrorHandler getStyleDeclarationErrorHandler() {
-		return getParentRule().getStyleDeclarationErrorHandler();
+		AbstractCSSRule parent = getParentRule();
+		while (parent != null) {
+			if (parent.getType() == CSSRule.STYLE_RULE) {
+				return ((StyleRule) parent).getStyleDeclarationErrorHandler();
+			}
+			parent = parent.getParentRule();
+		}
+		return null;
 	}
 
 }

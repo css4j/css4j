@@ -208,7 +208,7 @@ abstract class AbstractTokenHandler
 
 	@Override
 	public void quotedWithControl(int index, CharSequence quoted, int quoteCp) {
-		unexpectedTokenError(index, quoted);
+		quoted(index, quoted, quoteCp);
 	}
 
 	@Override

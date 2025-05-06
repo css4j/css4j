@@ -306,26 +306,6 @@ public class RuleParserTest {
 	}
 
 	@Test
-	public void testParseStyleSheetMediaRuleMQError() throws CSSException, IOException {
-		parseRule(
-				"@media handheld,only screen and max-width:1600px){div.foo{margin:1em}}");
-		assertEquals(1, handler.mediaRuleLists.size());
-		MediaQueryList mql = handler.mediaRuleLists.get(0);
-		assertEquals("handheld", mql.getMedia());
-		assertTrue(mql.hasErrors());
-		assertEquals(1, handler.endMediaCount);
-		assertEquals(1, handler.selectors.size());
-		assertEquals(1, handler.propertyNames.size());
-		assertEquals("margin", handler.propertyNames.get(0));
-		assertEquals(1, handler.lexicalValues.size());
-		assertEquals("1em", handler.lexicalValues.get(0).getCssText());
-		assertEquals(1, handler.priorities.size());
-		assertNull(handler.priorities.get(0));
-		assertTrue(errorHandler.hasError());
-		handler.checkRuleEndings();
-	}
-
-	@Test
 	public void testParseStyleSheetNestedMediaRule() throws CSSException, IOException {
 		parseRule("@media screen {.foo{bottom: 20px!important; }@media (max-width:1600px){div.foo{margin:1em}}}");
 		assertEquals(2, handler.mediaRuleLists.size());

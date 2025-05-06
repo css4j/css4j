@@ -21,9 +21,6 @@ import io.sf.carte.doc.style.css.CSSNode;
 
 /**
  * Abstract base class for wrapped nodes.
- * 
- * @author Carlos Amengual
- *
  */
 abstract class DOMNode implements CSSNode {
 
@@ -137,6 +134,13 @@ abstract class DOMNode implements CSSNode {
 	@Override
 	public boolean hasChildNodes() {
 		return rawnode.hasChildNodes();
+	}
+
+	void removeAllChild() throws DOMException {
+		Node node;
+		while ((node = this.rawnode.getLastChild()) != null) {
+			this.rawnode.removeChild(node);
+		}
 	}
 
 	@Override
