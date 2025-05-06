@@ -11,6 +11,7 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
@@ -22,10 +23,10 @@ class TestDeclarationHandler extends EmptyCSSHandler implements CSSHandler {
 
 	private ParserControl parserctl;
 
-	LinkedList<String> propertyNames = new LinkedList<>();
-	LinkedList<LexicalUnit> lexicalValues = new LinkedList<>();
-	LinkedList<String> priorities = new LinkedList<>();
-	LinkedList<Locator> ptyLocators = new LinkedList<>();
+	ArrayList<String> propertyNames = new ArrayList<>();
+	ArrayList<LexicalUnit> lexicalValues = new ArrayList<>();
+	ArrayList<String> priorities = new ArrayList<>();
+	ArrayList<Locator> ptyLocators = new ArrayList<>();
 	LinkedList<String> comments = new LinkedList<>();
 
 	short streamEndcount = 0;

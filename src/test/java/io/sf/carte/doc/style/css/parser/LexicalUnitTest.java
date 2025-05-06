@@ -186,7 +186,7 @@ public class LexicalUnitTest {
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		parser.parseStyleDeclaration(new StringReader("--foo:;"));
-		LexicalUnit empty = handler.lexicalValues.getFirst();
+		LexicalUnit empty = handler.lexicalValues.get(0);
 		assertEquals(LexicalUnit.LexicalType.EMPTY, empty.getLexicalUnitType());
 
 		lu.insertNextLexicalUnit(empty);
@@ -315,7 +315,7 @@ public class LexicalUnitTest {
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		parser.parseStyleDeclaration(new StringReader("--foo:;"));
-		LexicalUnit empty = handler.lexicalValues.getFirst();
+		LexicalUnit empty = handler.lexicalValues.get(0);
 		assertEquals(LexicalUnit.LexicalType.EMPTY, empty.getLexicalUnitType());
 
 		LexicalUnit replacement = lu.replaceBy(empty);
@@ -474,7 +474,7 @@ public class LexicalUnitTest {
 		TestCSSHandler handler = new TestCSSHandler();
 		parser.setDocumentHandler(handler);
 		parser.parseStyleDeclaration(new StringReader("--foo:;"));
-		LexicalUnit empty = handler.lexicalValues.getFirst();
+		LexicalUnit empty = handler.lexicalValues.get(0);
 		assertEquals(LexicalUnit.LexicalType.EMPTY, empty.getLexicalUnitType());
 
 		LexicalUnit nlu = lu.getNextLexicalUnit();

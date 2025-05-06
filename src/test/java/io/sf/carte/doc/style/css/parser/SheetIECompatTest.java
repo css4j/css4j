@@ -75,8 +75,8 @@ public class SheetIECompatTest {
 		parser.parseStyleSheet(re);
 		assertFalse(errorHandler.hasError());
 		assertEquals(1, handler.propertyNames.size());
-		assertEquals("width", handler.propertyNames.getFirst());
-		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("width", handler.propertyNames.get(0));
+		LexicalUnit lu = handler.lexicalValues.get(0);
 		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("80%\\9", lu.getStringValue());
 	}

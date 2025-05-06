@@ -72,12 +72,12 @@ public class RuleParserTest {
 		assertEquals(1, handler.selectors.size());
 		assertEquals("hr[align=\"left\"]", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
-		assertEquals("margin-left", handler.propertyNames.getFirst());
-		assertEquals("margin-right", handler.propertyNames.getLast());
-		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("margin-right", handler.propertyNames.get(1));
+		LexicalUnit lu = handler.lexicalValues.get(0);
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
-		lu = handler.lexicalValues.getLast();
+		lu = handler.lexicalValues.get(1);
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
@@ -91,12 +91,12 @@ public class RuleParserTest {
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body:not(.foo)[id*=\"substring\"] .header", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
-		assertEquals("margin-left", handler.propertyNames.getFirst());
-		assertEquals("margin-right", handler.propertyNames.getLast());
-		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("margin-right", handler.propertyNames.get(1));
+		LexicalUnit lu = handler.lexicalValues.get(0);
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
-		lu = handler.lexicalValues.getLast();
+		lu = handler.lexicalValues.get(1);
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
@@ -170,13 +170,13 @@ public class RuleParserTest {
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
-		assertEquals("margin-left", handler.propertyNames.getFirst());
-		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		LexicalUnit lu = handler.lexicalValues.get(0);
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(1, handler.comments.size());
-		assertEquals("*just a comment*", handler.comments.getFirst());
+		assertEquals("*just a comment*", handler.comments.get(0));
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
 	}
@@ -189,13 +189,13 @@ public class RuleParserTest {
 		assertEquals(1, handler.selectors.size());
 		assertEquals(".foo", handler.selectors.get(0).toString());
 		assertEquals(1, handler.propertyNames.size());
-		assertEquals("margin-left", handler.propertyNames.getFirst());
-		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		LexicalUnit lu = handler.lexicalValues.get(0);
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("auto", lu.getStringValue());
 		assertEquals(1, handler.comments.size());
-		assertEquals("*just a comment*", handler.comments.getFirst());
+		assertEquals("*just a comment*", handler.comments.get(0));
 		assertFalse(errorHandler.hasError());
 		handler.checkRuleEndings();
 	}
@@ -332,10 +332,10 @@ public class RuleParserTest {
 	public void testParseStyleSheetPageRuleNestedOnMediaRule() throws CSSException, IOException {
 		parseRule("@media print {@page {margin-top: 20%;}h3 {width: 80%}}");
 		assertEquals(1, handler.pageRuleSelectors.size());
-		assertNull(handler.pageRuleSelectors.getFirst());
+		assertNull(handler.pageRuleSelectors.get(0));
 		assertEquals(1, handler.endPageCount);
 		assertEquals(1, handler.mediaRuleLists.size());
-		MediaQueryList medialist = handler.mediaRuleLists.getFirst();
+		MediaQueryList medialist = handler.mediaRuleLists.get(0);
 		assertEquals(1, medialist.getLength());
 		assertEquals("print", medialist.item(0));
 		assertEquals(1, handler.endMediaCount);
@@ -602,7 +602,7 @@ public class RuleParserTest {
 		assertEquals("table-cell", handler.lexicalValues.get(0).toString());
 		assertEquals("list-item", handler.lexicalValues.get(1).toString());
 		assertEquals(1, handler.mediaRuleLists.size());
-		assertEquals("screen", handler.mediaRuleLists.getFirst().toString());
+		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.endMediaCount);
 		handler.checkRuleEndings();
 		assertFalse(errorHandler.hasError());
@@ -615,7 +615,7 @@ public class RuleParserTest {
 		assertEquals(1, handler.atRules.size());
 		assertEquals(
 				"@-webkit-keyframes foo { from { background-position: 40px 0; } to { background-position: 0 0; } }",
-				handler.atRules.getFirst());
+				handler.atRules.get(0));
 		assertEquals(1, handler.supportsRuleLists.size());
 		assertEquals("(display: flexbox) and (not (display: inline-grid))",
 				handler.supportsRuleLists.get(0).toString());
@@ -630,7 +630,7 @@ public class RuleParserTest {
 		assertEquals("table-cell", handler.lexicalValues.get(0).toString());
 		assertEquals("list-item", handler.lexicalValues.get(1).toString());
 		assertEquals(1, handler.mediaRuleLists.size());
-		assertEquals("screen", handler.mediaRuleLists.getFirst().toString());
+		assertEquals("screen", handler.mediaRuleLists.get(0).toString());
 		assertEquals(1, handler.endMediaCount);
 		handler.checkRuleEndings();
 		assertFalse(errorHandler.hasError());
@@ -653,8 +653,8 @@ public class RuleParserTest {
 		parseRule(".foo{width: 80%\\9}");
 		assertFalse(errorHandler.hasError());
 		assertEquals(1, handler.propertyNames.size());
-		assertEquals("width", handler.propertyNames.getFirst());
-		LexicalUnit lu = handler.lexicalValues.getFirst();
+		assertEquals("width", handler.propertyNames.get(0));
+		LexicalUnit lu = handler.lexicalValues.get(0);
 		assertEquals(LexicalType.COMPAT_IDENT, lu.getLexicalUnitType());
 		assertEquals("80%\\9", lu.getStringValue());
 		handler.checkRuleEndings();

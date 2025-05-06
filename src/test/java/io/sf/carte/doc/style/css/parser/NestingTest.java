@@ -68,7 +68,7 @@ public class NestingTest {
 		assertEquals("li", handler.selectors.get(11).toString());
 		assertEquals("div", handler.selectors.get(12).toString());
 
-		assertEquals("g", handler.selectors.getLast().toString());
+		assertEquals("g", handler.selectors.get(14).toString());
 
 		assertEquals("& #span1", handler.nestedSelectors.get(0).toString());
 		assertEquals("& #span1", handler.endNestedSelectors.get(0).toString());
@@ -111,8 +111,8 @@ public class NestingTest {
 		assertEquals(78, handler.lexicalValues.size());
 		assertEquals(78, handler.priorities.size());
 
-		assertEquals("font-family", handler.propertyNames.getFirst());
-		assertEquals("body", handler.propertySelectors.getFirst().toString());
+		assertEquals("font-family", handler.propertyNames.get(0));
+		assertEquals("body", handler.propertySelectors.get(0).toString());
 
 		assertEquals("font-size", handler.propertyNames.get(1));
 		assertEquals("12pt", handler.lexicalValues.get(1).toString());
@@ -178,9 +178,9 @@ public class NestingTest {
 		assertEquals("inline-block", handler.lexicalValues.get(72).toString());
 		assertEquals("&>div", handler.propertySelectors.get(72).toString());
 
-		assertEquals("fill", handler.propertyNames.getLast());
-		assertEquals("#469", handler.lexicalValues.getLast().toString());
-		assertEquals("&>rect", handler.propertySelectors.getLast().toString());
+		assertEquals("fill", handler.propertyNames.get(77));
+		assertEquals("#469", handler.lexicalValues.get(77).toString());
+		assertEquals("&>rect", handler.propertySelectors.get(77).toString());
 
 		Locator loc = handler.ptyLocators.get(2);
 		assertEquals(4, loc.getLineNumber());

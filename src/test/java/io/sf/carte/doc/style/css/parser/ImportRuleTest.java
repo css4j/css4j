@@ -438,10 +438,10 @@ public class ImportRuleTest {
 		assertEquals("div", selist.item(4).toString());
 
 		assertEquals(1, handler.propertyNames.size());
-		assertEquals("display", handler.propertyNames.getFirst());
+		assertEquals("display", handler.propertyNames.get(0));
 
 		assertEquals(1, handler.lexicalValues.size());
-		LexicalUnit lu = handler.lexicalValues.getFirst();
+		LexicalUnit lu = handler.lexicalValues.get(0);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("block", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());

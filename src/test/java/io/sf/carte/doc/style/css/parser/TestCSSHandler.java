@@ -18,7 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.MediaQueryList;
@@ -31,12 +30,12 @@ class TestCSSHandler extends TestDeclarationHandler {
 
 	LinkedHashMap<String, String> namespaceMaps = new LinkedHashMap<>();
 	LinkedList<String> atRules = new LinkedList<>();
-	List<SelectorList> selectors = new ArrayList<>();
-	List<SelectorList> nestedSelectors = new ArrayList<>();
-	List<SelectorList> endNestedSelectors = new ArrayList<>();
+	ArrayList<SelectorList> selectors = new ArrayList<>();
+	ArrayList<SelectorList> nestedSelectors = new ArrayList<>();
+	ArrayList<SelectorList> endNestedSelectors = new ArrayList<>();
 	LinkedList<SelectorList> endSelectors = new LinkedList<>();
-	List<SelectorList> selectorStack = new ArrayList<>();
-	List<SelectorList> propertySelectors = new ArrayList<>();
+	ArrayList<SelectorList> selectorStack = new ArrayList<>();
+	ArrayList<SelectorList> propertySelectors = new ArrayList<>();
 	LinkedList<String> importURIs = new LinkedList<>();
 	LinkedList<String> importLayers = new LinkedList<>();
 	LinkedList<BooleanCondition> importSupportsConditions = new LinkedList<>();
@@ -88,7 +87,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 		} else {
 			endNestedSelectors.add(selectors);
 		}
-		assertSame(selectors, selectorStack.removeLast());
+		assertSame(selectors, selectorStack.remove(selectorStack.size() - 1));
 		this.eventSeq.add("endSelector");
 	}
 
@@ -97,7 +96,7 @@ class TestCSSHandler extends TestDeclarationHandler {
 		super.property(name, value, important);
 		SelectorList selist;
 		if (!selectorStack.isEmpty()) {
-			selist = selectorStack.getLast();
+			selist = selectorStack.get(selectorStack.size() - 1);
 		} else {
 			selist = null;
 		}
