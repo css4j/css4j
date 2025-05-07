@@ -438,7 +438,9 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 				buf.append(ministyle);
 			}
 			if (cssRules != null) {
-				buf.append(';');
+				if (slen > 0) {
+					buf.append(';');
+				}
 				buf.append(cssRules.toMinifiedString());
 			}
 			buf.append('}');

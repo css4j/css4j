@@ -7,7 +7,7 @@ body {
   margin-bottom: 4em;
   & #span1 {
     font-size: 6pt;
-    color:#ffe4f5;
+    color:#ffe4f5!important;
   }
   --my-color: #233f5a;
   @media all {
@@ -16,8 +16,9 @@ body {
   }
   background-color: white;
   @media screen {
+    page-break-after:always!important;
     &.cls {
-      font-size: 21pt;
+      font-size: 21pt!important;
       + ul {
         margin-left: 18px;
       }

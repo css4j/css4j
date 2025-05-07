@@ -1859,7 +1859,7 @@ public class SelectorMatcherTest {
 	}
 
 	@Test
-	public void testMatchSelectorPseudoHasNested() throws Exception {
+	public void testMatchSelectorPseudoHas6() throws Exception {
 		BaseCSSStyleSheet css = parseStyle("p.exampleclass:has(* img,#fooID) {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
@@ -1883,16 +1883,6 @@ public class SelectorMatcherTest {
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(1, 1, 1, selist.item(selidx), matcher);
-
-		// Now nested
-		// This should not be allowed, but anyway
-		css = parseStyle("p.exampleclass:has(span:has(> img,#fooID)) {color: blue;}");
-		rule = (StyleRule) css.getCssRules().item(0);
-		selist = rule.getSelectorList();
-		selidx = matcher.matches(selist);
-		assertTrue(selidx >= 0);
-		// Specificity
-		CSSOMBridge.assertSpecificity(1, 1, 2, selist.item(selidx), matcher);
 
 		parent.removeChild(elm2);
 		assertEquals(-1, matcher.matches(selist));

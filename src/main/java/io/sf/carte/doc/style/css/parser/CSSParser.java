@@ -2309,14 +2309,6 @@ public class CSSParser implements Parser, Cloneable {
 		return manager.getTrimmedSelectorList();
 	}
 
-	private SelectorList parseSelectorArgument(String seltext, NSACSelectorFactory factory)
-			throws CSSParseException {
-		SelectorArgumentManager manager = new SelectorArgumentManager(factory);
-		TokenProducer tp = manager.createTokenProducer();
-		tp.parse(seltext);
-		return manager.getTrimmedSelectorList();
-	}
-
 	@Override
 	public Condition parsePseudoElement(String pseudoElement) throws CSSException {
 		SelectorList peList = parseSelectors(pseudoElement);
@@ -3192,12 +3184,7 @@ public class CSSParser implements Parser, Cloneable {
 									handler.endSelector(selist);
 								}
 								handler.endSupports(currentSupportsCondition);
-								HandlerManager parent = getParentManager();
-								if (parent != null) {
-									parent.endOfStream(len);
-								} else {
-									endDocument();
-								}
+								SupportsRuleTH.this.getManager().endOfStream(len);
 							}
 
 						};
@@ -3232,17 +3219,8 @@ public class CSSParser implements Parser, Cloneable {
 
 				@Override
 				public void endOfStream(int len) {
-					SelectorListImpl selist = selectorHandler.getSelectorList();
-					if (!selist.isEmpty()) {
-						handler.endSelector(selist);
-					}
 					handler.endSupports(currentSupportsCondition);
-					HandlerManager parent = getParentManager();
-					if (parent != null) {
-						parent.endOfStream(len);
-					} else {
-						endDocument();
-					}
+					SupportsRuleTH.this.getManager().endOfStream(len);
 				}
 
 			}
@@ -3292,12 +3270,7 @@ public class CSSParser implements Parser, Cloneable {
 									handler.endSelector(selist);
 								}
 								handler.endMedia(currentMediaCondition);
-								HandlerManager parent = getParentManager();
-								if (parent != null) {
-									parent.endOfStream(len);
-								} else {
-									endDocument();
-								}
+								MediaRuleMediaQueryTH.this.getManager().endOfStream(len);
 							}
 
 						};
@@ -3312,17 +3285,8 @@ public class CSSParser implements Parser, Cloneable {
 
 							@Override
 							public void endOfStream(int len) {
-								SelectorListImpl selist = selectorHandler.getSelectorList();
-								if (!selist.isEmpty()) {
-									handler.endSelector(selist);
-								}
 								handler.endMedia(currentMediaCondition);
-								HandlerManager parent = getParentManager();
-								if (parent != null) {
-									parent.endOfStream(len);
-								} else {
-									endDocument();
-								}
+								MediaRuleMediaQueryTH.this.getManager().endOfStream(len);
 							}
 
 						};
@@ -5522,14 +5486,6 @@ public class CSSParser implements Parser, Cloneable {
 
 	}
 
-	private class SelectorArgumentManager extends SelectorManager {
-
-		SelectorArgumentManager(NSACSelectorFactory factory) {
-			super(new SelectorArgumentTokenHandler(factory));
-		}
-
-	}
-
 	class SelectorManager extends CSSParserHandlerManager {
 
 		SelectorTokenHandler selectorHandler;
@@ -5591,6 +5547,8 @@ public class CSSParser implements Parser, Cloneable {
 		byte stage = 0;
 		private boolean functionToken;
 
+		private boolean hasHas;
+
 		static final byte STAGE_INITIAL = 0;
 		private static final byte STAGE_COMBINATOR_OR_END = 2;
 		private static final byte STAGE_ATTR_START = 4;
@@ -5632,6 +5590,10 @@ public class CSSParser implements Parser, Cloneable {
 		SelectorListImpl getTrimmedSelectorList() {
 			selist.trimToSize();
 			return selist;
+		}
+
+		protected boolean isInsideHas() {
+			return hasHas;
 		}
 
 		@Override
@@ -5706,8 +5668,8 @@ public class CSSParser implements Parser, Cloneable {
 					|| stage == STAGE_EXPECT_PSEUDOELEM_NAME
 					|| stage == STAGE_EXPECT_PSEUDOCLASS_NAME) {
 				processBuffer(index, codepoint, false);
-				if (prevcp == 65 || prevcp == 42 || prevcp == 41 || prevcp == 93) {
-					// letter-or-digit, *, ), ]
+				if (prevcp == 65 || prevcp == 42 || prevcp == 41 || prevcp == 93 || prevcp == '&') {
+					// letter-or-digit, *, ), ], &
 					stage = STAGE_COMBINATOR_OR_END;
 				}
 			} else if (stage == STAGE_ATTR_START) {
@@ -6054,6 +6016,29 @@ public class CSSParser implements Parser, Cloneable {
 			prevcp = TokenProducer.CHAR_RIGHT_PAREN;
 		}
 
+		private SelectorList parseSelectorArgument(String seltext, NSACSelectorFactory factory)
+				throws CSSParseException {
+			SelectorArgumentManager manager = new SelectorArgumentManager(factory);
+			TokenProducer tp = manager.createTokenProducer();
+			tp.parse(seltext);
+			return manager.getTrimmedSelectorList();
+		}
+
+		private class SelectorArgumentManager extends SelectorManager {
+
+			SelectorArgumentManager(NSACSelectorFactory factory) {
+				super(new SelectorArgumentTokenHandler(factory) {
+
+					@Override
+					protected boolean isInsideHas() {
+						return SelectorTokenHandler.this.isInsideHas();
+					}
+
+				});
+			}
+
+		}
+
 		@Override
 		public void rightSquareBracket(int index) {
 			if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
@@ -6349,6 +6334,7 @@ public class CSSParser implements Parser, Cloneable {
 							}
 						} else {
 							processBuffer(index, codepoint, true);
+							hasHas = false;
 							if (!isInError()) {
 								if (addCurrentSelector(index)) {
 									stage = 0;
@@ -6376,10 +6362,12 @@ public class CSSParser implements Parser, Cloneable {
 								&& stage != STAGE_EXPECT_PSEUDOCLASS_ARGUMENT)) {
 							unexpectedCharError(index, codepoint);
 						} else {
-							if (stage == STAGE_COMBINATOR_OR_END) {
+							if (stage == 0) {
+								stage = 1;
+							} else if (stage == STAGE_COMBINATOR_OR_END) {
 								processBuffer(index, codepoint, false);
+								stage = 1;
 							}
-							stage = 1;
 							newConditionalSelector(index, codepoint, ConditionType.NESTING);
 						}
 						break;
@@ -6569,21 +6557,36 @@ public class CSSParser implements Parser, Cloneable {
 						return;
 					}
 					condition = factory.createCondition(ConditionType.ONLY_TYPE);
-				} else if ("not".equals(lcname) || "is".equals(lcname) || "has".equals(lcname)
-						|| "where".equals(lcname)) {
+				} else if ("not".equals(lcname) || "is".equals(lcname) || "where".equals(lcname)) {
 					if (triggerCp != TokenProducer.CHAR_LEFT_PAREN) {
-						StringBuilder buf = new StringBuilder(name.length() * 2 + 26);
-						buf.append("Expected ':").append(name).append("(', found ':").append(name)
-								.appendCodePoint(triggerCp).append('\'');
-						handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, buf.toString());
+						pseudoClassMustHaveArgumentError(index, name, triggerCp);
 						return;
 					}
+					condition = factory.createCondition(ConditionType.SELECTOR_ARGUMENT);
+					((SelectorArgumentConditionImpl) condition).setName(lcname);
+				} else if ("has".equals(lcname)) {
+					if (isInsideHas()) {
+						handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
+								":has() pseudo-classes cannot be nested.");
+						return;
+					}
+					if (triggerCp != TokenProducer.CHAR_LEFT_PAREN) {
+						pseudoClassMustHaveArgumentError(index, name, triggerCp);
+						return;
+					}
+					hasHas = true;
 					condition = factory.createCondition(ConditionType.SELECTOR_ARGUMENT);
 					((SelectorArgumentConditionImpl) condition).setName(lcname);
 				} else { // Other pseudo-classes
 					if ("first-line".equals(lcname) || "first-letter".equals(lcname)
 							|| "before".equals(lcname) || "after".equals(lcname)) {
 						// Old-syntax pseudo-element
+						if (isInsideHas()) {
+							// See CSSWG issue 7463
+							handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+									"For security reasons, pseudo-elements aren't allowed inside a has().");
+							return;
+						}
 						condtype = ConditionType.PSEUDO_ELEMENT;
 					}
 					condition = factory.createCondition(condtype);
@@ -6607,6 +6610,11 @@ public class CSSParser implements Parser, Cloneable {
 				} else if (triggerCp == '(') {
 					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
 							"Invalid pseudo-element declaration: " + name + '(');
+					return;
+				} else if (isInsideHas()) {
+					// See CSSWG issue 7463
+					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+							"For security reasons, pseudo-elements aren't allowed inside a has().");
 					return;
 				} else {
 					((PseudoConditionImpl) condition).name = safeUnescapeIdentifier(index, name);
@@ -6669,6 +6677,13 @@ public class CSSParser implements Parser, Cloneable {
 							condition);
 				}
 			}
+		}
+
+		private void pseudoClassMustHaveArgumentError(int index, String name, int triggerCp) {
+			StringBuilder buf = new StringBuilder(name.length() * 2 + 26);
+			buf.append("Expected ':").append(name).append("(', found ':").append(name)
+					.appendCodePoint(triggerCp).append('\'');
+			handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, buf.toString());
 		}
 
 		private boolean parsePositionalArgument(PositionalConditionImpl cond, String expression) {
@@ -6891,6 +6906,7 @@ public class CSSParser implements Parser, Cloneable {
 			super.resetHandler();
 			stage = 0;
 			functionToken = false;
+			hasHas = false;
 			buffer.setLength(0);
 			namespacePrefix = null;
 			currentsel = null;

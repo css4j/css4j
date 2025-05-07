@@ -1206,11 +1206,6 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		return new SheetHandler(this, origin, commentMode);
 	}
 
-	@Override
-	public boolean parseStyleSheet(Reader reader) throws DOMException, IOException {
-		return parseStyleSheet(reader, COMMENTS_AUTO);
-	}
-
 	/**
 	 * Parses a style sheet.
 	 * <p>

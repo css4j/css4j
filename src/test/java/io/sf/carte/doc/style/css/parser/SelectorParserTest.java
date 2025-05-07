@@ -5706,6 +5706,26 @@ public class SelectorParserTest {
 		assertEquals("tr:has(||img)", sel.toString());
 	}
 
+	@Test
+	public void testParseSelectorPseudoClassHasNested() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parseSelectors("div:has(.cls,p:has(>img))"));
+	}
+
+	@Test
+	public void testParseSelectorPseudoElementHasNested() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parseSelectors("div:has(.cls,p::marker)"));
+	}
+
+	@Test
+	public void testParseSelectorPseudoElementHasNestedLegacySyntax() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parseSelectors("div:has(p:first-line)"));
+	}
+
+	@Test
+	public void testParseSelectorPseudoElementHasNestedLegacySyntax2() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parseSelectors("div:has(.cls,p:first-letter)"));
+	}
+
 	private SelectorList parseSelectors(String selist) throws CSSException {
 		try {
 			return parser.parseSelectors(new StringReader(selist));

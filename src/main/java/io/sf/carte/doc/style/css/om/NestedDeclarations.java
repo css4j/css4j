@@ -40,4 +40,17 @@ class NestedDeclarations extends BaseCSSDeclarationRule implements CSSNestedDecl
 		return null;
 	}
 
+	@Override
+	public String getMinifiedCssText() {
+		String mini = super.getMinifiedCssText();
+		GroupingRule parent = (GroupingRule) getParentRule();
+		CSSRuleArrayList parentRules = parent.getCssRules();
+		// Java 21:
+		//if (!parentRules.isEmpty() && parentRules.getLast() != this) {
+		if (!parentRules.isEmpty() && parentRules.get(parentRules.size() - 1) != this) {
+			mini = mini + ';';
+		}
+		return mini;
+	}
+
 }

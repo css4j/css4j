@@ -90,7 +90,9 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 	 * @throws IOException  if a problem is found reading the sheet.
 	 */
 	@Override
-	abstract public boolean parseStyleSheet(Reader reader) throws DOMException, IOException;
+	public boolean parseStyleSheet(Reader reader) throws DOMException, IOException {
+		return parseStyleSheet(reader, COMMENTS_AUTO);
+	}
 
 	/**
 	 * Parses a style sheet.

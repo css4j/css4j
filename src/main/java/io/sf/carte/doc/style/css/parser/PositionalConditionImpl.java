@@ -257,10 +257,10 @@ class PositionalConditionImpl extends AbstractCondition implements PositionalCon
 	public PositionalConditionImpl clone() {
 		PositionalConditionImpl clon = (PositionalConditionImpl) super.clone();
 		clon.forwardCondition = forwardCondition;
-		clon.hasArgument = forwardCondition;
-		clon.hasKeyword = forwardCondition;
+		clon.hasArgument = hasArgument;
+		clon.hasKeyword = hasKeyword;
 		clon.offset = offset;
-		clon.oftype = forwardCondition;
+		clon.oftype = oftype;
 		clon.slope = slope;
 		clon.ofList = ofList;
 		return clon;

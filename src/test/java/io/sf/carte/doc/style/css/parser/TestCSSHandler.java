@@ -30,12 +30,16 @@ class TestCSSHandler extends TestDeclarationHandler {
 
 	LinkedHashMap<String, String> namespaceMaps = new LinkedHashMap<>();
 	LinkedList<String> atRules = new LinkedList<>();
+
 	ArrayList<SelectorList> selectors = new ArrayList<>();
 	ArrayList<SelectorList> nestedSelectors = new ArrayList<>();
 	ArrayList<SelectorList> endNestedSelectors = new ArrayList<>();
-	LinkedList<SelectorList> endSelectors = new LinkedList<>();
+	ArrayList<SelectorList> endSelectors = new ArrayList<>();
+	ArrayList<String> endNestedSelectorPrevEvents = new ArrayList<>();
+	ArrayList<String> endSelectorPrevEvents = new ArrayList<>();
 	ArrayList<SelectorList> selectorStack = new ArrayList<>();
 	ArrayList<SelectorList> propertySelectors = new ArrayList<>();
+
 	LinkedList<String> importURIs = new LinkedList<>();
 	LinkedList<String> importLayers = new LinkedList<>();
 	LinkedList<BooleanCondition> importSupportsConditions = new LinkedList<>();
@@ -49,7 +53,9 @@ class TestCSSHandler extends TestDeclarationHandler {
 	LinkedList<LexicalUnit> keyframeSelectors = new LinkedList<>();
 	LinkedList<String[]> fontFeaturesNames = new LinkedList<>();
 	LinkedList<String> featureMapNames = new LinkedList<>();
+
 	LinkedList<String> customPropertyNames = new LinkedList<>();
+
 	LinkedList<String> eventSeq = new LinkedList<>();
 
 	int fontFaceCount = 0;
@@ -84,8 +90,10 @@ class TestCSSHandler extends TestDeclarationHandler {
 	public void endSelector(SelectorList selectors) {
 		if (!this.nestedSelectors.contains(selectors)) {
 			this.endSelectors.add(selectors);
+			endSelectorPrevEvents.add(eventSeq.getLast());
 		} else {
 			endNestedSelectors.add(selectors);
+			endNestedSelectorPrevEvents.add(eventSeq.getLast());
 		}
 		assertSame(selectors, selectorStack.remove(selectorStack.size() - 1));
 		this.eventSeq.add("endSelector");

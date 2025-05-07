@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
@@ -126,9 +127,17 @@ public class NestingTest {
 		nestedMediaR = (MediaRule) nestedR;
 		assertEquals("screen", nestedMediaR.getMedia().getMedia());
 		mediaGroup = nestedMediaR.getCssRules();
-		assertEquals(1, mediaGroup.getLength());
+		assertEquals(2, mediaGroup.getLength());
 
 		mediaIt = mediaGroup.iterator();
+
+		mediaNestedR = mediaIt.next();
+		assertEquals(CSSRule.NESTED_DECLARATIONS, mediaNestedR.getType());
+		nestedDecl = (CSSNestedDeclarations) mediaNestedR;
+		assertEquals(1, nestedDecl.getStyle().getLength());
+		assertEquals("always", nestedDecl.getStyle().getPropertyValue("page-break-after"));
+		assertEquals("important", nestedDecl.getStyle().getPropertyPriority("page-break-after"));
+
 		mediaNestedR = mediaIt.next();
 		assertEquals(CSSRule.STYLE_RULE, mediaNestedR.getType());
 		mediaNestedStyleR = (StyleRule) mediaNestedR;
@@ -137,10 +146,12 @@ public class NestingTest {
 		assertEquals(1, mediaNestedStyleR.getStyle().getLength());
 		assertEquals("21pt", mediaNestedStyleR.getStyle().getPropertyValue("font-size"));
 		assertEquals(2, mediaNestedStyleR.getCssRules().getLength());
-		assertEquals("&.cls{font-size:21pt;&+ul{margin-left:18px}--my-bg-color:#226}",
+		assertEquals("&.cls{font-size:21pt!important;&+ul{margin-left:18px}--my-bg-color:#226}",
 				mediaNestedStyleR.getMinifiedCssText());
-		assertEquals("&.cls {\n    font-size: 21pt;\n    &+ul {\n" + "        margin-left: 18px;\n"
-				+ "    }\n    --my-bg-color: #226;\n}\n", mediaNestedStyleR.getCssText());
+		assertEquals(
+				"&.cls {\n    font-size: 21pt ! important;\n    &+ul {\n"
+						+ "        margin-left: 18px;\n" + "    }\n    --my-bg-color: #226;\n}\n",
+				mediaNestedStyleR.getCssText());
 
 		mediaNestedR = mediaNestedStyleR.getCssRules().item(0);
 		assertEquals(CSSRule.STYLE_RULE, mediaNestedR.getType());
@@ -157,17 +168,18 @@ public class NestingTest {
 		assertEquals("#226", nestedDecl.getStyle().getPropertyValue("--my-bg-color"));
 
 		// Serialization test
-		assertEquals("@media screen{&.cls{font-size:21pt;&+ul{margin-left:18px}--my-bg-color:#226}}",
+		assertEquals(
+				"@media screen{page-break-after:always!important;&.cls{font-size:21pt!important;"
+						+ "&+ul{margin-left:18px}--my-bg-color:#226}}",
 				nestedMediaR.getMinifiedCssText());
-		assertEquals("@media screen {\n"
-				+ "    &.cls {\n"
-				+ "        font-size: 21pt;\n"
-				+ "        &+ul {\n"
-				+ "            margin-left: 18px;\n"
-				+ "        }\n"
-				+ "        --my-bg-color: #226;\n"
-				+ "    }\n}\n",
+		assertEquals(
+				"@media screen {\n" + "    page-break-after: always ! important;\n"
+						+ "    &.cls {\n" + "        font-size: 21pt ! important;\n"
+						+ "        &+ul {\n" + "            margin-left: 18px;\n" + "        }\n"
+						+ "        --my-bg-color: #226;\n" + "    }\n}\n",
 				nestedMediaR.getCssText());
+
+		assertFalse(mediaIt.hasNext());
 
 		// Back to body nested
 
@@ -415,6 +427,90 @@ public class NestingTest {
 		assertFalse(it.hasNext());
 
 		assertFalse(topIter.hasNext());
+	}
+
+	@Test
+	public void testNestedMediaRule() throws DOMException, IOException {
+		parseStyleSheet("div{@media print{margin-left:0}}");
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
+		AbstractCSSRule rule = sheet.getCssRules().item(0);
+		assertEquals("div{@media print{margin-left:0}}", rule.getMinifiedCssText());
+		assertEquals("div {\n    @media print {\n        margin-left: 0;\n    }\n}\n",
+				rule.getCssText());
+	}
+
+	@Test
+	public void testNestedMediaRuleEOF() throws DOMException, IOException {
+		parseStyleSheet("div{@media print{margin-left:0");
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
+		AbstractCSSRule rule = sheet.getCssRules().item(0);
+		assertEquals("div{@media print{margin-left:0}}", rule.getMinifiedCssText());
+		assertEquals("div {\n    @media print {\n        margin-left: 0;\n    }\n}\n",
+				rule.getCssText());
+	}
+
+	@Test
+	public void testNestedRuleMediaRule() throws DOMException, IOException {
+		parseStyleSheet("div{&.cls{@media print{margin-left:0}}}");
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
+		AbstractCSSRule rule = sheet.getCssRules().item(0);
+		assertEquals("div{&.cls{@media print{margin-left:0}}}", rule.getMinifiedCssText());
+		assertEquals(
+				"div {\n    &.cls {\n        @media print {\n            margin-left: 0;\n        }\n    }\n}\n",
+				rule.getCssText());
+	}
+
+	@Test
+	public void testNestedMediaNested() throws DOMException, IOException {
+		parseStyleSheet("div{&.cls{@media print{>p{margin-left:0}}}}");
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
+		AbstractCSSRule rule = sheet.getCssRules().item(0);
+		assertEquals("div{&.cls{@media print{&>p{margin-left:0}}}}", rule.getMinifiedCssText());
+		assertEquals(
+				"div {\n    &.cls {\n        @media print {\n            &>p {\n"
+						+ "                margin-left: 0;\n            }\n        }\n    }\n}\n",
+				rule.getCssText());
+	}
+
+	@Test
+	public void testNestedSupportsRule() throws DOMException, IOException {
+		parseStyleSheet("div{@supports(display: flex){margin-left:0}}");
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
+		AbstractCSSRule rule = sheet.getCssRules().item(0);
+		assertEquals("div{@supports(display:flex){margin-left:0}}", rule.getMinifiedCssText());
+		assertEquals("div {\n    @supports (display: flex) {\n        margin-left: 0;\n    }\n}\n",
+				rule.getCssText());
+	}
+
+	@Test
+	public void testNestedRuleSupportsRule() throws DOMException, IOException {
+		parseStyleSheet("div{&.cls{@supports (display: flex){margin-left:0}}}");
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
+		AbstractCSSRule rule = sheet.getCssRules().item(0);
+		assertEquals("div{&.cls{@supports(display:flex){margin-left:0}}}",
+				rule.getMinifiedCssText());
+		assertEquals(
+				"div {\n    &.cls {\n        @supports (display: flex) {\n            margin-left: 0;\n        }\n    }\n}\n",
+				rule.getCssText());
+	}
+
+	private void parseStyleSheet(String cssText) throws DOMException {
+		try {
+			sheet.parseStyleSheet(new StringReader(cssText), CSSStyleSheet.COMMENTS_IGNORE);
+		} catch (IOException e) {
+		}
 	}
 
 }
