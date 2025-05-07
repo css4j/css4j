@@ -282,10 +282,15 @@ abstract class BufferTokenHandler extends CSSTokenHandler implements CSSContentH
 	@Override
 	protected void yieldHandling(CSSContentHandler yieldHandler) {
 		ControlTokenHandler ctl = getControlHandler();
+		assert checkYieldHandling(ctl);
+		ctl.yieldHandling(yieldHandler);
+	}
+
+	private boolean checkYieldHandling(ControlTokenHandler ctl) {
 		if (ctl.getCurrentHandler() instanceof IgnoredDeclarationTokenHandler) {
 			throw new IllegalStateException("Attempting to replace an error handler.");
 		}
-		ctl.yieldHandling(yieldHandler);
+		return true;
 	}
 
 	class IgnoredDeclarationTokenHandler extends CSSTokenHandler {

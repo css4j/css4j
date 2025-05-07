@@ -86,13 +86,17 @@ abstract class HandlerManager {
 	public void yieldManagement(HandlerManager manager) {
 		manager.restoreInitialHandler();
 
+		assert checkYieldManagement(manager);
+	}
+
+	private boolean checkYieldManagement(HandlerManager manager) {
 		// Let's check whether we are yielding to an ancestor
 		HandlerManager mgr = parentManager;
 		while (mgr != null) {
 			if (mgr == manager) {
 				// Yielding to parent / ancestor
 				// parentManager = null;
-				return;
+				return true;
 			}
 			mgr = mgr.parentManager;
 		}
@@ -103,18 +107,23 @@ abstract class HandlerManager {
 		} else if (manager.parentManager != this && manager.parentManager != parentManager) {
 			throw new IllegalStateException("Possible hierarchy inconsistency");
 		}
+		return true;
 	}
 
 	public void restoreManagement(HandlerManager manager) {
 		manager.restoreInitialHandler();
 
+		assert checkRestoreManagement(manager);
+	}
+
+	private boolean checkRestoreManagement(HandlerManager manager) {
 		// Let's check whether we are yielding to an ancestor
 		HandlerManager mgr = parentManager;
 		while (mgr != null) {
 			if (mgr == manager) {
 				// Yielding to parent / ancestor
 				// parentManager = null;
-				return;
+				return true;
 			}
 			mgr = mgr.parentManager;
 		}

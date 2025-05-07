@@ -584,8 +584,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	@Override
 	public void endSelector(SelectorList selectors) {
 		if (ignoreGroupingRules == 0) {
-			assert (currentRule != null && (currentRule.getType() == CSSRule.STYLE_RULE
-					|| currentRule.getType() == CSSRule.NESTED_DECLARATIONS));
+			assert checkEndSelector(selectors);
 			while (currentRule.getType() == CSSRule.NESTED_DECLARATIONS) {
 				currentRule = currentRule.getParentRule();
 			}
@@ -604,6 +603,18 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			currentRule = pRule;
 		}
 		resetCommentStack();
+	}
+
+	private boolean checkEndSelector(SelectorList selectors) {
+		if (currentRule == null) {
+			throw new IllegalStateException("Closing already closed rule: " + selectors);
+		}
+		if (currentRule.getType() == CSSRule.STYLE_RULE
+				|| currentRule.getType() == CSSRule.NESTED_DECLARATIONS) {
+			return true;
+		}
+		throw new IllegalStateException(
+				"Attempting to close rule: " + selectors + ", found " + currentRule.getCssText());
 	}
 
 	private void resetAbsoluteSelector(AbstractCSSRule parent) {
