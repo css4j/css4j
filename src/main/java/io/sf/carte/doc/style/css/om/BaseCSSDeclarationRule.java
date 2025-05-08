@@ -39,7 +39,7 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule
 	 */
 	private StyleDeclarationErrorHandler sdErrorHandler = null;
 
-	protected BaseCSSDeclarationRule(AbstractCSSStyleSheet parentSheet, short type, byte origin) {
+	protected BaseCSSDeclarationRule(AbstractCSSStyleSheet parentSheet, short type, int origin) {
 		super(parentSheet, type, origin);
 		declaration = createStyleDeclaration(parentSheet);
 	}
@@ -52,7 +52,7 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule
 	 * Constructor used for stand-alone style rules.
 	 */
 	BaseCSSDeclarationRule() {
-		super(null, CSSRule.STYLE_RULE, (byte) 0);
+		super(null, CSSRule.STYLE_RULE, 0);
 		this.declaration = new BaseCSSStyleDeclaration(this);
 		this.sdErrorHandler = new DefaultStyleDeclarationErrorHandler();
 	}
@@ -152,7 +152,7 @@ abstract public class BaseCSSDeclarationRule extends BaseCSSRule
 			throws IllegalArgumentException {
 		Class<?>[] parameterTypes = new Class<?>[2];
 		parameterTypes[0] = AbstractCSSStyleSheet.class;
-		parameterTypes[1] = Byte.TYPE;
+		parameterTypes[1] = Integer.TYPE;
 		Constructor<? extends BaseCSSDeclarationRule> ctor;
 		try {
 			ctor = getClass().getConstructor(parameterTypes);

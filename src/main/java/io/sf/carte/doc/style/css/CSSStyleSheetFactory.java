@@ -22,17 +22,14 @@ import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 /**
  * CSS style sheet factory.
- *
- * @author Carlos Amengual
- *
  */
 public interface CSSStyleSheetFactory {
 
 	// Origins
-	byte ORIGIN_USER_IMPORTANT = 3;
-	byte ORIGIN_AUTHOR = 8;
-	byte ORIGIN_USER = 9;
-	byte ORIGIN_USER_AGENT = 16;
+	int ORIGIN_USER_IMPORTANT = 0x3ff;
+	int ORIGIN_AUTHOR = 0x7fff;
+	int ORIGIN_USER = 0xfffa;
+	int ORIGIN_USER_AGENT = 0xfffd;
 
 	// Flags
 

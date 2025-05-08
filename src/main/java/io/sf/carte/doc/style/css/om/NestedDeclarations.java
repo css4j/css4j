@@ -24,7 +24,7 @@ class NestedDeclarations extends BaseCSSDeclarationRule implements CSSNestedDecl
 
 	private static final long serialVersionUID = 1L;
 
-	public NestedDeclarations(AbstractCSSStyleSheet parentSheet, byte origin) {
+	public NestedDeclarations(AbstractCSSStyleSheet parentSheet, int origin) {
 		super(parentSheet, CSSRule.NESTED_DECLARATIONS, origin);
 	}
 

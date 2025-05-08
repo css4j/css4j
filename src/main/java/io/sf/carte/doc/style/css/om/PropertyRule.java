@@ -43,7 +43,7 @@ public class PropertyRule extends BaseCSSDeclarationRule implements CSSPropertyR
 
 	private String name = null;
 
-	public PropertyRule(AbstractCSSStyleSheet parentSheet, byte origin) {
+	public PropertyRule(AbstractCSSStyleSheet parentSheet, int origin) {
 		super(parentSheet, CSSRule.PROPERTY_RULE, origin);
 	}
 

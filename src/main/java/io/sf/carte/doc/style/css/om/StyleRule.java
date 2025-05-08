@@ -56,7 +56,7 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 	 */
 	private StyleDeclarationErrorHandler sdErrorHandler = null;
 
-	public StyleRule(AbstractCSSStyleSheet parentSheet, byte origin) {
+	public StyleRule(AbstractCSSStyleSheet parentSheet, int origin) {
 		super(parentSheet, CSSRule.STYLE_RULE, origin);
 		declaration = createStyleDeclaration(parentSheet);
 	}
@@ -387,7 +387,8 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 		 */
 		@Override
 		public int compare(RuleSpecificity o1, RuleSpecificity o2) {
-			return (o2.getCSSStyleRule().getOrigin() - o1.getCSSStyleRule().getOrigin()) * 131071
+			// 0x1fff = 8191 is a Mersenne prime
+			return (o2.getCSSStyleRule().getOrigin() - o1.getCSSStyleRule().getOrigin()) * 0x1fff
 					+ Specificity.selectorCompare(o1, o2);
 		}
 	}
@@ -479,7 +480,7 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 	public StyleRule clone(AbstractCSSStyleSheet parentSheet) throws IllegalArgumentException {
 		Class<?>[] parameterTypes = new Class<?>[2];
 		parameterTypes[0] = AbstractCSSStyleSheet.class;
-		parameterTypes[1] = Byte.TYPE;
+		parameterTypes[1] = Integer.TYPE;
 		Constructor<? extends StyleRule> ctor;
 		try {
 			ctor = getClass().getConstructor(parameterTypes);

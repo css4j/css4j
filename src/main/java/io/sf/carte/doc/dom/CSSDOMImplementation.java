@@ -217,7 +217,7 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 	}
 
 	@Override
-	protected BaseDocumentCSSStyleSheet createDocumentStyleSheet(byte origin) {
+	protected BaseDocumentCSSStyleSheet createDocumentStyleSheet(int origin) {
 		return new MyDocumentCSSStyleSheet(null, origin);
 	}
 
@@ -305,13 +305,13 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 		private static final long serialVersionUID = 1L;
 
-		MyCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
+		MyCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule, int origin) {
 			super(title, ownerNode, media, ownerRule, origin);
 		}
 
 		@Override
 		protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode, MediaQueryList media,
-				AbstractCSSRule ownerRule, byte origin) {
+				AbstractCSSRule ownerRule, int origin) {
 			return new MyCSSStyleSheet(title, ownerNode, media, ownerRule, origin);
 		}
 
@@ -336,12 +336,12 @@ public class CSSDOMImplementation extends BaseCSSStyleSheetFactory implements DO
 
 		private static final long serialVersionUID = 1L;
 
-		MyDocumentCSSStyleSheet(String medium, byte origin) {
+		MyDocumentCSSStyleSheet(String medium, int origin) {
 			super(medium, origin);
 		}
 
 		@Override
-		protected DOMDocumentCSSStyleSheet createDocumentStyleSheet(String medium, byte origin) {
+		protected DOMDocumentCSSStyleSheet createDocumentStyleSheet(String medium, int origin) {
 			return new MyDocumentCSSStyleSheet(medium, origin);
 		}
 

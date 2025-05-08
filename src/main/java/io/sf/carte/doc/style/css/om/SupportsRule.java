@@ -45,7 +45,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 
 	private BooleanCondition condition = null;
 
-	protected SupportsRule(AbstractCSSStyleSheet parentSheet, byte origin) {
+	protected SupportsRule(AbstractCSSStyleSheet parentSheet, int origin) {
 		super(parentSheet, SUPPORTS_RULE, origin);
 		cssRules = new CSSRuleArrayList();
 	}
@@ -55,7 +55,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 		condition = copyfrom.getCondition();
 	}
 
-	protected SupportsRule(AbstractCSSStyleSheet parentSheet, BooleanCondition condition, byte origin) {
+	protected SupportsRule(AbstractCSSStyleSheet parentSheet, BooleanCondition condition, int origin) {
 		super(parentSheet, SUPPORTS_RULE, origin);
 		if (condition == null) {
 			throw new NullPointerException("Null @supports condition.");

@@ -25,13 +25,10 @@ import io.sf.carte.doc.style.css.nsac.Parser;
 
 /**
  * Base implementation class for CSS rules.
- * 
- * @author Carlos Amengual
- * 
  */
 abstract class BaseCSSRule extends AbstractCSSRule {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	/**
 	 * The parent style sheet.
@@ -45,12 +42,12 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 
 	private final short ruleType;
 
-	private final byte ruleOrigin;
+	private final int ruleOrigin;
 
 	private StringList precedingComments = null;
 	private StringList trailingComments = null;
 
-	protected BaseCSSRule(AbstractCSSStyleSheet parentSheet, short type, byte origin) {
+	protected BaseCSSRule(AbstractCSSStyleSheet parentSheet, short type, int origin) {
 		super();
 		this.parentSheet = parentSheet;
 		ruleType = type;
@@ -121,7 +118,7 @@ abstract class BaseCSSRule extends AbstractCSSRule {
 	}
 
 	@Override
-	public byte getOrigin() {
+	public int getOrigin() {
 		return ruleOrigin;
 	}
 

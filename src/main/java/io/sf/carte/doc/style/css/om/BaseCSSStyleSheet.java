@@ -75,7 +75,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	private final AbstractCSSRule ownerRule;
 
-	private final byte sheetOrigin;
+	private final int sheetOrigin;
 
 	final CSSRuleArrayList cssRules;
 
@@ -101,7 +101,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * @param origin    the sheet origin.
 	 */
 	protected BaseCSSStyleSheet(String title, MediaQueryList media, AbstractCSSRule ownerRule,
-			byte origin) {
+			int origin) {
 		super(title);
 		this.ownerRule = ownerRule;
 		if (media == null) {
@@ -167,7 +167,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
-	public byte getOrigin() {
+	public int getOrigin() {
 		return sheetOrigin;
 	}
 
@@ -1202,7 +1202,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	 * @param commentMode the comment processing mode.
 	 * @return the new NSAC sheet handler.
 	 */
-	SheetHandler createSheetHandler(byte origin, short commentMode) {
+	SheetHandler createSheetHandler(int origin, short commentMode) {
 		return new SheetHandler(this, origin, commentMode);
 	}
 
@@ -1243,10 +1243,10 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 		}
 
 		// Find origin
-		byte origin = getOrigin();
+		int origin = getOrigin();
 		// Scan rules for origins with higher priorities
 		for (AbstractCSSRule rule : getCssRules()) {
-			byte ruleo = rule.getOrigin();
+			int ruleo = rule.getOrigin();
 			if (ruleo < origin) {
 				origin = ruleo;
 			}

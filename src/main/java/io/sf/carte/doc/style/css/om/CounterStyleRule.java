@@ -32,7 +32,7 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 
 	private String name = null;
 
-	public CounterStyleRule(AbstractCSSStyleSheet parentSheet, byte origin) {
+	public CounterStyleRule(AbstractCSSStyleSheet parentSheet, int origin) {
 		super(parentSheet, CSSRule.COUNTER_STYLE_RULE, origin);
 	}
 

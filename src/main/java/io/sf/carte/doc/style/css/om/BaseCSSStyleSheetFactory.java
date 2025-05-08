@@ -114,7 +114,7 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 	 *            agent}, etc.)
 	 * @return the style sheet.
 	 */
-	abstract protected BaseDocumentCSSStyleSheet createDocumentStyleSheet(byte origin);
+	abstract protected BaseDocumentCSSStyleSheet createDocumentStyleSheet(int origin);
 
 	/**
 	 * Creates a stand-alone author style sheet.

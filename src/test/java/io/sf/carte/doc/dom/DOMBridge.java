@@ -16,7 +16,7 @@ import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet;
 
 public class DOMBridge {
 
-	public static BaseDocumentCSSStyleSheet createDocumentStyleSheet(CSSDOMImplementation impl, byte origin) {
+	public static BaseDocumentCSSStyleSheet createDocumentStyleSheet(CSSDOMImplementation impl, int origin) {
 		return impl.createDocumentStyleSheet(origin);
 	}
 

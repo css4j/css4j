@@ -43,7 +43,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 	private AbstractCSSRule currentRule = null;
 	private AbstractCSSRule lastRule = null;
 
-	private final byte sheetOrigin;
+	private final int sheetOrigin;
 
 	/*
 	 * If comments have to be ignored, this will be null.
@@ -63,7 +63,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 
 	private CSSParseException outOfRuleException = null;
 
-	SheetHandler(BaseCSSStyleSheet sheet, byte origin, short commentsMode) {
+	SheetHandler(BaseCSSStyleSheet sheet, int origin, short commentsMode) {
 		super();
 		this.parentSheet = sheet;
 		this.sheetOrigin = origin;

@@ -42,7 +42,7 @@ import io.sf.carte.util.Visitor;
 abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 		implements CSSStyleSheet<AbstractCSSRule>, SheetContext, RuleStore {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	static final int CONNECT_TIMEOUT = 10000;
 
@@ -268,7 +268,7 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 	 * 
 	 * @return the origin of this sheet.
 	 */
-	abstract public byte getOrigin();
+	abstract public int getOrigin();
 
 	/**
 	 * Clone this style sheet.

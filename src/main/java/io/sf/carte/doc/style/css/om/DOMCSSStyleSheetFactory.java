@@ -46,13 +46,10 @@ import io.sf.carte.util.agent.AgentUtil;
  * ({@link #createCSSDocument(Document)}) to wrap any DOM {@link Document} into a
  * {@link CSSDocument}, and access to an implementation of
  * {@link io.sf.carte.doc.agent.UserAgent UserAgent} based on those wrapped documents.
- * 
- * @author Carlos Amengual
- * 
  */
 public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private BaseDocumentCSSStyleSheet defStyleSheet = null;
 	private BaseDocumentCSSStyleSheet defQStyleSheet = null;
@@ -80,7 +77,7 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 	}
 
 	@Override
-	protected DOMDocumentCSSStyleSheet createDocumentStyleSheet(byte origin) {
+	protected DOMDocumentCSSStyleSheet createDocumentStyleSheet(int origin) {
 		return new MyDOMDocumentCSSStyleSheet(null, origin);
 	}
 
@@ -316,14 +313,14 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
 	private class MyDOMDocumentCSSStyleSheet extends DOMDocumentCSSStyleSheet {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 2L;
 
-		MyDOMDocumentCSSStyleSheet(String medium, byte origin) {
+		MyDOMDocumentCSSStyleSheet(String medium, int origin) {
 			super(medium, origin);
 		}
 
 		@Override
-		protected DOMDocumentCSSStyleSheet createDocumentStyleSheet(String medium, byte origin) {
+		protected DOMDocumentCSSStyleSheet createDocumentStyleSheet(String medium, int origin) {
 			return new MyDOMDocumentCSSStyleSheet(medium, origin);
 		}
 
@@ -341,15 +338,15 @@ public class DOMCSSStyleSheetFactory extends BaseCSSStyleSheetFactory {
 
 	class MyDOMCSSStyleSheet extends DOMCSSStyleSheet {
 
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = 2L;
 
-		MyDOMCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
+		MyDOMCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule, int origin) {
 			super(title, ownerNode, media, ownerRule, origin);
 		}
 
 		@Override
 		protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode, MediaQueryList media,
-				AbstractCSSRule ownerRule, byte origin) {
+				AbstractCSSRule ownerRule, int origin) {
 			return new MyDOMCSSStyleSheet(title, ownerNode, media, ownerRule, origin);
 		}
 

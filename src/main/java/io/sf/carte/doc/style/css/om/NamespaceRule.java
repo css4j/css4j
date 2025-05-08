@@ -35,7 +35,7 @@ public class NamespaceRule extends BaseCSSRule implements CSSNamespaceRule {
 
 	private String prefix = null;
 
-	protected NamespaceRule(AbstractCSSStyleSheet parentSheet, byte origin, String prefix, String namespaceURI) {
+	protected NamespaceRule(AbstractCSSStyleSheet parentSheet, int origin, String prefix, String namespaceURI) {
 		super(parentSheet, CSSRule.NAMESPACE_RULE, origin);
 		this.prefix = prefix;
 		this.namespaceURI = namespaceURI;

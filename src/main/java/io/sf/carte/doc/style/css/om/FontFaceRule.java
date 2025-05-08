@@ -32,7 +32,7 @@ public class FontFaceRule extends BaseCSSDeclarationRule implements CSSFontFaceR
 
 	private static final long serialVersionUID = 1L;
 
-	public FontFaceRule(AbstractCSSStyleSheet parentSheet, byte origin) {
+	public FontFaceRule(AbstractCSSStyleSheet parentSheet, int origin) {
 		super(parentSheet, CSSRule.FONT_FACE_RULE, origin);
 	}
 

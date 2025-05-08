@@ -45,7 +45,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 
 	CSSRuleArrayList cssRules = null;
 
-	protected GroupingRule(AbstractCSSStyleSheet parentSheet, short type, byte origin) {
+	protected GroupingRule(AbstractCSSStyleSheet parentSheet, short type, int origin) {
 		super(parentSheet, type, origin);
 	}
 

@@ -80,7 +80,7 @@ abstract public class AbstractCSSRule implements CSSRule, java.io.Serializable {
 	 * 
 	 * @return the origin of this rule.
 	 */
-	abstract public byte getOrigin();
+	abstract public int getOrigin();
 
 	/**
 	 * Add to a new style sheet, cloning if necessary.

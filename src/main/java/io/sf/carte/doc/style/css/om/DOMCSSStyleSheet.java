@@ -31,7 +31,7 @@ abstract public class DOMCSSStyleSheet extends BaseCSSStyleSheet implements Clon
 	private Node ownerNode = null;
 
 	public DOMCSSStyleSheet(String title, Node ownerNode, MediaQueryList media, AbstractCSSRule ownerRule,
-			byte origin) {
+			int origin) {
 		super(title, media, ownerRule, origin);
 		this.ownerNode = ownerNode;
 	}
@@ -53,7 +53,7 @@ abstract public class DOMCSSStyleSheet extends BaseCSSStyleSheet implements Clon
 	}
 
 	abstract protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode, MediaQueryList media,
-			AbstractCSSRule ownerRule, byte origin);
+			AbstractCSSRule ownerRule, int origin);
 
 	/**
 	 * Creates and returns a copy of this style sheet.

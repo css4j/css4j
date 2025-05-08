@@ -84,7 +84,7 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 		return new MockStyleSheet(title, null, mediaList, ownerRule, ownerRule.getOrigin());
 	}
 
-	BaseCSSStyleSheet createMockStyleSheet(String title, MediaQueryList mediaList, byte origin) {
+	BaseCSSStyleSheet createMockStyleSheet(String title, MediaQueryList mediaList, int origin) {
 		return new MockStyleSheet(title, null, mediaList, null, origin);
 	}
 
@@ -93,13 +93,13 @@ public class TestCSSStyleSheetFactory extends DOMCSSStyleSheetFactory {
 		private static final long serialVersionUID = 1L;
 
 		MockStyleSheet(String title, Node ownerNode, MediaQueryList media,
-				AbstractCSSRule ownerRule, byte origin) {
+				AbstractCSSRule ownerRule, int origin) {
 			super(title, ownerNode, media, ownerRule, origin);
 		}
 
 		@Override
 		protected DOMCSSStyleSheet createCSSStyleSheet(String title, Node ownerNode,
-				MediaQueryList media, AbstractCSSRule ownerRule, byte origin) {
+				MediaQueryList media, AbstractCSSRule ownerRule, int origin) {
 			return new MockStyleSheet(title, ownerNode, media, ownerRule, origin);
 		}
 

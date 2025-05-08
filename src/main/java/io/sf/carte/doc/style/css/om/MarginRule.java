@@ -32,7 +32,7 @@ public class MarginRule extends BaseCSSDeclarationRule implements CSSMarginRule 
 
 	private String ruleName = null;
 
-	protected MarginRule(AbstractCSSStyleSheet parentSheet, byte origin, String ruleName) {
+	protected MarginRule(AbstractCSSStyleSheet parentSheet, int origin, String ruleName) {
 		super(parentSheet, MARGIN_RULE, origin);
 		this.ruleName = ruleName;
 	}

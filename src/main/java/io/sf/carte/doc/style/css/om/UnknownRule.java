@@ -31,7 +31,7 @@ public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 
 	private String cssText = "";
 
-	UnknownRule(AbstractCSSStyleSheet parentSheet, byte origin) {
+	UnknownRule(AbstractCSSStyleSheet parentSheet, int origin) {
 		super(parentSheet, CSSRule.UNKNOWN_RULE, origin);
 	}
 

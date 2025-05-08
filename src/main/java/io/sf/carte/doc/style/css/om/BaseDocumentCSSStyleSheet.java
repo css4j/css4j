@@ -47,7 +47,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 
 	private Map<String, CSSPropertyDefinition> registeredPropertyMap;
 
-	protected BaseDocumentCSSStyleSheet(String medium, byte origin) {
+	protected BaseDocumentCSSStyleSheet(String medium, int origin) {
 		super(null, new MediaQueryListImpl(medium), null, origin);
 		if ("all".equals(medium)) {
 			targetMedium = null;
@@ -303,7 +303,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 	}
 
 	protected ComputedCSSStyle computeRevertedStyle(ComputedCSSStyle style, SelectorMatcher matcher,
-			Condition pseudoElt, BaseCSSStyleDeclaration inlineStyle, byte origin) {
+			Condition pseudoElt, BaseCSSStyleDeclaration inlineStyle, int origin) {
 		// Set the pseudo-element
 		matcher.setPseudoElement(pseudoElt);
 		// Obtain the owner element and look for non-CSS presentational hints.
@@ -403,7 +403,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		}
 
 		public void cascade(SelectorMatcher matcher, String targetMedium, CSSRuleArrayList list,
-				byte origin) {
+				int origin) {
 			for (AbstractCSSRule rule : list) {
 				if (rule.getOrigin() >= origin) {
 					rule.cascade(this, matcher, targetMedium);

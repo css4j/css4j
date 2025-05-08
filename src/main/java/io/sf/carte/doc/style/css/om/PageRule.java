@@ -39,7 +39,7 @@ public class PageRule extends BaseCSSDeclarationRule implements CSSPageRule {
 
 	private MarginRuleList marginRules = null;
 
-	public PageRule(AbstractCSSStyleSheet parentSheet, byte origin) {
+	public PageRule(AbstractCSSStyleSheet parentSheet, int origin) {
 		super(parentSheet, CSSRule.PAGE_RULE, origin);
 	}
 

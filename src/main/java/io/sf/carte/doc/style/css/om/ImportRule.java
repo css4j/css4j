@@ -62,7 +62,7 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 	 */
 	protected ImportRule(AbstractCSSStyleSheet parentSheet, String layerName,
 			BooleanCondition supportsCondition, MediaQueryList mediaList, String href,
-			byte origin) {
+			int origin) {
 		super(parentSheet, CSSRule.IMPORT_RULE, origin);
 		this.layerName = layerName;
 		this.supportsCondition = supportsCondition;

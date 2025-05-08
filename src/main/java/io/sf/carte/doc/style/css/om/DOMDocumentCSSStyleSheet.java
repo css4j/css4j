@@ -27,11 +27,11 @@ abstract public class DOMDocumentCSSStyleSheet extends BaseDocumentCSSStyleSheet
 
 	private CSSDocument ownerNode = null;
 
-	protected DOMDocumentCSSStyleSheet(byte origin) {
+	protected DOMDocumentCSSStyleSheet(int origin) {
 		super(null, origin);
 	}
 
-	protected DOMDocumentCSSStyleSheet(String medium, byte origin) {
+	protected DOMDocumentCSSStyleSheet(String medium, int origin) {
 		super(medium, origin);
 	}
 
@@ -62,7 +62,7 @@ abstract public class DOMDocumentCSSStyleSheet extends BaseDocumentCSSStyleSheet
 		return computeStyle(style, elm.getSelectorMatcher(), pseudoElt, inline);
 	}
 
-	abstract protected DOMDocumentCSSStyleSheet createDocumentStyleSheet(String medium, byte origin);
+	abstract protected DOMDocumentCSSStyleSheet createDocumentStyleSheet(String medium, int origin);
 
 	@Override
 	abstract public BaseCSSStyleSheetFactory getStyleSheetFactory();

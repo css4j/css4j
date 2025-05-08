@@ -37,7 +37,7 @@ public class MediaRule extends GroupingRule implements CSSMediaRule {
 
 	private MediaQueryList mediaList = null;
 
-	protected MediaRule(AbstractCSSStyleSheet parentSheet, MediaQueryList mediaList, byte origin) {
+	protected MediaRule(AbstractCSSStyleSheet parentSheet, MediaQueryList mediaList, int origin) {
 		super(parentSheet, CSSRule.MEDIA_RULE, origin);
 		cssRules = new CSSRuleArrayList();
 		this.mediaList = mediaList;

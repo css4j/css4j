@@ -64,7 +64,7 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 	// Non-standard maps
 	private HashMap<String, CSSFontFeatureValuesMapImpl> mapmap = null;
 
-	protected FontFeatureValuesRule(AbstractCSSStyleSheet parentSheet, byte origin) {
+	protected FontFeatureValuesRule(AbstractCSSStyleSheet parentSheet, int origin) {
 		super(parentSheet, CSSRule.FONT_FEATURE_VALUES_RULE, origin);
 	}
 
