@@ -25,28 +25,10 @@ import io.sf.carte.doc.style.css.property.ValueFactory;
 
 /**
  * Abstract class for CSS style sheet factories.
- * 
- * @author Carlos Amengual
  */
 abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFactory, java.io.Serializable {
 
-	private static final long serialVersionUID = 2L;
-
-	/**
-	 * Prefer single quotes in the serialization of strings.
-	 * 
-	 * @deprecated Use {@link #FLAG_STRING_SINGLE_QUOTE}
-	 */
-	@Deprecated(forRemoval = true)
-	public static final byte STRING_SINGLE_QUOTE = FLAG_STRING_SINGLE_QUOTE;
-
-	/**
-	 * Prefer double quotes in the serialization of strings.
-	 * 
-	 * @deprecated Use {@link #FLAG_STRING_DOUBLE_QUOTE}
-	 */
-	@Deprecated(forRemoval = true)
-	public static final byte STRING_DOUBLE_QUOTE = FLAG_STRING_DOUBLE_QUOTE;
+	private static final long serialVersionUID = 3L;
 
 	/**
 	 * Create an inline style.

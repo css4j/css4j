@@ -54,6 +54,10 @@ Upgrading to 6.0 from 5.3.1
 - The ORIGIN constants in `CSSStyleSheetFactory` now have new `int` values
   instead of `byte`, for consistency with the above.
 
+- The old `STRING_SINGLE_QUOTE` and `STRING_DOUBLE_QUOTE` constants in
+  `AbstractCSSStyleSheetFactory`, that were deprecated for removal, have been
+  removed.
+
 - The archaic cookie management code which was deprecated for removal was
   removed.
 
