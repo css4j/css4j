@@ -23,6 +23,10 @@ class TestErrorHandler implements CSSErrorHandler {
 		return exception;
 	}
 
+	CSSParseException getLastWarning() {
+		return warningException;
+	}
+
 	boolean hasError() {
 		return exception != null;
 	}

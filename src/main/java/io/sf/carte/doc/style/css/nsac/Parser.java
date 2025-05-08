@@ -51,10 +51,7 @@ public interface Parser {
 		/**
 		 * Handles asterisk-prefixed properties as normal, compliant CSS properties but
 		 * reports a SAC warning.
-		 * 
-		 * @deprecated the star hack messes with nested rules.
 		 */
-		@Deprecated(forRemoval = true)
 		STARHACK,
 
 		/**

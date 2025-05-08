@@ -170,6 +170,7 @@ public class TestDOMImplementation extends CSSDOMImplementation {
 		parser.setReportingDoctype(true);
 		parser.setCommentPolicy(XmlViolationPolicy.ALLOW);
 		TestDOMImplementation domImpl = new TestDOMImplementation(true);
+		domImpl.getParserFlags().add(Parser.Flag.STARHACK);
 		domImpl.getParserFlags().add(Parser.Flag.IEVALUES);
 		XMLDocumentBuilder builder = new XMLDocumentBuilder(domImpl);
 		builder.setXMLReader(parser);

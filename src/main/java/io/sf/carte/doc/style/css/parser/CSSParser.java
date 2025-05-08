@@ -2459,7 +2459,7 @@ public class CSSParser implements Parser, Cloneable {
 	 * @param s the identifier to test; cannot contain hex escapes.
 	 * @return true if is a valid identifier.
 	 */
-	private static boolean isValidIdentifier(String s) {
+	private static boolean isValidIdentifier(CharSequence s) {
 		int len = s.length();
 		int idx;
 		char c = s.charAt(0);
@@ -2984,6 +2984,49 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			protected void handleStarHack(int index, CharSequence word) {
+				int idx = index - 1;
+				if (!isValidIdentifier(word)) {
+					handleWarning(idx, ParseHelper.WARN_PROPERTY_NAME,
+							"Suspicious property name in STARHACK IE Hack: *" + word);
+				} else {
+					handleWarning(idx, ParseHelper.WARN_PROPERTY_NAME,
+							"STARHACK IE hack: *" + word);
+				}
+
+				PropertyNameTokenHandler starhackHandler = new PropertyNameTokenHandler() {
+
+					@Override
+					void processBuffer(int index, int triggerCp) {
+						String raw = buffer.toString();
+						if (!isEscapedIdent()) {
+							propertyName = raw;
+							buffer.setLength(0);
+						} else {
+							propertyName = unescapeBuffer(index);
+							if (!parseError && !isValidIdentifier(propertyName)) {
+								handleWarning(index - buffer.length(),
+										ParseHelper.WARN_PROPERTY_NAME,
+										"Suspicious property name: " + raw);
+							}
+						}
+						setWhitespacePrevCp();
+					}
+
+					@Override
+					public HandlerManager getManager() {
+						return BlockContentsManager.this.declarationManager;
+					}
+
+				};
+
+				starhackHandler.buffer.append('*').append(word);
+				starhackHandler.prevcp = 65;
+
+				yieldHandling(starhackHandler);
+			}
+
+			@Override
 			boolean isTopLevel() {
 				return topLevel;
 			}
@@ -2999,9 +3042,6 @@ public class CSSParser implements Parser, Cloneable {
 						selist.clear();
 						// Manager's endOfStream() resets the handler
 						//resetHandler();
-					} else if (!getManager().isTopManager()) {
-						handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF,
-								"Unexpected end of stream");
 					}
 				}
 				BlockContentsManager.this.endOfStream(len);
@@ -3837,9 +3877,10 @@ public class CSSParser implements Parser, Cloneable {
 
 								@Override
 								public void endOfStream(int len) {
-									endOfCondition(len, true);
-									handleWarning(index, ParseHelper.WARN_UNEXPECTED_EOF,
-											"Unexpected EOF in @import supports condition.");
+									if (endOfCondition(len, true)) {
+										handleWarning(index, ParseHelper.WARN_UNEXPECTED_EOF,
+												"Unexpected EOF in @import supports condition.");
+									}
 									ImportRuleTH.this.endOfStream(len);
 								}
 
@@ -4024,7 +4065,7 @@ public class CSSParser implements Parser, Cloneable {
 			public void endOfStream(int len) {
 				reportRuleEnd(len);
 				if (importURL == null && !isInError()) {
-					handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
+					handleWarning(len, ParseHelper.WARN_UNEXPECTED_EOF, "Unexpected end of stream");
 				}
 				super.endOfStream(len);
 			}
@@ -4223,7 +4264,7 @@ public class CSSParser implements Parser, Cloneable {
 				reportRuleEnd(len);
 				if (parendepth == 0) {
 					if (!isInError()) {
-						handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF,
+						handleWarning(len, ParseHelper.WARN_UNEXPECTED_EOF,
 								"Unexpected end of stream");
 					}
 				} else if (!isInError()) {
@@ -5633,8 +5674,16 @@ public class CSSParser implements Parser, Cloneable {
 								"Expected 'i', found: '" + word + "'");
 					}
 				} else if (stage == 1) {
+					HandlerManager ancMgr;
 					if (prevcp != '*') {
 						buffer.append(word);
+					} else if (parserFlags.contains(Flag.STARHACK) && selist.isEmpty()
+							&& currentsel == null && buffer.length() == 0
+							&& (ancMgr = getManager().getParentManager()) != null
+							&& (ancMgr = ancMgr.getParentManager()) != null
+							&& ancMgr.isTopManager()) {
+						// IE Legacy STARHACK
+						handleStarHack(index, word);
 					} else {
 						unexpectedTokenError(index, word);
 					}
@@ -5645,6 +5694,10 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			}
 			prevcp = 65;
+		}
+
+		protected void handleStarHack(int index, CharSequence word) {
+			unexpectedCharError(index, TokenProducer.CHAR_ASTERISK);
 		}
 
 		@Override
@@ -7485,6 +7538,7 @@ public class CSSParser implements Parser, Cloneable {
 						// pass-through
 					case TokenProducer.CHAR_NUMBER_SIGN: // #
 					case TokenProducer.CHAR_FULL_STOP: // .
+					case TokenProducer.CHAR_ASTERISK: // *
 						if (buffer.length() == 0) {
 							expectSelector(index, codepoint);
 							return;
@@ -7494,7 +7548,6 @@ public class CSSParser implements Parser, Cloneable {
 					case TokenProducer.CHAR_PLUS: // +
 					case TokenProducer.CHAR_TILDE: // ~
 					case TokenProducer.CHAR_VERTICAL_LINE: // |
-					case TokenProducer.CHAR_ASTERISK: // *
 						if (buffer.length() == 0) {
 							expectCompoundSelector(index, codepoint);
 							return;
@@ -7573,10 +7626,8 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			public void endOfStream(int len) {
 				super.endOfStream(len);
-				if (propertyName != null) {
+				if (propertyName != null || buffer.length() > 0) {
 					unexpectedEOFError(len);
-				} else if (!getManager().isTopManager() && !isInError()) {
-					handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
 				}
 				DeclarationListManager.this.endOfStream(len);
 			}
@@ -7709,7 +7760,18 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		protected void expectSelector(int index, int triggerCp) {
-			getControlHandler().getCurrentHandler().unexpectedCharError(index, triggerCp);
+			PropertyNameTokenHandler pth;
+			if (triggerCp == '*' && parserFlags.contains(Flag.STARHACK)
+					&& (pth = (PropertyNameTokenHandler) getControlHandler()
+							.getCurrentHandler()).buffer.length() == 0
+					&& isTopManager()) {
+				// IE Legacy STARHACK
+				pth.buffer.append('*');
+				pth.handleWarning(index, ParseHelper.WARN_PROPERTY_NAME,
+						"STARHACK IE hack.");
+			} else {
+				getControlHandler().getCurrentHandler().unexpectedCharError(index, triggerCp);
+			}
 		}
 
 		protected void expectCompoundSelector(int index, int triggerCp) {
@@ -7800,14 +7862,6 @@ public class CSSParser implements Parser, Cloneable {
 				DeclarationListManager.this.endOfPropertyDeclaration(index);
 				// wake up declaration handler
 				restoreInitialHandler();
-			}
-
-			@Override
-			public void endOfStream(int len) {
-				super.endOfStream(len);
-				if (!getManager().isTopManager() && !isInError()) {
-					handleWarning(len, ParseHelper.ERR_UNEXPECTED_EOF, "Unexpected end of stream");
-				}
 			}
 
 			@Override

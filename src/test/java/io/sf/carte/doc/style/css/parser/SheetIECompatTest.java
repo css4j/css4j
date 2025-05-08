@@ -61,6 +61,33 @@ public class SheetIECompatTest {
 	}
 
 	@Test
+	public void testParseStyleSheetAsteriskHack() throws CSSException, IOException {
+		TestDeclarationHandler handler = new TestDeclarationHandler();
+		parser.setDocumentHandler(handler);
+		Reader re = new StringReader(".foo{*width: 80%}");
+		parser.parseStyleSheet(re);
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(7, errorHandler.getLastException().getColumnNumber());
+		errorHandler.reset();
+
+		parser.setFlag(CSSParser.Flag.STARHACK);
+		re = new StringReader(".foo{*width: 80%}");
+		parser.parseStyleSheet(re);
+		assertFalse(errorHandler.hasError());
+		assertTrue(errorHandler.hasWarning());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("*width", handler.propertyNames.get(0));
+		LexicalUnit lu = handler.lexicalValues.get(0);
+		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
+		assertEquals(80f, lu.getFloatValue(), 0.01f);
+
+		assertEquals(1, errorHandler.getLastWarning().getLineNumber());
+		assertEquals(6, errorHandler.getLastWarning().getColumnNumber());
+	}
+
+	@Test
 	public void testParseStyleSheetIEHack() throws CSSException, IOException {
 		TestDeclarationHandler handler = new TestDeclarationHandler();
 		parser.setDocumentHandler(handler);

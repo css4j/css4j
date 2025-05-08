@@ -1587,17 +1587,48 @@ public class DeclarationParserTest {
 	}
 
 	@Test
-	public void testParseStyleDeclarationStarHack2() throws CSSException {
-		parseStyleDeclaration("*width:600px;display:block;");
+	public void testParseStyleDeclarationStarHack() throws CSSException {
+		parser.setFlag(Parser.Flag.STARHACK);
+		parseStyleDeclaration("*width:60cap");
 		assertEquals(1, handler.propertyNames.size());
-		assertEquals("display", handler.propertyNames.get(0));
+		assertEquals("*width", handler.propertyNames.get(0));
 		LexicalUnit lu = handler.lexicalValues.get(0);
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_CAP, lu.getCssUnit());
+		assertEquals(60f, lu.getFloatValue(), 0.001f);
+		assertEquals("cap", lu.getDimensionUnitText());
+		assertEquals("60cap", lu.toString());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertFalse(errorHandler.hasError());
+		assertTrue(errorHandler.hasWarning());
+
+		assertEquals(1, errorHandler.getLastWarning().getLineNumber());
+		assertEquals(1, errorHandler.getLastWarning().getColumnNumber());
+	}
+
+	@Test
+	public void testParseStyleDeclarationStarHack2() throws CSSException {
+		parser.setFlag(Parser.Flag.STARHACK);
+		parseStyleDeclaration("*width:600px;display:block;");
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("*width", handler.propertyNames.get(0));
+		assertEquals("display", handler.propertyNames.get(1));
+
+		LexicalUnit lu = handler.lexicalValues.get(0);
+		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_PX, lu.getCssUnit());
+		assertEquals(600f, lu.getFloatValue(), 0.001f);
+		assertEquals("px", lu.getDimensionUnitText());
+		assertEquals("600px", lu.toString());
+
+		lu = handler.lexicalValues.get(1);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
 		assertEquals("block", lu.getStringValue());
 		assertNull(lu.getNextLexicalUnit());
 
-		assertTrue(errorHandler.hasError());
-		assertFalse(errorHandler.hasWarning());
+		assertFalse(errorHandler.hasError());
+		assertTrue(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -2042,7 +2073,7 @@ public class DeclarationParserTest {
 		LexicalUnit lu = handler.lexicalValues.get(0);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_EM, lu.getCssUnit());
-		assertEquals(0.5, lu.getFloatValue(), 1e-5f);
+		assertEquals(0.5f, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
@@ -2102,22 +2133,22 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, lu.getCssUnit());
-		assertEquals(25, lu.getFloatValue(), 1e-5f);
+		assertEquals(25f, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, lu.getCssUnit());
-		assertEquals(30, lu.getFloatValue(), 1e-5f);
+		assertEquals(30f, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, lu.getCssUnit());
-		assertEquals(12, lu.getFloatValue(), 1e-5f);
+		assertEquals(12f, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PERCENTAGE, lu.getCssUnit());
-		assertEquals(20, lu.getFloatValue(), 1e-5f);
+		assertEquals(20f, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
@@ -2129,7 +2160,7 @@ public class DeclarationParserTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.DIMENSION, lu.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_PT, lu.getCssUnit());
-		assertEquals(2, lu.getFloatValue(), 1e-5f);
+		assertEquals(2f, lu.getFloatValue(), 1e-5f);
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.OPERATOR_SLASH, lu.getLexicalUnitType());
@@ -2171,7 +2202,7 @@ public class DeclarationParserTest {
 		assertNotNull(param);
 		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
 		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
-		assertEquals(35, param.getFloatValue(), 1e-6f);
+		assertEquals(35f, param.getFloatValue(), 1e-6f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("linear-gradient(35deg)", lu.toString());
 		assertNull(lu.getNextLexicalUnit());
@@ -2653,7 +2684,7 @@ public class DeclarationParserTest {
 		param = param.getNextLexicalUnit();
 		assertNotNull(param);
 		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
-		assertEquals(1, param.getFloatValue(), 1e-5f);
+		assertEquals(1f, param.getFloatValue(), 1e-5f);
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("cubic-bezier(0.33, 0.1, 0.5, 1)", lu.toString());
 		assertFalse(errorHandler.hasError());

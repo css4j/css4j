@@ -645,6 +645,22 @@ public class RuleParserTest {
 	}
 
 	@Test
+	public void testParseStyleSheetAsteriskHack() throws CSSException, IOException {
+		parseRule(".foo{*width: 80%}");
+		assertTrue(errorHandler.hasError());
+		errorHandler.reset();
+		parser.setFlag(CSSParser.Flag.STARHACK);
+		parseRule(".foo{*width: 80%}");
+		assertFalse(errorHandler.hasError());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("*width", handler.propertyNames.get(0));
+		LexicalUnit lu = handler.lexicalValues.get(0);
+		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
+		assertEquals(80f, lu.getFloatValue(), 0.01f);
+		handler.checkRuleEndings();
+	}
+
+	@Test
 	public void testParseStyleSheetIEValuesHack() throws CSSException, IOException {
 		parseRule(".foo{width: 80%\\9}");
 		assertTrue(errorHandler.hasError());

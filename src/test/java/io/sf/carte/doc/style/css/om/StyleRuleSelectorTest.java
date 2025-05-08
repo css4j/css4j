@@ -22,6 +22,7 @@ import java.io.StringReader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
@@ -66,6 +67,19 @@ public class StyleRuleSelectorTest {
 		StyleRule rule = parseStyleSheet(cssText);
 		assertEquals("p {border-top: 1px dashed yellow; }", rule.getCssText().replace("\n", ""));
 		assertTrue(rule.getStyleDeclarationErrorHandler().hasErrors());
+	}
+
+	@Test
+	public void testStyleRuleIEStarHack() throws DOMException, IOException {
+		TestCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
+		AbstractCSSStyleSheet sheetlenient = factory.createStyleSheet(null, null);
+		factory.getParserFlags().add(Parser.Flag.STARHACK);
+		String cssText = "p {*zoom: 1; }";
+		sheetlenient.parseStyleSheet(new StringReader(cssText));
+		StyleRule rule = (StyleRule) sheetlenient.getCssRules().item(0);
+		assertEquals("p {*zoom: 1; }", rule.getCssText().replace("\n", ""));
+		assertFalse(rule.getStyleDeclarationErrorHandler().hasErrors());
+		assertTrue(rule.getStyleDeclarationErrorHandler().hasWarnings());
 	}
 
 	@Test

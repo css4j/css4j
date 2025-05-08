@@ -110,6 +110,68 @@ class SheetParserErrorTest {
 	}
 
 	@Test
+	public void testSelectorStarHack() throws CSSException, IOException {
+		String s = "p{*width:900px;}";
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
+		assertEquals(1, handler.selectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals(0, handler.propertyNames.size());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(4, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testDotError() throws CSSException, IOException {
+		String s = "p{.width:900px;}";
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
+		assertEquals(1, handler.selectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals(0, handler.propertyNames.size());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(15, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testColonError() throws CSSException, IOException {
+		String s = "p{:.width;}";
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
+		assertEquals(1, handler.selectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals(0, handler.propertyNames.size());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(4, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testNestedDotError() throws CSSException, IOException {
+		String s = "p{&.cls{.width:900px;}}";
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
+		assertEquals(1, handler.selectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals(1, handler.nestedSelectors.size());
+		assertEquals("&.cls", handler.nestedSelectors.get(0).toString());
+		assertEquals(0, handler.propertyNames.size());
+		assertTrue(errorHandler.hasError());
+	}
+
+	@Test
+	public void testNestedColonError() throws CSSException, IOException {
+		String s = "p{&.cls{ :.width;}}";
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
+		assertEquals(1, handler.selectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals(1, handler.nestedSelectors.size());
+		assertEquals("&.cls", handler.nestedSelectors.get(0).toString());
+		assertEquals(0, handler.propertyNames.size());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(11, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
 	public void testBadPageRule() throws CSSException, IOException {
 		String s = "@page{;;@";
 		parser.parseStyleSheet(new StringReader(s));

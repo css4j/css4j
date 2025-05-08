@@ -1578,7 +1578,7 @@ public class SheetParserTest {
 		assertEquals(1, handler.priorities.size());
 		assertNull(handler.priorities.get(0));
 		assertFalse(errorHandler.hasError());
-		assertTrue(errorHandler.hasWarning());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1595,7 +1595,7 @@ public class SheetParserTest {
 		assertEquals(1, handler.selectors.size());
 		assertEquals("body", handler.selectors.get(0).toString());
 		assertFalse(errorHandler.hasError());
-		assertTrue(errorHandler.hasWarning());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test
@@ -1621,7 +1621,7 @@ public class SheetParserTest {
 		assertEquals("svg", handler.namespaceMaps.keySet().iterator().next());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, handler.namespaceMaps.get("svg"));
 		assertFalse(errorHandler.hasError());
-		assertTrue(errorHandler.hasWarning());
+		assertFalse(errorHandler.hasWarning());
 	}
 
 	@Test

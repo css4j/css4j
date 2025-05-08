@@ -27,10 +27,7 @@ import java.util.Set;
 import io.sf.carte.doc.style.css.nsac.Parser;
 
 /**
- * Abstract base class for User Agents, with cookie handling.
- * <p>
- * 
- * @author Carlos Amengual
+ * Abstract base class for User Agents.
  */
 abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentControl, java.io.Serializable {
 
@@ -137,7 +134,9 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	@Override
 	public String getProperty(String propertyName) {
-		if (propertyName.equals("parser.ievalues")) {
+		if (propertyName.equals("parser.starhack")) {
+			return Boolean.toString(parserFlags.contains(Parser.Flag.STARHACK));
+		} else if (propertyName.equals("parser.ievalues")) {
 			return Boolean.toString(parserFlags.contains(Parser.Flag.IEVALUES));
 		} else if (propertyName.equals("parser.ieprio")) {
 			return Boolean.toString(parserFlags.contains(Parser.Flag.IEPRIO));
@@ -149,7 +148,14 @@ abstract public class AbstractUserAgent implements UserAgent, UserAgent.AgentCon
 
 	@Override
 	public boolean setProperty(String propertyName, String value) {
-		if (propertyName.equals("parser.ievalues")) {
+		if (propertyName.equals("parser.starhack")) {
+			if ("true".equalsIgnoreCase(value)) {
+				parserFlags.add(Parser.Flag.STARHACK);
+			} else {
+				parserFlags.remove(Parser.Flag.STARHACK);
+			}
+			return true;
+		} else if (propertyName.equals("parser.ievalues")) {
 			if ("true".equalsIgnoreCase(value)) {
 				parserFlags.add(Parser.Flag.IEVALUES);
 			} else {

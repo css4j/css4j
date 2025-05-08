@@ -36,10 +36,6 @@ Upgrading to 6.0 from 5.3.1
   after a call to `CSSHandler.startSelector(SelectorList)`, the next call to
   `endSelector(SelectorList)` will carry the same selector list.
 
-- Internet Explorer legacy compatibility flag `STARHACK` was deprecated for
-  removal and no longer works. If your use case requires `STARHACK`, please stay
-  with version 5.3.1.
-
 - Interface `SheetContext` now extends `NamespacePrefixMap`.
 
 - The rule in method `insertRule(CSSRule, int)` in `CSSRuleArrayList` is now a
@@ -67,6 +63,10 @@ Upgrading to 6.0 from 5.3.1
 - The legacy `CSSCanvas` and `Viewport` in the `agent` package, which were
   deprecated, now are for removal. Use the equivalent interfaces in the `css`
   package.
+
+- When the lexical parser gracefully closes rules on EOF, now only warns if that
+  happens in a suspicious place, like a `@namespace` rule (which points to a
+  possible error because that rule is supposed to precede others).
 
 
 Upgrading to 5.3 from 5.2
