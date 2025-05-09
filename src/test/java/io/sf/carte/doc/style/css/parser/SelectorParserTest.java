@@ -441,7 +441,7 @@ public class SelectorParserTest {
 			parseSelectors("\\\\&p");
 			fail("Must throw an exception");
 		} catch (CSSParseException e) {
-			assertEquals(3, e.getColumnNumber());
+			assertEquals(4, e.getColumnNumber());
 		}
 	}
 

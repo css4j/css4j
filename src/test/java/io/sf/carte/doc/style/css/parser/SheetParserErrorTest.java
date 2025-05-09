@@ -110,12 +110,102 @@ class SheetParserErrorTest {
 	}
 
 	@Test
-	public void testSelectorStarHack() throws CSSException, IOException {
-		String s = "p{*width:900px;}";
+	public void testInvalidSelectorRecovery() throws CSSException, IOException {
+		String s = "p,:{width:900px;height:500px}span{font-size:10pt;}";
 		parser.parseStyleSheet(new InputSource(new StringReader(s)));
 		assertEquals(1, handler.selectors.size());
+		assertEquals("span", handler.selectors.get(0).toString());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("font-size", handler.propertyNames.get(0));
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(4, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testInvalidNestedSelectorRecovery() throws CSSException, IOException {
+		String s = "p{[]width:900px}span{font-size:10pt;}";
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
+		assertEquals(2, handler.selectors.size());
 		assertEquals("p", handler.selectors.get(0).toString());
-		assertEquals(0, handler.propertyNames.size());
+		assertEquals("span", handler.selectors.get(1).toString());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("font-size", handler.propertyNames.get(0));
+		assertEquals("span", handler.propertySelectors.get(0).toString());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(4, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testInvalidNestedSelectorRecoverySemicolon() throws CSSException, IOException {
+		String s = "p{[]width:900px;height:500px}span{font-size:10pt;}";
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
+		assertEquals(2, handler.selectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals("span", handler.selectors.get(1).toString());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("height", handler.propertyNames.get(0));
+		assertEquals("p", handler.propertySelectors.get(0).toString());
+		assertEquals("font-size", handler.propertyNames.get(1));
+		assertEquals("span", handler.propertySelectors.get(1).toString());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(4, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testInvalidNestedSelectorRecovery2() throws CSSException, IOException {
+		String s = "p{ul{[]width:900px}color:blue}span{font-size:10pt;}";
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
+		assertEquals(2, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals("span", handler.selectors.get(1).toString());
+		assertEquals("ul", handler.nestedSelectors.get(0).toString());
+
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("color", handler.propertyNames.get(0));
+		assertEquals("p", handler.propertySelectors.get(0).toString());
+		assertEquals("font-size", handler.propertyNames.get(1));
+		assertEquals("span", handler.propertySelectors.get(1).toString());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(7, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testInvalidNestedSelectorRecovery2Semicolon() throws CSSException, IOException {
+		String s = "p{ul{[]width:900px;height:500px}color:blue}span{font-size:10pt;}";
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
+		assertEquals(2, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals("span", handler.selectors.get(1).toString());
+		assertEquals("ul", handler.nestedSelectors.get(0).toString());
+
+		assertEquals(3, handler.propertyNames.size());
+		assertEquals("height", handler.propertyNames.get(0));
+		assertEquals("ul", handler.propertySelectors.get(0).toString());
+		assertEquals("color", handler.propertyNames.get(1));
+		assertEquals("p", handler.propertySelectors.get(1).toString());
+		assertEquals("font-size", handler.propertyNames.get(2));
+		assertEquals("span", handler.propertySelectors.get(2).toString());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(7, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testSelectorStarHack() throws CSSException, IOException {
+		String s = "p{*width:900px;}span{font-size:10pt;}";
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
+		assertEquals(2, handler.selectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals("span", handler.selectors.get(1).toString());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("font-size", handler.propertyNames.get(0));
+		assertEquals("span", handler.propertySelectors.get(0).toString());
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
 		assertEquals(4, errorHandler.getLastException().getColumnNumber());
@@ -192,7 +282,7 @@ class SheetParserErrorTest {
 		String s = "A{Q	\\A(z\"#\"(z\"#\"\"'ÿ";
 		parser.parseStyleSheet(new InputSource(new StringReader(s)));
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
-		assertEquals(6, errorHandler.getLastException().getColumnNumber());
+		assertEquals(7, errorHandler.getLastException().getColumnNumber());
 	}
 
 	@Test

@@ -175,7 +175,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			}
 
 			lu.value = factory.canonicalName(lcName);
-			factory.handle(this);
+			factory.handle(this, index);
 		}
 
 		buffer.setLength(0);
@@ -426,7 +426,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 					unexpectedCharError(index, codepoint);
 				}
 			} else if (codepoint == 58) { // :
-				// Progid hack ?
+				// Nested pseudo-class/element or Progid hack ?
 				handleColon(index);
 			} else if (codepoint == 43) { // +
 				// Are we in a unicode range ?
@@ -677,14 +677,28 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 
 	private void handleColon(int index) {
 		int buflen = buffer.length();
-		if (buflen != 0) {
-			if (buflen != 6 || !flagIEValues || !ParseHelper.equalsIgnoreCase(buffer, "progid")) {
-				handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Unexpected ':'");
-			} else {
-				buffer.append(':');
-				handleWarning(index, ParseHelper.WARN_PROGID_HACK, "Progid hack applied");
-			}
+		if (flagIEValues && buflen == 6 && ParseHelper.equalsIgnoreCase(buffer, "progid")) {
+			buffer.append(':');
+			handleWarning(index, ParseHelper.WARN_PROGID_HACK, "Progid hack applied");
+		} else if (functionToken) {
+			unexpectedCharError(index, TokenProducer.CHAR_COLON);
+		} else {
+			handlePseudo(index);
 		}
+	}
+
+	protected void handlePseudo(int index) {
+		unexpectedCharError(index, TokenProducer.CHAR_COLON);
+	}
+
+	/**
+	 * Get a handler for nested selectors.
+	 * 
+	 * @param index the index.
+	 * @return the handler, or null if cannot handle.
+	 */
+	protected BufferTokenHandler nestedSelectorHandler(int index) {
+		return null;
 	}
 
 	private void handleUnicodeRange() {

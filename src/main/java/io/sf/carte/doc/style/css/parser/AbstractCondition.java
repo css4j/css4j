@@ -22,7 +22,7 @@ abstract class AbstractCondition implements Condition, Cloneable, java.io.Serial
 		super();
 	}
 
-	Condition replace(SelectorList base) {
+	Condition replace(SelectorList base, MutableBoolean replaced) {
 		return this;
 	}
 

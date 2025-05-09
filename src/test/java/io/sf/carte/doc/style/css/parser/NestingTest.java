@@ -236,6 +236,315 @@ public class NestingTest {
 	}
 
 	@Test
+	public void testNestedType() throws CSSException, IOException {
+		parseStyleSheet("div{p{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("p", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypeList() throws CSSException, IOException {
+		parseStyleSheet("div{p,li{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("p,li", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypeDescendantList() throws CSSException, IOException {
+		parseStyleSheet("div{p span,li{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("& p span,li", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypeClass() throws CSSException, IOException {
+		parseStyleSheet("div{p.cls{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("p.cls", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypeAttribute() throws CSSException, IOException {
+		parseStyleSheet("div{p[data-p]{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("p[data-p]", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypeDescendantAttribute() throws CSSException, IOException {
+		parseStyleSheet("div{p [data-p]{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("p [data-p]", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypeDescendant() throws CSSException, IOException {
+		parseStyleSheet("div{p span{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+		assertEquals("& p span", handler.nestedSelectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("& p span", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypeDescendantClass() throws CSSException, IOException {
+		parseStyleSheet("div{p .cls{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+		assertEquals("p .cls", handler.nestedSelectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("p .cls", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypePseudo() throws CSSException, IOException {
+		parseStyleSheet("div{p:first-child{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+		assertEquals("p:first-child", handler.nestedSelectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("p:first-child", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypeDescendantPseudoClass() throws CSSException, IOException {
+		parseStyleSheet("div{p :first-child{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+		assertEquals("p :first-child", handler.nestedSelectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("p :first-child", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypePseudoFunction() throws CSSException, IOException {
+		parseStyleSheet("div{p:dir(ltr){margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+		assertEquals("p:dir(ltr)", handler.nestedSelectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("p:dir(ltr)", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypePseudoElement() throws CSSException, IOException {
+		parseStyleSheet("div{p::before{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+		assertEquals("p::before", handler.nestedSelectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("p::before", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypeDescendantPseudoElement() throws CSSException, IOException {
+		parseStyleSheet("div{p ::marker,::first-line{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+		assertEquals("p ::marker,::first-line", handler.nestedSelectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("p ::marker,::first-line", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypeDescendantTypePseudoElement() throws CSSException, IOException {
+		parseStyleSheet("div{p li,::first-line{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+		assertEquals("& p li,::first-line", handler.nestedSelectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("& p li,::first-line", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
+	public void testNestedTypeDDTypePseudoElement() throws CSSException, IOException {
+		parseStyleSheet("div{p li,p ::first-line{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+		assertEquals("& p li,p ::first-line", handler.nestedSelectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("& p li,p ::first-line", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
 	public void testNestedRuleEOF() throws CSSException, IOException {
 		parseStyleSheet("div{margin-top:1px;&.cls{margin-left:1vw");
 

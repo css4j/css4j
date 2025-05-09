@@ -24,6 +24,7 @@ import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
+import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 
 /**
  * Based on SAC api.
@@ -412,10 +413,17 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 		}
 
 		@Override
-		Selector replace(SelectorList base) {
+		Selector descendant(SelectorList base) {
 			CombinatorSelectorImpl clon = clone();
-			clon.selector = ((AbstractSelector) clon.selector).replace(base);
-			Selector replSel = ((AbstractSelector) clon.simpleSelector).replace(base);
+			clon.selector = ((AbstractSelector) selector).descendant(base);
+			return clon;
+		}
+
+		@Override
+		Selector replace(SelectorList base, MutableBoolean replaced) {
+			CombinatorSelectorImpl clon = clone();
+			clon.selector = ((AbstractSelector) clon.selector).replace(base, replaced);
+			Selector replSel = ((AbstractSelector) clon.simpleSelector).replace(base, replaced);
 			SelectorType replType = replSel.getSelectorType();
 			switch (replType) {
 			case DESCENDANT:
@@ -431,9 +439,21 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 				case SUBSEQUENT_SIBLING:
 					CombinatorSelectorImpl replComb = (CombinatorSelectorImpl) replSel;
 					CombinatorSelectorImpl comb = getSelectorFactory()
-							.createCombinatorSelector(replType, replComb.selector);
-					clon.selector = comb;
-					clon.simpleSelector = replComb.simpleSelector;
+							.createCombinatorSelector(replType, clon);
+					if (replComb.selector instanceof SimpleSelector) {
+						clon.simpleSelector = (SimpleSelector) replComb.selector;
+					} else {
+						NSACSelectorFactory factory = getSelectorFactory();
+						SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) factory
+								.createCondition(ConditionType.SELECTOR_ARGUMENT);
+						SelectorListImpl selist = new SelectorListImpl();
+						selist.add(replComb.selector);
+						is.arguments = selist;
+						is.setName("is");
+						clon.simpleSelector = factory.createConditionalSelector(null, is);
+					}
+					comb.simpleSelector = replComb.simpleSelector;
+					clon = comb;
 					break;
 				default:
 					clon.simpleSelector = (SimpleSelector) replSel;

@@ -11,9 +11,12 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.NamespacePrefixMap;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SimpleSelector;
+import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorSelectorImpl;
 
 abstract class AbstractSelector implements Selector, Cloneable, java.io.Serializable {
 
@@ -29,7 +32,26 @@ abstract class AbstractSelector implements Selector, Cloneable, java.io.Serializ
 		return false;
 	}
 
-	Selector replace(SelectorList base) {
+	Selector descendant(SelectorList base) {
+		NSACSelectorFactory factory = getSelectorFactory();
+		CombinatorSelectorImpl comb;
+		if (base.getLength() == 1) {
+			comb = factory.createCombinatorSelector(SelectorType.DESCENDANT, base.item(0));
+		} else {
+			SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) factory
+					.createCondition(ConditionType.SELECTOR_ARGUMENT);
+			is.arguments = base;
+			is.setName("is");
+			ConditionalSelectorImpl condSel = factory.createConditionalSelector(null, is);
+			comb = factory.createCombinatorSelector(SelectorType.DESCENDANT, condSel);
+		}
+
+		// Combinator selector must override this method
+		comb.simpleSelector = (SimpleSelector) clone();
+		return comb;
+	}
+
+	Selector replace(SelectorList base, MutableBoolean replaced) {
 		return this;
 	}
 

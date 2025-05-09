@@ -52,7 +52,7 @@ interface LexicalUnitFactory {
 		return !CSSParser.typeIsAlgebraicOperator(type);
 	}
 
-	default void handle(ValueTokenHandler parent) {
+	default void handle(ValueTokenHandler parent, int index) {
 	}
 
 }

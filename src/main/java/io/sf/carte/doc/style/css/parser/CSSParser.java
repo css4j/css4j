@@ -2751,8 +2751,19 @@ public class CSSParser implements Parser, Cloneable {
 
 				@Override
 				public void handleErrorRecovery() {
-					// Ignore declaration
+					// Ignore rule
 					yieldHandling(new IgnoredDeclarationTokenHandler() {
+
+						@Override
+						protected void resumeDeclarationRuleList() {
+							resetHandler();
+							yieldHandling(RuleListManager.this.selectorHandler);
+						}
+
+						@Override
+						protected void resumeDeclarationList() {
+							RuleListManager.this.declarationManager.restoreInitialHandler();
+						}
 
 						@Override
 						protected void endDeclarationBlock(int index) {
@@ -3054,12 +3065,12 @@ public class CSSParser implements Parser, Cloneable {
 
 					@Override
 					protected void resumeDeclarationList() {
-						BlockContentsManager.this.declarationManager.restoreInitialHandler();
+						getManager().getParentManager().restoreInitialHandler();
 					}
 
 					@Override
 					protected void endDeclarationBlock(int index) {
-						BlockContentsManager.this.rightCurlyBracket(index);
+						getManager().getParentManager().rightCurlyBracket(index);
 					}
 
 				});
@@ -3100,22 +3111,174 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			protected void expectSelector(int index) {
-				SelectorTokenHandler selh = yieldToNestedRuleHandler();
-				setNestingSelector(selh);
+			protected CSSTokenHandler createPropertyNameTokenHandler() {
+				return new BlockContentsPropertyNameTH();
+			}
+
+			private class BlockContentsPropertyNameTH extends PropertyNameTokenHandler {
+
+				BlockContentsPropertyNameTH() {
+					super();
+				}
+
+				@Override
+				public void leftCurlyBracket(int index) {
+					NestedRuleManager nested = new NestedRuleManager();
+					SelectorTokenHandler selh = nested.selectorHandler;
+					setSelectorState(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET, selh);
+					selh.processBuffer(index, TokenProducer.CHAR_LEFT_CURLY_BRACKET, true);
+					if (isInError()) {
+						getControlHandler().getCurrentHandler().leftCurlyBracket(index);
+					} else if (selh.currentsel == null) {
+						super.leftCurlyBracket(index);
+					} else {
+						// Let the selector handler yield
+						selh.leftCurlyBracket(index);
+					}
+				}
+
+				@Override
+				public void leftSquareBracket(int index) {
+					SelectorTokenHandler selh = yieldToNestedRuleHandler();
+					setSelectorState(index, TokenProducer.CHAR_LEFT_SQ_BRACKET, selh);
+					if (selh.currentsel == null && buffer.length() == 0) {
+						setNestingSelector(selh);
+						selh.stage = SelectorTokenHandler.STAGE_COMBINATOR_OR_END;
+					}
+					selh.leftSquareBracket(index);
+				}
+
+				@Override
+				protected void nonPropertyToken(int index, CharSequence word) {
+					SelectorTokenHandler selh = yieldToNestedRuleHandler();
+					setNestingSelector(selh);
+					selh.stage = SelectorTokenHandler.STAGE_COMBINATOR_OR_END;
+					// propertyName is not null if this was called
+					selh.word(index, propertyName);
+					selh.separator(index, 32);
+					selh.word(index, word);
+				}
+
+				@Override
+				protected void nonPropertyEscaped(int index, int codepoint) {
+					SelectorTokenHandler selh = yieldToNestedRuleHandler();
+					setNestingSelector(selh);
+					selh.stage = SelectorTokenHandler.STAGE_COMBINATOR_OR_END;
+					// propertyName is not null if this was called
+					selh.word(index, propertyName);
+					selh.separator(index, 32);
+					selh.escaped(index, codepoint);
+				}
+
+				@Override
+				protected void nestingSelector(int index) {
+					SelectorTokenHandler selh = yieldToNestedRuleHandler();
+					setSelectorState(index, TokenProducer.CHAR_AMPERSAND, selh);
+					if (selh.currentsel == null) {
+						setNestingSelector(selh);
+					} else {
+						selh.character(index, TokenProducer.CHAR_AMPERSAND);
+					}
+				}
+
+				private void setSelectorState(int index, int triggerCp, SelectorTokenHandler selh) {
+					if (propertyName != null) {
+						selh.word(index, propertyName);
+						selh.processBuffer(index, 32, false);
+						selh.stage = SelectorTokenHandler.STAGE_COMBINATOR_OR_END;
+					} else if (buffer.length() > 0) {
+						selh.word(index, buffer);
+						if (isPrevCpWhitespace()) {
+							selh.processBuffer(index, triggerCp, false);
+							selh.stage = SelectorTokenHandler.STAGE_COMBINATOR_OR_END;
+						}
+					}
+				}
+
+				@Override
+				protected void expectSelector(int index, int triggerCp) {
+					SelectorTokenHandler selh = yieldToNestedRuleHandler();
+					setSelectorState(index, triggerCp, selh);
+					selh.character(index, triggerCp);
+				}
+
+				@Override
+				protected void expectCompoundSelector(int index, int triggerCp) {
+					SelectorTokenHandler selh = yieldToNestedRuleHandler();
+					setSelectorState(index, triggerCp, selh);
+					if (selh.currentsel == null) {
+						setNestingSelector(selh);
+					}
+					selh.character(index, triggerCp);
+				}
+
 			}
 
 			@Override
-			protected void expectSelector(int index, int triggerCp) {
-				SelectorTokenHandler selh = yieldToNestedRuleHandler();
-				selh.character(index, triggerCp);
-			}
+			protected ValueTokenHandler createValueTokenHandler() {
+				return new DeclValueTokenHandler() {
 
-			@Override
-			protected void expectCompoundSelector(int index, int triggerCp) {
-				SelectorTokenHandler selh = yieldToNestedRuleHandler();
-				setNestingSelector(selh);
-				selh.character(index, triggerCp);
+					@Override
+					public void leftCurlyBracket(int index) {
+						// Try to interpret the value as a selector
+						if (functionToken || (getLexicalUnit() == null && buffer.length() == 0)) {
+							super.leftCurlyBracket(index);
+						} else {
+							StyleRuleSelectorTH selh = nestedSelectorHandler(index);
+
+							if (selh == null) {
+								super.leftCurlyBracket(index);
+								return;
+							}
+
+							// Let the selector handler yield
+							selh.leftCurlyBracket(index);
+						}
+					}
+
+					@Override
+					protected StyleRuleSelectorTH nestedSelectorHandler(int index) {
+						NestedRuleManager nested = new NestedRuleManager();
+						StyleRuleSelectorTH selh = nested.selectorHandler;
+						selh.word(index, propertyName);
+						if (whitespaceBeforeColon) {
+							selh.separator(index, 32);
+						}
+						selh.character(index, TokenProducer.CHAR_COLON);
+
+						LexicalUnitImpl lu = getLexicalUnit();
+						while (lu != null) {
+							switch (lu.getLexicalUnitType()) {
+							case IDENT:
+								selh.word(index, lu.currentToString());
+								selh.separator(index, 32);
+								break;
+							case OPERATOR_COMMA:
+								selh.character(index, TokenProducer.CHAR_COMMA);
+								break;
+							case EMPTY: // May be put here by pseudo handlers
+								break;
+							default:
+								return null;
+							}
+							lu = lu.nextLexicalUnit;
+						}
+
+						if (buffer.length() != 0) {
+							selh.word(index, buffer);
+						}
+
+						return selh;
+					}
+
+					@Override
+					protected void handlePseudo(int index) {
+						StyleRuleSelectorTH selh = nestedSelectorHandler(index);
+						selh.character(index, TokenProducer.CHAR_COLON);
+						yieldHandling(selh);
+					}
+
+				};
 			}
 
 			private void setNestingSelector(SelectorTokenHandler selh) {
@@ -3369,16 +3532,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		protected ValueTokenHandler createValueTokenHandler() {
-			return new DeclValueTokenHandler() {
-
-				@Override
-				protected void setPriorityHandler(int index) {
-					getControlHandler().getCurrentHandler().handleError(index,
-							ParseHelper.ERR_RULE_SYNTAX,
-							"Important priorities are invalid in descriptors.");
-				}
-
-			};
+			return new DescriptorDeclValueTH();
 		}
 
 		@Override
@@ -6411,16 +6565,12 @@ public class CSSParser implements Parser, Cloneable {
 						buffer.append('_');
 						break;
 					case TokenProducer.CHAR_AMPERSAND: // &
-						if (buffer.length() != 0 || (stage > STAGE_COMBINATOR_OR_END
-								&& stage != STAGE_EXPECT_PSEUDOCLASS_ARGUMENT)) {
+						if (stage > STAGE_COMBINATOR_OR_END
+								&& stage != STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
 							unexpectedCharError(index, codepoint);
 						} else {
-							if (stage == 0) {
-								stage = 1;
-							} else if (stage == STAGE_COMBINATOR_OR_END) {
-								processBuffer(index, codepoint, false);
-								stage = 1;
-							}
+							processBuffer(index, codepoint, false);
+							stage = 1;
 							newConditionalSelector(index, codepoint, ConditionType.NESTING);
 						}
 						break;
@@ -7412,15 +7562,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		protected ValueTokenHandler createValueTokenHandler() {
-			return new DeclValueTokenHandler() {
-
-				@Override
-				protected void setPriorityHandler(int index) {
-					handleError(index, ParseHelper.ERR_RULE_SYNTAX,
-							"Important priorities are invalid in descriptors.");
-				}
-
-			};
+			return new DescriptorDeclValueTH();
 		}
 
 		@Override
@@ -7446,6 +7588,8 @@ public class CSSParser implements Parser, Cloneable {
 
 		String propertyName = null;
 
+		boolean whitespaceBeforeColon = false;
+
 		private final ValueTokenHandler valueth;
 
 		private boolean priorityImportant = false;
@@ -7468,6 +7612,10 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		protected CSSTokenHandler getInitialTokenHandler() {
+			return createPropertyNameTokenHandler();
+		}
+
+		protected CSSTokenHandler createPropertyNameTokenHandler() {
 			return new PropertyNameTokenHandler();
 		}
 
@@ -7475,6 +7623,7 @@ public class CSSParser implements Parser, Cloneable {
 		public void restoreInitialHandler() {
 			super.restoreInitialHandler();
 			propertyName = null;
+			whitespaceBeforeColon = false;
 			priorityImportant = false;
 		}
 
@@ -7499,8 +7648,18 @@ public class CSSParser implements Parser, Cloneable {
 				if (propertyName == null) {
 					super.word(index, word);
 				} else {
-					unexpectedTokenError(index, word);
+					nonPropertyToken(index, word);
 				}
+			}
+
+			/**
+			 * Found a word when the property name was already set.
+			 * 
+			 * @param index the index.
+			 * @param word  the token.
+			 */
+			protected void nonPropertyToken(int index, CharSequence word) {
+				unexpectedTokenError(index, word);
 			}
 
 			@Override
@@ -7508,78 +7667,105 @@ public class CSSParser implements Parser, Cloneable {
 				if (propertyName == null) {
 					super.escaped(index, codepoint);
 				} else {
-					unexpectedCharError(index, codepoint);
+					nonPropertyEscaped(index, codepoint);
 				}
+			}
+
+			/**
+			 * Found an escaped character when the property name was already set.
+			 * 
+			 * @param index     the index.
+			 * @param codepoint the codePoint.
+			 */
+			protected void nonPropertyEscaped(int index, int codepoint) {
+				unexpectedCharError(index, codepoint);
 			}
 
 			@Override
 			public void character(int index, int codepoint) {
-				if (propertyName == null) {
-					// ! 33
-					// : 58
-					// ; 59
-					switch (codepoint) {
-					case TokenProducer.CHAR_HYPHEN_MINUS: // -
-					case TokenProducer.CHAR_LOW_LINE: // _
+				// ! 33
+				// : 58
+				// ; 59
+				switch (codepoint) {
+				case TokenProducer.CHAR_HYPHEN_MINUS: // -
+				case TokenProducer.CHAR_LOW_LINE: // _
+					if (propertyName == null) {
 						// TokenProducer is supposed to send only isolated '-' and '_'
 						buffer.append((char) codepoint);
 						prevcp = 65;
 						return;
-					case TokenProducer.CHAR_COLON: // :
-						// The property name may be in buffer
-						if (buffer.length() != 0) {
-							processBuffer(index, codepoint);
-							if (!isInError()) {
-								// Yield to next
-								yieldHandling();
-							}
-							return;
-						}
-						// pass-through
-					case TokenProducer.CHAR_NUMBER_SIGN: // #
-					case TokenProducer.CHAR_FULL_STOP: // .
-					case TokenProducer.CHAR_ASTERISK: // *
-						if (buffer.length() == 0) {
-							expectSelector(index, codepoint);
-							return;
-						}
-						break;
-					case TokenProducer.CHAR_GREATER_THAN: // >
-					case TokenProducer.CHAR_PLUS: // +
-					case TokenProducer.CHAR_TILDE: // ~
-					case TokenProducer.CHAR_VERTICAL_LINE: // |
-						if (buffer.length() == 0) {
-							expectCompoundSelector(index, codepoint);
-							return;
-						}
-						break;
-					case TokenProducer.CHAR_AMPERSAND: // &
-						if (buffer.length() == 0) {
-							expectSelector(index);
-							return;
-						}
-						break;
-					case TokenProducer.CHAR_COMMERCIAL_AT: // @
-						if (buffer.length() == 0) {
-							handleAtKeyword(index);
-							return;
-						}
-						break;
-					case TokenProducer.CHAR_SEMICOLON: // ;
-						if (unexpectedSemicolonError(index)) {
-							getManager().restoreInitialHandler();
-						}
-						resetParseError();
-						return;
-					default:
-						break;
 					}
-				} else if (codepoint == TokenProducer.CHAR_COLON) {
-					// Expect a value, now yield to next
-					yieldHandling();
+					break;
+				case TokenProducer.CHAR_COLON: // :
+					if (propertyName != null) {
+						whitespaceBeforeColon = true;
+						// Expect a value, now yield to next
+						yieldHandling();
+						return;
+					}
+					// The property name may be in buffer
+					if (buffer.length() != 0) {
+						processBuffer(index, codepoint);
+						if (!isInError()) {
+							// Yield to next
+							yieldHandling();
+						}
+						return;
+					}
+					// pass-through
+				case TokenProducer.CHAR_NUMBER_SIGN: // #
+				case TokenProducer.CHAR_FULL_STOP: // .
+				case TokenProducer.CHAR_ASTERISK: // *
+				case TokenProducer.CHAR_COMMA: // ,
+					expectSelector(index, codepoint);
 					return;
+				case TokenProducer.CHAR_GREATER_THAN: // >
+				case TokenProducer.CHAR_PLUS: // +
+				case TokenProducer.CHAR_TILDE: // ~
+				case TokenProducer.CHAR_VERTICAL_LINE: // |
+					expectCompoundSelector(index, codepoint);
+					return;
+				case TokenProducer.CHAR_AMPERSAND: // &
+					nestingSelector(index);
+					return;
+				case TokenProducer.CHAR_COMMERCIAL_AT: // @
+					if (buffer.length() == 0) {
+						handleAtKeyword(index);
+						return;
+					}
+					break;
+				case TokenProducer.CHAR_SEMICOLON: // ;
+					if (unexpectedSemicolonError(index)) {
+						getManager().restoreInitialHandler();
+					}
+					resetParseError();
+					return;
+				default:
+					break;
 				}
 				unexpectedCharError(index, codepoint);
+			}
+
+			protected void nestingSelector(int index) {
+				getControlHandler().getCurrentHandler().unexpectedCharError(index,
+						TokenProducer.CHAR_AMPERSAND);
+			}
+
+			protected void expectSelector(int index, int triggerCp) {
+				if (triggerCp == '*' && parserFlags.contains(Flag.STARHACK)
+						&& propertyName == null && buffer.length() == 0
+						&& isTopManager()) {
+					// IE Legacy STARHACK
+					buffer.append('*');
+					handleWarning(index, ParseHelper.WARN_PROPERTY_NAME,
+							"STARHACK IE hack.");
+				} else {
+					getControlHandler().getCurrentHandler().unexpectedCharError(index, triggerCp);
+				}
+			}
+
+			protected void expectCompoundSelector(int index, int triggerCp) {
+				expectSelector(index, triggerCp);
 			}
 
 			/**
@@ -7716,14 +7902,6 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
-			public void rightCurlyBracket(int index) {
-				if (buffer.length() != 0) {
-					processBuffer(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
-				}
-				super.rightCurlyBracket(index);
-			}
-
-			@Override
 			public void endOfStream(int len) {
 				super.endOfStream(len);
 				DeclarationListManager.this.endOfPropertyDeclaration(len);
@@ -7742,6 +7920,14 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			@Override
+			public void rightCurlyBracket(int index) {
+				if (buffer.length() != 0) {
+					processBuffer(index, TokenProducer.CHAR_RIGHT_CURLY_BRACKET);
+				}
+				super.rightCurlyBracket(index);
+			}
+
+			@Override
 			public void handleErrorRecovery() {
 				DeclarationListManager.this.valueth.resetParseError();
 				super.handleErrorRecovery();
@@ -7752,30 +7938,6 @@ public class CSSParser implements Parser, Cloneable {
 		protected void handleAtKeyword(int index) {
 			getControlHandler().getCurrentHandler().unexpectedCharError(index,
 					TokenProducer.CHAR_COMMERCIAL_AT);
-		}
-
-		protected void expectSelector(int index) {
-			getControlHandler().getCurrentHandler().unexpectedCharError(index,
-					TokenProducer.CHAR_AMPERSAND);
-		}
-
-		protected void expectSelector(int index, int triggerCp) {
-			PropertyNameTokenHandler pth;
-			if (triggerCp == '*' && parserFlags.contains(Flag.STARHACK)
-					&& (pth = (PropertyNameTokenHandler) getControlHandler()
-							.getCurrentHandler()).buffer.length() == 0
-					&& isTopManager()) {
-				// IE Legacy STARHACK
-				pth.buffer.append('*');
-				pth.handleWarning(index, ParseHelper.WARN_PROPERTY_NAME,
-						"STARHACK IE hack.");
-			} else {
-				getControlHandler().getCurrentHandler().unexpectedCharError(index, triggerCp);
-			}
-		}
-
-		protected void expectCompoundSelector(int index, int triggerCp) {
-			expectSelector(index, triggerCp);
 		}
 
 		protected void endOfPropertyDeclaration(int index) {
@@ -7825,6 +7987,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		void resetFields() {
 			propertyName = null;
+			whitespaceBeforeColon = false;
 			priorityImportant = false;
 		}
 
@@ -7872,6 +8035,16 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			public DeclarationListManager getManager() {
 				return DeclarationListManager.this;
+			}
+
+		}
+
+		class DescriptorDeclValueTH extends DeclValueTokenHandler {
+
+			@Override
+			protected void setPriorityHandler(int index) {
+				handleError(index, ParseHelper.ERR_RULE_SYNTAX,
+						"Important priorities are invalid in descriptors.");
 			}
 
 		}

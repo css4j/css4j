@@ -81,10 +81,10 @@ class PositionalConditionImpl extends AbstractCondition implements PositionalCon
 	}
 
 	@Override
-	Condition replace(SelectorList base) {
+	Condition replace(SelectorList base, MutableBoolean replaced) {
 		PositionalConditionImpl clon = clone();
 		if (ofList != null) {
-			clon.ofList = ((SelectorListImpl) ofList).replaceNested(base);
+			clon.ofList = ((SelectorListImpl) ofList).replaceNestedArgument(base, replaced);
 		}
 		return clon;
 	}

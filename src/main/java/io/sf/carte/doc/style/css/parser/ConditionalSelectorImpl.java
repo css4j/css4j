@@ -18,6 +18,7 @@ import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
+import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorSelectorImpl;
 
 abstract class ConditionalSelectorImpl extends AbstractSelector implements ConditionalSelector {
 
@@ -48,39 +49,93 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 	}
 
 	@Override
-	Selector replace(SelectorList base) {
+	Selector descendant(SelectorList base) {
+		NSACSelectorFactory factory = getSelectorFactory();
+		CombinatorSelectorImpl comb;
+		if (base.getLength() == 1) {
+			Selector baseSelector = base.item(0);
+			comb = factory.createCombinatorSelector(SelectorType.DESCENDANT, baseSelector);
+		} else {
+			SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) factory
+					.createCondition(ConditionType.SELECTOR_ARGUMENT);
+			is.arguments = base;
+			is.setName("is");
+			ConditionalSelectorImpl condSel = factory.createConditionalSelector(null, is);
+			comb = factory.createCombinatorSelector(SelectorType.DESCENDANT, condSel);
+		}
+
+		comb.simpleSelector = clone();
+
+		return comb;
+	}
+
+	@Override
+	Selector replace(SelectorList base, MutableBoolean replaced) {
 		Condition replCond;
 
 		CombinatorConditionImpl comb;
 		Selector base0;
 
 		if (condition.getConditionType() == ConditionType.NESTING) {
-			if (base.getLength() == 1
-					&& (selector == null || selector.getSelectorType() == SelectorType.UNIVERSAL)) {
-				return base.item(0);
-			} else {
-				SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) getSelectorFactory()
-						.createCondition(ConditionType.SELECTOR_ARGUMENT);
-				is.arguments = base;
-				is.setName("is");
-				replCond = is;
+			replaced.setTrueValue();
+			if (base.getLength() == 1) {
+				if (selector == null || selector.getSelectorType() == SelectorType.UNIVERSAL) {
+					return base.item(0);
+				}
+				base0 = base.item(0);
+				if (base0.getSelectorType() == SelectorType.CONDITIONAL
+						&& ((ConditionalSelector) base0).getSimpleSelector()
+								.getSelectorType() == SelectorType.UNIVERSAL) {
+					ConditionalSelectorImpl bclon = ((ConditionalSelectorImpl) base0).clone();
+					bclon.selector = selector;
+					return bclon;
+				}
 			}
-		} else if (condition.getConditionType() == ConditionType.AND
-				&& (comb = (CombinatorConditionImpl) condition).first
-						.getConditionType() == ConditionType.NESTING
-				&& base.getLength() == 1
+			SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) getSelectorFactory()
+					.createCondition(ConditionType.SELECTOR_ARGUMENT);
+			is.arguments = base;
+			is.setName("is");
+			replCond = is;
+		} else if (condition.getConditionType() == ConditionType.AND && base.getLength() == 1
 				&& (selector == null || selector.getSelectorType() == SelectorType.UNIVERSAL)
 				&& (base0 = base.item(0)) instanceof SimpleSelector) {
-			ConditionalSelectorImpl newsel = getSelectorFactory()
-					.createConditionalSelector((SimpleSelector) base0, comb.second);
+			comb = (CombinatorConditionImpl) condition;
+			Condition cond2 = comb.second;
+			SimpleSelector simple;
+			if (cond2.getConditionType() == ConditionType.NESTING
+					&& base0.getSelectorType() == SelectorType.CONDITIONAL
+					&& ((simple = ((ConditionalSelector) base0).getSimpleSelector()) == null
+							|| simple.getSelectorType() == SelectorType.UNIVERSAL)) {
+				cond2 = ((ConditionalSelector) base0).getCondition();
+				replaced.setTrueValue();
+			} else {
+				cond2 = ((AbstractCondition) cond2).replace(base, replaced);
+			}
+
+			Condition cond1 = comb.first;
+			if (cond1.getConditionType() == ConditionType.NESTING) {
+				ConditionalSelectorImpl newsel = getSelectorFactory()
+						.createConditionalSelector((SimpleSelector) base0, cond2);
+
+				replaced.setTrueValue();
+				return newsel;
+			} else {
+				cond1 = ((AbstractCondition) cond1).replace(base, replaced);
+			}
+			CombinatorConditionImpl newCombCond = (CombinatorConditionImpl) getSelectorFactory()
+					.createCondition(ConditionType.AND);
+			newCombCond.first = cond1;
+			newCombCond.second = cond2;
+			ConditionalSelectorImpl newsel = getSelectorFactory().createConditionalSelector(
+					NSACSelectorFactory.getUniversalSelector(), newCombCond);
 			return newsel;
 		} else {
-			replCond = ((AbstractCondition) condition).replace(base);
+			replCond = ((AbstractCondition) condition).replace(base, replaced);
 		}
 
 		ConditionalSelectorImpl clon = clone();
 
-		clon.selector = (SimpleSelector) ((AbstractSelector) selector).replace(base);
+		clon.selector = (SimpleSelector) ((AbstractSelector) selector).replace(base, replaced);
 		clon.condition = replCond;
 
 		return clon;

@@ -46,10 +46,10 @@ class SelectorArgumentConditionImpl extends AbstractCondition implements Argumen
 	}
 
 	@Override
-	Condition replace(SelectorList base) {
+	Condition replace(SelectorList base, MutableBoolean replaced) {
 		SelectorArgumentConditionImpl clon = clone();
 		if (arguments != null) {
-			clon.arguments = ((SelectorListImpl) arguments).replaceNested(base);
+			clon.arguments = ((SelectorListImpl) arguments).replaceNestedArgument(base, replaced);
 		}
 		return clon;
 	}

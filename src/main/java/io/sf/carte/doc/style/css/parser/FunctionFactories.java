@@ -29,7 +29,7 @@ class FunctionFactories {
 	private final Map<String, LexicalUnitFactory> factories = createFactoryMap();
 
 	private Map<String, LexicalUnitFactory> createFactoryMap() {
-		Map<String, LexicalUnitFactory> factories = new HashMap<>(86);
+		Map<String, LexicalUnitFactory> factories = new HashMap<>(96);
 
 		factories.put("calc", new LexicalUnitFactory() {
 
@@ -66,7 +66,7 @@ class FunctionFactories {
 			}
 
 			@Override
-			public void handle(ValueTokenHandler parent) {
+			public void handle(ValueTokenHandler parent, int index) {
 				parent.yieldHandling(new TypeFunctionTH(parent));
 				// Change prevcp to 41 for comments
 				parent.prevcp = TokenProducer.CHAR_RIGHT_PAREN;
@@ -125,7 +125,7 @@ class FunctionFactories {
 			}
 
 			@Override
-			public void handle(ValueTokenHandler parent) {
+			public void handle(ValueTokenHandler parent, int index) {
 				URLTokenHandler handler = new URLTokenHandler(parent) {
 
 					@Override
@@ -441,7 +441,7 @@ class FunctionFactories {
 			}
 
 			@Override
-			public void handle(ValueTokenHandler parent) {
+			public void handle(ValueTokenHandler parent, int index) {
 				parent.yieldHandling(new ElementReferenceTH(parent));
 				// Change prevcp to 41 for comments
 				parent.prevcp = TokenProducer.CHAR_RIGHT_PAREN;
@@ -910,7 +910,54 @@ class FunctionFactories {
 
 		});
 
+		/*
+		 * Pseudo-classes (nesting)
+		 */
+
+		factories.put("dir", new PseudoUnitFactory("dir"));
+		factories.put("has", new PseudoUnitFactory("has"));
+		factories.put("is", new PseudoUnitFactory("is"));
+		factories.put("lang", new PseudoUnitFactory("lang"));
+		factories.put("not", new PseudoUnitFactory("not"));
+		factories.put("nth-child", new PseudoUnitFactory("nth-child"));
+		factories.put("nth-last-child", new PseudoUnitFactory("nth-last-child"));
+		factories.put("nth-last-of-type", new PseudoUnitFactory("nth-last-of-type"));
+		factories.put("nth-of-type", new PseudoUnitFactory("nth-of-type"));
+		factories.put("where", new PseudoUnitFactory("where"));
+
 		return factories;
+	}
+
+	/**
+	 * Handle pseudo-classes in nested selectors.
+	 */
+	private class PseudoUnitFactory implements LexicalUnitFactory {
+
+		private final String name;
+
+		PseudoUnitFactory(String name) {
+			super();
+			this.name = name;
+		}
+
+		@Override
+		public LexicalUnitImpl createUnit() {
+			return new EmptyUnitImpl();
+		}
+
+		@Override
+		public void handle(ValueTokenHandler parent, int index) {
+			parent.buffer.setLength(0);
+			BufferTokenHandler selh = parent.nestedSelectorHandler(index);
+			if (selh != null) {
+				selh.word(index, name);
+				selh.leftParenthesis(index);
+				parent.yieldHandling(selh);
+			} else {
+				FunctionFactories.this.error(parent, index, "Invalid pseudo-class: " + name);
+			}
+		}
+
 	}
 
 	private boolean isValidRGBColor(CSSContentHandler handler, int index,

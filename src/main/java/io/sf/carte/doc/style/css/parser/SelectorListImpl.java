@@ -99,7 +99,23 @@ class SelectorListImpl extends AbstractSACList<Selector> implements SelectorList
 		ListIterator<Selector> it = clon.listIterator();
 		while (it.hasNext()) {
 			AbstractSelector sel = (AbstractSelector) it.next();
-			it.set(sel.replace(base));
+			MutableBoolean replaced = new MutableBoolean();
+			Selector repl = sel.replace(base, replaced);
+			if (!replaced.isTrue()) {
+				repl = ((AbstractSelector) repl).descendant(base);
+			}
+			it.set(repl);
+		}
+		return clon;
+	}
+
+	SelectorListImpl replaceNestedArgument(SelectorList base, MutableBoolean replaced) {
+		SelectorListImpl clon = (SelectorListImpl) clone();
+		ListIterator<Selector> it = clon.listIterator();
+		while (it.hasNext()) {
+			AbstractSelector sel = (AbstractSelector) it.next();
+			Selector repl = sel.replace(base, replaced);
+			it.set(repl);
 		}
 		return clon;
 	}

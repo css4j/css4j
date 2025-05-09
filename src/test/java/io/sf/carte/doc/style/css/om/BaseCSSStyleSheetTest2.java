@@ -32,6 +32,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.dom.TestDOMImplementation;
 import io.sf.carte.doc.style.css.BooleanCondition;
+import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.CSSException;
@@ -255,8 +256,31 @@ public class BaseCSSStyleSheetTest2 {
 	}
 
 	@Test
-	public void testParseCSSStyleSheetUnexpectedTokensRecovery() throws IOException {
+	public void testParseCSSStyleSheetSemicolonErrorRecovery() throws IOException {
 		String css = "div{color:red;color{;color:maroon};color:green}";
+		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
+		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
+		Reader re = new StringReader(css);
+		sheet.parseStyleSheet(re);
+
+		CSSRuleArrayList rules = sheet.getCssRules();
+		assertEquals(1, rules.getLength());
+		StyleRule rule = (StyleRule) rules.item(0);
+
+		assertEquals(1, rule.getStyle().getLength());
+		assertEquals("red", rule.getStyle().getPropertyValue("color"));
+		AbstractCSSRule rule1 = rule.getCssRules().item(1);
+		assertNotNull(rule1);
+		assertEquals(CSSRule.NESTED_DECLARATIONS, rule1.getType());
+		assertEquals("green", ((CSSDeclarationRule) rule1).getStyle()
+				.getPropertyValue("color"));
+
+		assertTrue(sheet.getErrorHandler().hasSacErrors());
+	}
+
+	@Test
+	public void testParseCSSStyleSheetUnexpectedTokenRecovery() throws IOException {
+		String css = "div{color:red;color ''{;color:maroon};color:green}";
 		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
 		Reader re = new StringReader(css);

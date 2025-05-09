@@ -42,13 +42,13 @@ class CombinatorConditionImpl extends AbstractCondition implements CombinatorCon
 	}
 
 	@Override
-	Condition replace(SelectorList base) {
+	Condition replace(SelectorList base, MutableBoolean replaced) {
 		CombinatorConditionImpl clon = clone();
 		if (first != null) {
-			clon.first = ((AbstractCondition) clon.first).replace(base);
+			clon.first = ((AbstractCondition) clon.first).replace(base, replaced);
 		}
 		if (second != null) {
-			clon.second = ((AbstractCondition) clon.second).replace(base);
+			clon.second = ((AbstractCondition) clon.second).replace(base, replaced);
 		}
 		return clon;
 	}
