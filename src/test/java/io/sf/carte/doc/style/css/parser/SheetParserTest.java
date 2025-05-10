@@ -114,6 +114,36 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseSheetRuleNoSemicolon() throws CSSException, IOException {
+		Reader re = new StringReader(
+			".align{margin-left:0} .cls{margin-right:auto");
+		parser.parseStyleSheet(re);
+
+		assertEquals(2, handler.selectors.size());
+		assertEquals(".align", handler.selectors.get(0).toString());
+		assertEquals(".cls", handler.selectors.get(1).toString());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals(".align", handler.propertySelectors.get(0).toString());
+		assertEquals("margin-right", handler.propertyNames.get(1));
+		assertEquals(".cls", handler.propertySelectors.get(1).toString());
+		LexicalUnit lu = handler.lexicalValues.get(0);
+		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
+		assertEquals(0, lu.getIntegerValue());
+		lu = handler.lexicalValues.get(1);
+		assertNotNull(lu);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("auto", lu.getStringValue());
+
+		Locator loc = handler.ptyLocators.get(0);
+		assertEquals(1, loc.getLineNumber());
+		assertEquals(21, loc.getColumnNumber());
+		assertEquals(45, handler.ptyLocators.get(1).getColumnNumber());
+
+		assertFalse(errorHandler.hasError());
+	}
+
+	@Test
 	public void testParseSheetTwoRules() throws CSSException, IOException {
 		Reader re = new StringReader(
 			".fooclass{zoom:expression(function(ele){ele.style.zoom = \"1\"; document.execCommand(\"BackgroundImageCache\", false, true); skip-me:skip-value}(this))}#fooid .barclass{margin-right:auto;}");

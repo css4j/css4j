@@ -110,6 +110,24 @@ class SheetParserErrorTest {
 	}
 
 	@Test
+	public void testNestedRuleNoSelector() throws CSSException, IOException {
+		String s = "p{{::|::/* */}color:red}span{font-size:10pt";
+		parser.parseStyleSheet(new StringReader(s));
+		assertEquals(2, handler.selectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals("span", handler.selectors.get(1).toString());
+		assertEquals(0, handler.nestedSelectors.size());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("color", handler.propertyNames.get(0));
+		assertEquals("p", handler.propertySelectors.get(0).toString());
+		assertEquals("font-size", handler.propertyNames.get(1));
+		assertEquals("span", handler.propertySelectors.get(1).toString());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(3, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
 	public void testInvalidSelectorRecovery() throws CSSException, IOException {
 		String s = "p,:{width:900px;height:500px}span{font-size:10pt;}";
 		parser.parseStyleSheet(new InputSource(new StringReader(s)));
@@ -198,6 +216,21 @@ class SheetParserErrorTest {
 
 	@Test
 	public void testSelectorStarHack() throws CSSException, IOException {
+		String s = "p{*width:900px}span{font-size:10pt;}";
+		parser.parseStyleSheet(new InputSource(new StringReader(s)));
+		assertEquals(2, handler.selectors.size());
+		assertEquals("p", handler.selectors.get(0).toString());
+		assertEquals("span", handler.selectors.get(1).toString());
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("font-size", handler.propertyNames.get(0));
+		assertEquals("span", handler.propertySelectors.get(0).toString());
+		assertTrue(errorHandler.hasError());
+		assertEquals(1, errorHandler.getLastException().getLineNumber());
+		assertEquals(4, errorHandler.getLastException().getColumnNumber());
+	}
+
+	@Test
+	public void testSelectorStarHackSemicolon() throws CSSException, IOException {
 		String s = "p{*width:900px;}span{font-size:10pt;}";
 		parser.parseStyleSheet(new InputSource(new StringReader(s)));
 		assertEquals(2, handler.selectors.size());

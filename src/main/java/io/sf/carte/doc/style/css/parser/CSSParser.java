@@ -3005,16 +3005,18 @@ public class CSSParser implements Parser, Cloneable {
 							"STARHACK IE hack: *" + word);
 				}
 
-				PropertyNameTokenHandler starhackHandler = new PropertyNameTokenHandler() {
+				DeclarationListManager mgr = (DeclarationListManager) BlockContentsManager.this
+						.getParentManager();
+				PropertyNameTokenHandler starhackHandler = mgr.new PropertyNameTokenHandler() {
 
 					@Override
 					void processBuffer(int index, int triggerCp) {
 						String raw = buffer.toString();
 						if (!isEscapedIdent()) {
-							propertyName = raw;
+							getManager().propertyName = raw;
 							buffer.setLength(0);
 						} else {
-							propertyName = unescapeBuffer(index);
+							getManager().propertyName = unescapeBuffer(index);
 							if (!parseError && !isValidIdentifier(propertyName)) {
 								handleWarning(index - buffer.length(),
 										ParseHelper.WARN_PROPERTY_NAME,
@@ -3025,8 +3027,9 @@ public class CSSParser implements Parser, Cloneable {
 					}
 
 					@Override
-					public HandlerManager getManager() {
-						return BlockContentsManager.this.declarationManager;
+					public DeclarationListManager getManager() {
+						return (DeclarationListManager) BlockContentsManager.this
+								.getParentManager();
 					}
 
 				};
@@ -7636,9 +7639,7 @@ public class CSSParser implements Parser, Cloneable {
 		@Override
 		public void restoreInitialHandler() {
 			super.restoreInitialHandler();
-			propertyName = null;
-			whitespaceBeforeColon = false;
-			priorityImportant = false;
+			resetFields();
 		}
 
 		class PropertyNameTokenHandler extends DeclarationIdentTokenHandler {
