@@ -31,6 +31,7 @@ import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleRule;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SheetContext;
@@ -65,6 +66,8 @@ abstract public class AbstractCSSStyleSheet extends AbstractStyleSheet
 
 	@Override
 	abstract public AbstractCSSStyleSheetFactory getStyleSheetFactory();
+
+	abstract public void setErrorHandler(SheetErrorHandler sheetErrorHandler);
 
 	/**
 	 * Parses a style sheet.

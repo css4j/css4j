@@ -612,6 +612,11 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	}
 
 	@Override
+	public void setErrorHandler(SheetErrorHandler sheetErrorHandler) {
+		this.sheetErrorHandler = sheetErrorHandler;
+	}
+
+	@Override
 	protected ErrorHandler getDocumentErrorHandler() {
 		ErrorHandler eh;
 		Node owner = null;
