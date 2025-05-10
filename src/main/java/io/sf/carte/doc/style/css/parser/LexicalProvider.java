@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.parser;
 
 import io.sf.carte.doc.StringList;
+import io.sf.carte.doc.style.css.nsac.Parser;
 
 interface LexicalProvider extends CSSContentHandler {
 
@@ -41,11 +42,11 @@ interface LexicalProvider extends CSSContentHandler {
 	void endFunctionArgument(int index);
 
 	/**
-	 * Legacy IE value compatibility is enabled.
+	 * Check a parser flag.
 	 * 
-	 * @return {@code true} if IE value compatibility is enabled.
+	 * @return {@code true} if the parser flag is enabled.
 	 */
-	boolean hasLegacySupport();
+	boolean hasParserFlag(Parser.Flag flag);
 
 	/*
 	 * Comment management.

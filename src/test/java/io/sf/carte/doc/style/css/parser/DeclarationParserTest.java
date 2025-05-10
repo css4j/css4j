@@ -2396,6 +2396,54 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationContentStringComments() throws CSSException {
+		String cssText = "content: /* before */'foo' /* after */;";
+		parseStyleDeclaration(cssText);
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("content", handler.propertyNames.get(0));
+		LexicalUnit lu = handler.lexicalValues.get(0);
+		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
+		assertEquals("foo", lu.getStringValue());
+		assertEquals("'foo'", lu.toString());
+
+		assertNotNull(lu.getPrecedingComments());
+		StringList pre = lu.getPrecedingComments();
+		assertEquals(1, pre.getLength());
+		assertEquals(" before ", pre.item(0));
+
+		assertNotNull(lu.getTrailingComments());
+		StringList after = lu.getTrailingComments();
+		assertEquals(1, after.getLength());
+		assertEquals(" after ", after.item(0));
+
+		assertFalse(errorHandler.hasError());
+	}
+
+	/*
+	 * Now ignore comments
+	 */
+	@Test
+	public void testParseStyleDeclarationContentStringIgnoreComments() throws CSSException {
+		String cssText = "content: /* before */'foo' /* after */;";
+
+		parser.setFlag(Parser.Flag.VALUE_COMMENTS_IGNORE);
+
+		parseStyleDeclaration(cssText);
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals("content", handler.propertyNames.get(0));
+		LexicalUnit lu = handler.lexicalValues.get(0);
+		assertEquals(LexicalType.STRING, lu.getLexicalUnitType());
+		assertEquals("foo", lu.getStringValue());
+
+		assertNull(lu.getPrecedingComments());
+		assertNull(lu.getTrailingComments());
+
+		assertFalse(errorHandler.hasError());
+
+		parser.unsetFlag(Parser.Flag.VALUE_COMMENTS_IGNORE);
+	}
+
+	@Test
 	public void testParseStyleDeclarationContentString2() throws CSSException {
 		parseStyleDeclaration("content: 'foo\\a bar';");
 		assertEquals("content", handler.propertyNames.get(0));

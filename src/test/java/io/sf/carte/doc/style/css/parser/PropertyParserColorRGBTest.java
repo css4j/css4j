@@ -1864,6 +1864,20 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
+	public void testParsePropertyValueColorHex3IgnoreComments() throws CSSException {
+		parser.setFlag(Parser.Flag.VALUE_COMMENTS_IGNORE);
+
+		LexicalUnit lunit = parsePropertyValue("/* pre */ #fd3 /* after */");
+		assertEquals(LexicalType.RGBCOLOR, lunit.getLexicalUnitType());
+		assertEquals("rgb", lunit.getFunctionName());
+
+		assertNull(lunit.getPrecedingComments());
+		assertNull(lunit.getTrailingComments());
+
+		parser.unsetFlag(Parser.Flag.VALUE_COMMENTS_IGNORE);
+	}
+
+	@Test
 	public void testParsePropertyValueColorHex3Comments2() throws CSSException {
 		LexicalUnit lunit = parsePropertyValue("/* pre */ #fd3/* after */");
 		assertEquals(LexicalType.RGBCOLOR, lunit.getLexicalUnitType());

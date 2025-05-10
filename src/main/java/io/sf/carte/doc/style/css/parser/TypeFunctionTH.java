@@ -48,7 +48,7 @@ class TypeFunctionTH extends FunctionCallbackTH {
 				handleError(index - buflen, ParseHelper.ERR_WRONG_VALUE,
 						"Invalid syntax: " + syn);
 			}
-			setPrecedingComments(synLU);
+			getCommentStore().setPrecedingComments(synLU);
 			currentlu.addFunctionParameter(synLU);
 		}
 	}

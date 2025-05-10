@@ -1138,7 +1138,7 @@ public class CSSParser implements Parser, Cloneable {
 		 *         recovery).
 		 */
 		boolean endOfCondition(int index, boolean eof) {
-			if (opParenDepth[opDepthIndex] != 0 & !eof) {
+			if (opParenDepth[opDepthIndex] != 0 && !eof) {
 				handleError(index, ParseHelper.ERR_UNMATCHED_PARENTHESIS, "Unmatched parenthesis");
 				return false;
 			} else if (!isInError()) {
@@ -3141,7 +3141,7 @@ public class CSSParser implements Parser, Cloneable {
 				public void leftSquareBracket(int index) {
 					SelectorTokenHandler selh = yieldToNestedRuleHandler();
 					setSelectorState(index, TokenProducer.CHAR_LEFT_SQ_BRACKET, selh);
-					if (selh.currentsel == null && buffer.length() == 0) {
+					if (selh.currentsel == null && selh.stage == 0) {
 						setNestingSelector(selh);
 						selh.stage = SelectorTokenHandler.STAGE_COMBINATOR_OR_END;
 					}
@@ -3157,6 +3157,10 @@ public class CSSParser implements Parser, Cloneable {
 					selh.word(index, propertyName);
 					selh.separator(index, 32);
 					selh.word(index, word);
+
+					// Although value handler is reset on restore, do it just in case
+					resetHandler();
+					BlockContentsDeclarationManager.this.resetFields();
 				}
 
 				@Override
@@ -3168,6 +3172,10 @@ public class CSSParser implements Parser, Cloneable {
 					selh.word(index, propertyName);
 					selh.separator(index, 32);
 					selh.escaped(index, codepoint);
+
+					// Although value handler is reset on restore, do it just in case
+					resetHandler();
+					BlockContentsDeclarationManager.this.resetFields();
 				}
 
 				@Override
@@ -3188,11 +3196,17 @@ public class CSSParser implements Parser, Cloneable {
 						selh.stage = SelectorTokenHandler.STAGE_COMBINATOR_OR_END;
 					} else if (buffer.length() > 0) {
 						selh.word(index, buffer);
+						selh.setEscapedTokenStart(getEscapedTokenIndex());
 						if (isPrevCpWhitespace()) {
 							selh.processBuffer(index, triggerCp, false);
 							selh.stage = SelectorTokenHandler.STAGE_COMBINATOR_OR_END;
 						}
+						buffer.setLength(0);
 					}
+
+					// Although value handler is reset on restore, do it just in case
+					resetHandler();
+					BlockContentsDeclarationManager.this.resetFields();
 				}
 
 				@Override
@@ -7957,7 +7971,7 @@ public class CSSParser implements Parser, Cloneable {
 						if (lunit == null) {
 							lunit = new LexicalUnitImpl(LexicalType.EMPTY);
 							lunit.value = "";
-							valueth.setPrecedingComments(lunit);
+							valueth.getCommentStore().setPrecedingComments(lunit);
 						}
 						handleLexicalProperty(index, propertyName, lunit, priorityImportant);
 					}
@@ -8267,7 +8281,21 @@ public class CSSParser implements Parser, Cloneable {
 		abstract class BaseValueTokenHandler extends ValueTokenHandler {
 
 			BaseValueTokenHandler() {
-				super(CSSParser.this.parserFlags.contains(Flag.IEVALUES));
+				super();
+			}
+
+			@Override
+			public boolean hasParserFlag(Parser.Flag flag) {
+				return CSSParser.this.parserFlags.contains(flag);
+			}
+
+			@Override
+			protected CommentStore createCommentStore() {
+				if (hasParserFlag(Flag.VALUE_COMMENTS_IGNORE)) {
+					return new EmptyCommentStore();
+				} else {
+					return super.createCommentStore();
+				}
 			}
 
 			@Override

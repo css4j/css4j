@@ -11,22 +11,34 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.StringList;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.Parser.Flag;
 
 abstract class LexicalCallbackTH extends CallbackTokenHandler implements LexicalProvider {
 
 	LexicalUnitImpl currentlu;
 
-	private StringList precedingComments = null;
-
-	private StringList trailingComments = null;
+	private final CommentStore commentStore;
 
 	LexicalCallbackTH(LexicalProvider caller) {
 		super(caller);
 		currentlu = caller.getCurrentLexicalUnit();
-		precedingComments = caller.getPrecedingCommentsAndClear();
-		trailingComments = caller.getTrailingCommentsAndClear();
+		commentStore = createCommentStore();
+		commentStore.set(caller);
+	}
+
+	protected CommentStore createCommentStore() {
+		if (hasParserFlag(Flag.VALUE_COMMENTS_IGNORE)) {
+			return new EmptyCommentStore();
+		} else {
+			return new DefaultCommentStore(this);
+		}
+	}
+
+	@Override
+	public boolean hasParserFlag(Parser.Flag flag) {
+		return getCaller().hasParserFlag(flag);
 	}
 
 	@Override
@@ -37,7 +49,7 @@ abstract class LexicalCallbackTH extends CallbackTokenHandler implements Lexical
 	@Override
 	public void endFunctionArgument(int index) {
 		if (currentlu != null) {
-			setTrailingComments();
+			commentStore.setTrailingComments();
 			if (currentlu.ownerLexicalUnit != null) {
 				currentlu = currentlu.ownerLexicalUnit;
 			}
@@ -54,20 +66,20 @@ abstract class LexicalCallbackTH extends CallbackTokenHandler implements Lexical
 	 */
 	@Override
 	public LexicalUnitImpl addPlainLexicalUnit(LexicalUnitImpl lu) {
-		setPrecedingComments(lu);
+		commentStore.setPrecedingComments(lu);
 		if (isCurrentUnitAFunction()) {
 			LexicalUnitImpl param = currentlu.parameters;
 			if (param != null) {
-				setLastParameterTrailingComments(param);
+				commentStore.setLastParameterTrailingComments(param);
 				// Set preceding comments, just in case there was e.g. a comma
-				setPrecedingComments(lu);
+				commentStore.setPrecedingComments(lu);
 			}
 			currentlu.addFunctionParameter(lu);
 		} else {
 			if (currentlu != null) {
 				currentlu.nextLexicalUnit = lu;
 				lu.previousLexicalUnit = currentlu;
-				setTrailingComments(currentlu);
+				commentStore.setTrailingComments(currentlu);
 			}
 			currentlu = lu;
 		}
@@ -75,22 +87,22 @@ abstract class LexicalCallbackTH extends CallbackTokenHandler implements Lexical
 	}
 
 	LexicalUnitImpl addFunctionOrExpressionUnit(LexicalUnitImpl lu) {
-		setPrecedingComments(lu);
+		commentStore.setPrecedingComments(lu);
 		if (isCurrentUnitAFunction()) {
 			LexicalUnitImpl param = currentlu.parameters;
 			if (param != null) {
-				setLastParameterTrailingComments(param);
+				commentStore.setLastParameterTrailingComments(param);
 				// Set preceding comments, just in case there was e.g. a comma
-				setPrecedingComments(lu);
+				commentStore.setPrecedingComments(lu);
 			}
 			currentlu.addFunctionParameter(lu);
 		} else {
 			if (currentlu != null) {
 				currentlu.nextLexicalUnit = lu;
 				lu.previousLexicalUnit = currentlu;
-				setTrailingComments(currentlu);
+				commentStore.setTrailingComments(currentlu);
 				// Set preceding comments, just in case there was e.g. a comma
-				setPrecedingComments(lu);
+				commentStore.setPrecedingComments(lu);
 			}
 		}
 		currentlu = lu;
@@ -127,11 +139,6 @@ abstract class LexicalCallbackTH extends CallbackTokenHandler implements Lexical
 		super.yieldBack();
 	}
 
-	@Override
-	public boolean hasLegacySupport() {
-		return false;
-	}
-
 	/*
 	 * Comment management
 	 */
@@ -141,145 +148,32 @@ abstract class LexicalCallbackTH extends CallbackTokenHandler implements Lexical
 		if (buffer.length() != 0) {
 			processBuffer(index, 12);
 			if (commentType == 0) {
-				addTrailingComment(comment);
-				setTrailingComments();
+				commentStore.addTrailingComment(comment);
+				commentStore.setTrailingComments();
 			}
 		} else if (commentType == 0) {
-			if (!isPrevCpWhitespace() && (prevcp != 12 || haveTrailingComments())) {
-				addTrailingComment(comment);
+			if (!isPrevCpWhitespace() && (prevcp != 12 || commentStore.haveTrailingComments())) {
+				commentStore.addTrailingComment(comment);
 			} else {
-				addPrecedingComment(comment);
-				trailingComments = null;
+				commentStore.addPrecedingComment(comment);
+				commentStore.resetTrailingComments();
 			}
 		}
 		prevcp = 12;
 	}
 
-	private void addPrecedingComment(String comment) {
-		if (precedingComments == null) {
-			precedingComments = new LinkedStringList();
-		}
-		precedingComments.add(comment);
-	}
-
-	void setPrecedingComments(LexicalUnitImpl lu) {
-		if (precedingComments != null) {
-			if (!lu.addPrecedingComments(precedingComments) && currentlu != null) {
-				LexicalUnitImpl plu = lu.previousLexicalUnit;
-				if (plu == null) {
-					if (isCurrentUnitAFunction()) {
-						plu = currentlu.parameters;
-						if (plu != null) {
-							plu = CSSParser.findLastValue(plu);
-						} else {
-							// Unlikely case that first parameter is an operator
-							precedingComments = null;
-							return;
-						}
-					} else {
-						plu = currentlu;
-					}
-				}
-				// Add comments to previous unit
-				plu.addTrailingComments(precedingComments);
-			}
-			precedingComments = null;
-		}
-	}
-
-	private void addTrailingComment(String comment) {
-		if (trailingComments == null) {
-			trailingComments = new LinkedStringList();
-		}
-		trailingComments.add(comment);
-	}
-
-	private void setTrailingComments() {
-		if (currentlu != null) {
-			LexicalUnitImpl lu = currentlu;
-			if (isCurrentUnitAFunction()) {
-				if (lu.parameters != null) {
-					lu = CSSParser.findLastValue(lu.parameters);
-				} else {
-					return;
-				}
-			}
-			setTrailingComments(lu);
-		}
-	}
-
-	private void setTrailingComments(LexicalUnitImpl lu) {
-		if (trailingComments != null) {
-			if (precedingComments != null) {
-				trailingComments.addAll(precedingComments);
-				precedingComments = null;
-			}
-			if (!lu.addTrailingComments(trailingComments)) {
-				// Preceding comments for the next unit
-				if (precedingComments != null) {
-					precedingComments.addAll(trailingComments);
-				} else {
-					precedingComments = trailingComments;
-				}
-			}
-			trailingComments = null;
-		} else if (precedingComments != null) {
-			lu.addTrailingComments(precedingComments);
-			precedingComments = null;
-		}
-	}
-
-	private void setLastParameterTrailingComments(LexicalUnitImpl param) {
-		if (trailingComments != null) {
-			if (precedingComments != null) {
-				trailingComments.addAll(precedingComments);
-				precedingComments = null;
-			}
-			LexicalUnitImpl lu = CSSParser.findLastValue(param);
-			if (!lu.addTrailingComments(trailingComments)) {
-				// Preceding comments for the next unit
-				if (precedingComments != null) {
-					precedingComments.addAll(trailingComments);
-				} else {
-					precedingComments = trailingComments;
-				}
-			}
-			trailingComments = null;
-		} else if (precedingComments != null) {
-			LexicalUnitImpl lu = CSSParser.findLastValue(param);
-			lu.addTrailingComments(precedingComments);
-			precedingComments = null;
-		}
-	}
-
-	private boolean haveTrailingComments() {
-		if (trailingComments == null) {
-			LexicalUnitImpl lu = currentlu;
-			if (lu == null) {
-				return false;
-			}
-			if (isCurrentUnitAFunction()) {
-				if (lu.parameters != null) {
-					lu = CSSParser.findLastValue(lu.parameters);
-				}
-			}
-			return lu.getTrailingComments() != null;
-		}
-		return true;
+	CommentStore getCommentStore() {
+		return commentStore;
 	}
 
 	@Override
 	public StringList getPrecedingCommentsAndClear() {
-		StringList ret = precedingComments;
-		precedingComments = null;
-		return ret;
+		return commentStore.getPrecedingCommentsAndClear();
 	}
 
 	@Override
 	public StringList getTrailingCommentsAndClear() {
-		StringList ret = trailingComments;
-		trailingComments = null;
-		return ret;
+		return commentStore.getTrailingCommentsAndClear();
 	}
 
 }

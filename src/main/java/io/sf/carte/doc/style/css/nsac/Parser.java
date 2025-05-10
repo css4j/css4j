@@ -49,6 +49,14 @@ public interface Parser {
 	 */
 	enum Flag {
 		/**
+		 * Ignore comments in values.
+		 * <p>
+		 * Gives slightly better performance in value parsing.
+		 * </p>
+		 */
+		VALUE_COMMENTS_IGNORE,
+
+		/**
 		 * Handles asterisk-prefixed properties as normal, compliant CSS properties but
 		 * reports a SAC warning.
 		 */

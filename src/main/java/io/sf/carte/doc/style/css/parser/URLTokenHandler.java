@@ -202,7 +202,7 @@ class URLTokenHandler extends CallbackTokenHandler {
 
 		@Override
 		public void endFunctionArgument(int index) {
-			setTrailingComments();
+			getCommentStore().setTrailingComments();
 			LexicalUnitImpl owner = currentlu.ownerLexicalUnit;
 			if (owner != null && owner != urlUnit) {
 				currentlu = owner;

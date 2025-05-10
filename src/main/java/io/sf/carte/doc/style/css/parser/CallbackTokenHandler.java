@@ -19,6 +19,9 @@ abstract class CallbackTokenHandler extends BufferTokenHandler {
 
 	final CSSContentHandler caller;
 
+	/**
+	 * The root handler is responsible for error recovery and providing the manager.
+	 */
 	private CSSContentHandler rootHandler;
 
 	/**
@@ -44,7 +47,7 @@ abstract class CallbackTokenHandler extends BufferTokenHandler {
 	/**
 	 * Sets the root handler.
 	 * <p>
-	 * The root handler is responsible for error recovery.
+	 * The root handler is responsible for error recovery and providing the manager.
 	 * </p>
 	 * 
 	 * @param rootHandler the root handler.
@@ -149,7 +152,7 @@ abstract class CallbackTokenHandler extends BufferTokenHandler {
 	class CallbackValueTokenHandler extends ValueTokenHandler {
 
 		CallbackValueTokenHandler() {
-			super(false);
+			super();
 			this.parendepth = CallbackTokenHandler.this.parendepth;
 		}
 
