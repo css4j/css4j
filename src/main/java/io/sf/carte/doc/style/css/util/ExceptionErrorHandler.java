@@ -93,7 +93,6 @@ public class ExceptionErrorHandler implements SheetErrorHandler {
 
 	@Override
 	public void unknownRule(String rule) {
-		throw createException("Unknown rule: " + rule);
 	}
 
 	@Override
