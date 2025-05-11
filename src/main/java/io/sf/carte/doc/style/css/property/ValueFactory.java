@@ -488,6 +488,15 @@ public class ValueFactory implements CSSValueFactory {
 	}
 
 	/**
+	 * Create a default parser adequate for parsing properties.
+	 * 
+	 * @return a parser.
+	 */
+	protected Parser createParser() {
+		return new CSSOMParser();
+	}
+
+	/**
 	 * Parses a property value. Assumes that the property is not a shorthand
 	 * sub-property.
 	 * <p>
@@ -499,7 +508,7 @@ public class ValueFactory implements CSSValueFactory {
 	 *             if a problem was found parsing the property.
 	 */
 	public StyleValue parseProperty(String value) throws DOMException {
-		return parseProperty(value, new CSSOMParser());
+		return parseProperty(value, createParser());
 	}
 
 	/**
@@ -622,7 +631,16 @@ public class ValueFactory implements CSSValueFactory {
 	 * @throws DOMException if a problem was found parsing the feature.
 	 */
 	public PrimitiveValue parseMediaFeature(String feature) throws DOMException {
-		return parseMediaFeature(feature, new CSSOMParser());
+		return parseMediaFeature(feature, createMediaFeatureParser());
+	}
+
+	/**
+	 * Create a parser adequate for parsing media features.
+	 * 
+	 * @return a parser.
+	 */
+	protected Parser createMediaFeatureParser() {
+		return new CSSOMParser();
 	}
 
 	/**
