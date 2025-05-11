@@ -1389,6 +1389,33 @@ public class SheetParserTest {
 	}
 
 	@Test
+	public void testParseSupportsRule() throws CSSException, IOException {
+		Reader re = new StringReader("@supports ((fill: 24dpi) and (fill: yellow)) {g {--pty:1}}");
+		parser.parseStyleSheet(re);
+
+		assertEquals(0, handler.atRules.size());
+		assertEquals(1, handler.supportsRuleLists.size());
+		assertEquals("(fill: 24dpi) and (fill: yellow)",
+				handler.supportsRuleLists.get(0).toString());
+		assertEquals(1, handler.selectors.size());
+		assertEquals("g", handler.selectors.get(0).toString());
+		assertEquals(1, handler.propertyNames.size());
+	}
+
+	@Test
+	public void testParseSupportsRuleSelector() throws CSSException, IOException {
+		Reader re = new StringReader("@supports (not selector(div col.foo||td)) {g {--pty:1}}");
+		parser.parseStyleSheet(re);
+
+		assertEquals(0, handler.atRules.size());
+		assertEquals(1, handler.supportsRuleLists.size());
+		assertEquals("not selector(div col.foo||td)", handler.supportsRuleLists.get(0).toString());
+		assertEquals(1, handler.selectors.size());
+		assertEquals("g", handler.selectors.get(0).toString());
+		assertEquals(1, handler.propertyNames.size());
+	}
+
+	@Test
 	public void testParseNestedSupportsRule() throws CSSException, IOException {
 		Reader re = new StringReader(
 			"@media screen {@supports (display: flexbox) and (not (display: inline-grid)) {td {display: table-cell; } li {display: list-item; }@media (color) {.blue {color:blue}}}}");

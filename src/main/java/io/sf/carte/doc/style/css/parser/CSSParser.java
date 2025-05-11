@@ -1194,26 +1194,37 @@ public class CSSParser implements Parser, Cloneable {
 			return condition;
 		}
 
-		private SelectorList parseSelectors(String seltext) throws CSSException {
-			SelectorTokenHandler selectorHandler = new SelectorTokenHandler(
-					new NSACSelectorFactory()) {
+		private SelectorList parseSelectors(int index, String seltext) throws CSSException {
+			SelectorManager mgr = new SelectorManager() {
 
 				@Override
-				public void reportError(CSSParseException ex) throws CSSParseException {
-					throw ex;
+				SelectorTokenHandler createSelectorTokenHandler(NSACSelectorFactory factory) {
+					return new SelectorTokenHandler(factory) {
+
+						@Override
+						public void reportError(CSSParseException ex) throws CSSParseException {
+							throw ex;
+						}
+
+						@Override
+						public void handleErrorRecovery() {
+						}
+
+					};
+				}
+
+				@Override
+				protected ControlTokenHandler createControlTokenHandler() {
+					return new ChildControlTokenHandler(
+							SupportsTokenHandler.this.getControlHandler(), index);
 				}
 
 			};
 
-			selectorHandler.setManager(getManager());
-			CharacterCheck ccheck = new IdentCharacterCheck();
-			TokenProducer tp = new TokenProducer(ccheck, streamSizeLimit);
-			tp.setContentHandler(selectorHandler);
-			tp.setErrorHandler(selectorHandler);
-			tp.setControlHandler(new ChildControlTokenHandler(getControlHandler(), 0));
+			TokenProducer tp = mgr.createTokenProducer();
 			tp.parse(seltext, "/*", "*/");
 
-			return selectorHandler.getTrimmedSelectorList();
+			return mgr.getTrimmedSelectorList();
 		}
 
 		@Override
@@ -1315,6 +1326,11 @@ public class CSSParser implements Parser, Cloneable {
 							unexpectedTokenError(index, "Unknown function: " + fname);
 							return;
 						}
+						// It is possible that an unparsable selector is found,
+						// so instead of yielding to a sub-handler (where the
+						// different error recovery behavior must be redefined),
+						// we declare a function token and add everything to the
+						// buffer.
 						functionToken = true;
 						valueParendepth = getCurrentParenDepth();
 						valueParendepth--;
@@ -1368,7 +1384,7 @@ public class CSSParser implements Parser, Cloneable {
 						String s = buffer.toString();
 						buffer.setLength(0);
 						try {
-							list = parseSelectors(s);
+							list = parseSelectors(index, s);
 							newCond = conditionFactory.createSelectorFunction(list);
 						} catch (CSSBudgetException e) {
 							handleError(index, ParseHelper.ERR_UNSUPPORTED,
@@ -5704,18 +5720,28 @@ public class CSSParser implements Parser, Cloneable {
 
 		SelectorManager(NamespaceMap nsMap) {
 			super();
-			if (nsMap == null) {
-				this.selectorHandler = new SelectorTokenHandler(new NSACSelectorFactory());
-			} else {
-				this.selectorHandler = new SelectorTokenHandler(nsMap);
-			}
+			this.selectorHandler = createSelectorTokenHandler(nsMap);
 			this.selectorHandler.setManager(this);
 		}
 
 		SelectorManager(NSACSelectorFactory factory) {
 			super();
-			this.selectorHandler = new SelectorTokenHandler(factory);
+			this.selectorHandler = createSelectorTokenHandler(factory);
 			this.selectorHandler.setManager(this);
+		}
+
+		SelectorTokenHandler createSelectorTokenHandler(NamespaceMap nsMap) {
+			SelectorTokenHandler selectorHandler;
+			if (nsMap == null) {
+				selectorHandler = new SelectorTokenHandler(new NSACSelectorFactory());
+			} else {
+				selectorHandler = new SelectorTokenHandler(nsMap);
+			}
+			return selectorHandler;
+		}
+
+		SelectorTokenHandler createSelectorTokenHandler(NSACSelectorFactory factory) {
+			return new SelectorTokenHandler(factory);
 		}
 
 		@Override
@@ -7799,6 +7825,25 @@ public class CSSParser implements Parser, Cloneable {
 				}
 				handleError(index - buffer.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 						"Invalid property name: '" + raw + '\'');
+			}
+
+			/**
+			 * Report an unexpected character error, do not do error recovery.
+			 * 
+			 * @param index the index.
+			 * @return {@code true} if the error is recoverable
+			 */
+			@Override
+			boolean unexpectedSemicolonError(int index) {
+				String msg = "Unexpected ';'";
+				if (propertyName != null || buffer.length() != 0) {
+					reportError(index, ParseHelper.ERR_UNEXPECTED_CHAR, msg);
+				} else {
+					handleWarning(index, ParseHelper.ERR_UNEXPECTED_CHAR, msg);
+				}
+				resetHandler();
+				resetFields();
+				return true;
 			}
 
 			@Override

@@ -529,6 +529,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 					if (isCurrentUnitAFunction() && allowSemicolonArgument()) {
 						newOperator(LexicalType.OPERATOR_SEMICOLON);
 					} else {
+						// Force error recovery
 						unexpectedCharError(index, ';');
 					}
 				}

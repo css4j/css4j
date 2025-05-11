@@ -1852,6 +1852,36 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationSemicolonError() throws CSSException {
+		parseStyleDeclaration("foo;color:blue;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("color", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		LexicalUnit lu = handler.lexicalValues.get(0);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("blue", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
+	public void testParseStyleDeclarationSemicolonWarning() throws CSSException {
+		parseStyleDeclaration("foo:bar;;");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("foo", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
+		LexicalUnit lu = handler.lexicalValues.get(0);
+		assertEquals(LexicalType.IDENT, lu.getLexicalUnitType());
+		assertEquals("bar", lu.getStringValue());
+		assertNull(lu.getNextLexicalUnit());
+
+		assertFalse(errorHandler.hasError());
+		assertTrue(errorHandler.hasWarning());
+	}
+
+	@Test
 	public void testParseStyleDeclarationUnit() throws CSSException {
 		parseStyleDeclaration("margin-right: 1px;");
 		assertEquals(1, handler.propertyNames.size());

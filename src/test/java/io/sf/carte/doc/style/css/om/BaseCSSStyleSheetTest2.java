@@ -257,7 +257,7 @@ public class BaseCSSStyleSheetTest2 {
 
 	@Test
 	public void testParseCSSStyleSheetSemicolonErrorRecovery() throws IOException {
-		String css = "div{color:red;color{;color:maroon};color:green}";
+		String css = "div{color:red;color{e;color:maroon};color:green}";
 		DOMCSSStyleSheetFactory factory = new DOMCSSStyleSheetFactory();
 		AbstractCSSStyleSheet sheet = factory.createStyleSheet(null, null);
 		Reader re = new StringReader(css);
