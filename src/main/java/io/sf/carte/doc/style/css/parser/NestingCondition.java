@@ -18,8 +18,14 @@ class NestingCondition extends AbstractCondition {
 
 	private static final long serialVersionUID = 1L;
 
-	NestingCondition() {
+	private static final NestingCondition instance = new NestingCondition();
+
+	private NestingCondition() {
 		super();
+	}
+
+	public static Condition getInstance() {
+		return instance;
 	}
 
 	@Override
@@ -36,6 +42,22 @@ class NestingCondition extends AbstractCondition {
 	@Override
 	public ConditionType getConditionType() {
 		return ConditionType.NESTING;
+	}
+
+	@Override
+	public int hashCode() {
+		return ConditionType.NESTING.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		return getClass() == obj.getClass();
 	}
 
 	@Override

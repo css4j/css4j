@@ -3009,20 +3009,12 @@ public class CSSParser implements Parser, Cloneable {
 						.getParentManager();
 				PropertyNameTokenHandler starhackHandler = mgr.new PropertyNameTokenHandler() {
 
+					/**
+					 * Callers must check for non-empty buffer.
+					 */
 					@Override
 					void processBuffer(int index, int triggerCp) {
-						String raw = buffer.toString();
-						if (!isEscapedIdent()) {
-							getManager().propertyName = raw;
-							buffer.setLength(0);
-						} else {
-							getManager().propertyName = unescapeBuffer(index);
-							if (!parseError && !isValidIdentifier(propertyName)) {
-								handleWarning(index - buffer.length(),
-										ParseHelper.WARN_PROPERTY_NAME,
-										"Suspicious property name: " + raw);
-							}
-						}
+						getManager().propertyName = unescapeBuffer(index);
 						setWhitespacePrevCp();
 					}
 
@@ -3340,7 +3332,6 @@ public class CSSParser implements Parser, Cloneable {
 					SelectorListImpl selist = selectorHandler.getSelectorList();
 					if (!selist.isEmpty()) {
 						handler.endSelector(selist);
-						//selectorHandler.selist = selectorHandler.new ParserSelectorListImpl();
 					}
 					resetFields();
 					yieldManagement(BlockContentsDeclarationManager.this);
@@ -3351,7 +3342,6 @@ public class CSSParser implements Parser, Cloneable {
 					SelectorListImpl selist = selectorHandler.getSelectorList();
 					if (!selist.isEmpty()) {
 						handler.endSelector(selist);
-						//selectorHandler.selist = selectorHandler.new ParserSelectorListImpl();
 					}
 					BlockContentsManager.this.endOfStream(len);
 				}

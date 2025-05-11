@@ -312,6 +312,22 @@ public class SelectorListImplTest {
 		assertEquals(":is(p:last-child,div.cls)", replaced.toString());
 	}
 
+	@Test
+	public void testEquals() {
+		SelectorList selist = parseSelectors("p:last-child,div.cls");
+		SelectorList selist2 = parseSelectors("p:last-child,div.cls");
+
+		assertEquals(selist, selist2);
+	}
+
+	@Test
+	public void testEqualsNested() {
+		SelectorList selist = parseSelectors("&:last-child,&.cls");
+		SelectorList selist2 = parseSelectors("&:last-child,&.cls");
+
+		assertEquals(selist, selist2);
+	}
+
 	private SelectorList parseSelectors(String selist) throws CSSException {
 		try {
 			return parser.parseSelectors(new StringReader(selist));

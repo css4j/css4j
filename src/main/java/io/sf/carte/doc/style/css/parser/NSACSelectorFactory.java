@@ -591,7 +591,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 		case POSITIONAL:
 			return createPositionalCondition();
 		case NESTING:
-			return new NestingCondition();
+			return NestingCondition.getInstance();
 		}
 		return null;
 	}
