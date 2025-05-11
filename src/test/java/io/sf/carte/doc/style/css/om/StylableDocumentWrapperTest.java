@@ -46,7 +46,6 @@ import org.w3c.dom.DocumentType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.css.CSSStyleSheet;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -57,12 +56,14 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.StylableDocumentWrapper.LinkStyleDefiner;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -458,20 +459,55 @@ public class StylableDocumentWrapperTest {
 	@Test
 	public void testStyleElement() {
 		CSSElement style = (CSSElement) xhtmlDoc.getElementsByTagName("style").item(0);
-		CSSStyleSheet sheet = ((LinkStyle<?>) style).getSheet();
+		CSSStyleSheet<?> sheet = ((LinkStyle<?>) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertTrue(sheet.getCssRules().getLength() > 0);
 		assertTrue(sheet.getOwnerNode() == style);
 		assertEquals(1, style.getChildNodes().getLength());
 		Node node = style.getFirstChild();
-		node.setNodeValue("body {font-size: 14pt; margin-left: 7%;} h1 {font-size: 2.4em;}");
+		node.setNodeValue(
+				"body {font-size: /* pre */14pt/* after */; margin-left: 7%;} h1 {font-size: 2.4em;}");
 		sheet = ((LinkStyle<?>) style).getSheet();
 		assertEquals(2, sheet.getCssRules().getLength());
 		assertTrue(sheet.getOwnerNode() == style);
+
+		// Obtain a value to check comments
+		StyleRule styleR = (StyleRule) sheet.getCssRules().item(0);
+		StyleValue fontSize = styleR.getStyle().getPropertyCSSValue("font-size");
+		assertNotNull(fontSize.getPrecedingComments());
+		assertNotNull(fontSize.getTrailingComments());
+		assertEquals(" pre ", fontSize.getPrecedingComments().item(0));
+		assertEquals(" after ", fontSize.getTrailingComments().item(0));
+
+		xhtmlDoc.getStyleSheetFactory().setFlag(Parser.Flag.VALUE_COMMENTS_IGNORE);
+
+		// Set the stylesheet again
+		style.setTextContent(
+				"body {font-size: /* pre */14pt/* after */; margin-left: 7%;} h1 {font-size: 2.4em;}");
+		AbstractCSSStyleSheet sheet2 = ((LinkStyleDefiner) style).getSheet();
+		assertTrue(sheet2 == sheet);
+
+		// Obtain the same value, no comments now
+		styleR = (StyleRule) sheet2.getCssRules().item(0);
+		fontSize = styleR.getStyle().getPropertyCSSValue("font-size");
+		assertNull(fontSize.getPrecedingComments());
+		assertNull(fontSize.getTrailingComments());
+
+		sheet2.getStyleSheetFactory().unsetFlag(Parser.Flag.VALUE_COMMENTS_IGNORE);
+
 		// Empty text content
 		node.setNodeValue("");
 		assertEquals(0, sheet.getCssRules().getLength());
+
+		// Remove node
+		style.removeChild(node);
+
+		// Use setTextContent
+		style.setTextContent("/* Comments only */");
+		sheet2 = ((LinkStyleDefiner) style).getSheet();
+		assertTrue(sheet2 == sheet);
+		assertEquals(0, sheet2.getCssRules().getLength());
 
 		Attr type = style.getAttributeNode("type");
 		type.setNodeValue("foo");
@@ -498,7 +534,7 @@ public class StylableDocumentWrapperTest {
 
 		CSSElement style = cssDoc.getElementById("style1");
 		assertNotNull(style);
-		CSSStyleSheet sheet = ((LinkStyle<?>) style).getSheet();
+		CSSStyleSheet<?> sheet = ((LinkStyle<?>) style).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getCssRules().getLength());
 
@@ -533,7 +569,7 @@ public class StylableDocumentWrapperTest {
 	public void testLinkElement() {
 		CSSElement link = (CSSElement) xhtmlDoc.getElementsByTagName("link").item(0);
 
-		CSSStyleSheet sheet = ((LinkStyle<?>) link).getSheet();
+		CSSStyleSheet<?> sheet = ((LinkStyle<?>) link).getSheet();
 		assertNotNull(sheet);
 		assertEquals(0, sheet.getMedia().getLength());
 		assertTrue(sheet.getCssRules().getLength() > 0);

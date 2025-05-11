@@ -47,6 +47,7 @@ import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.ErrorHandler;
 import io.sf.carte.doc.style.css.LinkStyle;
@@ -55,6 +56,7 @@ import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.DOMCSSStyleSheetFactoryTest;
 import io.sf.carte.doc.style.css.om.FontFeatureValuesRule;
 import io.sf.carte.doc.style.css.om.StyleRule;
+import io.sf.carte.doc.style.css.property.StyleValue;
 
 public class XHTMLDocumentTest {
 
@@ -843,11 +845,35 @@ public class XHTMLDocumentTest {
 		assertEquals(1, sheet2.getMedia().getLength());
 		assertEquals("screen", sheet2.getMedia().item(0));
 		assertTrue(sheet2.getCssRules().getLength() > 0);
-		style.setTextContent("body {font-size: 14pt; margin-left: 7%;} h1 {font-size: 2.4em;}");
+
+		style.setTextContent(
+				"body {font-size: /* pre */14pt/* after */; margin-left: 7%;} h1 {font-size: 2.4em;}");
 		sheet = ((LinkStyleDefiner) style).getSheet();
 		assertTrue(sheet2 == sheet);
 		assertEquals(2, sheet.getCssRules().getLength());
 		assertTrue(sheet.getOwnerNode() == style);
+
+		// Obtain a value to check comments
+		StyleRule styleR = (StyleRule) sheet.getCssRules().item(0);
+		StyleValue fontSize = styleR.getStyle().getPropertyCSSValue("font-size");
+		assertNotNull(fontSize.getPrecedingComments());
+		assertNotNull(fontSize.getTrailingComments());
+		assertEquals(" pre ", fontSize.getPrecedingComments().item(0));
+		assertEquals(" after ", fontSize.getTrailingComments().item(0));
+
+		xmlDoc.getImplementation().setFlag(Parser.Flag.VALUE_COMMENTS_IGNORE);
+
+		// Set the stylesheet again
+		style.setTextContent(
+				"body {font-size: /* pre */14pt/* after */; margin-left: 7%;} h1 {font-size: 2.4em;}");
+		sheet = ((LinkStyleDefiner) style).getSheet();
+		assertTrue(sheet2 == sheet);
+
+		// Obtain the same value, no comments now
+		styleR = (StyleRule) sheet.getCssRules().item(0);
+		fontSize = styleR.getStyle().getPropertyCSSValue("font-size");
+		assertNull(fontSize.getPrecedingComments());
+		assertNull(fontSize.getTrailingComments());
 
 		assertEquals(2, sheet.insertRule("h3 {font-family: Arial}", 2));
 		style.normalize();
@@ -858,6 +884,8 @@ public class XHTMLDocumentTest {
 		type.setNodeValue("foo");
 		assertNull(((LinkStyleDefiner) style).getSheet());
 		assertFalse(xmlDoc.getErrorHandler().hasErrors());
+
+		xmlDoc.getImplementation().unsetFlag(Parser.Flag.VALUE_COMMENTS_IGNORE);
 	}
 
 	@Test

@@ -435,6 +435,30 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 		return parserFlags;
 	}
 
+	/**
+	 * Set the given parser flag.
+	 * 
+	 * @param flag the flag.
+	 * @return {@code true} if the flag was newly set, {@code false} if the flag was
+	 *         already set.
+	 */
+	@Override
+	public boolean setFlag(Parser.Flag flag) {
+		return parserFlags.add(flag);
+	}
+
+	/**
+	 * Unset the given parser flag.
+	 * 
+	 * @param flag the flag.
+	 * @return {@code true} if the flag was unset, {@code false} if the flag was not
+	 *         set.
+	 */
+	@Override
+	public boolean unsetFlag(Parser.Flag flag) {
+		return parserFlags.remove(flag);
+	}
+
 	@Override
 	protected boolean hasCompatValueFlags() {
 		EnumSet<Flag> flags = parserFlags;

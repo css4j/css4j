@@ -20,6 +20,7 @@ import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.DocumentCSSStyleSheet;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.Parser.Flag;
 import io.sf.carte.doc.style.css.property.TypedValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 
@@ -97,9 +98,28 @@ abstract public class AbstractCSSStyleSheetFactory implements CSSStyleSheetFacto
 	abstract protected EnumSet<Parser.Flag> getParserFlags();
 
 	/**
-	 * Check for compat value flags.
+	 * Set the given parser flag.
 	 * 
-	 * @return <code>true</code> if the factory has compat value flags set.
+	 * @param flag the flag.
+	 * @return {@code true} if the flag was newly set, {@code false} if the flag was
+	 *         already set.
+	 */
+	abstract public boolean setFlag(Flag flag);
+
+	/**
+	 * Unset the given parser flag.
+	 * 
+	 * @param flag the flag.
+	 * @return {@code true} if the flag was unset, {@code false} if the flag was not
+	 *         set.
+	 */
+	abstract public boolean unsetFlag(Flag flag);
+
+	/**
+	 * Check for Internet Explorer legacy compatibility value flags.
+	 * 
+	 * @return <code>true</code> if the factory has any compatibility value flags
+	 *         set (note: {@code STARHACK} is not considered a value flag).
 	 */
 	abstract protected boolean hasCompatValueFlags();
 
