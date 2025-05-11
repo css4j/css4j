@@ -68,8 +68,15 @@ public class StylableDocumentWrapperTest2 {
 		Document document = docbuilder.newDocument();
 		Element element = document.createElement("html");
 		document.appendChild(element);
+		Element head = document.createElement("head");
+		element.appendChild(head);
 		Element baseElm = document.createElement("base");
-		element.appendChild(baseElm);
+		head.appendChild(baseElm);
+		Element body = document.createElement("body");
+		element.appendChild(body);
+		Element p = document.createElement("p");
+		body.appendChild(p);
+		p.setTextContent("Lorem ipsum.");
 
 		// Wrap
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
@@ -153,6 +160,12 @@ public class StylableDocumentWrapperTest2 {
 		assertSame(base, docElm.setAttributeNodeNS(base));
 		assertTrue(docElm.hasAttributeNS(XML_NAMESPACE_URI, "base"));
 		assertSame(base, docElm.getAttributeNodeNS(XML_NAMESPACE_URI, "base"));
+
+		/*
+		 * setTextContent()
+		 */
+		p.setTextContent("New text content.");
+		assertEquals("New text content.", p.getTextContent());
 	}
 
 	@Test

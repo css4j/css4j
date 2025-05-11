@@ -1128,6 +1128,12 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		}
 
 		@Override
+		public void setTextContent(String textContent) throws DOMException {
+			removeAllChild();
+			element.setTextContent(textContent);
+		}
+
+		@Override
 		public SelectorMatcher getSelectorMatcher() {
 			SelectorMatcher matcher = null;
 			if (selectorMatcherRef != null) {
@@ -1419,11 +1425,26 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 		}
 
 		@Override
+		public void setTextContent(String textContent) throws DOMException {
+			Node first;
+			if (getChildNodes().getLength() == 1
+					&& ((first = getFirstChild()).getNodeType() == Node.CDATA_SECTION_NODE
+							|| first.getNodeType() == Node.TEXT_NODE)) {
+				first.setNodeValue(textContent);
+			} else {
+				removeAllChild();
+				this.rawnode.setTextContent(textContent);
+			}
+			needsUpdate = true;
+		}
+
+		@Override
 		public void normalize() {
 			if (definedSheet != null) {
 				CDATASection cdata = document.createCDATASection(definedSheet.toString());
 				removeAllChild();
 				this.rawnode.appendChild(cdata);
+				needsUpdate = true;
 			}
 		}
 
