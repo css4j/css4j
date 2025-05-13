@@ -155,14 +155,6 @@ abstract public class EmptyCSSHandler implements CSSHandler, CSSErrorHandler {
 	}
 
 	@Override
-	public void startViewport() {
-	}
-
-	@Override
-	public void endViewport() {
-	}
-
-	@Override
 	public void lexicalProperty(String propertyName, LexicalUnit lunit, boolean important) {
 		property(propertyName, lunit, important);
 	}

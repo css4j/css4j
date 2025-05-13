@@ -282,17 +282,20 @@ public interface CSSHandler {
 	/**
 	 * Start a {@literal @}viewport rule.
 	 * <p>
-	 * Note: {@code @viewport} rules were
-	 * <a href="https://github.com/w3c/csswg-drafts/issues/4766">removed by W3C in
-	 * February 2020</a>.
-	 * </p>
+	 * 
+	 * @deprecated {@code @viewport} rules were
+	 *             <a href="https://github.com/w3c/csswg-drafts/issues/4766">removed
+	 *             by W3C in February 2020</a>.
+	 *             </p>
 	 */
+	@Deprecated(forRemoval = true)
 	default void startViewport() {
 	}
 
 	/**
 	 * End of {@literal @}viewport rule.
 	 */
+	@Deprecated(forRemoval = true)
 	default void endViewport() {
 	}
 
