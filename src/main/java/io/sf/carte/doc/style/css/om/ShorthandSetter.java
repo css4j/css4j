@@ -133,6 +133,11 @@ class ShorthandSetter extends BaseShorthandSetter {
 		return s.charAt(0) == '-' && s.length() > 3;
 	}
 
+	boolean isCurrentValueZero() {
+		return currentValue.getLexicalUnitType() == LexicalType.INTEGER
+				&& currentValue.getIntegerValue() == 0;
+	}
+
 	/**
 	 * Check whether this shorthand contains any IE compatibility value
 	 * (<code>COMPAT_IDENT</code> or <code>COMPAT_PRIO</code>).

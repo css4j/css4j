@@ -102,6 +102,12 @@ public class TransitionShorthandBuilderTest {
 	}
 
 	@Test
+	public void testBuilderZero() {
+		assertShorthandText("transition:visibility linear,opacity 50ms;",
+				"transition: visibility 0 linear 0,opacity 50ms");
+	}
+
+	@Test
 	public void testBuilderListImportant() {
 		assertShorthandText(
 				"transition:margin-left 3500ms 5s,margin-top 0s steps(2,start) 3s!important;",

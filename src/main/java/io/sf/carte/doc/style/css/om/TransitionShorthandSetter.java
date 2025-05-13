@@ -165,7 +165,8 @@ class TransitionShorthandSetter extends ShorthandSetter {
 					continue;
 				}
 
-				if ((tdurUnset || tdelayUnset) && ValueFactory.isTimeSACUnit(currentValue)) {
+				if ((tdurUnset || tdelayUnset)
+						&& (ValueFactory.isTimeSACUnit(currentValue) || isCurrentValueZero())) {
 					if (tdurUnset) {
 						StyleValue value = createCSSValue("transition-duration", currentValue);
 						if (value != null) {
