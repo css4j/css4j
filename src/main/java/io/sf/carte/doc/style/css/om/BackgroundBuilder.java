@@ -477,7 +477,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 		boolean appended = false;
 		if (posvalue != null) {
 			CssType type = posvalue.getCssValueType();
-			String text = posvalue.getCssText().toLowerCase(Locale.ROOT);
+			String text = posvalue.getMinifiedCssText().toLowerCase(Locale.ROOT);
 			if (isRevertValue(posvalue)) {
 				return false;
 			} else if (type == CssType.TYPED) {
@@ -498,7 +498,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 					if (list.getLength() != 2 || !"center".equalsIgnoreCase(list.item(1).getCssText())) {
 						appendText(buf, text);
 					} else {
-						appendText(buf, list.item(0).getCssText());
+						appendText(buf, list.item(0).getMinifiedCssText());
 					}
 					appended = true;
 				}
@@ -537,7 +537,7 @@ class BackgroundBuilder extends ShorthandBuilder {
 
 	private boolean appendBackgroundRepeat(StringBuilder buf, StyleValue value) {
 		CssType type = value.getCssValueType();
-		String text = value.getCssText().toLowerCase(Locale.ROOT);
+		String text = value.getMinifiedCssText().toLowerCase(Locale.ROOT);
 		if (!isIdentOrKeyword(value) || isRevertValue(value) || text.indexOf('\\') != -1) {
 			// Either 'unset', wrong typed or contains a hack
 			return false;

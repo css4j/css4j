@@ -73,6 +73,13 @@ public class BackgroundBuilderTest {
 	}
 
 	@Test
+	public void testBackgroundDataURL() {
+		assertShorthandText(
+				"background:url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23303348' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e\") right .45rem center/8px 10px no-repeat,center right 1.45rem/calc(.7em + .35rem) calc(.7em + .35rem) no-repeat #fff;",
+				"background:url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='%23303348' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e\") no-repeat right .45rem center/8px 10px,#fff no-repeat center right 1.45rem/calc(.7em + .35rem) calc(0.7em + 0.35rem)");
+	}
+
+	@Test
 	public void testBackgroundNone() {
 		assertShorthandText("background:none;", "background: none;");
 		assertShorthandText("background:none;", "background: initial;");
@@ -98,6 +105,11 @@ public class BackgroundBuilderTest {
 	public void testBackgroundLayerNoneImportant() {
 		assertShorthandText("background:url('a.png'),none!important;",
 				"background: url(a.png),none ! important;");
+	}
+
+	@Test
+	public void testBackgroundZeroZero() {
+		assertShorthandText("background:0 0;", "background: 0 0;");
 	}
 
 	@Test
