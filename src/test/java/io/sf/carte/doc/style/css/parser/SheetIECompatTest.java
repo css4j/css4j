@@ -113,6 +113,32 @@ public class SheetIECompatTest {
 	}
 
 	@Test
+	public void testParseStyleSheetAsteriskHackMediaRule() throws CSSException, IOException {
+		TestCSSHandler handler = new TestCSSHandler();
+		parser.setDocumentHandler(handler);
+
+		parser.setFlag(CSSParser.Flag.STARHACK);
+		Reader re = new StringReader("@media screen{.foo{*width: 80%}}.cls{font-size:10pt}");
+		parser.parseStyleSheet(re);
+
+		assertEquals(2, handler.selectors.size());
+		assertEquals(2, handler.propertyNames.size());
+		assertEquals("*width", handler.propertyNames.get(0));
+		assertEquals(".foo", handler.propertySelectors.get(0).toString());
+		assertEquals("font-size", handler.propertyNames.get(1));
+		assertEquals(".cls", handler.propertySelectors.get(1).toString());
+		LexicalUnit lu = handler.lexicalValues.get(0);
+		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
+		assertEquals(80f, lu.getFloatValue(), 0.01f);
+
+		assertFalse(errorHandler.hasError());
+		assertTrue(errorHandler.hasWarning());
+
+		assertEquals(1, errorHandler.getLastWarning().getLineNumber());
+		assertEquals(20, errorHandler.getLastWarning().getColumnNumber());
+	}
+
+	@Test
 	public void testParseStyleSheetIEHack() throws CSSException, IOException {
 		TestDeclarationHandler handler = new TestDeclarationHandler();
 		parser.setDocumentHandler(handler);

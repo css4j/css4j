@@ -5872,7 +5872,8 @@ public class CSSParser implements Parser, Cloneable {
 							&& currentsel == null && buffer.length() == 0
 							&& (ancMgr = getManager().getParentManager()) != null
 							&& (ancMgr = ancMgr.getParentManager()) != null
-							&& ancMgr.isTopManager()) {
+							&& (ancMgr.isTopManager()
+									|| (ancMgr = ancMgr.getParentManager()).isTopManager())) {
 						// IE Legacy STARHACK
 						handleStarHack(index, word);
 					} else {
@@ -7801,18 +7802,20 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			protected void nestingSelector(int index) {
-				getControlHandler().getCurrentHandler().unexpectedCharError(index,
-						TokenProducer.CHAR_AMPERSAND);
+				unexpectedCharError(index, TokenProducer.CHAR_AMPERSAND);
 			}
 
 			protected void expectSelector(int index, int triggerCp) {
+				/*
+				 * This can be executed when parsing style declarations.
+				 */
 				if (triggerCp == '*' && parserFlags.contains(Flag.STARHACK) && propertyName == null
 						&& buffer.length() == 0 && isTopManager()) {
 					// IE Legacy STARHACK
 					buffer.append('*');
 					handleWarning(index, ParseHelper.WARN_PROPERTY_NAME, "STARHACK IE hack.");
 				} else {
-					getControlHandler().getCurrentHandler().unexpectedCharError(index, triggerCp);
+					unexpectedCharError(index, triggerCp);
 				}
 			}
 

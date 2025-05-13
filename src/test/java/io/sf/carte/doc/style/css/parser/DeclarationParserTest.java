@@ -434,7 +434,8 @@ public class DeclarationParserTest {
 
 	@Test
 	public void testParseStyleDeclarationBadUrlModifier() throws CSSException {
-		parseStyleDeclaration("background-image: url('image.png' format(+;width:0;));height:100px;");
+		parseStyleDeclaration(
+				"background-image: url('image.png' format(+;width:0;));height:100px;");
 		assertEquals(1, handler.propertyNames.size());
 		assertEquals(1, handler.lexicalValues.size());
 
@@ -1444,7 +1445,7 @@ public class DeclarationParserTest {
 	}
 
 	@Test
-	public void testParseStyleDeclarationPropertyNameError3() throws CSSException {
+	public void testParseStyleDeclarationPropertyNameErrorNumberSignAtEnd() throws CSSException {
 		parseStyleDeclaration("color#:#ff0");
 		assertTrue(errorHandler.hasError());
 		assertFalse(errorHandler.hasWarning());
@@ -1454,7 +1455,7 @@ public class DeclarationParserTest {
 	}
 
 	@Test
-	public void testParseStyleDeclarationPropertyNameError4() throws CSSException {
+	public void testParseStyleDeclarationPropertyNameErrorInitialNumberSign() throws CSSException {
 		parseStyleDeclaration("#color:#ff0");
 		assertTrue(errorHandler.hasError());
 		assertFalse(errorHandler.hasWarning());
@@ -1464,7 +1465,8 @@ public class DeclarationParserTest {
 	}
 
 	@Test
-	public void testParseStyleDeclarationPropertyNameError5() throws CSSException {
+	public void testParseStyleDeclarationPropertyNameErrorInitialNumberSignRecovery()
+			throws CSSException {
 		// Test the recovery from previous error
 		parseStyleDeclaration("#color:#ff0;margin-right:0");
 		assertTrue(errorHandler.hasError());
@@ -1480,7 +1482,7 @@ public class DeclarationParserTest {
 	}
 
 	@Test
-	public void testParseStyleDeclarationPropertyNameError6() throws CSSException {
+	public void testParseStyleDeclarationPropertyNameErrorTwoNames() throws CSSException {
 		parseStyleDeclaration("color color:#ff0");
 		assertTrue(errorHandler.hasError());
 		assertFalse(errorHandler.hasWarning());
@@ -1490,13 +1492,24 @@ public class DeclarationParserTest {
 	}
 
 	@Test
-	public void testParseStyleDeclarationPropertyNameError7() throws CSSException {
+	public void testParseStyleDeclarationPropertyNameErrorInvalidIdent() throws CSSException {
 		parseStyleDeclaration("9color:#ff0");
 		assertTrue(errorHandler.hasError());
 		assertFalse(errorHandler.hasWarning());
 
 		assertEquals(0, handler.propertyNames.size());
 		assertEquals(0, handler.lexicalValues.size());
+	}
+
+	@Test
+	public void testParseStyleDeclarationPropertyNameErrorAmpersand() throws CSSException {
+		parseStyleDeclaration("color &:#ff0;text-align:left");
+		assertTrue(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("text-align", handler.propertyNames.get(0));
+		assertEquals(1, handler.lexicalValues.size());
 	}
 
 	@Test
