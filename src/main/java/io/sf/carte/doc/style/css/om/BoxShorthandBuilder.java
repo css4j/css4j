@@ -18,7 +18,9 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.DeclarationFormattingContext;
+import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.util.BufferSimpleWriter;
 
@@ -58,8 +60,10 @@ class BoxShorthandBuilder extends BaseBoxShorthandBuilder {
 		if (type == CssType.TYPED) {
 			CSSTypedValue primi = (CSSTypedValue) cssValue;
 			short ptype = primi.getUnitType();
-			return !CSSUnit.isLengthUnitType(ptype) && !primi.isNumberZero() && ptype != CSSUnit.CSS_PERCENTAGE
-					&& primi.getPrimitiveType() != Type.IDENT;
+			return !CSSUnit.isLengthUnitType(ptype) && !primi.isNumberZero()
+					&& ptype != CSSUnit.CSS_PERCENTAGE && primi.getPrimitiveType() != Type.IDENT
+					&& primi.matches(
+							SyntaxParser.createSimpleSyntax("length-percentage")) != Match.TRUE;
 		}
 		return type == CssType.LIST;
 	}

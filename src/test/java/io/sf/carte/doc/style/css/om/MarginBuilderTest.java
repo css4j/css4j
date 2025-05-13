@@ -89,6 +89,12 @@ public class MarginBuilderTest {
 	}
 
 	@Test
+	public void testMarginEnv() {
+		assertShorthandText("margin:1.2rem 1.6rem calc(env(safe-area-inset-bottom) + 3rem);",
+				"margin:1.2rem 1.6rem calc(env(safe-area-inset-bottom) + 3rem)");
+	}
+
+	@Test
 	public void testMarginImportant() {
 		assertShorthandText("margin:1px!important;", "margin:1px!important;");
 		assertShorthandText("margin:1px 2px!important;", "margin:1px 2px!important;");
