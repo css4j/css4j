@@ -2,12 +2,12 @@
 
  Copyright (c) 2005-2025, Carlos Amengual.
 
- SPDX-License-Identifier: BSD-3-Clause
-
  Licensed under a BSD-style License. You can find the license here:
  https://css4j.github.io/LICENSE.txt
 
  */
+
+// SPDX-License-Identifier: BSD-3-Clause
 
 package io.sf.carte.doc.style.css;
 
@@ -26,9 +26,6 @@ import org.w3c.dom.stylesheets.DocumentStyle;
 
 /**
  * A CSS-enabled Document.
- *
- * @author Carlos
- *
  */
 public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 
@@ -254,9 +251,11 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 		if (buri != null) {
 			try {
 				URI uri = new URI(buri);
-				baseURL = uri.toURL();
-			} catch (Exception e) {
-				getErrorHandler().nodeError(this, "Cannot convert URI to absolute: " + buri, e);
+				if (uri.isAbsolute()) {
+					baseURL = uri.toURL();
+				}
+			} catch (URISyntaxException | MalformedURLException e) {
+				getErrorHandler().nodeError(this, "Base URI is invalid: " + buri, e);
 			}
 		}
 		return baseURL;
@@ -279,12 +278,7 @@ public interface CSSDocument extends Document, DocumentStyle, CSSNode {
 			throw new MalformedURLException("Empty URI");
 		}
 
-		URI u;
-		try {
-			u = new URI(uri);
-		} catch (URISyntaxException e) {
-			throw new MalformedURLException(e.getMessage());
-		}
+		URI u = CSSDocumentUtil.validURI(uri);
 
 		if (!u.isAbsolute()) {
 			URL url = getBaseURL();

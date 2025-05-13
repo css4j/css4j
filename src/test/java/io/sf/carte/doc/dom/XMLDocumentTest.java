@@ -16,11 +16,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.net.MalformedURLException;
 import java.util.Iterator;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -1052,12 +1054,37 @@ public class XMLDocumentTest {
 	}
 
 	@Test
-	public void testBaseAttribute() {
+	public void testBaseAttribute() throws MalformedURLException {
 		assertEquals("http://www.example.com/xml/xmlsample.xml", xmlDoc.getDocumentURI());
 		assertEquals("http://www.example.com/", xmlDoc.getBaseURI());
 		Attr base = xmlDoc.getDocumentElement().getAttributeNode("xml:base");
 		base.setValue("http://www.example.com/newbase/");
 		assertEquals("http://www.example.com/newbase/", xmlDoc.getBaseURI());
+
+		// Check that getURL works
+		assertEquals("http://www.example.com/newbase/b?e=f&g=h",
+				xmlDoc.getURL("b?e=f&g=h").toExternalForm());
+
+		assertEquals(
+				"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Raleway:wght@200&display=swap",
+				xmlDoc.getURL(
+						"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Raleway:wght@200&display=swap")
+						.toExternalForm());
+
+		// Web browsers admit the following
+		assertEquals(
+				"https://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300%7CRoboto:400,500,700,300,900&subset=latin,greek,greek-ext,vietnamese,cyrillic-ext,latin-ext,cyrillic",
+				xmlDoc.getURL(
+						"https://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300|Roboto:400,500,700,300,900&subset=latin,greek,greek-ext,vietnamese,cyrillic-ext,latin-ext,cyrillic")
+						.toExternalForm());
+
+		assertThrows(MalformedURLException.class, () -> xmlDoc.getURL("https:||www.example.com/"));
+
+		assertThrows(MalformedURLException.class,
+				() -> xmlDoc.getURL("https://www.example.com/a?b=c\\d"));
+
+		assertThrows(MalformedURLException.class,
+				() -> xmlDoc.getURL("https://www.example.com/a?b=\"c\""));
 
 		// Changing an unrelated href attribute does nothing to base uri.
 		DOMElement anchor = xmlDoc.getElementsByTagName("a").item(0);

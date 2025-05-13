@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -3077,7 +3078,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 					URI docUri;
 					try {
 						docUri = new URI(buri);
-					} catch (Exception e) {
+					} catch (URISyntaxException e) {
 						return getBaseForNullDocumentURI(attr, elm);
 					}
 					try {

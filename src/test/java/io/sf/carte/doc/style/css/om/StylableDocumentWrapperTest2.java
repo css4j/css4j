@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
@@ -64,7 +65,7 @@ public class StylableDocumentWrapperTest2 {
 	}
 
 	@Test
-	public void testElement() {
+	public void testElement() throws MalformedURLException {
 		Document document = docbuilder.newDocument();
 		Element element = document.createElement("html");
 		document.appendChild(element);
@@ -77,6 +78,8 @@ public class StylableDocumentWrapperTest2 {
 		Element p = document.createElement("p");
 		body.appendChild(p);
 		p.setTextContent("Lorem ipsum.");
+
+		document.setDocumentURI("http://www.example.net/servlet?a=\"b\"&c=\"d\"");
 
 		// Wrap
 		TestCSSStyleSheetFactory cssFac = new TestCSSStyleSheetFactory();
@@ -96,6 +99,34 @@ public class StylableDocumentWrapperTest2 {
 		assertNotNull(docElm.getAttributeNode("xml:base"));
 
 		assertEquals("http://www.example.com/", wrapped.getBaseURI());
+
+		// Check that getURL works
+		assertEquals("http://www.example.com/b?e=f&g=h",
+				wrapped.getURL("b?e=f&g=h").toExternalForm());
+
+		assertEquals(
+				"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Raleway:wght@200&display=swap",
+				wrapped.getURL(
+						"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Raleway:wght@200&display=swap")
+						.toExternalForm());
+
+		// Web browsers admit the following
+		assertEquals(
+				"https://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300%7CRoboto:400,500,700,300,900&subset=latin,greek,greek-ext,vietnamese,cyrillic-ext,latin-ext,cyrillic",
+				wrapped.getURL(
+						"https://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300|Roboto:400,500,700,300,900&subset=latin,greek,greek-ext,vietnamese,cyrillic-ext,latin-ext,cyrillic")
+						.toExternalForm());
+
+		assertThrows(MalformedURLException.class, () -> wrapped.getURL("https:||www.example.com/"));
+
+		assertThrows(MalformedURLException.class,
+				() -> wrapped.getURL("https://www.example.com/a?b=c\\d"));
+
+		assertThrows(MalformedURLException.class,
+				() -> wrapped.getURL("https://www.example.com/a?b=\"c\""));
+
+		// Reset document URI for new tests
+		wrapped.setDocumentURI(null);
 
 		docElm.removeAttribute("lang");
 		assertFalse(docElm.hasAttribute("lang"));

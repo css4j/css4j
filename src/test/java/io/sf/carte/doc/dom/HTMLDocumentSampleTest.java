@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Iterator;
@@ -2250,16 +2251,42 @@ public class HTMLDocumentSampleTest {
 	}
 
 	@Test
-	public void testBaseElement() {
+	public void testBaseElement() throws MalformedURLException {
 		assertEquals("http://www.example.com/xhtml/htmlsample.html", xhtmlDoc.getDocumentURI());
 		assertEquals("http://www.example.com/", xhtmlDoc.getBaseURI());
 		assertEquals("http://www.example.com/", xhtmlDoc.getBaseURL().toExternalForm());
+
 		DOMElement base = xhtmlDoc.getElementsByTagName("base").item(0);
 		assertEquals("http://www.example.com/", base.getBaseURI());
 		assertTrue(base.isNonHTMLOrVoid());
 		base.setAttribute("href", "http://www.example.com/newbase/");
 		assertEquals("http://www.example.com/newbase/", xhtmlDoc.getBaseURI());
 		assertEquals("http://www.example.com/newbase/", base.getBaseURI());
+
+		// Check that getURL works
+		assertEquals("http://www.example.com/newbase/b?e=f&g=h",
+				xhtmlDoc.getURL("b?e=f&g=h").toExternalForm());
+
+		assertEquals(
+				"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Raleway:wght@200&display=swap",
+				xhtmlDoc.getURL(
+						"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Raleway:wght@200&display=swap")
+						.toExternalForm());
+
+		// Web browsers admit the following
+		assertEquals(
+				"https://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300%7CRoboto:400,500,700,300,900&subset=latin,greek,greek-ext,vietnamese,cyrillic-ext,latin-ext,cyrillic",
+				xhtmlDoc.getURL(
+						"https://fonts.googleapis.com/css?family=Roboto+Slab:400,700,300|Roboto:400,500,700,300,900&subset=latin,greek,greek-ext,vietnamese,cyrillic-ext,latin-ext,cyrillic")
+						.toExternalForm());
+
+		assertThrows(MalformedURLException.class, () -> xhtmlDoc.getURL("https:||www.example.com/"));
+
+		assertThrows(MalformedURLException.class,
+				() -> xhtmlDoc.getURL("https://www.example.com/a?b=c\\d"));
+
+		assertThrows(MalformedURLException.class,
+				() -> xhtmlDoc.getURL("https://www.example.com/a?b=\"c\""));
 
 		// Changing an unrelated href attribute does nothing to base uri.
 		DOMElement anchor = xhtmlDoc.getElementsByTagName("a").item(0);

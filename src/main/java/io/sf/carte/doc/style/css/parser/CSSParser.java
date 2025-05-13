@@ -6145,7 +6145,7 @@ public class CSSParser implements Parser, Cloneable {
 						}
 						prevcp = TokenProducer.CHAR_LEFT_PAREN;
 						return;
-					}  else if (stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
+					} else if (stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
 						newConditionalSelector(index, TokenProducer.CHAR_LEFT_PAREN,
 								ConditionType.PSEUDO_ELEMENT);
 						if (!isInError()) {
@@ -6812,7 +6812,7 @@ public class CSSParser implements Parser, Cloneable {
 					}
 					condition = factory.createCondition(ConditionType.ONLY_TYPE);
 				} else if ("not".equals(lcname) || "is".equals(lcname) || "where".equals(lcname)
-						 || "host-context".equals(lcname)) {
+						|| "host-context".equals(lcname)) {
 					if (triggerCp != TokenProducer.CHAR_LEFT_PAREN) {
 						pseudoClassMustHaveArgumentError(index, name, triggerCp);
 						return;
@@ -7806,13 +7806,11 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			protected void expectSelector(int index, int triggerCp) {
-				if (triggerCp == '*' && parserFlags.contains(Flag.STARHACK)
-						&& propertyName == null && buffer.length() == 0
-						&& isTopManager()) {
+				if (triggerCp == '*' && parserFlags.contains(Flag.STARHACK) && propertyName == null
+						&& buffer.length() == 0 && isTopManager()) {
 					// IE Legacy STARHACK
 					buffer.append('*');
-					handleWarning(index, ParseHelper.WARN_PROPERTY_NAME,
-							"STARHACK IE hack.");
+					handleWarning(index, ParseHelper.WARN_PROPERTY_NAME, "STARHACK IE hack.");
 				} else {
 					getControlHandler().getCurrentHandler().unexpectedCharError(index, triggerCp);
 				}

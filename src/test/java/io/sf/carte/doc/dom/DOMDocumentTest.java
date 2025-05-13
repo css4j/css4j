@@ -2111,7 +2111,9 @@ public class DOMDocumentTest {
 	public void testBaseAttribute() {
 		DOMDocument document = domImpl.createDocument("", "foo", null);
 		DOMElement element = document.getDocumentElement();
-		element.setAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:base", "http://www.example.com/");
+
+		element.setAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:base",
+				"http://www.example.com/");
 		assertEquals("http://www.example.com/", element.getAttribute("xml:base"));
 		assertEquals("http://www.example.com/", document.getBaseURI());
 		Attr attr = element.getAttributeNode("xml:base");
@@ -2140,7 +2142,8 @@ public class DOMDocumentTest {
 		assertEquals("http://www.example.com/foo.html", document.getBaseURI());
 
 		// Wrong attribute
-		element.setAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:base", "http:\\www.example.com/");
+		element.setAttributeNS(DOMDocument.XML_NAMESPACE_URI, "xml:base",
+				"http:\\www.example.com/");
 		assertEquals("http://www.example.com/foo.html", document.getBaseURI());
 		assertTrue(document.getErrorHandler().hasErrors());
 		assertTrue(document.getErrorHandler().hasNodeErrors());
