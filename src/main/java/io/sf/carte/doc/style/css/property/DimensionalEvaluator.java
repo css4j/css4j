@@ -16,8 +16,10 @@ import java.util.Random;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.style.css.AlgebraicExpression;
+import io.sf.carte.doc.style.css.CSSEnvVariableValue;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
+import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSFunctionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSNumberValue;
@@ -28,6 +30,7 @@ import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValueList;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
+import io.sf.carte.doc.style.css.impl.CSSUtil;
 
 /**
  * Determine the dimension of an expression.
@@ -197,6 +200,21 @@ class DimensionalEvaluator extends Evaluator {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Unknown unit: " + unit);
 		}
 		return cat;
+	}
+
+	@Override
+	protected float anchorSize(String ident) throws DOMException {
+		return 100f;
+	}
+
+	@Override
+	protected CSSValue absoluteProxyValue(CSSPrimitiveValue partialValue) {
+		if (partialValue.getPrimitiveType() == Type.ENV) {
+			if (CSSUtil.isEnvLengthName(((CSSEnvVariableValue) partialValue).getName())) {
+				return NumberValue.createCSSNumberValue(CSSUnit.CSS_PX, 64f);
+			}
+		}
+		return super.absoluteProxyValue(partialValue);
 	}
 
 	@Override

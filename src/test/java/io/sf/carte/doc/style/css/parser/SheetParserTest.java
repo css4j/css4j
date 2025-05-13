@@ -1765,17 +1765,17 @@ public class SheetParserTest {
 		assertEquals("red", lu.getStringValue());
 
 		Locator loc = handler.ptyLocators.get(0);
-		assertEquals(2, loc.getLineNumber());
+		assertEquals(4, loc.getLineNumber());
 		assertEquals(106, loc.getColumnNumber());
 		loc = handler.ptyLocators.get(1);
-		assertEquals(3, loc.getLineNumber());
+		assertEquals(5, loc.getLineNumber());
 		assertEquals(19, loc.getColumnNumber());
 		loc = handler.ptyLocators.get(2);
-		assertEquals(9, loc.getLineNumber());
+		assertEquals(11, loc.getLineNumber());
 		assertEquals(61, loc.getColumnNumber());
 
 		assertEquals(8, handler.comments.size());
-		assertEquals(" pre-rule-1 ", handler.comments.get(0));
+		assertEquals("\n pre-rule-1\n ", handler.comments.get(0));
 		assertEquals(" pre-property-decl ", handler.comments.get(1));
 		assertEquals(" post-property-decl ", handler.comments.get(2));
 		assertEquals(" pre-rule-1-webkit ", handler.comments.get(3));

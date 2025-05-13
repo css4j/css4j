@@ -27,7 +27,8 @@ class SubExpressionUnitImpl extends ExpressionUnitImpl {
 		boolean saExpr = (previousLexicalUnit == null
 				|| previousLexicalUnit.getLexicalUnitType() == LexicalType.OPERATOR_COMMA)
 				&& (nextLexicalUnit == null
-						|| nextLexicalUnit.getLexicalUnitType() == LexicalType.OPERATOR_COMMA);
+						|| nextLexicalUnit.getLexicalUnitType() == LexicalType.OPERATOR_COMMA)
+				&& ownerLexicalUnit != null;
 		if (!saExpr) {
 			buf.append('(');
 		}

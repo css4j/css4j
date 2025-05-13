@@ -3507,6 +3507,50 @@ public class DeclarationParserTest {
 	}
 
 	@Test
+	public void testParseStyleDeclarationCustomPropertyVar() throws CSSException {
+		parseStyleDeclaration("--lh:((var(--lh-unit) + 8) / var(--lh-unit))");
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals("--lh", handler.propertyNames.get(0));
+		LexicalUnit lu = handler.lexicalValues.get(0);
+		assertEquals(LexicalType.SUB_EXPRESSION, lu.getLexicalUnitType());
+		LexicalUnit sub = lu.getSubValues();
+		assertEquals(LexicalType.SUB_EXPRESSION, sub.getLexicalUnitType());
+		LexicalUnit sub2 = sub.getSubValues();
+		assertEquals(LexicalType.VAR, sub2.getLexicalUnitType());
+		assertEquals("var", sub2.getFunctionName());
+
+		LexicalUnit param = sub2.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("--lh-unit", param.getStringValue());
+
+		sub2 = sub2.getNextLexicalUnit();
+		assertNotNull(sub2);
+		assertEquals(LexicalType.OPERATOR_PLUS, sub2.getLexicalUnitType());
+
+		sub2 = sub2.getNextLexicalUnit();
+		assertNotNull(sub2);
+		assertEquals(LexicalType.INTEGER, sub2.getLexicalUnitType());
+		assertEquals(8, sub2.getIntegerValue());
+		assertNull(sub2.getNextLexicalUnit());
+
+		sub = sub.getNextLexicalUnit();
+		assertNotNull(sub);
+		assertEquals(LexicalType.OPERATOR_SLASH, sub.getLexicalUnitType());
+
+		sub = sub.getNextLexicalUnit();
+		assertNotNull(sub);
+		assertEquals(LexicalType.VAR, sub.getLexicalUnitType());
+
+		assertNull(lu.getNextLexicalUnit());
+
+		assertEquals("((var(--lh-unit) + 8)/var(--lh-unit))", lu.toString());
+
+		assertFalse(errorHandler.hasError());
+		assertFalse(errorHandler.hasWarning());
+	}
+
+	@Test
 	public void testParseStyleDeclarationVar() throws CSSException {
 		parseStyleDeclaration("color:var(--my-color,#3fa)");
 		assertEquals("color", handler.propertyNames.get(0));

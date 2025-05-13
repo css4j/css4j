@@ -218,6 +218,28 @@ class DimensionalAnalyzer {
 					break;
 				}
 				break;
+			case ENV:
+				Dimension envdim = ((EnvUnitImpl) lunit).dimension();
+
+				if (envdim == null) {
+					dim = sum;
+					sum = null;
+					lunit = lunit.nextLexicalUnit;
+					break topLoop;
+				}
+
+				switch (operation) {
+				case ADD:
+					dim = envdim;
+					break;
+				case MULT:
+					dim = dim.multiply(envdim);
+					break;
+				case DIV:
+					dim = dim.divide(envdim);
+					break;
+				}
+				break;
 			default:
 				throw createInvalidUnitException(lunit);
 			}
@@ -324,7 +346,7 @@ class DimensionalAnalyzer {
 	 * @return the dimension.
 	 * @throws DOMException if the unit is incompatible with a numeric dimension.
 	 */
-	private static Dimension createDimension(short unit) throws DOMException {
+	static Dimension createDimension(short unit) throws DOMException {
 		Dimension dim = new Dimension();
 		if (unit == CSSUnit.CSS_NUMBER) {
 			dim.category = Category.number;

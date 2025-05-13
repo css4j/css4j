@@ -73,7 +73,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	}
 
 	@Override
-	public boolean isCurrentUnitAFunction() {
+	public boolean isFunctionOrExpressionContext() {
 		return functionToken;
 	}
 
@@ -110,16 +110,17 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	public void leftParenthesis(int index) {
 		parendepth++;
 		if (prevcp != 65) {
-			if (!isCurrentUnitAFunction()) {
-				// Not a function token
-				unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
-				prevcp = TokenProducer.CHAR_LEFT_PAREN;
-			} else if (buffer.length() == 0) {
-				// Sub-values
-				addFunctionOrExpressionUnit(new SubExpressionUnitImpl());
+			if (buffer.length() == 0) {
+				if (isFunctionOrExpressionContext() || isCustomProperty()) {
+					// Sub-values
+					addFunctionOrExpressionUnit(new SubExpressionUnitImpl());
+					functionToken = true;
+				} else {
+					unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
+				}
 			} else {
 				handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
-						"Unexpected token: " + buffer.toString());
+						"Unexpected token before '(': " + buffer);
 				buffer.setLength(0);
 			}
 			prevcp = TokenProducer.CHAR_LEFT_PAREN;
@@ -168,7 +169,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			}
 		} else {
 			lu = factory.createUnit();
-			if (functionToken) {
+			if (isFunctionOrExpressionContext()) {
 				currentlu.addFunctionParameter(lu);
 				currentlu = lu;
 			} else {
@@ -205,7 +206,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	public void rightParenthesis(int index) {
 		processBuffer(index, TokenProducer.CHAR_RIGHT_PAREN);
 		decrParenDepth(index);
-		if (isCurrentUnitAFunction() && !isInError()) {
+		if (isFunctionOrExpressionContext() && !isInError()) {
 			checkFunction(index);
 			endFunctionArgument(index);
 		}
@@ -245,7 +246,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	@Override
 	public LexicalUnitImpl addPlainLexicalUnit(LexicalUnitImpl lu) {
 		commentStore.setPrecedingComments(lu);
-		if (isCurrentUnitAFunction()) {
+		if (isFunctionOrExpressionContext()) {
 			LexicalUnitImpl param = currentlu.parameters;
 			if (param != null) {
 				commentStore.setLastParameterTrailingComments(param);
@@ -269,7 +270,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 
 	private LexicalUnitImpl addFunctionOrExpressionUnit(LexicalUnitImpl lu) {
 		commentStore.setPrecedingComments(lu);
-		if (isCurrentUnitAFunction()) {
+		if (isFunctionOrExpressionContext()) {
 			LexicalUnitImpl param = currentlu.parameters;
 			if (param != null) {
 				commentStore.setLastParameterTrailingComments(param);
@@ -526,7 +527,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			}
 			if (parendepth > 0) {
 				if (!isInError()) {
-					if (isCurrentUnitAFunction() && allowSemicolonArgument()) {
+					if (isFunctionOrExpressionContext() && allowSemicolonArgument()) {
 						newOperator(LexicalType.OPERATOR_SEMICOLON);
 					} else {
 						// Force error recovery
@@ -667,7 +668,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			buffer.append('.');
 		} else if (buffer.length() == 0) {
 			LexicalUnitImpl lastValue;
-			if (prevcp == 45 && isCurrentUnitAFunction() && !isEscapedIdent()
+			if (prevcp == 45 && isFunctionOrExpressionContext() && !isEscapedIdent()
 					&& this.currentlu.parameters != null
 					&& (lastValue = CSSParser.findLastValue(currentlu.parameters))
 							.getLexicalUnitType() == LexicalType.OPERATOR_MINUS) {
@@ -705,7 +706,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	 * Get a handler for nested selectors.
 	 * 
 	 * @param index the index.
-	 * @return the handler, or null if cannot handle.
+	 * @return the handler, or {@code null} if cannot handle.
 	 */
 	protected BufferTokenHandler nestedSelectorHandler(int index) {
 		return null;
@@ -726,7 +727,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 		}
 		int buflen = buffer.length();
 		if (buflen != 0
-				&& (!isCurrentUnitAFunction() || isEscapedIdent() || !checkLastIdentCompat())) {
+				&& (!isFunctionOrExpressionContext() || isEscapedIdent() || !checkLastIdentCompat())) {
 			parseNonHexcolorValue(index);
 		}
 	}

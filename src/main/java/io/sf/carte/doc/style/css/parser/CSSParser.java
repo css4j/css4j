@@ -2503,7 +2503,7 @@ public class CSSParser implements Parser, Cloneable {
 		return true;
 	}
 
-	private static boolean isValidPseudoName(String s) {
+	private static boolean isValidPseudoName(CharSequence s) {
 		int len = s.length();
 		int idx;
 		char c = s.charAt(0);
@@ -3299,8 +3299,12 @@ public class CSSParser implements Parser, Cloneable {
 					@Override
 					protected void handlePseudo(int index) {
 						StyleRuleSelectorTH selh = nestedSelectorHandler(index);
-						selh.character(index, TokenProducer.CHAR_COLON);
-						yieldHandling(selh);
+						if (selh != null) {
+							selh.character(index, TokenProducer.CHAR_COLON);
+							yieldHandling(selh);
+						} else {
+							super.handlePseudo(index);
+						}
 					}
 
 				};
@@ -5786,7 +5790,7 @@ public class CSSParser implements Parser, Cloneable {
 		private static final byte STAGE_EXPECT_ID_OR_CLASSNAME = 8;
 		private static final byte STAGE_EXPECT_PSEUDOELEM_NAME = 9;
 		private static final byte STAGE_EXPECT_PSEUDOCLASS_NAME = 10;
-		private static final byte STAGE_EXPECT_PSEUDOCLASS_ARGUMENT = 11;
+		private static final byte STAGE_EXPECT_PSEUDO_ARGUMENT = 11;
 
 		/**
 		 * The curly bracket depth.
@@ -6001,7 +6005,7 @@ public class CSSParser implements Parser, Cloneable {
 				} else if (stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
 					newConditionalSelector(index, triggerCp, ConditionType.PSEUDO_ELEMENT);
 					stage = 1;
-				} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+				} else if (stage == STAGE_EXPECT_PSEUDO_ARGUMENT) {
 				} else if (stage == STAGE_ATTR_POST_SYMBOL) {
 					setAttributeSelectorValue(index, unescapeBuffer(index));
 				} else {
@@ -6029,7 +6033,7 @@ public class CSSParser implements Parser, Cloneable {
 			if (stage == STAGE_ATTR_SYMBOL && currentsel != null) { // Attribute selector
 				setAttributeSelectorValue(index, quoted);
 				stage = STAGE_ATTR_POST_SYMBOL;
-			} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) { // Pseudo-class argument
+			} else if (stage == STAGE_EXPECT_PSEUDO_ARGUMENT) { // Pseudo-class argument
 				if (buffer.length() != 0 && isPrevCpWhitespace()) {
 					buffer.append(' ');
 				}
@@ -6127,28 +6131,38 @@ public class CSSParser implements Parser, Cloneable {
 		@Override
 		public void leftParenthesis(int index) {
 			parendepth++;
-			if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+			if (stage == STAGE_EXPECT_PSEUDO_ARGUMENT) {
 				buffer.append('(');
 				prevcp = TokenProducer.CHAR_LEFT_PAREN;
 			} else if (!isInError()) {
-				if (prevcp != 65 || buffer.length() == 0
-						|| stage != STAGE_EXPECT_PSEUDOCLASS_NAME) {
-					unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
-				} else {
-					newConditionalSelector(index, TokenProducer.CHAR_LEFT_PAREN,
-							ConditionType.PSEUDO_CLASS);
-					if (!isInError()) {
-						stage = STAGE_EXPECT_PSEUDOCLASS_ARGUMENT;
-						functionToken = true;
+				if (prevcp == 65 && buffer.length() > 0) {
+					if (stage == STAGE_EXPECT_PSEUDOCLASS_NAME) {
+						newConditionalSelector(index, TokenProducer.CHAR_LEFT_PAREN,
+								ConditionType.PSEUDO_CLASS);
+						if (!isInError()) {
+							stage = STAGE_EXPECT_PSEUDO_ARGUMENT;
+							functionToken = true;
+						}
+						prevcp = TokenProducer.CHAR_LEFT_PAREN;
+						return;
+					}  else if (stage == STAGE_EXPECT_PSEUDOELEM_NAME) {
+						newConditionalSelector(index, TokenProducer.CHAR_LEFT_PAREN,
+								ConditionType.PSEUDO_ELEMENT);
+						if (!isInError()) {
+							stage = STAGE_EXPECT_PSEUDO_ARGUMENT;
+							functionToken = true;
+						}
+						prevcp = TokenProducer.CHAR_LEFT_PAREN;
+						return;
 					}
 				}
+				unexpectedCharError(index, TokenProducer.CHAR_LEFT_PAREN);
 			}
-			prevcp = TokenProducer.CHAR_LEFT_PAREN;
 		}
 
 		@Override
 		public void leftSquareBracket(int index) {
-			if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+			if (stage == STAGE_EXPECT_PSEUDO_ARGUMENT) {
 				buffer.append('[');
 				prevcp = TokenProducer.CHAR_LEFT_SQ_BRACKET;
 			} else if (!isInError()) {
@@ -6173,7 +6187,7 @@ public class CSSParser implements Parser, Cloneable {
 		@Override
 		public void rightParenthesis(int index) {
 			decrParenDepth(index);
-			if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+			if (stage == STAGE_EXPECT_PSEUDO_ARGUMENT) {
 				if (parendepth == 0) {
 					Selector sel = getActiveSelector();
 					if (sel.getSelectorType() == SelectorType.CONDITIONAL) {
@@ -6182,9 +6196,9 @@ public class CSSParser implements Parser, Cloneable {
 						ConditionType condtype = cond.getConditionType();
 						if (buffer.length() != 0) {
 							if (condtype == ConditionType.SELECTOR_ARGUMENT) {
+								SelectorArgumentConditionImpl argcond = (SelectorArgumentConditionImpl) cond;
 								try {
-									((SelectorArgumentConditionImpl) cond).arguments = parseSelectorArgument(
-											rawBuffer(), factory);
+									argcond.arguments = parseSelectorArgument(rawBuffer(), factory);
 								} catch (CSSParseException e) {
 									byte errCode;
 									if (e.getClass() == CSSNamespaceParseException.class) {
@@ -6196,6 +6210,9 @@ public class CSSParser implements Parser, Cloneable {
 											e.getMessage());
 									handleError(ex);
 									stage = 127;
+								}
+								if ("has".equalsIgnoreCase(argcond.name)) {
+									hasHas = false;
 								}
 							} else if (condtype == ConditionType.POSITIONAL) {
 								if (((PositionalConditionImpl) cond).hasArgument()) {
@@ -6215,15 +6232,17 @@ public class CSSParser implements Parser, Cloneable {
 									return;
 								}
 								((LangConditionImpl) cond).lang = s;
-							} else if (condtype == ConditionType.PSEUDO_CLASS) {
+							} else if (condtype == ConditionType.PSEUDO_CLASS
+									|| condtype == ConditionType.PSEUDO_ELEMENT) {
 								String s = unescapeBuffer(index);
+								// Check the validity of the argument.
+								// We allow quoted arguments and anything inside prefixed selectors.
 								char c;
-								if ((c = s.charAt(0)) != '"' && c != '\''
-										&& !isValidPseudoName(s)) {
-									handleError(index - s.length() - 1,
+								if (!isValidPseudoName(s) && (c = s.charAt(0)) != '"' && c != '\''
+										&& ((PseudoConditionImpl) cond).name.charAt(0) != '-') {
+									handleWarning(index - s.length() - 1,
 											ParseHelper.ERR_UNEXPECTED_TOKEN,
 											"Unexpected functional argument: " + s);
-									return;
 								}
 								((PseudoConditionImpl) cond).argument = s;
 							}
@@ -6281,7 +6300,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		@Override
 		public void rightSquareBracket(int index) {
-			if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+			if (stage == STAGE_EXPECT_PSEUDO_ARGUMENT) {
 				buffer.append(']');
 			} else if (stage == STAGE_ATTR_POST_SYMBOL) {
 				if (buffer.length() != 0) {
@@ -6348,7 +6367,7 @@ public class CSSParser implements Parser, Cloneable {
 			//
 			// @formatter:on
 			if (!skipCharacterHandling()) {
-				if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+				if (stage == STAGE_EXPECT_PSEUDO_ARGUMENT) {
 					// Special case: comma
 					if (codepoint == 44 && (prevcp == 44 || buffer.length() == 0)) {
 						unexpectedCharError(index, codepoint);
@@ -6574,7 +6593,6 @@ public class CSSParser implements Parser, Cloneable {
 							}
 						} else {
 							processBuffer(index, codepoint, true);
-							hasHas = false;
 							if (!isInError()) {
 								if (addCurrentSelector(index)) {
 									stage = 0;
@@ -6599,7 +6617,7 @@ public class CSSParser implements Parser, Cloneable {
 						break;
 					case TokenProducer.CHAR_AMPERSAND: // &
 						if (stage > STAGE_COMBINATOR_OR_END
-								&& stage != STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+								&& stage != STAGE_EXPECT_PSEUDO_ARGUMENT) {
 							unexpectedCharError(index, codepoint);
 						} else {
 							processBuffer(index, codepoint, false);
@@ -6793,7 +6811,8 @@ public class CSSParser implements Parser, Cloneable {
 						return;
 					}
 					condition = factory.createCondition(ConditionType.ONLY_TYPE);
-				} else if ("not".equals(lcname) || "is".equals(lcname) || "where".equals(lcname)) {
+				} else if ("not".equals(lcname) || "is".equals(lcname) || "where".equals(lcname)
+						 || "host-context".equals(lcname)) {
 					if (triggerCp != TokenProducer.CHAR_LEFT_PAREN) {
 						pseudoClassMustHaveArgumentError(index, name, triggerCp);
 						return;
@@ -6813,6 +6832,14 @@ public class CSSParser implements Parser, Cloneable {
 					hasHas = true;
 					condition = factory.createCondition(ConditionType.SELECTOR_ARGUMENT);
 					((SelectorArgumentConditionImpl) condition).setName(lcname);
+				} else if ("host".equals(lcname)) {
+					if (triggerCp == TokenProducer.CHAR_LEFT_PAREN) {
+						condition = factory.createCondition(ConditionType.SELECTOR_ARGUMENT);
+						((SelectorArgumentConditionImpl) condition).setName(lcname);
+					} else {
+						condition = factory.createCondition(condtype);
+						((PseudoConditionImpl) condition).setName(lcname);
+					}
 				} else { // Other pseudo-classes
 					if ("first-line".equals(lcname) || "first-letter".equals(lcname)
 							|| "before".equals(lcname) || "after".equals(lcname)) {
@@ -6842,10 +6869,6 @@ public class CSSParser implements Parser, Cloneable {
 				if (!isValidPseudoName(name)) {
 					handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 							"Invalid pseudo-element: " + name);
-					return;
-				} else if (triggerCp == '(') {
-					handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
-							"Invalid pseudo-element declaration: " + name + '(');
 					return;
 				} else if (isInsideHas()) {
 					// See CSSWG issue 7463
@@ -7012,7 +7035,7 @@ public class CSSParser implements Parser, Cloneable {
 		public void escaped(int index, int codepoint) {
 			if (stage == STAGE_ATTR_START || stage == STAGE_ATTR_SYMBOL
 					|| stage == STAGE_EXPECT_ID_OR_CLASSNAME
-					|| stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT || stage == 0
+					|| stage == STAGE_EXPECT_PSEUDO_ARGUMENT || stage == 0
 					|| stage == STAGE_COMBINATOR_OR_END) {
 				if (isEscapedCodepoint(codepoint)) {
 					setEscapedTokenStart(index);
@@ -7020,7 +7043,7 @@ public class CSSParser implements Parser, Cloneable {
 				} else if (Character.isISOControl(codepoint)) {
 					unexpectedCharError(index, codepoint);
 					return;
-				} else if (stage == STAGE_EXPECT_PSEUDOCLASS_ARGUMENT) {
+				} else if (stage == STAGE_EXPECT_PSEUDO_ARGUMENT) {
 					Selector sel = getActiveSelector();
 					if (sel.getSelectorType() == SelectorType.CONDITIONAL) {
 						Condition cond = ((ConditionalSelectorImpl) sel).condition;

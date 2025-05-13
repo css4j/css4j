@@ -67,7 +67,7 @@ abstract class LexicalCallbackTH extends CallbackTokenHandler implements Lexical
 	@Override
 	public LexicalUnitImpl addPlainLexicalUnit(LexicalUnitImpl lu) {
 		commentStore.setPrecedingComments(lu);
-		if (isCurrentUnitAFunction()) {
+		if (isFunctionOrExpressionContext()) {
 			LexicalUnitImpl param = currentlu.parameters;
 			if (param != null) {
 				commentStore.setLastParameterTrailingComments(param);
@@ -88,7 +88,7 @@ abstract class LexicalCallbackTH extends CallbackTokenHandler implements Lexical
 
 	LexicalUnitImpl addFunctionOrExpressionUnit(LexicalUnitImpl lu) {
 		commentStore.setPrecedingComments(lu);
-		if (isCurrentUnitAFunction()) {
+		if (isFunctionOrExpressionContext()) {
 			LexicalUnitImpl param = currentlu.parameters;
 			if (param != null) {
 				commentStore.setLastParameterTrailingComments(param);
@@ -120,8 +120,8 @@ abstract class LexicalCallbackTH extends CallbackTokenHandler implements Lexical
 	}
 
 	@Override
-	public boolean isCurrentUnitAFunction() {
-		return getCaller().isCurrentUnitAFunction();
+	public boolean isFunctionOrExpressionContext() {
+		return getCaller().isFunctionOrExpressionContext();
 	}
 
 	@Override

@@ -129,6 +129,11 @@ public interface CSSMathFunctionValue extends CSSFunctionValue, CSSMathValue {
 		ATAN2,
 
 		/**
+		 * {@code anchor-size()} function.
+		 */
+		ANCHOR_SIZE,
+
+		/**
 		 * Mainly used to know the number of functions via the ordinal.
 		 * <p>
 		 * Must always be the last declared constant.

@@ -43,7 +43,7 @@ class DefaultCommentStore implements CommentStore {
 					&& (currentlu = parent.getCurrentLexicalUnit()) != null) {
 				LexicalUnitImpl plu = lu.previousLexicalUnit;
 				if (plu == null) {
-					if (parent.isCurrentUnitAFunction()) {
+					if (parent.isFunctionOrExpressionContext()) {
 						plu = currentlu.parameters;
 						if (plu != null) {
 							plu = CSSParser.findLastValue(plu);
@@ -76,7 +76,7 @@ class DefaultCommentStore implements CommentStore {
 		LexicalUnitImpl currentlu = parent.getCurrentLexicalUnit();
 		if (currentlu != null) {
 			LexicalUnitImpl lu = currentlu;
-			if (parent.isCurrentUnitAFunction()) {
+			if (parent.isFunctionOrExpressionContext()) {
 				if (lu.parameters != null) {
 					lu = CSSParser.findLastValue(lu.parameters);
 				} else {
@@ -140,7 +140,7 @@ class DefaultCommentStore implements CommentStore {
 			if (lu == null) {
 				return false;
 			}
-			if (parent.isCurrentUnitAFunction()) {
+			if (parent.isFunctionOrExpressionContext()) {
 				if (lu.parameters != null) {
 					lu = CSSParser.findLastValue(lu.parameters);
 				}

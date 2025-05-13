@@ -3920,6 +3920,23 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorPseudoElementPart() throws CSSException {
+		SelectorList selist = parseSelectors("p::part(base)");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.PSEUDO_ELEMENT, cond.getConditionType());
+		assertEquals("part", ((PseudoCondition) cond).getName());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertNotNull(simple);
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p::part(base)", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorPseudoElementEscapedBad() throws CSSException {
 		try {
 			parseSelectors("p::\\.first-line");
@@ -4054,7 +4071,7 @@ public class SelectorParserTest {
 	}
 
 	@Test
-	public void testParseSelectorPseudoClassCustomEscaped() throws CSSException {
+	public void testParseSelectorPseudoClassPrefixed() throws CSSException {
 		SelectorList selist = parseSelectors(":-css4j-blank");
 		assertNotNull(selist);
 		assertEquals(1, selist.getLength());
@@ -4069,6 +4086,23 @@ public class SelectorParserTest {
 		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertEquals("*", ((ElementSelector) simple).getLocalName());
 		assertEquals(":-css4j-blank", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassPrefixedArgument() throws CSSException {
+		SelectorList selist = parseSelectors("p:-webkit-any(div,span)");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.PSEUDO_CLASS, cond.getConditionType());
+		assertEquals("-webkit-any", ((PseudoCondition) cond).getName());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertNotNull(simple);
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("p", ((ElementSelector) simple).getLocalName());
+		assertEquals("p:-webkit-any(div\\,span)", sel.toString());
 	}
 
 	@Test
@@ -5707,6 +5741,43 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorPseudoClassHasPseudoElem() throws CSSException {
+		SelectorList selist = parseSelectors("figure.block-image:has(figcaption)::before");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
+		assertEquals("figure", ((ElementSelector) simple).getLocalName());
+		assertNull(((ElementSelector) simple).getNamespaceURI());
+
+		Condition and = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.AND, and.getConditionType());
+		Condition first = ((CombinatorCondition) and).getFirstCondition();
+		Condition second = ((CombinatorCondition) and).getSecondCondition();
+		assertEquals(ConditionType.AND, first.getConditionType());
+
+		Condition ffirst = ((CombinatorCondition) first).getFirstCondition();
+		Condition fsecond = ((CombinatorCondition) first).getSecondCondition();
+		assertEquals(ConditionType.CLASS, ffirst.getConditionType());
+		assertEquals("block-image", ((AttributeCondition) ffirst).getValue());
+
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, fsecond.getConditionType());
+		assertEquals("has", ((ArgumentCondition) fsecond).getName());
+		SelectorList arglist = ((ArgumentCondition) fsecond).getSelectors();
+		assertEquals(1, arglist.getLength());
+		Selector arg = arglist.item(0);
+		assertEquals(SelectorType.ELEMENT, arg.getSelectorType());
+		assertEquals("figcaption", ((ElementSelector) arg).getLocalName());
+
+		assertEquals(ConditionType.PSEUDO_ELEMENT, second.getConditionType());
+		assertEquals("before", ((PseudoCondition) second).getName());
+
+		assertEquals("figure.block-image:has(figcaption)::before", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorPseudoClassHasNested() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parseSelectors("div:has(.cls,p:has(>img))"));
 	}
@@ -5724,6 +5795,96 @@ public class SelectorParserTest {
 	@Test
 	public void testParseSelectorPseudoElementHasNestedLegacySyntax2() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parseSelectors("div:has(.cls,p:first-letter)"));
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassHost() throws CSSException {
+		SelectorList selist = parseSelectors(":host");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.PSEUDO_CLASS, cond.getConditionType());
+		assertEquals("host", ((PseudoCondition) cond).getName());
+		assertNull(((PseudoCondition) cond).getArgument());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertNotNull(simple);
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
+		assertEquals("*", ((ElementSelector) simple).getLocalName());
+		assertEquals(":host", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassHostArgument() throws CSSException {
+		SelectorList selist = parseSelectors(":host(div)");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
+		assertEquals("host", ((ArgumentCondition) cond).getName());
+		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
+		assertEquals(1, arglist.getLength());
+		Selector arg = arglist.item(0);
+
+		assertEquals(SelectorType.ELEMENT, arg.getSelectorType());
+		assertEquals("div", ((ElementSelector) arg).getLocalName());
+
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertNotNull(simple);
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
+		assertEquals("*", ((ElementSelector) simple).getLocalName());
+
+		assertEquals(":host(div)", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassHostContext() throws CSSException {
+		SelectorList selist = parseSelectors(":host-context(.cls)");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond.getConditionType());
+		assertEquals("host-context", ((ArgumentCondition) cond).getName());
+		SelectorList arglist = ((ArgumentCondition) cond).getSelectors();
+		assertEquals(1, arglist.getLength());
+		Selector arg = arglist.item(0);
+
+		assertEquals(SelectorType.CONDITIONAL, arg.getSelectorType());
+		Condition argcond = ((ConditionalSelector) arg).getCondition();
+		assertEquals(ConditionType.CLASS, argcond.getConditionType());
+		assertEquals("cls", ((AttributeCondition) argcond).getValue());
+
+		SimpleSelector simple = ((ConditionalSelector) arg).getSimpleSelector();
+		assertNotNull(simple);
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
+		assertEquals("*", ((ElementSelector) simple).getLocalName());
+
+		assertEquals(":host-context(.cls)", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorPseudoClassState() throws CSSException {
+		SelectorList selist = parseSelectors(":state(clicked)");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.PSEUDO_CLASS, cond.getConditionType());
+		assertEquals("state", ((PseudoCondition) cond).getName());
+		assertEquals("clicked", ((PseudoCondition) cond).getArgument());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertNotNull(simple);
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
+		assertEquals("*", ((ElementSelector) simple).getLocalName());
+		assertEquals(":state(clicked)", sel.toString());
 	}
 
 	private SelectorList parseSelectors(String selist) throws CSSException {

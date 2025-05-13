@@ -38,6 +38,10 @@ class PseudoConditionImpl extends AbstractCondition implements PseudoCondition {
 		return name;
 	}
 
+	void setName(String lcname) {
+		this.name = lcname;
+	}
+
 	@Override
 	public String getArgument() {
 		return argument;

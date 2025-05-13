@@ -30,7 +30,7 @@ interface LexicalProvider extends CSSContentHandler {
 	 */
 	void setCurrentLexicalUnit(LexicalUnitImpl currentlu);
 
-	boolean isCurrentUnitAFunction();
+	boolean isFunctionOrExpressionContext();
 
 	LexicalUnitImpl addPlainLexicalUnit(LexicalUnitImpl lu);
 

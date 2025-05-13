@@ -11,7 +11,10 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import org.w3c.dom.DOMException;
+
 import io.sf.carte.doc.style.css.CSSValueSyntax;
+import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.impl.CSSUtil;
 
@@ -30,8 +33,32 @@ class EnvUnitImpl extends FunctionUnitImpl {
 
 	@Override
 	Match typeMatch(CSSValueSyntax rootSyntax, CSSValueSyntax syntax) {
+		String name = parameters.getStringValue();
+		LexicalUnitImpl fallback = getFallback();
+
+		return CSSUtil.matchEnv(rootSyntax, syntax, name, fallback);
+	}
+
+	Dimension dimension() {
+		String name = parameters.getStringValue();
+		if (!CSSUtil.isEnvLengthName(name)) {
+			LexicalUnitImpl fallback = getFallback();
+			if (fallback != null) {
+				try {
+					return DimensionalAnalyzer.createDimension(fallback.getCssUnit());
+				} catch (DOMException e) {
+				}
+			}
+			return null;
+		}
+		Dimension dim = new Dimension();
+		dim.category = Category.length;
+		dim.exponent = 1;
+		return dim;
+	}
+
+	private LexicalUnitImpl getFallback() {
 		LexicalUnitImpl param = parameters;
-		String name = param.getStringValue();
 		LexicalUnitImpl fallback;
 		do {
 			param = param.nextLexicalUnit;
@@ -44,8 +71,7 @@ class EnvUnitImpl extends FunctionUnitImpl {
 				break;
 			}
 		} while (true);
-
-		return CSSUtil.matchEnv(rootSyntax, syntax, name, fallback);
+		return fallback;
 	}
 
 }

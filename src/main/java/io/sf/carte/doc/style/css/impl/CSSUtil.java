@@ -92,9 +92,7 @@ public class CSSUtil {
 
 		Match match;
 
-		if (name.contains("width") || name.contains("height") || name.contains("-x")
-				|| name.contains("-y") || name.contains("top") || name.contains("right")
-				|| name.contains("bottom") || name.contains("left")) {
+		if (isEnvLengthName(name)) {
 			if (cat == Category.length || cat == Category.lengthPercentage) {
 				return Match.TRUE;
 			}
@@ -104,6 +102,12 @@ public class CSSUtil {
 		}
 
 		return fallback == null ? match : fallback.matches(rootSyntax);
+	}
+
+	public static boolean isEnvLengthName(String name) {
+		return name.contains("width") || name.contains("height") || name.contains("-x")
+				|| name.contains("-y") || name.contains("top") || name.contains("right")
+				|| name.contains("bottom") || name.contains("left");
 	}
 
 }

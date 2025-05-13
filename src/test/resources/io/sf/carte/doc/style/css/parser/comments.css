@@ -1,4 +1,6 @@
-/* pre-rule-1 */
+/*
+ pre-rule-1
+ */
 @property/* skip-pty 1 */--reg-custom/* skip-pty 2 */{/* pre-property-decl */ syntax: /* skip-pty 3 */"*"; /* post-property-decl */inherits/* skip-pty 4 */:/*
 skip-pty-5 */false}
 /* pre-rule-1-webkit */

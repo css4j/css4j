@@ -47,7 +47,7 @@ abstract class FunctionCallbackTH extends LexicalCallbackTH {
 	}
 
 	@Override
-	public boolean isCurrentUnitAFunction() {
+	public boolean isFunctionOrExpressionContext() {
 		return true;
 	}
 
@@ -87,7 +87,7 @@ abstract class FunctionCallbackTH extends LexicalCallbackTH {
 		}
 
 		@Override
-		public boolean isCurrentUnitAFunction() {
+		public boolean isFunctionOrExpressionContext() {
 			return true;
 		}
 

@@ -268,6 +268,16 @@ public class Evaluator {
 
 		};
 
+		evals[MathFunction.ANCHOR_SIZE.ordinal()] = new FunctionEvaluator() {
+
+			@Override
+			public CSSNumberValue evaluateFunction(Evaluator eval, CSSMathFunctionValue function,
+					Unit resultUnit) {
+				return eval.functionAnchorSize(function.getArguments(), resultUnit);
+			}
+
+		};
+
 		return evals;
 	}
 
@@ -903,6 +913,30 @@ public class Evaluator {
 		float result = Math.signum(fval);
 
 		return createNumberValue(CSSUnit.CSS_NUMBER, result, false);
+	}
+
+	private CSSNumberValue functionAnchorSize(CSSValueList<? extends CSSValue> arguments,
+			Unit resultUnit) throws DOMException {
+		if (arguments.getLength() != 1) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "anchor-size() functions takes one argument");
+		}
+		CSSTypedValue arg = typedArgument(arguments, 0);
+
+		if (arg.getPrimitiveType() != Type.IDENT) {
+			throw new DOMException(DOMException.SYNTAX_ERR, "anchor-size() arguments must be identifiers.");
+		}
+
+		resultUnit.setUnitType(CSSUnit.CSS_PX);
+		resultUnit.setExponent(1);
+
+		float result = anchorSize(arg.getStringValue());
+
+		return createNumberValue(CSSUnit.CSS_PX, result, true);
+	}
+
+	protected float anchorSize(String ident) throws DOMException {
+		throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+				"Do not know the anchor-size of: " + ident);
 	}
 
 	CSSTypedValue unknownFunction(CSSFunctionValue function, Unit resultUnit) {

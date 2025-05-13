@@ -29,7 +29,7 @@ class FunctionFactories {
 	private final Map<String, LexicalUnitFactory> factories = createFactoryMap();
 
 	private Map<String, LexicalUnitFactory> createFactoryMap() {
-		Map<String, LexicalUnitFactory> factories = new HashMap<>(96);
+		Map<String, LexicalUnitFactory> factories = new HashMap<>(100);
 
 		factories.put("calc", new LexicalUnitFactory() {
 
@@ -910,6 +910,15 @@ class FunctionFactories {
 
 		});
 
+		factories.put("anchor-size", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new AnchorSizeUnitImpl();
+			}
+
+		});
+
 		/*
 		 * Pseudo-classes (nesting)
 		 */
@@ -924,6 +933,9 @@ class FunctionFactories {
 		factories.put("nth-last-of-type", new PseudoUnitFactory("nth-last-of-type"));
 		factories.put("nth-of-type", new PseudoUnitFactory("nth-of-type"));
 		factories.put("where", new PseudoUnitFactory("where"));
+		factories.put("host", new PseudoUnitFactory("host"));
+		factories.put("host-context", new PseudoUnitFactory("host-context"));
+		factories.put("state", new PseudoUnitFactory("state"));
 
 		return factories;
 	}
