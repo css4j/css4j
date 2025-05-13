@@ -10,11 +10,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 
 package io.sf.carte.doc.style.css;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Move these methods to CSSDocument after upgrading to Java 11 or later.
@@ -53,7 +53,13 @@ class CSSDocumentUtil {
 			throw new MalformedURLException(buf.toString());
 		}
 		String invalid = String.valueOf(invc);
-		return uri.replace(invalid, URLEncoder.encode(invalid, StandardCharsets.UTF_8));
+		// TODO: uncomment next line when dropping Java 8
+		//return uri.replace(invalid, URLEncoder.encode(invalid, StandardCharsets.UTF_8));
+		try {
+			return uri.replace(invalid, URLEncoder.encode(invalid, "utf-8"));
+		} catch (UnsupportedEncodingException e) {
+			return uri;
+		}
 	}
 
 }
