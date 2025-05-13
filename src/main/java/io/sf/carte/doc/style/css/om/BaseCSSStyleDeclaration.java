@@ -536,6 +536,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		} else if ("place-content".equals(shorthand) || "place-items".equals(shorthand)
 				|| "place-self".equals(shorthand) || "gap".equals(shorthand)) {
 			return new OrderedTwoValueShorthandBuilder(shorthand, this, "normal");
+		} else if ("margin-inline".equals(shorthand) || "padding-inline".equals(shorthand)) {
+			return new OrderedTwoValueShorthandBuilder(shorthand, this, "0");
 		}
 		return null;
 	}
@@ -1809,6 +1811,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				setter = new ColumnsShorthandSetter(this);
 			} else if ("column-rule".equals(propertyName)) {
 				setter = new ColumnRuleShorthandSetter(this);
+			} else if ("margin-inline".equals(propertyName) || "padding-inline".equals(propertyName)) {
+				setter = new OrderedTwoLPIShorthandSetter(this, propertyName);
 			} else if ("place-content".equals(propertyName) || "place-items".equals(propertyName)
 					|| "place-self".equals(propertyName)) {
 				setter = new OrderedTwoIdentifierShorthandSetter(this, propertyName);
@@ -1929,9 +1933,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	 */
 	public Diff<String> diff(BaseCSSStyleDeclaration other) {
 		PropertyDiff diff = new PropertyDiff();
-		Iterator<String> it = propertyList.iterator();
-		while (it.hasNext()) {
-			String property = it.next();
+		for (String property : propertyList) {
 			if (!other.propertyList.contains(property)) {
 				diff.leftSide.add(property);
 			} else {
@@ -1953,9 +1955,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				diff.differentValues.add(property);
 			}
 		}
-		it = other.propertyList.iterator();
-		while (it.hasNext()) {
-			String property = it.next();
+		for (String property : other.propertyList) {
 			if (!propertyList.contains(property)) {
 				diff.rightSide.add(property);
 			}

@@ -64,6 +64,12 @@ public class FlexShorthandBuilderTest {
 		assertShorthandText("flex:3%;", "flex: 3%; ");
 		assertShorthandText("flex:content;", "flex: content; ");
 		assertShorthandText("flex:0 0 50%;", "flex: 0 0 50%; ");
+		assertShorthandText("flex:0 100 max-content;", "flex:0 100 max-content;");
+		assertShorthandText("flex:0 100 fit-content(50%);", "flex:0 100 fit-content(50%);");
+	}
+
+	@Test
+	public void testBuilderImportantMix() {
 		assertShorthandText("flex:50%;flex-shrink:0!important;",
 				"flex: 0 0 50%; flex-shrink:0!important; ");
 		assertShorthandText("flex:1 50%;flex-shrink:0!important;",
@@ -72,6 +78,10 @@ public class FlexShorthandBuilderTest {
 				"flex: 0 0 50%; flex-grow:0!important; ");
 		assertShorthandText("flex:2 2;flex-basis:3%!important;",
 				"flex: 2 2 3%; flex-basis:3%!important;");
+	}
+
+	@Test
+	public void testBuilderMulti() {
 		assertShorthandText("flex:1 0px;", "flex-basis:0;flex-grow:1;flex-shrink:1");
 		assertShorthandText("flex:1 0px;", "flex-basis:0px;flex-grow:1;flex-shrink:1");
 	}

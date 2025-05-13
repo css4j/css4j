@@ -194,7 +194,7 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 	private boolean invalidFlexBasis(CSSTypedValue primi) {
 		if (primi.getPrimitiveType() == Type.IDENT) {
 			String ident = primi.getStringValue();
-			return !"auto".equalsIgnoreCase(ident) && !"content".equalsIgnoreCase(ident);
+			return !getShorthandDatabase().isIdentifierValue("flex-basis", ident);
 		} else if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
 			return primi.getFloatValue(CSSUnit.CSS_NUMBER) != 0f;
 		}

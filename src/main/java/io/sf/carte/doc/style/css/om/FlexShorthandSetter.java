@@ -97,7 +97,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 				count++;
 				flexBasisUnset = false;
 			} else if (lut == LexicalType.IDENT) {
-				// Only 'auto', 'content' and 'none' are acceptable
+				// 'auto' and 'none' have specific meanings
 				String ident = currentValue.getStringValue();
 				if ("none".equalsIgnoreCase(ident)) {
 					if (flexGrowUnset) {
@@ -115,7 +115,7 @@ class FlexShorthandSetter extends ShorthandSetter {
 					setFlexBasisToAuto();
 					count += 2;
 					flexBasisUnset = false;
-				} else if ("content".equalsIgnoreCase(ident)) { // flex-basis
+				} else if (getShorthandDatabase().isIdentifierValue("flex-basis", ident)) { // flex-basis
 					setSubpropertyValue("flex-basis", createCSSValue("flex-basis", currentValue));
 					count++;
 					flexBasisUnset = false;
@@ -126,6 +126,11 @@ class FlexShorthandSetter extends ShorthandSetter {
 				} else {
 					return 2;
 				}
+			} else if (currentValue.getLexicalUnitType() == LexicalType.FUNCTION) {
+				// fit-content(), anchor-size(), calc-size(), maybe newer functions
+				setSubpropertyValue("flex-basis", createCSSValue("flex-basis", currentValue));
+				count++;
+				flexBasisUnset = false;
 			} else if (currentValue.getLexicalUnitType() == LexicalType.PREFIXED_FUNCTION) {
 				setPrefixedValue(currentValue);
 				flush();
