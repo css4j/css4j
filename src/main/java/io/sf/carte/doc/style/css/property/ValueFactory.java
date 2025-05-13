@@ -91,6 +91,7 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
+		case ENV:
 			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("length");
 			switch (lunit.shallowMatch(syntax)) {
 			case TRUE:
@@ -135,6 +136,7 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
+		case ENV:
 			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("length-percentage");
 			switch (lunit.shallowMatch(syntax)) {
 			case TRUE:
@@ -181,6 +183,7 @@ public class ValueFactory implements CSSValueFactory {
 		case MATH_FUNCTION:
 		case FUNCTION: // We check FUNCTION in case we got -webkit-calc() or similar
 		case SUB_EXPRESSION:
+		case ENV:
 			CSSValueSyntax syntax = SyntaxParser.createSimpleSyntax("length-percentage");
 			switch (lunit.shallowMatch(syntax)) {
 			case TRUE:
