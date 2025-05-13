@@ -147,10 +147,12 @@ public class DefaultStyleDeclarationErrorHandler implements StyleDeclarationErro
 
 	@Override
 	public void unassignedShorthandValue(String shorthandName, String valueCss) {
-		if (unassignedValue == null) {
-			unassignedValue = new HashMap<>();
+		if (!valueCss.endsWith("\\9")) { // Do not bother about IE hacks
+			if (unassignedValue == null) {
+				unassignedValue = new HashMap<>();
+			}
+			unassignedValue.put(shorthandName, valueCss);
 		}
-		unassignedValue.put(shorthandName, valueCss);
 	}
 
 	/**
