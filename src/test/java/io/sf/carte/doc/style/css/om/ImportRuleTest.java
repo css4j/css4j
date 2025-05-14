@@ -242,7 +242,7 @@ public class ImportRuleTest {
 		assertEquals("background-color", gcs.item(0));
 		assertEquals("color", gcs.item(1));
 
-		factory.getDeviceFactory().setViewportWidth(200f);
+		((DummyDeviceFactory) factory.getDeviceFactory()).setViewportWidth(200f);
 		gcs = cssBody.getComputedStyle(null);
 		assertEquals(2, gcs.getLength());
 	}
