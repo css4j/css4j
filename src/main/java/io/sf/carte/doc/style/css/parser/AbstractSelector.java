@@ -11,7 +11,6 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.NamespacePrefixMap;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
@@ -36,10 +35,10 @@ abstract class AbstractSelector implements Selector, Cloneable, java.io.Serializ
 		NSACSelectorFactory factory = getSelectorFactory();
 		CombinatorSelectorImpl comb;
 		if (base.getLength() == 1) {
-			comb = factory.createCombinatorSelector(SelectorType.DESCENDANT, base.item(0));
+			Selector baseSelector = base.item(0);
+			comb = factory.createCombinatorSelector(SelectorType.DESCENDANT, baseSelector);
 		} else {
-			SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) factory
-					.createCondition(ConditionType.SELECTOR_ARGUMENT);
+			SelectorArgumentConditionImpl is = new SelectorArgumentConditionImpl();
 			is.arguments = base;
 			is.setName("is");
 			ConditionalSelectorImpl condSel = factory.createConditionalSelector(null, is);
@@ -48,6 +47,7 @@ abstract class AbstractSelector implements Selector, Cloneable, java.io.Serializ
 
 		// Combinator selector must override this method
 		comb.simpleSelector = (SimpleSelector) clone();
+
 		return comb;
 	}
 

@@ -31,9 +31,7 @@ class NestingCondition extends AbstractCondition {
 	@Override
 	Condition replace(SelectorList base, MutableBoolean replaced) {
 		replaced.setTrueValue();
-		NSACSelectorFactory factory = ((AbstractSelector) base.item(0)).getSelectorFactory();
-		SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) factory
-				.createCondition(ConditionType.SELECTOR_ARGUMENT);
+		SelectorArgumentConditionImpl is = new SelectorArgumentConditionImpl();
 		is.arguments = base;
 		is.setName("is");
 		return is;

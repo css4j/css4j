@@ -18,7 +18,6 @@ import io.sf.carte.doc.style.css.nsac.ElementSelector;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
-import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorSelectorImpl;
 
 abstract class ConditionalSelectorImpl extends AbstractSelector implements ConditionalSelector {
 
@@ -49,27 +48,6 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 	}
 
 	@Override
-	Selector descendant(SelectorList base) {
-		NSACSelectorFactory factory = getSelectorFactory();
-		CombinatorSelectorImpl comb;
-		if (base.getLength() == 1) {
-			Selector baseSelector = base.item(0);
-			comb = factory.createCombinatorSelector(SelectorType.DESCENDANT, baseSelector);
-		} else {
-			SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) factory
-					.createCondition(ConditionType.SELECTOR_ARGUMENT);
-			is.arguments = base;
-			is.setName("is");
-			ConditionalSelectorImpl condSel = factory.createConditionalSelector(null, is);
-			comb = factory.createCombinatorSelector(SelectorType.DESCENDANT, condSel);
-		}
-
-		comb.simpleSelector = clone();
-
-		return comb;
-	}
-
-	@Override
 	Selector replace(SelectorList base, MutableBoolean replaced) {
 		Condition replCond;
 
@@ -91,8 +69,7 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 					return bclon;
 				}
 			}
-			SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) getSelectorFactory()
-					.createCondition(ConditionType.SELECTOR_ARGUMENT);
+			SelectorArgumentConditionImpl is = new SelectorArgumentConditionImpl();
 			is.arguments = base;
 			is.setName("is");
 			replCond = is;
@@ -122,8 +99,7 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 			} else {
 				cond1 = ((AbstractCondition) cond1).replace(base, replaced);
 			}
-			CombinatorConditionImpl newCombCond = (CombinatorConditionImpl) getSelectorFactory()
-					.createCondition(ConditionType.AND);
+			CombinatorConditionImpl newCombCond = new CombinatorConditionImpl();
 			newCombCond.first = cond1;
 			newCombCond.second = cond2;
 			ConditionalSelectorImpl newsel = getSelectorFactory().createConditionalSelector(

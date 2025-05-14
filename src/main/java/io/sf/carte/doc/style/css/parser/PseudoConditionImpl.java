@@ -14,13 +14,12 @@ package io.sf.carte.doc.style.css.parser;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 
-class PseudoConditionImpl extends AbstractCondition implements PseudoCondition {
+class PseudoConditionImpl extends AbstractNamedCondition implements PseudoCondition {
 
 	private static final long serialVersionUID = 1L;
 
 	private ConditionType condType;
 
-	String name = null;
 	String argument = null;
 
 	PseudoConditionImpl(ConditionType condType) {
@@ -31,15 +30,6 @@ class PseudoConditionImpl extends AbstractCondition implements PseudoCondition {
 	@Override
 	public ConditionType getConditionType() {
 		return condType;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	void setName(String lcname) {
-		this.name = lcname;
 	}
 
 	@Override
@@ -114,7 +104,6 @@ class PseudoConditionImpl extends AbstractCondition implements PseudoCondition {
 	public PseudoConditionImpl clone() {
 		PseudoConditionImpl clon = (PseudoConditionImpl) super.clone();
 		clon.condType = condType;
-		clon.name = name;
 		clon.argument = argument;
 		return clon;
 	}

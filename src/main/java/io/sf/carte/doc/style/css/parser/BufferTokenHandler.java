@@ -180,10 +180,10 @@ abstract class BufferTokenHandler extends CSSTokenHandler implements CSSContentH
 			int escsz = index - escapedTokenIndex;
 			int rawlen = buffer.length() - escsz;
 			if (rawlen <= 0) {
-				s = CSSParser.safeUnescapeIdentifier(index, buffer.toString());
+				s = CSSParser.safeUnescapeIdentifier(buffer.toString());
 			} else {
 				CharSequence rawseq = buffer.subSequence(0, rawlen);
-				s = rawseq + CSSParser.safeUnescapeIdentifier(index, buffer.substring(rawlen));
+				s = rawseq + CSSParser.safeUnescapeIdentifier(buffer.substring(rawlen));
 			}
 		} else {
 			s = buffer.toString();

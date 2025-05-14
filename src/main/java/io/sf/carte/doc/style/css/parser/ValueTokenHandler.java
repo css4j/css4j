@@ -760,7 +760,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 						buffer.setLength(0);
 						return;
 					} else {
-						str = CSSParser.safeUnescapeIdentifier(index, raw);
+						str = CSSParser.safeUnescapeIdentifier(raw);
 						cssText = safeNullEscape(raw);
 					}
 				}
@@ -777,7 +777,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 						buffer.setLength(0);
 						return;
 					} else {
-						str = CSSParser.safeUnescapeIdentifier(index, cssText);
+						str = CSSParser.safeUnescapeIdentifier(cssText);
 						cssText = safeNullEscape(cssText);
 					}
 				}
@@ -1107,7 +1107,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 				handleError(index, ParseHelper.ERR_WRONG_VALUE,
 						"Unexpected string: " + quoteChar + quoted + quoteChar);
 			}
-			lu.value = CSSParser.safeUnescapeIdentifier(index, s);
+			lu.value = CSSParser.safeUnescapeIdentifier(s);
 			char c = (char) quoteChar;
 			StringBuilder buf = new StringBuilder(s.length() + 2);
 			buf.append(c).append(s).append(c);
@@ -1126,7 +1126,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 				handleError(index, ParseHelper.ERR_WRONG_VALUE,
 						"Unexpected string: " + quoteChar + quoted + quoteChar);
 			}
-			lu.value = CSSParser.safeUnescapeIdentifier(index, s);
+			lu.value = CSSParser.safeUnescapeIdentifier(s);
 			char c = (char) quoteChar;
 			StringBuilder buf = new StringBuilder(s.length() + 2);
 			buf.append(c).append(ParseHelper.escapeControl(s)).append(c);

@@ -15,11 +15,10 @@ import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
-class SelectorArgumentConditionImpl extends AbstractCondition implements ArgumentCondition {
+class SelectorArgumentConditionImpl extends AbstractNamedCondition implements ArgumentCondition {
 
 	private static final long serialVersionUID = 1L;
 
-	String name = null;
 	SelectorList arguments = null;
 
 	SelectorArgumentConditionImpl() {
@@ -29,15 +28,6 @@ class SelectorArgumentConditionImpl extends AbstractCondition implements Argumen
 	@Override
 	public ConditionType getConditionType() {
 		return Condition.ConditionType.SELECTOR_ARGUMENT;
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-
-	void setName(String name) {
-		this.name = name;
 	}
 
 	@Override
@@ -106,7 +96,6 @@ class SelectorArgumentConditionImpl extends AbstractCondition implements Argumen
 	@Override
 	public SelectorArgumentConditionImpl clone() {
 		SelectorArgumentConditionImpl clon = (SelectorArgumentConditionImpl) super.clone();
-		clon.name = name;
 		clon.arguments = arguments;
 		return clon;
 	}

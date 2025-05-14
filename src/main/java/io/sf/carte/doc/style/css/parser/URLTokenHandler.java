@@ -139,7 +139,7 @@ class URLTokenHandler extends CallbackTokenHandler {
 	public void quoted(int index, CharSequence quoted, int quote) {
 		if (url == null && buffer.length() == 0) {
 			String escaped = quoted.toString();
-			url = CSSParser.safeUnescapeIdentifier(index, escaped);
+			url = CSSParser.safeUnescapeIdentifier(escaped);
 			if (urlUnit != null) {
 				urlUnit.value = url;
 				StringBuilder buf = new StringBuilder(escaped.length() + 2);

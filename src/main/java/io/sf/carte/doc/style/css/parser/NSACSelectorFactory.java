@@ -24,7 +24,6 @@ import io.sf.carte.doc.style.css.nsac.Parser.NamespaceMap;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.SimpleSelector;
-import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 
 /**
  * Based on SAC api.
@@ -444,8 +443,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 						clon.simpleSelector = (SimpleSelector) replComb.selector;
 					} else {
 						NSACSelectorFactory factory = getSelectorFactory();
-						SelectorArgumentConditionImpl is = (SelectorArgumentConditionImpl) factory
-								.createCondition(ConditionType.SELECTOR_ARGUMENT);
+						SelectorArgumentConditionImpl is = new SelectorArgumentConditionImpl();
 						SelectorListImpl selist = new SelectorListImpl();
 						selist.add(replComb.selector);
 						is.arguments = selist;
@@ -556,44 +554,8 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 
 	}
 
-	PositionalConditionImpl createPositionalCondition() {
-		return new PositionalConditionImpl(false);
-	}
-
-	PositionalConditionImpl createPositionalCondition(boolean needsArgument) {
-		PositionalConditionImpl cond = new PositionalConditionImpl(needsArgument);
-		return cond;
-	}
-
-	Condition createCondition(Condition.ConditionType type) {
-		switch (type) {
-		case CLASS:
-			return new AttributeConditionImpl(type);
-		case ATTRIBUTE:
-		case BEGIN_HYPHEN_ATTRIBUTE:
-		case ONE_OF_ATTRIBUTE:
-		case ENDS_ATTRIBUTE:
-		case SUBSTRING_ATTRIBUTE:
-		case BEGINS_ATTRIBUTE:
-		case ID:
-		case ONLY_CHILD:
-		case ONLY_TYPE:
-			return new AttributeConditionImpl(type);
-		case PSEUDO_CLASS:
-		case PSEUDO_ELEMENT:
-			return new PseudoConditionImpl(type);
-		case LANG:
-			return new LangConditionImpl();
-		case AND:
-			return new CombinatorConditionImpl();
-		case SELECTOR_ARGUMENT:
-			return new SelectorArgumentConditionImpl();
-		case POSITIONAL:
-			return createPositionalCondition();
-		case NESTING:
-			return NestingCondition.getInstance();
-		}
-		return null;
+	AttributeConditionImpl createAttributeCondition(Condition.ConditionType type) {
+		return new AttributeConditionImpl(type);
 	}
 
 	class AttributeConditionImpl extends AbstractCondition implements AttributeCondition {
@@ -764,9 +726,6 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 				break;
 			case ID:
 				buf.append('#').append(getEscapedValue());
-				break;
-			case LANG:
-				buf.append(":lang(").append(getEscapedValue()).append(')');
 				break;
 			case ONLY_CHILD:
 				buf.append(":only-child");

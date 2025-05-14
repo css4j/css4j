@@ -1068,25 +1068,25 @@ public class ParseHelper {
 	}
 
 	/**
-	 * Check if the code point is a valid XML name character.
+	 * Check if the code point is a valid XML name non-alphanumeric character.
 	 * 
 	 * @param cp the code point.
 	 * @return true if is a valid XML character, excluding a-z, A-Z, 0-9.
 	 */
-	static boolean isValidXMLCharacter(int cp) {
+	static boolean isValidXMLNonAlphaCharacter(int cp) {
 		return cp == 0x2d // -
 				|| cp == 0x2e // .
 				|| cp == 0xB7 // Middle dot
-				|| isValidXMLStartCharacter(cp);
+				|| isValidXMLStartNonAlphaCharacter(cp);
 	}
 
 	/**
-	 * Check if the code point is a valid XML name start character.
+	 * Check if the code point is a valid XML name start non-alphanumeric character.
 	 * 
 	 * @param cp the code point.
 	 * @return true if is a valid XML start character, excluding a-z, A-Z.
 	 */
-	static boolean isValidXMLStartCharacter(int cp) {
+	static boolean isValidXMLStartNonAlphaCharacter(int cp) {
 		return cp == 0x5f // _
 				|| (cp >= 0xC0 && cp <= 0xD6) // #xC0-#xD6
 				|| (cp >= 0xD8 && cp <= 0xF6) // #xD8-#xF6

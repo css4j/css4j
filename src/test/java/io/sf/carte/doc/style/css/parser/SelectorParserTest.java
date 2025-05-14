@@ -276,9 +276,15 @@ public class SelectorParserTest {
 		sel = selist.item(1);
 		assertSame(sel, selist2.item(0));
 		// Replace error
-		assertThrows(DOMException.class, () -> {selist.replace(-1, selist2.item(0));});
-		assertThrows(DOMException.class, () -> {selist.replace(4, selist2.item(0));});
-		assertThrows(NullPointerException.class, () -> {selist.replace(1, null);});
+		assertThrows(DOMException.class, () -> {
+			selist.replace(-1, selist2.item(0));
+		});
+		assertThrows(DOMException.class, () -> {
+			selist.replace(4, selist2.item(0));
+		});
+		assertThrows(NullPointerException.class, () -> {
+			selist.replace(1, null);
+		});
 		// List operations
 		assertTrue(selist.contains(selist2.item(0)));
 		assertTrue(selist.containsAll(selist2));
@@ -771,6 +777,12 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorAttributeErrorEmpty() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class, () -> parseSelectors("[]"));
+		assertEquals(2, ex.getColumnNumber());
+	}
+
+	@Test
 	public void testParseSelectorAttributeHighCharError() throws CSSException {
 		try {
 			parseSelectors("p[\u26a1]"); // ⚡ high voltage sign
@@ -1023,6 +1035,7 @@ public class SelectorParserTest {
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[title=\"hi\" s]", sel.toString());
 	}
+
 	@Test
 	public void testParseSelectorAttributeValueHighChar() throws CSSException {
 		SelectorList selist = parseSelectors("p[\u208c=\"hi\"]");
@@ -1152,7 +1165,6 @@ public class SelectorParserTest {
 			assertEquals(12, e.getColumnNumber());
 		}
 	}
-
 
 	@Test
 	public void testParseSelectorAttributeValueStrFlagUnknownError() throws IOException {
@@ -1576,6 +1588,13 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorAttributeOneOfErrorEmpty() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parseSelectors("[~=\"hi\"]"));
+		assertEquals(2, ex.getColumnNumber());
+	}
+
+	@Test
 	public void testParseSelectorAttributeHyphen() throws CSSException {
 		SelectorList selist = parseSelectors("p[lang|=\"en\"]");
 		assertNotNull(selist);
@@ -1715,6 +1734,13 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorAttributeHyphenErrorEmpty() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parseSelectors("[|=\"hi\"]"));
+		assertEquals(2, ex.getColumnNumber());
+	}
+
+	@Test
 	public void testParseSelectorAttributeSubstring() throws CSSException {
 		SelectorList selist = parseSelectors("p[lang*=\"CH\"]");
 		assertNotNull(selist);
@@ -1814,6 +1840,13 @@ public class SelectorParserTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[_\ud83c\udf52*=\"foo\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeSubstringErrorEmpty() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parseSelectors("[*=\"hi\"]"));
+		assertEquals(2, ex.getColumnNumber());
 	}
 
 	@Test
@@ -1919,6 +1952,13 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorAttributeEndErrorEmpty() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parseSelectors("[$=\"hi\"]"));
+		assertEquals(2, ex.getColumnNumber());
+	}
+
+	@Test
 	public void testParseSelectorAttributeBeginPrefix() throws CSSException {
 		SelectorList selist = parseSelectors("p[style^=\"display:\"]");
 		assertNotNull(selist);
@@ -2018,6 +2058,13 @@ public class SelectorParserTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals("p[_\ud83c\udf52^=\"foo\"]", sel.toString());
+	}
+
+	@Test
+	public void testParseSelectorAttributeBegiErrorEmpty() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class,
+				() -> parseSelectors("[^=\"hi\"]"));
+		assertEquals(2, ex.getColumnNumber());
 	}
 
 	@Test
@@ -2246,7 +2293,7 @@ public class SelectorParserTest {
 	@Test
 	public void testParseSelectorListClassError() throws CSSException {
 		CSSParseException ex = assertThrows(CSSParseException.class,
-			() -> parseSelectors("p.,.bar"));
+				() -> parseSelectors("p.,.bar"));
 		assertEquals(3, ex.getColumnNumber());
 	}
 
@@ -2738,6 +2785,12 @@ public class SelectorParserTest {
 	@Test
 	public void testParseSelectorEmptyIdError() throws CSSException {
 		CSSParseException ex = assertThrows(CSSParseException.class, () -> parseSelectors("# id"));
+		assertEquals(2, ex.getColumnNumber());
+	}
+
+	@Test
+	public void testParseSelectorDoubleIdError() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class, () -> parseSelectors("##id"));
 		assertEquals(2, ex.getColumnNumber());
 	}
 
@@ -4009,8 +4062,14 @@ public class SelectorParserTest {
 			parseSelectors("::-webkit-foo()");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
-			assertEquals(14, e.getColumnNumber());
+			assertEquals(15, e.getColumnNumber());
 		}
+	}
+
+	@Test
+	public void testParseSelectorPseudoElementErrorEmpty() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class, () -> parseSelectors("::()"));
+		assertEquals(3, ex.getColumnNumber());
 	}
 
 	@Test
@@ -4152,6 +4211,12 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorPseudoClassErrorEmpty() throws CSSException {
+		CSSParseException ex = assertThrows(CSSParseException.class, () -> parseSelectors(":()"));
+		assertEquals(2, ex.getColumnNumber());
+	}
+
+	@Test
 	public void testParseSelectorPseudoClassCommentError() throws CSSException {
 		try {
 			parseSelectors("div:/* */blank");
@@ -4185,7 +4250,7 @@ public class SelectorParserTest {
 			parseSelectors(":dir()");
 			fail("Must throw exception");
 		} catch (CSSParseException e) {
-			assertEquals(5, e.getColumnNumber());
+			assertEquals(6, e.getColumnNumber());
 		}
 	}
 
@@ -4542,7 +4607,8 @@ public class SelectorParserTest {
 
 	@Test
 	public void testParseSelectorPseudoClassNthKeywords() throws CSSException {
-		SelectorList selist = parseSelectors(":nth-child(even),:nth-child(2n),:nth-child(odd),:nth-child(2n+1)");
+		SelectorList selist = parseSelectors(
+				":nth-child(even),:nth-child(2n),:nth-child(odd),:nth-child(2n+1)");
 		assertNotNull(selist);
 		assertEquals(4, selist.getLength());
 		assertEquals(":nth-child(even)", selist.item(0).toString());
@@ -5344,7 +5410,7 @@ public class SelectorParserTest {
 	@Test
 	public void testParseSelectorPseudoClassNot13() throws CSSException {
 		SelectorList selist = parseSelectors(
-			"a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div");
+				"a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div");
 		assertNotNull(selist);
 		assertEquals(5, selist.getLength());
 
@@ -5443,8 +5509,8 @@ public class SelectorParserTest {
 		assertEquals("div", ((ElementSelector) sel).getLocalName());
 
 		assertEquals(
-			"a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div",
-			selist.toString());
+				"a:not([href]):not([tabindex]),a:not([href]):not([tabindex]):focus,code,pre,div",
+				selist.toString());
 	}
 
 	@Test
