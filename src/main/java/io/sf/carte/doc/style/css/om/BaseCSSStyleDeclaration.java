@@ -1722,26 +1722,27 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 
 	/**
 	 * Set the subproperties of a shorthand, and returns its text representation.
+	 * <p>
+	 * In this context, subproperty means either the longhands, or more specific
+	 * sub-shorthands (and their longhands).
+	 * </p>
 	 * 
-	 * @param propertyName
-	 *            the shorthand property name.
-	 * @param value
-	 *            the shorthand property value.
-	 * @param important
-	 *            the shorthand property priority.
-	 * @param attrTainted
-	 *            the shorthand property is attr()-tainted.
-	 * @return the SubpropertySetter for the shorthand, or null if propertyName is not a
-	 *         shorthand.
-	 * @throws DOMException
-	 *             if a problem happens creating the value to assign to a subproperty, or the
-	 *             property value is invalid.
+	 * @param propertyName the shorthand property name.
+	 * @param value        the shorthand property value.
+	 * @param important    the shorthand property priority.
+	 * @param attrTainted  the shorthand property is attr()-tainted.
+	 * @return the SubpropertySetter for the shorthand, or null if propertyName is
+	 *         not a shorthand, or a prefixed value was found.
+	 * @throws DOMException if a problem happens creating the value to assign to a
+	 *                      subproperty, or the property value is invalid.
 	 */
 	private SubpropertySetter setSubproperties(String propertyName, LexicalUnit value,
 			boolean important, boolean attrTainted) throws DOMException {
+		SubpropertySetter setter = null;
+
 		ShorthandDatabase sdb = ShorthandDatabase.getInstance();
 		if (sdb.isShorthand(propertyName)) {
-			SubpropertySetter setter;
+
 			// Check for var() / attr()
 			if (isOrContainsProxy(value)) {
 				setter = new PendingSubstitutionSetter(this, propertyName);
@@ -1749,94 +1750,16 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				setter.assignSubproperties();
 				return setter;
 			}
-			// Normal shorthands
-			if ("font".equals(propertyName)) {
-				// Check for system font identifier
-				if (getStyleDatabase() != null && value.getLexicalUnitType() == LexicalType.IDENT
-						&& value.getNextLexicalUnit() == null) {
-					String decl = getStyleDatabase()
-							.getSystemFontDeclaration(value.getStringValue());
-					if (decl != null) {
-						return setSystemFont(decl, important);
-					}
-				}
-				setter = new FontShorthandSetter(this);
-			} else if ("margin".equals(propertyName)) {
-				setter = new MarginShorthandSetter(this);
-			} else if ("padding".equals(propertyName)) {
-				setter = new BoxShorthandSetter(this, "padding");
-			} else if ("border".equals(propertyName)) {
-				setter = new BorderShorthandSetter(this);
-			} else if ("border-width".equals(propertyName)) {
-				setter = new BorderWidthShorthandSetter(this);
-			} else if ("border-style".equals(propertyName)) {
-				setter = new BorderStyleShorthandSetter(this);
-			} else if ("border-color".equals(propertyName)) {
-				setter = new BorderColorShorthandSetter(this);
-			} else if ("border-top".equals(propertyName)) {
-				setter = new BorderSideShorthandSetter(this, propertyName, "top");
-			} else if ("border-right".equals(propertyName)) {
-				setter = new BorderSideShorthandSetter(this, propertyName, "right");
-			} else if ("border-bottom".equals(propertyName)) {
-				setter = new BorderSideShorthandSetter(this, propertyName, "bottom");
-			} else if ("border-left".equals(propertyName)) {
-				setter = new BorderSideShorthandSetter(this, propertyName, "left");
-			} else if ("background".equals(propertyName)) {
-				setter = new BackgroundShorthandSetter(this);
-			} else if ("transition".equals(propertyName)) {
-				setter = new TransitionShorthandSetter(this);
-			} else if ("border-image".equals(propertyName)) {
-				setter = new BorderImageShorthandSetter(this);
-			} else if ("font-variant".equals(propertyName)) {
-				setter = new FontVariantShorthandSetter(this);
-			} else if ("border-radius".equals(propertyName)) {
-				setter = new BorderRadiusShorthandSetter(this);
-			} else if ("list-style".equals(propertyName)) {
-				setter = new ListStyleShorthandSetter(this);
-			} else if ("animation".equals(propertyName)) {
-				setter = new AnimationShorthandSetter(this);
-			} else if ("mask".equals(propertyName)) {
-				setter = new MaskShorthandSetter(this);
-			} else if ("flex".equals(propertyName)) {
-				setter = new FlexShorthandSetter(this);
-			} else if ("grid".equals(propertyName)) {
-				setter = new GridShorthandSetter(this);
-			} else if ("grid-template".equals(propertyName)) {
-				setter = new GridTemplateShorthandSetter(this);
-			} else if ("grid-area".equals(propertyName)) {
-				setter = new GridAreaShorthandSetter(this);
-			} else if ("grid-column".equals(propertyName) || "grid-row".equals(propertyName)) {
-				setter = new GridPlacementShorthandSetter(this, propertyName);
-			} else if ("columns".equals(propertyName)) {
-				setter = new ColumnsShorthandSetter(this);
-			} else if ("column-rule".equals(propertyName)) {
-				setter = new ColumnRuleShorthandSetter(this);
-			} else if ("margin-inline".equals(propertyName) || "padding-inline".equals(propertyName)) {
-				setter = new OrderedTwoLPIShorthandSetter(this, propertyName);
-			} else if ("place-content".equals(propertyName) || "place-items".equals(propertyName)
-					|| "place-self".equals(propertyName)) {
-				setter = new OrderedTwoIdentifierShorthandSetter(this, propertyName);
-			} else if ("gap".equals(propertyName)) {
-				setter = new OrderedTwoLPIShorthandSetter(this, propertyName);
-			} else if ("cue".equals(propertyName)) { // Not supported by browsers
-				setter = new CueShorthandSetter(this, propertyName);
-			} else if ("pause".equals(propertyName) || "rest".equals(propertyName)) {
-				// Not supported by browsers
-				setter = new SequenceShorthandSetter(this, propertyName);
-			} else {
-				setter = new ShorthandSetter(this, propertyName);
+
+			ShorthandDecomposer decomposer = ShorthandDecomposers.getInstance().get(propertyName);
+			if (decomposer == null) {
+				// Let's try the generic setter
+				decomposer = new ShorthandDecomposer();
 			}
-			setter.init(value, important);
-			setter.setAttrTainted(attrTainted);
-			short result = setter.assignSubproperties();
-			if (result == 2) {
-				throw new DOMException(DOMException.SYNTAX_ERR,
-						"Invalid property declaration: " + value.toString());
-			} else if (result == 0) {
-				return setter;
-			}
+			setter = decomposer.assignLonghands(this, propertyName, value, important, attrTainted);
 		}
-		return null;
+
+		return setter;
 	}
 
 	private static boolean isOrContainsProxy(LexicalUnit lunit) {
@@ -1853,7 +1776,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		return false;
 	}
 
-	private SubpropertySetter setSystemFont(String fontDecl, boolean important) throws DOMException {
+	SubpropertySetter setSystemFont(String fontDecl, boolean important) throws DOMException {
 		Reader re = new StringReader(fontDecl);
 		LexicalUnit lunit = null;
 		try {

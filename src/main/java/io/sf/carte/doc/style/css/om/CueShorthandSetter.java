@@ -13,8 +13,8 @@ package io.sf.carte.doc.style.css.om;
 
 class CueShorthandSetter extends SequenceShorthandSetter {
 
-	public CueShorthandSetter(BaseCSSStyleDeclaration style, String shorthand) {
-		super(style, shorthand);
+	public CueShorthandSetter(BaseCSSStyleDeclaration style) {
+		super(style, "cue");
 	}
 
 	@Override
