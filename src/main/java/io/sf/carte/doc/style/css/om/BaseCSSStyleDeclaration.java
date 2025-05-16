@@ -492,54 +492,7 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	ShorthandBuilder createBuilder(String shorthand) {
-		if ("border".equals(shorthand)) {
-			return new BorderBuilder(this);
-		} else if ("background".equals(shorthand)) {
-			return new BackgroundBuilder(this);
-		} else if ("border-image".equals(shorthand)) {
-			return new BorderImageBuilder(this);
-		} else if ("margin".equals(shorthand)) {
-			return new MarginBuilder(this);
-		} else if ("padding".equals(shorthand)) {
-			return new PaddingBuilder(this);
-		} else if ("font".equals(shorthand)) {
-			return new FontBuilder(this);
-		} else if ("font-variant".equals(shorthand)) {
-			return new FontVariantBuilder(this);
-		} else if ("border-radius".equals(shorthand)) {
-			return new BorderRadiusBuilder(this);
-		} else if ("list-style".equals(shorthand)) {
-			return new ListStyleShorthandBuilder(this);
-		} else if ("text-decoration".equals(shorthand) || "outline".equals(shorthand)
-				|| "text-emphasis".equals(shorthand) || "column-rule".equals(shorthand)) {
-			return new GenericShorthandBuilder(shorthand, this, "none");
-		} else if ("flex".equals(shorthand)) {
-			return new FlexShorthandBuilder(this);
-		} else if ("flex-flow".equals(shorthand)) {
-			return new GenericShorthandBuilder(shorthand, this, "row");
-		} else if ("columns".equals(shorthand)) {
-			return new GenericShorthandBuilder(shorthand, this, "auto");
-		} else if ("grid-column".equals(shorthand) || "grid-row".equals(shorthand)) {
-			return new GridPlacementShorthandBuilder(shorthand, this);
-		} else if ("grid-area".equals(shorthand)) {
-			return new GridAreaShorthandBuilder(this);
-		} else if ("grid".equals(shorthand) || "grid-template".equals(shorthand)) {
-			return new GridShorthandBuilder(this);
-		} else if ("animation".equals(shorthand)) {
-			return new AnimationShorthandBuilder(this);
-		} else if ("transition".equals(shorthand)) {
-			return new TransitionShorthandBuilder(this);
-		} else if ("mask".equals(shorthand)) {
-			return new MaskBuilder(this);
-		} else if ("cue".equals(shorthand) || "pause".equals(shorthand) || "rest".equals(shorthand)) {
-			return new SequenceShorthandBuilder(shorthand, this);
-		} else if ("place-content".equals(shorthand) || "place-items".equals(shorthand)
-				|| "place-self".equals(shorthand) || "gap".equals(shorthand)) {
-			return new OrderedTwoValueShorthandBuilder(shorthand, this, "normal");
-		} else if ("margin-inline".equals(shorthand) || "padding-inline".equals(shorthand)) {
-			return new OrderedTwoValueShorthandBuilder(shorthand, this, "0");
-		}
-		return null;
+		return ShorthandBuilders.getInstance().get(shorthand).createBuilder(this, shorthand);
 	}
 
 	@Override
@@ -1774,22 +1727,6 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 		} while (lunit != null);
 
 		return false;
-	}
-
-	SubpropertySetter setSystemFont(String fontDecl, boolean important) throws DOMException {
-		Reader re = new StringReader(fontDecl);
-		LexicalUnit lunit = null;
-		try {
-			lunit = createSACParser().parsePropertyValue(re);
-		} catch (CSSParseException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
-		} catch (IOException e) {
-			// this won't happen
-			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
-		}
-		return setSubproperties("font", lunit, important, false);
 	}
 
 	@Override

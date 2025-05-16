@@ -28,9 +28,10 @@ class ShorthandDecomposer {
 	 * @return the setter that successfully assigned the longhands, or {@code null}
 	 *         if the shorthand had a special handling and should not be further
 	 *         processed.
+	 * @throws DOMException if an error was found in the shorthand.
 	 */
 	public SubpropertySetter assignLonghands(BaseCSSStyleDeclaration style, String propertyName,
-			LexicalUnit value, boolean important, boolean attrTainted) {
+			LexicalUnit value, boolean important, boolean attrTainted) throws DOMException {
 		SubpropertySetter setter = createSetter(style, propertyName, value, important);
 		return assignLonghands(setter, value, important, attrTainted);
 	}
@@ -62,9 +63,10 @@ class ShorthandDecomposer {
 	 * @return the setter that successfully assigned the longhands, or {@code null}
 	 *         if the shorthand had a special handling and should not be further
 	 *         processed.
+	 * @throws DOMException if an error was found in the shorthand.
 	 */
 	SubpropertySetter assignLonghands(SubpropertySetter setter, LexicalUnit value,
-			boolean important, boolean attrTainted) {
+			boolean important, boolean attrTainted) throws DOMException {
 		setter.init(value, important);
 		setter.setAttrTainted(attrTainted);
 		short result = setter.assignSubproperties();

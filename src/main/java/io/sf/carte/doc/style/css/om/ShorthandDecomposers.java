@@ -11,19 +11,23 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.HashMap;
 
+import org.w3c.dom.DOMException;
+
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 
 class ShorthandDecomposers {
 
 	private static final HashMap<String, ShorthandDecomposer> decomposers = createShorthandDecomposerMap();
 
 	private static final ShorthandDecomposers instance = new ShorthandDecomposers();
-
-	static {
-	}
 
 	private ShorthandDecomposers() {
 		super();
@@ -45,7 +49,17 @@ class ShorthandDecomposers {
 					String decl = style.getStyleDatabase()
 							.getSystemFontDeclaration(value.getStringValue());
 					if (decl != null) {
-						return style.setSystemFont(decl, important);
+						Reader re = new StringReader(decl);
+						try {
+							value = new CSSParser().parsePropertyValue(re);
+						} catch (CSSParseException e) {
+							DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
+							ex.initCause(e);
+							throw ex;
+						} catch (IOException e) {
+							// this won't happen
+							throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
+						}
 					}
 				}
 				FontShorthandSetter setter = new FontShorthandSetter(style);
