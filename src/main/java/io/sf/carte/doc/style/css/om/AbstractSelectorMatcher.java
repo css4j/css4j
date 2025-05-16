@@ -274,6 +274,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 					return isIndeterminate();
 				} else if ("dir".equals(pseudoClassName)) {
 					return isDir(pseudocond.getArgument());
+				} else if ("state".equals(pseudoClassName)) {
+					return isActivePseudoClass(pseudocond.getArgument());
 				}
 				return isActivePseudoClass(pseudoClassName);
 			}
