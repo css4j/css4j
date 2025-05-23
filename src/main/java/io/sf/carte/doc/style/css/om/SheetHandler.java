@@ -212,7 +212,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		newRule();
 		if (ignoreGroupingRules == 0) {
 			if (currentRule != null) {
-				if (checkGroupingRule(CSSRule.MEDIA_RULE)) {
+				if (checkGroupingRule()) {
 					SupportsRule rule = new SupportsRule(parentSheet, condition, sheetOrigin);
 					addToCurrentRule(rule);
 					currentRule = rule;
@@ -256,7 +256,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		}
 	}
 
-	private boolean checkGroupingRule(short ruleType) {
+	private boolean checkGroupingRule() {
 		if (!(currentRule instanceof GroupingRule)) {
 			while (currentRule.getType() == CSSRule.NESTED_DECLARATIONS) {
 				currentRule = currentRule.getParentRule();
@@ -264,8 +264,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 			if (!(currentRule instanceof GroupingRule)) {
 				SheetErrorHandler eh;
 				if ((eh = parentSheet.getErrorHandler()) != null) {
-					eh.sacMalfunction("Unexpected rule of type " + ruleType + " inside of: "
-							+ currentRule.getCssText());
+					eh.sacMalfunction("Unexpected rule inside of: " + currentRule.getCssText());
 				}
 				ignoreGroupingRules = 1;
 				return false;
@@ -287,7 +286,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		newRule();
 		if (ignoreGroupingRules == 0) {
 			if (currentRule != null) {
-				if (checkGroupingRule(CSSRule.MEDIA_RULE)) {
+				if (checkGroupingRule()) {
 					MediaRule rule = new MediaRule(parentSheet, media, sheetOrigin);
 					addToCurrentRule(rule);
 					currentRule = rule;
