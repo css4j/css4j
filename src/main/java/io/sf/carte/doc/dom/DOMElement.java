@@ -951,7 +951,17 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 			matcher = selectorMatcherRef.get();
 		}
 		if (matcher == null) {
-			matcher = new DOMSelectorMatcher(this);
+			matcher = new DOMSelectorMatcher(this) {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected String localName(Node elm) {
+					// No need for a null check
+					return elm.getLocalName().toLowerCase(Locale.ROOT);
+				}
+
+			};
 			selectorMatcherRef = new WeakReference<>(matcher);
 		}
 		return matcher;

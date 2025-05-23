@@ -19,9 +19,6 @@ import io.sf.carte.doc.style.css.SelectorMatcher;
 
 /**
  * Selector matcher for CSS-enabled DOM.
- * 
- * @author Carlos Amengual
- * 
  */
 public class DOMSelectorMatcher extends BaseSelectorMatcher<CSSElement> {
 

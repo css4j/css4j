@@ -29,9 +29,6 @@ import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
 /**
  * Base CSS Selector matcher for DOM.
- * 
- * @author Carlos Amengual
- * 
  */
 abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSelectorMatcher {
 
@@ -42,16 +39,20 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 	protected BaseSelectorMatcher(E elm) {
 		super();
 		element = elm;
-		String name = elm.getLocalName();
-		if (name == null) {
-			name = elm.getTagName();
-		}
-		name = name.toLowerCase(Locale.ROOT).intern();
+		String name = localName(elm).intern();
 		setLocalName(name);
 	}
 
 	protected E getElement() {
 		return element;
+	}
+
+	protected String localName(Node elm) {
+		String name = elm.getLocalName();
+		if (name == null) {
+			name = elm.getNodeName();
+		}
+		return name.toLowerCase(Locale.ROOT);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -162,7 +163,7 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 	protected boolean isFirstOfType() {
 		Node sibling = element.getPreviousSibling();
 		while (sibling != null) {
-			if (sibling.getNodeType() == Node.ELEMENT_NODE && getLocalName().equals(sibling.getNodeName())) {
+			if (sibling.getNodeType() == Node.ELEMENT_NODE && getLocalName().equals(localName(sibling))) {
 				return false;
 			}
 			sibling = sibling.getPreviousSibling();
@@ -174,7 +175,7 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 	protected boolean isLastOfType() {
 		Node sibling = element.getNextSibling();
 		while (sibling != null) {
-			if (sibling.getNodeType() == Node.ELEMENT_NODE && getLocalName().equals(sibling.getNodeName())) {
+			if (sibling.getNodeType() == Node.ELEMENT_NODE && getLocalName().equals(localName(sibling))) {
 				return false;
 			}
 			sibling = sibling.getNextSibling();
@@ -188,7 +189,7 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 		int idx = 0;
 		while (node != null) {
 			if (node.getNodeType() == Node.ELEMENT_NODE
-					&& getLocalName().equals(node.getLocalName())) {
+					&& getLocalName().equals(localName(node))) {
 				idx++;
 				if (node == element) {
 					break;
@@ -207,7 +208,7 @@ abstract public class BaseSelectorMatcher<E extends Element> extends AbstractSel
 		int idx = 0;
 		while (node != null) {
 			if (node.getNodeType() == Node.ELEMENT_NODE
-					&& getLocalName().equals(node.getNodeName())) {
+					&& getLocalName().equals(localName(node))) {
 				idx++;
 				if (node == element) {
 					break;

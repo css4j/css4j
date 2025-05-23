@@ -105,6 +105,7 @@ public class XMLDocumentBuilderJdkTest {
 		// Entities etc.
 		Element element = document.getElementById("entity");
 		assertNotNull(element);
+		assertEquals("span", element.getNodeName());
 		assertEquals("<>", element.getTextContent());
 		element = document.getElementById("entiamp");
 		assertNotNull(element);

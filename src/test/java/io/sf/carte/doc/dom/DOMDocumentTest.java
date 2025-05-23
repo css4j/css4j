@@ -307,7 +307,50 @@ public class DOMDocumentTest {
 	}
 
 	@Test
+	public void testCreateDocumentNS() {
+		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", "element", null);
+		DOMElement element = document.getDocumentElement();
+
+		element.setAttribute("Id", "myId");
+		assertEquals("myId", element.getAttribute("Id"));
+		assertEquals("myId", element.getId());
+		assertTrue(element.getAttributeNode("Id").isId());
+		element.setAttribute("foo", "bar");
+		assertEquals("bar", element.getAttribute("foo"));
+		assertFalse(element.getAttributeNode("foo").isId());
+
+		assertNull(element.getPrefix());
+		assertEquals("element", element.getNodeName());
+		assertEquals("element", element.getLocalName());
+		assertEquals("http://www.example.com/examplens", element.getNamespaceURI());
+
+		assertEquals("<element Id=\"myId\" foo=\"bar\"/>", element.toString());
+	}
+
+	@Test
 	public void testCreateElementNS() {
+		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
+		DOMElement element = document.createElementNS("http://www.example.com/examplens", "element");
+
+		element.setAttribute("Id", "myId");
+		assertEquals("myId", element.getAttribute("Id"));
+		assertEquals("myId", element.getId());
+		assertTrue(element.getAttributeNode("Id").isId());
+		element.setAttribute("foo", "bar");
+		assertEquals("bar", element.getAttribute("foo"));
+		assertFalse(element.getAttributeNode("foo").isId());
+		document.appendChild(element);
+		assertTrue(element == document.getDocumentElement());
+
+		assertEquals("element", element.getNodeName());
+		assertEquals("element", element.getLocalName());
+		assertEquals("http://www.example.com/examplens", element.getNamespaceURI());
+
+		assertEquals("<element Id=\"myId\" foo=\"bar\"/>", element.toString());
+	}
+
+	@Test
+	public void testCreateElementNS2() {
 		DOMDocument document = domImpl.createDocument("http://www.example.com/examplens", null, null);
 		DOMElement element = document.createElementNS(null, "element");
 		element.setAttribute("Id", "myId");
@@ -319,6 +362,8 @@ public class DOMDocumentTest {
 		assertFalse(element.getAttributeNode("foo").isId());
 		document.appendChild(element);
 		assertTrue(element == document.getDocumentElement());
+
+		assertEquals("element", element.getNodeName());
 
 		assertEquals("<element Id=\"myId\" foo=\"bar\"/>", element.toString());
 	}

@@ -36,9 +36,6 @@ import io.sf.carte.doc.style.css.nsac.SimpleSelector;
 
 /**
  * CSS Selector matcher.
- * 
- * @author Carlos Amengual
- * 
  */
 abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.io.Serializable {
 
@@ -48,7 +45,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 
 	private Condition pseudoElt = null;
 
-	public AbstractSelectorMatcher() {
+	protected AbstractSelectorMatcher() {
 		super();
 	}
 
@@ -97,8 +94,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	/**
 	 * Set this selector's pseudo-element.
 	 * 
-	 * @param pseudoElt
-	 *            the pseudo-element, or <code>null</code> if none.
+	 * @param pseudoElt the pseudo-element, or <code>null</code> if none.
 	 */
 	@Override
 	public void setPseudoElement(Condition pseudoElt) {
@@ -112,8 +108,7 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	/**
 	 * Does this selector match the given selector list?
 	 * 
-	 * @param selist
-	 *            the list of selectors to which this matcher will compare.
+	 * @param selist the list of selectors to which this matcher will compare.
 	 * 
 	 * @return the index of the highest matching selector, or -1 if none matches.
 	 */
@@ -138,10 +133,10 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	/**
 	 * Does this matcher match the given selector?
 	 * 
-	 * @param selector
-	 *            the selector to be tested.
+	 * @param selector the selector to be tested.
 	 * 
-	 * @return <code>true</code> if the given selector matches this object, <code>false</code> otherwise.
+	 * @return <code>true</code> if the given selector matches this object,
+	 *         <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean matches(Selector selector) {
@@ -329,12 +324,11 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	/**
 	 * Verifies if the selector matches a given class name.
 	 * <p>
-	 * A case-sensitive comparison is performed for <code>STRICT</code> mode, case-insensitive
-	 * for other modes.
+	 * A case-sensitive comparison is performed for <code>STRICT</code> mode,
+	 * case-insensitive for other modes.
 	 * </p>
 	 * 
-	 * @param cond_value
-	 *            the class name.
+	 * @param cond_value the class name.
 	 * @return <code>true</code> if matches, <code>false</code> otherwise.
 	 */
 	private boolean matchesClass(String cond_value) {
@@ -411,7 +405,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		return false;
 	}
 
-	private boolean matchesBeginHyphenAttribute(AttributeCondition attrcond, SimpleSelector simple) {
+	private boolean matchesBeginHyphenAttribute(AttributeCondition attrcond,
+			SimpleSelector simple) {
 		String attrName = attrcond.getLocalName();
 		if (hasAttribute(attrName) && matches(simple)) {
 			String attrValue = getAttributeValue(attrName);
@@ -420,7 +415,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 			int condLen = condValue.length();
 			boolean ignoreCase = attrcond.hasFlag(AttributeCondition.Flag.CASE_I);
 			if (condLen == attrlen) {
-				return ignoreCase ? attrValue.equalsIgnoreCase(condValue) : attrValue.equals(condValue);
+				return ignoreCase ? attrValue.equalsIgnoreCase(condValue)
+						: attrValue.equals(condValue);
 			} else if (condLen < attrlen) {
 				return attrValue.regionMatches(ignoreCase, 0, condValue, 0, condLen)
 						&& attrValue.charAt(condLen) == '-';
@@ -596,8 +592,10 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 			}
 			if (pe.getConditionType() == ConditionType.AND) {
 				CombinatorCondition comb = (CombinatorCondition) pe;
-				return pseudo.getName().equals(((PseudoCondition) comb.getFirstCondition()).getName())
-						|| pseudo.getName().equals(((PseudoCondition) comb.getSecondCondition()).getName());
+				return pseudo.getName()
+						.equals(((PseudoCondition) comb.getFirstCondition()).getName())
+						|| pseudo.getName()
+								.equals(((PseudoCondition) comb.getSecondCondition()).getName());
 			}
 		}
 		return false;
@@ -675,13 +673,15 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 		public SimpleSelector getSecondSelector() {
 			return simpleSelector;
 		}
+
 	}
 
 	protected boolean isChecked() {
 		String tagname = getLocalName();
 		if ("input".equals(tagname)) {
 			String type = getAttributeValue("type");
-			return ("checkbox".equalsIgnoreCase(type) || "radio".equalsIgnoreCase(type)) && hasAttribute("checked");
+			return ("checkbox".equalsIgnoreCase(type) || "radio".equalsIgnoreCase(type))
+					&& hasAttribute("checked");
 		} else if ("option".equals(tagname)) {
 			return hasAttribute("selected");
 		}
@@ -695,8 +695,9 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	protected boolean isFormElement() {
 		String tagname = getLocalName();
 		return tagname.equals("input") || tagname.equals("button") || tagname.equals("select")
-				|| tagname.equals("optgroup") || tagname.equals("option") || tagname.equals("textarea")
-				|| tagname.equals("keygen") || tagname.equals("fieldset");
+				|| tagname.equals("optgroup") || tagname.equals("option")
+				|| tagname.equals("textarea") || tagname.equals("keygen")
+				|| tagname.equals("fieldset");
 	}
 
 	protected boolean isIndeterminate() {
@@ -729,7 +730,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 
 	private String getLinkHrefAttribute() {
 		String href = getAttributeValue("href");
-		if (href.length() == 0 || (!"a".equals(localName) && !"link".equals(localName) && !"area".equals(localName))) {
+		if (href.length() == 0 || (!"a".equals(localName) && !"link".equals(localName)
+				&& !"area".equals(localName))) {
 			href = getAttributeValue("xlink:href");
 		}
 		return href;
@@ -738,7 +740,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	/**
 	 * The element in this matcher is the only child?
 	 * 
-	 * @return <code>true</code> if the element in this matcher is the only child, <code>false</code> if not.
+	 * @return <code>true</code> if the element in this matcher is the only child,
+	 *         <code>false</code> if not.
 	 */
 	protected boolean isOnlyChild() {
 		return isFirstChild() && isLastChild();
@@ -747,8 +750,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	/**
 	 * The element in this matcher is the only child of its type (tag name)?
 	 * 
-	 * @return <code>true</code> if the element in this matcher is the only child of its type, <code>false</code> if
-	 *         not.
+	 * @return <code>true</code> if the element in this matcher is the only child of
+	 *         its type, <code>false</code> if not.
 	 */
 	protected boolean isOnlyOfType() {
 		return isFirstOfType() && isLastOfType();
@@ -816,41 +819,43 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	abstract protected AbstractSelectorMatcher getPreviousSiblingSelectorMatcher();
 
 	/**
-	 * Gets the value of the given attribute in the element associated to this selector
-	 * matcher.
+	 * Gets the value of the given attribute in the element associated to this
+	 * selector matcher.
 	 * 
-	 * @param attrName
-	 *            the attribute name.
-	 * @return the attribute value, or the empty string if the attribute is defined but has
-	 *         no value, also if the attribute is not defined. Never returns null.
+	 * @param attrName the attribute name.
+	 * @return the attribute value, or the empty string if the attribute is defined
+	 *         but has no value, also if the attribute is not defined. Never returns
+	 *         null.
 	 */
 	abstract protected String getAttributeValue(String attrName);
 
 	/**
-	 * Checks if is defined the given attribute in the element associated to this selector
-	 * matcher.
+	 * Checks if is defined the given attribute in the element associated to this
+	 * selector matcher.
 	 * 
-	 * @param attrName
-	 *            the attribute name.
-	 * @return <code>true</code> if the attribute is defined, <code>false</code> if not.
+	 * @param attrName the attribute name.
+	 * @return <code>true</code> if the attribute is defined, <code>false</code> if
+	 *         not.
 	 */
 	abstract protected boolean hasAttribute(String attrName);
 
 	/**
 	 * Gets the 'id' attribute of the element associated to this selector matcher.
 	 * 
-	 * @return the 'id' attribute value, or the empty string if the element has no 'id'.
+	 * @return the 'id' attribute value, or the empty string if the element has no
+	 *         'id'.
 	 */
 	abstract protected String getId();
 
 	/**
 	 * Gets the language of the element associated to this selector matcher.
 	 * 
-	 * @return the language, or the empty String if the element has no language defined.
+	 * @return the language, or the empty String if the element has no language
+	 *         defined.
 	 */
 	/*
-	 * In (X)HTML, the lang attribute contains the language, but that may not be true for
-	 * other XML.
+	 * In (X)HTML, the lang attribute contains the language, but that may not be
+	 * true for other XML.
 	 */
 	abstract protected String getLanguage();
 
@@ -864,30 +869,32 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	/**
 	 * The element in this matcher is the first child?
 	 * 
-	 * @return <code>true</code> if the element in this matcher is a first child, <code>false</code> if not.
+	 * @return <code>true</code> if the element in this matcher is a first child,
+	 *         <code>false</code> if not.
 	 */
 	abstract protected boolean isFirstChild();
 
 	/**
 	 * The element in this matcher is the last child?
 	 * 
-	 * @return <code>true</code> if the element in this matcher is the last child, <code>false</code> if not.
+	 * @return <code>true</code> if the element in this matcher is the last child,
+	 *         <code>false</code> if not.
 	 */
 	abstract protected boolean isLastChild();
 
 	/**
 	 * The element in this matcher is the first child of its type (tag name)?
 	 * 
-	 * @return <code>true</code> if the element in this matcher is a first child of its type, <code>false</code> if
-	 *         not.
+	 * @return <code>true</code> if the element in this matcher is a first child of
+	 *         its type, <code>false</code> if not.
 	 */
 	abstract protected boolean isFirstOfType();
 
 	/**
 	 * The element in this matcher is the last child of its type (tag name)?
 	 * 
-	 * @return <code>true</code> if the element in this matcher is the last child of its type, <code>false</code> if
-	 *         not.
+	 * @return <code>true</code> if the element in this matcher is the last child of
+	 *         its type, <code>false</code> if not.
 	 */
 	abstract protected boolean isLastOfType();
 
@@ -918,10 +925,8 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 	 * <p>
 	 * This method is intended to be called from a CSSCanvas object.
 	 * 
-	 * @param selector
-	 *            the selector to be tested.
-	 * @param statePseudoClasses
-	 *            the list of state pseudo-classes.
+	 * @param selector           the selector to be tested.
+	 * @param statePseudoClasses the list of state pseudo-classes.
 	 */
 	public static void findStatePseudoClasses(Selector selector, List<String> statePseudoClasses) {
 		switch (selector.getSelectorType()) {
@@ -934,33 +939,37 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 					pseudoClass = pseudoClass.substring(0, idxp);
 				}
 				pseudoClass = pseudoClass.toLowerCase(Locale.ROOT).intern();
-				if (pseudoClass != "first-child" && pseudoClass != "last-child" && pseudoClass != "only-child"
-						&& pseudoClass != "any-link" && pseudoClass != "link" && pseudoClass != "visited"
-						&& pseudoClass != "target" && pseudoClass != "root" && pseudoClass != "empty"
-						&& pseudoClass != "blank" && pseudoClass != "is" && pseudoClass != "not" && pseudoClass != "has"
-						&& pseudoClass != "dir" && pseudoClass != "lang" && pseudoClass != "scope"
-						&& pseudoClass != "empty" && pseudoClass != "blank" && pseudoClass != "valid"
-						&& pseudoClass != "invalid" && pseudoClass != "in-range" && pseudoClass != "out-of-range"
-						&& pseudoClass != "required" && pseudoClass != "optional" && pseudoClass != "user-invalid"
-						&& pseudoClass != "nth-child" && pseudoClass != "nth-last-child" && pseudoClass != "nth-of-type"
-						&& pseudoClass != "nth-last-of-type" && pseudoClass != "disabled" && pseudoClass != "enabled"
+				// The following aren't state pseudo-classes
+				if (pseudoClass != "any-link" && pseudoClass != "link" && pseudoClass != "visited"
+						&& pseudoClass != "target" && pseudoClass != "root"
+						&& pseudoClass != "empty" && pseudoClass != "blank" && pseudoClass != "dir"
+						&& pseudoClass != "scope" && pseudoClass != "empty"
+						&& pseudoClass != "blank" && pseudoClass != "valid"
+						&& pseudoClass != "invalid" && pseudoClass != "in-range"
+						&& pseudoClass != "out-of-range" && pseudoClass != "required"
+						&& pseudoClass != "optional" && pseudoClass != "user-invalid"
+						&& pseudoClass != "disabled" && pseudoClass != "enabled"
 						&& pseudoClass != "read-write" && pseudoClass != "read-only"
-						&& pseudoClass != "placeholder-shown" && pseudoClass != "default" && pseudoClass != "checked"
-						&& pseudoClass != "indeterminate" && pseudoClass != "nth-col"
-						&& pseudoClass != "nth-last-col") {
+						&& pseudoClass != "placeholder-shown" && pseudoClass != "default"
+						&& pseudoClass != "checked" && pseudoClass != "indeterminate"
+						&& pseudoClass != "nth-col" && pseudoClass != "nth-last-col") {
 					statePseudoClasses.add(pseudoClass);
 					break;
 				}
 			}
-			findStatePseudoClasses(((ConditionalSelector) selector).getSimpleSelector(), statePseudoClasses);
+			findStatePseudoClasses(((ConditionalSelector) selector).getSimpleSelector(),
+					statePseudoClasses);
 			break;
 		case CHILD:
 		case DESCENDANT:
-			findStatePseudoClasses(((CombinatorSelector) selector).getSecondSelector(), statePseudoClasses);
-			findStatePseudoClasses(((CombinatorSelector) selector).getSelector(), statePseudoClasses);
+			findStatePseudoClasses(((CombinatorSelector) selector).getSecondSelector(),
+					statePseudoClasses);
+			findStatePseudoClasses(((CombinatorSelector) selector).getSelector(),
+					statePseudoClasses);
 			break;
 		case DIRECT_ADJACENT:
-			findStatePseudoClasses(((CombinatorSelector) selector).getSecondSelector(), statePseudoClasses);
+			findStatePseudoClasses(((CombinatorSelector) selector).getSecondSelector(),
+					statePseudoClasses);
 		default:
 		}
 	}

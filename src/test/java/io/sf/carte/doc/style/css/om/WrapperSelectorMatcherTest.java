@@ -111,6 +111,54 @@ public class WrapperSelectorMatcherTest {
 	}
 
 	@Test
+	public void testMatchSelector1ElementUppercase() throws Exception {
+		Element elm = createElement("P");
+		Element div = createElement("div");
+		SelectorMatcher matcher = selectorMatcher(elm);
+
+		BaseCSSStyleSheet css = parseStyle("p {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p", selectorListToString(selist, rule));
+		int selidx = matcher.matches(selist);
+		assertEquals(0, matcher.matches(selist));
+
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+
+		matcher = selectorMatcher(div);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
+	public void testMatchSelector1ElementPrefix() throws Exception {
+		BaseCSSStyleSheet css = parseStyle("p {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p", selectorListToString(selist, rule));
+
+		String nsURI = "http://www.example.com/examplens";
+		Element elm = plaindoc.createElementNS(nsURI, "pre:P");
+		plaindoc.getDocumentElement().appendChild(elm);
+		Element div = createElement("div");
+		SelectorMatcher matcher = selectorMatcher(elm);
+		int selidx = matcher.matches(selist);
+		assertEquals(0, matcher.matches(selist));
+
+		// Specificity
+		Specificity sp = new Specificity(selist.item(selidx), matcher);
+		assertEquals(0, sp.id_count);
+		assertEquals(0, sp.attrib_classes_count);
+		assertEquals(1, sp.names_pseudoelements_count);
+
+		matcher = selectorMatcher(div);
+		assertEquals(-1, matcher.matches(selist));
+	}
+
+	@Test
 	public void testMatchSelector1ElementNS() throws Exception {
 		BaseCSSStyleSheet css = parseStyle(
 				"@namespace svg url('http://www.w3.org/2000/svg'); p {color: blue;} svg|svg {margin-left: 5pt;}");
@@ -121,17 +169,19 @@ public class WrapperSelectorMatcherTest {
 		SelectorMatcher matcher = selectorMatcher(elm);
 		SelectorMatcher svgmatcher = selectorMatcher(svg);
 		int selidx = matcher.matches(selist);
-		assertTrue(selidx >= 0);
+		assertEquals(0, selidx);
+
 		// Specificity
 		Specificity sp = new Specificity(selist.item(selidx), matcher);
 		assertEquals(0, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(1, sp.names_pseudoelements_count);
 
-		assertTrue(svgmatcher.matches(selist) == -1);
-		assertTrue(matcher.matches(svgselist) == -1);
+		assertEquals(-1, svgmatcher.matches(selist));
+		assertEquals(-1, matcher.matches(svgselist));
 		selidx = svgmatcher.matches(svgselist);
-		assertTrue(selidx >= 0);
+		assertEquals(0, selidx);
+
 		// Specificity
 		sp = new Specificity(svgselist.item(selidx), svgmatcher);
 		assertEquals(0, sp.id_count);
@@ -661,7 +711,6 @@ public class WrapperSelectorMatcherTest {
 		assertEquals("ul li a", selectorListToString(selist, rule));
 		Element parent = createElement("div");
 		parent.setAttribute("id", "div1");
-		plaindoc.getDocumentElement().appendChild(parent);
 		Element ul = parent.getOwnerDocument().createElement("ul");
 		ul.setAttribute("id", "ul1");
 		parent.appendChild(ul);
@@ -703,6 +752,90 @@ public class WrapperSelectorMatcherTest {
 		assertEquals(0, sp.id_count);
 		assertEquals(0, sp.attrib_classes_count);
 		assertEquals(3, sp.names_pseudoelements_count);
+	}
+
+	@Test
+	public void testMatchSelectorPseudoOfType() throws Exception {
+		Element parent = createElement("div");
+		parent.appendChild(plaindoc.createTextNode("foo"));
+		parent.appendChild(plaindoc.createElement("div"));
+		Element elm = plaindoc.createElement("p");
+		parent.appendChild(elm);
+		parent.appendChild(plaindoc.createElement("div"));
+		SelectorMatcher matcher = selectorMatcher(elm);
+
+		BaseCSSStyleSheet css = parseStyle("p:first-of-type {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p:first-of-type", selectorListToString(selist, rule));
+		assertEquals(0, matcher.matches(selist));
+
+		css = parseStyle("p:last-of-type {color: blue;}");
+		rule = (StyleRule) css.getCssRules().item(0);
+		selist = rule.getSelectorList();
+		assertEquals("p:last-of-type", selectorListToString(selist, rule));
+		assertEquals(0, matcher.matches(selist));
+		Element lastdiv = plaindoc.createElement("div");
+		parent.appendChild(lastdiv);
+		assertEquals(0, matcher.matches(selist));
+		Element lastp = plaindoc.createElement("P");
+		parent.appendChild(lastp);
+		assertEquals(-1, matcher.matches(selist));
+
+		css = parseStyle("p:only-of-type {color: blue;}");
+		rule = (StyleRule) css.getCssRules().item(0);
+		selist = rule.getSelectorList();
+		assertEquals("p:only-of-type", selectorListToString(selist, rule));
+		assertEquals(-1, matcher.matches(selist));
+		parent.removeChild(lastp);
+		int selidx = matcher.matches(selist);
+		assertTrue(selidx >= 0);
+		// Specificity
+		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
+	}
+
+	@Test
+	public void testMatchSelectorPseudoNthOfType() throws Exception {
+		Element parent = createElement("div");
+		parent.appendChild(plaindoc.createTextNode("foo"));
+		parent.appendChild(plaindoc.createElement("div"));
+		Element elm = plaindoc.createElement("P");
+		parent.appendChild(elm);
+		parent.appendChild(plaindoc.createElement("div"));
+
+		SelectorMatcher matcher = selectorMatcher(elm);
+
+		BaseCSSStyleSheet css = parseStyle("p:nth-of-type(1) {color: blue;}");
+		StyleRule rule = (StyleRule) css.getCssRules().item(0);
+		SelectorList selist = rule.getSelectorList();
+		assertEquals("p:nth-of-type(1)", selectorListToString(selist, rule));
+		assertTrue(matcher.matches(selist) != -1);
+		css = parseStyle("p:first-of-type {color: blue;}");
+		rule = (StyleRule) css.getCssRules().item(0);
+		selist = rule.getSelectorList();
+		assertEquals("p:first-of-type", selectorListToString(selist, rule));
+		assertEquals(0, matcher.matches(selist));
+
+		css = parseStyle("p:nth-last-of-type(1) {color: blue;}");
+		rule = (StyleRule) css.getCssRules().item(0);
+		selist = rule.getSelectorList();
+		assertEquals("p:nth-last-of-type(1)", selectorListToString(selist, rule));
+		assertTrue(matcher.matches(selist) != -1);
+		Element lastp = plaindoc.createElement("p");
+		parent.appendChild(lastp);
+		assertEquals(-1, matcher.matches(selist));
+
+		css = parseStyle("p:nth-last-of-type(2) {color: blue;}");
+		rule = (StyleRule) css.getCssRules().item(0);
+		selist = rule.getSelectorList();
+		assertEquals("p:nth-last-of-type(2)", selectorListToString(selist, rule));
+		int selidx = matcher.matches(selist);
+		assertEquals(0, selidx);
+		// Specificity
+		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
+
+		parent.removeChild(lastp);
+		assertEquals(-1, matcher.matches(selist));
 	}
 
 	private Element createElement(String name) {
