@@ -62,8 +62,7 @@ class LangConditionImpl extends AbstractCondition implements LangCondition {
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder buf = new StringBuilder();
+	void serialize(StringBuilder buf) {
 		buf.append(":lang(");
 		String lang = getLang();
 		TokenParser parser = new TokenParser(lang, ", ", "\"'");
@@ -76,7 +75,6 @@ class LangConditionImpl extends AbstractCondition implements LangCondition {
 			buf.append(',').append(escapeLang(s, lang, commaIdx));
 		}
 		buf.append(')');
-		return buf.toString();
 	}
 
 	private String escapeLang(String s, String lang, int commaIdx) {

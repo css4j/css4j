@@ -11,7 +11,6 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 class NestingCondition extends AbstractCondition {
@@ -24,12 +23,12 @@ class NestingCondition extends AbstractCondition {
 		super();
 	}
 
-	public static Condition getInstance() {
+	public static NestingCondition getInstance() {
 		return instance;
 	}
 
 	@Override
-	Condition replace(SelectorList base, MutableBoolean replaced) {
+	AbstractCondition replace(SelectorList base, MutableBoolean replaced) {
 		replaced.setTrueValue();
 		SelectorArgumentConditionImpl is = new SelectorArgumentConditionImpl();
 		is.arguments = base;
@@ -56,6 +55,11 @@ class NestingCondition extends AbstractCondition {
 			return false;
 		}
 		return getClass() == obj.getClass();
+	}
+
+	@Override
+	void serialize(StringBuilder buf) {
+		buf.append('&');
 	}
 
 	@Override

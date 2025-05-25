@@ -22,7 +22,7 @@ abstract class AbstractCondition implements Condition, Cloneable, java.io.Serial
 		super();
 	}
 
-	Condition replace(SelectorList base, MutableBoolean replaced) {
+	AbstractCondition replace(SelectorList base, MutableBoolean replaced) {
 		return this;
 	}
 
@@ -39,5 +39,22 @@ abstract class AbstractCondition implements Condition, Cloneable, java.io.Serial
 			throw new IllegalStateException(e);
 		}
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder();
+		serialize(buf);
+		return buf.toString();
+	}
+
+	/**
+	 * Serialize this condition to a buffer.
+	 * <p>
+	 * Only this condition, not the next one(s).
+	 * </p>
+	 * 
+	 * @param buf the buffer.
+	 */
+	abstract void serialize(StringBuilder buf);
 
 }

@@ -2483,10 +2483,11 @@ public class SelectorMatcherTest {
 
 		SelectorSerializer serializer = new SelectorSerializer(rule.getParentStyleSheet());
 		StringBuilder buf = new StringBuilder();
-		buf.append(serializer.selectorText(selist.item(0), false));
+		serializer.selectorText(buf, selist.item(0), false);
 		int sz = selist.getLength();
 		for (int i = 1; i < sz; i++) {
-			buf.append(' ').append(serializer.selectorText(selist.item(i), false));
+			buf.append(' ');
+			serializer.selectorText(buf, selist.item(i), false);
 		}
 		return buf.toString();
 	}

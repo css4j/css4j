@@ -80,8 +80,7 @@ class PseudoConditionImpl extends AbstractNamedCondition implements PseudoCondit
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder buf = new StringBuilder();
+	void serialize(StringBuilder buf) {
 		if (condType == Condition.ConditionType.PSEUDO_CLASS) {
 			buf.append(':');
 		} else {
@@ -93,7 +92,6 @@ class PseudoConditionImpl extends AbstractNamedCondition implements PseudoCondit
 			buf.append(getEscapedArgument());
 			buf.append(')');
 		}
-		return buf.toString();
 	}
 
 	private String getEscapedArgument() {

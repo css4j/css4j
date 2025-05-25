@@ -18,7 +18,6 @@ import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
-import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.parser.CSSParser.SelectorTokenHandler;
 import io.sf.carte.doc.style.css.parser.CSSParser.SelectorTokenHandler.SelectorArgumentManager;
 import io.sf.carte.uparser.TokenProducer;
@@ -123,7 +122,8 @@ class ConditionSetterFactory {
 		 * @param handler
 		 * @return the condition, or {@code null} if the condition is in error.
 		 */
-		Condition create(int index, int triggerCp, String name, SelectorTokenHandler handler);
+		AbstractCondition create(int index, int triggerCp, String name,
+				SelectorTokenHandler handler);
 
 		/**
 		 * Set the argument.
@@ -187,7 +187,7 @@ class ConditionSetterFactory {
 	private static class PseudoClassConditionSetter extends PseudoConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			PseudoConditionImpl cond;
 			if (CSSParser.isValidPseudoName(name)) {
@@ -206,7 +206,7 @@ class ConditionSetterFactory {
 	private static class ArgumentPseudoClassConditionSetter extends PseudoConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			PseudoConditionImpl cond;
 			if (CSSParser.isValidPseudoName(name)) {
@@ -235,7 +235,7 @@ class ConditionSetterFactory {
 	private static class PseudoElementConditionSetter extends PseudoConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			PseudoConditionImpl cond = null;
 			if (!CSSParser.isValidPseudoName(name)) {
@@ -257,7 +257,7 @@ class ConditionSetterFactory {
 	private static class NoArgumentPseudoElementConditionSetter extends NoArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			PseudoConditionImpl cond = null;
 			if (!checkLeftParen(index, triggerCp, handler)) {
@@ -278,7 +278,7 @@ class ConditionSetterFactory {
 	private static class LangConditionSetter extends PseudoConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			return new LangConditionImpl();
 		}
@@ -304,7 +304,7 @@ class ConditionSetterFactory {
 	private static class FirstChildConditionSetter extends NoArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			if (checkLeftParen(index, triggerCp, handler)) {
 				return null;
@@ -317,7 +317,7 @@ class ConditionSetterFactory {
 	private static class LastChildConditionSetter extends NoArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			if (checkLeftParen(index, triggerCp, handler)) {
 				return null;
@@ -333,7 +333,7 @@ class ConditionSetterFactory {
 	private static class FirstOfTypeConditionSetter extends NoArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			if (checkLeftParen(index, triggerCp, handler)) {
 				return null;
@@ -349,7 +349,7 @@ class ConditionSetterFactory {
 	private static class LastOfTypeConditionSetter extends NoArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			if (checkLeftParen(index, triggerCp, handler)) {
 				return null;
@@ -366,7 +366,7 @@ class ConditionSetterFactory {
 	private static class OnlyChildConditionSetter extends NoArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			if (checkLeftParen(index, triggerCp, handler)) {
 				return null;
@@ -379,7 +379,7 @@ class ConditionSetterFactory {
 	private static class OnlyOfTypeConditionSetter extends NoArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			if (checkLeftParen(index, triggerCp, handler)) {
 				return null;
@@ -424,7 +424,7 @@ class ConditionSetterFactory {
 	private static class NthChildConditionSetter extends PositionalArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			return new PositionalConditionImpl(true);
 		}
@@ -434,7 +434,7 @@ class ConditionSetterFactory {
 	private static class NthLastChildConditionSetter extends PositionalArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			PositionalConditionImpl condition = new PositionalConditionImpl(true);
 			condition.offset = 1;
@@ -447,7 +447,7 @@ class ConditionSetterFactory {
 	private static class NthOfTypeConditionSetter extends PositionalArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			PositionalConditionImpl condition = new PositionalConditionImpl(true);
 			condition.oftype = true;
@@ -459,7 +459,7 @@ class ConditionSetterFactory {
 	private static class NthLastOfTypeConditionSetter extends PositionalArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			PositionalConditionImpl condition = new PositionalConditionImpl(true);
 			condition.oftype = true;
@@ -472,7 +472,7 @@ class ConditionSetterFactory {
 	private static class SelectorArgumentConditionSetter implements ConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			if (triggerCp != TokenProducer.CHAR_LEFT_PAREN) {
 				pseudoClassMustHaveArgumentError(index, name, triggerCp, handler);
@@ -520,7 +520,7 @@ class ConditionSetterFactory {
 		handler.handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, buf.toString());
 	}
 
-	private static SelectorList parseSelectorArgument(SelectorTokenHandler handler)
+	private static SelectorListImpl parseSelectorArgument(SelectorTokenHandler handler)
 			throws CSSParseException {
 		String seltext = handler.rawBuffer();
 		SelectorArgumentManager manager = handler.new SelectorArgumentManager(handler.factory);
@@ -532,7 +532,7 @@ class ConditionSetterFactory {
 	private static class HasConditionSetter extends SelectorArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			if (handler.isInsideHas()) {
 				handler.handleError(index, ParseHelper.ERR_UNEXPECTED_TOKEN,
@@ -540,7 +540,7 @@ class ConditionSetterFactory {
 				return null;
 			}
 
-			Condition condition = super.create(index, triggerCp, name, handler);
+			AbstractCondition condition = super.create(index, triggerCp, name, handler);
 			handler.hasHas = true;
 			return condition;
 		}
@@ -557,7 +557,7 @@ class ConditionSetterFactory {
 			extends SelectorArgumentConditionSetter {
 
 		@Override
-		public Condition create(int index, int triggerCp, String name,
+		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			AbstractNamedCondition condition;
 			if (triggerCp == TokenProducer.CHAR_LEFT_PAREN) {

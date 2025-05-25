@@ -31,8 +31,6 @@ import io.sf.jclf.text.TokenParser;
 
 /**
  * Selector serializer.
- * 
- * @author Carlos Amengual
  */
 class SelectorSerializer {
 
@@ -50,14 +48,18 @@ class SelectorSerializer {
 		return parentSheet;
 	}
 
-	String selectorText(Selector sel, boolean omitUniversal) {
-		return selectorText(sel, omitUniversal, false);
+	void selectorText(StringBuilder buf, Selector sel, boolean omitUniversal) {
+		selectorText(buf, sel, omitUniversal, false);
 	}
 
-	private String selectorText(Selector sel, boolean omitUniversal, boolean scoped) {
+	private void selectorText(final StringBuilder buf, Selector sel, boolean omitUniversal,
+			boolean scoped) {
 		switch (sel.getSelectorType()) {
 		case UNIVERSAL:
-			return omitUniversal ? "" : "*";
+			if (!omitUniversal) {
+				buf.append('*');
+			}
+			break;
 		case ELEMENT:
 			ElementSelector esel = (ElementSelector) sel;
 			String lname = esel.getLocalName();
@@ -66,119 +68,122 @@ class SelectorSerializer {
 				lname = ParseHelper.escape(lname, false, false);
 			}
 			if (nsuri != null) {
-				if (nsuri.length() != 0) {
-					String nsprefix = getSheetContext()
-							.getNamespacePrefix(esel.getNamespaceURI());
+				if (!nsuri.isEmpty()) {
+					String nsprefix = getSheetContext().getNamespacePrefix(esel.getNamespaceURI());
 					if (nsprefix == null) {
 						throw new IllegalStateException(
 								"Unknown ns prefix for URI " + esel.getNamespaceURI());
 					}
-					if (nsprefix.length() != 0) {
-						return nsprefix + "|" + lname;
-					} else {
-						// Default namespace
-						return lname;
+					// Append prefix if not empty, otherwise is Default namespace
+					if (!nsprefix.isEmpty()) {
+						buf.append(nsprefix).append('|');
 					}
 				} else {
-					return "|" + lname;
+					buf.append('|');
 				}
+				buf.append(lname);
 			} else {
 				SheetContext psheet = getSheetContext();
 				if (psheet != null && psheet.hasDefaultNamespace()) {
-					return "*|" + lname;
+					buf.append("*|");
+					if (lname != null) {
+						buf.append(lname);
+					} else {
+						buf.append('*');
+					}
+				} else if (lname != null) {
+					buf.append(lname);
+				} else if (!omitUniversal) {
+					buf.append('*');
 				}
-				return lname != null ? lname : (omitUniversal ? "" : "*");
 			}
+			break;
 		case CHILD:
 			CombinatorSelector dsel = (CombinatorSelector) sel;
 			Selector ancsel = dsel.getSelector();
-			String anctext;
 			if (!scoped || ancsel.getSelectorType() != Selector.SelectorType.UNIVERSAL) {
-				anctext = selectorText(ancsel, false, scoped);
-			} else {
-				anctext = "";
+				selectorText(buf, ancsel, false, scoped);
 			}
-			String desctext = selectorText(dsel.getSecondSelector(), false, scoped);
-			StringBuilder buf = new StringBuilder(anctext.length() + desctext.length() + 3);
-			buf.append(anctext);
 			buf.append('>');
-			buf.append(desctext);
-			return buf.toString();
+			selectorText(buf, dsel.getSecondSelector(), false, scoped);
+			break;
 		case CONDITIONAL:
 			ConditionalSelector csel = (ConditionalSelector) sel;
-			return conditionalSelectorText(csel.getCondition(), csel.getSimpleSelector());
+			SimpleSelector simpleSelector = csel.getSimpleSelector();
+			if (simpleSelector != null) {
+				appendSimpleSelector(simpleSelector, buf);
+			}
+			conditionalSelectorText(csel.getCondition(), buf);
+			break;
 		case DESCENDANT:
 			dsel = (CombinatorSelector) sel;
 			Selector ancestor = dsel.getSelector();
-			anctext = selectorText(ancestor, false, scoped);
-			desctext = selectorText(dsel.getSecondSelector(), false, scoped);
-			buf = new StringBuilder(anctext.length() + desctext.length() + 1);
-			buf.append(anctext);
+			selectorText(buf, ancestor, false, scoped);
 			buf.append(' ');
-			buf.append(desctext);
-			return buf.toString();
+			selectorText(buf, dsel.getSecondSelector(), false, scoped);
+			break;
 		case DIRECT_ADJACENT:
 			CombinatorSelector asel = (CombinatorSelector) sel;
-			return selectorText(asel.getSelector(), omitUniversal, scoped) + '+'
-					+ selectorText(asel.getSecondSelector(), false, scoped);
+			selectorText(buf, asel.getSelector(), omitUniversal, scoped);
+			buf.append('+');
+			selectorText(buf, asel.getSecondSelector(), false, scoped);
+			break;
 		case SUBSEQUENT_SIBLING:
 			asel = (CombinatorSelector) sel;
-			return selectorText(asel.getSelector(), omitUniversal, scoped) + "~"
-					+ selectorText(asel.getSecondSelector(), false, scoped);
+			selectorText(buf, asel.getSelector(), omitUniversal, scoped);
+			buf.append('~');
+			selectorText(buf, asel.getSecondSelector(), false, scoped);
+			break;
 		case COLUMN_COMBINATOR:
 			dsel = (CombinatorSelector) sel;
-			return selectorText(dsel.getSelector(), omitUniversal, scoped) + "||"
-					+ selectorText(dsel.getSecondSelector(), false, scoped);
+			selectorText(buf, dsel.getSelector(), omitUniversal, scoped);
+			buf.append("||");
+			selectorText(buf, dsel.getSecondSelector(), false, scoped);
+			break;
 		case SCOPE_MARKER:
-			return "";
+			break;
 		default:
-			return null;
+			throw new IllegalStateException("Unknown selector: " + sel.toString());
 		}
 	}
 
-	private String conditionalSelectorText(Condition condition, SimpleSelector simpleSelector) {
+	private void conditionalSelectorText(Condition condition, final StringBuilder buf) {
 		switch (condition.getConditionType()) {
 		case CLASS:
-			return classText((AttributeCondition) condition, simpleSelector);
+			classText((AttributeCondition) condition, buf);
+			break;
 		case ID:
 			String id = ((AttributeCondition) condition).getValue();
-			StringBuilder buf = new StringBuilder(id.length() + 1);
-			if (simpleSelector != null) {
-				appendSimpleSelector(simpleSelector, buf);
-			}
-			return buf.append('#').append(ParseHelper.escape(id, false, false)).toString();
+			buf.append('#').append(ParseHelper.escape(id, false, false));
+			break;
 		case ATTRIBUTE:
-			return attributeText((AttributeCondition) condition, simpleSelector);
+			attributeText((AttributeCondition) condition, buf);
+			break;
 		case BEGINS_ATTRIBUTE:
-			return attributeBeginsText((AttributeCondition) condition, simpleSelector);
+			attributeBeginsText((AttributeCondition) condition, buf);
+			break;
 		case BEGIN_HYPHEN_ATTRIBUTE:
-			return attributeBeginHyphenText((AttributeCondition) condition, simpleSelector);
+			attributeBeginHyphenText((AttributeCondition) condition, buf);
+			break;
 		case ENDS_ATTRIBUTE:
-			return attributeEndsText((AttributeCondition) condition, simpleSelector);
+			attributeEndsText((AttributeCondition) condition, buf);
+			break;
 		case SUBSTRING_ATTRIBUTE:
-			return attributeSubstringText((AttributeCondition) condition, simpleSelector);
+			attributeSubstringText((AttributeCondition) condition, buf);
+			break;
 		case LANG:
-			return langText((LangCondition) condition, simpleSelector);
+			langText((LangCondition) condition, buf);
+			break;
 		case ONE_OF_ATTRIBUTE:
-			return attributeOneOfText((AttributeCondition) condition, simpleSelector);
+			attributeOneOfText((AttributeCondition) condition, buf);
+			break;
 		case ONLY_CHILD:
-			buf = new StringBuilder(16);
-			if (simpleSelector != null) {
-				appendSimpleSelector(simpleSelector, buf);
-			}
-			return buf.append(":only-child").toString();
+			buf.append(":only-child");
+			break;
 		case ONLY_TYPE:
-			buf = new StringBuilder(16);
-			if (simpleSelector != null) {
-				appendSimpleSelector(simpleSelector, buf);
-			}
-			return buf.append(":only-of-type").toString();
+			buf.append(":only-of-type");
+			break;
 		case POSITIONAL:
-			buf = new StringBuilder(50);
-			if (simpleSelector != null) {
-				appendSimpleSelector(simpleSelector, buf);
-			}
-			// Nobody else implements PositionalCondition, so we just cast
 			PositionalCondition pcond = (PositionalCondition) condition;
 			buf.append(':');
 			if (pcond.isOfType()) {
@@ -186,43 +191,39 @@ class SelectorSerializer {
 			} else {
 				appendPositional(pcond, buf);
 			}
-			return buf.toString();
-		case PSEUDO_CLASS:
-			return pseudoClassText((PseudoCondition) condition, simpleSelector);
-		case PSEUDO_ELEMENT:
-			return pseudoElementText((PseudoCondition) condition, simpleSelector);
+			break;
 		case AND:
 			CombinatorCondition ccond = (CombinatorCondition) condition;
-			return conditionalSelectorText(ccond.getFirstCondition(), simpleSelector)
-					+ conditionalSelectorText(ccond.getSecondCondition(), null);
+			conditionalSelectorText(ccond.getFirstCondition(), buf);
+			conditionalSelectorText(ccond.getSecondCondition(), buf);
+			break;
+		case PSEUDO_CLASS:
+			pseudoClassText((PseudoCondition) condition, buf);
+			break;
+		case PSEUDO_ELEMENT:
+			pseudoElementText((PseudoCondition) condition, buf);
+			break;
 		case SELECTOR_ARGUMENT:
-			return selectorArgumentText((ArgumentCondition) condition, simpleSelector);
+			selectorArgumentText((ArgumentCondition) condition, buf);
+			break;
 		case NESTING:
-			return "&";
+			buf.append('&');
+			break;
 		default:
-			// return null to ease the identification of unhandled cases.
-			return null;
+			// throw exception to ease the identification of unhandled cases.
+			throw new IllegalStateException("Unknown condition: " + condition.toString());
 		}
 	}
 
 	private void appendSimpleSelector(SimpleSelector simpleSelector, StringBuilder buf) {
-		buf.append(selectorText(simpleSelector, true));
+		selectorText(buf, simpleSelector, true);
 	}
 
-	private String classText(AttributeCondition acond, SimpleSelector simpleSelector) {
-		StringBuilder buf = new StringBuilder(16);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
+	private void classText(AttributeCondition acond, StringBuilder buf) {
 		buf.append(".").append(ParseHelper.escape(acond.getValue(), false, false));
-		return buf.toString();
 	}
 
-	private String pseudoClassText(PseudoCondition acond, SimpleSelector simpleSelector) {
-		StringBuilder buf = new StringBuilder(24);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
+	private void pseudoClassText(PseudoCondition acond, StringBuilder buf) {
 		buf.append(':');
 		String name = acond.getName();
 		String value = acond.getArgument();
@@ -236,14 +237,9 @@ class SelectorSerializer {
 				buf.append(')');
 			}
 		}
-		return buf.toString();
 	}
 
-	private String attributeText(AttributeCondition acond, SimpleSelector simpleSelector) {
-		StringBuilder buf = new StringBuilder(32);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
+	private String attributeText(AttributeCondition acond, StringBuilder buf) {
 		String value = acond.getValue();
 		if (value != null) {
 			buf.append('[');
@@ -259,70 +255,44 @@ class SelectorSerializer {
 		return buf.toString();
 	}
 
-	private String attributeBeginsText(AttributeCondition acond, SimpleSelector simpleSelector) {
-		StringBuilder buf = new StringBuilder(48);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
+	private void attributeBeginsText(AttributeCondition acond, StringBuilder buf) {
 		buf.append('[');
 		serializeAttributeQName(acond, buf);
 		buf.append("^=");
 		quoteAttributeValue(acond.getValue(), buf);
 		attributeSelectorEnd(acond, buf);
-		return buf.toString();
 	}
 
-	private String attributeBeginHyphenText(AttributeCondition acond,
-			SimpleSelector simpleSelector) {
-		StringBuilder buf = new StringBuilder(48);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
+	private void attributeBeginHyphenText(AttributeCondition acond, StringBuilder buf) {
 		buf.append('[');
 		serializeAttributeQName(acond, buf);
 		buf.append("|=");
 		quoteAttributeValue(acond.getValue(), buf);
 		attributeSelectorEnd(acond, buf);
-		return buf.toString();
 	}
 
-	private String attributeEndsText(AttributeCondition acond, SimpleSelector simpleSelector) {
-		StringBuilder buf = new StringBuilder(48);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
+	private void attributeEndsText(AttributeCondition acond, StringBuilder buf) {
 		buf.append('[');
 		serializeAttributeQName(acond, buf);
 		buf.append("$=");
 		quoteAttributeValue(acond.getValue(), buf);
 		attributeSelectorEnd(acond, buf);
-		return buf.toString();
 	}
 
-	private String attributeSubstringText(AttributeCondition acond, SimpleSelector simpleSelector) {
-		StringBuilder buf = new StringBuilder(48);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
+	private void attributeSubstringText(AttributeCondition acond, StringBuilder buf) {
 		buf.append('[');
 		serializeAttributeQName(acond, buf);
 		buf.append("*=");
 		quoteAttributeValue(acond.getValue(), buf);
 		attributeSelectorEnd(acond, buf);
-		return buf.toString();
 	}
 
-	private String attributeOneOfText(AttributeCondition acond, SimpleSelector simpleSelector) {
-		StringBuilder buf = new StringBuilder(48);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
+	private void attributeOneOfText(AttributeCondition acond, StringBuilder buf) {
 		buf.append('[');
 		serializeAttributeQName(acond, buf);
 		buf.append("~=");
 		quoteAttributeValue(acond.getValue(), buf);
 		attributeSelectorEnd(acond, buf);
-		return buf.toString();
 	}
 
 	private void serializeAttributeQName(AttributeCondition acond, StringBuilder buf) {
@@ -358,11 +328,7 @@ class SelectorSerializer {
 		buf.append(']');
 	}
 
-	private String langText(LangCondition condition, SimpleSelector simpleSelector) {
-		StringBuilder buf = new StringBuilder(32);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
+	private void langText(LangCondition condition, StringBuilder buf) {
 		buf.append(":lang(");
 		String lang = condition.getLang();
 		TokenParser parser = new TokenParser(lang, ", ", "\"'");
@@ -375,7 +341,6 @@ class SelectorSerializer {
 			buf.append(',').append(escapeLang(s, lang, commaIdx));
 		}
 		buf.append(')');
-		return buf.toString();
 	}
 
 	private String escapeLang(String s, String lang, int commaIdx) {
@@ -416,23 +381,14 @@ class SelectorSerializer {
 		return quote;
 	}
 
-	private String pseudoElementText(PseudoCondition acond, SimpleSelector simpleSelector) {
-		StringBuilder buf = new StringBuilder(16);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
-		return buf.append(':').append(':').append(acond.getName()).toString();
+	private void pseudoElementText(PseudoCondition acond, StringBuilder buf) {
+		buf.append(':').append(':').append(acond.getName());
 	}
 
-	private String selectorArgumentText(ArgumentCondition condition,
-			SimpleSelector simpleSelector) {
-		StringBuilder buf = new StringBuilder(96);
-		if (simpleSelector != null) {
-			appendSimpleSelector(simpleSelector, buf);
-		}
+	private void selectorArgumentText(ArgumentCondition condition, StringBuilder buf) {
 		buf.append(':').append(condition.getName()).append("(");
 		selectorListText(buf, condition.getSelectors(), false, true);
-		return buf.append(')').toString();
+		buf.append(')');
 	}
 
 	private void appendPositional(PositionalCondition pcond, StringBuilder buf) {
@@ -530,9 +486,10 @@ class SelectorSerializer {
 
 	void selectorListText(StringBuilder buf, SelectorList selist, boolean omitUniversal,
 			boolean scoped) {
-		buf.append(selectorText(selist.item(0), omitUniversal, scoped));
+		selectorText(buf, selist.item(0), omitUniversal, scoped);
 		for (int i = 1; i < selist.getLength(); i++) {
-			buf.append(',').append(selectorText(selist.item(i), omitUniversal, scoped));
+			buf.append(',');
+			selectorText(buf, selist.item(i), omitUniversal, scoped);
 		}
 	}
 

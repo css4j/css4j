@@ -58,7 +58,9 @@ public class CSSOMBridge {
 
 	public static String selectorText(StyleRule rule, Selector sel, boolean omitUniversal) {
 		SelectorSerializer serializer = new SelectorSerializer(rule.getParentStyleSheet());
-		return serializer.selectorText(sel, omitUniversal);
+		StringBuilder buf = new StringBuilder();
+		serializer.selectorText(buf, sel, omitUniversal);
+		return buf.toString();
 	}
 
 }

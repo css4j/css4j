@@ -11,7 +11,6 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.Condition.ConditionType;
 import io.sf.carte.doc.style.css.nsac.ConditionalSelector;
 import io.sf.carte.doc.style.css.nsac.ElementSelector;
@@ -24,9 +23,9 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 	private static final long serialVersionUID = 1L;
 
 	SimpleSelector selector;
-	Condition condition;
+	AbstractCondition condition;
 
-	ConditionalSelectorImpl(SimpleSelector selector, Condition condition) {
+	ConditionalSelectorImpl(SimpleSelector selector, AbstractCondition condition) {
 		super();
 		this.selector = selector;
 		this.condition = condition;
@@ -43,13 +42,13 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 	}
 
 	@Override
-	public Condition getCondition() {
+	public AbstractCondition getCondition() {
 		return this.condition;
 	}
 
 	@Override
 	Selector replace(SelectorList base, MutableBoolean replaced) {
-		Condition replCond;
+		AbstractCondition replCond;
 
 		CombinatorConditionImpl comb;
 		Selector base0;
@@ -77,19 +76,19 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 				&& (selector == null || selector.getSelectorType() == SelectorType.UNIVERSAL)
 				&& (base0 = base.item(0)) instanceof SimpleSelector) {
 			comb = (CombinatorConditionImpl) condition;
-			Condition cond2 = comb.second;
+			AbstractCondition cond2 = comb.second;
 			SimpleSelector simple;
 			if (cond2.getConditionType() == ConditionType.NESTING
 					&& base0.getSelectorType() == SelectorType.CONDITIONAL
 					&& ((simple = ((ConditionalSelector) base0).getSimpleSelector()) == null
 							|| simple.getSelectorType() == SelectorType.UNIVERSAL)) {
-				cond2 = ((ConditionalSelector) base0).getCondition();
+				cond2 = ((ConditionalSelectorImpl) base0).getCondition();
 				replaced.setTrueValue();
 			} else {
-				cond2 = ((AbstractCondition) cond2).replace(base, replaced);
+				cond2 = cond2.replace(base, replaced);
 			}
 
-			Condition cond1 = comb.first;
+			AbstractCondition cond1 = comb.first;
 			if (cond1.getConditionType() == ConditionType.NESTING) {
 				ConditionalSelectorImpl newsel = getSelectorFactory()
 						.createConditionalSelector((SimpleSelector) base0, cond2);
@@ -97,7 +96,7 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 				replaced.setTrueValue();
 				return newsel;
 			} else {
-				cond1 = ((AbstractCondition) cond1).replace(base, replaced);
+				cond1 = cond1.replace(base, replaced);
 			}
 			CombinatorConditionImpl newCombCond = new CombinatorConditionImpl();
 			newCombCond.first = cond1;
@@ -106,7 +105,7 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 					NSACSelectorFactory.getUniversalSelector(), newCombCond);
 			return newsel;
 		} else {
-			replCond = ((AbstractCondition) condition).replace(base, replaced);
+			replCond = condition.replace(base, replaced);
 		}
 
 		ConditionalSelectorImpl clon = clone();

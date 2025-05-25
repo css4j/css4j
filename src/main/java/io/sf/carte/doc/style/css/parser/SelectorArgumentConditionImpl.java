@@ -36,12 +36,17 @@ class SelectorArgumentConditionImpl extends AbstractNamedCondition implements Ar
 	}
 
 	@Override
-	Condition replace(SelectorList base, MutableBoolean replaced) {
-		SelectorArgumentConditionImpl clon = clone();
+	AbstractCondition replace(SelectorList base, MutableBoolean replaced) {
 		if (arguments != null) {
-			clon.arguments = ((SelectorListImpl) arguments).replaceNestedArgument(base, replaced);
+			SelectorListImpl replArgs = ((SelectorListImpl) arguments).replaceNestedArgument(base,
+					replaced);
+			if (replaced.isTrue()) {
+				SelectorArgumentConditionImpl clon = clone();
+				clon.arguments = replArgs;
+				return clon;
+			}
 		}
-		return clon;
+		return super.replace(base, replaced);
 	}
 
 	@Override
@@ -83,14 +88,12 @@ class SelectorArgumentConditionImpl extends AbstractNamedCondition implements Ar
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder buf = new StringBuilder();
+	void serialize(StringBuilder buf) {
 		buf.append(':').append(getName()).append('(');
 		if (arguments != null) {
 			buf.append(arguments.toString());
 		}
 		buf.append(')');
-		return buf.toString();
 	}
 
 	@Override

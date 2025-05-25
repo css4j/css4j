@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 public class SelectorSerializerTest {
@@ -49,14 +50,14 @@ public class SelectorSerializerTest {
 		SelectorList list = rule.getSelectorList();
 		assertEquals(8, list.getLength());
 
-		assertEquals("html:root+p:empty", serializer.selectorText(list.item(0), false));
-		assertEquals("span[foo~='bar']", serializer.selectorText(list.item(1), false));
-		assertEquals("span[foo='bar']", serializer.selectorText(list.item(2), false));
-		assertEquals("p:only-child", serializer.selectorText(list.item(3), false));
-		assertEquals("p:lang(en)", serializer.selectorText(list.item(4), false));
-		assertEquals("p.someclass", serializer.selectorText(list.item(5), false));
-		assertEquals("a:link", serializer.selectorText(list.item(6), false));
-		assertEquals("span[class='example']", serializer.selectorText(list.item(7), false));
+		assertEquals("html:root+p:empty", selectorText(list.item(0)));
+		assertEquals("span[foo~='bar']", selectorText(list.item(1)));
+		assertEquals("span[foo='bar']", selectorText(list.item(2)));
+		assertEquals("p:only-child", selectorText(list.item(3)));
+		assertEquals("p:lang(en)", selectorText(list.item(4)));
+		assertEquals("p.someclass", selectorText(list.item(5)));
+		assertEquals("a:link", selectorText(list.item(6)));
+		assertEquals("span[class='example']", selectorText(list.item(7)));
 	}
 
 	@Test
@@ -66,9 +67,9 @@ public class SelectorSerializerTest {
 				CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 		SelectorList list = rule.getSelectorList();
 		assertEquals(3, list.getLength());
-		assertEquals("span[foo~=\"bar\"]", serializer.selectorText(list.item(0), false));
-		assertEquals("span[foo=\"bar\"]", serializer.selectorText(list.item(1), false));
-		assertEquals("span[class=\"example\"]", serializer.selectorText(list.item(2), false));
+		assertEquals("span[foo~=\"bar\"]", selectorText(list.item(0)));
+		assertEquals("span[foo=\"bar\"]", selectorText(list.item(1)));
+		assertEquals("span[class=\"example\"]", selectorText(list.item(2)));
 		rule = parseStyleRule("a[hreflang|='en'] {border-top-width: 1px; }");
 		assertEquals("a[hreflang|=\"en\"]", rule.getSelectorText());
 	}
@@ -80,9 +81,9 @@ public class SelectorSerializerTest {
 		SelectorList list = rule.getSelectorList();
 		assertEquals("ul li,h4[foo],a[hreflang|='en']", rule.getSelectorText());
 		assertEquals(3, list.getLength());
-		assertEquals("ul li", serializer.selectorText(list.item(0), false));
-		assertEquals("h4[foo]", serializer.selectorText(list.item(1), false));
-		assertEquals("a[hreflang|='en']", serializer.selectorText(list.item(2), false));
+		assertEquals("ul li", selectorText(list.item(0)));
+		assertEquals("h4[foo]", selectorText(list.item(1)));
+		assertEquals("a[hreflang|='en']", selectorText(list.item(2)));
 	}
 
 	@Test
@@ -92,9 +93,9 @@ public class SelectorSerializerTest {
 		SelectorList list = rule.getSelectorList();
 		assertEquals("div ol>li p,p::first-line,p:hover", rule.getSelectorText());
 		assertEquals(3, list.getLength());
-		assertEquals("div ol>li p", serializer.selectorText(list.item(0), false));
-		assertEquals("p::first-line", serializer.selectorText(list.item(1), false));
-		assertEquals("p:hover", serializer.selectorText(list.item(2), false));
+		assertEquals("div ol>li p", selectorText(list.item(0)));
+		assertEquals("p::first-line", selectorText(list.item(1)));
+		assertEquals("p:hover", selectorText(list.item(2)));
 	}
 
 	@Test
@@ -102,9 +103,9 @@ public class SelectorSerializerTest {
 		StyleRule rule = parseStyleRule(".someclass, h1 > p, a:visited {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals(3, list.getLength());
-		assertEquals(".someclass", serializer.selectorText(list.item(0), false));
-		assertEquals("h1>p", serializer.selectorText(list.item(1), false));
-		assertEquals("a:visited", serializer.selectorText(list.item(2), false));
+		assertEquals(".someclass", selectorText(list.item(0)));
+		assertEquals("h1>p", selectorText(list.item(1)));
+		assertEquals("a:visited", selectorText(list.item(2)));
 		assertEquals(".someclass,h1>p,a:visited", rule.getSelectorText());
 	}
 
@@ -115,12 +116,12 @@ public class SelectorSerializerTest {
 		assertEquals("*,p *,* p,p>*,*>p,*+p,* .foo,:only-child,[foo='bar']",
 				rule.getSelectorText());
 		SelectorList list = rule.getSelectorList();
-		assertEquals("*", serializer.selectorText(list.item(0), false));
-		assertEquals("p *", serializer.selectorText(list.item(1), false));
-		assertEquals("* p", serializer.selectorText(list.item(2), false));
-		assertEquals("p>*", serializer.selectorText(list.item(3), false));
-		assertEquals("*>p", serializer.selectorText(list.item(4), false));
-		assertEquals("[foo='bar']", serializer.selectorText(list.item(8), true));
+		assertEquals("*", selectorText(list.item(0)));
+		assertEquals("p *", selectorText(list.item(1)));
+		assertEquals("* p", selectorText(list.item(2)));
+		assertEquals("p>*", selectorText(list.item(3)));
+		assertEquals("*>p", selectorText(list.item(4)));
+		assertEquals("[foo='bar']", selectorText(list.item(8), true));
 		assertEquals(9, list.getLength());
 	}
 
@@ -132,8 +133,8 @@ public class SelectorSerializerTest {
 		assertEquals("span[class='example'][foo=\"'bar\"],:rtl *", rule.getSelectorText());
 		assertEquals(2, list.getLength());
 		assertEquals("span[class='example'][foo=\"'bar\"]",
-				serializer.selectorText(list.item(0), false));
-		assertEquals(":rtl *", serializer.selectorText(list.item(1), false));
+				selectorText(list.item(0)));
+		assertEquals(":rtl *", selectorText(list.item(1)));
 	}
 
 	@Test
@@ -145,8 +146,18 @@ public class SelectorSerializerTest {
 		assertEquals("span[class=\"example\"][foo=\"bar\"],:rtl *", rule.getSelectorText());
 		assertEquals(2, list.getLength());
 		assertEquals("span[class=\"example\"][foo=\"bar\"]",
-				serializer.selectorText(list.item(0), false));
-		assertEquals(":rtl *", serializer.selectorText(list.item(1), false));
+				selectorText(list.item(0)));
+		assertEquals(":rtl *", selectorText(list.item(1)));
+	}
+
+	private String selectorText(Selector sel) {
+		return selectorText(sel, false);
+	}
+
+	private String selectorText(Selector sel, boolean omitUniversal) {
+		StringBuilder buf = new StringBuilder();
+		serializer.selectorText(buf, sel, omitUniversal);
+		return buf.toString();
 	}
 
 	private StyleRule parseStyleRule(String cssText) {

@@ -148,7 +148,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 	 * @exception CSSException If this selector is not supported.
 	 */
 	ConditionalSelectorImpl createConditionalSelector(SimpleSelector selector,
-			Condition condition) throws CSSException {
+			AbstractCondition condition) throws CSSException {
 		if (selector == null) {
 			selector = getUniversalSelector();
 		}
@@ -669,8 +669,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 		}
 
 		@Override
-		public String toString() {
-			StringBuilder buf = new StringBuilder();
+		void serialize(StringBuilder buf) {
 			ConditionType condtype = getConditionType();
 			switch (condtype) {
 			case ATTRIBUTE:
@@ -736,7 +735,6 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 			default:
 				throw new IllegalStateException("Unknown type: " + condtype);
 			}
-			return buf.toString();
 		}
 
 		private void appendEscapedQName(StringBuilder buf) {

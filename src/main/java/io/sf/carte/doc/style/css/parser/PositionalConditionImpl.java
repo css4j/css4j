@@ -81,12 +81,17 @@ class PositionalConditionImpl extends AbstractCondition implements PositionalCon
 	}
 
 	@Override
-	Condition replace(SelectorList base, MutableBoolean replaced) {
-		PositionalConditionImpl clon = clone();
+	AbstractCondition replace(SelectorList base, MutableBoolean replaced) {
 		if (ofList != null) {
-			clon.ofList = ((SelectorListImpl) ofList).replaceNestedArgument(base, replaced);
+			SelectorListImpl replOf = ((SelectorListImpl) ofList).replaceNestedArgument(base,
+					replaced);
+			if (replaced.isTrue()) {
+				PositionalConditionImpl clon = clone();
+				clon.ofList = replOf;
+				return clon;
+			}
 		}
-		return clon;
+		return super.replace(base, replaced);
 	}
 
 	@Override
@@ -144,15 +149,13 @@ class PositionalConditionImpl extends AbstractCondition implements PositionalCon
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder buf = new StringBuilder();
+	void serialize(StringBuilder buf) {
 		buf.append(':');
 		if (oftype) {
 			ofTypeSerialization(buf);
 		} else {
 			normalSerialization(buf);
 		}
-		return buf.toString();
 	}
 
 	private void normalSerialization(StringBuilder buf) {

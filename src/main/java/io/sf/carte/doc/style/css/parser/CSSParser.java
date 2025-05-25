@@ -2346,7 +2346,7 @@ public class CSSParser implements Parser, Cloneable {
 				}
 			}
 		}
-		throw new CSSException("No pseudo-element in: " + pseudoElement);
+		throw new CSSException("Not a pseudo-element: " + pseudoElement);
 	}
 
 	@Override
@@ -6684,7 +6684,7 @@ public class CSSParser implements Parser, Cloneable {
 			String lcname = name.toLowerCase(Locale.ROOT);
 			ConditionSetter setter = ConditionSetterFactory.getInstance()
 					.getPseudoClassSetter(lcname);
-			Condition condition = setter.create(index, triggerCp, lcname, this);
+			AbstractCondition condition = setter.create(index, triggerCp, lcname, this);
 			if (condition != null) {
 				setterMap.put(condition, setter);
 				setConditionalSelector(condition);
@@ -6696,7 +6696,7 @@ public class CSSParser implements Parser, Cloneable {
 			String lcname = name.toLowerCase(Locale.ROOT);
 			ConditionSetter setter = ConditionSetterFactory.getInstance()
 					.getPseudoElementSetter(lcname);
-			Condition condition = setter.create(index, triggerCp, lcname, this);
+			AbstractCondition condition = setter.create(index, triggerCp, lcname, this);
 			if (condition != null) {
 				setterMap.put(condition, setter);
 				setConditionalSelector(condition);
@@ -6756,7 +6756,7 @@ public class CSSParser implements Parser, Cloneable {
 			setConditionalSelector(NestingCondition.getInstance());
 		}
 
-		private void setConditionalSelector(Condition condition) {
+		private void setConditionalSelector(AbstractCondition condition) {
 			if (currentsel instanceof CombinatorSelectorImpl) {
 				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
 				if (simple != null && simple.getSelectorType() == SelectorType.CONDITIONAL) {

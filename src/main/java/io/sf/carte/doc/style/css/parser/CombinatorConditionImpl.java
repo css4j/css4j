@@ -19,8 +19,8 @@ class CombinatorConditionImpl extends AbstractCondition implements CombinatorCon
 
 	private static final long serialVersionUID = 1L;
 
-	Condition first = null;
-	Condition second = null;
+	AbstractCondition first = null;
+	AbstractCondition second = null;
 
 	CombinatorConditionImpl() {
 		super();
@@ -42,13 +42,13 @@ class CombinatorConditionImpl extends AbstractCondition implements CombinatorCon
 	}
 
 	@Override
-	Condition replace(SelectorList base, MutableBoolean replaced) {
+	AbstractCondition replace(SelectorList base, MutableBoolean replaced) {
 		CombinatorConditionImpl clon = clone();
 		if (first != null) {
-			clon.first = ((AbstractCondition) clon.first).replace(base, replaced);
+			clon.first = clon.first.replace(base, replaced);
 		}
 		if (second != null) {
-			clon.second = ((AbstractCondition) clon.second).replace(base, replaced);
+			clon.second = clon.second.replace(base, replaced);
 		}
 		return clon;
 	}
@@ -92,15 +92,13 @@ class CombinatorConditionImpl extends AbstractCondition implements CombinatorCon
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder buf = new StringBuilder();
+	void serialize(StringBuilder buf) {
 		buf.append(getFirstCondition().toString());
 		if (second != null) {
 			buf.append(second.toString());
 		} else {
 			buf.append('?');
 		}
-		return buf.toString();
 	}
 
 	@Override

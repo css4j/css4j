@@ -389,11 +389,13 @@ public class SelectorParserNSTest {
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
 		assertTrue(((AttributeCondition) cond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
