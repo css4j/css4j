@@ -15,8 +15,6 @@ import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 
 /**
  * Transforms legacy HTML attributes into style declarations.
- * 
- * @author Carlos Amengual
  *
  */
 public final class AttributeToStyle {

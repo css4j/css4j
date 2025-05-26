@@ -36,8 +36,6 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * CSS {@code @supports} rule.
  * 
- * @author Carlos Amengual
- * 
  */
 public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 

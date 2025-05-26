@@ -28,8 +28,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Expression container base class.
- * 
- * @author Carlos Amengual
  *
  */
 public class ExpressionValue extends TypedValue implements CSSExpressionValue {

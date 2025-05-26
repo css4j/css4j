@@ -24,8 +24,6 @@ import java.util.StringTokenizer;
 
 /**
  * Database of shorthand-related property information.
- * 
- * @author Carlos Amengual
  *
  */
 public final class ShorthandDatabase {

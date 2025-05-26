@@ -22,8 +22,6 @@ import io.sf.carte.doc.style.css.BooleanCondition;
  * <p>
  * Used by media queries and <code>{@literal @}supports</code> conditions.
  * 
- * @author Carlos Amengual
- * 
  */
 abstract class BooleanConditionImpl implements BooleanCondition, java.io.Serializable {
 

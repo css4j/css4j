@@ -25,8 +25,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Element reference (<code>element()</code>) value.
- * 
- * @author Carlos Amengual
  *
  */
 class ElementReferenceValue extends TypedValue {

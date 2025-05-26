@@ -32,8 +32,6 @@ import io.sf.carte.doc.style.css.nsac.CSSParseException;
  * Used for media query interoperability tests.
  * </p>
  * 
- * @author Carlos Amengual
- * 
  */
 public class MediaList implements MediaQueryList, Serializable {
 

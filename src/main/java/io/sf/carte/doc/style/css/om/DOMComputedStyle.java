@@ -20,8 +20,6 @@ import io.sf.carte.doc.style.css.StyleDatabase;
 /**
  * Computed style associated to a DOM node.
  * 
- * @author Carlos Amengual
- * 
  */
 abstract public class DOMComputedStyle extends ComputedCSSStyle {
 

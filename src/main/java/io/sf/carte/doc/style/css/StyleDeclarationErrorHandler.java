@@ -22,8 +22,6 @@ import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
  * <p>
  * The reported errors can be logged, ignored, or used by some tool.
  * </p>
- * 
- * @author Carlos Amengual
  *
  */
 public interface StyleDeclarationErrorHandler {

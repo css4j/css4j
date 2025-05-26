@@ -26,8 +26,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Number-specific value.
- * 
- * @author Carlos Amengual
  *
  */
 public class NumberValue extends TypedValue implements CSSNumberValue {

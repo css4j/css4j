@@ -19,8 +19,6 @@ import java.util.Set;
 
 /**
  * Database of device-independent CSS property information.
- * 
- * @author Carlos Amengual
  *
  */
 public final class PropertyDatabase {

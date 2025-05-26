@@ -28,8 +28,6 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Implementation of CSSPageRule.
  * 
- * @author Carlos Amengual
- * 
  */
 public class PageRule extends BaseCSSDeclarationRule implements CSSPageRule {
 

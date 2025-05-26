@@ -35,8 +35,6 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * CSSKeyframeRule implementation.
  * 
- * @author Carlos Amengual
- * 
  */
 public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeRule {
 

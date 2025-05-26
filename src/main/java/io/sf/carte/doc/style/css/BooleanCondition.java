@@ -18,8 +18,6 @@ import java.util.List;
  * <p>
  * Used by media queries and <code>{@literal @}supports</code> conditions.
  * 
- * @author Carlos Amengual
- * 
  */
 public interface BooleanCondition {
 

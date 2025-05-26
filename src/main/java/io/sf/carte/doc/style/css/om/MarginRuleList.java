@@ -21,8 +21,6 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Stores a list of CSS margin rules, implementing CSSRuleList.
  * 
- * @author Carlos Amengual
- * 
  */
 public class MarginRuleList extends AbstractRuleList<MarginRule> {
 

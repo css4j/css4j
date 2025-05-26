@@ -15,8 +15,6 @@ import io.sf.carte.doc.style.css.CSSStyleException;
 
 /**
  * CSS Property exception.
- * 
- * @author Carlos Amengual
  *
  */
 public class CSSPropertyException extends CSSStyleException {

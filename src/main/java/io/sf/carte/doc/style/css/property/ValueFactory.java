@@ -37,8 +37,6 @@ import io.sf.carte.doc.style.css.property.PrimitiveValue.LexicalSetter;
 /**
  * Factory of CSS values.
  * 
- * @author Carlos Amengual
- * 
  */
 public class ValueFactory implements CSSValueFactory {
 

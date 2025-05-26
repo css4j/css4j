@@ -22,8 +22,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Calc value.
- * 
- * @author Carlos Amengual
  *
  */
 public class CalcValue extends ExpressionValue {

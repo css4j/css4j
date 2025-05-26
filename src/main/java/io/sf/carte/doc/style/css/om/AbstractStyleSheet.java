@@ -23,8 +23,6 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 
 /**
  * Abstract class to be inherited by all CSS style sheets.
- * 
- * @author Carlos Amengual
  *
  */
 abstract public class AbstractStyleSheet implements StyleSheet, Cloneable, java.io.Serializable {

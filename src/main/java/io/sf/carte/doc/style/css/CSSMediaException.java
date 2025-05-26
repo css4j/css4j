@@ -14,8 +14,6 @@ package io.sf.carte.doc.style.css;
 /**
  * CSS media Exception.
  * 
- * @author Carlos Amengual
- * 
  */
 public class CSSMediaException extends CSSStyleException {
 

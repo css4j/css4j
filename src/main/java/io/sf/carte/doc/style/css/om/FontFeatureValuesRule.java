@@ -47,8 +47,6 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Implementation of CSSFontFeatureValuesRule.
  * 
- * @author Carlos Amengual
- * 
  */
 public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeatureValuesRule {
 

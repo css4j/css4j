@@ -14,8 +14,6 @@ package io.sf.carte.doc.style.css;
 /**
  * CSS topmost generic Exception.
  * 
- * @author Carlos Amengual
- * 
  */
 public class CSSStyleException extends Exception {
 

@@ -24,8 +24,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * String value.
- * 
- * @author Carlos Amengual
  *
  */
 public class StringValue extends AbstractTextValue {

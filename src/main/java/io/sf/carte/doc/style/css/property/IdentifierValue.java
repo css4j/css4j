@@ -28,8 +28,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Identifier value.
- * 
- * @author Carlos Amengual
  *
  */
 public class IdentifierValue extends AbstractTextValue {

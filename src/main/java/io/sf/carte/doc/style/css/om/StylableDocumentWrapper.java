@@ -75,8 +75,6 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
  * CSS-enabled wrapper for a DOM <code>Document</code>.
  * </p>
  * 
- * @author Carlos Amengual
- * 
  */
 abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocument {
 

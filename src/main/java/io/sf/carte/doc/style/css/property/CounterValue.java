@@ -24,8 +24,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * CSS counter function.
- * 
- * @author Carlos Amengual
  *
  */
 class CounterValue extends AbstractCounterValue {

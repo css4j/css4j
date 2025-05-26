@@ -23,8 +23,6 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Stores a list of CSS rules, implementing CSSRuleList.
  * 
- * @author Carlos Amengual
- * 
  */
 class AbstractRuleList<T extends CSSRule> extends ArrayList<T>
 		implements CSSRuleList<T> {

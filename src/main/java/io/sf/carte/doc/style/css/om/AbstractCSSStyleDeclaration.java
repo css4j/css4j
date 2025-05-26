@@ -21,8 +21,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Abstract class to be inherited by all CSS style declarations.
- * 
- * @author Carlos Amengual
  *
  */
 abstract public class AbstractCSSStyleDeclaration

@@ -21,8 +21,6 @@ import java.util.Map;
  * Per CSS3 color spec, section 4.3.
  * </p>
  * 
- * @author Carlos Amengual
- * 
  */
 public class ColorIdentifiers {
 

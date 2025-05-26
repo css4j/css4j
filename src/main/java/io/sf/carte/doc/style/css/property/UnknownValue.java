@@ -23,8 +23,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Unknown CSS primitive value.
- * 
- * @author Carlos Amengual
  *
  */
 public class UnknownValue extends AbstractTextValue {

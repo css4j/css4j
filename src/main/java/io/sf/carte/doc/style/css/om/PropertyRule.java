@@ -34,8 +34,6 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * CSS {@literal @}property rule implementation.
  * 
- * @author Carlos Amengual
- * 
  */
 public class PropertyRule extends BaseCSSDeclarationRule implements CSSPropertyRule {
 

@@ -18,8 +18,6 @@ import io.sf.carte.doc.style.css.nsac.Condition;
 /**
  * CSS Style Sheet for DOM.
  * 
- * @author Carlos Amengual
- * 
  */
 abstract public class DOMDocumentCSSStyleSheet extends BaseDocumentCSSStyleSheet {
 

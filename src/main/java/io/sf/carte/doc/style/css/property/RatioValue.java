@@ -24,8 +24,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Ratio value.
- * 
- * @author Carlos Amengual
  *
  */
 public class RatioValue extends TypedValue implements CSSRatioValue {

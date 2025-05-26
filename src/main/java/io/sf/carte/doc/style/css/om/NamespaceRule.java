@@ -24,8 +24,6 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Implementation of W3C's CSSNamespaceRule.
  * 
- * @author Carlos Amengual
- * 
  */
 public class NamespaceRule extends BaseCSSRule implements CSSNamespaceRule {
 

@@ -30,8 +30,6 @@ import io.sf.carte.util.SimpleWriter;
 
 /**
  * Function value.
- * 
- * @author Carlos Amengual
  *
  */
 public class FunctionValue extends TypedValue implements CSSFunctionValue {

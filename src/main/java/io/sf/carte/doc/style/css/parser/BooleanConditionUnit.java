@@ -23,8 +23,6 @@ import io.sf.carte.doc.style.css.BooleanCondition;
  * Used by media queries and <code>{@literal @}supports</code> conditions.
  * </p>
  * 
- * @author Carlos Amengual
- * 
  */
 abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCondition {
 

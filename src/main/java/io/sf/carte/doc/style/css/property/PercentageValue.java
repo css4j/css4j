@@ -17,8 +17,6 @@ import io.sf.carte.doc.style.css.CSSUnit;
 
 /**
  * Percentage value.
- * 
- * @author Carlos Amengual
  *
  */
 public class PercentageValue extends NumberValue {

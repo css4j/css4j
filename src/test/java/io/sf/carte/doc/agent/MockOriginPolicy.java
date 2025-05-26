@@ -17,8 +17,6 @@ import java.util.List;
 /**
  * Mock origin policy for tests.
  * <p>
- * 
- * @author Carlos Amengual
  */
 public class MockOriginPolicy implements OriginPolicy {
 

@@ -23,8 +23,6 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * Implementation of CSSMarginRule.
  * 
- * @author Carlos Amengual
- * 
  */
 public class MarginRule extends BaseCSSDeclarationRule implements CSSMarginRule {
 

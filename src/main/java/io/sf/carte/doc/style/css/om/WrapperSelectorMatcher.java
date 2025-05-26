@@ -23,8 +23,6 @@ import io.sf.carte.doc.style.css.CSSElement;
  * CSS Selector matcher providing (part of) HTML case-insensitive attribute
  * matching for XML-oriented DOM implementations in the DOM wrapper.
  * 
- * @author Carlos Amengual
- * 
  */
 class WrapperSelectorMatcher extends DOMSelectorMatcher {
 

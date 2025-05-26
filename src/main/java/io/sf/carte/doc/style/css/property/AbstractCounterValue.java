@@ -17,8 +17,6 @@ import io.sf.carte.doc.style.css.CSSCounterValue;
 
 /**
  * Abstract class for counter() and counters() functions.
- * 
- * @author Carlos Amengual
  *
  */
 abstract class AbstractCounterValue extends TypedValue implements CSSCounterValue {

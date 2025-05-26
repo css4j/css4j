@@ -27,8 +27,6 @@ import io.sf.carte.doc.style.css.parser.ParseHelper;
 
 /**
  * URI primitive value.
- * 
- * @author Carlos Amengual
  *
  */
 public class URIValue extends StringValue {

@@ -21,8 +21,6 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 /**
  * CSS Style Sheet for DOM.
  * 
- * @author Carlos Amengual
- * 
  */
 abstract public class DOMCSSStyleSheet extends BaseCSSStyleSheet implements Cloneable {
 
