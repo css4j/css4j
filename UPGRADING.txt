@@ -1,6 +1,13 @@
 UPGRADING FROM PREVIOUS VERSIONS
 ================================
 
+Upgrading to 6.1 from 6.0
+-------------------------
+- Selectors: Combinator (AND) conditions are no longer limited to two conditions,
+  and therefore there are no more AND conditions that contain AND subconditions,
+  etc. Please look at the new methods at `CombinatorCondition`.
+
+
 Upgrading to 6.0 from 5.3.1
 ---------------------------
 - The CSSOM rule hierarchy has changed and now `CSSStyleRule` is a grouping rule

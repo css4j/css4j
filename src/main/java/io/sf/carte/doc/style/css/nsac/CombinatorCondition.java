@@ -16,10 +16,11 @@ package io.sf.carte.doc.style.css.nsac;
 /**
  * Based on SAC's {@code CombinatorCondition} interface by Philippe Le Hegaret.
  * <p>
- * Represents two chained conditions in a compound selector.
+ * Represents two or more chained conditions in a compound selector.
  * </p>
  */
 public interface CombinatorCondition extends Condition {
+
 	/**
 	 * The first condition.
 	 * 
@@ -33,5 +34,21 @@ public interface CombinatorCondition extends Condition {
 	 * @return the second condition.
 	 */
 	Condition getSecondCondition();
+
+	/**
+	 * Get the condition at index {@code index}.
+	 * 
+	 * @param index the index. A value of {@code 0} retrieves the first condition.
+	 * @return the condition.
+	 * @throws ArrayIndexOutOfBoundsException if the index is invalid.
+	 */
+	Condition getCondition(int index) throws ArrayIndexOutOfBoundsException;
+
+	/**
+	 * Get the number of conditions in this combinator.
+	 * 
+	 * @return the number of conditions (always two at least).
+	 */
+	int getLength();
 
 }

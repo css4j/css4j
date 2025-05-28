@@ -11,19 +11,25 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import java.util.Arrays;
+
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
 class CombinatorConditionImpl extends AbstractCondition implements CombinatorCondition {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
-	AbstractCondition first = null;
-	AbstractCondition second = null;
+	AbstractCondition[] conditions;
 
 	CombinatorConditionImpl() {
+		this(2);
+	}
+
+	CombinatorConditionImpl(int size) {
 		super();
+		conditions = new AbstractCondition[size];
 	}
 
 	@Override
@@ -32,23 +38,84 @@ class CombinatorConditionImpl extends AbstractCondition implements CombinatorCon
 	}
 
 	@Override
-	public Condition getFirstCondition() {
-		return first;
+	public AbstractCondition getFirstCondition() {
+		return conditions[0];
 	}
 
 	@Override
-	public Condition getSecondCondition() {
-		return second;
+	public AbstractCondition getSecondCondition() {
+		return conditions[1];
+	}
+
+	public AbstractCondition getLastCondition() {
+		return conditions[conditions.length - 1];
+	}
+
+	@Override
+	public AbstractCondition getCondition(int index) {
+		return conditions[index];
+	}
+
+	void setCondition(int idx, AbstractCondition newcond) {
+		conditions[idx] = newcond;
+	}
+
+	@Override
+	public int getLength() {
+		return conditions.length;
+	}
+
+	CombinatorConditionImpl prependCondition(AbstractCondition cond) {
+		int curlen = conditions.length;
+		if (cond.getConditionType() == ConditionType.AND) {
+			CombinatorConditionImpl comb = (CombinatorConditionImpl) cond;
+			int otherlen = comb.conditions.length;
+			AbstractCondition[] conds = new AbstractCondition[curlen + otherlen];
+			System.arraycopy(comb.conditions, 0, conds, 0, otherlen);
+			System.arraycopy(conditions, 0, conds, otherlen, curlen);
+		} else {
+			AbstractCondition[] conds = new AbstractCondition[curlen + 1];
+			System.arraycopy(conditions, 0, conds, 1, curlen);
+			conds[0] = cond;
+			conditions = conds;
+		}
+		return this;
+	}
+
+	@Override
+	CombinatorConditionImpl appendCondition(AbstractCondition cond) {
+		int idx = conditions.length;
+		if (cond.getConditionType() == ConditionType.AND) {
+			CombinatorConditionImpl comb = (CombinatorConditionImpl) cond;
+			int otherlen = comb.conditions.length;
+			AbstractCondition[] conds = new AbstractCondition[idx + otherlen];
+			System.arraycopy(conditions, 0, conds, 0, idx);
+			System.arraycopy(comb.conditions, 0, conds, idx, otherlen);
+		} else {
+			AbstractCondition[] conds = new AbstractCondition[idx + 1];
+			System.arraycopy(conditions, 0, conds, 0, idx);
+			conds[idx] = cond;
+			conditions = conds;
+		}
+		return this;
+	}
+
+	AbstractCondition removeFirstCondition() {
+		int curlenm1 = conditions.length - 1;
+		if (curlenm1 == 1) {
+			return conditions[1];
+		}
+		AbstractCondition[] conds = new AbstractCondition[curlenm1];
+		System.arraycopy(conditions, 1, conds, 0, curlenm1);
+		conditions = conds;
+		return this;
 	}
 
 	@Override
 	AbstractCondition replace(SelectorList base, MutableBoolean replaced) {
 		CombinatorConditionImpl clon = clone();
-		if (first != null) {
-			clon.first = clon.first.replace(base, replaced);
-		}
-		if (second != null) {
-			clon.second = clon.second.replace(base, replaced);
+		for (int i = 0; i < conditions.length; i++) {
+			clon.conditions[i] = conditions[i].replace(base, replaced);
 		}
 		return clon;
 	}
@@ -56,9 +123,8 @@ class CombinatorConditionImpl extends AbstractCondition implements CombinatorCon
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((first == null) ? 0 : first.hashCode());
-		result = prime * result + ((second == null) ? 0 : second.hashCode());
+		int result = Condition.ConditionType.AND.hashCode();
+		result = prime * result + Arrays.hashCode(conditions);
 		return result;
 	}
 
@@ -67,45 +133,26 @@ class CombinatorConditionImpl extends AbstractCondition implements CombinatorCon
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (!(obj instanceof CombinatorConditionImpl)) {
 			return false;
 		}
 		CombinatorConditionImpl other = (CombinatorConditionImpl) obj;
-		if (first == null) {
-			if (other.first != null) {
-				return false;
-			}
-		} else if (!first.equals(other.first)) {
-			return false;
-		}
-		if (second == null) {
-			if (other.second != null) {
-				return false;
-			}
-		} else if (!second.equals(other.second)) {
-			return false;
-		}
-		return true;
+		return Arrays.equals(conditions, other.conditions);
 	}
 
 	@Override
 	void serialize(StringBuilder buf) {
-		buf.append(getFirstCondition().toString());
-		if (second != null) {
-			buf.append(second.toString());
-		} else {
-			buf.append('?');
+		for (AbstractCondition cond : conditions) {
+			if (cond != null) {
+				cond.serialize(buf);
+			}
 		}
 	}
 
 	@Override
 	public CombinatorConditionImpl clone() {
 		CombinatorConditionImpl clon = (CombinatorConditionImpl) super.clone();
-		clon.first = first;
-		clon.second = second;
+		clon.conditions = conditions.clone();
 		return clon;
 	}
 

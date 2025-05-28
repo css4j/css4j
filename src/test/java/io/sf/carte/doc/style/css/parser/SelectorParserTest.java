@@ -1249,16 +1249,16 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) firstcond).getValue());
-		if (firstcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
+		assertTrue(firstcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition) {
-			assertFalse(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
+		assertTrue(secondcond instanceof AttributeCondition);
+		assertFalse(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());
@@ -1278,16 +1278,16 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) firstcond).getValue());
-		if (firstcond instanceof AttributeCondition) {
-			assertFalse(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
+		assertTrue(firstcond instanceof AttributeCondition);
+		assertFalse(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
+		assertTrue(secondcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());
@@ -1303,30 +1303,30 @@ public class SelectorParserTest {
 		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(ConditionType.AND, cond.getConditionType());
-		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		cond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
-		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
-		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
 
-		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("bar", ((AttributeCondition) firstcond).getValue());
-		if (firstcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
+		assertTrue(firstcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
+		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
+
 		secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
+		assertTrue(secondcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
+		Condition thirdcond = ((CombinatorCondition) cond).getCondition(2);
+		assertEquals(ConditionType.ATTRIBUTE, thirdcond.getConditionType());
+		assertEquals("dir", ((AttributeCondition) thirdcond).getLocalName());
+		assertEquals("auto", ((AttributeCondition) thirdcond).getValue());
+		assertTrue(thirdcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) thirdcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());
@@ -1348,30 +1348,29 @@ public class SelectorParserTest {
 		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		Condition cond = ((ConditionalSelector) simple).getCondition();
 		assertEquals(ConditionType.AND, cond.getConditionType());
-		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		cond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
-		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
-		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
 
-		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("bar", ((AttributeCondition) firstcond).getValue());
-		if (firstcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
-		secondcond = ((CombinatorCondition) cond).getSecondCondition();
+		assertTrue(firstcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
+		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
+
 		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
+		assertTrue(secondcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
+		Condition thirdcond = ((CombinatorCondition) cond).getCondition(2);
+		assertEquals(ConditionType.ATTRIBUTE, thirdcond.getConditionType());
+		assertEquals("dir", ((AttributeCondition) thirdcond).getLocalName());
+		assertEquals("auto", ((AttributeCondition) thirdcond).getValue());
+		assertTrue(thirdcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) thirdcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		SimpleSelector simple2 = ((ConditionalSelector) simple).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple2.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple2).getLocalName());
@@ -1393,30 +1392,28 @@ public class SelectorParserTest {
 		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		Condition cond = ((ConditionalSelector) simple).getCondition();
 		assertEquals(ConditionType.AND, cond.getConditionType());
-		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		cond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
-		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
-		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
 
-		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("bar", ((AttributeCondition) firstcond).getValue());
-		if (firstcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
-		secondcond = ((CombinatorCondition) cond).getSecondCondition();
+		assertTrue(firstcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
+		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
+		assertTrue(secondcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
+		Condition thirdcond = ((CombinatorCondition) cond).getCondition(2);
+		assertEquals(ConditionType.ATTRIBUTE, thirdcond.getConditionType());
+		assertEquals("dir", ((AttributeCondition) thirdcond).getLocalName());
+		assertEquals("auto", ((AttributeCondition) thirdcond).getValue());
+		assertTrue(thirdcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) thirdcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		SimpleSelector simple2 = ((ConditionalSelector) simple).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple2.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple2).getLocalName());
@@ -1438,30 +1435,29 @@ public class SelectorParserTest {
 		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		Condition cond = ((ConditionalSelector) simple).getCondition();
 		assertEquals(ConditionType.AND, cond.getConditionType());
-		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		cond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
-		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
-		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
 
-		assertEquals(ConditionType.AND, cond.getConditionType());
-		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
-		assertEquals("foo", ((AttributeCondition) firstcond).getLocalName());
-		assertEquals("bar", ((AttributeCondition) firstcond).getValue());
-		if (firstcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
-		secondcond = ((CombinatorCondition) cond).getSecondCondition();
+		Condition cond1 = ((CombinatorCondition) cond).getFirstCondition();
+
+		assertEquals(ConditionType.ATTRIBUTE, cond1.getConditionType());
+		assertEquals("foo", ((AttributeCondition) cond1).getLocalName());
+		assertEquals("bar", ((AttributeCondition) cond1).getValue());
+		assertTrue(cond1 instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) cond1).hasFlag(AttributeCondition.Flag.CASE_I));
+
+		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) secondcond).getValue());
-		if (secondcond instanceof AttributeCondition) {
-			assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
-		}
+		assertTrue(secondcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
+		Condition thirdcond = ((CombinatorCondition) cond).getCondition(2);
+		assertEquals(ConditionType.ATTRIBUTE, thirdcond.getConditionType());
+		assertEquals("dir", ((AttributeCondition) thirdcond).getLocalName());
+		assertEquals("auto", ((AttributeCondition) thirdcond).getValue());
+		assertTrue(thirdcond instanceof AttributeCondition);
+		assertTrue(((AttributeCondition) thirdcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		SimpleSelector simple2 = ((ConditionalSelector) simple).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple2.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple2).getLocalName());
@@ -3506,20 +3502,25 @@ public class SelectorParserTest {
 		assertNotNull(simple);
 		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
 		assertNull(((ElementSelector) simple).getNamespaceURI());
+
 		Condition cond = ((ConditionalSelector) ancestor).getCondition();
 		assertEquals(ConditionType.AND, cond.getConditionType());
-		Condition second = ((CombinatorCondition) cond).getSecondCondition();
-		assertEquals(ConditionType.CLASS, second.getConditionType());
-		assertEquals("otherclass", ((AttributeCondition) second).getValue());
-		Condition first = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(ConditionType.AND, first.getConditionType());
-		CombinatorCondition combcond = (CombinatorCondition) first;
-		second = combcond.getSecondCondition();
-		assertEquals(ConditionType.ID, second.getConditionType());
-		assertEquals("otherid", ((AttributeCondition) second).getValue());
-		first = combcond.getFirstCondition();
+		CombinatorCondition combcond = (CombinatorCondition) cond;
+
+		Condition first = combcond.getFirstCondition();
 		assertEquals(ConditionType.CLASS, first.getConditionType());
 		assertEquals("barclass", ((AttributeCondition) first).getValue());
+
+		Condition second = combcond.getSecondCondition();
+		assertEquals(ConditionType.ID, second.getConditionType());
+		assertEquals("otherid", ((AttributeCondition) second).getValue());
+
+		assertEquals(3, combcond.getLength());
+
+		Condition third = combcond.getCondition(2);
+		assertEquals(ConditionType.CLASS, third.getConditionType());
+		assertEquals("otherclass", ((AttributeCondition) third).getValue());
+
 		simple = ((CombinatorSelector) sel).getSecondSelector();
 		assertEquals(SelectorType.CONDITIONAL, simple.getSelectorType());
 		cond = ((ConditionalSelector) simple).getCondition();
@@ -5461,16 +5462,10 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.AND, cond.getConditionType());
 		comb = (CombinatorCondition) cond;
 		cond1 = comb.getFirstCondition();
-		cond2 = comb.getSecondCondition();
 
-		assertEquals(ConditionType.AND, cond1.getConditionType());
-		CombinatorCondition comb1 = (CombinatorCondition) cond1;
-		Condition cond11 = comb1.getFirstCondition();
-		Condition cond12 = comb1.getSecondCondition();
-
-		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond11.getConditionType());
-		assertEquals("not", ((ArgumentCondition) cond11).getName());
-		arglist = ((ArgumentCondition) cond11).getSelectors();
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond1.getConditionType());
+		assertEquals("not", ((ArgumentCondition) cond1).getName());
+		arglist = ((ArgumentCondition) cond1).getSelectors();
 		assertEquals(1, arglist.getLength());
 		item0 = arglist.item(0);
 		assertEquals(SelectorType.CONDITIONAL, item0.getSelectorType());
@@ -5479,10 +5474,12 @@ public class SelectorParserTest {
 		assertEquals("href", ((AttributeCondition) cond0).getLocalName());
 		assertNull(((AttributeCondition) cond0).getValue());
 
-		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond12.getConditionType());
-		assertEquals("not", ((ArgumentCondition) cond12).getName());
-		arglist = ((ArgumentCondition) cond12).getSelectors();
+		cond2 = comb.getSecondCondition();
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, cond2.getConditionType());
+		assertEquals("not", ((ArgumentCondition) cond2).getName());
+		arglist = ((ArgumentCondition) cond2).getSelectors();
 		assertEquals(1, arglist.getLength());
+
 		item0 = arglist.item(0);
 		assertEquals(SelectorType.CONDITIONAL, item0.getSelectorType());
 		cond0 = ((ConditionalSelector) item0).getCondition();
@@ -5490,9 +5487,10 @@ public class SelectorParserTest {
 		assertEquals("tabindex", ((AttributeCondition) cond0).getLocalName());
 		assertNull(((AttributeCondition) cond0).getValue());
 
-		assertEquals(ConditionType.PSEUDO_CLASS, cond2.getConditionType());
-		assertEquals("focus", ((PseudoCondition) cond2).getName());
-		assertNull(((PseudoCondition) cond2).getArgument());
+		Condition cond3 = comb.getCondition(2);
+		assertEquals(ConditionType.PSEUDO_CLASS, cond3.getConditionType());
+		assertEquals("focus", ((PseudoCondition) cond3).getName());
+		assertNull(((PseudoCondition) cond3).getArgument());
 
 		assertEquals("a:not([href]):not([tabindex]):focus", sel.toString());
 
@@ -5822,23 +5820,22 @@ public class SelectorParserTest {
 		assertEquals(ConditionType.AND, and.getConditionType());
 		Condition first = ((CombinatorCondition) and).getFirstCondition();
 		Condition second = ((CombinatorCondition) and).getSecondCondition();
-		assertEquals(ConditionType.AND, first.getConditionType());
 
-		Condition ffirst = ((CombinatorCondition) first).getFirstCondition();
-		Condition fsecond = ((CombinatorCondition) first).getSecondCondition();
-		assertEquals(ConditionType.CLASS, ffirst.getConditionType());
-		assertEquals("block-image", ((AttributeCondition) ffirst).getValue());
+		assertEquals(ConditionType.CLASS, first.getConditionType());
+		assertEquals("block-image", ((AttributeCondition) first).getValue());
 
-		assertEquals(ConditionType.SELECTOR_ARGUMENT, fsecond.getConditionType());
-		assertEquals("has", ((ArgumentCondition) fsecond).getName());
-		SelectorList arglist = ((ArgumentCondition) fsecond).getSelectors();
+		assertEquals(ConditionType.SELECTOR_ARGUMENT, second.getConditionType());
+		assertEquals("has", ((ArgumentCondition) second).getName());
+
+		SelectorList arglist = ((ArgumentCondition) second).getSelectors();
 		assertEquals(1, arglist.getLength());
 		Selector arg = arglist.item(0);
 		assertEquals(SelectorType.ELEMENT, arg.getSelectorType());
 		assertEquals("figcaption", ((ElementSelector) arg).getLocalName());
 
-		assertEquals(ConditionType.PSEUDO_ELEMENT, second.getConditionType());
-		assertEquals("before", ((PseudoCondition) second).getName());
+		Condition thirdcond = ((CombinatorCondition) and).getCondition(2);
+		assertEquals(ConditionType.PSEUDO_ELEMENT, thirdcond.getConditionType());
+		assertEquals("before", ((PseudoCondition) thirdcond).getName());
 
 		assertEquals("figure.block-image:has(figcaption)::before", sel.toString());
 	}

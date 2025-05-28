@@ -26,6 +26,19 @@ abstract class AbstractCondition implements Condition, Cloneable, java.io.Serial
 		return this;
 	}
 
+	CombinatorConditionImpl appendCondition(AbstractCondition cond) {
+		CombinatorConditionImpl comb;
+		if (cond.getConditionType() == ConditionType.AND) {
+			comb = (CombinatorConditionImpl) cond;
+			comb.prependCondition(this);
+		} else {
+			comb = new CombinatorConditionImpl();
+			comb.conditions[0] = this;
+			comb.conditions[1] = cond;
+		}
+		return comb;
+	}
+
 	/**
 	 * Perform a shallow cloning of this value.
 	 * 

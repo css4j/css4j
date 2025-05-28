@@ -435,8 +435,12 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			return namespaceURI.equals(acond.getNamespaceURI());
 		case AND:
 			CombinatorCondition ccond = (CombinatorCondition) condition;
-			return conditionHasNamespace(ccond.getFirstCondition(), namespaceURI)
-					|| conditionHasNamespace(ccond.getSecondCondition(), namespaceURI);
+			int len = ccond.getLength();
+			for (int i = 0; i < len; i++) {
+				if (conditionHasNamespace(ccond.getCondition(i), namespaceURI)) {
+					return true;
+				}
+			}
 		case POSITIONAL:
 			SelectorList oflist = ((PositionalCondition) condition).getOfList();
 			if (oflist != null) {

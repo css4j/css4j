@@ -194,8 +194,10 @@ class SelectorSerializer {
 			break;
 		case AND:
 			CombinatorCondition ccond = (CombinatorCondition) condition;
-			conditionalSelectorText(ccond.getFirstCondition(), buf);
-			conditionalSelectorText(ccond.getSecondCondition(), buf);
+			int len = ccond.getLength();
+			for (int i = 0; i < len; i++) {
+				conditionalSelectorText(ccond.getCondition(i), buf);
+			}
 			break;
 		case PSEUDO_CLASS:
 			pseudoClassText((PseudoCondition) condition, buf);

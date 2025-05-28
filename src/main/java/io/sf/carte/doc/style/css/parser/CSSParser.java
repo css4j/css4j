@@ -2334,16 +2334,21 @@ public class CSSParser implements Parser, Cloneable {
 				&& (sel = peList.item(0)).getSelectorType() == SelectorType.CONDITIONAL) {
 			Condition cond = ((ConditionalSelector) sel).getCondition();
 			ConditionType condType = cond.getConditionType();
-			if (condType == ConditionType.PSEUDO_ELEMENT) {
+			swi: switch (condType) {
+			case PSEUDO_ELEMENT:
 				return cond;
-			} else if (condType == ConditionType.AND) {
+			case AND:
 				CombinatorCondition comb = (CombinatorCondition) cond;
-				Condition first = comb.getFirstCondition();
-				Condition second = comb.getSecondCondition();
-				if (first.getConditionType() == ConditionType.PSEUDO_ELEMENT
-						&& second.getConditionType() == ConditionType.PSEUDO_ELEMENT) {
-					return cond;
+				int len = comb.getLength();
+				for (int i = 0; i < len; i++) {
+					Condition condItem = comb.getCondition(i);
+					if (condItem.getConditionType() != ConditionType.PSEUDO_ELEMENT) {
+						break swi;
+					}
 				}
+				return cond;
+			default:
+				break;
 			}
 		}
 		throw new CSSException("Not a pseudo-element: " + pseudoElement);
@@ -6078,7 +6083,7 @@ public class CSSParser implements Parser, Cloneable {
 				cond = ((ConditionalSelectorImpl) currentsel).condition;
 			}
 			if (cond instanceof CombinatorConditionImpl) {
-				cond = ((CombinatorConditionImpl) cond).getSecondCondition();
+				cond = ((CombinatorConditionImpl) cond).getLastCondition();
 			}
 			if (cond instanceof AttributeConditionImpl) {
 				AttributeConditionImpl attrcond = (AttributeConditionImpl) cond;
@@ -6110,8 +6115,8 @@ public class CSSParser implements Parser, Cloneable {
 			}
 			Condition cond = ((ConditionalSelectorImpl) simple).getCondition();
 			if (cond.getConditionType() == ConditionType.AND) {
-				// If it wasn't the second condition, we would not be here
-				cond = ((CombinatorCondition) cond).getSecondCondition();
+				// It must be the last condition
+				cond = ((CombinatorConditionImpl) cond).getLastCondition();
 			}
 			((AttributeConditionImpl) cond).setFlag(flag);
 		}
@@ -6127,8 +6132,8 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		private Condition getActiveCondition(Condition cond) {
-			while (cond.getConditionType() == ConditionType.AND) {
-				cond = ((CombinatorConditionImpl) cond).getSecondCondition();
+			if (cond.getConditionType() == ConditionType.AND) {
+				cond = ((CombinatorConditionImpl) cond).getLastCondition();
 			}
 			return cond;
 		}
@@ -6760,9 +6765,8 @@ public class CSSParser implements Parser, Cloneable {
 			if (currentsel instanceof CombinatorSelectorImpl) {
 				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
 				if (simple != null && simple.getSelectorType() == SelectorType.CONDITIONAL) {
-					CombinatorConditionImpl andcond = new CombinatorConditionImpl();
-					andcond.first = ((ConditionalSelectorImpl) simple).getCondition();
-					andcond.second = condition;
+					AbstractCondition firstcond = ((ConditionalSelectorImpl) simple).getCondition();
+					CombinatorConditionImpl andcond = firstcond.appendCondition(condition);
 					((CombinatorSelectorImpl) currentsel).simpleSelector = factory
 							.createConditionalSelector(
 									((ConditionalSelectorImpl) simple).getSimpleSelector(),
@@ -6776,9 +6780,8 @@ public class CSSParser implements Parser, Cloneable {
 			} else {
 				if (currentsel != null
 						&& currentsel.getSelectorType() == SelectorType.CONDITIONAL) {
-					CombinatorConditionImpl andcond = new CombinatorConditionImpl();
-					andcond.first = ((ConditionalSelectorImpl) currentsel).getCondition();
-					andcond.second = condition;
+					AbstractCondition firstcond = ((ConditionalSelectorImpl) currentsel).getCondition();
+					CombinatorConditionImpl andcond = firstcond.appendCondition(condition);
 					currentsel = factory.createConditionalSelector(
 							((ConditionalSelectorImpl) currentsel).getSimpleSelector(), andcond);
 				} else {
@@ -6943,8 +6946,8 @@ public class CSSParser implements Parser, Cloneable {
 			case CONDITIONAL:
 				Condition cond = ((ConditionalSelectorImpl) currentsel).getCondition();
 				ConditionType condtype = cond.getConditionType();
-				while (condtype == ConditionType.AND) {
-					cond = ((CombinatorCondition) cond).getSecondCondition();
+				if (condtype == ConditionType.AND) {
+					cond = ((CombinatorConditionImpl) cond).getLastCondition();
 					if (cond == null) {
 						return false;
 					}

@@ -118,8 +118,10 @@ public class Specificity implements java.io.Serializable {
 			break;
 		case AND:
 			CombinatorCondition comb = (CombinatorCondition) cond;
-			conditionSpecificity(comb.getFirstCondition());
-			conditionSpecificity(comb.getSecondCondition());
+			int len = comb.getLength();
+			for (int i = 0; i < len; i++) {
+				conditionSpecificity(comb.getCondition(i));
+			}
 			break;
 		case SELECTOR_ARGUMENT:
 			ArgumentCondition acond = (ArgumentCondition) cond;

@@ -467,24 +467,27 @@ public class SelectorParserNSTest {
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
-		cond = ((CombinatorCondition) cond).getFirstCondition();
-		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
-		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
-		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
-		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
 
-		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
+
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("foo", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("bar", ((AttributeCondition) firstcond).getValue());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((AttributeCondition) firstcond).getNamespaceURI());
 		assertTrue(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) secondcond).getValue());
 		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
+		Condition thirdcond = ((CombinatorCondition) cond).getCondition(2);
+		assertEquals(ConditionType.ATTRIBUTE, thirdcond.getConditionType());
+		assertEquals("dir", ((AttributeCondition) thirdcond).getLocalName());
+		assertEquals("auto", ((AttributeCondition) thirdcond).getValue());
+		assertTrue(((AttributeCondition) thirdcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());

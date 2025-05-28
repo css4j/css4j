@@ -46,8 +46,10 @@ abstract public class AttributeConditionVisitor extends ConditionVisitor
 			switch (condition.getConditionType()) {
 			case AND:
 				CombinatorCondition comb = (CombinatorCondition) condition;
-				visit(comb.getFirstCondition());
-				visit(comb.getSecondCondition());
+				int len = comb.getLength();
+				for (int i = 0; i < len; i++) {
+					visit(comb.getCondition(i));
+				}
 				break;
 			case POSITIONAL:
 				SelectorList selist = ((PositionalCondition) condition).getOfList();

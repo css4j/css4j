@@ -279,8 +279,13 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 			return matches(simple) && matchesPseudoelement((PseudoCondition) cond);
 		case AND:
 			CombinatorCondition comb = (CombinatorCondition) cond;
-			return matchCondition(comb.getFirstCondition(), simple)
-					&& matchCondition(comb.getSecondCondition(), simple);
+			int len = comb.getLength();
+			for (int i = 0; i < len; i++) {
+				if (!matchCondition(comb.getCondition(i), simple)) {
+					return false;
+				}
+			}
+			return true;
 		case ONLY_CHILD:
 			return matches(simple) && isOnlyChild();
 		case ONLY_TYPE:
@@ -592,10 +597,13 @@ abstract public class AbstractSelectorMatcher implements SelectorMatcher, java.i
 			}
 			if (pe.getConditionType() == ConditionType.AND) {
 				CombinatorCondition comb = (CombinatorCondition) pe;
-				return pseudo.getName()
-						.equals(((PseudoCondition) comb.getFirstCondition()).getName())
-						|| pseudo.getName()
-								.equals(((PseudoCondition) comb.getSecondCondition()).getName());
+				int len = comb.getLength();
+				for (int i = 0; i < len; i++) {
+					if (pseudo.getName()
+							.equals(((PseudoCondition) comb.getCondition(i)).getName())) {
+						return true;
+					}
+				}
 			}
 		}
 		return false;
