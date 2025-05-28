@@ -33,6 +33,9 @@ class OperatorUnitImpl extends LexicalUnitImpl {
 		case OPERATOR_COMMA:
 			s = ",";
 			break;
+		case OPERATOR_COLON:
+			s = ":";
+			break;
 		case OPERATOR_SEMICOLON:
 			s = ";";
 			break;

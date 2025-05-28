@@ -29,7 +29,7 @@ class FunctionFactories {
 	private final Map<String, LexicalUnitFactory> factories = createFactoryMap();
 
 	private Map<String, LexicalUnitFactory> createFactoryMap() {
-		Map<String, LexicalUnitFactory> factories = new HashMap<>(100);
+		Map<String, LexicalUnitFactory> factories = new HashMap<>(101);
 
 		factories.put("calc", new LexicalUnitFactory() {
 
@@ -138,6 +138,15 @@ class FunctionFactories {
 				parent.yieldHandling(handler);
 				// Change prevcp to 41 for comments
 				parent.prevcp = TokenProducer.CHAR_RIGHT_PAREN;
+			}
+
+		});
+
+		factories.put("if", new LexicalUnitFactory() {
+
+			@Override
+			public LexicalUnitImpl createUnit() {
+				return new GenericFunctionUnitImpl();
 			}
 
 		});

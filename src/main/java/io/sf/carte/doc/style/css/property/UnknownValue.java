@@ -128,6 +128,12 @@ public class UnknownValue extends AbstractTextValue {
 			case OPERATOR_TILDE:
 				text = "~";
 				break;
+			case OPERATOR_COLON:
+				text = ":";
+				break;
+			case OPERATOR_SEMICOLON:
+				text = ";";
+				break;
 			case COMPAT_PRIO:
 				priorityCompat = true;
 			case COMPAT_IDENT:

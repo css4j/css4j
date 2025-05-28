@@ -3173,6 +3173,81 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueFunctionIf() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("IF(style(--color: white): #000; else: #fff)");
+		assertEquals("if", lu.getFunctionName());
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals("style", param.getFunctionName());
+
+		LexicalUnit styleparam = param.getParameters();
+		assertNotNull(styleparam);
+		assertEquals(LexicalType.IDENT, styleparam.getLexicalUnitType());
+		assertEquals("--color", styleparam.getStringValue());
+		styleparam = styleparam.getNextLexicalUnit();
+		assertNotNull(styleparam);
+		assertEquals(LexicalType.OPERATOR_COLON, styleparam.getLexicalUnitType());
+		styleparam = styleparam.getNextLexicalUnit();
+		assertNotNull(styleparam);
+		assertEquals(LexicalType.IDENT, styleparam.getLexicalUnitType());
+		assertEquals("white", styleparam.getStringValue());
+		assertNull(styleparam.getNextLexicalUnit());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COLON, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.RGBCOLOR, param.getLexicalUnitType());
+		assertEquals("rgb", param.getFunctionName());
+		LexicalUnit rgbparam = param.getParameters();
+		assertEquals(LexicalType.INTEGER, rgbparam.getLexicalUnitType());
+		assertEquals(0, rgbparam.getIntegerValue());
+		rgbparam = rgbparam.getNextLexicalUnit();
+		assertEquals(LexicalType.INTEGER, rgbparam.getLexicalUnitType());
+		assertEquals(0, rgbparam.getIntegerValue());
+		rgbparam = rgbparam.getNextLexicalUnit();
+		assertEquals(LexicalType.INTEGER, rgbparam.getLexicalUnitType());
+		assertEquals(0, rgbparam.getIntegerValue());
+		assertNull(rgbparam.getNextLexicalUnit());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SEMICOLON, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("else", param.getStringValue());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COLON, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.RGBCOLOR, param.getLexicalUnitType());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", param.getFunctionName());
+
+		param = param.getParameters();
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(255, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(255, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(255, param.getIntegerValue());
+
+		assertEquals("if(style(--color: white): #000; else: #fff)", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueFunctionSwitch() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("switch(var(--foo); transparent; #fff)");
 		assertEquals("switch", lu.getFunctionName());

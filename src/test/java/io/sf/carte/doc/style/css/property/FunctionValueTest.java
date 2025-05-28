@@ -311,6 +311,18 @@ public class FunctionValueTest {
 	}
 
 	@Test
+	public void testIf() {
+		style.setCssText("background-color: if(style(--color: white): black; else: white);");
+		FunctionValue val = (FunctionValue) style.getPropertyCSSValue("background-color");
+		assertNotNull(val);
+		assertEquals(CSSValue.Type.FUNCTION, val.getPrimitiveType());
+		assertEquals("if", val.getStringValue());
+		assertEquals("if", val.getFunctionName());
+		assertEquals("if(style(--color : white) : black ; else : white)", val.getCssText());
+		assertEquals("if(style(--color : white) : black ; else : white)", val.getMinifiedCssText());
+	}
+
+	@Test
 	public void testGetCssTextBracketList() {
 		style.setCssText("grid-template-columns: repeat(3, [line1 line2 line3] 200px); ");
 		StyleValue cssval = style.getPropertyCSSValue("grid-template-columns");

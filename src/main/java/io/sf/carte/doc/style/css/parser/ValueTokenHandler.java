@@ -103,7 +103,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 	}
 
 	boolean allowSemicolonArgument() {
-		return "switch".equalsIgnoreCase(currentlu.value);
+		return "if".equalsIgnoreCase(currentlu.value) || "switch".equalsIgnoreCase(currentlu.value);
 	}
 
 	@Override
@@ -692,7 +692,15 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			buffer.append(':');
 			handleWarning(index, ParseHelper.WARN_PROGID_HACK, "Progid hack applied");
 		} else if (functionToken) {
-			unexpectedCharError(index, TokenProducer.CHAR_COLON);
+			// TODO more efficiently
+			String s = currentlu.value;
+			if (s != null && ("if".equals(s = s.toLowerCase(Locale.ROOT)) || "media".equals(s)
+					|| "style".equals(s) || "supports".equals(s))) {
+				processBuffer(index, TokenProducer.CHAR_COLON);
+				newOperator(LexicalType.OPERATOR_COLON);
+			} else {
+				unexpectedCharError(index, TokenProducer.CHAR_COLON);
+			}
 		} else {
 			handlePseudo(index);
 		}

@@ -614,6 +614,7 @@ public class ValueFactory implements CSSValueFactory {
 		case OPERATOR_MINUS:
 		case OPERATOR_MULTIPLY:
 		case OPERATOR_PLUS:
+		case OPERATOR_COLON:
 		case OPERATOR_SEMICOLON:
 		case OPERATOR_SLASH:
 		case OPERATOR_TILDE:
@@ -1274,9 +1275,8 @@ public class ValueFactory implements CSSValueFactory {
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case OPERATOR_COMMA:
-			case OPERATOR_SEMICOLON:
 				throw new DOMException(DOMException.SYNTAX_ERR,
-					"A comma or semicolon is not a valid primitive");
+					"A comma is not a valid primitive");
 			case INHERIT:
 			case UNSET:
 			case REVERT:
@@ -1292,6 +1292,8 @@ public class ValueFactory implements CSSValueFactory {
 			case OPERATOR_PLUS:
 			case OPERATOR_MINUS:
 			case OPERATOR_MULTIPLY:
+			case OPERATOR_COLON:
+			case OPERATOR_SEMICOLON:
 				if (!lunit.isParameter()) {
 					throw new DOMException(DOMException.SYNTAX_ERR,
 							"A '" + lunit.toString() + "' is not a valid primitive");

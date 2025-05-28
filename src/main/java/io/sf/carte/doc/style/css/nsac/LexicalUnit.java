@@ -52,6 +52,11 @@ public interface LexicalUnit {
 		OPERATOR_COMMA,
 
 		/**
+		 * :
+		 */
+		OPERATOR_COLON,
+
+		/**
 		 * ;
 		 */
 		OPERATOR_SEMICOLON,

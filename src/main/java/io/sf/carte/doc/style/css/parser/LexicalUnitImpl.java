@@ -394,6 +394,7 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			case EMPTY:
 				needSpaces = false;
 			case OPERATOR_COMMA:
+			case OPERATOR_COLON:
 			case OPERATOR_SEMICOLON:
 				break;
 			case RIGHT_BRACKET:
@@ -447,6 +448,8 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			return "revert";
 		case OPERATOR_COMMA:
 			return ",";
+		case OPERATOR_COLON:
+			return ":";
 		case OPERATOR_SEMICOLON:
 			return ";";
 		case OPERATOR_EXP:
