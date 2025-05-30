@@ -47,6 +47,18 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 	}
 
 	@Override
+	ConditionalSelectorImpl withCondition(NSACSelectorFactory factory, AbstractCondition cond) {
+		SimpleSelector simple;
+		if (selector == null) {
+			simple = NSACSelectorFactory.getUniversalSelector();
+		} else {
+			simple = selector;
+		}
+		CombinatorConditionImpl newCond = this.condition.appendCondition(cond);
+		return factory.createConditionalSelector(simple, newCond);
+	}
+
+	@Override
 	Selector replace(SelectorList base, MutableBoolean replaced) {
 		AbstractCondition replCond;
 
@@ -74,7 +86,7 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 			replCond = is;
 		} else if (condition.getConditionType() == ConditionType.AND && base.getLength() == 1
 				&& (selector == null || selector.getSelectorType() == SelectorType.UNIVERSAL)
-				&& (base0 = base.item(0)) instanceof SimpleSelector) {
+				&& ((AbstractSelector) (base0 = base.item(0))).isSimpleSelector()) {
 			comb = (CombinatorConditionImpl) condition;
 			int len = comb.getLength();
 			CombinatorConditionImpl newCombCond = new CombinatorConditionImpl(len);
@@ -106,8 +118,9 @@ abstract class ConditionalSelectorImpl extends AbstractSelector implements Condi
 			AbstractCondition cond1 = comb.getFirstCondition();
 			if (cond1.getConditionType() == ConditionType.NESTING) {
 				AbstractCondition newcond = newCombCond.removeFirstCondition();
-				ConditionalSelectorImpl newsel = getSelectorFactory()
-						.createConditionalSelector((SimpleSelector) base0, newcond);
+				// base0 is a SimpleSelector, so we can do this
+				ConditionalSelectorImpl newsel = ((AbstractSelector) base0)
+						.withCondition(getSelectorFactory(), newcond);
 
 				replaced.setTrueValue();
 				return newsel;

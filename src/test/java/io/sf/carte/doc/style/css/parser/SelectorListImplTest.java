@@ -54,6 +54,39 @@ public class SelectorListImplTest {
 	}
 
 	@Test
+	public void testReplaceImplicitDescendantUniversal() {
+		SelectorList base = parseSelectors("*");
+		SelectorList selist = parseSelectors("p");
+
+		SelectorList replaced = selist.replaceNested(base);
+
+		assertEquals(1, replaced.getLength());
+		assertEquals("* p", replaced.toString());
+	}
+
+	@Test
+	public void testReplaceImplicitDescendantUniversal2() {
+		SelectorList base = parseSelectors("*");
+		SelectorList selist = parseSelectors("*");
+
+		SelectorList replaced = selist.replaceNested(base);
+
+		assertEquals(1, replaced.getLength());
+		assertEquals("* *", replaced.toString());
+	}
+
+	@Test
+	public void testReplaceImplicitDescendantUniversalFromType() {
+		SelectorList base = parseSelectors("p");
+		SelectorList selist = parseSelectors("*");
+
+		SelectorList replaced = selist.replaceNested(base);
+
+		assertEquals(1, replaced.getLength());
+		assertEquals("p *", replaced.toString());
+	}
+
+	@Test
 	public void testReplaceImplicitClassDescendant() {
 		SelectorList base = parseSelectors("div>p");
 		SelectorList selist = parseSelectors(".cls");
@@ -229,6 +262,22 @@ public class SelectorListImplTest {
 
 		assertEquals(1, replaced.getLength());
 		assertEquals(":nth-child(even of div>p span)", replaced.toString());
+	}
+
+	@Test
+	public void testReplacePositional() {
+		SelectorList base = parseSelectors("p:last-child");
+		SelectorList selist = parseSelectors("&:nth-child(2)");
+
+		assertEquals("&:nth-child(2)", selist.toString());
+
+		SelectorList replaced = selist.replaceNested(base);
+
+		assertEquals(1, replaced.getLength());
+		assertEquals("p:last-child:nth-child(2)", replaced.toString());
+
+		SelectorList parsed = parseSelectors("p:last-child:nth-child(2)");
+		assertEquals(replaced, parsed);
 	}
 
 	@Test

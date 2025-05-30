@@ -31,8 +31,40 @@ abstract class AbstractSelector implements Selector, Cloneable, java.io.Serializ
 		return false;
 	}
 
-	Selector descendant(SelectorList base) {
-		NSACSelectorFactory factory = getSelectorFactory();
+	/**
+	 * Create a conditional from this simple selector, where it has the given
+	 * condition.
+	 * <p>
+	 * <b>This method can only be called on simple selectors.</b>
+	 * </p>
+	 * 
+	 * @param factory   the selector factory.
+	 * @param condition the condition.
+	 * 
+	 * @return the new conditional selector.
+	 */
+	ConditionalSelectorImpl withCondition(NSACSelectorFactory factory,
+			AbstractCondition condition) {
+		return factory.createConditionalSelector((SimpleSelector) this, condition);
+	}
+
+	/**
+	 * Create a selector that is a descendant from base.
+	 * 
+	 * @param base the ancestor selector list.
+	 * @return the descendant selector.
+	 */
+	AbstractSelector descendant(SelectorList base) {
+		NSACSelectorFactory factory;
+		try {
+			factory = getSelectorFactory();
+		} catch (IllegalStateException e) {
+			/*
+			 * Getting the right factory only matters for namespace-aware selectors. Just
+			 * instantiate a new one.
+			 */
+			factory = new NSACSelectorFactory();
+		}
 		CombinatorSelectorImpl comb;
 		if (base.getLength() == 1) {
 			Selector baseSelector = base.item(0);
@@ -41,7 +73,8 @@ abstract class AbstractSelector implements Selector, Cloneable, java.io.Serializ
 			SelectorArgumentConditionImpl is = new SelectorArgumentConditionImpl();
 			is.arguments = base;
 			is.setName("is");
-			ConditionalSelectorImpl condSel = factory.createConditionalSelector(null, is);
+			ConditionalSelectorImpl condSel = factory
+					.createConditionalSelector(NSACSelectorFactory.getUniversalSelector(), is);
 			comb = factory.createCombinatorSelector(SelectorType.DESCENDANT, condSel);
 		}
 
@@ -53,6 +86,10 @@ abstract class AbstractSelector implements Selector, Cloneable, java.io.Serializ
 
 	Selector replace(SelectorList base, MutableBoolean replaced) {
 		return this;
+	}
+
+	boolean isSimpleSelector() {
+		return true;
 	}
 
 	@Override

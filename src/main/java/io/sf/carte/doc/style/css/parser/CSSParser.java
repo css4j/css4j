@@ -3317,9 +3317,23 @@ public class CSSParser implements Parser, Cloneable {
 			}
 
 			private void setNestingSelector(SelectorTokenHandler selh) {
-				NSACSelectorFactory factory = selh.factory;
-				selh.currentsel = factory.createConditionalSelector(
-						(SimpleSelector) selh.currentsel, NestingCondition.getInstance());
+				NestingCondition nesting = NestingCondition.getInstance();
+				if (selh.currentsel == null) {
+					selh.currentsel = selh.factory.createConditionalSelector(
+							NSACSelectorFactory.getUniversalSelector(), nesting);
+				} else if (selh.currentsel.isSimpleSelector()) {
+					selh.currentsel = selh.currentsel.withCondition(selh.factory, nesting);
+				} else {
+					CombinatorSelectorImpl comb = (CombinatorSelectorImpl) selh.currentsel;
+					SimpleSelector simple = comb.simpleSelector;
+					if (simple == null) {
+						simple = selh.factory.createConditionalSelector(
+								NSACSelectorFactory.getUniversalSelector(), nesting);
+					} else {
+						simple = ((AbstractSelector) simple).withCondition(selh.factory, nesting);
+					}
+					comb.simpleSelector = simple;
+				}
 				selh.prevcp = 65;
 				selh.stage = 1;
 			}
@@ -5777,7 +5791,7 @@ public class CSSParser implements Parser, Cloneable {
 		NSACSelectorFactory factory;
 		NamespaceMap nsMap;
 		ParserSelectorListImpl selist = new ParserSelectorListImpl();
-		Selector currentsel = null;
+		AbstractSelector currentsel = null;
 
 		private HashMap<Condition, ConditionSetter> setterMap = new HashMap<>();
 
@@ -6071,16 +6085,17 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		private void setAttributeSelectorValue(int index, CharSequence value) {
+			assert currentsel != null;
 			Condition cond = null;
-			if (currentsel instanceof CombinatorSelectorImpl) {
+			if (!currentsel.isSimpleSelector()) {
 				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
-				if (!(simple instanceof ConditionalSelectorImpl)) {
+				if (simple.getSelectorType() != SelectorType.CONDITIONAL) {
 					throw new IllegalStateException(
 							"Descendant selector has no conditional simple selector");
 				}
 				cond = ((ConditionalSelectorImpl) simple).condition;
-			} else if (currentsel instanceof ConditionalSelectorImpl) {
-				cond = ((ConditionalSelectorImpl) currentsel).condition;
+			} else if (currentsel.getSelectorType() == SelectorType.CONDITIONAL) {
+				cond = ((ConditionalSelectorImpl) currentsel).getCondition();
 			}
 			if (cond instanceof CombinatorConditionImpl) {
 				cond = ((CombinatorConditionImpl) cond).getLastCondition();
@@ -6123,7 +6138,7 @@ public class CSSParser implements Parser, Cloneable {
 
 		private Selector getActiveSelector() {
 			Selector sel;
-			if (currentsel instanceof CombinatorSelectorImpl) {
+			if (currentsel != null && !currentsel.isSimpleSelector()) {
 				sel = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
 			} else {
 				sel = currentsel;
@@ -6762,30 +6777,19 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		private void setConditionalSelector(AbstractCondition condition) {
-			if (currentsel instanceof CombinatorSelectorImpl) {
-				Selector simple = ((CombinatorSelectorImpl) currentsel).getSecondSelector();
-				if (simple != null && simple.getSelectorType() == SelectorType.CONDITIONAL) {
-					AbstractCondition firstcond = ((ConditionalSelectorImpl) simple).getCondition();
-					CombinatorConditionImpl andcond = firstcond.appendCondition(condition);
-					((CombinatorSelectorImpl) currentsel).simpleSelector = factory
-							.createConditionalSelector(
-									((ConditionalSelectorImpl) simple).getSimpleSelector(),
-									andcond);
-				} else {
-					((CombinatorSelectorImpl) currentsel).simpleSelector = factory
-							.createConditionalSelector(
-									((CombinatorSelectorImpl) currentsel).simpleSelector,
-									condition);
-				}
+			if (currentsel == null) {
+				currentsel = factory.createConditionalSelector((SimpleSelector) currentsel,
+						condition);
+			} else if (currentsel.isSimpleSelector()) {
+				currentsel = currentsel.withCondition(factory, condition);
 			} else {
-				if (currentsel != null
-						&& currentsel.getSelectorType() == SelectorType.CONDITIONAL) {
-					AbstractCondition firstcond = ((ConditionalSelectorImpl) currentsel).getCondition();
-					CombinatorConditionImpl andcond = firstcond.appendCondition(condition);
-					currentsel = factory.createConditionalSelector(
-							((ConditionalSelectorImpl) currentsel).getSimpleSelector(), andcond);
+				CombinatorSelectorImpl combsel = (CombinatorSelectorImpl) currentsel;
+				Selector simple = combsel.simpleSelector;
+				if (simple == null) {
+					combsel.simpleSelector = factory.createConditionalSelector(
+							NSACSelectorFactory.getUniversalSelector(), condition);
 				} else {
-					currentsel = factory.createConditionalSelector((SimpleSelector) currentsel,
+					combsel.simpleSelector = ((AbstractSelector) simple).withCondition(factory,
 							condition);
 				}
 			}
@@ -6839,14 +6843,14 @@ public class CSSParser implements Parser, Cloneable {
 		}
 
 		private void setSimpleSelector(int index, SimpleSelector simple) {
-			if (currentsel instanceof CombinatorSelectorImpl) {
+			if (currentsel == null) {
+				currentsel = (AbstractSelector) simple;
+			} else if (!currentsel.isSimpleSelector()) {
 				((CombinatorSelectorImpl) currentsel).simpleSelector = simple;
-			} else if (currentsel != null) {
+			} else {
 				handleError(index - buffer.length(), ParseHelper.ERR_UNEXPECTED_TOKEN,
 						"Unexpected token after '" + currentsel.toString() + "': "
 								+ simple.toString());
-			} else {
-				currentsel = simple;
 			}
 		}
 

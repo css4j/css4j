@@ -165,7 +165,7 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 		};
 	}
 
-	Selector createScopeSelector() {
+	AbstractSelector createScopeSelector() {
 		return new ScopeSelector();
 	}
 
@@ -412,7 +412,18 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 		}
 
 		@Override
-		Selector descendant(SelectorList base) {
+		boolean isSimpleSelector() {
+			return false;
+		}
+
+		@Override
+		ConditionalSelectorImpl withCondition(NSACSelectorFactory factory,
+				AbstractCondition condition) {
+			throw new IllegalStateException("Not a simple selector.");
+		}
+
+		@Override
+		AbstractSelector descendant(SelectorList base) {
 			CombinatorSelectorImpl clon = clone();
 			clon.selector = ((AbstractSelector) selector).descendant(base);
 			return clon;
@@ -422,48 +433,31 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 		Selector replace(SelectorList base, MutableBoolean replaced) {
 			CombinatorSelectorImpl clon = clone();
 			clon.selector = ((AbstractSelector) clon.selector).replace(base, replaced);
-			Selector replSel = ((AbstractSelector) clon.simpleSelector).replace(base, replaced);
-			SelectorType replType = replSel.getSelectorType();
-			switch (replType) {
-			case DESCENDANT:
-			case CHILD:
-			case COLUMN_COMBINATOR:
-			case DIRECT_ADJACENT:
-			case SUBSEQUENT_SIBLING:
-				switch (getSelectorType()) {
-				case DESCENDANT:
-				case CHILD:
-				case COLUMN_COMBINATOR:
-				case DIRECT_ADJACENT:
-				case SUBSEQUENT_SIBLING:
-					CombinatorSelectorImpl replComb = (CombinatorSelectorImpl) replSel;
-					CombinatorSelectorImpl comb = getSelectorFactory()
-							.createCombinatorSelector(replType, clon);
-					if (replComb.selector instanceof SimpleSelector) {
-						clon.simpleSelector = (SimpleSelector) replComb.selector;
-					} else {
-						NSACSelectorFactory factory = getSelectorFactory();
-						SelectorArgumentConditionImpl is = new SelectorArgumentConditionImpl();
-						SelectorListImpl selist = new SelectorListImpl();
-						selist.add(replComb.selector);
-						is.arguments = selist;
-						is.setName("is");
-						clon.simpleSelector = factory.createConditionalSelector(null, is);
-					}
-					comb.simpleSelector = replComb.simpleSelector;
-					clon = comb;
-					break;
-				default:
-					clon.simpleSelector = (SimpleSelector) replSel;
-					break;
-				}
-				break;
-			default:
-				clon.simpleSelector = (SimpleSelector) replSel;
-				break;
-			}
+			AbstractSelector replSel = (AbstractSelector) ((AbstractSelector) clon.simpleSelector)
+					.replace(base, replaced);
 
-			return clon;
+			if (replSel.isSimpleSelector()) {
+				clon.simpleSelector = (SimpleSelector) replSel;
+				return clon;
+			} else {
+				CombinatorSelectorImpl replComb = (CombinatorSelectorImpl) replSel;
+				CombinatorSelectorImpl comb = getSelectorFactory()
+						.createCombinatorSelector(replSel.getSelectorType(), clon);
+				if (((AbstractSelector) replComb.selector).isSimpleSelector()) {
+					clon.simpleSelector = (SimpleSelector) replComb.selector;
+				} else {
+					NSACSelectorFactory factory = getSelectorFactory();
+					SelectorArgumentConditionImpl is = new SelectorArgumentConditionImpl();
+					SelectorListImpl selist = new SelectorListImpl();
+					selist.add(replComb.selector);
+					is.arguments = selist;
+					is.setName("is");
+					clon.simpleSelector = factory.createConditionalSelector(
+							NSACSelectorFactory.getUniversalSelector(), is);
+				}
+				comb.simpleSelector = replComb.simpleSelector;
+				return comb;
+			}
 		}
 
 		@Override
