@@ -18,8 +18,12 @@ public interface CSSGroupingRule extends CSSRule {
 
 	/**
 	 * Get the list of CSS rules nested inside the grouping rule.
+	 * <p>
+	 * Only in the case of style rules, may return {@code null}.
+	 * </p>
 	 * 
-	 * @return a CSSRuleList object for the list of CSS rules nested inside the grouping rule.
+	 * @return a CSSRuleList object for the list of CSS rules nested inside the
+	 *         grouping rule.
 	 */
 	CSSRuleList<? extends CSSRule> getCssRules();
 
