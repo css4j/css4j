@@ -16,6 +16,7 @@ import java.io.StringReader;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
@@ -229,6 +230,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			case LEFT_BRACKET:
 			case OPERATOR_COMMA:
 			case OPERATOR_SEMICOLON:
+			case OPERATOR_COLON:
 				needSpaces = false;
 				break;
 			case RIGHT_BRACKET:
@@ -275,11 +277,37 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 				}
 				buf.append(')');
 				return buf;
+			case EMPTY:
+				/*
+				 * It is encouraged to serialize comments of empty values,
+				 * to avoid re-parsing issues.
+				 */
+				StringList pre = lexicalUnit.getPrecedingComments();
+				if (pre != null) {
+					buf = new StringBuilder();
+					writeComments(pre, buf);
+					return buf;
+				}
+				StringList after = lexicalUnit.getTrailingComments();
+				if (after != null) {
+					buf = new StringBuilder();
+					writeComments(after, buf);
+					return buf;
+				}
+				return "";
 			case ELEMENT_REFERENCE:
 				break;
 			}
 		}
 		return lexicalUnit.getCssText();
+	}
+
+	private static void writeComments(StringList pre, StringBuilder buf) {
+		for (String c : pre) {
+			buf.append("/*");
+			buf.append(c);
+			buf.append("*/");
+		}
 	}
 
 	@Override

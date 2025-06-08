@@ -40,6 +40,9 @@ class EmptyUnitImpl extends LexicalUnitImpl {
 	CharSequence currentToString() {
 		CharSequence seq;
 		StringList comments = getPrecedingComments();
+		if (comments == null) {
+			comments = getTrailingComments();
+		}
 		if (comments != null && !comments.isEmpty()) {
 			Iterator<String> it = comments.iterator();
 			seq = it.next();

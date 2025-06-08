@@ -21,19 +21,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.EnumSet;
 import java.util.stream.Stream;
 
-import io.sf.carte.doc.dom.CSSDOMImplementation;
-import io.sf.carte.doc.style.css.CSSStyleSheet;
-import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
-import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.om.CSSOMParser;
+import io.sf.carte.util.BufferSimpleWriter;
 
 /**
  * Minify a CSS style sheet.
  */
 public class Minify {
+
+	private static final int DEFAULT_BUFFER_SIZE = 256;
 
 	/**
 	 * Prints to standard output a minification of the CSS style sheet located at
@@ -76,7 +74,9 @@ public class Minify {
 		URI uri = new URI(args[0]);
 		Path filePath = Paths.get(uri);
 
-		out.print(minifyCSS(filePath));
+		StringBuilder builder = new StringBuilder(DEFAULT_BUFFER_SIZE);
+		minifyCSS(filePath, builder, err);
+		out.print(builder);
 	}
 
 	/**
@@ -96,18 +96,36 @@ public class Minify {
 	 *         detected.
 	 */
 	public static String minifyCSS(String css) {
-		AbstractCSSStyleSheet sheet = createStyleSheet();
-		// Parse and check for return value
+		return minifyCSS(css, null);
+	}
+
+	/**
+	 * Minifies a CSS style sheet and prints parsing errors to a stream.
+	 * 
+	 * @param css the serialized style sheet.
+	 * @param err the error reporting stream, or {@code null} if no stream.
+	 * @return the minified serialization, or the original one if an error was
+	 *         detected.
+	 */
+	public static String minifyCSS(String css, PrintStream err) {
+		BufferSimpleWriter wri = new BufferSimpleWriter(DEFAULT_BUFFER_SIZE);
+		MinifySheetHandler handler = new MinifySheetHandler(wri);
+		CSSOMParser parser = new CSSOMParser();
+		parser.setDocumentHandler(handler);
+
 		try {
-			if (sheet.parseStyleSheet(new StringReader(css), CSSStyleSheet.COMMENTS_IGNORE)) {
-				// Parsed without errors
-				return sheet.toMinifiedString();
-			}
+			parser.parseStyleSheet(new StringReader(css));
 		} catch (IOException e) {
 			// Cannot happen with StringReader
+		} catch (Exception e) {
+			// Error detected, return the source
+			if (err != null) {
+				e.printStackTrace(err);
+			}
+			return css;
 		}
-		// Error detected, return the source
-		return css;
+
+		return wri.toString();
 	}
 
 	/**
@@ -118,30 +136,62 @@ public class Minify {
 	 *         found.
 	 */
 	public static String minifyCSS(Path cssPath) throws IOException {
-		// Create an empty style sheet
-		AbstractCSSStyleSheet sheet = createStyleSheet();
-
-		// Parse and check for return value
-		try (BufferedReader cssReader = Files.newBufferedReader(cssPath, StandardCharsets.UTF_8)) {
-			if (sheet.parseStyleSheet(cssReader, CSSStyleSheet.COMMENTS_IGNORE)) {
-				// Parsed without errors
-				return sheet.toMinifiedString();
-			}
-		}
-		// Error detected, return the source
-		StringBuilder builder = new StringBuilder(256);
-
-		try (Stream<String> stream = Files.lines(cssPath, StandardCharsets.UTF_8)) {
-			stream.forEach(s -> builder.append(s).append(' '));
-		}
+		StringBuilder builder = new StringBuilder(DEFAULT_BUFFER_SIZE);
+		minifyCSS(cssPath, builder, null);
 		return builder.toString();
 	}
 
-	private static AbstractCSSStyleSheet createStyleSheet() {
-		// Instantiate any style sheet factory, with parser flags allowing IE hacks
-		AbstractCSSStyleSheetFactory cssFactory = new CSSDOMImplementation(
-				EnumSet.allOf(Parser.Flag.class));
-		return cssFactory.createStyleSheet(null, null);
+	/**
+	 * Minifies a CSS style sheet.
+	 * 
+	 * @param cssPath the path to style sheet.
+	 * @param buffer  the buffer to write the minified serialization, or the
+	 *                original file if an error is found.
+	 * @return {@code true} if the style sheet was successfully minified,
+	 *         {@code false} if an error was found and the original file was
+	 *         returned.
+	 */
+	public static boolean minifyCSS(Path cssPath, StringBuilder buffer)
+			throws IOException {
+		return minifyCSS(cssPath, buffer, null);
+	}
+
+	/**
+	 * Minifies a CSS style sheet.
+	 * 
+	 * @param cssPath the path to style sheet.
+	 * @param buffer  the buffer to write the minified serialization, or the
+	 *                original file if an error is found.
+	 * @param err     the error reporting stream, or {@code null} if no stream.
+	 * @return {@code true} if the style sheet was successfully minified,
+	 *         {@code false} if an error was found and the original file was
+	 *         returned.
+	 */
+	public static boolean minifyCSS(Path cssPath, StringBuilder buffer, PrintStream err)
+			throws IOException {
+		BufferSimpleWriter wri = new BufferSimpleWriter(buffer);
+		MinifySheetHandler handler = new MinifySheetHandler(wri);
+		CSSOMParser parser = new CSSOMParser();
+		parser.setDocumentHandler(handler);
+
+		try (BufferedReader cssReader = Files.newBufferedReader(cssPath, StandardCharsets.UTF_8)) {
+			parser.parseStyleSheet(cssReader);
+			return true;
+		} catch (Exception e) {
+			if (err != null) {
+				e.printStackTrace(err);
+			}
+		}
+
+		// Error detected, return the source but replace NLs (maybe 2 bytes)
+		// with white space.
+		buffer.setLength(0);
+
+		try (Stream<String> stream = Files.lines(cssPath, StandardCharsets.UTF_8)) {
+			stream.forEach(s -> buffer.append(s).append(' '));
+		}
+
+		return false;
 	}
 
 }
