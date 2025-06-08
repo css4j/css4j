@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css.om;
 
+import java.util.EnumSet;
+
 import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 
@@ -24,6 +26,15 @@ public class CSSOMParser extends CSSParser {
 	 */
 	public CSSOMParser() {
 		super();
+	}
+
+	/**
+	 * Instantiate a parser instance with the given flags.
+	 * 
+	 * @param parserFlags the flags.
+	 */
+	public CSSOMParser(EnumSet<Flag> parserFlags) {
+		super(parserFlags);
 	}
 
 	protected CSSOMParser(CSSParser copyMe) {
