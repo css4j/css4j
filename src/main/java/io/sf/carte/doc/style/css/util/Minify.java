@@ -21,9 +21,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.EnumSet;
 import java.util.stream.Stream;
 
+import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.util.BufferSimpleWriter;
 
 /**
@@ -110,7 +113,7 @@ public class Minify {
 	public static String minifyCSS(String css, PrintStream err) {
 		BufferSimpleWriter wri = new BufferSimpleWriter(DEFAULT_BUFFER_SIZE);
 		MinifySheetHandler handler = new MinifySheetHandler(wri);
-		CSSOMParser parser = new CSSOMParser();
+		CSSParser parser = createCSSParser();
 		parser.setDocumentHandler(handler);
 
 		try {
@@ -126,6 +129,12 @@ public class Minify {
 		}
 
 		return wri.toString();
+	}
+
+	private static CSSParser createCSSParser() {
+		// Instantiate a parser with flags allowing IE hacks
+		return new CSSOMParser(EnumSet.of(Parser.Flag.IEPRIO, Parser.Flag.IEPRIOCHAR,
+				Parser.Flag.IEVALUES, Parser.Flag.STARHACK));
 	}
 
 	/**
@@ -171,7 +180,7 @@ public class Minify {
 			throws IOException {
 		BufferSimpleWriter wri = new BufferSimpleWriter(buffer);
 		MinifySheetHandler handler = new MinifySheetHandler(wri);
-		CSSOMParser parser = new CSSOMParser();
+		CSSParser parser = createCSSParser();
 		parser.setDocumentHandler(handler);
 
 		try (BufferedReader cssReader = Files.newBufferedReader(cssPath, StandardCharsets.UTF_8)) {

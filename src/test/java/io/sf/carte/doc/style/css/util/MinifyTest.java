@@ -14,27 +14,66 @@ package io.sf.carte.doc.style.css.util;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.EnumSet;
 
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.DOMException;
+
+import io.sf.carte.doc.dom.CSSDOMImplementation;
+import io.sf.carte.doc.style.css.CSSStyleSheet;
+import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
+import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
 
 class MinifyTest {
 
 	@Test
-	void testMain() throws URISyntaxException, IOException {
+	void testUA_Sheet() throws URISyntaxException, IOException {
+		final String HTML_UA_STYLE_SHEET = "/io/sf/carte/doc/style/css/html.css";
 		String[] args = new String[1];
-		args[0] = MinifyTest.class.getResource("/io/sf/carte/doc/style/css/html.css")
-				.toExternalForm();
-		final int FINAL_LENGTH = 6184;
-		ByteArrayOutputStream out = new ByteArrayOutputStream(FINAL_LENGTH);
+		args[0] = MinifyTest.class.getResource(HTML_UA_STYLE_SHEET).toExternalForm();
+		final int MINIFIED_LENGTH = 6184;
+		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		Minify.main(args, ps, System.err);
-		assertEquals(FINAL_LENGTH, out.size());
+
+		// Test for the expected length
+		if (MINIFIED_LENGTH != out.size()) {
+			// Check equivalence at OM level, to figure out the issue
+			failureCheck(HTML_UA_STYLE_SHEET, out.toByteArray());
+		}
+	}
+
+	private void failureCheck(String resourcePath, byte[] cand) throws DOMException, IOException {
+		// Instantiate any style sheet factory, with parser flags allowing IE hacks
+		AbstractCSSStyleSheetFactory cssFactory = new CSSDOMImplementation(
+				EnumSet.allOf(Parser.Flag.class));
+
+		AbstractCSSStyleSheet sheet = cssFactory.createStyleSheet(null, null);
+		try (Reader re = new InputStreamReader(MinifyTest.class.getResourceAsStream(resourcePath),
+				StandardCharsets.UTF_8)) {
+			sheet.parseStyleSheet(re, CSSStyleSheet.COMMENTS_IGNORE);
+		}
+
+		ByteArrayInputStream in = new ByteArrayInputStream(cand);
+		AbstractCSSStyleSheet minisheet = cssFactory.createStyleSheet(null, null);
+		Reader re = new InputStreamReader(in, StandardCharsets.UTF_8);
+		minisheet.parseStyleSheet(re, CSSStyleSheet.COMMENTS_IGNORE);
+
+		// Check that original and minified sheets are identical at OM level
+		assertEquals(sheet, minisheet);
+
+		fail("Please fix the value of MINIFIED_LENGTH.");
 	}
 
 	@Test
