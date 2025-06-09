@@ -225,7 +225,9 @@ public interface CSSStyleSheet<R extends CSSRule> extends org.w3c.dom.css.CSSSty
 	 *             {@link #createSupportsRule(BooleanCondition)}
 	 */
 	@Deprecated
-	CSSSupportsRule createSupportsRule();
+	default CSSSupportsRule createSupportsRule() {
+		throw new IllegalStateException("Deprecated operation.");
+	}
 
 	/**
 	 * Create a CSSSupportsRule compatible with this implementation.
