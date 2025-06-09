@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
@@ -1137,6 +1138,33 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 
 	protected String getTargetMedium() {
 		return null;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ Objects.hash(cssRules, destinationMedia, disabled, href, namespaces, sheetOrigin);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof BaseCSSStyleSheet)) {
+			return false;
+		}
+		BaseCSSStyleSheet other = (BaseCSSStyleSheet) obj;
+		return Objects.equals(cssRules, other.cssRules)
+				&& Objects.equals(destinationMedia, other.destinationMedia)
+				&& disabled == other.disabled && Objects.equals(href, other.href)
+				&& Objects.equals(namespaces, other.namespaces) && sheetOrigin == other.sheetOrigin;
 	}
 
 	/**

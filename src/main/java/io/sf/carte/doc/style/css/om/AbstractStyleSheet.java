@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.stylesheets.StyleSheet;
@@ -56,6 +57,23 @@ abstract public class AbstractStyleSheet implements StyleSheet, Cloneable, java.
 
 	protected void setTitle(String title) {
 		advisoryTitle = title;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(advisoryTitle);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof AbstractStyleSheet)) {
+			return false;
+		}
+		AbstractStyleSheet other = (AbstractStyleSheet) obj;
+		return Objects.equals(advisoryTitle, other.advisoryTitle);
 	}
 
 	/**
