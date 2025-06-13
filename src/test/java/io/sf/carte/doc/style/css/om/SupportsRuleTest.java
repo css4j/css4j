@@ -503,7 +503,7 @@ public class SupportsRuleTest {
 		SupportsRule rule = parseStyleSheet(
 				"@supports (background: radial-gradient(closest-side,#ff0000,#a2f3a1)){.foo .bar:first-child{background:radial-gradient(closest-side,rgb(32 45 46/0),#da212e),url(\"//example.com/img/image.jpg\");background-size:600px 600px}}");
 		assertEquals(
-				"@supports(background:radial-gradient(closest-side,#f00,#a2f3a1)){.foo .bar:first-child{background:radial-gradient(closest-side,rgb(32 45 46/0),#da212e),url(\"//example.com/img/image.jpg\");background-size:600px 600px}}",
+				"@supports(background:radial-gradient(closest-side,#f00,#a2f3a1)){.foo .bar:first-child{background:radial-gradient(closest-side,rgb(32 45 46/0),#da212e),url(//example.com/img/image.jpg);background-size:600px 600px}}",
 				rule.getMinifiedCssText());
 		SupportsRule rule2 = parseStyleSheet(
 				"@supports (background: radial-gradient(closest-side, #f00, #a2f3a1)) {.foo .bar:first-child {background: radial-gradient(closest-side, rgb(32 45 46 / 0), #da212e), url('//example.com/img/image.jpg');background-size: 600px 600px;}}");

@@ -85,7 +85,7 @@ public class FontFaceRuleTest {
 				"@font-face {\n    font-family: 'Mechanical Bold';\n    src: url('font/MechanicalBd.otf');\n    font-feature-settings: normal;\n    font-variation-settings: normal;\n    font-stretch: extra-expanded;\n}\n",
 				ffrule.getCssText());
 		assertEquals(
-				"@font-face{font-family:'Mechanical Bold';src:url('font/MechanicalBd.otf');font-feature-settings:normal;font-variation-settings:normal;font-stretch:extra-expanded}",
+				"@font-face{font-family:'Mechanical Bold';src:url(font/MechanicalBd.otf);font-feature-settings:normal;font-variation-settings:normal;font-stretch:extra-expanded}",
 				ffrule.getMinifiedCssText());
 		assertEquals("url('font/MechanicalBd.otf')", ffrule.getStyle().getPropertyValue("src"));
 	}
@@ -119,7 +119,7 @@ public class FontFaceRuleTest {
 		assertEquals("url(\"fonts/foo-file.svg#bar-icons\") format('svg')",
 				ffrule.getStyle().getPropertyValue("src"));
 		assertEquals(
-				"@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}",
+				"@font-face{font-family:\"foo-family\";src:url(fonts/foo-file.svg#bar-icons) format('svg')}",
 				ffrule.getMinifiedCssText());
 	}
 
@@ -146,7 +146,7 @@ public class FontFaceRuleTest {
 				"@font-face {\n    font-family: 'FooSans';\n    src: url('font/FooSans.woff2') format('woff2');\n}\n",
 				ffrule.getCssText());
 		assertEquals(
-				"@font-face{font-family:'FooSans';src:url('font/FooSans.woff2') format('woff2')}",
+				"@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}",
 				ffrule.getMinifiedCssText());
 	}
 
@@ -183,7 +183,7 @@ public class FontFaceRuleTest {
 				"@font-face {\n    font-family: 'FooSans';\n    src: url('font/FooSans.woff2') format('woff2');\n}\n",
 				ffrule.getCssText());
 		assertEquals(
-				"@font-face{font-family:'FooSans';src:url('font/FooSans.woff2') format('woff2')}",
+				"@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}",
 				ffrule.getMinifiedCssText());
 		SheetErrorHandler eh = sheet.getErrorHandler();
 		assertTrue(eh.hasSacErrors());
@@ -225,7 +225,7 @@ public class FontFaceRuleTest {
 				"@font-face {\n    font-family: Montserrat;\n    font-style: normal;\n    font-weight: 700;\n    src: local('Montserrat-Bold'), url('//fonts.gstatic.com/s/montserrat/v6/IQHow_FEY_Y.woff2') format(\"woff2\");\n    unicode-range: U+00??, U+131, U+152-153, U+2c6, U+2da, U+2dc, U+2000-206f, U+2074, U+20ac, U+2212, U+2215, U+e0ff, U+effd, U+f000;\n}\n",
 				ffrule.getCssText());
 		assertEquals(
-				"@font-face{font-family:Montserrat;font-style:normal;font-weight:700;src:local('Montserrat-Bold'),url('//fonts.gstatic.com/s/montserrat/v6/IQHow_FEY_Y.woff2') format(\"woff2\");unicode-range:U+00??,U+131,U+152-153,U+2c6,U+2da,U+2dc,U+2000-206f,U+2074,U+20ac,U+2212,U+2215,U+e0ff,U+effd,U+f000}",
+				"@font-face{font-family:Montserrat;font-style:normal;font-weight:700;src:local('Montserrat-Bold'),url(//fonts.gstatic.com/s/montserrat/v6/IQHow_FEY_Y.woff2) format(\"woff2\");unicode-range:U+00??,U+131,U+152-153,U+2c6,U+2da,U+2dc,U+2000-206f,U+2074,U+20ac,U+2212,U+2215,U+e0ff,U+effd,U+f000}",
 				ffrule.getMinifiedCssText());
 	}
 
@@ -234,7 +234,7 @@ public class FontFaceRuleTest {
 		FontFaceRule rule = parseStyleSheet(
 				"@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}");
 		assertEquals(
-				"@font-face{font-family:'FooSans';src:url('font/FooSans.woff2') format('woff2')}",
+				"@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}",
 				rule.getMinifiedCssText());
 		assertEquals(2, rule.getStyle().getLength());
 	}
@@ -244,7 +244,7 @@ public class FontFaceRuleTest {
 		FontFaceRule rule = parseStyleSheet(
 				"/* pre-rule */ @font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}");
 		assertEquals(
-				"@font-face{font-family:'FooSans';src:url('font/FooSans.woff2') format('woff2')}",
+				"@font-face{font-family:'FooSans';src:url(font/FooSans.woff2) format('woff2')}",
 				rule.getMinifiedCssText());
 		assertEquals(2, rule.getStyle().getLength());
 	}

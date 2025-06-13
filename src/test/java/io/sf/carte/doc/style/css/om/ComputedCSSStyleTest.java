@@ -1953,7 +1953,7 @@ public class ComputedCSSStyleTest {
 		assertEquals("url('http://www.example.com/css/background.png')", val.getCssText());
 		assertEquals("http://www.example.com/css/background.png",
 				((CSSTypedValue) val).getStringValue());
-		assertEquals("url('css/background.png')", val.getMinifiedCssText("background-image"));
+		assertEquals("url(css/background.png)", val.getMinifiedCssText("background-image"));
 		assertEquals(
 				"display: block; margin-top: 36pt; margin-right: 5%; margin-bottom: 48pt; margin-left: 5%; unicode-bidi: embed; background-color: #fff; background-image: url('http://www.example.com/css/background.png'); background-position: 0% 0%; background-size: auto auto; background-origin: padding-box; background-clip: border-box; background-repeat: repeat repeat; background-attachment: scroll; color: #808000; font-family: Arial, Helvetica; font-size: 12pt; width: 900px; ",
 				style.getCssText());
@@ -2145,7 +2145,7 @@ public class ComputedCSSStyleTest {
 
 		elm.getOverrideStyle(null).setCssText("list-style:inside square url('foo.png')");
 		style = elm.getComputedStyle(null);
-		assertEquals("inside square url('foo.png')", style.getPropertyValue("list-style"));
+		assertEquals("inside square url(foo.png)", style.getPropertyValue("list-style"));
 
 		elm.getOverrideStyle(null).setCssText("text-decoration:blink dashed magenta");
 		style = elm.getComputedStyle(null);

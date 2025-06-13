@@ -199,7 +199,7 @@ public class CounterStyleRuleTest {
 		assertEquals("go", rule.getName());
 		assertEquals(3, rule.getStyle().getLength());
 		assertEquals(
-				"@counter-style go{system:alphabetic;symbols:url('white.svg') url('black.svg');suffix:\" \"}",
+				"@counter-style go{system:alphabetic;symbols:url(white.svg) url(black.svg);suffix:\" \"}",
 				rule.getMinifiedCssText());
 	}
 

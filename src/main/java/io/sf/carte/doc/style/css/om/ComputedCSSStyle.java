@@ -54,13 +54,11 @@ import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.UnitStringToId;
 import io.sf.carte.doc.style.css.Viewport;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
-import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
-import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
@@ -190,52 +188,6 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 
 	private static boolean isCustomPropertyName(String propertyName) {
 		return propertyName.startsWith("--");
-	}
-
-	private String serializeShorthand(String propertyName) {
-		ShorthandBuilder builder = createBuilder(propertyName);
-		if (builder != null) {
-			String[] longhands = builder.getLonghandProperties();
-			for (String longhand : longhands) {
-				builder.addAssignedProperty(longhand, false);
-			}
-			if ("font".equals(propertyName) || "font-variant".equals(propertyName)) {
-				builder.addAssignedProperty("font-variant-caps", false);
-				builder.addAssignedProperty("font-variant-ligatures", false);
-				builder.addAssignedProperty("font-variant-position", false);
-				builder.addAssignedProperty("font-variant-numeric", false);
-				builder.addAssignedProperty("font-variant-alternates", false);
-				builder.addAssignedProperty("font-variant-east-asian", false);
-			}
-			StringBuilder buf = new StringBuilder(64);
-			builder.appendMinifiedCssText(buf);
-			String declaration = buf.toString();
-			/* 
-			 * Reparse and check for errors and number of properties serialized.
-			 * Shorthand builders often use multiple declarations for more
-			 * efficiency in the full style serialization. Skip those cases.
-			 */
-			StringReader re = new StringReader(declaration);
-			CSSParser parser = new CSSParser();
-			PropertyCounterHandler handler = new PropertyCounterHandler();
-			parser.setDocumentHandler(handler);
-			parser.setErrorHandler(handler);
-			try {
-				parser.parseStyleDeclaration(re);
-			} catch (CSSException | IOException e) {
-				return "";
-			}
-			if (!handler.hasError() && handler.getPropertyCount() == 1) {
-				int len = declaration.length();
-				int lenm1 = len - 1;
-				int firstc = declaration.indexOf(':');
-				if (declaration.charAt(lenm1) == ';') {
-					len = lenm1;
-				}
-				return declaration.substring(firstc + 1, len);
-			}
-		}
-		return "";
 	}
 
 	@Override

@@ -68,7 +68,7 @@ public class URIValueTest {
 		value.setCssText("url(\"http://www.example.com\")");
 		assertEquals("http://www.example.com", value.getStringValue());
 		assertEquals("url(\"http://www.example.com\")", value.getCssText());
-		assertEquals("url(\"http://www.example.com\")", value.getMinifiedCssText(""));
+		assertEquals("url(http://www.example.com)", value.getMinifiedCssText(""));
 	}
 
 	@Test

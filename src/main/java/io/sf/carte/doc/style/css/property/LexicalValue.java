@@ -18,6 +18,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSLexicalValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.impl.AttrUtil;
@@ -279,8 +280,8 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 				return buf;
 			case EMPTY:
 				/*
-				 * It is encouraged to serialize comments of empty values,
-				 * to avoid re-parsing issues.
+				 * It is encouraged to serialize comments of empty values, to avoid re-parsing
+				 * issues.
 				 */
 				StringList pre = lexicalUnit.getPrecedingComments();
 				if (pre != null) {
@@ -298,8 +299,91 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			case ELEMENT_REFERENCE:
 				break;
 			}
+		} else {
+			switch (lexicalUnit.getLexicalUnitType()) {
+			case URI:
+				String s = lexicalUnit.getStringValue();
+				if (urlCanBeUnquoted(s)) {
+					return "url(" + s + ')';
+				}
+				break;
+			case DIMENSION:
+				float f = lexicalUnit.getFloatValue();
+				if (f == 0f) {
+					if (CSSUnit.isLengthUnitType(lexicalUnit.getCssUnit())
+							&& !lexicalUnit.isParameter()) {
+						return "0";
+					}
+				} else if (Float.isInfinite(f)) {
+					return serializeInfinite(f, lexicalUnit.getDimensionUnitText());
+				}
+				return serializeNumber(f, lexicalUnit.getDimensionUnitText());
+			case REAL:
+			case PERCENTAGE:
+				f = lexicalUnit.getFloatValue();
+				if (Float.isInfinite(f)) {
+					return serializeInfinite(f, lexicalUnit.getDimensionUnitText());
+				}
+				return serializeNumber(f, lexicalUnit.getDimensionUnitText());
+			default:
+				break;
+			}
 		}
 		return lexicalUnit.getCssText();
+	}
+
+	static boolean urlCanBeUnquoted(String s) {
+		int len = s.length();
+		for (int i = 0; i < len; i++) {
+			char c = s.charAt(i);
+			if (c <= 0x20 || Character.isISOControl(c)) {
+				return false;
+			}
+			switch (c) {
+			case 0x22: // "
+			case 0x27: // '
+			case 0x28: // (
+			case 0x29: // )
+			case 0x5b: // [
+			case 0x5d: // ]
+			case 0x7b: // {
+			case 0x7d: // }
+				return false;
+			default:
+			}
+		}
+		return true;
+	}
+
+	private static String serializeInfinite(float realvalue, String unitText) {
+		if (realvalue > 0f) {
+			return "calc(1" + unitText + "/0)";
+		} else {
+			return "calc(-1" + unitText + "/0)";
+		}
+	}
+
+	private static CharSequence serializeNumber(float f, String unitText) {
+		String s;
+		float rintValue = (float) Math.rint(f);
+		if (f == rintValue) {
+			s = Integer.toString((int) rintValue);
+		} else {
+			s = Float.toString(f);
+		}
+		int len = s.length();
+		StringBuilder buf = new StringBuilder(len + unitText.length());
+		char c = s.charAt(0);
+		if (c == '-' && s.charAt(1) == '0') {
+			buf.append('-');
+			buf.append(s.subSequence(2, len));
+		} else if (c == '0' && len > 2) {
+			buf.append(s.subSequence(1, len));
+		} else {
+			buf.append(s);
+		}
+		buf.append(unitText);
+		return buf;
 	}
 
 	private static void writeComments(StringList pre, StringBuilder buf) {

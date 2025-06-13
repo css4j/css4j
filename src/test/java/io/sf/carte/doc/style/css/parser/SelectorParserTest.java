@@ -3382,6 +3382,23 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorDescendantDoubleUniversal() throws CSSException {
+		SelectorList selist = parseSelectors("* *");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.DESCENDANT, sel.getSelectorType());
+		Selector ancestor = ((CombinatorSelector) sel).getSelector();
+		assertEquals(SelectorType.UNIVERSAL, ancestor.getSelectorType());
+		assertEquals("*", ((ElementSelector) ancestor).getLocalName());
+		SimpleSelector simple = ((CombinatorSelector) sel).getSecondSelector();
+		assertNotNull(simple);
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
+		assertEquals("*", ((ElementSelector) simple).getLocalName());
+		assertEquals("* *", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorCombinedDescendant() throws CSSException {
 		SelectorList selist = parseSelectors("body:not(.foo)[id*=substring] .header");
 		assertNotNull(selist);

@@ -46,9 +46,11 @@ import io.sf.carte.doc.style.css.NodeStyleDeclaration;
 import io.sf.carte.doc.style.css.StyleDatabase;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.doc.style.css.property.IdentifierValue;
@@ -492,7 +494,8 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	ShorthandBuilder createBuilder(String shorthand) {
-		return ShorthandBuilders.getInstance().get(shorthand).createBuilder(this, shorthand);
+		ShorthandBuilderFactory factory = ShorthandBuilders.getInstance().get(shorthand);
+		return factory != null ? factory.createBuilder(this, shorthand) : null;
 	}
 
 	@Override
@@ -603,6 +606,109 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 			}
 		}
 		return count;
+	}
+
+	/**
+	 * Gets a minified text value of a CSS property if it has been explicitly set within this
+	 * declaration block.
+	 *
+	 * @param propertyName
+	 *            The name of the CSS property.
+	 * @return the value of the property if it has been explicitly set for this declaration
+	 *         block, or the empty string if the property has not been set or is a shorthand
+	 *         that could not be serialized.
+	 */
+	public String getMinifiedPropertyValue(String propertyName) {
+		String result;
+		propertyName = getCanonicalPropertyName(propertyName);
+		StyleValue value = getCSSValue(propertyName);
+		if (value != null) {
+			CssType type = value.getCssValueType();
+			if (type == CssType.TYPED) {
+				Type ptype = value.getPrimitiveType();
+				if (ptype == Type.STRING || ptype == Type.IDENT) {
+					return ((CSSTypedValue) value).getStringValue();
+				}
+			} else if (type == CssType.SHORTHAND) {
+				if (((ShorthandValue) value).getLonghands()
+						.size() < getLonghandPropertyCount(propertyName)) {
+					return "";
+				} else {
+					return serializeShorthand(propertyName);
+				}
+			}
+			result = value.getMinifiedCssText(propertyName);
+		} else if (prefValues != null && prefValues.contains(propertyName)) {
+			int idx = prefValues.lastIndexOf(propertyName);
+			result = prefValues.get(idx + 1).toString();
+		} else {
+			result = "";
+		}
+		return result;
+	}
+
+	String serializeShorthand(String propertyName) {
+		// Check whether a sub-shorthand is being processed (e.g. border-width).
+		String shorthand = ShorthandDatabase.getInstance().getShorthand(propertyName);
+		if (shorthand != null) {
+			// Look for the higher-level shorthand
+			propertyName = shorthand;
+		}
+
+		// If it is a known shorthand, we should have a builder
+		// (optimized serializer) for it:
+		ShorthandBuilder builder = createBuilder(propertyName);
+		if (builder != null) {
+			String[] longhands = builder.getLonghandProperties();
+			for (String longhand : longhands) {
+				// Assign the property if set
+				assignPropertyIfSet(builder, longhand);
+			}
+			if ("font".equals(propertyName) || "font-variant".equals(propertyName)) {
+				assignPropertyIfSet(builder, "font-variant-caps");
+				assignPropertyIfSet(builder, "font-variant-ligatures");
+				assignPropertyIfSet(builder, "font-variant-position");
+				assignPropertyIfSet(builder, "font-variant-numeric");
+				assignPropertyIfSet(builder, "font-variant-alternates");
+				assignPropertyIfSet(builder, "font-variant-east-asian");
+			}
+			StringBuilder buf = new StringBuilder(64);
+			builder.appendMinifiedCssText(buf);
+			String declaration = buf.toString();
+			/* 
+			 * Reparse and check for errors and number of properties serialized.
+			 * Shorthand builders often use multiple declarations for more
+			 * efficiency in the full style serialization. Skip those cases.
+			 */
+			StringReader re = new StringReader(declaration);
+			CSSParser parser = new CSSParser();
+			PropertyCounterHandler handler = new PropertyCounterHandler();
+			parser.setDocumentHandler(handler);
+			parser.setErrorHandler(handler);
+			try {
+				parser.parseStyleDeclaration(re);
+			} catch (CSSException | IOException e) {
+				// Could not parse
+				return "";
+			}
+			if (!handler.hasError() && handler.getPropertyCount() == 1) {
+				int len = declaration.length();
+				int lenm1 = len - 1;
+				int firstc = declaration.indexOf(':');
+				if (declaration.charAt(lenm1) == ';') {
+					len = lenm1;
+				}
+				return declaration.substring(firstc + 1, len);
+			}
+		}
+
+		return "";
+	}
+
+	private void assignPropertyIfSet(ShorthandBuilder builder, String longhand) {
+		if (isPropertySet(longhand)) {
+			builder.addAssignedProperty(longhand, false);
+		}
 	}
 
 	@Override

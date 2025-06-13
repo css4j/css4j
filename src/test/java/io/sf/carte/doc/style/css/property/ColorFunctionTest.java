@@ -395,7 +395,7 @@ public class ColorFunctionTest {
 		style.setCssText("color:color(srgb var(--foo)/ 0.7); ");
 		assertEquals("color(srgb var(--foo)/0.7)", style.getPropertyValue("color"));
 		assertEquals("color: color(srgb var(--foo)/0.7); ", style.getCssText());
-		assertEquals("color:color(srgb var(--foo)/0.7)", style.getMinifiedCssText());
+		assertEquals("color:color(srgb var(--foo)/.7)", style.getMinifiedCssText());
 		CSSValue value = style.getPropertyCSSValue("color");
 		assertEquals(CssType.PROXY, value.getCssValueType());
 		assertEquals(CSSValue.Type.LEXICAL, value.getPrimitiveType());

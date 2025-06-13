@@ -150,6 +150,17 @@ public class SelectorSerializerTest {
 		assertEquals(":rtl *", selectorText(list.item(1)));
 	}
 
+	@Test
+	public void testSelectorTextCompoundSelector() {
+		StyleRule rule = parseStyleRule("* *,div *,* p {border-top-width: 1px; }");
+		SelectorList list = rule.getSelectorList();
+		assertEquals("* *,div *,* p", rule.getSelectorText());
+		assertEquals(3, list.getLength());
+		assertEquals("* *", selectorText(list.item(0)));
+		assertEquals("div *", selectorText(list.item(1)));
+		assertEquals("* p", selectorText(list.item(2)));
+	}
+
 	private String selectorText(Selector sel) {
 		return selectorText(sel, false);
 	}

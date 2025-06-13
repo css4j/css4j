@@ -137,7 +137,7 @@ public class MediaRuleTest {
 		assertEquals("screen and (-webkit-min-device-pixel-ratio: 0)", rule.getMedia().getMedia());
 		assertTrue(sheet == rule.getParentStyleSheet());
 		assertEquals(
-				"@media screen and (-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(\"fonts/foo-file.svg#bar-icons\") format('svg')}nav.foo{display:none}}",
+				"@media screen and (-webkit-min-device-pixel-ratio:0){@font-face{font-family:\"foo-family\";src:url(fonts/foo-file.svg#bar-icons) format('svg')}nav.foo{display:none}}",
 				rule.getMinifiedCssText());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 		// Visitor

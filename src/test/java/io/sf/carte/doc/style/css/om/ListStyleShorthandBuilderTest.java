@@ -49,14 +49,14 @@ public class ListStyleShorthandBuilderTest {
 				"list-style-image: none; list-style-position: outside; list-style-type: none;");
 		assertShorthandText("list-style:inside square;",
 				"list-style-image: none; list-style-position: inside; list-style-type: square;");
-		assertShorthandText("list-style:url('foo.png');", "list-style: url('foo.png');");
-		assertShorthandText("list-style:url('foo.png');", "list-style: url('foo.png') disc;");
-		assertShorthandText("list-style:none url('foo.png');", "list-style: url('foo.png') none");
-		assertShorthandText("list-style:inside none url('foo.png');",
+		assertShorthandText("list-style:url(foo.png);", "list-style: url('foo.png');");
+		assertShorthandText("list-style:url(foo.png);", "list-style: url('foo.png') disc;");
+		assertShorthandText("list-style:none url(foo.png);", "list-style: url('foo.png') none");
+		assertShorthandText("list-style:inside none url(foo.png);",
 				"list-style: url('foo.png') none inside");
-		assertShorthandText("list-style:inside url('foo.png');",
+		assertShorthandText("list-style:inside url(foo.png);",
 				"list-style: url('foo.png') inside");
-		assertShorthandText("list-style:inside square url('foo.png');",
+		assertShorthandText("list-style:inside square url(foo.png);",
 				"list-style: url('foo.png') inside square");
 		assertShorthandText("list-style:inside foo;", "list-style: foo inside;");
 		assertShorthandText("list-style:inside \"foo\";", "list-style: \"foo\" inside;");

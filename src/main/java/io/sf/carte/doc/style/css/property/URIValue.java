@@ -133,9 +133,11 @@ public class URIValue extends StringValue {
 		String sv = getStringValue();
 		String text;
 		if (sv != null) {
-			String quoted = ParseHelper.quote(sv, quote);
-			StringBuilder buf = new StringBuilder(quoted.length() + 5);
-			buf.append("url(").append(quoted).append(')');
+			if (!LexicalValue.urlCanBeUnquoted(sv)) {
+				sv = ParseHelper.quote(sv, quote);
+			}
+			StringBuilder buf = new StringBuilder(sv.length() + 5);
+			buf.append("url(").append(sv).append(')');
 			text = buf.toString();
 		} else {
 			text = "url()";

@@ -36,7 +36,7 @@ public class BorderImageBuilderTest {
 
 	@Test
 	public void testBorderImageNoShorthand() {
-		assertShorthandText("border-image-source:url('/img/border.png');",
+		assertShorthandText("border-image-source:url(/img/border.png);",
 				"border-image-source:url('/img/border.png');");
 	}
 
@@ -48,7 +48,7 @@ public class BorderImageBuilderTest {
 
 	@Test
 	public void testBorderImageVar() {
-		assertShorthandText("border-image:var(--foo,url('/img/border.png'));",
+		assertShorthandText("border-image:var(--foo,url(/img/border.png));",
 				"border-image:var(--foo,url('/img/border.png'));");
 	}
 
@@ -92,26 +92,26 @@ public class BorderImageBuilderTest {
 
 	@Test
 	public void testBorderImage() {
-		assertShorthandText("border-image:url('/img/border.png') 25% 30% 12% 20% fill/2pt/1 round;",
+		assertShorthandText("border-image:url(/img/border.png) 25% 30% 12% 20% fill/2pt/1 round;",
 				"border-image: url('/img/border.png') 25% 30% 12% 20% fill / 2pt / 1 round;");
 	}
 
 	@Test
 	public void testBorderImage2() {
 		assertShorthandText(
-				"border-image:url('/img/border.png') 25% 30% 12% 20% fill/2pt 4pt/1 3 round;",
+				"border-image:url(/img/border.png) 25% 30% 12% 20% fill/2pt 4pt/1 3 round;",
 				"border-image: url('/img/border.png') 25% 30% 12% 20% fill / 2pt 4pt / 1 3 round;");
 	}
 
 	@Test
 	public void testBorderImage3() {
-		assertShorthandText("border-image:url('/img/border.png') 25% 30%/2pt round;",
+		assertShorthandText("border-image:url(/img/border.png) 25% 30%/2pt round;",
 				"border-image: url('/img/border.png') 25% 30% / 2pt round;");
 	}
 
 	@Test
 	public void testBorderImage4() {
-		assertShorthandText("border-image:url('/img/border.png') 25% 30%/auto round;",
+		assertShorthandText("border-image:url(/img/border.png) 25% 30%/auto round;",
 				"border-image: url('/img/border.png') 25% 30% / auto round;");
 	}
 
@@ -124,7 +124,7 @@ public class BorderImageBuilderTest {
 	@Test
 	public void testBorderImage6() {
 		assertShorthandText(
-				"border-image:25% 30%/auto round;border-image-source:url('foo.png')!important;",
+				"border-image:25% 30%/auto round;border-image-source:url(foo.png)!important;",
 				"border-image-source: url(foo.png)!important; border-image: none 25% 30% / auto round;");
 	}
 
@@ -137,43 +137,43 @@ public class BorderImageBuilderTest {
 
 	@Test
 	public void testBorderImage8() {
-		assertShorthandText("border-image:url('foo.png') 9 repeat;border-width:8px;",
+		assertShorthandText("border-image:url(foo.png) 9 repeat;border-width:8px;",
 				"border-width: 8px; border-image: url('foo.png') 9 repeat;");
 	}
 
 	@Test
 	public void testBorderImageCalc() {
 		assertShorthandText(
-				"border-image:url('/img/border.png') calc(2*10%) calc(2*15%)/calc(4pt*.5) round;",
+				"border-image:url(/img/border.png) calc(2*10%) calc(2*15%)/calc(4pt*.5) round;",
 				"border-image: url('/img/border.png') calc(2*10%) calc(2*15%) / calc(4pt*0.5) round;");
 	}
 
 	@Test
 	public void testBorderImageCalcSlice() {
-		assertShorthandText("border-image:url('foo.png') calc(5 + 3) repeat;border-width:8px;",
+		assertShorthandText("border-image:url(foo.png) calc(5 + 3) repeat;border-width:8px;",
 				"border-width: 8px; border-image: url('foo.png') calc(5 + 3) repeat;");
 	}
 
 	@Test
 	public void testBorderImageImportant() {
 		assertShorthandText(
-				"border-image:url('/img/border.png') 25% 30% 12% 20% fill/2pt/1 round!important;",
+				"border-image:url(/img/border.png) 25% 30% 12% 20% fill/2pt/1 round!important;",
 				"border-image: url('/img/border.png') 25% 30% 12% 20% fill / 2pt / 1 round ! important;");
 		assertShorthandText(
-				"border-image:url('/img/border.png') 25% 30% 12% 20% fill/2pt 4pt/1 3 round!important;",
+				"border-image:url(/img/border.png) 25% 30% 12% 20% fill/2pt 4pt/1 3 round!important;",
 				"border-image: url('/img/border.png') 25% 30% 12% 20% fill / 2pt 4pt / 1 3 round!important;");
-		assertShorthandText("border-image:url('/img/border.png') 25% 30%/2pt round!important;",
+		assertShorthandText("border-image:url(/img/border.png) 25% 30%/2pt round!important;",
 				"border-image: url('/img/border.png') 25% 30% / 2pt round!important;");
 	}
 
 	@Test
 	public void testBorderImageNoShorthandKeyword() {
-		assertShorthandText("border-image:url('foo.png');",
+		assertShorthandText("border-image:url(foo.png);",
 				"border-image-source: url('foo.png'); border-image-outset: 0; border-image-slice: 100%; border-image-repeat: unset; border-image-width: 1;");
 		assertShorthandText("border-image:none;",
 				"border-image-source:unset; border-image-outset:0; border-image-slice:100%;border-image-repeat: unset;border-image-width:1;");
 		assertShorthandText(
-				"border-image-outset:0;border-image-repeat:revert;border-image-slice:100%;border-image-source:url('foo.png');border-image-width:1;",
+				"border-image-outset:0;border-image-repeat:revert;border-image-slice:100%;border-image-source:url(foo.png);border-image-width:1;",
 				"border-image-source: url('foo.png'); border-image-outset: 0; border-image-slice: 100%; border-image-repeat: revert; border-image-width: 1;");
 	}
 

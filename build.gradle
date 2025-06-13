@@ -134,7 +134,7 @@ classes.finalizedBy checkLegacyJava
 // Copy jar files to 'jar' directory
 tasks.register('copyJars', Copy) {
 	description = 'Copy jar files to \'jar\' directory'
-	dependsOn tasks.build
+	dependsOn tasks.assemble,uberjar
 	dependsOn 'testsJar'
 	include '**/*.jar'
 	excludes = ['slf4j*.jar']
@@ -227,7 +227,7 @@ tasks.register('testsSourceJar', Jar) {
 	exclude '**/CSSParserFuzzTestInputs'
 }
 
-build.dependsOn lineEndingConversion, testsJar, testsSourceJar
+assemble.dependsOn lineEndingConversion, testsJar, testsSourceJar
 
 tasks.withType(AbstractPublishToMaven).configureEach {
 	doFirst {
@@ -270,6 +270,42 @@ tasks.register('fuzzer', Test) {
 tasks.withType(Test) {
 	// Probably not needed
 	defaultCharacterEncoding = 'UTF-8'
+}
+
+//create a single Jar with all dependencies
+tasks.register('uberjar', Jar) {
+	description = 'Create a single Uber Jar with css4j and dependencies.'
+
+	group = 'Fat jar'
+
+	archiveClassifier = "alldeps"
+
+	dependsOn configurations.compileClasspath
+	dependsOn configurations.runtimeClasspath
+
+	doFirst {
+		from sourceSets.main.output
+		from {
+			configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+		}
+		from {
+			configurations.runtimeClasspath.findAll { it.name.endsWith('jar') }.collect { zipTree(it) }
+		}
+	}
+
+	with jar
+
+	duplicatesStrategy = 'exclude'
+
+	// Exclusions
+	// ----------
+	exclude 'overview.html'
+	// Modularity does not apply here
+	exclude 'module-info.class'
+
+	manifest {
+		attributes('Main-Class': 'io.sf.carte.doc.style.css.util.Minify')
+	}
 }
 
 artifacts {

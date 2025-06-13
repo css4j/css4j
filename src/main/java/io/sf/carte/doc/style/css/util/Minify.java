@@ -12,16 +12,20 @@
 package io.sf.carte.doc.style.css.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.stream.Stream;
 
 import io.sf.carte.doc.style.css.nsac.Parser;
@@ -40,46 +44,91 @@ public class Minify {
 	 * Prints to standard output a minification of the CSS style sheet located at
 	 * the supplied URI.
 	 * <p>
+	 * The argument array must contain the style sheet path or URI, and any
+	 * additional configuration:
+	 * </p>
+	 * <ul>
+	 * <li><code>--charset</code>, followed by a valid character set name.</li>
+	 * <li><code>--disable-shorthand</code>. If followed by a comma-separated list
+	 * of shorthand names, it disables the advanced minification for those
+	 * shorthands. If alone, all advanced shorthand minification is disabled (same
+	 * as <code>--disable-shorthand all</code>).</li>
+	 * </ul>
+	 * <p>
+	 * If the configuration options are invalid, exits with a status code of
+	 * {@code 2}.
+	 * </p>
+	 * <p>
 	 * If the given sheet contains error(s) and therefore cannot be reliably
-	 * minified, the original source sheet is printed.
+	 * minified, the original source sheet is printed and the process exits with a
+	 * status of {@code 1}.
 	 * </p>
 	 * 
-	 * @param args the URI to a style sheet.
+	 * @param args the arguments, including at least the URI or path to a style
+	 *             sheet.
 	 * @throws URISyntaxException       if the URI has wrong syntax.
 	 * @throws IllegalArgumentException if the URI is otherwise incorrect.
 	 * @throws IOException              if an I/O error happened.
 	 */
 	public static void main(String[] args) throws URISyntaxException, IOException {
-		main(args, System.out, System.err);
+		int status = main(args, System.out, System.err);
+		System.exit(status);
 	}
 
 	/**
 	 * Outputs a minification of the CSS style sheet located at the supplied URI.
 	 * <p>
+	 * The argument array must contain the style sheet path or URI, and any
+	 * additional configuration:
+	 * </p>
+	 * <ul>
+	 * <li><code>--charset</code>, followed by a valid character set name.</li>
+	 * <li><code>--disable-shorthand</code>. If followed by a comma-separated list
+	 * of shorthand names, it disables the advanced minification for those
+	 * shorthands. If alone, all advanced shorthand minification is disabled (same
+	 * as <code>--disable-shorthand all</code>).</li>
+	 * </ul>
+	 * <p>
 	 * If the sheet contains error(s) and therefore cannot be reliably minified, the
 	 * original source sheet is printed.
 	 * </p>
 	 * 
-	 * @param args the URI to a style sheet.
+	 * @param args the arguments, including at least the URI or path to a style
+	 *             sheet.
 	 * @param out  the output stream.
 	 * @param err  the error reporting stream.
+	 * @return 0 if minification was successful, 2 if the arguments were incorrect,
+	 *         1 if the file was printed without minification.
 	 * @throws URISyntaxException       if the URI has wrong syntax.
 	 * @throws IllegalArgumentException if the URI is otherwise incorrect.
 	 * @throws IOException              if an I/O error happened.
 	 */
-	static void main(String[] args, PrintStream out, PrintStream err)
+	static int main(String[] args, PrintStream out, PrintStream err)
 			throws URISyntaxException, IOException {
-		if (args == null || args.length != 1) {
+		ConfigImpl config;
+		if (args == null || args.length == 0 || (config = readConfig(args)) == null) {
 			printUsage(err);
-			return;
+			return 2;
 		}
 
-		URI uri = new URI(args[0]);
-		Path filePath = Paths.get(uri);
+		Path filePath;
+		URI uri = new URI(config.path);
+		if (uri.isAbsolute()) {
+			try {
+				filePath = Paths.get(uri);
+			} catch (FileSystemNotFoundException e) {
+				File file = new File(config.path);
+				filePath = file.toPath();
+			}
+		} else {
+			File file = new File(config.path);
+			filePath = file.toPath();
+		}
 
 		StringBuilder builder = new StringBuilder(DEFAULT_BUFFER_SIZE);
-		minifyCSS(filePath, builder, err);
+		boolean ret = minifyCSS(filePath, config, builder, err);
 		out.print(builder);
+		return ret ? 0 : 1;
 	}
 
 	/**
@@ -88,7 +137,95 @@ public class Minify {
 	 * @param err the error reporting stream.
 	 */
 	private static void printUsage(PrintStream err) {
-		err.println("Usage: " + Minify.class.getName() + " <style-sheet-uri>");
+		err.println("Usage: " + Minify.class.getName()
+				+ " [--charset <charset>] [--disable-shorthand [<shorthand-list>]] <style-sheet-uri-or-path>");
+	}
+
+	private static ConfigImpl readConfig(String[] args) {
+		ConfigImpl config = new ConfigImpl();
+		for (int i = 0; i < args.length; i++) {
+			String arg = args[i];
+			if (!arg.startsWith("--")) {
+				if (config.path == null) {
+					config.path = arg;
+				} else {
+					return null;
+				}
+			} else {
+				if ("--charset".equalsIgnoreCase(arg)) {
+					i++;
+					if (i < args.length) {
+						arg = args[i];
+						if (!arg.startsWith("--")) {
+							try {
+								config.encoding = Charset.forName(arg);
+							} catch (Exception e) {
+								return null;
+							}
+						} else {
+							i--;
+						}
+					}
+				} else if ("--disable-shorthand".equalsIgnoreCase(arg)) {
+					i++;
+					if (i < args.length) {
+						arg = args[i];
+						if (!arg.startsWith("--")) {
+							String[] shorthands = arg.split(",");
+							config.disabledShorthands = new HashSet<>(shorthands.length);
+							for (String shorthand : shorthands) {
+								if ("all".equalsIgnoreCase(shorthand)) {
+									config.disabledShorthands = null;
+									break;
+								} else {
+									config.disabledShorthands.add(shorthand);
+								}
+							}
+						} else {
+							config.disabledShorthands = null;
+							i--;
+						}
+					}
+				}
+			}
+		}
+		if (config.path == null) {
+			config = null;
+		}
+		return config;
+	}
+
+	public interface Config {
+
+		/**
+		 * Get the encoding of the style sheet.
+		 *
+		 * @return the encoding, or {@code null} if {@code UTF-8}.
+		 */
+		Charset getEncoding();
+
+		boolean isDisabledShorthand(String name);
+
+	}
+
+	private static class ConfigImpl implements Config {
+
+		private HashSet<String> disabledShorthands = null;
+
+		private Charset encoding;
+
+		private String path;
+
+		@Override
+		public boolean isDisabledShorthand(String name) {
+			return disabledShorthands == null || disabledShorthands.contains(name);
+		}
+
+		@Override
+		public Charset getEncoding() {
+			return encoding;
+		}
+
 	}
 
 	/**
@@ -99,20 +236,25 @@ public class Minify {
 	 *         detected.
 	 */
 	public static String minifyCSS(String css) {
-		return minifyCSS(css, null);
+		return minifyCSS(css, null, null);
 	}
 
 	/**
 	 * Minifies a CSS style sheet and prints parsing errors to a stream.
 	 * 
-	 * @param css the serialized style sheet.
-	 * @param err the error reporting stream, or {@code null} if no stream.
+	 * @param css    the serialized style sheet.
+	 * @param config the minification configuration, or {@code null} if defaults
+	 *               should be used.
+	 * @param err    the error reporting stream, or {@code null} if no stream.
 	 * @return the minified serialization, or the original one if an error was
 	 *         detected.
 	 */
-	public static String minifyCSS(String css, PrintStream err) {
+	public static String minifyCSS(String css, Config config, PrintStream err) {
+		if (config == null) {
+			config = new ConfigImpl();
+		}
 		BufferSimpleWriter wri = new BufferSimpleWriter(DEFAULT_BUFFER_SIZE);
-		MinifySheetHandler handler = new MinifySheetHandler(wri);
+		MinifySheetHandler handler = new MinifySheetHandler(wri, config);
 		CSSParser parser = createCSSParser();
 		parser.setDocumentHandler(handler);
 
@@ -140,13 +282,13 @@ public class Minify {
 	/**
 	 * Minifies a CSS style sheet.
 	 * 
-	 * @param cssPath the path to style sheet.
+	 * @param cssPath the path to a {@code utf-8}-encoded style sheet.
 	 * @return the minified serialization, or the original file if an error was
 	 *         found.
 	 */
 	public static String minifyCSS(Path cssPath) throws IOException {
 		StringBuilder builder = new StringBuilder(DEFAULT_BUFFER_SIZE);
-		minifyCSS(cssPath, builder, null);
+		minifyCSS(cssPath, null, builder, null);
 		return builder.toString();
 	}
 
@@ -154,21 +296,25 @@ public class Minify {
 	 * Minifies a CSS style sheet.
 	 * 
 	 * @param cssPath the path to style sheet.
+	 * @param config  the minification configuration, or {@code null} if defaults
+	 *                should be used.
 	 * @param buffer  the buffer to write the minified serialization, or the
 	 *                original file if an error is found.
 	 * @return {@code true} if the style sheet was successfully minified,
 	 *         {@code false} if an error was found and the original file was
 	 *         returned.
 	 */
-	public static boolean minifyCSS(Path cssPath, StringBuilder buffer)
+	public static boolean minifyCSS(Path cssPath, Config config, StringBuilder buffer)
 			throws IOException {
-		return minifyCSS(cssPath, buffer, null);
+		return minifyCSS(cssPath, config, buffer, null);
 	}
 
 	/**
 	 * Minifies a CSS style sheet.
 	 * 
 	 * @param cssPath the path to style sheet.
+	 * @param config  the minification configuration, or {@code null} if defaults
+	 *                should be used.
 	 * @param buffer  the buffer to write the minified serialization, or the
 	 *                original file if an error is found.
 	 * @param err     the error reporting stream, or {@code null} if no stream.
@@ -176,14 +322,21 @@ public class Minify {
 	 *         {@code false} if an error was found and the original file was
 	 *         returned.
 	 */
-	public static boolean minifyCSS(Path cssPath, StringBuilder buffer, PrintStream err)
-			throws IOException {
+	public static boolean minifyCSS(Path cssPath, Config config, StringBuilder buffer,
+			PrintStream err) throws IOException {
+		if (config == null) {
+			config = new ConfigImpl();
+		}
+		Charset encoding = config.getEncoding();
+		if (encoding == null) {
+			encoding = StandardCharsets.UTF_8;
+		}
 		BufferSimpleWriter wri = new BufferSimpleWriter(buffer);
-		MinifySheetHandler handler = new MinifySheetHandler(wri);
+		MinifySheetHandler handler = new MinifySheetHandler(wri, config);
 		CSSParser parser = createCSSParser();
 		parser.setDocumentHandler(handler);
 
-		try (BufferedReader cssReader = Files.newBufferedReader(cssPath, StandardCharsets.UTF_8)) {
+		try (BufferedReader cssReader = Files.newBufferedReader(cssPath, encoding)) {
 			parser.parseStyleSheet(cssReader);
 			return true;
 		} catch (Exception e) {

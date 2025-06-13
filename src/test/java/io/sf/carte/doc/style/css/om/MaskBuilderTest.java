@@ -39,14 +39,14 @@ public class MaskBuilderTest {
 		assertShorthandText("mask-image:linear-gradient(35deg,#fa3 50%,transparent 0);",
 				"mask-image: linear-gradient(35deg,#fa3 50%,transparent 0);");
 		assertShorthandText(
-				"mask-image:linear-gradient(transparent,transparent),url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA');",
+				"mask-image:linear-gradient(transparent,transparent),url(data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA);",
 				"mask-image: linear-gradient(transparent, transparent), url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA');");
 	}
 
 	@Test
 	public void testMaskLayeredMix() {
 		assertShorthandText(
-				"mask:linear-gradient(transparent,transparent) center top no-repeat luminance,url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA') center top no-repeat luminance;",
+				"mask:linear-gradient(transparent,transparent) center top no-repeat luminance,url(data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA) center top no-repeat luminance;",
 				"mask: luminance no-repeat center top; mask-image: linear-gradient(transparent, transparent), url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA');");
 	}
 
@@ -60,13 +60,13 @@ public class MaskBuilderTest {
 	@Test
 	public void testMaskLayers() {
 		assertShorthandText(
-				"mask:url('a.png') no-repeat,url('b.png') center/100% 100% no-repeat,url('c.png') alpha;",
-				"mask: url(a.png) top left no-repeat,url(b.png) center / 100% 100% no-repeat,url(c.png) alpha;");
+				"mask:url(a.png) no-repeat,url(b.png) center/100% 100% no-repeat,url(c.png) alpha;",
+				"mask: url(a.png) top left no-repeat,url(b.png) center / 100% 100% no-repeat,url('c.png') alpha;");
 	}
 
 	@Test
 	public void testMaskLayersBad() {
-		assertShorthandText("mask:url('bkg.png') 0 0/150px no-repeat;",
+		assertShorthandText("mask:url(bkg.png) 0 0/150px no-repeat;",
 				"mask: url('bkg.png') no-repeat; mask-size: 150px, 150px; mask-position: 0 0;");
 	}
 
@@ -89,12 +89,12 @@ public class MaskBuilderTest {
 
 	@Test
 	public void testMaskLayerNone() {
-		assertShorthandText("mask:url('a.png'),none;", "mask: url(a.png),none;");
+		assertShorthandText("mask:url(a.png),none;", "mask: url(a.png),none;");
 	}
 
 	@Test
 	public void testMaskLayerNoneImportant() {
-		assertShorthandText("mask:url('a.png'),none!important;",
+		assertShorthandText("mask:url(a.png),none!important;",
 				"mask: url(a.png),none ! important;");
 	}
 
@@ -142,19 +142,19 @@ public class MaskBuilderTest {
 
 	@Test
 	public void testMask() {
-		assertShorthandText("mask:url('bkg.png') 40%/10em round view-box intersect luminance;",
+		assertShorthandText("mask:url(bkg.png) 40%/10em round view-box intersect luminance;",
 				"mask: url('bkg.png') 40% / 10em luminance round intersect view-box;");
 	}
 
 	@Test
 	public void testMask2() {
-		assertShorthandText("mask:url('bkg.png') right no-repeat view-box intersect luminance;",
+		assertShorthandText("mask:url(bkg.png) right no-repeat view-box intersect luminance;",
 				"mask: url('bkg.png') right center luminance no-repeat no-repeat intersect view-box;");
 	}
 
 	@Test
 	public void testMask3() {
-		assertShorthandText("mask:url('bkg.png') 0% 0%/10em round view-box intersect luminance;",
+		assertShorthandText("mask:url(bkg.png) 0% 0%/10em round view-box intersect luminance;",
 				"mask: url('bkg.png') 0% 0% / 10em luminance round round intersect view-box;");
 	}
 
@@ -183,20 +183,20 @@ public class MaskBuilderTest {
 	@Test
 	public void testMaskIEHack() {
 		assertShorthandText(
-				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-mode:match-source;mask-origin:border-box;mask-position:15px 10px;mask-repeat:no-repeat;mask-size:auto \\9;",
+				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:intersect;mask-image:url(image.svg);mask-mode:match-source;mask-origin:border-box;mask-position:15px 10px;mask-repeat:no-repeat;mask-size:auto \\9;",
 				"mask: intersect url('image.svg') 15px 10px no-repeat;mask-size: auto \\9;");
 		assertShorthandText(
-				"mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-mode:alpha;mask-origin:padding-box;mask-position:15px 10px;mask-repeat:no-repeat \\9;mask-size:auto;",
+				"mask-clip:border-box;mask-composite:intersect;mask-image:url(image.svg);mask-mode:alpha;mask-origin:padding-box;mask-position:15px 10px;mask-repeat:no-repeat \\9;mask-size:auto;",
 				"mask-mode:alpha;mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-origin:padding-box;mask-position:15px 10px;mask-repeat:no-repeat \\9 ;mask-size:auto;");
 		assertShorthandText(
-				"mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-mode:alpha;mask-origin:padding-box;mask-position:15px \\9;mask-repeat:no-repeat;mask-size:auto;",
+				"mask-clip:border-box;mask-composite:intersect;mask-image:url(image.svg);mask-mode:alpha;mask-origin:padding-box;mask-position:15px \\9;mask-repeat:no-repeat;mask-size:auto;",
 				"mask-mode:alpha;mask-clip:border-box;mask-composite:intersect;mask-image:url('image.svg');mask-origin:padding-box;mask-position:15px \\9;mask-repeat:no-repeat;mask-size:auto;");
 	}
 
 	@Test
 	public void testMaskData() {
 		assertShorthandText(
-				"mask:url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA') 40%/10em round intersect luminance;",
+				"mask:url(data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA) 40%/10em round intersect luminance;",
 				"mask: url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA') 40% / 10em luminance round intersect border-box;");
 	}
 
@@ -205,7 +205,7 @@ public class MaskBuilderTest {
 	 */
 	@Test
 	public void testMaskNoShorthand() {
-		assertShorthandText("mask-image:url('bkg.png');", "mask-image: url('bkg.png');");
+		assertShorthandText("mask-image:url(bkg.png);", "mask-image: url('bkg.png');");
 	}
 
 	/*
@@ -283,7 +283,7 @@ public class MaskBuilderTest {
 	@Test
 	public void testMaskBadIndividual() {
 		assertShorthandText(
-				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url('bkg.png');mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:foo;",
+				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url(bkg.png);mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:foo;",
 				"mask: url('bkg.png'); mask-size: foo;");
 	}
 
@@ -296,12 +296,12 @@ public class MaskBuilderTest {
 
 	@Test
 	public void testMaskImage() {
-		assertShorthandText("mask:url('bkg.png');", "mask: url('bkg.png');");
+		assertShorthandText("mask:url(bkg.png);", "mask: url('bkg.png');");
 	}
 
 	@Test
 	public void testMaskImage2() {
-		assertShorthandText("mask:0 0,url('../img/foo.png') no-repeat;",
+		assertShorthandText("mask:0 0,url(../img/foo.png) no-repeat;",
 				"mask:0 0,url(../img/foo.png) no-repeat;");
 	}
 
@@ -327,83 +327,83 @@ public class MaskBuilderTest {
 	@Test
 	public void testMaskLayered() {
 		assertShorthandText(
-				"mask:luminance,url('../img/foo.png') bottom/cover no-repeat padding-box content-box intersect,bottom;",
+				"mask:luminance,url(../img/foo.png) bottom/cover no-repeat padding-box content-box intersect,bottom;",
 				"mask:luminance, url(../img/foo.png) bottom / cover no-repeat intersect padding-box content-box, bottom;");
 	}
 
 	@Test
 	public void testMaskLayered2() {
 		assertShorthandText(
-				"mask:alpha,url('../img/foo.png') bottom/cover no-repeat padding-box content-box intersect,repeat-y;",
+				"mask:alpha,url(../img/foo.png) bottom/cover no-repeat padding-box content-box intersect,repeat-y;",
 				"mask:alpha, url(../img/foo.png) bottom / cover no-repeat intersect padding-box content-box, repeat-y;");
 	}
 
 	@Test
 	public void testMaskImagePosition() {
-		assertShorthandText("mask:url('bkg.png') 40%;", "mask: url('bkg.png') 40%;");
+		assertShorthandText("mask:url(bkg.png) 40%;", "mask: url('bkg.png') 40%;");
 	}
 
 	@Test
 	public void testMaskCrossFadePosition() {
-		assertShorthandText("mask:cross-fade(url('foo.png') 25%,url('bar.png') 75%) 40%;",
+		assertShorthandText("mask:cross-fade(url(foo.png) 25%,url(bar.png) 75%) 40%;",
 				"mask: cross-fade(url(foo.png) 25%, url(bar.png) 75%) 40%;");
 	}
 
 	@Test
 	public void testMaskImagePositionPlusAttachment() {
-		assertShorthandText("mask:url('bkg.png') 40%;mask-mode:match-source!important;",
+		assertShorthandText("mask:url(bkg.png) 40%;mask-mode:match-source!important;",
 				"mask: url('bkg.png') 40%; mask-mode: match-source ! important;");
 	}
 
 	@Test
 	public void testMaskImagePositionPlusMaskBorderMode() {
-		assertShorthandText("mask:url('bkg.png') 40%;mask-border-mode:luminance;",
+		assertShorthandText("mask:url(bkg.png) 40%;mask-border-mode:luminance;",
 				"mask: url('bkg.png') 40%;mask-border-mode:luminance;");
 	}
 
 	@Test
 	public void testMaskImagePositionPlusMaskBorderModeImportant() {
-		assertShorthandText("mask:url('bkg.png') 40%;mask-border-mode:luminance!important;",
+		assertShorthandText("mask:url(bkg.png) 40%;mask-border-mode:luminance!important;",
 				"mask: url('bkg.png') 40%;mask-border-mode:luminance ! important;");
 	}
 
 	@Test
 	public void testMaskImagePositionPlusMaskBorderModeImportant2() {
-		assertShorthandText("mask:url('bkg.png') 40%;mask-border-mode:alpha!important;",
+		assertShorthandText("mask:url(bkg.png) 40%;mask-border-mode:alpha!important;",
 				"mask-border-mode:alpha ! important;mask: url('bkg.png') 40%;");
 	}
 
 	@Test
 	public void testMaskImagePositionPlusMaskBorderModeImportant3() {
 		assertShorthandText(
-				"mask:url('bkg.png') 40%!important;mask-border-mode:luminance!important;",
+				"mask:url(bkg.png) 40%!important;mask-border-mode:luminance!important;",
 				"mask: url('bkg.png') 40%!important;mask-border-mode:luminance ! important;");
 	}
 
 	@Test
 	public void testMaskImageRepeat() {
-		assertShorthandText("mask:url('bkg.png') repeat-x;", "mask: url('bkg.png') repeat-x;");
+		assertShorthandText("mask:url(bkg.png) repeat-x;", "mask: url('bkg.png') repeat-x;");
 	}
 
 	@Test
 	public void testMaskImageOriginClipFBBB() {
-		assertShorthandText("mask:url('bkg.png') fill-box border-box;",
+		assertShorthandText("mask:url(bkg.png) fill-box border-box;",
 				"mask: url('bkg.png') fill-box border-box;");
 	}
 
 	@Test
 	public void testMaskImageBorderBox() {
-		assertShorthandText("mask:url('bkg.png');", "mask: url('bkg.png') border-box;");
+		assertShorthandText("mask:url(bkg.png);", "mask: url('bkg.png') border-box;");
 	}
 
 	@Test
 	public void testMaskImageFillBox() {
-		assertShorthandText("mask:url('bkg.png') fill-box;", "mask: url('bkg.png') fill-box;");
+		assertShorthandText("mask:url(bkg.png) fill-box;", "mask: url('bkg.png') fill-box;");
 	}
 
 	@Test
 	public void testMaskImageStrokeBoxBorderBox() {
-		assertShorthandText("mask:url('bkg.png') round space stroke-box border-box;",
+		assertShorthandText("mask:url(bkg.png) round space stroke-box border-box;",
 				"mask: url('bkg.png') stroke-box border-box round space;");
 	}
 
@@ -424,49 +424,49 @@ public class MaskBuilderTest {
 	@Test
 	public void testMaskVarOrigin() {
 		assertShorthandText(
-				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url('bkg.png');mask-mode:match-source;mask-origin:var(--my-value);mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
+				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url(bkg.png);mask-mode:match-source;mask-origin:var(--my-value);mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
 				"mask:url('bkg.png');mask-origin:var(--my-value);");
 	}
 
 	@Test
 	public void testMaskVarClip() {
 		assertShorthandText(
-				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:var(--my-value);mask-composite:add;mask-image:url('bkg.png');mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
+				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:var(--my-value);mask-composite:add;mask-image:url(bkg.png);mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
 				"mask:url('bkg.png');mask-clip:var(--my-value);");
 	}
 
 	@Test
 	public void testMaskVarComposite() {
 		assertShorthandText(
-				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:var(--my-value);mask-image:url('bkg.png');mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
+				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:var(--my-value);mask-image:url(bkg.png);mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
 				"mask:url('bkg.png');mask-composite:var(--my-value);");
 	}
 
 	@Test
 	public void testMaskVarRepeat() {
 		assertShorthandText(
-				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url('bkg.png');mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:var(--my-value);mask-size:auto auto;",
+				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url(bkg.png);mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:var(--my-value);mask-size:auto auto;",
 				"mask:url('bkg.png');mask-repeat:var(--my-value);");
 	}
 
 	@Test
 	public void testMaskVarMode() {
 		assertShorthandText(
-				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url('bkg.png');mask-mode:var(--my-value);mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
+				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url(bkg.png);mask-mode:var(--my-value);mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:auto auto;",
 				"mask:url('bkg.png');mask-mode:var(--my-value);");
 	}
 
 	@Test
 	public void testMaskVarPosition() {
 		assertShorthandText(
-				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url('bkg.png');mask-mode:match-source;mask-origin:border-box;mask-position:var(--my-value);mask-repeat:repeat;mask-size:auto auto;",
+				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url(bkg.png);mask-mode:match-source;mask-origin:border-box;mask-position:var(--my-value);mask-repeat:repeat;mask-size:auto auto;",
 				"mask:url('bkg.png');mask-position:var(--my-value);");
 	}
 
 	@Test
 	public void testMaskVarSize() {
 		assertShorthandText(
-				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url('bkg.png');mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:var(--my-value);",
+				"mask-border-mode:alpha;mask-border-outset:0;mask-border-repeat:stretch;mask-border-slice:0;mask-border-source:none;mask-border-width:auto;mask-clip:border-box;mask-composite:add;mask-image:url(bkg.png);mask-mode:match-source;mask-origin:border-box;mask-position:0% 0%;mask-repeat:repeat;mask-size:var(--my-value);",
 				"mask:url('bkg.png');mask-size:var(--my-value);");
 	}
 

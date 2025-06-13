@@ -33,6 +33,7 @@ import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.InheritValue;
 import io.sf.carte.doc.style.css.property.InitialValue;
 import io.sf.carte.doc.style.css.property.KeywordValue;
+import io.sf.carte.doc.style.css.property.LexicalValue;
 import io.sf.carte.doc.style.css.property.PrimitiveValue;
 import io.sf.carte.doc.style.css.property.RevertValue;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -625,7 +626,8 @@ class ShorthandSetter extends BaseShorthandSetter {
 		// Create a shorthand
 		ShorthandValue prefVal = createCSSShorthandValue(lu);
 		String css = lu.toString();
-		prefVal.setShorthandText(css, css);
+		String mini = LexicalValue.serializeMinifiedSequence(lu);
+		prefVal.setShorthandText(css, mini);
 		styleDeclaration.addPrefixedValue(getShorthandName(), prefVal, isPriorityImportant());
 	}
 

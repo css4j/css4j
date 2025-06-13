@@ -148,10 +148,12 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 
 	private void writeInfinite(SimpleWriter wri) throws IOException {
 		if (realvalue > 0f) {
-			wri.write("calc(1/0)");
+			wri.write("calc(1");
 		} else {
-			wri.write("calc(-1/0)");
+			wri.write("calc(-1");
 		}
+		wri.write(dimensionUnitText);
+		wri.write("/0)");
 	}
 
 	public void serializeAbsolute(SimpleWriter wri) throws IOException {

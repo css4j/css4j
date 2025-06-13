@@ -39,14 +39,14 @@ public class BackgroundBuilderTest {
 		assertShorthandText("background-image:linear-gradient(35deg,#fa3 50%,transparent 0);",
 				"background-image: linear-gradient(35deg,#fa3 50%,transparent 0);");
 		assertShorthandText(
-				"background-image:linear-gradient(transparent,transparent),url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA');",
+				"background-image:linear-gradient(transparent,transparent),url(data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA);",
 				"background-image: linear-gradient(transparent, transparent), url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA');");
 	}
 
 	@Test
 	public void testBackgroundLayeredMix() {
 		assertShorthandText(
-				"background:linear-gradient(transparent,transparent) center top no-repeat,url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA') center top no-repeat;",
+				"background:linear-gradient(transparent,transparent) center top no-repeat,url(data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA) center top no-repeat;",
 				"background: transparent no-repeat center top; background-image: linear-gradient(transparent, transparent), url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA');");
 	}
 
@@ -60,16 +60,14 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundLayers() {
 		assertShorthandText(
-				"background:url('a.png') no-repeat,url('b.png') center/100% 100% no-repeat,url('c.png') white;",
-				"background: url(a.png) top left no-repeat,url(b.png) center / 100% 100% no-repeat,url(c.png) white;");
+				"background:url(a.png) no-repeat,url(b.png) center/100% 100% no-repeat,url(c.png) white;",
+				"background: url(a.png) top left no-repeat,url('b.png') center / 100% 100% no-repeat,url(c.png) white;");
 	}
 
 	@Test
 	public void testBackgroundLayersBad() {
-		emptyStyleDecl.setCssText(
+		assertShorthandText("background:url(bkg.png) 0 0/150px no-repeat;",
 				"background: url('bkg.png') no-repeat; background-size: 150px, 150px; background-position: 0 0;");
-		assertEquals("background:url('bkg.png') 0 0/150px no-repeat;",
-				emptyStyleDecl.getOptimizedCssText());
 	}
 
 	@Test
@@ -98,12 +96,12 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundLayerNone() {
-		assertShorthandText("background:url('a.png'),none;", "background: url(a.png),none;");
+		assertShorthandText("background:url(a.png),none;", "background: url(a.png),none;");
 	}
 
 	@Test
 	public void testBackgroundLayerNoneImportant() {
-		assertShorthandText("background:url('a.png'),none!important;",
+		assertShorthandText("background:url(a.png),none!important;",
 				"background: url(a.png),none ! important;");
 	}
 
@@ -125,9 +123,9 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundInheritBad() {
 		emptyStyleDecl.setCssText(
-				"background: url(a.png) top left no-repeat,url(b.png) center / 100% 100% no-repeat,url(c.png) inherit;");
+				"background: url(a.png) top left no-repeat,url('b.png') center / 100% 100% no-repeat,url('c.png') inherit;");
 		assertEquals(
-				"background:url('a.png') no-repeat,url('b.png') center/100% 100% no-repeat,inherit;",
+				"background:url(a.png) no-repeat,url(b.png) center/100% 100% no-repeat,inherit;",
 				emptyStyleDecl.getOptimizedCssText());
 	}
 
@@ -153,69 +151,69 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackground() {
-		assertShorthandText("background:url('bkg.png') 40%/10em round fixed border-box gray;",
+		assertShorthandText("background:url(bkg.png) 40%/10em round fixed border-box gray;",
 				"background: url('bkg.png') 40% / 10em gray round fixed border-box;");
 	}
 
 	@Test
 	public void testBackground2() {
-		assertShorthandText("background:url('bkg.png') right round fixed border-box gray;",
+		assertShorthandText("background:url(bkg.png) right round fixed border-box gray;",
 				"background: url('bkg.png') right center gray round fixed border-box;");
 	}
 
 	@Test
 	public void testBackground3() {
-		assertShorthandText("background:url('bkg.png') 0% 0%/10em round fixed border-box gray;",
+		assertShorthandText("background:url(bkg.png) 0% 0%/10em round fixed border-box gray;",
 				"background: url('bkg.png') 0% 0% / 10em gray round fixed border-box;");
 	}
 
 	@Test
 	public void testBackgroundContentB() {
 		assertShorthandText(
-				"background:url('bkg.png') calc(2*2%) calc(3*1%) no-repeat content-box;",
+				"background:url(bkg.png) calc(2*2%) calc(3*1%) no-repeat content-box;",
 				"background: url('bkg.png') calc(2*2%) calc(3*1%) content-box no-repeat no-repeat;");
 	}
 
 	@Test
 	public void testBackgroundPaddingB() {
-		assertShorthandText("background:url('bkg.png') space padding-box;",
+		assertShorthandText("background:url(bkg.png) space padding-box;",
 				"background: url('bkg.png') 0% 0% padding-box space space;");
 	}
 
 	@Test
 	public void testBackgroundContentBPaddingB() {
-		assertShorthandText("background:url('bkg.png') top round content-box padding-box;",
+		assertShorthandText("background:url(bkg.png) top round content-box padding-box;",
 				"background: url('bkg.png') top Center content-box padding-box round round;");
 	}
 
 	@Test
 	public void testBackgroundBorderBBorderB() {
-		assertShorthandText("background:url('bkg.png') 25% repeat-x border-box;",
+		assertShorthandText("background:url(bkg.png) 25% repeat-x border-box;",
 				"background: url('bkg.png') 25% border-box border-box repeat no-repeat;");
 	}
 
 	@Test
 	public void testBackgroundBorderBPaddingB() {
 		assertShorthandText(
-				"background:url('bkg.png') top right 5px repeat-y border-box padding-box;",
+				"background:url(bkg.png) top right 5px repeat-y border-box padding-box;",
 				"background: url('bkg.png') top right 5px border-box padding-box no-repeat repeat;");
 	}
 
 	@Test
 	public void testBackgroundPaddingBBorderB() {
-		assertShorthandText("background:url('bkg.png') round space local;",
+		assertShorthandText("background:url(bkg.png) round space local;",
 				"background: url('bkg.png') left top round space padding-box border-box local;");
 	}
 
 	@Test
 	public void testBackgroundBorderBText() {
-		assertShorthandText("background:url('bkg.png') bottom 1px right 2px border-box text;",
+		assertShorthandText("background:url(bkg.png) bottom 1px right 2px border-box text;",
 				"background: url('bkg.png') bottom 1px right 2px repeat repeat border-box text scroll rgba(0,0,0,0);");
 	}
 
 	@Test
 	public void testBackgroundBorderPos3Items() {
-		assertShorthandText("background:url('bkg.png') bottom 1px right repeat-x border-box text;",
+		assertShorthandText("background:url(bkg.png) bottom 1px right repeat-x border-box text;",
 				"background: url('bkg.png') bottom 1px right repeat-x border-box text;");
 	}
 
@@ -229,83 +227,83 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundVarAttachment() {
 		assertShorthandText(
-				"background-attachment:var(--my-value);background-clip:border-box;background-color:transparent;background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
+				"background-attachment:var(--my-value);background-clip:border-box;background-color:transparent;background-image:url(bkg.png);background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
 				"background: url('bkg.png');background-attachment:var(--my-value)");
 	}
 
 	@Test
 	public void testBackgroundVarRepeat() {
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:var(--my-value);background-size:auto auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url(bkg.png);background-origin:padding-box;background-position:0% 0%;background-repeat:var(--my-value);background-size:auto auto;",
 				"background: url('bkg.png');background-repeat:var(--my-value)");
 	}
 
 	@Test
 	public void testBackgroundVarPosition() {
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('bkg.png');background-origin:padding-box;background-position:var(--value);background-repeat:repeat;background-size:auto auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url(bkg.png);background-origin:padding-box;background-position:var(--value);background-repeat:repeat;background-size:auto auto;",
 				"background: url('bkg.png');background-position:var(--value)");
 	}
 
 	@Test
 	public void testBackgroundVarClip() {
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:var(--my-value);background-color:transparent;background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
+				"background-attachment:scroll;background-clip:var(--my-value);background-color:transparent;background-image:url(bkg.png);background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
 				"background: url('bkg.png');background-clip:var(--my-value)");
 	}
 
 	@Test
 	public void testBackgroundVarSize() {
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:var(--width);",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url(bkg.png);background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:var(--width);",
 				"background: url('bkg.png');background-size:var(--width)");
 	}
 
 	@Test
 	public void testBackgroundVarColor() {
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:var(--my-color);background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:var(--my-color);background-image:url(bkg.png);background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
 				"background: url('bkg.png');background-color:var(--my-color)");
 	}
 
 	@Test
 	public void testBackgroundIEHack() {
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat;background-size:auto \\9;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url(image.svg);background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat;background-size:auto \\9;",
 				"background: transparent url('image.svg') 15px 10px no-repeat;background-size: auto \\9;");
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat \\9;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url(image.svg);background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat \\9;background-size:auto;",
 				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px 10px;background-repeat:no-repeat \\9;background-size:auto;");
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px \\9;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url(image.svg);background-origin:padding-box;background-position:15px \\9;background-repeat:no-repeat;background-size:auto;",
 				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box;background-position:15px \\9;background-repeat:no-repeat;background-size:auto;");
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box\\9;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url(image.svg);background-origin:padding-box\\9;background-position:15px;background-repeat:no-repeat;background-size:auto;",
 				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box\\9;background-position:15px;background-repeat:no-repeat;background-size:auto;");
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box \\9;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url(image.svg);background-origin:padding-box \\9;background-position:15px;background-repeat:no-repeat;background-size:auto;",
 				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg');background-origin:padding-box \\9;background-position:15px;background-repeat:no-repeat;background-size:auto;");
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg') \\9;background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url(image.svg) \\9;background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
 				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('image.svg') \\9 ;background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent\\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent\\9;background-image:url(image.svg);background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
 				"background-attachment:scroll;background-clip:border-box;background-color:transparent\\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent \\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent \\9;background-image:url(image.svg);background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;",
 				"background-attachment:scroll;background-clip:border-box;background-color:transparent \\9;background-image:url('image.svg');background-origin:padding-box;background-position:15px;background-repeat:no-repeat;background-size:auto;");
 	}
 
 	@Test
 	public void testBackgroundData() {
 		assertShorthandText(
-				"background:url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA') 40%/10em round fixed border-box gray;",
+				"background:url(data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA) 40%/10em round fixed border-box gray;",
 				"background: url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA') 40% / 10em gray round fixed border-box;");
 	}
 
 	@Test
 	public void testBackgroundNoShorthand() {
-		assertShorthandText("background-image:url('bkg.png');",
+		assertShorthandText("background-image:url(bkg.png);",
 				"background-image: url('bkg.png');");
 	}
 
@@ -361,7 +359,7 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundBadIndividual() {
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:foo;",
+				"background-attachment:scroll;background-clip:border-box;background-color:transparent;background-image:url(bkg.png);background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:foo;",
 				"background: url('bkg.png'); background-size: foo;");
 	}
 
@@ -374,12 +372,12 @@ public class BackgroundBuilderTest {
 
 	@Test
 	public void testBackgroundImage() {
-		assertShorthandText("background:url('bkg.png');", "background: url('bkg.png');");
+		assertShorthandText("background:url(bkg.png);", "background: url('bkg.png');");
 	}
 
 	@Test
 	public void testBackgroundImage2() {
-		assertShorthandText("background:0 0,url('../img/foo.png') no-repeat;",
+		assertShorthandText("background:0 0,url(../img/foo.png) no-repeat;",
 				"background:0 0,url(../img/foo.png) no-repeat;");
 	}
 
@@ -405,39 +403,39 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundMisleadingColor() {
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:none;background-image:url('bkg.png');background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:none;background-image:url(bkg.png);background-origin:padding-box;background-position:0% 0%;background-repeat:repeat;background-size:auto auto;",
 				"background: url('bkg.png'); background-color: none");
 	}
 
 	@Test
 	public void testBackgroundMisleadingColor2() {
 		assertShorthandText(
-				"background-attachment:scroll;background-clip:border-box;background-color:url('foo.png');background-image:none;background-origin:padding-box;background-position:0% 0%;background-repeat:no-repeat;background-size:auto auto;",
+				"background-attachment:scroll;background-clip:border-box;background-color:url(foo.png);background-image:none;background-origin:padding-box;background-position:0% 0%;background-repeat:no-repeat;background-size:auto auto;",
 				"background: #ccee42 none no-repeat scroll; background-color: url('foo.png')");
 	}
 
 	@Test
 	public void testBackgroundLayered() {
 		assertShorthandText(
-				"background:inherit,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,olive;",
+				"background:inherit,url(../img/foo.png) bottom/cover no-repeat fixed padding-box content-box,olive;",
 				"background:inherit, url(../img/foo.png) bottom / cover no-repeat fixed padding-box content-box, olive;");
 	}
 
 	@Test
 	public void testBackgroundLayered2() {
 		assertShorthandText(
-				"background:none,url('../img/foo.png') bottom/cover no-repeat fixed content-box,none;",
+				"background:none,url(../img/foo.png) bottom/cover no-repeat fixed content-box,none;",
 				"background:none, url(../img/foo.png) bottom / cover no-repeat fixed content-box, padding-box border-box;");
 	}
 
 	@Test
 	public void testBackgroundImagePosition() {
-		assertShorthandText("background:url('bkg.png') 40%;", "background: url('bkg.png') 40%;");
+		assertShorthandText("background:url(bkg.png) 40%;", "background: url('bkg.png') 40%;");
 	}
 
 	@Test
 	public void testBackgroundImagePositionPlusAttachment() {
-		assertShorthandText("background:url('bkg.png') 40%;background-attachment:local!important;",
+		assertShorthandText("background:url(bkg.png) 40%;background-attachment:local!important;",
 				"background: url('bkg.png') 40%; background-attachment: local ! important;");
 	}
 

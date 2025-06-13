@@ -55,7 +55,8 @@ You can run a variety of Gradle tasks with the Gradle wrapper (on Windows shells
 
 - `./gradlew build` (normal build)
 - `./gradlew publishToMavenLocal` (to install in local Maven repository)
-- `./gradlew copyJars` (to copy jar files into a top-level _jar_ directory)
+- `./gradlew uberjar` (to produce a fat jar with all dependencies in `build/libs/css4j-<version>-alldeps.jar`)
+- `./gradlew copyJars` (to copy jar files, including the fat jar, into a top-level _jar_ directory)
 - `./gradlew testOn8` (run tests with Java 8)
 - `./gradlew jacocoTestReport` (produces a test coverage report in the `build/reports/jacoco/test/html` directory)
 - `./gradlew publish` (deploys to a Maven repository, as described in the `publishing.repositories.maven` block of

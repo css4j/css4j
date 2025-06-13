@@ -701,7 +701,7 @@ public class CalcValueTest {
 		assertEquals(CssType.PROXY, val.getCssValueType());
 		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
 		assertEquals("calc(var(--bar, 0.3rem))", val.getCssText());
-		assertEquals("calc(var(--bar,0.3rem))", val.getMinifiedCssText("margin-left"));
+		assertEquals("calc(var(--bar,.3rem))", val.getMinifiedCssText("margin-left"));
 
 		assertMatch(Match.PENDING, val, "<length>");
 		assertMatch(Match.PENDING, val, "<percentage> | <length>");
@@ -1093,7 +1093,7 @@ public class CalcValueTest {
 		assertEquals(CssType.PROXY, val.getCssValueType());
 		assertEquals(CSSValue.Type.LEXICAL, val.getPrimitiveType());
 		assertEquals("calc(1/attr(data-pitch type(<time>), 1ms) + 1/0.0025s)", val.getCssText());
-		assertEquals("calc(1/attr(data-pitch type(<time>),1ms) + 1/0.0025s)",
+		assertEquals("calc(1/attr(data-pitch type(<time>),1ms) + 1/.0025s)",
 				val.getMinifiedCssText("pitch"));
 
 		assertMatch(Match.TRUE, val, "<frequency>");

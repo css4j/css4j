@@ -12,34 +12,56 @@
 package io.sf.carte.doc.style.css.util;
 
 import java.io.IOException;
+import java.util.BitSet;
+import java.util.LinkedList;
 import java.util.Locale;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
-import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.PageSelectorList;
 import io.sf.carte.doc.style.css.nsac.ParserControl;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.om.BaseCSSStyleDeclaration;
+import io.sf.carte.doc.style.css.om.DefaultStyleDeclarationErrorHandler;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.LexicalValue;
+import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
+import io.sf.carte.doc.style.css.util.Minify.Config;
 import io.sf.carte.util.SimpleWriter;
 
 class MinifySheetHandler implements CSSHandler {
 
+	/*
+	 * There is no constant in CSSRule for feature maps, so create one.
+	 */
+	private static final short FEATURE_MAP = 63;
+
 	private boolean ignoreImports = false;
+
+	private LinkedList<Short> currentRule = new LinkedList<>();
+
+	private BitSet ruleContent = new BitSet();
 
 	private ValueFactory factory = new ValueFactory();
 
 	private SimpleWriter writer;
 
-	MinifySheetHandler(SimpleWriter wri) {
+	private StringBuilder ruleBuf = new StringBuilder(128);
+
+	private final Config config;
+
+	MinifySheetHandler(SimpleWriter wri, Config config) {
 		super();
 		this.writer = wri;
+		this.config = config;
 	}
 
 	@Override
@@ -69,23 +91,42 @@ class MinifySheetHandler implements CSSHandler {
 		}
 	}
 
+	private void writeBuf() {
+		if (ruleBuf.length() > 0) {
+			write(ruleBuf);
+			ruleBuf.setLength(0);
+		}
+	}
+
+	private void appendBuf(char c) {
+		ruleBuf.append(c);
+	}
+
+	private void appendBuf(CharSequence seq) {
+		ruleBuf.append(seq);
+	}
+
 	@Override
 	public void comment(String text, boolean precededByLF) {
 		if (!text.isEmpty() && text.charAt(0) == '!') {
-			write("/*");
-			write(text);
-			write("*/");
+			appendBuf("/*");
+			appendBuf(text);
+			appendBuf("*/");
+			// This comment is important and counts as rule content
+			setRuleContent();
 		}
 	}
 
 	@Override
 	public void ignorableAtRule(String atRule) {
+		writeBuf();
 		// Ignorable @-rule
 		write(atRule);
 	}
 
 	@Override
 	public void namespaceDeclaration(String prefix, String uri) {
+		writeBuf();
 		write("@namespace ");
 		if (prefix != null && !prefix.isEmpty()) {
 			write(prefix);
@@ -110,6 +151,8 @@ class MinifySheetHandler implements CSSHandler {
 			return;
 		}
 
+		writeBuf();
+
 		write("@import ");
 
 		writeURL(uri);
@@ -128,9 +171,9 @@ class MinifySheetHandler implements CSSHandler {
 			write(' ');
 			write("supports");
 			write('(');
-			StringBuilder buf = new StringBuilder();
-			supportsCondition.appendMinifiedText(buf);
-			write(buf);
+			supportsCondition.appendMinifiedText(ruleBuf);
+			write(ruleBuf);
+			ruleBuf.setLength(0);
 			write(')');
 		}
 
@@ -146,11 +189,12 @@ class MinifySheetHandler implements CSSHandler {
 	public void startSupports(BooleanCondition condition) {
 		// Starting @supports block
 		ignoreImports = true;
-		write("@supports ");
-		StringBuilder buf = new StringBuilder();
-		condition.appendMinifiedText(buf);
-		write(buf);
-		write('{');
+		currentRule.add(CSSRule.SUPPORTS_RULE);
+		writeBuf();
+
+		appendBuf("@supports ");
+		condition.appendMinifiedText(ruleBuf);
+		appendBuf('{');
 	}
 
 	@Override
@@ -162,13 +206,16 @@ class MinifySheetHandler implements CSSHandler {
 	public void startMedia(MediaQueryList media) {
 		// Starting @media block
 		ignoreImports = true;
-		write("@media");
+		currentRule.add(CSSRule.MEDIA_RULE);
+		writeBuf();
+
+		appendBuf("@media");
 
 		if (media != null) {
-			write(' ');
-			write(media.getMinifiedMedia());
+			appendBuf(' ');
+			appendBuf(media.getMinifiedMedia());
 		}
-		write('{');
+		appendBuf('{');
 	}
 
 	@Override
@@ -179,12 +226,15 @@ class MinifySheetHandler implements CSSHandler {
 	@Override
 	public void startPage(PageSelectorList pageSelectorList) {
 		ignoreImports = true;
-		write("@page");
+		writeBuf();
+		currentRule.add(CSSRule.PAGE_RULE);
+
+		appendBuf("@page");
 		if (pageSelectorList != null) {
-			write(' ');
-			write(pageSelectorList.toString());
+			appendBuf(' ');
+			appendBuf(pageSelectorList.toString());
 		}
-		write('{');
+		appendBuf('{');
 	}
 
 	@Override
@@ -194,9 +244,12 @@ class MinifySheetHandler implements CSSHandler {
 
 	@Override
 	public void startMargin(String name) {
-		write('@');
-		write(name);
-		write('{');
+		writeBuf();
+		currentRule.add(CSSRule.MARGIN_RULE);
+
+		appendBuf('@');
+		appendBuf(name);
+		appendBuf('{');
 	}
 
 	@Override
@@ -207,7 +260,10 @@ class MinifySheetHandler implements CSSHandler {
 	@Override
 	public void startFontFace() {
 		ignoreImports = true;
-		write("@font-face{");
+		writeBuf();
+		currentRule.add(CSSRule.FONT_FACE_RULE);
+
+		appendBuf("@font-face{");
 	}
 
 	@Override
@@ -218,9 +274,12 @@ class MinifySheetHandler implements CSSHandler {
 	@Override
 	public void startCounterStyle(String name) {
 		ignoreImports = true;
-		write("@counter-style ");
-		write(name);
-		write('{');
+		writeBuf();
+		currentRule.add(CSSRule.COUNTER_STYLE_RULE);
+
+		appendBuf("@counter-style ");
+		appendBuf(name);
+		appendBuf('{');
 	}
 
 	@Override
@@ -231,55 +290,60 @@ class MinifySheetHandler implements CSSHandler {
 	@Override
 	public void startKeyframes(String name) {
 		ignoreImports = true;
-		write("@keyframes ");
-		write(name);
-		write('{');
+		writeBuf();
+		currentRule.add(CSSRule.KEYFRAMES_RULE);
+
+		appendBuf("@keyframes ");
+		appendBuf(name);
+		appendBuf('{');
 	}
 
 	@Override
 	public void endKeyframes() {
-		write('}');
+		endGenericRule(CSSRule.KEYFRAMES_RULE);
 	}
 
 	@Override
 	public void startKeyframe(LexicalUnit keyframeSelector) {
-		StringBuilder buf = new StringBuilder();
-		write(miniKeyframeSelector(buf, keyframeSelector));
-		write('{');
+		writeBuf();
+		setRuleContent(CSSRule.KEYFRAMES_RULE);
+		currentRule.add(CSSRule.PAGE_RULE);
+
+		miniKeyframeSelector(keyframeSelector);
+		appendBuf('{');
 	}
 
-	private static String miniKeyframeSelector(StringBuilder buffer, LexicalUnit selunit) {
-		appendMiniSelector(buffer, selunit);
+	private void miniKeyframeSelector(LexicalUnit selunit) {
+		appendMiniSelector(selunit);
 		LexicalUnit lu = selunit.getNextLexicalUnit();
 		while (lu != null) {
 			LexicalUnit nextlu = lu.getNextLexicalUnit();
-			buffer.append(',');
-			appendMiniSelector(buffer, nextlu);
+			ruleBuf.append(',');
+			appendMiniSelector(nextlu);
 			lu = nextlu.getNextLexicalUnit();
 		}
-		return buffer.toString();
 	}
 
-	private static void appendMiniSelector(StringBuilder buffer, LexicalUnit selunit) {
+	private void appendMiniSelector(LexicalUnit selunit) {
 		LexicalType type = selunit.getLexicalUnitType();
 		if (type == LexicalType.IDENT || type == LexicalType.STRING) {
-			buffer.append(selunit.getStringValue());
+			ruleBuf.append(selunit.getStringValue());
 		} else if (type == LexicalType.PERCENTAGE) {
 			float floatValue = selunit.getFloatValue();
 			if (floatValue == 0f) {
-				buffer.append('0');
+				ruleBuf.append('0');
 				return;
 			}
 			if (floatValue % 1 != 0) {
-				buffer.append(String.format(Locale.ROOT, "%s", floatValue));
+				ruleBuf.append(String.format(Locale.ROOT, "%s", floatValue));
 			} else {
-				buffer.append(String.format(Locale.ROOT, "%.0f", floatValue));
+				ruleBuf.append(String.format(Locale.ROOT, "%.0f", floatValue));
 			}
-			buffer.append('%');
+			ruleBuf.append('%');
 		} else if (type == LexicalType.INTEGER && selunit.getIntegerValue() == 0) {
-			buffer.append('0');
+			ruleBuf.append('0');
 		} else {
-			buffer.append(selunit.getCssText());
+			ruleBuf.append(selunit.getCssText());
 		}
 	}
 
@@ -291,25 +355,32 @@ class MinifySheetHandler implements CSSHandler {
 	@Override
 	public void startFontFeatures(String[] familyName) {
 		ignoreImports = true;
-		write("@font-feature-values ");
-		write(familyName[0]);
+		writeBuf();
+		currentRule.add(CSSRule.FONT_FEATURE_VALUES_RULE);
+
+		appendBuf("@font-feature-values ");
+		appendBuf(familyName[0]);
 		for (int i = 1; i < familyName.length; i++) {
-			write(',');
-			write(familyName[i]);
+			appendBuf(',');
+			appendBuf(familyName[i]);
 		}
-		write('{');
+		appendBuf('{');
 	}
 
 	@Override
 	public void endFontFeatures() {
-		write('}');
+		endGenericRule(CSSRule.FONT_FEATURE_VALUES_RULE);
 	}
 
 	@Override
 	public void startFeatureMap(String mapName) {
-		write('@');
-		write(mapName);
-		write('{');
+		writeBuf();
+		setRuleContent(CSSRule.FONT_FEATURE_VALUES_RULE);
+		currentRule.add(FEATURE_MAP);
+
+		appendBuf('@');
+		appendBuf(mapName);
+		appendBuf('{');
 	}
 
 	@Override
@@ -320,9 +391,12 @@ class MinifySheetHandler implements CSSHandler {
 	@Override
 	public void startProperty(String name) {
 		ignoreImports = true;
-		write("@property ");
-		write(name);
-		write('{');
+		writeBuf();
+		currentRule.add(CSSRule.PROPERTY_RULE);
+
+		appendBuf("@property ");
+		appendBuf(name);
+		appendBuf('{');
 	}
 
 	@Override
@@ -333,8 +407,11 @@ class MinifySheetHandler implements CSSHandler {
 	@Override
 	public void startSelector(SelectorList selectors) {
 		ignoreImports = true;
-		write(selectors.toString());
-		write('{');
+		writeBuf();
+		currentRule.add(CSSRule.STYLE_RULE);
+
+		appendBuf(selectors.toString());
+		appendBuf('{');
 	}
 
 	@Override
@@ -343,30 +420,103 @@ class MinifySheetHandler implements CSSHandler {
 	}
 
 	private void endDeclarationsRule() {
-		try {
-			if (writer.getLastChar() == ';') {
-				writer.unwrite();
+		short idx = currentRule.removeLast().shortValue();
+		if (ruleContent.get(idx)) {
+			// The rule is not empty
+			if (!currentRule.contains(idx)) {
+				// Not nested inside another rule of same type
+				ruleContent.set(idx, false);
 			}
-		} catch (UnsupportedOperationException e) {
+			int len = ruleBuf.length();
+			if (len > 0) {
+				char last = ruleBuf.charAt(len - 1);
+				if (last == ';') {
+					ruleBuf.setLength(len - 1);
+				}
+			}
+			appendBuf('}');
+			write(ruleBuf);
 		}
-		write('}');
+		ruleBuf.setLength(0);
+	}
+
+	private void endGenericRule(short ruleId) {
+		if (ruleContent.get(ruleId)) {
+			// The rule is not empty
+			if (!currentRule.contains(ruleId)) {
+				// Not nested inside another rule of same type
+				ruleContent.set(ruleId, false);
+			}
+			appendBuf('}');
+			write(ruleBuf);
+		}
+		ruleBuf.setLength(0);
 	}
 
 	@Override
 	public void property(String name, LexicalUnit value, boolean important) {
-		write(name);
-		write(':');
+		setRuleContent();
 
-		serializeValue(value);
+		appendBuf(name);
+		appendBuf(':');
 
-		if (important) {
-			write("!important");
+		if (ShorthandDatabase.getInstance().isShorthand(name)
+				&& !config.isDisabledShorthand(name)) {
+			StringBuilder buf = new StringBuilder(32);
+			serializeValue(value, buf);
+
+			DefaultStyleDeclarationErrorHandler eh = new DefaultStyleDeclarationErrorHandler();
+			BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public StyleDeclarationErrorHandler getStyleDeclarationErrorHandler() {
+					return eh;
+				}
+
+			};
+
+			CharSequence seq = buf;
+			try {
+				style.setProperty(name, value, important);
+				if (!style.getStyleDeclarationErrorHandler().hasErrors()) {
+					String decl = style.getMinifiedPropertyValue(name);
+					if (buf.length() > decl.length() && !decl.isEmpty()) {
+						seq = decl;
+					}
+				}
+			} catch (Exception e) {
+			}
+			appendBuf(seq);
+		} else {
+			serializeValue(value, ruleBuf);
 		}
 
-		write(';');
+		if (important) {
+			appendBuf("!important");
+		}
+
+		appendBuf(';');
 	}
 
-	private void serializeValue(LexicalUnit value) {
+	/**
+	 * Set that the given rule contains content.
+	 */
+	private void setRuleContent(short ruleId) {
+		ruleContent.set(ruleId);
+	}
+
+	/**
+	 * Set that the current rule(s) contains content.
+	 */
+	private void setRuleContent() {
+		for (short ruleId : currentRule) {
+			ruleContent.set(ruleId);
+		}
+	}
+
+	private void serializeValue(LexicalUnit value, StringBuilder buf) {
 		String mini = LexicalValue.serializeMinifiedSequence(value);
 		try {
 			StyleValue omvalue = factory.createCSSValue(value);
@@ -374,18 +524,29 @@ class MinifySheetHandler implements CSSHandler {
 			if (omvalue.getPrimitiveType() != Type.LEXICAL) {
 				String ommini = omvalue.getMinifiedCssText();
 				if (ommini.length() < mini.length()) {
-					write(ommini);
+					buf.append(ommini);
 					return;
 				}
 			}
 		} catch (Exception e) {
 		}
-		write(mini);
+		buf.append(mini);
 	}
 
 	@Override
 	public void lexicalProperty(String name, LexicalUnit lunit, boolean important) {
-		property(name, lunit, important);
+		setRuleContent();
+
+		appendBuf(name);
+		appendBuf(':');
+
+		serializeValue(lunit, ruleBuf);
+
+		if (important) {
+			appendBuf("!important");
+		}
+
+		appendBuf(';');
 	}
 
 }

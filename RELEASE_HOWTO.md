@@ -135,9 +135,9 @@ folders in https://sourceforge.net/projects/carte/files/css4j/
 Summarize the most important changes in the release description, using the
 Release Notes as a source.
 
-Add to the Github release the five css4j _jar_ files from the `jar` directory
-in your copy of the css4j release, as well as the zip distribution file mentioned
-above.
+Add to the Github release the six css4j _jar_ files from the `jar` directory in
+your copy of the css4j release, including the uber-jar, as well as the zip
+distribution file mentioned above.
 
 15) Verify that the new [Github packages](https://github.com/orgs/css4j/packages?repo_name=css4j)
 were created successfully by the [Gradle Package](https://github.com/css4j/css4j/actions/workflows/gradle-publish.yml)

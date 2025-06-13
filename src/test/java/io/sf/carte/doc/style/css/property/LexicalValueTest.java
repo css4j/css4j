@@ -293,7 +293,7 @@ public class LexicalValueTest {
 
 		value.setCssText("url('http://example.com/')");
 		assertEquals("url('http://example.com/')", value.getCssText());
-		assertEquals("url('http://example.com/')", value.getMinifiedCssText(null));
+		assertEquals("url(http://example.com/)", value.getMinifiedCssText(null));
 
 		// Syntax matching
 		SyntaxParser syntaxParser = new SyntaxParser();
@@ -375,7 +375,7 @@ public class LexicalValueTest {
 
 		assertEquals(CssType.PROXY, cssval.getCssValueType());
 		assertEquals(Type.LEXICAL, cssval.getPrimitiveType());
-		assertEquals("cubic-bezier(0.33,var(--y1-x2y2))", cssval.getMinifiedCssText());
+		assertEquals("cubic-bezier(.33,var(--y1-x2y2))", cssval.getMinifiedCssText());
 
 		assertEquals(Type.CUBIC_BEZIER, ((CSSLexicalValue) cssval).getFinalType());
 	}
@@ -740,7 +740,7 @@ public class LexicalValueTest {
 
 		assertEquals("lab(calc(var(--l)*2) calc(var(--a) + 0.05) calc(var(--b) - var(--b)/2))",
 			value.getCssText());
-		assertEquals("lab(calc(var(--l)*2) calc(var(--a) + 0.05) calc(var(--b) - var(--b)/2))",
+		assertEquals("lab(calc(var(--l)*2) calc(var(--a) + .05) calc(var(--b) - var(--b)/2))",
 			value.getMinifiedCssText("color"));
 
 		SyntaxParser synParser = new SyntaxParser();
@@ -781,7 +781,7 @@ public class LexicalValueTest {
 			"lab(clamp(2%, calc(var(--color-l) - 17%), 30%) clamp(0.1, calc(var(--color-a) - 0.3), 1.1) clamp(-1, var(--color-b), 1))",
 			value.getCssText());
 		assertEquals(
-			"lab(clamp(2%,calc(var(--color-l) - 17%),30%) clamp(0.1,calc(var(--color-a) - 0.3),1.1) clamp(-1,var(--color-b),1))",
+			"lab(clamp(2%,calc(var(--color-l) - 17%),30%) clamp(.1,calc(var(--color-a) - .3),1.1) clamp(-1,var(--color-b),1))",
 			value.getMinifiedCssText("color"));
 
 		SyntaxParser synParser = new SyntaxParser();
@@ -861,7 +861,7 @@ public class LexicalValueTest {
 			"lch(clamp(2%, calc(var(--color-l) - 17%), 30%) clamp(0.1, calc(var(--color-c) - 0.3), 1.1) clamp(100deg, var(--color-h), 120deg))",
 			value.getCssText());
 		assertEquals(
-			"lch(clamp(2%,calc(var(--color-l) - 17%),30%) clamp(0.1,calc(var(--color-c) - 0.3),1.1) clamp(100deg,var(--color-h),120deg))",
+			"lch(clamp(2%,calc(var(--color-l) - 17%),30%) clamp(.1,calc(var(--color-c) - .3),1.1) clamp(100deg,var(--color-h),120deg))",
 			value.getMinifiedCssText("color"));
 
 		SyntaxParser synParser = new SyntaxParser();
@@ -980,7 +980,7 @@ public class LexicalValueTest {
 		assertEquals(Type.LEXICAL, value.getPrimitiveType());
 
 		assertEquals("color(var(--space) 0.1 0.2 0.3)", value.getCssText());
-		assertEquals("color(var(--space) 0.1 0.2 0.3)", value.getMinifiedCssText("color"));
+		assertEquals("color(var(--space) .1 .2 .3)", value.getMinifiedCssText("color"));
 
 		SyntaxParser synParser = new SyntaxParser();
 		CSSValueSyntax synColor = synParser.parseSyntax("<color>");

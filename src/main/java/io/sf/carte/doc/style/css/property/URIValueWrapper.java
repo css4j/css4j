@@ -78,7 +78,7 @@ public class URIValueWrapper extends URIValue implements WrappedValue {
 		}
 		int lastSlash;
 		if (parentSheetHref == null || (lastSlash = parentSheetHref.lastIndexOf('/')) == -1) {
-			return super.getCssText();
+			return super.getMinifiedCssText();
 		}
 		String base = parentSheetHref.substring(0, lastSlash + 1);
 		URI uri, baseUri;
@@ -90,8 +90,10 @@ public class URIValueWrapper extends URIValue implements WrappedValue {
 		}
 		baseUri = baseUri.normalize();
 		String reluri = baseUri.relativize(uri).toASCIIString();
-		String quoted = ParseHelper.quote(reluri, quote);
-		return "url(" + quoted + ')';
+		if (!LexicalValue.urlCanBeUnquoted(sv)) {
+			reluri = ParseHelper.quote(reluri, quote);
+		}
+		return "url(" + reluri + ')';
 	}
 
 	@Override

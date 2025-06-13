@@ -563,7 +563,7 @@ public class ColorMixFunctionTest {
 				"color-mix(in oklab, oklch(0.831 0.1602 167.34) attr(data-pcnt1 type(<percentage>)), hwb(186.2 29% 12%))",
 				value.getCssText());
 		assertEquals(
-				"color-mix(in oklab,oklch(0.831 0.1602 167.34) attr(data-pcnt1 type(<percentage>)),hwb(186.2 29% 12%))",
+				"color-mix(in oklab,oklch(.831 .1602 167.34) attr(data-pcnt1 type(<percentage>)),hwb(186.2 29% 12%))",
 				value.getMinifiedCssText("color"));
 
 		BufferSimpleWriter wri = new BufferSimpleWriter(100);

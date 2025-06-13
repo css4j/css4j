@@ -36,20 +36,20 @@ public class SequenceShorthandBuilderTest {
 
 	@Test
 	public void testBuilderNoShorthand() {
-		assertShorthandText("cue-before:url('foo.au');", "cue-before: url('foo.au')");
+		assertShorthandText("cue-before:url(foo.au);", "cue-before: url('foo.au')");
 	}
 
 	@Test
 	public void testBuilder() {
 		assertShorthandText("cue:none;", "cue: initial;");
-		assertShorthandText("cue:url('foo.au');", "cue: url('foo.au'); ");
-		assertShorthandText("cue:url('foo.au') url('bar.au');",
+		assertShorthandText("cue:url(foo.au);", "cue: url('foo.au'); ");
+		assertShorthandText("cue:url(foo.au) url(bar.au);",
 				"cue: url('foo.au') url('bar.au'); ");
 	}
 
 	@Test
 	public void testBuilderVar() {
-		assertShorthandText("cue:var(--foo,url('foo.au'));", "cue: var(--foo,url('foo.au')); ");
+		assertShorthandText("cue:var(--foo,url(foo.au));", "cue: var(--foo,url('foo.au')); ");
 	}
 
 	@Test
@@ -57,20 +57,20 @@ public class SequenceShorthandBuilderTest {
 		/*
 		 * Not very realistic examples
 		 */
-		assertShorthandText("cue-after:inherit;cue-before:url('foo.au');",
+		assertShorthandText("cue-after:inherit;cue-before:url(foo.au);",
 				"cue-before: url('foo.au'); cue-after:inherit;");
-		assertShorthandText("cue-after:revert;cue-before:url('foo.au');",
+		assertShorthandText("cue-after:revert;cue-before:url(foo.au);",
 				"cue-before: url('foo.au'); cue-after:revert;");
-		assertShorthandText("cue:url('foo.au') none;",
+		assertShorthandText("cue:url(foo.au) none;",
 				"cue-before: url('foo.au'); cue-after:unset;");
-		assertShorthandText("cue:url('foo.au') none;",
+		assertShorthandText("cue:url(foo.au) none;",
 				"cue-before: url('foo.au'); cue-after:initial;");
 	}
 
 	@Test
 	public void testBuilderImportant() {
 		assertShorthandText("cue:none!important;", "cue: initial!important;");
-		assertShorthandText("cue:url('foo.au')!important;", "cue: url('foo.au') !important; ");
+		assertShorthandText("cue:url(foo.au)!important;", "cue: url('foo.au') !important; ");
 	}
 
 	@Test

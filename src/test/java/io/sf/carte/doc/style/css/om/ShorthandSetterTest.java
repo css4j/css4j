@@ -1862,7 +1862,7 @@ public class ShorthandSetterTest {
 		assertEquals("url('foo.png')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		result = emptyStyleDecl.getMinifiedCssText();
 		assertEquals(
-				"border-image:url('foo.png');border-top:1px blue;border-right:2px yellow;border-bottom:3px navy;border-left:4px orange;",
+				"border-image:url(foo.png);border-top:1px blue;border-right:2px yellow;border-bottom:3px navy;border-left:4px orange;",
 				result);
 		emptyStyleDecl.setCssText(result);
 		assertEquals("none", emptyStyleDecl.getPropertyValue("border-top-style"));
@@ -2437,7 +2437,7 @@ public class ShorthandSetterTest {
 				"background: url('a.png') top left no-repeat, url('b.png') center / 100% 100% no-repeat, url('c.png') white; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:url('a.png') top left no-repeat,url('b.png') center/100% 100% no-repeat,url('c.png') white;",
+				"background:url(a.png) top left no-repeat,url(b.png) center/100% 100% no-repeat,url(c.png) white;",
 				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
@@ -2611,7 +2611,7 @@ public class ShorthandSetterTest {
 		assertEquals("round", emptyStyleDecl.getPropertyValue("background-repeat"));
 		assertEquals("background: url('bkg.png') 40% / 10em gray round fixed border-box; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("background:url('bkg.png') 40%/10em gray round fixed border-box;",
+		assertEquals("background:url(bkg.png) 40%/10em gray round fixed border-box;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -2629,7 +2629,7 @@ public class ShorthandSetterTest {
 		assertEquals("round", emptyStyleDecl.getPropertyValue("background-repeat"));
 		assertEquals("background: url('bkg.png') right center gray round fixed border-box; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("background:url('bkg.png') right center gray round fixed border-box;",
+		assertEquals("background:url(bkg.png) right center gray round fixed border-box;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -2646,7 +2646,7 @@ public class ShorthandSetterTest {
 		assertEquals("no-repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
 		assertEquals("background: url('bkg.png') 50% / cover no-repeat; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("background:url('bkg.png') 50%/cover no-repeat;",
+		assertEquals("background:url(bkg.png) 50%/cover no-repeat;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -2658,14 +2658,14 @@ public class ShorthandSetterTest {
 				"radial-gradient(closest-side, rgba(32, 45, 46, 0), #da212e), url('//example.com/img/image.jpg')",
 				emptyStyleDecl.getPropertyValue("background-image"));
 		assertEquals(
-				"radial-gradient(closest-side,rgba(32,45,46,0),#da212e),url('//example.com/img/image.jpg')",
+				"radial-gradient(closest-side,rgba(32,45,46,0),#da212e),url(//example.com/img/image.jpg)",
 				emptyStyleDecl.getPropertyCSSValue("background-image")
 						.getMinifiedCssText("background-image"));
 		assertEquals(
 				"background: radial-gradient(closest-side, rgba(32, 45, 46, 0), #da212e), url('//example.com/img/image.jpg'); ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:radial-gradient(closest-side,rgba(32,45,46,0),#da212e),url('//example.com/img/image.jpg');",
+				"background:radial-gradient(closest-side,rgba(32,45,46,0),#da212e),url(//example.com/img/image.jpg);",
 				emptyStyleDecl.getMinifiedCssText());
 		assertEquals("0% 0%, 0% 0%", emptyStyleDecl.getPropertyValue("background-position"));
 		assertEquals("auto auto, auto auto", emptyStyleDecl.getPropertyValue("background-size"));
@@ -2690,7 +2690,7 @@ public class ShorthandSetterTest {
 		assertEquals("repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
 		assertEquals("background: url('//www.example.com/dir/image.png') padding-box border-box; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("background:url('//www.example.com/dir/image.png') padding-box border-box;",
+		assertEquals("background:url(//www.example.com/dir/image.png) padding-box border-box;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -2710,7 +2710,7 @@ public class ShorthandSetterTest {
 				"background: url('bkg.png') right center gray content-box round fixed border-box; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:url('bkg.png') right center gray content-box round fixed border-box;",
+				"background:url(bkg.png) right center gray content-box round fixed border-box;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -2737,7 +2737,7 @@ public class ShorthandSetterTest {
 				"background: url(\"https://example.com/\") 1px 2px / 3px 4px space round local padding-box content-box, #050607 url(\"https://example.com/foo\") 1px 2px / 3px 4px space round local padding-box content-box; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:url(\"https://example.com/\") 1px 2px/3px 4px space round local padding-box content-box,#050607 url(\"https://example.com/foo\") 1px 2px/3px 4px space round local padding-box content-box;",
+				"background:url(https://example.com/) 1px 2px/3px 4px space round local padding-box content-box,#050607 url(https://example.com/foo) 1px 2px/3px 4px space round local padding-box content-box;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -2789,7 +2789,7 @@ public class ShorthandSetterTest {
 		assertEquals(
 				"background: url('bkg.png') 40%/var(--width, 10em) gray round fixed border-box; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("background:url('bkg.png') 40%/var(--width,10em) gray round fixed border-box;",
+		assertEquals("background:url(bkg.png) 40%/var(--width,10em) gray round fixed border-box;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -2809,7 +2809,7 @@ public class ShorthandSetterTest {
 				"background: url('bkg.png') 40%/10em var(--my-color, gray) round fixed border-box; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:url('bkg.png') 40%/10em var(--my-color,gray) round fixed border-box;",
+				"background:url(bkg.png) 40%/10em var(--my-color,gray) round fixed border-box;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -2850,7 +2850,7 @@ public class ShorthandSetterTest {
 		assertEquals("repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
 		assertEquals("transparent", emptyStyleDecl.getPropertyValue("background-color"));
 		assertEquals("background: url('bkg.png'); ", emptyStyleDecl.getCssText());
-		assertEquals("background:url('bkg.png');", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("background:url(bkg.png);", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
@@ -2872,7 +2872,7 @@ public class ShorthandSetterTest {
 		assertEquals("repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
 		assertEquals("orange", emptyStyleDecl.getPropertyValue("background-color"));
 		assertEquals("background: url('bkg.png') orange; ", emptyStyleDecl.getCssText());
-		assertEquals("background:url('bkg.png') orange;", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("background:url(bkg.png) orange;", emptyStyleDecl.getMinifiedCssText());
 	}
 
 	@Test
@@ -2891,7 +2891,7 @@ public class ShorthandSetterTest {
 		assertEquals("transparent", emptyStyleDecl.getPropertyValue("background-color"));
 		assertEquals("background: 0 0, url('../img/foo.png') no-repeat; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("background:0 0,url('../img/foo.png') no-repeat;",
+		assertEquals("background:0 0,url(../img/foo.png) no-repeat;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -2931,7 +2931,7 @@ public class ShorthandSetterTest {
 		assertEquals("none", emptyStyleDecl.getPropertyValue("background-color"));
 		assertEquals("background: url('../img/foo.png') no-repeat; background-color: none; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("background:url('../img/foo.png') no-repeat;background-color:none",
+		assertEquals("background:url(../img/foo.png) no-repeat;background-color:none",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -3013,7 +3013,7 @@ public class ShorthandSetterTest {
 				"background: #fbd url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA') no-repeat right 8px; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:#fbd url('data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA') no-repeat right 8px;",
+				"background:#fbd url(data:image/png;base64,R0lGODdhMAAwAPAAAAAAAP///ywAAAA) no-repeat right 8px;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -3046,7 +3046,7 @@ public class ShorthandSetterTest {
 				"background: inherit, url('../img/foo.png') bottom / cover no-repeat fixed padding-box content-box, olive; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:inherit,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,olive;",
+				"background:inherit,url(../img/foo.png) bottom/cover no-repeat fixed padding-box content-box,olive;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -3073,7 +3073,7 @@ public class ShorthandSetterTest {
 				"background: none, url('../img/foo.png') bottom / cover no-repeat fixed padding-box content-box, padding-box border-box; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:none,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,padding-box border-box;",
+				"background:none,url(../img/foo.png) bottom/cover no-repeat fixed padding-box content-box,padding-box border-box;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -3100,7 +3100,7 @@ public class ShorthandSetterTest {
 				"background: none, url('../img/foo.png') bottom / cover no-repeat fixed padding-box content-box, none; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:none,url('../img/foo.png') bottom/cover no-repeat fixed padding-box content-box,none;",
+				"background:none,url(../img/foo.png) bottom/cover no-repeat fixed padding-box content-box,none;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -3127,7 +3127,7 @@ public class ShorthandSetterTest {
 				"background: url('a.png') top left no-repeat, url('b.png') center / 100% 100% no-repeat, url('c.png'); ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"background:url('a.png') top left no-repeat,url('b.png') center/100% 100% no-repeat,url('c.png');",
+				"background:url(a.png) top left no-repeat,url(b.png) center/100% 100% no-repeat,url(c.png);",
 				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
@@ -3160,7 +3160,7 @@ public class ShorthandSetterTest {
 		assertEquals("scroll", emptyStyleDecl.getPropertyValue("background-attachment"));
 		assertEquals("repeat", emptyStyleDecl.getPropertyValue("background-repeat"));
 		assertEquals("background: url('bkg.png') 40%; ", emptyStyleDecl.getCssText());
-		assertEquals("background:url('bkg.png') 40%;", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("background:url(bkg.png) 40%;", emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -3279,7 +3279,7 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("border-image-repeat").isSubproperty());
 		assertEquals("border-image: url('/img/border.png') 25% 30% 12% 20% fill / 2pt / 1 round; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("border-image:url('/img/border.png') 25% 30% 12% 20% fill/2pt/1 round;",
+		assertEquals("border-image:url(/img/border.png) 25% 30% 12% 20% fill/2pt/1 round;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -3296,7 +3296,7 @@ public class ShorthandSetterTest {
 		assertEquals(
 				"border-image: url('/img/border.png') 25% 30% 12% 20% fill / 2pt 4pt / 1 3 round; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("border-image:url('/img/border.png') 25% 30% 12% 20% fill/2pt 4pt/1 3 round;",
+		assertEquals("border-image:url(/img/border.png) 25% 30% 12% 20% fill/2pt 4pt/1 3 round;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -3314,7 +3314,7 @@ public class ShorthandSetterTest {
 		assertEquals("2pt", emptyStyleDecl.getPropertyValue("border-image-width"));
 		assertEquals("border-image: url('/img/border.png') 25% 30% / 2pt round; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("border-image:url('/img/border.png') 25% 30%/2pt round;",
+		assertEquals("border-image:url(/img/border.png) 25% 30%/2pt round;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -3332,7 +3332,7 @@ public class ShorthandSetterTest {
 		assertEquals("auto", emptyStyleDecl.getPropertyValue("border-image-width"));
 		assertEquals("border-image: url('/img/border.png') 25% 30% / auto round; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("border-image:url('/img/border.png') 25% 30%/auto round;",
+		assertEquals("border-image:url(/img/border.png) 25% 30%/auto round;",
 				emptyStyleDecl.getMinifiedCssText());
 
 		emptyStyleDecl.setCssText("border-image: none 25% 30% / auto round;");
@@ -3380,7 +3380,7 @@ public class ShorthandSetterTest {
 		assertEquals("0", emptyStyleDecl.getPropertyValue("border-image-outset"));
 		assertEquals("border-width: 8px; border-image: url('foo.png') 9 repeat; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("border-width:8px;border-image:url('foo.png') 9 repeat;",
+		assertEquals("border-width:8px;border-image:url(foo.png) 9 repeat;",
 				emptyStyleDecl.getMinifiedCssText());
 	}
 
@@ -3391,7 +3391,7 @@ public class ShorthandSetterTest {
 		assertEquals(1, emptyStyleDecl.getLength());
 		assertEquals("url('image.jpg')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("border-image-source: url('image.jpg'); ", emptyStyleDecl.getCssText());
-		assertEquals("border-image-source:url('image.jpg')", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-image-source:url(image.jpg)", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -3402,7 +3402,7 @@ public class ShorthandSetterTest {
 		assertEquals(1, emptyStyleDecl.getLength());
 		assertEquals("url('image.jpg')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("border-image-source: url('image.jpg'); ", emptyStyleDecl.getCssText());
-		assertEquals("border-image-source:url('image.jpg')", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-image-source:url(image.jpg)", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -3413,7 +3413,7 @@ public class ShorthandSetterTest {
 		assertEquals(1, emptyStyleDecl.getLength());
 		assertEquals("url('image.jpg')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("border-image-source: url('image.jpg'); ", emptyStyleDecl.getCssText());
-		assertEquals("border-image-source:url('image.jpg')", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-image-source:url(image.jpg)", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -3424,7 +3424,7 @@ public class ShorthandSetterTest {
 		assertEquals(1, emptyStyleDecl.getLength());
 		assertEquals("url('image.jpg')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("border-image-source: url('image.jpg'); ", emptyStyleDecl.getCssText());
-		assertEquals("border-image-source:url('image.jpg')", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-image-source:url(image.jpg)", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -3435,7 +3435,7 @@ public class ShorthandSetterTest {
 		assertEquals(1, emptyStyleDecl.getLength());
 		assertEquals("url('image.png')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("border-image-source: url('image.png'); ", emptyStyleDecl.getCssText());
-		assertEquals("border-image-source:url('image.png')", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-image-source:url(image.png)", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -3446,7 +3446,7 @@ public class ShorthandSetterTest {
 		assertEquals(1, emptyStyleDecl.getLength());
 		assertEquals("url('image.jpg')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("border-image-source: url('image.jpg'); ", emptyStyleDecl.getCssText());
-		assertEquals("border-image-source:url('image.jpg')", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-image-source:url(image.jpg)", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -3559,13 +3559,13 @@ public class ShorthandSetterTest {
 				"border-image-source: url(image.jpg); border-image: foo 25% 3000% 1 round unset;");
 		assertEquals("url('image.jpg')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("border-image-source: url('image.jpg'); ", emptyStyleDecl.getCssText());
-		assertEquals("border-image-source:url('image.jpg')", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-image-source:url(image.jpg)", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 		emptyStyleDecl.setCssText(
 				"border-image-source: url(image.jpg); border-image: foo 25% 3000% 1 round initial;");
 		assertEquals("url('image.jpg')", emptyStyleDecl.getPropertyValue("border-image-source"));
 		assertEquals("border-image-source: url('image.jpg'); ", emptyStyleDecl.getCssText());
-		assertEquals("border-image-source:url('image.jpg')", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("border-image-source:url(image.jpg)", emptyStyleDecl.getMinifiedCssText());
 		assertTrue(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -3782,7 +3782,7 @@ public class ShorthandSetterTest {
 		assertEquals(
 				"mask: url('https://www.example.com/foo.svg') no-repeat center / 1.38ex 0.8ex; ",
 				emptyStyleDecl.getCssText());
-		assertEquals("mask:url('https://www.example.com/foo.svg') no-repeat center/1.38ex .8ex;",
+		assertEquals("mask:url(https://www.example.com/foo.svg) no-repeat center/1.38ex .8ex;",
 				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 
@@ -3810,7 +3810,7 @@ public class ShorthandSetterTest {
 				"mask: url('https://www.example.com/foo.svg') no-repeat center / 1.38ex 0.8ex ! important; ",
 				emptyStyleDecl.getCssText());
 		assertEquals(
-				"mask:url('https://www.example.com/foo.svg') no-repeat center/1.38ex .8ex!important;",
+				"mask:url(https://www.example.com/foo.svg) no-repeat center/1.38ex .8ex!important;",
 				emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
@@ -4832,14 +4832,14 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("cue-before").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("cue-after").isSubproperty());
 		assertEquals("cue: url('foo.au'); ", emptyStyleDecl.getCssText());
-		assertEquals("cue:url('foo.au');", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("cue:url(foo.au);", emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 
 		emptyStyleDecl.setCssText("cue:url('foo.au') url(bar.au); ");
 		assertEquals("url('foo.au')", emptyStyleDecl.getPropertyValue("cue-before"));
 		assertEquals("url('bar.au')", emptyStyleDecl.getPropertyValue("cue-after"));
 		assertEquals("cue: url('foo.au') url('bar.au'); ", emptyStyleDecl.getCssText());
-		assertEquals("cue:url('foo.au') url('bar.au');", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("cue:url(foo.au) url(bar.au);", emptyStyleDecl.getMinifiedCssText());
 		assertFalse(emptyStyleDecl.getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -7317,7 +7317,7 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("list-style-image").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("list-style-position").isSubproperty());
 		assertEquals("list-style: url('foo.png'); ", emptyStyleDecl.getCssText());
-		assertEquals("list-style:url('foo.png');", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("list-style:url(foo.png);", emptyStyleDecl.getMinifiedCssText());
 
 		emptyStyleDecl.setCssText("list-style: url('foo.png') inside; ");
 		assertEquals("url('foo.png')", emptyStyleDecl.getPropertyValue("list-style-image"));
@@ -7326,7 +7326,7 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("list-style-image").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("list-style-position").isSubproperty());
 		assertEquals("list-style: url('foo.png') inside; ", emptyStyleDecl.getCssText());
-		assertEquals("list-style:url('foo.png') inside;", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("list-style:url(foo.png) inside;", emptyStyleDecl.getMinifiedCssText());
 
 		emptyStyleDecl.setCssText("list-style: url('foo.png') inside square; ");
 		assertEquals("url('foo.png')", emptyStyleDecl.getPropertyValue("list-style-image"));
@@ -7335,7 +7335,7 @@ public class ShorthandSetterTest {
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("list-style-image").isSubproperty());
 		assertTrue(emptyStyleDecl.getPropertyCSSValue("list-style-position").isSubproperty());
 		assertEquals("list-style: url('foo.png') inside square; ", emptyStyleDecl.getCssText());
-		assertEquals("list-style:url('foo.png') inside square;",
+		assertEquals("list-style:url(foo.png) inside square;",
 				emptyStyleDecl.getMinifiedCssText());
 
 		emptyStyleDecl.setCssText("list-style: none; ");
@@ -7357,7 +7357,7 @@ public class ShorthandSetterTest {
 		assertEquals("inside", emptyStyleDecl.getPropertyValue("list-style-position"));
 		assertEquals("none", emptyStyleDecl.getPropertyValue("list-style-type"));
 		assertEquals("list-style: none url('foo.png') inside; ", emptyStyleDecl.getCssText());
-		assertEquals("list-style:none url('foo.png') inside;", emptyStyleDecl.getMinifiedCssText());
+		assertEquals("list-style:none url(foo.png) inside;", emptyStyleDecl.getMinifiedCssText());
 
 		emptyStyleDecl.setCssText("list-style: decimal none inside;");
 		assertEquals("none", emptyStyleDecl.getPropertyValue("list-style-image"));
