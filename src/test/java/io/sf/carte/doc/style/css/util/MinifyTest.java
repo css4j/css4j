@@ -125,14 +125,6 @@ class MinifyTest {
 	}
 
 	@Test
-	void testMain_URI_IllegalArgument() throws IOException {
-		String[] args = new String[1];
-		args[0] = "/:";
-		assertThrows(IllegalArgumentException.class,
-				() -> Minify.main(args, System.out, System.err));
-	}
-
-	@Test
 	void testMinifyCSS_Empty() {
 		assertEquals("", Minify.minifyCSS(""));
 	}

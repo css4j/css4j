@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringReader;
@@ -22,6 +23,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
@@ -70,7 +72,8 @@ public class Minify {
 	 * @throws IllegalArgumentException if the URI is otherwise incorrect.
 	 * @throws IOException              if an I/O error happened.
 	 */
-	public static void main(String[] args) throws URISyntaxException, IOException {
+	public static void main(String[] args)
+			throws URISyntaxException, IllegalArgumentException, IOException {
 		int status = main(args, System.out, System.err);
 		System.exit(status);
 	}
@@ -104,7 +107,7 @@ public class Minify {
 	 * @throws IOException              if an I/O error happened.
 	 */
 	static int main(String[] args, PrintStream out, PrintStream err)
-			throws URISyntaxException, IOException {
+			throws URISyntaxException, IllegalArgumentException, IOException {
 		ConfigImpl config;
 		if (args == null || args.length == 0 || (config = readConfig(args)) == null) {
 			printUsage(err);
@@ -117,18 +120,29 @@ public class Minify {
 			try {
 				filePath = Paths.get(uri);
 			} catch (FileSystemNotFoundException e) {
-				File file = new File(config.path);
-				filePath = file.toPath();
+				filePath = filePath(config.path);
 			}
 		} else {
-			File file = new File(config.path);
-			filePath = file.toPath();
+			filePath = filePath(config.path);
 		}
 
 		StringBuilder builder = new StringBuilder(DEFAULT_BUFFER_SIZE);
 		boolean ret = minifyCSS(filePath, config, builder, err);
 		out.print(builder);
+
 		return ret ? 0 : 1;
+	}
+
+	private static Path filePath(String path) throws FileNotFoundException {
+		File file = new File(path);
+		if (!file.exists()) {
+			throw new FileNotFoundException("File not found: " + file.getAbsolutePath());
+		}
+		try {
+			return file.toPath();
+		} catch (InvalidPathException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 
 	/**
