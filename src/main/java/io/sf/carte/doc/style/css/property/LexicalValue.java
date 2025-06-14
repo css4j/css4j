@@ -207,13 +207,17 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 
 	@Override
 	public String getMinifiedCssText(String propertyName) {
-		return serializeMinifiedSequence(lexicalUnit);
+		return serializeMinifiedSequence(lexicalUnit, propertyName);
 	}
 
 	public static String serializeMinifiedSequence(LexicalUnit lexicalUnit) {
+		return serializeMinifiedSequence(lexicalUnit, null);
+	}
+
+	public static String serializeMinifiedSequence(LexicalUnit lexicalUnit, String propertyName) {
 		if (lexicalUnit.getNextLexicalUnit() == null) {
 			// Save a buffer creation
-			return serializeMinified(lexicalUnit).toString();
+			return serializeMinified(lexicalUnit, propertyName).toString();
 		}
 		StringBuilder buf = new StringBuilder(32);
 		LexicalUnit lu = lexicalUnit;
@@ -244,13 +248,13 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 					needSpaces = true;
 				}
 			}
-			buf.append(serializeMinified(lu));
+			buf.append(serializeMinified(lu, propertyName));
 			lu = lu.getNextLexicalUnit();
 		}
 		return buf.toString();
 	}
 
-	private static CharSequence serializeMinified(LexicalUnit lexicalUnit) {
+	private static CharSequence serializeMinified(LexicalUnit lexicalUnit, String propertyName) {
 		if (lexicalUnit.getParameters() != null) {
 			StringBuilder buf;
 			switch (lexicalUnit.getLexicalUnitType()) {
@@ -310,8 +314,8 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			case DIMENSION:
 				float f = lexicalUnit.getFloatValue();
 				if (f == 0f) {
-					if (CSSUnit.isLengthUnitType(lexicalUnit.getCssUnit())
-							&& !lexicalUnit.isParameter()) {
+					if (!lexicalUnit.isParameter()
+							&& CSSUnit.isLengthUnitType(lexicalUnit.getCssUnit())) {
 						return "0";
 					}
 				} else if (Float.isInfinite(f)) {
@@ -325,6 +329,18 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 					return serializeInfinite(f, lexicalUnit.getDimensionUnitText());
 				}
 				return serializeNumber(f, lexicalUnit.getDimensionUnitText());
+			case INITIAL:
+				if (propertyName != null && !propertyName.isEmpty() && !lexicalUnit.isParameter()) {
+					StyleValue ini = PropertyDatabase.getInstance().getInitialValue(propertyName);
+					if (ini != null) {
+						String mini = ini.getMinifiedCssText();
+						String text = lexicalUnit.getCssText();
+						if (mini.length() < text.length()) {
+							return mini;
+						}
+						return text;
+					}
+				}
 			default:
 				break;
 			}

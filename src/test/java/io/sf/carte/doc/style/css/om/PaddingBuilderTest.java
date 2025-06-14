@@ -65,6 +65,12 @@ public class PaddingBuilderTest {
 	}
 
 	@Test
+	public void testPaddingCalc() {
+		assertShorthandText("padding:calc(1% + 1px);",
+				"padding: calc(1% + 1px) calc(1% + 1px) calc(1% + 1px);");
+	}
+
+	@Test
 	public void testPaddingVar() {
 		assertShorthandText("padding:var(--foo,1px);", "padding:var(--foo,1px);");
 	}

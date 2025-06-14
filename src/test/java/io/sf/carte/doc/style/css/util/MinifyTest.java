@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -23,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
@@ -45,15 +47,161 @@ class MinifyTest {
 		final String HTML_UA_STYLE_SHEET = "/io/sf/carte/doc/style/css/html.css";
 		String[] args = new String[1];
 		args[0] = MinifyTest.class.getResource(HTML_UA_STYLE_SHEET).toExternalForm();
-		final int MINIFIED_LENGTH = 6184;
+		final int MINIFIED_LENGTH = 6172;
 		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
-		Minify.main(args, ps, System.err);
+		assertEquals(0, Minify.main(args, ps, System.err));
 
 		// Test for the expected length
 		if (MINIFIED_LENGTH != out.size()) {
 			// Check equivalence at OM level, to figure out the issue
 			failureCheck(HTML_UA_STYLE_SHEET, out.toByteArray());
+		}
+	}
+
+	@Test
+	void testCommon_Sheet() throws URISyntaxException, IOException {
+		String path = "/io/sf/carte/doc/agent/common.css";
+		String[] args = new String[3];
+		args[0] = MinifyTest.class.getResource(path).toExternalForm();
+		args[1] = "--disable-shorthand";
+		args[2] = "all";
+		final int MINIFIED_LENGTH = 161;
+		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
+		PrintStream ps = new PrintStream(out, false, "utf-8");
+		assertEquals(0, Minify.main(args, ps, System.err));
+
+		// Test for the expected length
+		if (MINIFIED_LENGTH != out.size()) {
+			// Check equivalence at OM level, to figure out the issue
+			failureCheck(path, out.toByteArray());
+		}
+	}
+
+	@Test
+	void testAlter1_Sheet() throws URISyntaxException, IOException {
+		String path = "/io/sf/carte/doc/agent/alter1.css";
+		String[] args = new String[3];
+		args[0] = MinifyTest.class.getResource(path).toExternalForm();
+		args[1] = "--disable-shorthand";
+		args[2] = "cue";
+		final int MINIFIED_LENGTH = 74;
+		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
+		PrintStream ps = new PrintStream(out, false, "utf-8");
+		assertEquals(0, Minify.main(args, ps, System.err));
+
+		// Test for the expected length
+		if (MINIFIED_LENGTH != out.size()) {
+			// Check equivalence at OM level, to figure out the issue
+			failureCheck(path, out.toByteArray());
+		}
+	}
+
+	@Test
+	void testMain() throws URISyntaxException, IOException {
+		String path = "/io/sf/carte/doc/style/css/util/minify.css";
+		String[] args = new String[1];
+		args[0] = MinifyTest.class.getResource(path).toExternalForm();
+		final int MINIFIED_LENGTH = 206;
+		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
+		PrintStream ps = new PrintStream(out, false, "utf-8");
+		assertEquals(0, Minify.main(args, ps, System.err));
+
+		String expected = "body{font-family:Verdana,Arial,Helvetica;margin:.2em}img{border-style:none}.layout{margin-top:0;padding:2px;border-width:1px;border-style:solid;background:url(imag/top_b.png)}";
+		// Test for the expected string
+		assertEquals(expected, out.toString(StandardCharsets.UTF_8));
+	}
+
+	@Test
+	void testDisableShorthands() throws URISyntaxException, IOException {
+		String path = "/io/sf/carte/doc/style/css/util/minify.css";
+		String[] args = new String[3];
+		args[0] = MinifyTest.class.getResource(path).toExternalForm();
+		args[1] = "--disable-shorthand";
+		args[2] = "background,margin";
+		final int MINIFIED_LENGTH = 226;
+		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
+		PrintStream ps = new PrintStream(out, false, "utf-8");
+		assertEquals(0, Minify.main(args, ps, System.err));
+
+		String expected = "body{font-family:Verdana,Arial,Helvetica;margin:.2em .2em .2em .2em}img{border-style:none}.layout{margin-top:0;padding:2px;border-width:1px;border-style:solid;background:url(imag/top_b.png) top left}";
+		// Test for the expected string
+		assertEquals(expected, out.toString(StandardCharsets.UTF_8));
+	}
+
+	@Test
+	void testDisableAllShorthands() throws URISyntaxException, IOException {
+		String path = "/io/sf/carte/doc/style/css/util/minify.css";
+		String[] args = new String[3];
+		args[0] = MinifyTest.class.getResource(path).toExternalForm();
+		args[1] = "--disable-shorthand";
+		args[2] = "all";
+		final int MINIFIED_LENGTH = 220;
+		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
+		PrintStream ps = new PrintStream(out, false, "utf-8");
+		assertEquals(0, Minify.main(args, ps, System.err));
+
+		// Test for the expected length
+		if (MINIFIED_LENGTH != out.size()) {
+			// Check equivalence at OM level, to figure out the issue
+			failureCheck(path, out.toByteArray());
+		}
+	}
+
+	@Test
+	void testBadMedia_Sheet() throws URISyntaxException, IOException {
+		String path = "/io/sf/carte/doc/style/css/parser/badmedia.css";
+		String[] args = new String[1];
+		args[0] = MinifyTest.class.getResource(path).toExternalForm();
+		final int MINIFIED_LENGTH = 865;
+		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
+		ByteArrayOutputStream err = new ByteArrayOutputStream(128);
+		PrintStream ps = new PrintStream(out, false, "utf-8");
+		PrintStream psErr = new PrintStream(err, false, "utf-8");
+		assertEquals(1, Minify.main(args, ps, psErr));
+		assertTrue(err.size() > 6000);
+
+		// Test for the expected length
+		if (MINIFIED_LENGTH != out.size()) {
+			// Check equivalence at OM level, to figure out the issue
+			failureCheck(path, out.toByteArray());
+		}
+	}
+
+	@Test
+	void testNormalize_URL() throws URISyntaxException, IOException {
+		String path = "/io/sf/carte/doc/style/css/contrib/normalize.css";
+		URL url = MinifyTest.class.getResource(path);
+		final int MINIFIED_LENGTH = 1845;
+		StringBuilder buffer = new StringBuilder(MINIFIED_LENGTH);
+		assertTrue(Minify.minifyCSS(url, null, buffer, System.err));
+
+		// Test for the expected length
+		int len = buffer.length();
+		if (MINIFIED_LENGTH != len) {
+			// Check equivalence at OM level, to figure out the issue
+			byte[] bytes = buffer.toString().getBytes(StandardCharsets.UTF_8);
+			failureCheck(path, bytes);
+		}
+	}
+
+	@Test
+	void testBadMedia_URL() throws URISyntaxException, IOException {
+		String path = "/io/sf/carte/doc/style/css/parser/badmedia.css";
+		URL url = MinifyTest.class.getResource(path);
+		final int MINIFIED_LENGTH = 865;
+		StringBuilder buffer = new StringBuilder(MINIFIED_LENGTH);
+		ByteArrayOutputStream err = new ByteArrayOutputStream(128);
+		PrintStream psErr = new PrintStream(err, false, "utf-8");
+		assertFalse(Minify.minifyCSS(url, null, buffer, psErr));
+		assertTrue(err.size() > 6000);
+
+		// Test for the expected length
+		int len = buffer.length();
+		if (MINIFIED_LENGTH != len) {
+			// Check equivalence at OM level, to figure out the issue
+			byte[] bytes = buffer.toString().getBytes(StandardCharsets.UTF_8);
+			failureCheck(path, bytes);
 		}
 	}
 
@@ -73,10 +221,12 @@ class MinifyTest {
 		Reader re = new InputStreamReader(in, StandardCharsets.UTF_8);
 		minisheet.parseStyleSheet(re, CSSStyleSheet.COMMENTS_IGNORE);
 
-		// Check that original and minified sheets are identical at OM level
-		assertEquals(sheet, minisheet);
+		// Check that original and minified sheets are identical
+		if (!sheet.equals(minisheet)) {
+			assertEquals(sheet.toString(), minisheet.toString());
+		}
 
-		fail("Please fix the value of MINIFIED_LENGTH.");
+		fail("Please fix the value of MINIFIED_LENGTH: " + cand.length);
 	}
 
 	@Test
@@ -90,7 +240,7 @@ class MinifyTest {
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		ByteArrayOutputStream err = new ByteArrayOutputStream(64);
 		PrintStream pserr = new PrintStream(err, false, "utf-8");
-		Minify.main(args, ps, pserr);
+		assertEquals(1, Minify.main(args, ps, pserr));
 		assertEquals(FINAL_LENGTH, out.size());
 		assertTrue(err.size() >= 5000);
 	}
@@ -100,7 +250,7 @@ class MinifyTest {
 		String[] args = {};
 		ByteArrayOutputStream out = new ByteArrayOutputStream(64);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
-		Minify.main(args, System.out, ps);
+		assertEquals(2, Minify.main(args, System.out, ps));
 		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
 		result = result.replaceAll("\r", "");
 		assertEquals(134, result.length());
@@ -111,7 +261,7 @@ class MinifyTest {
 		String[] args = { "--charset", "utf-8" };
 		ByteArrayOutputStream out = new ByteArrayOutputStream(64);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
-		Minify.main(args, System.out, ps);
+		assertEquals(2, Minify.main(args, System.out, ps));
 		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
 		result = result.replaceAll("\r", "");
 		assertEquals(134, result.length());
@@ -189,9 +339,9 @@ class MinifyTest {
 	@Test
 	void testMinifyCSS_Media() {
 		assertEquals(
-				"@media only screen and (min-width:.002em){nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:var(--pad,/*empty*/)}h4{font-size:20px}}",
+				"@media only screen and (min-width:.002em){nav.foo{display:none}footer .footer .foo{color:#ff0;padding-right:var(--pad,/*empty*/)}h4{font-size:20px}}",
 				Minify.minifyCSS(
-						"@media only screen and  (min-width: 0.002em){ nav.foo { display:none;}footer .footer .foo { padding-left:0;padding-right: var(--pad , /*empty*/); } h4 {font-size:20px; }}"));
+						"@media only screen and  (min-width: 0.002em){ nav.foo { display:none;}footer .footer .foo { color: rgba(255,255,0,255);padding-right: var(--pad , /*empty*/); } h4 {font-size:20px; }}"));
 	}
 
 	@Test
@@ -259,6 +409,14 @@ class MinifyTest {
 		config.disableAllShorthands();
 		assertEquals("p,.cls{border-radius:initial}div{margin:2px 2px 2px 2px}", Minify.minifyCSS(
 				"p,*.cls {border-radius: initial;} div{margin: 2px 2px 2px 2px;}", config, null));
+	}
+
+	@Test
+	void testMinifyCSS_Style_Shorthands_Background() {
+		TestConfig config = new TestConfig();
+		assertEquals("div{background:url(bkg.png) round space local}", Minify.minifyCSS(
+				"div{background: url('bkg.png') left top round space padding-box border-box local; }",
+				config, null));
 	}
 
 	@Test

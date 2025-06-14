@@ -7193,6 +7193,18 @@ public class ShorthandSetterTest {
 	}
 
 	@Test
+	public void testOutlineAuto() {
+		emptyStyleDecl.setCssText("outline: 2px dotted auto; ");
+		assertEquals("dotted", emptyStyleDecl.getPropertyValue("outline-style"));
+		assertEquals("2px", emptyStyleDecl.getPropertyValue("outline-width"));
+		assertEquals("auto", emptyStyleDecl.getPropertyValue("outline-color"));
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("outline-style").isSubproperty());
+		assertTrue(emptyStyleDecl.getPropertyCSSValue("outline-width").isSubproperty());
+		assertEquals("outline: 2px dotted auto; ", emptyStyleDecl.getCssText());
+		assertEquals("outline:2px dotted auto;", emptyStyleDecl.getMinifiedCssText());
+	}
+
+	@Test
 	public void testOutlineCustom() {
 		emptyStyleDecl.setCssText("outline: 5.0px auto -webkit-focus-ring-color");
 		assertEquals("5px auto -webkit-focus-ring-color",

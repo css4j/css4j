@@ -12,28 +12,34 @@
 package io.sf.carte.doc.style.css.util;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.stream.Stream;
+import java.util.Locale;
+import java.util.Set;
 
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
+import io.sf.carte.uparser.CommentRemovalHandler;
+import io.sf.carte.uparser.TokenProducer;
 import io.sf.carte.util.BufferSimpleWriter;
+import io.sf.carte.util.agent.AgentUtil;
 
 /**
  * Minify a CSS style sheet.
@@ -62,8 +68,8 @@ public class Minify {
 	 * </p>
 	 * <p>
 	 * If the given sheet contains error(s) and therefore cannot be reliably
-	 * minified, the original source sheet is printed and the process exits with a
-	 * status of {@code 1}.
+	 * minified, the original source sheet is printed (with comments removed) and
+	 * the process exits with a status of {@code 1}.
 	 * </p>
 	 * 
 	 * @param args the arguments, including at least the URI or path to a style
@@ -93,7 +99,7 @@ public class Minify {
 	 * </ul>
 	 * <p>
 	 * If the sheet contains error(s) and therefore cannot be reliably minified, the
-	 * original source sheet is printed.
+	 * original source sheet is printed (with comments removed).
 	 * </p>
 	 * 
 	 * @param args the arguments, including at least the URI or path to a style
@@ -114,35 +120,27 @@ public class Minify {
 			return 2;
 		}
 
-		Path filePath;
-		URI uri = new URI(config.path);
-		if (uri.isAbsolute()) {
-			try {
-				filePath = Paths.get(uri);
-			} catch (FileSystemNotFoundException e) {
-				filePath = filePath(config.path);
+		StringBuilder buffer = new StringBuilder(DEFAULT_BUFFER_SIZE);
+
+		// First, check whether it is a path
+		try {
+			Path filePath = Paths.get(config.path);
+			if (Files.exists(filePath)) {
+				boolean ret = minifyCSS(filePath, config, buffer, err);
+				out.print(buffer);
+				return ret ? 0 : 1;
 			}
-		} else {
-			filePath = filePath(config.path);
+		} catch (InvalidPathException e) {
 		}
 
-		StringBuilder builder = new StringBuilder(DEFAULT_BUFFER_SIZE);
-		boolean ret = minifyCSS(filePath, config, builder, err);
-		out.print(builder);
+		// Probably a URL
+		URI uri = new URI(config.path);
+		URL url = uri.toURL();
+
+		boolean ret = minifyCSS(url, config, buffer, err);
+		out.print(buffer);
 
 		return ret ? 0 : 1;
-	}
-
-	private static Path filePath(String path) throws FileNotFoundException {
-		File file = new File(path);
-		if (!file.exists()) {
-			throw new FileNotFoundException("File not found: " + file.getAbsolutePath());
-		}
-		try {
-			return file.toPath();
-		} catch (InvalidPathException e) {
-			throw new IllegalArgumentException(e);
-		}
 	}
 
 	/**
@@ -156,6 +154,7 @@ public class Minify {
 	}
 
 	private static ConfigImpl readConfig(String[] args) {
+		boolean enableShorthands = true;
 		ConfigImpl config = new ConfigImpl();
 		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
@@ -167,6 +166,7 @@ public class Minify {
 				}
 			} else {
 				if ("--charset".equalsIgnoreCase(arg)) {
+					// Declare the (default) encoding
 					i++;
 					if (i < args.length) {
 						arg = args[i];
@@ -181,14 +181,17 @@ public class Minify {
 						}
 					}
 				} else if ("--disable-shorthand".equalsIgnoreCase(arg)) {
+					// Disable shorthand optimizations
+					enableShorthands = false;
 					i++;
 					if (i < args.length) {
 						arg = args[i];
 						if (!arg.startsWith("--")) {
+							arg = arg.toLowerCase(Locale.ROOT);
 							String[] shorthands = arg.split(",");
 							config.disabledShorthands = new HashSet<>(shorthands.length);
 							for (String shorthand : shorthands) {
-								if ("all".equalsIgnoreCase(shorthand)) {
+								if ("all".equals(shorthand)) {
 									config.disabledShorthands = null;
 									break;
 								} else {
@@ -205,6 +208,8 @@ public class Minify {
 		}
 		if (config.path == null) {
 			config = null;
+		} else if (enableShorthands) {
+			config.disabledShorthands = Collections.emptySet();
 		}
 		return config;
 	}
@@ -224,7 +229,7 @@ public class Minify {
 
 	private static class ConfigImpl implements Config {
 
-		private HashSet<String> disabledShorthands = null;
+		private Set<String> disabledShorthands = null;
 
 		private Charset encoding;
 
@@ -246,8 +251,8 @@ public class Minify {
 	 * Minifies a CSS style sheet.
 	 * 
 	 * @param css the serialized style sheet.
-	 * @return the minified serialization, or the original one if an error was
-	 *         detected.
+	 * @return the minified serialization, or the original one (with comments
+	 *         removed) if an error was detected.
 	 */
 	public static String minifyCSS(String css) {
 		return minifyCSS(css, null, null);
@@ -260,8 +265,8 @@ public class Minify {
 	 * @param config the minification configuration, or {@code null} if defaults
 	 *               should be used.
 	 * @param err    the error reporting stream, or {@code null} if no stream.
-	 * @return the minified serialization, or the original one if an error was
-	 *         detected.
+	 * @return the minified serialization, or the original one (with comments
+	 *         removed) if an error was detected.
 	 */
 	public static String minifyCSS(String css, Config config, PrintStream err) {
 		if (config == null) {
@@ -297,8 +302,8 @@ public class Minify {
 	 * Minifies a CSS style sheet.
 	 * 
 	 * @param cssPath the path to a {@code utf-8}-encoded style sheet.
-	 * @return the minified serialization, or the original file if an error was
-	 *         found.
+	 * @return the minified serialization, or the original file (with comments
+	 *         removed) if an error was found.
 	 */
 	public static String minifyCSS(Path cssPath) throws IOException {
 		StringBuilder builder = new StringBuilder(DEFAULT_BUFFER_SIZE);
@@ -309,14 +314,14 @@ public class Minify {
 	/**
 	 * Minifies a CSS style sheet.
 	 * 
-	 * @param cssPath the path to style sheet.
+	 * @param cssPath the path to the style sheet.
 	 * @param config  the minification configuration, or {@code null} if defaults
 	 *                should be used.
 	 * @param buffer  the buffer to write the minified serialization, or the
 	 *                original file if an error is found.
 	 * @return {@code true} if the style sheet was successfully minified,
 	 *         {@code false} if an error was found and the original file was
-	 *         returned.
+	 *         returned, with comments removed.
 	 */
 	public static boolean minifyCSS(Path cssPath, Config config, StringBuilder buffer)
 			throws IOException {
@@ -326,7 +331,7 @@ public class Minify {
 	/**
 	 * Minifies a CSS style sheet.
 	 * 
-	 * @param cssPath the path to style sheet.
+	 * @param cssPath the path to the style sheet.
 	 * @param config  the minification configuration, or {@code null} if defaults
 	 *                should be used.
 	 * @param buffer  the buffer to write the minified serialization, or the
@@ -334,7 +339,7 @@ public class Minify {
 	 * @param err     the error reporting stream, or {@code null} if no stream.
 	 * @return {@code true} if the style sheet was successfully minified,
 	 *         {@code false} if an error was found and the original file was
-	 *         returned.
+	 *         returned, with comments removed.
 	 */
 	public static boolean minifyCSS(Path cssPath, Config config, StringBuilder buffer,
 			PrintStream err) throws IOException {
@@ -359,15 +364,78 @@ public class Minify {
 			}
 		}
 
-		// Error detected, return the source but replace NLs (maybe 2 bytes)
-		// with white space.
+		// Error detected, return the source without comments.
 		buffer.setLength(0);
 
-		try (Stream<String> stream = Files.lines(cssPath, StandardCharsets.UTF_8)) {
-			stream.forEach(s -> buffer.append(s).append(' '));
+		try (Reader cssReader = Files.newBufferedReader(cssPath, encoding)) {
+			removeComments(cssReader, buffer);
 		}
 
 		return false;
+	}
+
+	private static void removeComments(Reader cssReader, StringBuilder buffer) throws IOException {
+		String opening = "/*";
+		String closing = "*/";
+		CommentRemovalHandler h = new CommentRemovalHandler(buffer);
+		TokenProducer tp = new TokenProducer(h);
+		tp.parse(cssReader, opening, closing);
+	}
+
+	/**
+	 * Minifies a CSS style sheet.
+	 * 
+	 * @param url    the url to the style sheet.
+	 * @param config the minification configuration, or {@code null} if defaults
+	 *               should be used.
+	 * @param buffer the buffer to write the minified serialization, or the original
+	 *               file if an error is found.
+	 * @param err    the error reporting stream, or {@code null} if no stream.
+	 * @return {@code true} if the style sheet was successfully minified,
+	 *         {@code false} if an error was found and the original file was
+	 *         returned, with comments removed.
+	 */
+	public static boolean minifyCSS(URL url, Config config, StringBuilder buffer, PrintStream err)
+			throws IOException {
+		if (config == null) {
+			config = new ConfigImpl();
+		}
+		Charset encoding = config.getEncoding();
+		if (encoding == null) {
+			encoding = StandardCharsets.UTF_8;
+		}
+		BufferSimpleWriter wri = new BufferSimpleWriter(buffer);
+		MinifySheetHandler handler = new MinifySheetHandler(wri, config);
+		CSSParser parser = createCSSParser();
+		parser.setDocumentHandler(handler);
+
+		URLConnection ucon = url.openConnection();
+		try (Reader cssReader = inputStreamToReader(ucon, encoding)) {
+			parser.parseStyleSheet(cssReader);
+			return true;
+		} catch (Exception e) {
+			if (err != null) {
+				e.printStackTrace(err);
+			}
+		}
+
+		// Error detected, return the source without comments.
+		buffer.setLength(0);
+
+		ucon = url.openConnection();
+		try (Reader cssReader = inputStreamToReader(ucon, encoding)) {
+			removeComments(cssReader, buffer);
+		}
+
+		return false;
+	}
+
+	private static Reader inputStreamToReader(URLConnection ucon, Charset encoding)
+			throws IOException {
+		InputStream is = ucon.getInputStream();
+		String contentEncoding = ucon.getContentEncoding();
+		String conType = ucon.getContentType();
+		return AgentUtil.inputStreamToReader(is, conType, contentEncoding, encoding);
 	}
 
 }

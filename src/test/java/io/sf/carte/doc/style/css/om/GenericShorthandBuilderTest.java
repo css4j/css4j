@@ -91,7 +91,7 @@ public class GenericShorthandBuilderTest {
 		assertShorthandText("text-decoration:blink dashed;", "text-decoration: blink dashed");
 		assertShorthandText("text-decoration:blink #ffb;", "text-decoration: blink #ffb");
 		assertShorthandText("text-decoration:#ffb;", "text-decoration: #ffb");
-		assertShorthandText("outline:solid 1rem;", "outline: 1rem solid invert; ");
+		assertShorthandText("outline:solid 1rem;", "outline: 1rem solid auto; ");
 		assertShorthandText("outline:solid 1rem;", "outline: 1rem solid; ");
 		assertShorthandText("columns:10em;", "columns: 10em auto; ");
 		assertShorthandText("columns:2;", "columns: 2 auto; ");
@@ -102,6 +102,12 @@ public class GenericShorthandBuilderTest {
 		assertShorthandText("flex-flow:column;", "flex-flow: column; ");
 		assertShorthandText("column-rule:1em solid black;", "column-rule: 1em solid black; ");
 		assertShorthandText("column-rule:1em solid;", "column-rule: 1em solid; ");
+	}
+
+	@Test
+	public void testOutline() {
+		assertShorthandText("outline:invert dotted thin;", "outline: thin dotted invert; ");
+		assertShorthandText("outline:#0ff solid 1rem;", "outline: 1rem solid #0ff; ");
 	}
 
 	@Test

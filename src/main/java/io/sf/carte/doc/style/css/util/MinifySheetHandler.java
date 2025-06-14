@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.util;
 import java.io.IOException;
 import java.util.BitSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
 import io.sf.carte.doc.style.css.BooleanCondition;
@@ -21,7 +22,9 @@ import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;
+import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
+import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.PageSelectorList;
@@ -120,6 +123,7 @@ class MinifySheetHandler implements CSSHandler {
 	@Override
 	public void ignorableAtRule(String atRule) {
 		writeBuf();
+		setRuleContent();
 		// Ignorable @-rule
 		write(atRule);
 	}
@@ -127,6 +131,8 @@ class MinifySheetHandler implements CSSHandler {
 	@Override
 	public void namespaceDeclaration(String prefix, String uri) {
 		writeBuf();
+		setRuleContent();
+
 		write("@namespace ");
 		if (prefix != null && !prefix.isEmpty()) {
 			write(prefix);
@@ -143,13 +149,15 @@ class MinifySheetHandler implements CSSHandler {
 
 	@Override
 	public void importStyle(String uri, String layer, BooleanCondition supportsCondition,
-			MediaQueryList media, String defaultNamespaceURI) {
+			MediaQueryList media, String defaultNamespaceURI) throws CSSException {
 		// Ignore any '@import' rule that occurs inside a block or after any
 		// non-ignored statement other than an @charset or an @import rule
 		// (CSS 2.1 §4.1.5)
 		if (ignoreImports) {
 			return;
 		}
+
+		checkMediaErrors(media);
 
 		writeBuf();
 
@@ -185,6 +193,16 @@ class MinifySheetHandler implements CSSHandler {
 		write(';');
 	}
 
+	private void checkMediaErrors(MediaQueryList media) throws CSSException {
+		if (media.hasErrors()) {
+			List<CSSParseException> exs = media.getExceptions();
+			if (exs != null) {
+				throw exs.get(0);
+			}
+			throw new CSSException("Media query has errors.");
+		}
+	}
+
 	@Override
 	public void startSupports(BooleanCondition condition) {
 		// Starting @supports block
@@ -203,7 +221,9 @@ class MinifySheetHandler implements CSSHandler {
 	}
 
 	@Override
-	public void startMedia(MediaQueryList media) {
+	public void startMedia(MediaQueryList media) throws CSSException {
+		checkMediaErrors(media);
+
 		// Starting @media block
 		ignoreImports = true;
 		currentRule.add(CSSRule.MEDIA_RULE);
@@ -463,7 +483,7 @@ class MinifySheetHandler implements CSSHandler {
 		if (ShorthandDatabase.getInstance().isShorthand(name)
 				&& !config.isDisabledShorthand(name)) {
 			StringBuilder buf = new StringBuilder(32);
-			serializeValue(value, buf);
+			serializeValue(name, value, buf);
 
 			DefaultStyleDeclarationErrorHandler eh = new DefaultStyleDeclarationErrorHandler();
 			BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration() {
@@ -490,7 +510,7 @@ class MinifySheetHandler implements CSSHandler {
 			}
 			appendBuf(seq);
 		} else {
-			serializeValue(value, ruleBuf);
+			serializeValue(name, value, ruleBuf);
 		}
 
 		if (important) {
@@ -516,8 +536,8 @@ class MinifySheetHandler implements CSSHandler {
 		}
 	}
 
-	private void serializeValue(LexicalUnit value, StringBuilder buf) {
-		String mini = LexicalValue.serializeMinifiedSequence(value);
+	private void serializeValue(String propertyName, LexicalUnit value, StringBuilder buf) {
+		String mini = LexicalValue.serializeMinifiedSequence(value, propertyName);
 		try {
 			StyleValue omvalue = factory.createCSSValue(value);
 			// If it is LEXICAL it will repeat the serializeMinifiedSequence()
@@ -540,7 +560,7 @@ class MinifySheetHandler implements CSSHandler {
 		appendBuf(name);
 		appendBuf(':');
 
-		serializeValue(lunit, ruleBuf);
+		serializeValue("", lunit, ruleBuf);
 
 		if (important) {
 			appendBuf("!important");

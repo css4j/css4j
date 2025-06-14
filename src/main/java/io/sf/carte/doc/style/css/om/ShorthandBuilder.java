@@ -573,21 +573,35 @@ abstract class ShorthandBuilder {
 		if (value2.isSystemDefault() != value1.isSystemDefault()) {
 			return false;
 		}
-		if (value1.getCssValueType() == CssType.TYPED
-				&& value2.getCssValueType() == CssType.TYPED) {
-			TypedValue pvalue1 = (TypedValue) value1;
-			Type type1 = pvalue1.getPrimitiveType();
-			TypedValue pvalue2 = (TypedValue) value2;
-			Type type2 = pvalue2.getPrimitiveType();
-			if (type1 == Type.IDENT) {
-				if (type2 == Type.COLOR) {
-					return testColorIdentifier(pvalue2,
-							pvalue1.getStringValue().toLowerCase(Locale.ROOT));
-				} else if (type2 == Type.IDENT) {
-					return pvalue1.getStringValue().equalsIgnoreCase(pvalue2.getStringValue());
+		if (value1.getCssValueType() == CssType.TYPED) {
+			if (value2.getCssValueType() == CssType.TYPED) {
+				TypedValue pvalue1 = (TypedValue) value1;
+				Type type1 = pvalue1.getPrimitiveType();
+				TypedValue pvalue2 = (TypedValue) value2;
+				Type type2 = pvalue2.getPrimitiveType();
+				if (type1 == Type.IDENT) {
+					if (type2 == Type.COLOR) {
+						return testColorIdentifier(pvalue2,
+								pvalue1.getStringValue().toLowerCase(Locale.ROOT));
+					} else if (type2 == Type.IDENT) {
+						return pvalue1.getStringValue().equalsIgnoreCase(pvalue2.getStringValue());
+					}
+				} else if (type1 == Type.COLOR && type2 == Type.IDENT) {
+					return testColorIdentifier(pvalue1, pvalue2.getStringValue());
 				}
-			} else if (type1 == Type.COLOR && type2 == Type.IDENT) {
-				return testColorIdentifier(pvalue1, pvalue2.getStringValue());
+			}
+		} else if (value1.getCssValueType() == CssType.LIST
+				&& value2.getCssValueType() == CssType.LIST) {
+			ValueList list1 = (ValueList) value1;
+			ValueList list2 = (ValueList) value2;
+			int len = list1.getLength();
+			if (len != list2.getLength()) {
+				return false;
+			}
+			for (int i = 0; i < len; i++) {
+				if (!valueEquals(list1.item(i), list2.item(i))) {
+					return false;
+				}
 			}
 		}
 		return value1.equals(value2);

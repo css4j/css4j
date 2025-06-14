@@ -557,6 +557,12 @@ public class BorderBuilderTest {
 	}
 
 	@Test
+	public void testBorderWidthCalc() {
+		assertShorthandText("border-width:calc(1em/2);",
+				"border-width: calc(1em/2) calc(1em/2) calc(1em/2); ");
+	}
+
+	@Test
 	public void testBorderStyle() {
 		assertShorthandText("border-style:none;", "border-style: none; ");
 		assertShorthandText("border-style:inset;",

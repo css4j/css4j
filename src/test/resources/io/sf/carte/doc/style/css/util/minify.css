@@ -1,0 +1,19 @@
+body
+{
+	font-family: Verdana, Arial, Helvetica;
+	margin: 0.2em 0.2em 0.2em 0.2em;
+}
+
+img
+{
+	border-style: initial;
+}
+
+.layout
+{
+	margin-top:initial;
+	padding: 2px 2px 2px;
+	border-width: 1px 1px;
+	border-style: solid solid;
+	background: url('imag/top_b.png') top left;
+}

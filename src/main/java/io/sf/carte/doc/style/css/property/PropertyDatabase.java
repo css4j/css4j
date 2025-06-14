@@ -275,7 +275,7 @@ public final class PropertyDatabase {
 			{"min-width", "0"},
 			{"opacity", "1"},
 			{"orphans", "2"},
-			{"outline-color", "invert"},
+			{"outline-color", "auto"},
 			{"outline-style", "none"},
 			{"outline-width", "medium"},
 			{"overflow", "visible"},

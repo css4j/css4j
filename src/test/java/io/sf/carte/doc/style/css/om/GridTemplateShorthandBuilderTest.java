@@ -204,6 +204,12 @@ public class GridTemplateShorthandBuilderTest {
 	}
 
 	@Test
+	public void testGridTemplateCalc() {
+		assertShorthandText("grid-template:\"a a a\" 50%/calc(50% - 1rem) calc(50% - 1rem);",
+				"grid-template: \"a a a\" 50% / calc(50% - 1rem) calc(50% - 1rem)");
+	}
+
+	@Test
 	public void testGridTemplateFromLonghands() {
 		assertShorthandText("grid-template:\"media-text-media media-text-content\"/50% auto;",
 				"grid-template-rows: auto; grid-template-areas: \"media-text-media media-text-content\"; grid-template-columns: 50% auto;");
