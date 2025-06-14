@@ -160,14 +160,14 @@ and optional library packages are the following:
 ### Compile-time dependencies
 
 - The [jclf-text](https://jclf.sourceforge.io/api/io.sf.jclf.text/module-summary.html)
-  (5.0.2 or higher) and [jclf-linear3](https://jclf.sourceforge.io/api/io.sf.jclf.math.linear3/module-summary.html)
+  (5.0.3 or higher) and [jclf-linear3](https://jclf.sourceforge.io/api/io.sf.jclf.math.linear3/module-summary.html)
   (1.0.0 or higher) modules. See: https://sourceforge.net/projects/jclf
 
 - The [carte-util](https://github.com/css4j/carte-util) library; version 3.6.0
   or higher.
 
 - The [tokenproducer](https://github.com/css4j/tokenproducer) library; version
-  3.0 or higher is required.
+  3.1.1 or higher is required.
 
 - The [xml-dtd](https://github.com/css4j/xml-dtd) library; version 4.2.1 or
   higher is required.
