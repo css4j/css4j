@@ -109,7 +109,7 @@ class MinifyTest {
 
 		String expected = "body{font-family:Verdana,Arial,Helvetica;margin:.2em}img{border-style:none}.layout{margin-top:0;padding:2px;border-width:1px;border-style:solid;background:url(imag/top_b.png)}";
 		// Test for the expected string
-		assertEquals(expected, out.toString(StandardCharsets.UTF_8));
+		assertEquals(expected, out.toString("utf-8"));
 	}
 
 	@Test
@@ -126,7 +126,7 @@ class MinifyTest {
 
 		String expected = "body{font-family:Verdana,Arial,Helvetica;margin:.2em .2em .2em .2em}img{border-style:none}.layout{margin-top:0;padding:2px;border-width:1px;border-style:solid;background:url(imag/top_b.png) top left}";
 		// Test for the expected string
-		assertEquals(expected, out.toString(StandardCharsets.UTF_8));
+		assertEquals(expected, out.toString("utf-8"));
 	}
 
 	@Test
