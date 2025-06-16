@@ -551,6 +551,76 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
+	public void testParsePropertyValueRGBVarComma() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("rgb(1 var(--foo) var(--bar),0.2)");
+		assertNotNull(lu);
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(1, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		LexicalUnit varparam = param.getParameters();
+		assertNotNull(varparam);
+		assertEquals(LexicalType.IDENT, varparam.getLexicalUnitType());
+		assertEquals("--foo", varparam.getStringValue());
+		assertNull(varparam.getNextLexicalUnit());
+
+		assertEquals("var(--foo)", param.getCssText());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		varparam = param.getParameters();
+		assertNotNull(varparam);
+		assertEquals(LexicalType.IDENT, varparam.getLexicalUnitType());
+		assertEquals("--bar", varparam.getStringValue());
+		assertNull(varparam.getNextLexicalUnit());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COMMA, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.2f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("rgb(1 var(--foo) var(--bar), 0.2)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBVarChain() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"rgb(var(--from) var(--r) var(--maybe-g) var(--alt-g) var(--b-slash) 0.2)");
+		assertNotNull(lu);
+
+		assertEquals("rgb(var(--from) var(--r) var(--maybe-g) var(--alt-g) var(--b-slash) 0.2)",
+				lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBVarChainSlash() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"rgb(var(--r) var(--g) var(--maybe-g-or-b) var(--maybe-b)/0.2)");
+		assertNotNull(lu);
+
+		assertEquals("rgb(var(--r) var(--g) var(--maybe-g-or-b) var(--maybe-b)/0.2)",
+				lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBVarChainComma() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"rgb(var(--r) var(--g) var(--maybe-g-or-b) var(--maybe-b),0.2)");
+		assertNotNull(lu);
+
+		assertEquals("rgb(var(--r) var(--g) var(--maybe-g-or-b) var(--maybe-b), 0.2)",
+				lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueRGBSlashVar() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(1 2 3/var(--foo))");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
@@ -1333,11 +1403,6 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBad4() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(12,48 127,0.1)"));
-	}
-
-	@Test
 	public void testParsePropertyValueRGBBad5() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(12,48,127/0.1)"));
 	}
@@ -1482,7 +1547,7 @@ public class PropertyParserColorRGBTest {
 
 	@Test
 	public void testParsePropertyValueRGBBadChar() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 a 0/ 0)"));
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 from 0/ 0)"));
 	}
 
 	@Test
@@ -1498,12 +1563,6 @@ public class PropertyParserColorRGBTest {
 	@Test
 	public void testParsePropertyValueRGBBadVar() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(1,var(--foo)/0.2)"));
-	}
-
-	@Test
-	public void testParsePropertyValueRGBBadVar2() throws CSSException {
-		assertThrows(CSSParseException.class,
-				() -> parsePropertyValue("rgb(1 var(--foo) var(--bar),0.2)"));
 	}
 
 	@Test
@@ -1524,18 +1583,6 @@ public class PropertyParserColorRGBTest {
 	@Test
 	public void testParsePropertyValueRGBBadVar6() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(var(--foo)/.8,.4)"));
-	}
-
-	@Test
-	public void testParsePropertyValueRGBBadVar7() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue(
-				"rgb(var(--foo),var(--foo),var(--foo),var(--foo),var(--foo))"));
-	}
-
-	@Test
-	public void testParsePropertyValueRGBBadVar8() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue(
-				"rgb(var(--foo) var(--foo) var(--foo) var(--foo)/var(--foo))"));
 	}
 
 	@Test

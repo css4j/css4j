@@ -2,6 +2,7 @@ body
 {
 	font-family: Verdana, Arial, Helvetica;
 	margin: 0.2em 0.2em 0.2em 0.2em;
+	color: rgb(from var(--color) r g 90%)
 }
 
 img

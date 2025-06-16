@@ -656,12 +656,12 @@ public class PropertyParserColorHWBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadLightness() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12 48% 0.1)"));
+	public void testParsePropertyValueHWBBadWhiteness() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12 48deg 0.1)"));
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadNoLightness() throws CSSException {
+	public void testParsePropertyValueHWBBadNoBrightness() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12 48%/0.1)"));
 	}
 
@@ -681,27 +681,7 @@ public class PropertyParserColorHWBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHWBBadIntSat() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48 91%)"));
-	}
-
-	@Test
-	public void testParsePropertyValueHWBBadRealSat() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48.2 91%)"));
-	}
-
-	@Test
-	public void testParsePropertyValueHWBBadIntLightness() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48% 91)"));
-	}
-
-	@Test
-	public void testParsePropertyValueHWBBadRealLightness() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48% 91.1)"));
-	}
-
-	@Test
-	public void testParsePropertyValueHWBBadAngleLightness() throws CSSException {
+	public void testParsePropertyValueHWBBadAngleBrightness() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48% 91.1deg)"));
 	}
 

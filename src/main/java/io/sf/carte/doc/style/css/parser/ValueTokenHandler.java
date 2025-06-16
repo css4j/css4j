@@ -35,9 +35,12 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 
 	private final boolean flagIEValues;
 
+	private final boolean skipValidation;
+
 	ValueTokenHandler() {
 		super();
 		this.flagIEValues = hasParserFlag(Parser.Flag.IEVALUES);
+		this.skipValidation = hasParserFlag(Parser.Flag.DISABLE_VALUE_VALIDATION);
 		this.propertyDatabase = ShorthandDatabase.getInstance();
 	}
 
@@ -46,6 +49,7 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 		this.currentlu = parent.getCurrentLexicalUnit();
 		this.lunit = this.currentlu;
 		this.flagIEValues = parent.hasParserFlag(Parser.Flag.IEVALUES);
+		this.skipValidation = hasParserFlag(Parser.Flag.DISABLE_VALUE_VALIDATION);
 		this.propertyDatabase = ShorthandDatabase.getInstance();
 	}
 
@@ -316,9 +320,11 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 			return;
 		}
 
-		LexicalUnitFactory factory = functionFactories.getFactory(currentlu.getFunctionName());
+		LexicalUnitFactory factory;
 
-		if (factory == null || factory.validate(this, index, currentlu)) {
+		if (skipValidation
+				|| (factory = functionFactories.getFactory(currentlu.getFunctionName())) == null
+				|| factory.validate(this, index, currentlu)) {
 			return;
 		}
 

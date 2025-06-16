@@ -1185,10 +1185,6 @@ public class PropertyParserColorOKTest {
 
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(74% 48 89.1,100%)"));
 
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(74% 48 89.1 9)"));
-
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(74% 48 89.1 1%)"));
-
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("oklab(var(--foo) 74% 48 89.1 0.22 1%)"));
 
@@ -1201,13 +1197,20 @@ public class PropertyParserColorOKTest {
 
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(74% 48 89.1//)"));
 
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(74% a 89.1)"));
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(74% from 89.1)"));
 
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("oklab(var(--lightness) 48 89.1deg)"));
 
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("oklab(var(--lightness-a) 89.1deg)"));
+	}
+
+	@Test
+	public void testParsePropertyValueOKLabBadNoSlash() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(74% 48 89.1 9)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(74% 48 89.1 1%)"));
 	}
 
 	@Test
@@ -2509,7 +2512,7 @@ public class PropertyParserColorOKTest {
 
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(74% 48 89.1//)"));
 
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(74% a 89.1)"));
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(74% from 89.1)"));
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {

@@ -107,7 +107,7 @@ class MinifyTest {
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		assertEquals(0, Minify.main(args, ps, System.err));
 
-		String expected = "body{font-family:Verdana,Arial,Helvetica;margin:.2em}img{border-style:none}.layout{margin-top:0;padding:2px;border-width:1px;border-style:solid;background:url(imag/top_b.png)}";
+		String expected = "body{font-family:Verdana,Arial,Helvetica;margin:.2em;color:rgb(from var(--color) r g 90%)}img{border-style:none}.layout{margin-top:0;padding:2px;border-width:1px;border-style:solid;background:url(imag/top_b.png)}";
 		// Test for the expected string
 		assertEquals(expected, out.toString("utf-8"));
 	}
@@ -124,7 +124,7 @@ class MinifyTest {
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		assertEquals(0, Minify.main(args, ps, System.err));
 
-		String expected = "body{font-family:Verdana,Arial,Helvetica;margin:.2em .2em .2em .2em}img{border-style:none}.layout{margin-top:0;padding:2px;border-width:1px;border-style:solid;background:url(imag/top_b.png) top left}";
+		String expected = "body{font-family:Verdana,Arial,Helvetica;margin:.2em .2em .2em .2em;color:rgb(from var(--color) r g 90%)}img{border-style:none}.layout{margin-top:0;padding:2px;border-width:1px;border-style:solid;background:url(imag/top_b.png) top left}";
 		// Test for the expected string
 		assertEquals(expected, out.toString("utf-8"));
 	}
@@ -136,7 +136,7 @@ class MinifyTest {
 		args[0] = MinifyTest.class.getResource(path).toExternalForm();
 		args[1] = "--disable-shorthand";
 		args[2] = "all";
-		final int MINIFIED_LENGTH = 220;
+		final int MINIFIED_LENGTH = 257;
 		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		assertEquals(0, Minify.main(args, ps, System.err));
@@ -253,7 +253,7 @@ class MinifyTest {
 		assertEquals(2, Minify.main(args, System.out, ps));
 		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
 		result = result.replaceAll("\r", "");
-		assertEquals(134, result.length());
+		assertEquals(147, result.length());
 	}
 
 	@Test
@@ -264,7 +264,7 @@ class MinifyTest {
 		assertEquals(2, Minify.main(args, System.out, ps));
 		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
 		result = result.replaceAll("\r", "");
-		assertEquals(134, result.length());
+		assertEquals(147, result.length());
 	}
 
 	@Test
@@ -292,8 +292,16 @@ class MinifyTest {
 
 	@Test
 	void testMinifyCSS_Invalid() {
-		assertEquals("p { margin-left: calc(2px+)}",
+		assertEquals("p{margin-left:calc(2px +)}",
 				Minify.minifyCSS("p { margin-left: calc(2px+)}"));
+	}
+
+	@Test
+	void testMinifyCSS_Invalid_Validate() {
+		TestConfig config = new TestConfig();
+		config.validate = true;
+		assertEquals("p { margin-left: calc(2px+)}",
+				Minify.minifyCSS("p { margin-left: calc(2px+)}", config, null));
 	}
 
 	@Test
@@ -339,9 +347,20 @@ class MinifyTest {
 	@Test
 	void testMinifyCSS_Media() {
 		assertEquals(
-				"@media only screen and (min-width:.002em){nav.foo{display:none}footer .footer .foo{color:#ff0;padding-right:var(--pad,/*empty*/)}h4{font-size:20px}}",
+				"@media only screen and (min-width:.002em){nav.foo{display:none}footer .footer .foo{color:#ff0;padding-right:var(--pad,)}h4{font-size:20px}}",
 				Minify.minifyCSS(
 						"@media only screen and  (min-width: 0.002em){ nav.foo { display:none;}footer .footer .foo { color: rgba(255,255,0,255);padding-right: var(--pad , /*empty*/); } h4 {font-size:20px; }}"));
+	}
+
+	@Test
+	void testMinifyCSS_Media_Validate() {
+		TestConfig config = new TestConfig();
+		config.validate = true;
+		assertEquals(
+				"@media only screen and (min-width:.002em){nav.foo{display:none}footer .footer .foo{color:#ff0;padding-right:var(--pad,/*empty*/)}h4{font-size:20px}}",
+				Minify.minifyCSS(
+						"@media only screen and  (min-width: 0.002em){ nav.foo { display:none;}footer .footer .foo { color: rgba(255,255,0,255);padding-right: var(--pad , /*empty*/); } h4 {font-size:20px; }}",
+						config, null));
 	}
 
 	@Test
@@ -430,6 +449,8 @@ class MinifyTest {
 
 		private HashSet<String> disabledShorthands = new HashSet<>();
 
+		private boolean validate;
+
 		TestConfig() {
 		}
 
@@ -445,6 +466,11 @@ class MinifyTest {
 		@Override
 		public boolean isDisabledShorthand(String name) {
 			return disabledShorthands == null || disabledShorthands.contains(name);
+		}
+
+		@Override
+		public boolean validate() {
+			return validate;
 		}
 
 	}

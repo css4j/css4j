@@ -57,6 +57,14 @@ public interface Parser {
 		VALUE_COMMENTS_IGNORE,
 
 		/**
+		 * Disable function value validation.
+		 * <p>
+		 * Gives slightly better performance in value parsing.
+		 * </p>
+		 */
+		DISABLE_VALUE_VALIDATION,
+
+		/**
 		 * Handles asterisk-prefixed properties as normal, compliant CSS properties but
 		 * reports a SAC warning.
 		 */

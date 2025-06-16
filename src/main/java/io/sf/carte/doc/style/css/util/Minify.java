@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.Parser.Flag;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
 import io.sf.carte.uparser.CommentRemovalHandler;
@@ -150,7 +151,7 @@ public class Minify {
 	 */
 	private static void printUsage(PrintStream err) {
 		err.println("Usage: " + Minify.class.getName()
-				+ " [--charset <charset>] [--disable-shorthand [<shorthand-list>]] <style-sheet-uri-or-path>");
+				+ " [--charset <charset>] [--disable-shorthand [<shorthand-list>]] [--validate] <style-sheet-uri-or-path>");
 	}
 
 	private static ConfigImpl readConfig(String[] args) {
@@ -203,6 +204,9 @@ public class Minify {
 							i--;
 						}
 					}
+				} else if ("--validate".equalsIgnoreCase(arg)) {
+					// Validate values
+					config.validate = true;
 				}
 			}
 		}
@@ -225,6 +229,13 @@ public class Minify {
 
 		boolean isDisabledShorthand(String name);
 
+		/**
+		 * Validate function values.
+		 * 
+		 * @return {@code true} if the parser should validate function values.
+		 */
+		boolean validate();
+
 	}
 
 	private static class ConfigImpl implements Config {
@@ -232,6 +243,8 @@ public class Minify {
 		private Set<String> disabledShorthands = null;
 
 		private Charset encoding;
+
+		private boolean validate;
 
 		private String path;
 
@@ -243,6 +256,11 @@ public class Minify {
 		@Override
 		public Charset getEncoding() {
 			return encoding;
+		}
+
+		@Override
+		public boolean validate() {
+			return validate;
 		}
 
 	}
@@ -274,7 +292,7 @@ public class Minify {
 		}
 		BufferSimpleWriter wri = new BufferSimpleWriter(DEFAULT_BUFFER_SIZE);
 		MinifySheetHandler handler = new MinifySheetHandler(wri, config);
-		CSSParser parser = createCSSParser();
+		CSSParser parser = createCSSParser(config);
 		parser.setDocumentHandler(handler);
 
 		try {
@@ -292,10 +310,14 @@ public class Minify {
 		return wri.toString();
 	}
 
-	private static CSSParser createCSSParser() {
+	private static CSSParser createCSSParser(Config config) {
 		// Instantiate a parser with flags allowing IE hacks
-		return new CSSOMParser(EnumSet.of(Parser.Flag.IEPRIO, Parser.Flag.IEPRIOCHAR,
-				Parser.Flag.IEVALUES, Parser.Flag.STARHACK));
+		EnumSet<Flag> flags = EnumSet.of(Parser.Flag.IEPRIO, Parser.Flag.IEPRIOCHAR,
+				Parser.Flag.IEVALUES, Parser.Flag.STARHACK);
+		if (!config.validate()) {
+			flags.add(Parser.Flag.DISABLE_VALUE_VALIDATION);
+		}
+		return new CSSOMParser(flags);
 	}
 
 	/**
@@ -352,7 +374,7 @@ public class Minify {
 		}
 		BufferSimpleWriter wri = new BufferSimpleWriter(buffer);
 		MinifySheetHandler handler = new MinifySheetHandler(wri, config);
-		CSSParser parser = createCSSParser();
+		CSSParser parser = createCSSParser(config);
 		parser.setDocumentHandler(handler);
 
 		try (BufferedReader cssReader = Files.newBufferedReader(cssPath, encoding)) {
@@ -406,7 +428,7 @@ public class Minify {
 		}
 		BufferSimpleWriter wri = new BufferSimpleWriter(buffer);
 		MinifySheetHandler handler = new MinifySheetHandler(wri, config);
-		CSSParser parser = createCSSParser();
+		CSSParser parser = createCSSParser(config);
 		parser.setDocumentHandler(handler);
 
 		URLConnection ucon = url.openConnection();

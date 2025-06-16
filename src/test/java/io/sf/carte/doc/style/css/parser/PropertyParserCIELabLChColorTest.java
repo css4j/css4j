@@ -755,13 +755,10 @@ public class PropertyParserCIELabLChColorTest {
 
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(74% 48 89.1//)"));
 
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(74% a 89.1)"));
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lab(74% from 89.1)"));
 
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("lab(var(--lightness) 48 89.1deg)"));
-
-		assertThrows(CSSParseException.class,
-				() -> parsePropertyValue("lab(var(--lightness-a) 89.1deg)"));
 	}
 
 	@Test
@@ -1764,7 +1761,7 @@ public class PropertyParserCIELabLChColorTest {
 
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(74% 48 89.1//)"));
 
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(74% a 89.1)"));
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("lch(74% from 89.1)"));
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {

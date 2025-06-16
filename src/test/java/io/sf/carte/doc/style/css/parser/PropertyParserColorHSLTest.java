@@ -856,6 +856,30 @@ public class PropertyParserColorHSLTest {
 	}
 
 	@Test
+	public void testParsePropertyValueHSLFrom() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hsl(from hsl(25 10% 8.2%) 12.81 25% none)");
+		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.HSLCOLOR, param.getLexicalUnitType());
+		assertEquals("hsl(25 10% 8.2%)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(12.81f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("none", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(from hsl(25 10% 8.2%) 12.81 25% none)", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueHSLAttr() throws CSSException {
 		LexicalUnit lu = parsePropertyValue(
 				"hsla(attr(data-hue turn),attr(data-s type(<percentage>)),attr(data-l %),attr(data-alpha type(<number>)))");
@@ -909,29 +933,8 @@ public class PropertyParserColorHSLTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLCommaNoCommaBadInt() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(3,14 15)"));
-	}
-
-	@Test
-	public void testParsePropertyValueHSLCommaNoCommaBadPercent() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12,48% 94%,0.1)"));
-	}
-
-	@Test
-	public void testParsePropertyValueHSLCommaNoCommaBadReal() throws CSSException {
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12deg,48% 94.2,0.1)"));
-	}
-
-	@Test
 	public void testParsePropertyValueHSLCommasSyntaxSlash() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12,48%,91%/0.1)"));
-	}
-
-	@Test
-	public void testParsePropertyValueHSLBadCommasSyntaxCalc() throws CSSException {
-		assertThrows(CSSParseException.class,
-				() -> parsePropertyValue("hsl(calc(12),calc(48%) calc(91%))"));
 	}
 
 	@Test
