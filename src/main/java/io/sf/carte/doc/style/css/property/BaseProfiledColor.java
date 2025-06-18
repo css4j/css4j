@@ -16,6 +16,7 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMNotSupportedException;
 import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -82,6 +83,33 @@ class BaseProfiledColor extends BaseColor {
 			components[i] = setfrom.components[i].clone();
 		}
 		this.profileName = color.getColorSpace();
+	}
+
+	@Override
+	public NumberValue component(String component) {
+		NumberValue ret;
+		switch (component) {
+		case "r":
+		case "x":
+			ret = numberComponent((TypedValue) components[0], 100f);
+			break;
+		case "g":
+		case "y":
+		case "w":
+			ret = numberComponent((TypedValue) components[1], 100f);
+			break;
+		case "b":
+		case "z":
+			ret = numberComponent((TypedValue) components[2], 100f);
+			break;
+		case "alpha":
+			ret = numberComponent((TypedValue) getAlpha(), 100f);
+			break;
+		default:
+			return null;
+		}
+
+		return ret;
 	}
 
 	@Override
@@ -167,12 +195,12 @@ class BaseProfiledColor extends BaseColor {
 
 	@Override
 	double[] toSRGB(boolean clamp) {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Cannot convert profiled colors.");
+		throw new DOMNotSupportedException("Cannot convert profiled colors.");
 	}
 
 	@Override
 	public double[] toXYZ(Illuminant white) {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Cannot convert profiled colors.");
+		throw new DOMNotSupportedException("Cannot convert profiled colors.");
 	}
 
 	@Override
@@ -192,7 +220,7 @@ class BaseProfiledColor extends BaseColor {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (getClass() != obj.getClass()) {
+		if (!(obj instanceof BaseProfiledColor)) {
 			return false;
 		}
 		BaseProfiledColor other = (BaseProfiledColor) obj;

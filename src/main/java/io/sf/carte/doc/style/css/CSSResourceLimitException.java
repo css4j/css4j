@@ -11,22 +11,21 @@
 
 package io.sf.carte.doc.style.css;
 
-import org.w3c.dom.DOMException;
+import io.sf.carte.doc.DOMInvalidAccessException;
 
 /**
  * A resource limit was found.
  */
-public class CSSResourceLimitException extends DOMException {
+public class CSSResourceLimitException extends DOMInvalidAccessException {
 
 	private static final long serialVersionUID = 2L;
 
 	public CSSResourceLimitException(String message) {
-		super(DOMException.INVALID_ACCESS_ERR, message);
+		super(message);
 	}
 
 	public CSSResourceLimitException(String message, Throwable cause) {
-		super(DOMException.INVALID_ACCESS_ERR, message);
-		initCause(cause);
+		super(message, cause);
 	}
 
 }

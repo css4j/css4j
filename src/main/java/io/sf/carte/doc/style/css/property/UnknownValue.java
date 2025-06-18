@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
@@ -141,8 +142,7 @@ public class UnknownValue extends AbstractTextValue {
 				nextLexicalUnit = null;
 				break;
 			default:
-				throw new DOMException(DOMException.SYNTAX_ERR,
-						"Unsuitable value: " + lunit.toString());
+				throw new DOMSyntaxException("Unsuitable value: " + lunit.toString());
 			}
 			setPlainCssText(text);
 		}

@@ -11,8 +11,9 @@
 
 package io.sf.carte.doc.dom;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
+
+import io.sf.carte.doc.DOMHierarchyRequestException;
 
 /**
  * HTML-specific element nodes.
@@ -33,7 +34,7 @@ abstract public class HTMLElement extends DOMElement implements org.w3c.dom.html
 	void checkInsertNodeHierarchy(Node newChild, Node refNode) {
 		super.checkInsertNodeHierarchy(newChild, refNode);
 		if (isNonHTMLOrVoid()) {
-			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "This element is void");
+			throw new DOMHierarchyRequestException("This element is void");
 		}
 	}
 

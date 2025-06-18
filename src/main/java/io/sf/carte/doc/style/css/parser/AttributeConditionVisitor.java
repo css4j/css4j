@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
@@ -80,11 +81,11 @@ abstract public class AttributeConditionVisitor extends ConditionVisitor
 	protected void setConditionNamespaceURI(AttributeCondition cond, String namespaceURI)
 			throws DOMException {
 		if (namespaceURI == null) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Null namespaceURI.");
+			throw new DOMInvalidAccessException("Null namespaceURI.");
 		}
 		namespaceURI = namespaceURI.trim();
 		if (namespaceURI.length() == 0) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Empty namespaceURI.");
+			throw new DOMInvalidAccessException("Empty namespaceURI.");
 		}
 		((NSACSelectorFactory.AttributeConditionImpl) cond).setNamespaceURI(namespaceURI);
 	}
@@ -100,11 +101,11 @@ abstract public class AttributeConditionVisitor extends ConditionVisitor
 	protected void setConditionLocalName(AttributeCondition cond, String newLocalName)
 			throws DOMException {
 		if (newLocalName == null) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Null local name.");
+			throw new DOMInvalidAccessException("Null local name.");
 		}
 		newLocalName = newLocalName.trim();
 		if (newLocalName.length() == 0) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Empty local name.");
+			throw new DOMInvalidAccessException("Empty local name.");
 		}
 		((NSACSelectorFactory.AttributeConditionImpl) cond).setLocalName(newLocalName);
 	}
@@ -123,11 +124,11 @@ abstract public class AttributeConditionVisitor extends ConditionVisitor
 			if (newValue.length() == 0) {
 				newValue = null;
 				if (cond.getConditionType() == Condition.ConditionType.CLASS) {
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Empty value.");
+					throw new DOMInvalidAccessException("Empty value.");
 				}
 			}
 		} else if (cond.getConditionType() == Condition.ConditionType.CLASS) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Null value.");
+			throw new DOMInvalidAccessException("Null value.");
 		}
 		((NSACSelectorFactory.AttributeConditionImpl) cond).setValue(newValue);
 	}

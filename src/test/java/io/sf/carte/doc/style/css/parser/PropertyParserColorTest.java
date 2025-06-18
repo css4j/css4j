@@ -262,6 +262,49 @@ public class PropertyParserColorTest {
 	}
 
 	@Test
+	public void testParsePropertyValueColorRelative() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("color(from blue rec2020 r 0.97978 0.00579)");
+		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("blue", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("rec2020", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("r", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.97978f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.00579f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("color", lu.getFunctionName());
+		assertEquals("color(from blue rec2020 r 0.97978 0.00579)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+	}
+
+	@Test
 	public void testParsePropertyValueColorBad() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("color(rec2020 )"));
 	}
@@ -293,6 +336,12 @@ public class PropertyParserColorTest {
 	public void testParsePropertyValueColorBadNumberAfterAlpha() throws CSSException {
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("color(rec2020 0.1 0.2 0.3 / 0.8 1)"));
+	}
+
+	@Test
+	public void testParsePropertyValueColorInvalidRelative() throws CSSException {
+		assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("color(from white rec2020 from 0 0)"));
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {

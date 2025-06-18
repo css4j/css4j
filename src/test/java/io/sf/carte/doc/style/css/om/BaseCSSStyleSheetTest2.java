@@ -320,7 +320,7 @@ public class BaseCSSStyleSheetTest2 {
 		DOMCSSStyleSheetFactory factory = new TestCSSStyleSheetFactory();
 		factory.setStyleFormattingFactory(new DefaultStyleFormattingFactory());
 		AbstractCSSStyleSheet css = factory.createStyleSheet(null, null);
-		String csstext = "li.foo{margin-left:calc(foo); display: block;}";
+		String csstext = "li.foo{margin-left:calc(foo+); display: block;}";
 		Reader re = new StringReader(csstext);
 		css.parseStyleSheet(re);
 		CSSRuleArrayList rules = css.getCssRules();

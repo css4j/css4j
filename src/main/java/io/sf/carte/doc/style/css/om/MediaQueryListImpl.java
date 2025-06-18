@@ -19,7 +19,9 @@ import java.util.Locale;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.DOMNotSupportedException;
 import io.sf.carte.doc.DOMNullCharacterException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
@@ -119,7 +121,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 	public void setMediaText(String mediaText) throws DOMException {
 		queryList.clear();
 		if (!parse(mediaText, null)) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Bad media query: " + mediaText);
+			throw new DOMSyntaxException("Invalid media query: " + mediaText);
 		}
 	}
 
@@ -174,13 +176,13 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 	@Override
 	public void appendMedium(String newMedium) throws DOMException {
 		if (!parse(newMedium, null)) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Bad media query: " + newMedium);
+			throw new DOMSyntaxException("Invalid media query: " + newMedium);
 		}
 	}
 
 	@Override
 	public void deleteMedium(String oldMedium) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Delete operation not supported");
+		throw new DOMNotSupportedException("Delete operation not supported");
 	}
 
 	/**

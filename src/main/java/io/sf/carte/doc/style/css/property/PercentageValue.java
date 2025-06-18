@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.style.css.CSSUnit;
 
 /**
@@ -50,9 +51,9 @@ public class PercentageValue extends NumberValue {
 		if (unitType == getUnitType()) {
 			return realvalue;
 		} else if (unitType == CSSUnit.CSS_NUMBER) {
-			return realvalue * 0.01f;
+			return realvalue / 100f;
 		} else {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Cannot convert a percentage at this level");
+			throw new DOMInvalidAccessException("Cannot convert a percentage at this level");
 		}
 	}
 

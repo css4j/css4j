@@ -15,6 +15,7 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMNotSupportedException;
 import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.style.css.ColorSpace;
@@ -43,7 +44,9 @@ class ColorConverter {
 
 	double[] toColorSpace(BaseColor source, String colorSpace, boolean clamp) throws DOMException {
 		colorSpace = colorSpace.toLowerCase(Locale.ROOT);
-		if (source.getColorSpace().equals(colorSpace)) {
+		String sourceCS = source.getColorSpace();
+		if (sourceCS.equals(colorSpace) && (!ColorSpace.srgb.equals(sourceCS)
+				|| source.getColorModel() == ColorModel.RGB)) {
 			if (createValue) {
 				this.destColor = source;
 			}
@@ -228,8 +231,7 @@ class ColorConverter {
 			}
 			break;
 		default:
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
-					"Unsupported color space: " + colorSpace);
+			throw new DOMNotSupportedException("Unsupported color space: " + colorSpace);
 		}
 
 		if (createValue) {

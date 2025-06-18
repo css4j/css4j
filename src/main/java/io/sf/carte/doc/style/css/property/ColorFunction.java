@@ -18,6 +18,8 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMNotSupportedException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
@@ -28,6 +30,7 @@ import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.BaseColor.Space;
 import io.sf.carte.util.SimpleWriter;
 
@@ -123,7 +126,7 @@ class ColorFunction extends ColorValue {
 		if (getColorModel() == ColorModel.RGB) {
 			return ((ProfiledRGBColor) color).toSRGBColor(clamp);
 		}
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Custom color profile is not supported.");
+		throw new DOMNotSupportedException("Custom color profile is not supported.");
 	}
 
 	@Override
@@ -177,7 +180,7 @@ class ColorFunction extends ColorValue {
 			this.color.toLABColor(labColor);
 			break;
 		default:
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Color space is not supported.");
+			throw new DOMNotSupportedException("Color space is not supported.");
 		}
 
 		return ColorUtil.deltaE2000Lab(((CSSTypedValue) labColor.getLightness()).getFloatValue(CSSUnit.CSS_NUMBER),
@@ -206,9 +209,7 @@ class ColorFunction extends ColorValue {
 			} catch (DOMException e) {
 				throw e;
 			} catch (RuntimeException e) {
-				DOMException ex = new DOMException(DOMException.SYNTAX_ERR, "Wrong value: " + lunit.toString());
-				ex.initCause(e);
-				throw ex;
+				throw new DOMSyntaxException("Wrong value: " + lunit.toString(), e);
 			}
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
@@ -216,6 +217,18 @@ class ColorFunction extends ColorValue {
 		private void setLexical(LexicalUnit lunit) throws DOMException {
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
+			CSSColor from = null;
+
+			// from?
+			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
+				if ("from".equalsIgnoreCase(lu.getStringValue())) {
+					lu = nextLexicalUnit(lu, lunit);
+					PrimitiveValue fromval = factory.createCSSPrimitiveValue(lu, true);
+					from = computeColor(fromval, factory);
+					lu = nextLexicalUnit(lu, lunit);
+				}
+			}
+
 			List<PrimitiveValue> components = new ArrayList<>(5);
 
 			// Color space
@@ -227,7 +240,15 @@ class ColorFunction extends ColorValue {
 			String colorSpace = lu.getStringValue();
 			lu = lu.getNextLexicalUnit();
 			if (lu == null) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Wrong value: " + lunit.toString());
+				throw new DOMSyntaxException("Wrong value: " + lunit.toString());
+			}
+
+			if (from != null) {
+				String fromcs = from.getColorSpace();
+				if (!fromcs.equalsIgnoreCase(colorSpace) || (ColorSpace.srgb.equals(fromcs)
+						&& from.getColorModel() != ColorModel.RGB)) {
+					from = from.toColorSpace(colorSpace);
+				}
 			}
 
 			// Components
@@ -235,6 +256,9 @@ class ColorFunction extends ColorValue {
 			PrimitiveValue primi;
 			while (true) {
 				primi = factory.createCSSPrimitiveValue(lu, true);
+				if (from != null) {
+					primi = absoluteComponent(from, primi, false);
+				}
 				checkComponentValidity(primi, lunit);
 				components.add(primi);
 				lu = lu.getNextLexicalUnit();
@@ -248,8 +272,7 @@ class ColorFunction extends ColorValue {
 					lu = lu.getNextLexicalUnit();
 					if (lu != null) {
 						// This won't happen because it is filtered at NSAC level
-						throw new DOMException(DOMException.SYNTAX_ERR,
-								"Wrong value: " + lunit.toString());
+						throw new DOMSyntaxException("Wrong value: " + lunit.toString());
 					}
 					break;
 				}
@@ -261,7 +284,7 @@ class ColorFunction extends ColorValue {
 					PrimitiveValue[] ca = components.toArray(new PrimitiveValue[0]);
 					color = new BaseProfiledColor(colorSpace, ca);
 				} else {
-					throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+					throw new DOMNotSupportedException(
 							"Unsupported color space: " + colorSpace);
 				}
 			} else {
@@ -269,6 +292,9 @@ class ColorFunction extends ColorValue {
 			}
 
 			if (alpha != null) {
+				if (from != null) {
+					alpha = absoluteComponent(from, alpha, false);
+				}
 				color.setAlpha(alpha);
 			}
 		}
@@ -342,7 +368,7 @@ class ColorFunction extends ColorValue {
 			color.toLABColor(lab);
 			break;
 		default:
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Custom profiles are not suported.");
+			throw new DOMNotSupportedException("Custom profiles are not suported.");
 		}
 		return labColor;
 	}

@@ -13,6 +13,8 @@ package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
 
@@ -101,7 +103,7 @@ public interface StyleDatabase {
 		} else if (fontSizeIdentifier.equals("xx-large")) {
 			sz = 24f * factor;
 		} else {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+			throw new DOMInvalidAccessException(
 				"Unknown size identifier: " + fontSizeIdentifier);
 		}
 		return sz;
@@ -171,7 +173,8 @@ public interface StyleDatabase {
 	 * @param fontSize        the font size used by the box, in typographic points.
 	 * @return the size.
 	 * @throws DOMException if the identifier is unknown.
-	 * @deprecated Since May 2022 the identifiers have a fixed value (CSSWG issue #7254).
+	 * @deprecated Since May 2022 the identifiers have a fixed value (CSSWG issue
+	 *             #7254).
 	 */
 	@Deprecated
 	default float getWidthSize(String widthIdentifier, float fontSize) throws DOMException {
@@ -182,8 +185,7 @@ public interface StyleDatabase {
 		} else if ("medium".equalsIgnoreCase(widthIdentifier)) {
 			return 2.25f; // 3px
 		} else {
-			throw new DOMException(DOMException.SYNTAX_ERR,
-				"Unknown identifier " + widthIdentifier);
+			throw new DOMSyntaxException("Unknown identifier " + widthIdentifier);
 		}
 	}
 

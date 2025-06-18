@@ -36,6 +36,38 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 	}
 
 	@Override
+	void set(BaseColor color) {
+		super.set(color);
+
+		HSLColorImpl setfrom = (HSLColorImpl) color;
+		this.hue = setfrom.getHue();
+		this.saturation = setfrom.getSaturation();
+		this.lightness = setfrom.getLightness();
+	}
+
+	@Override
+	public NumberValue component(String component) {
+		NumberValue ret;
+		switch (component) {
+		case "h":
+			ret = hueComponent((CSSTypedValue) getHue());
+			break;
+		case "s":
+			ret = numberComponent((CSSTypedValue) getSaturation(), 1f);
+			break;
+		case "l":
+			ret = numberComponent((CSSTypedValue) getLightness(), 1f);
+			break;
+		case "alpha":
+			ret = numberComponent((CSSTypedValue) alpha, 100f);
+			break;
+		default:
+			return null;
+		}
+		return ret;
+	}
+
+	@Override
 	public PrimitiveValue item(int index) {
 		switch (index) {
 		case 0:
@@ -92,6 +124,12 @@ class HSLColorImpl extends BaseColor implements HSLColor {
 
 	public void setLightness(PrimitiveValue lightness) {
 		this.lightness = enforcePcntOrNumberComponent(lightness);
+	}
+
+	@Override
+	boolean hasPercentageComponent() {
+		return (saturation != null && saturation.getUnitType() == CSSUnit.CSS_PERCENTAGE)
+				|| (lightness != null && lightness.getUnitType() == CSSUnit.CSS_PERCENTAGE);
 	}
 
 	@Override

@@ -60,8 +60,8 @@ public class CalcValue extends ExpressionValue {
 					return lastlutype == LexicalType.SUB_EXPRESSION;
 				}
 				return lutype != LexicalType.CALC && lutype != LexicalType.MATH_FUNCTION
-						&& lutype != LexicalType.VAR && lutype != LexicalType.ATTR
-						&& lutype != LexicalType.ENV && lutype != LexicalType.FUNCTION;
+						&& lutype != LexicalType.IDENT && lutype != LexicalType.ENV
+						&& lutype != LexicalType.FUNCTION;
 			}
 
 		};

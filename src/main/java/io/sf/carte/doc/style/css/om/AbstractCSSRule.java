@@ -13,8 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
 
-import org.w3c.dom.DOMException;
-
+import io.sf.carte.doc.DOMNotSupportedException;
 import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.SelectorMatcher;
@@ -34,7 +33,7 @@ abstract public class AbstractCSSRule implements CSSRule, java.io.Serializable {
 
 	@Override
 	public void setCssText(String cssText) {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Not supported.");
+		throw new DOMNotSupportedException("Not supported.");
 	}
 
 	@Override

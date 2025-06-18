@@ -16,6 +16,7 @@ import java.io.StringReader;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSLexicalValue;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -189,9 +190,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 		try {
 			lexicalUnit = parser.parsePropertyValue(new StringReader(cssText));
 		} catch (CSSException | IOException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException(e);
 		}
 	}
 

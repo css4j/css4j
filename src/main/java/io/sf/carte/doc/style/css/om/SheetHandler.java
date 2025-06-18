@@ -15,6 +15,7 @@ import java.util.LinkedList;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
@@ -150,7 +151,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		try {
 			((GroupingRule) currentRule).addRule(rule);
 		} catch (ClassCastException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR,
+			DOMException ex = new DOMSyntaxException(
 					"Found @-rule inside a non-grouping rule of type: " + currentRule.getType());
 			parentSheet.getErrorHandler().badAtRule(ex, rule.getCssText());
 			lastRule = null;
@@ -400,7 +401,7 @@ class SheetHandler implements CSSParentHandler, CSSErrorHandler, NamespaceMap {
 		try {
 			grouping.addRule(currentRule);
 		} catch (ClassCastException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR,
+			DOMException ex = new DOMSyntaxException(
 					"Found @-rule inside a non-grouping rule of type: " + rule.getType());
 			parentSheet.getErrorHandler().badAtRule(ex, currentRule.getCssText());
 		}

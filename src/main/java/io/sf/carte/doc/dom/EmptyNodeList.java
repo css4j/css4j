@@ -18,18 +18,20 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.DOMHierarchyRequestException;
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.dom.AbstractDOMNode.RawNodeList;
 
 class EmptyNodeList implements RawNodeList {
 
 	@Override
 	public void add(AbstractDOMNode node) throws DOMException {
-		throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot add children to this node.");
+		throw new DOMHierarchyRequestException("Cannot add children to this node.");
 	}
 
 	@Override
 	public void insertBefore(AbstractDOMNode newChild, AbstractDOMNode refChild) {
-		throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot add children to this node.");
+		throw new DOMHierarchyRequestException("Cannot add children to this node.");
 	}
 
 	@Override
@@ -77,7 +79,7 @@ class EmptyNodeList implements RawNodeList {
 
 	@Override
 	public AbstractDOMNode replace(AbstractDOMNode newChild, AbstractDOMNode oldChild) {
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Cannot set children to this node.");
+		throw new DOMInvalidAccessException("Cannot set children to this node.");
 	}
 
 	@Override

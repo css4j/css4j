@@ -19,6 +19,7 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSKeyframeRule;
 import io.sf.carte.doc.style.css.CSSKeyframesRule;
 import io.sf.carte.doc.style.css.CSSRule;
@@ -123,9 +124,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		try {
 			selunit = parser.parsePropertyValue(re);
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException(e);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
@@ -140,7 +139,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		while (lu != null) {
 			LexicalUnit nextlu = lu.getNextLexicalUnit();
 			if (lu.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
-				throw new DOMException(DOMException.SYNTAX_ERR,
+				throw new DOMSyntaxException(
 						"Wrong keyframe selector syntax: " + selunit.toString());
 			} else if (nextlu == null) {
 				break;
@@ -168,7 +167,7 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 		} else if (type == LexicalType.INTEGER && selunit.getIntegerValue() == 0) {
 			buffer.append('0');
 		} else {
-			throw new DOMException(DOMException.SYNTAX_ERR,
+			throw new DOMSyntaxException(
 					"Wrong keyframe selector: " + selunit.toString());
 		}
 	}

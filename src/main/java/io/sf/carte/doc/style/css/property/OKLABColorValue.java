@@ -15,6 +15,8 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
+import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -22,6 +24,7 @@ import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.BaseColor.Space;
 import io.sf.carte.util.SimpleWriter;
 
@@ -249,7 +252,7 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 			} catch (DOMException e) {
 				throw e;
 			} catch (RuntimeException e) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+				throw new DOMSyntaxException("Invalid value: " + lunit.toString());
 			}
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
@@ -257,28 +260,57 @@ class OKLABColorValue extends ColorValue implements io.sf.carte.doc.style.css.LA
 		private void setLexicalLAB(LexicalUnit lunit) {
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
+			CSSColor from = null;
+
+			// from?
+			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
+				if ("from".equalsIgnoreCase(lu.getStringValue())) {
+					lu = nextLexicalUnit(lu, lunit);
+					PrimitiveValue fromval = factory.createCSSPrimitiveValue(lu, true);
+					from = computeColor(fromval, factory);
+					String cs = from.getColorSpace();
+					if (!cs.equals(ColorSpace.ok_lab)) {
+						from = from.toColorSpace(ColorSpace.ok_lab);
+					}
+					lu = nextLexicalUnit(lu, lunit);
+				}
+			}
+
 			// lightness
 			PrimitiveValue primilight = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				primilight = absoluteComponent(from, primilight, false);
+			}
+
 			// a
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primia = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				primia = absoluteComponent(from, primia, false);
+			}
+
 			// b
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primib = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				primib = absoluteComponent(from, primib, false);
+			}
+
 			// slash or null
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
 				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
-					throw new DOMException(DOMException.SYNTAX_ERR,
-							"Expected slash in: " + lunit.toString());
+					throw new DOMSyntaxException("Expected slash in: " + lunit.toString());
 				}
 				lu = lu.getNextLexicalUnit(); // Alpha
 				PrimitiveValue alpha = factory.createCSSPrimitiveValue(lu, true);
+				if (from != null) {
+					alpha = absoluteComponent(from, alpha, false);
+				}
 				labColor.setAlpha(alpha);
 				lu = lu.getNextLexicalUnit();
 				if (lu != null) {
-					throw new DOMException(DOMException.SYNTAX_ERR,
-							"Bad value: " + lunit.toString());
+					throw new DOMSyntaxException("Invalid value: " + lunit.toString());
 				}
 			}
 			labColor.setLightness(primilight);

@@ -1003,6 +1003,8 @@ class FunctionFactories {
 			type = lu.getLexicalUnitType();
 		}
 
+		boolean hasNoCommas = false;
+
 		// check for 'from'
 		if (type == LexicalType.IDENT) {
 			String s = lu.getStringValue();
@@ -1013,6 +1015,7 @@ class FunctionFactories {
 				} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
 					hasVar = true;
 				}
+				hasNoCommas = true;
 			} else {
 				valCount = 1;
 			}
@@ -1024,7 +1027,6 @@ class FunctionFactories {
 
 		LexicalType lastType = LexicalType.UNKNOWN;
 		boolean hasCommas = false;
-		boolean hasNoCommas = false;
 		do {
 			type = lu.getLexicalUnitType();
 			// Check component type
@@ -1138,6 +1140,7 @@ class FunctionFactories {
 				} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
 					hasVar = true;
 				}
+				hasNoCommas = true;
 			} else {
 				valCount = 1;
 			}
@@ -1187,6 +1190,9 @@ class FunctionFactories {
 				hasVar = true;
 				break;
 			case OPERATOR_COMMA:
+				if (hasNoCommas) {
+					return false;
+				}
 				if (hasVar) {
 					hasCommas = true;
 					break;
@@ -1922,7 +1928,7 @@ class FunctionFactories {
 			type = lu.getLexicalUnitType();
 			switch (type) {
 			case IDENT:
-				if (!"none".equalsIgnoreCase(lu.getStringValue())) {
+				if ("from".equalsIgnoreCase(lu.getStringValue())) {
 					return false;
 				}
 			case REAL:

@@ -22,6 +22,7 @@ import java.util.TreeSet;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
@@ -237,8 +238,7 @@ abstract class NDTNode extends AbstractDOMNode implements NonDocumentTypeChildNo
 			throw createDOMException(DOMException.NAMESPACE_ERR,
 					"Namespaces inside the selectors are not supported: " + selectors, e);
 		} catch (Exception e) {
-			throw createDOMException(DOMException.SYNTAX_ERR,
-					"Unable to parse selector in: " + selectors, e);
+			throw new DOMSyntaxException("Unable to parse selector in: " + selectors, e);
 		}
 		return selist;
 	}

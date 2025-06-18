@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
@@ -42,8 +43,7 @@ class CubicBezierFunction extends EasingFunction {
 		LinkedCSSValueList args = getArguments();
 		int len = args.size();
 		if (len != 4) {
-			throw new DOMException(DOMException.SYNTAX_ERR,
-					"cubic-bezier() requires four arguments: " + getCssText());
+			throw new DOMSyntaxException("cubic-bezier() requires four arguments: " + getCssText());
 		}
 
 		CSSValueSyntax syn = SyntaxParser.createSimpleSyntax("number");

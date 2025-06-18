@@ -15,6 +15,7 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.style.css.CSSColorValue.ColorModel;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
@@ -57,6 +58,31 @@ class RGBColor extends BaseColor implements RGBAColor {
 		this.red = rgbcolor.red;
 		this.green = rgbcolor.green;
 		this.blue = rgbcolor.blue;
+	}
+
+	@Override
+	public NumberValue component(String component) {
+		double ret;
+		switch (component) {
+		case "r":
+			ret = rgbComponentNormalized((TypedValue) getRed());
+			break;
+		case "g":
+			ret = rgbComponentNormalized((TypedValue) getGreen());
+			break;
+		case "b":
+			ret = rgbComponentNormalized((TypedValue) getBlue());
+			break;
+		case "alpha":
+			ret = ColorUtil.floatNumber((CSSTypedValue) alpha);
+			break;
+		default:
+			return null;
+		}
+		NumberValue num = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) ret);
+		num.setMaximumFractionDigits(getMaximumFractionDigits());
+		num.setAbsolutizedUnit();
+		return num;
 	}
 
 	@Override
@@ -115,10 +141,10 @@ class RGBColor extends BaseColor implements RGBAColor {
 
 		if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
 			CSSTypedValue typed = (CSSTypedValue) primi;
-			float fv = typed.getFloatValue(CSSUnit.CSS_NUMBER);
+			float fv = typed.getFloatValue();
 			if (fv < 0f) {
 				if (!typed.isCalculatedNumber()) {
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					throw new DOMInvalidAccessException(
 							"Color component cannot be smaller than zero.");
 				}
 				// Clamp
@@ -126,10 +152,10 @@ class RGBColor extends BaseColor implements RGBAColor {
 			}
 		} else if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
 			CSSTypedValue typed = (CSSTypedValue) primi;
-			float fv = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+			float fv = typed.getFloatValue();
 			if (fv < 0f || fv > 100f) {
 				if (!typed.isCalculatedNumber()) {
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					throw new DOMInvalidAccessException(
 							"Color component percentage cannot be smaller than zero or greater than 100%.");
 				}
 				// Clamp
@@ -174,6 +200,13 @@ class RGBColor extends BaseColor implements RGBAColor {
 	@Override
 	public PrimitiveValue getBlue() {
 		return blue;
+	}
+
+	@Override
+	boolean hasPercentageComponent() {
+		return (red != null && red.getUnitType() == CSSUnit.CSS_PERCENTAGE)
+				|| (green != null && green.getUnitType() == CSSUnit.CSS_PERCENTAGE)
+				|| (blue != null && blue.getUnitType() == CSSUnit.CSS_PERCENTAGE);
 	}
 
 	@Override
@@ -302,9 +335,9 @@ class RGBColor extends BaseColor implements RGBAColor {
 		double comp;
 		short unit = typed.getUnitType();
 		if (unit == CSSUnit.CSS_PERCENTAGE) {
-			comp = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE) * 0.01d;
+			comp = typed.getFloatValue() / 100d;
 		} else if (unit == CSSUnit.CSS_NUMBER) {
-			comp = typed.getFloatValue(CSSUnit.CSS_NUMBER) / 255d;
+			comp = typed.getFloatValue() / 255d;
 		} else if (typed.getPrimitiveType() == Type.IDENT) {
 			comp = 0d;
 		} else {
@@ -326,9 +359,92 @@ class RGBColor extends BaseColor implements RGBAColor {
 		return linearComp;
 	}
 
+	boolean isCommaSyntax() {
+		return true;
+	}
+
 	@Override
 	public String toString() {
-		return oldFunctionalString(isNonOpaque());
+		return toString(false);
+	}
+
+	@Override
+	public String toMinifiedString() {
+		return toString(true);
+	}
+
+	String toString(boolean minify) {
+		float fr = componentByte(getRed());
+		float fg = componentByte(getGreen());
+		float fb = componentByte(getBlue());
+		boolean nonOpaque = isNonOpaque();
+		if (nonOpaque || !isInteger(fr) || !isInteger(fg) || !isInteger(fb) || fr > 255f || fg > 255f
+				|| fb > 255f) {
+			if (minify) {
+				if (isCommaSyntax()) {
+					return minifiedOldFunctionalString(nonOpaque);
+				} else {
+					return minifiedFunctionalString(nonOpaque);
+				}
+			} else {
+				if (isCommaSyntax()) {
+					return oldFunctionalString(nonOpaque);
+				} else {
+					return functionalString(nonOpaque);
+				}
+			}
+		}
+		int r = Math.round(fr);
+		int g = Math.round(fg);
+		int b = Math.round(fb);
+		// Use hexadecimal notation
+		String hexr = Integer.toHexString(r);
+		String hexg = Integer.toHexString(g);
+		String hexb = Integer.toHexString(b);
+		StringBuilder buf;
+		if ((r != 0 && notSameChar(hexr)) || (g != 0 && notSameChar(hexg)) || (b != 0 && notSameChar(hexb))) {
+			buf = new StringBuilder(7);
+			buf.append('#');
+			if (hexr.length() == 1) {
+				buf.append('0');
+			}
+			buf.append(hexr);
+			if (hexg.length() == 1) {
+				buf.append('0');
+			}
+			buf.append(hexg);
+			if (hexb.length() == 1) {
+				buf.append('0');
+			}
+			buf.append(hexb);
+		} else {
+			buf = new StringBuilder(4);
+			buf.append('#');
+			buf.append(hexr.charAt(0));
+			buf.append(hexg.charAt(0));
+			buf.append(hexb.charAt(0));
+		}
+		return buf.toString();
+	}
+
+	private float componentByte(PrimitiveValue component) {
+		float byteComp;
+		Type type = component.getPrimitiveType();
+		if (type == Type.NUMERIC) {
+			TypedValue number = (TypedValue) component;
+			if (number.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+				byteComp = number.getFloatValue() * 2.55f;
+			} else {
+				byteComp = number.getFloatValue(CSSUnit.CSS_NUMBER);
+			}
+		} else {
+			byteComp = 256f;
+		}
+		return byteComp;
+	}
+
+	private boolean isInteger(float r) {
+		return Math.abs(r - (float) Math.rint(r)) < 3e-4;
 	}
 
 	String oldFunctionalString(boolean nonOpaque) {
@@ -349,9 +465,18 @@ class RGBColor extends BaseColor implements RGBAColor {
 		return buf.toString();
 	}
 
-	@Override
-	public String toMinifiedString() {
-		return minifiedOldFunctionalString(isNonOpaque());
+	private String functionalString(boolean nonOpaque) {
+		StringBuilder buf = new StringBuilder(23);
+		buf.append("rgb(");
+		appendComponentCssText(buf, getRed()).append(' ');
+		appendComponentCssText(buf, getGreen()).append(' ');
+		appendComponentCssText(buf, getBlue());
+		if (nonOpaque) {
+			buf.append(" / ");
+			appendAlphaChannel(buf);
+		}
+		buf.append(')');
+		return buf.toString();
 	}
 
 	String minifiedOldFunctionalString(boolean nonOpaque) {
@@ -372,6 +497,24 @@ class RGBColor extends BaseColor implements RGBAColor {
 		return buf.toString();
 	}
 
+	private String minifiedFunctionalString(boolean nonOpaque) {
+		StringBuilder buf = new StringBuilder(21);
+		buf.append("rgb(");
+		appendComponentMinifiedCssText(buf, getRed()).append(' ');
+		appendComponentMinifiedCssText(buf, getGreen()).append(' ');
+		appendComponentMinifiedCssText(buf, getBlue());
+		if (nonOpaque) {
+			buf.append('/');
+			appendAlphaChannelMinified(buf);
+		}
+		buf.append(')');
+		return buf.toString();
+	}
+
+	private boolean notSameChar(String hexr) {
+		return hexr.length() == 1 || hexr.charAt(0) != hexr.charAt(1);
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -390,7 +533,7 @@ class RGBColor extends BaseColor implements RGBAColor {
 		}
 		TypedValue val = (TypedValue) comp;
 		if (comp.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-			value = val.getFloatValue(CSSUnit.CSS_PERCENTAGE) * 2.55f;
+			value = val.getFloatValue() * 2.55f;
 		} else {
 			value = val.getFloatValue(CSSUnit.CSS_NUMBER);
 		}

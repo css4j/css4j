@@ -13,8 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import java.io.IOException;
 
-import org.w3c.dom.DOMException;
-
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSRectValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
@@ -163,11 +162,11 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 			lu = lu.getNextLexicalUnit();
 			if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_COMMA) {
 				if (commaFound) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Bad syntax for rect.");
+					throw new DOMSyntaxException("Syntax mismatch for rect.");
 				}
 			} else {
 				if (!commaFound) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Bad syntax for rect.");
+					throw new DOMSyntaxException("Syntax mismatch for rect.");
 				}
 				lu = lu.getNextLexicalUnit();
 			}
@@ -179,7 +178,7 @@ public class RectValue extends ShapeValue implements CSSRectValue {
 			lu = lu.getNextLexicalUnit();
 			if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_COMMA) {
 				if (commaFound) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Bad syntax for rect.");
+					throw new DOMSyntaxException("Syntax mismatch for rect.");
 				}
 			} else {
 				lu = lu.getNextLexicalUnit();

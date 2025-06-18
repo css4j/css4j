@@ -62,6 +62,18 @@ public interface CSSColor {
 	CSSPrimitiveValue item(int index);
 
 	/**
+	 * Get the component of this color named by {@code name}.
+	 * <p>
+	 * Percentages are normalized to numbers in the {@code [0-1]} interval, and
+	 * angles to degrees.
+	 * </p>
+	 * 
+	 * @param name the component name. {@code alpha} is the alpha channel.
+	 * @return the component, or {@code null} if the component name is unknown.
+	 */
+	CSSNumberValue component(String name);
+
+	/**
 	 * The number of component values plus the alpha channel.
 	 * 
 	 * @return the number of component values plus the alpha channel.

@@ -4,34 +4,32 @@
  * https://www.w3.org/Consortium/Legal/2015/copyright-software-and-document
  * 
  * Copyright © 2022-2025, Carlos Amengual.
- * 
+ */
+/*
  * SPDX-License-Identifier: W3C-20150513
  */
 
 package io.sf.carte.doc;
-
-import org.w3c.dom.DOMException;
 
 /**
  * DOM policy exception.
  * <p>
  * Reports a policy exception, including possible security issues.
  */
-public class DOMPolicyException extends DOMException {
+public class DOMPolicyException extends DOMInvalidAccessException {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	public DOMPolicyException() {
 		this(null);
 	}
 
 	public DOMPolicyException(String message) {
-		super(DOMException.INVALID_ACCESS_ERR, message);
+		super(message);
 	}
 
 	public DOMPolicyException(String message, Throwable cause) {
-		super(DOMException.INVALID_ACCESS_ERR, message);
-		initCause(cause);
+		super(message, cause);
 	}
 
 }

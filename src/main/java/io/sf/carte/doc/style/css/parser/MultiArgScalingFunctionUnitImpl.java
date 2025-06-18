@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 
@@ -30,7 +31,7 @@ class MultiArgScalingFunctionUnitImpl extends MathFunctionUnitImpl {
 		LexicalUnitImpl nextlu = analyzer.getNextLexicalUnit();
 		if (dim != null) {
 			if (nextlu == null || (nextlu = nextlu.nextLexicalUnit) == null) {
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+				throw new DOMInvalidAccessException(
 						"Function " + getFunctionName() + " has only one argument.");
 			}
 			if (dim.category == Category.length || dim.category == Category.percentage) {
@@ -39,7 +40,7 @@ class MultiArgScalingFunctionUnitImpl extends MathFunctionUnitImpl {
 				Dimension dim2 = analyzer.expressionDimension(nextlu);
 				if (dim2 != null && dim.category != dim2.category) {
 					if (!dim.sum(dim2)) {
-						throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Function "
+						throw new DOMInvalidAccessException("Function "
 								+ getFunctionName() + " has arguments with different dimensions: "
 								+ dim.category.name() + " versus " + dim2.category.name() + '.');
 					}

@@ -18,6 +18,7 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSEnvVariableValue;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
@@ -181,7 +182,7 @@ public class EnvVariableValue extends ProxyValue implements CSSEnvVariableValue 
 					}
 					indexList.add(lu.getIntegerValue());
 				} else {
-					throw new DOMException(DOMException.SYNTAX_ERR,
+					throw new DOMSyntaxException(
 							"Unexpected token: " + lu.getCssText());
 				}
 			} while (true);

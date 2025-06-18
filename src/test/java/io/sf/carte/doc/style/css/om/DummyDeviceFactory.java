@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.agent.AbstractDeviceFactory;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
@@ -107,7 +108,7 @@ public class DummyDeviceFactory extends AbstractDeviceFactory {
 			} else if (fontSizeIdentifier.equals("xx-large")) {
 				sz = 24f;
 			} else {
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+				throw new DOMInvalidAccessException(
 						"Unknown size identifier: " + fontSizeIdentifier);
 			}
 			return sz;

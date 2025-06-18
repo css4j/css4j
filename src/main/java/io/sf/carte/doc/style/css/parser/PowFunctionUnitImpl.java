@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.parser;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 
@@ -27,20 +28,18 @@ class PowFunctionUnitImpl extends MathFunctionUnitImpl {
 	@Override
 	public Dimension dimension(DimensionalAnalyzer analyzer) throws DOMException {
 		if (parameters == null) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Missing argument in pow() function.");
+			throw new DOMSyntaxException("Missing argument in pow() function.");
 		}
 		Dimension dim = analyzer.expressionDimension(parameters);
 		if (dim != null) {
 			if (dim.category != Category.number && dim.category != Category.integer) {
 				LexicalUnitImpl comma = analyzer.getNextLexicalUnit();
 				if (comma == null || comma.getLexicalUnitType() != LexicalType.OPERATOR_COMMA) {
-					throw new DOMException(DOMException.SYNTAX_ERR,
-							"Expected comma in pow() function.");
+					throw new DOMSyntaxException("Expected comma in pow() function.");
 				}
 				LexicalUnitImpl expUnit = comma.nextLexicalUnit;
 				if (expUnit == null) {
-					throw new DOMException(DOMException.SYNTAX_ERR,
-							"Missing argument in pow() function.");
+					throw new DOMSyntaxException("Missing argument in pow() function.");
 				}
 				switch (expUnit.getLexicalUnitType()) {
 				case INTEGER:
@@ -61,9 +60,8 @@ class PowFunctionUnitImpl extends MathFunctionUnitImpl {
 					DimensionalAnalyzer subAnal = new DimensionalAnalyzer();
 					Dimension dimexp = subAnal.expressionDimension(expUnit);
 					if (subAnal.getNextLexicalUnit() != null) {
-						throw new DOMException(DOMException.SYNTAX_ERR,
-								"Unexpected argument in pow() function: "
-										+ subAnal.getNextLexicalUnit().toString());
+						throw new DOMSyntaxException("Unexpected argument in pow() function: "
+								+ subAnal.getNextLexicalUnit().toString());
 					}
 					if (dimexp == null) {
 						dim.exponentAccuracy = 2;
@@ -78,7 +76,7 @@ class PowFunctionUnitImpl extends MathFunctionUnitImpl {
 						break;
 					}
 				default:
-					throw new DOMException(DOMException.SYNTAX_ERR,
+					throw new DOMSyntaxException(
 							"Invalid argument in pow() function: " + expUnit.getCssText());
 				}
 			} // No matter the exponent, a number is a number

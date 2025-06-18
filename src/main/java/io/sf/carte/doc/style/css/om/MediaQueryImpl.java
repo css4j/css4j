@@ -15,6 +15,7 @@ import java.util.Iterator;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
@@ -189,14 +190,14 @@ abstract class MediaQueryImpl extends AbstractMediaQuery {
 			CSSPrimitiveValue first = ratio.getAntecedentValue();
 			CSSPrimitiveValue second = ratio.getConsequentValue();
 			if (first.getUnitType() == CSSUnit.CSS_NUMBER) {
-				ffirst = ((CSSTypedValue) first).getFloatValue(CSSUnit.CSS_NUMBER);
+				ffirst = ((CSSTypedValue) first).getFloatValue();
 			} else {
 				// Calc
 				ev = new MQEvaluator(canvas);
 				ffirst = ev.evaluateExpression((CSSExpressionValue) first).getFloatValue(CSSUnit.CSS_NUMBER);
 			}
 			if (second.getUnitType() == CSSUnit.CSS_NUMBER) {
-				fsecond = ((CSSTypedValue) second).getFloatValue(CSSUnit.CSS_NUMBER);
+				fsecond = ((CSSTypedValue) second).getFloatValue();
 			} else {
 				// Calc
 				ev = new MQEvaluator(canvas);
@@ -207,7 +208,7 @@ abstract class MediaQueryImpl extends AbstractMediaQuery {
 		case NUMERIC:
 			return numericValueInUnit(value, canvas, primitype);
 		default:
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Unsupported type: " + value.getPrimitiveType());
+			throw new DOMInvalidAccessException("Unsupported type: " + value.getPrimitiveType());
 		}
 		return fval;
 	}
@@ -257,12 +258,12 @@ abstract class MediaQueryImpl extends AbstractMediaQuery {
 		}
 
 		@Override
-		protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
+		protected CSSNumberValue absoluteTypedValue(CSSTypedValue partialValue) {
 			if (partialValue.getUnitType() != CSSUnit.CSS_NUMBER) {
 				float fval = valueInUnit(partialValue, canvas, expectedUnit);
 				return createNumberValue(expectedUnit, fval, true);
 			}
-			return partialValue;
+			return super.absoluteTypedValue(partialValue);
 		}
 
 		@Override

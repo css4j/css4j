@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSResourceLimitException;
@@ -85,10 +86,7 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 			throw new CSSResourceLimitException(
 					"Limit found while parsing condition " + conditionText, e);
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR,
-					"Error parsing condition: " + conditionText);
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException("Error parsing condition: " + conditionText, e);
 		}
 	}
 

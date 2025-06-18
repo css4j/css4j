@@ -13,8 +13,8 @@ package io.sf.carte.doc.style.css.property;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.style.css.CSSTypedValue;
-import io.sf.carte.doc.style.css.RGBAColor;
 
 /**
  * Base implementation for CSS typed values.
@@ -38,36 +38,8 @@ abstract public class TypedValue extends PrimitiveValue implements CSSTypedValue
 	}
 
 	@Override
-	public void setFloatValue(short unitType, float floatValue) throws DOMException {
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not a <number>.");
-	}
-
-	@Override
 	public float getFloatValue(short unitType) throws DOMException {
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not a Float");
-	}
-
-	@Override
-	public void setStringValue(Type stringType, String stringValue) throws DOMException {
-		if (stringType != getPrimitiveType()) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Type not supported.");
-		}
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Cannot be modified as a String");
-	}
-
-	@Override
-	public String getStringValue() throws DOMException {
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not a String");
-	}
-
-	@Override
-	public RGBAColor toRGBColor() throws DOMException {
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not an RGB Color");
-	}
-
-	@Override
-	public boolean isCalculatedNumber() {
-		return false;
+		throw new DOMInvalidAccessException("Not a Float");
 	}
 
 	/**

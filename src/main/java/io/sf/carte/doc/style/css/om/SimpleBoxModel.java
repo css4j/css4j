@@ -17,12 +17,16 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
+import io.sf.carte.doc.DOMNotSupportedException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.BoxValues;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSElement;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
+import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -170,7 +174,7 @@ abstract class SimpleBoxModel {
 
 		@Override
 		public float getWidth() {
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+			throw new DOMNotSupportedException(
 					"Operation not supported by this box model. Please compute box for table and cast to TableBoxValues.");
 		}
 	}
@@ -745,7 +749,7 @@ abstract class SimpleBoxModel {
 					CSSElement col = (CSSElement) chldnode;
 					style = (ComputedCSSStyle) col.getOwnerDocument().getStyleSheet().getComputedStyle(col, null);
 					if (!"inline".equalsIgnoreCase(style.getDisplay())) {
-						throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+						throw new DOMNotSupportedException(
 								"Only inline elements are supported in caption");
 					}
 					text = chldnode.getTextContent();
@@ -899,7 +903,7 @@ abstract class SimpleBoxModel {
 				fv = cssval.getFloatValue(unitType);
 			}
 		} else {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Unable to evaluate value of type: " + declType);
+			throw new DOMInvalidAccessException("Unable to evaluate value of type: " + declType);
 		}
 		return fv;
 	}
@@ -929,7 +933,7 @@ abstract class SimpleBoxModel {
 		if ("fixed".equalsIgnoreCase(position)) {
 			return null;
 		} else if ("absolute".equalsIgnoreCase(position)) {
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "position: absolute is not supported");
+			throw new DOMNotSupportedException("position: absolute is not supported");
 		}
 		// loop until display is block-level
 		String display = styledecl.getPropertyValue("display");
@@ -1011,7 +1015,7 @@ abstract class SimpleBoxModel {
 					if (cssval == null || cssval.getCssValueType() != CssType.TYPED
 						|| isTypedAutoOrInvalidLength(typed = (CSSTypedValue) cssval)
 						|| typed.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-						throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+						throw new DOMNotSupportedException(
 							"Automatic tables not supported by this box model");
 					}
 					contBlockWidth = computeNonAutoWidth(contblockStyledecl, typed, unitType);
@@ -1055,7 +1059,7 @@ abstract class SimpleBoxModel {
 			}
 			if (cssval != null) {
 				if (cssval.getCssValueType() != CssType.TYPED) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected width value: " + cssval.getCssText());
+					throw new DOMSyntaxException("Unexpected width value: " + cssval.getCssText());
 				}
 				CSSTypedValue cssprim = (CSSTypedValue) cssval;
 				return findNumericBoxProperty(styledecl, propertyName, cssprim, unitType);
@@ -1089,7 +1093,7 @@ abstract class SimpleBoxModel {
 			}
 			if (cssval != null) {
 				if (cssval.getCssValueType() != CssType.TYPED) {
-					throw new DOMException(DOMException.SYNTAX_ERR,
+					throw new DOMSyntaxException(
 							"Unexpected border-width value: " + cssval.getCssText());
 				}
 				CSSTypedValue cssprim = (CSSTypedValue) cssval;
@@ -1176,7 +1180,7 @@ abstract class SimpleBoxModel {
 			}
 		}
 		if (cssval.getCssValueType() != CssType.TYPED) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Unexpected padding value: " + cssval.getCssText());
+			throw new DOMSyntaxException("Unexpected padding value: " + cssval.getCssText());
 		}
 		CSSTypedValue csspri = (CSSTypedValue) cssval;
 		float fv;
@@ -1208,8 +1212,10 @@ abstract class SimpleBoxModel {
 		}
 
 		@Override
-		protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
-			return styledecl.absoluteTypedValue(propertyName, (TypedValue) partialValue, false);
+		protected CSSNumberValue absoluteTypedValue(CSSTypedValue partialValue) {
+			TypedValue typed = styledecl.absoluteTypedValue(propertyName, (TypedValue) partialValue,
+					false);
+			return super.absoluteTypedValue(typed);
 		}
 
 		@Override
@@ -1218,7 +1224,7 @@ abstract class SimpleBoxModel {
 		}
 
 		@Override
-		protected float percentage(CSSTypedValue value, short unitType) throws DOMException {
+		protected float percentage(CSSNumberValue value, short unitType) throws DOMException {
 			return percentageValue(styledecl, value, unitType, useDeviceDocumentWidth);
 		}
 

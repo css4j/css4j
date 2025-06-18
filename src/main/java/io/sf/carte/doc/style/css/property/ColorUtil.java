@@ -35,7 +35,7 @@ class ColorUtil {
 		float h;
 		short unit = primihue.getUnitType();
 		if (unit == CSSUnit.CSS_NUMBER) {
-			h = primihue.getFloatValue(CSSUnit.CSS_NUMBER);
+			h = primihue.getFloatValue();
 			h = NumberValue.floatValueConversion(h, CSSUnit.CSS_DEG, CSSUnit.CSS_RAD);
 		} else {
 			try {
@@ -71,7 +71,7 @@ class ColorUtil {
 		float h;
 		short unit = primihue.getUnitType();
 		if (unit == CSSUnit.CSS_NUMBER) {
-			h = primihue.getFloatValue(CSSUnit.CSS_NUMBER);
+			h = primihue.getFloatValue();
 		} else {
 			try {
 				h = primihue.getFloatValue(CSSUnit.CSS_DEG);
@@ -99,9 +99,9 @@ class ColorUtil {
 		double pcnt;
 		short unit = typed.getUnitType();
 		if (unit == CSSUnit.CSS_PERCENTAGE) {
-			pcnt = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+			pcnt = typed.getFloatValue();
 		} else if (unit == CSSUnit.CSS_NUMBER) {
-			pcnt = typed.getFloatValue(CSSUnit.CSS_NUMBER);
+			pcnt = typed.getFloatValue() * 100f;
 		} else if (typed.getPrimitiveType() == Type.IDENT) {
 			pcnt = 0d;
 		} else {
@@ -124,23 +124,24 @@ class ColorUtil {
 	static float fraction(CSSTypedValue typed) {
 		float pcnt;
 		short unit = typed.getUnitType();
-		if (unit == CSSUnit.CSS_PERCENTAGE) {
-			pcnt = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE);
-		} else if (unit == CSSUnit.CSS_NUMBER) {
-			pcnt = typed.getFloatValue(CSSUnit.CSS_NUMBER);
+		if (unit == CSSUnit.CSS_PERCENTAGE || unit == CSSUnit.CSS_NUMBER) {
+			pcnt = typed.getFloatValue();
 		} else if (typed.getPrimitiveType() == Type.IDENT) {
 			pcnt = 0f;
 		} else {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Wrong component: " + typed.getCssText());
 		}
-		return pcnt * 0.01f;
+		return pcnt / 100f;
 	}
 
 	static float floatNumber(CSSTypedValue typed) {
 		float value;
-		if (typed.getUnitType() == CSSUnit.CSS_NUMBER) {
-			value = typed.getFloatValue(CSSUnit.CSS_NUMBER);
+		short unit = typed.getUnitType();
+		if (unit == CSSUnit.CSS_NUMBER) {
+			value = typed.getFloatValue();
+		} else if (unit == CSSUnit.CSS_PERCENTAGE) {
+			value = typed.getFloatValue() / 100f;
 		} else if (typed.getPrimitiveType() == Type.IDENT) {
 			value = 0f;
 		} else {

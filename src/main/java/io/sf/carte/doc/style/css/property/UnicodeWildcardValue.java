@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.util.SimpleWriter;
 
@@ -80,7 +81,7 @@ public class UnicodeWildcardValue extends TypedValue {
 	}
 
 	private void invalidWildcardError(String wildcard2) {
-		throw new DOMException(DOMException.SYNTAX_ERR, "Not a valid wildcard: " + wildcard);
+		throw new DOMSyntaxException("Not a valid wildcard: " + wildcard);
 	}
 
 	public void setWildcard(String wildcard) {

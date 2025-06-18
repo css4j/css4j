@@ -15,6 +15,7 @@ import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.DOMCharacterException;
 import io.sf.carte.doc.DOMNullCharacterException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -1026,7 +1027,7 @@ public class ParseHelper {
 			throw new DOMCharacterException("Identifier cannot start with U+" + Integer.toHexString(c), 0);
 		}
 		if (c == 0x2d && (len == 1 || isDigitCodepoint(ident.charAt(1)))) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Bad identifier");
+			throw new DOMSyntaxException("Invalid identifier");
 		}
 		char prev = ' ';
 		for (int i = 1; i < len; i++) {

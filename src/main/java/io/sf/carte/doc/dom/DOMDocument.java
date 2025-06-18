@@ -45,6 +45,8 @@ import org.w3c.dom.Text;
 import org.w3c.dom.UserDataHandler;
 import org.xml.sax.SAXException;
 
+import io.sf.carte.doc.DOMHierarchyRequestException;
+import io.sf.carte.doc.DOMNotSupportedException;
 import io.sf.carte.doc.DOMPolicyException;
 import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.dom.DOMElement.ClassList;
@@ -298,8 +300,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 		@Override
 		void checkInsertNode(Node newChild, Node refNode) {
-			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
-					"Cannot append the node to " + getNodeName());
+			throw new DOMHierarchyRequestException("Cannot append the node to " + getNodeName());
 		}
 
 		@Override
@@ -341,7 +342,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		void checkInsertNodeHierarchy(Node newChild, Node refNode) {
 			super.checkInsertNodeHierarchy(newChild, refNode);
 			if (newChild.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-				throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Doctype must be added to document.");
+				throw new DOMHierarchyRequestException("Doctype must be added to document.");
 			}
 		}
 
@@ -401,7 +402,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		@Override
 		void checkInsertNodeHierarchy(Node newChild, Node refNode) {
 			super.checkInsertNodeHierarchy(newChild, refNode);
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+			throw new DOMNotSupportedException(
 					"This implementation does not support appending nodes to an entity reference.");
 		}
 
@@ -786,7 +787,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 
 		@Override
 		void checkInsertNodeHierarchy(Node newChild, Node refNode) {
-			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+			throw new DOMHierarchyRequestException(
 					"Cannot append the node to text/comment/cdatasection");
 		}
 
@@ -2281,7 +2282,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		case Node.PROCESSING_INSTRUCTION_NODE:
 			return createProcessingInstruction(importedNode.getNodeName(), importedNode.getNodeValue());
 		default:
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Cannot import this node type.");
+			throw new DOMNotSupportedException("Cannot import this node type.");
 		}
 	}
 
@@ -2290,7 +2291,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	 */
 	@Override
 	public Node adoptNode(Node source) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Node adoption not supported");
+		throw new DOMNotSupportedException("Node adoption not supported");
 	}
 
 	/**
@@ -2303,7 +2304,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			Node node = getFirstChild();
 			while (node != null) {
 				if (node.getNodeType() == Node.ELEMENT_NODE) {
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+					throw new DOMHierarchyRequestException(
 							"Document already has a root element.");
 				}
 				node = node.getNextSibling();
@@ -2312,7 +2313,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			Node node = getFirstChild();
 			while (node != null) {
 				if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+					throw new DOMHierarchyRequestException(
 							"Document already has a doctype.");
 				}
 				node = node.getNextSibling();
@@ -2332,7 +2333,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 				Node node = getFirstChild();
 				while (node != null) {
 					if (node.getNodeType() == Node.ELEMENT_NODE) {
-						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+						throw new DOMHierarchyRequestException(
 								"Document already has a root element.");
 					}
 					node = node.getNextSibling();
@@ -2341,7 +2342,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 				Node node = getFirstChild();
 				while (node != null) {
 					if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+						throw new DOMHierarchyRequestException(
 								"Document already has a doctype.");
 					}
 					node = node.getNextSibling();
@@ -2361,7 +2362,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 					// This implementation generally allows re-appending an
 					// existing child, but the document element is critical
 					// so it is preferable to raise an exception
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+					throw new DOMHierarchyRequestException(
 							"Document already has a root element.");
 				}
 				node = node.getNextSibling();
@@ -2374,14 +2375,14 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			while (node != null) {
 				if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
 					if (node != newChild) {
-						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+						throw new DOMHierarchyRequestException(
 								"Document already has a doctype.");
 					}
 				} else {
 					refNodeFound = refNodeFound || node == refNode;
 					if (node.getNodeType() == Node.ELEMENT_NODE) {
 						if (!refNodeFound) {
-							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							throw new DOMHierarchyRequestException(
 									"Cannot insert doctype after document element.");
 						}
 						break;
@@ -2392,7 +2393,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 			break;
 		case Node.ATTRIBUTE_NODE:
-			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+			throw new DOMHierarchyRequestException(
 					"Use setAttributeNode to add attribute nodes.");
 		}
 	}
@@ -2407,7 +2408,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 					if (node == oldNode || node == newChild) {
 						break;
 					}
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+					throw new DOMHierarchyRequestException(
 							"Document already has a root element.");
 				}
 				node = node.getNextSibling();
@@ -2420,7 +2421,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			while (node != null) {
 				if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
 					if (node != oldNode) {
-						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+						throw new DOMHierarchyRequestException(
 								"Document already has a doctype.");
 					}
 					break;
@@ -2428,7 +2429,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 					oldNodeFound = oldNodeFound || node == oldNode;
 					if (node.getNodeType() == Node.ELEMENT_NODE) {
 						if (!oldNodeFound) {
-							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							throw new DOMHierarchyRequestException(
 									"Cannot insert doctype after document element.");
 						}
 						break;
@@ -2439,7 +2440,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 		}
 			break;
 		case Node.ATTRIBUTE_NODE:
-			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+			throw new DOMHierarchyRequestException(
 					"Use setAttributeNode to add attribute nodes.");
 		}
 	}
@@ -2462,7 +2463,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 				Node node = getFirstChild();
 				while (node != null) {
 					if (node.getNodeType() == Node.ELEMENT_NODE) {
-						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+						throw new DOMHierarchyRequestException(
 								"Document already has a root element.");
 					}
 					node = node.getNextSibling();
@@ -2473,7 +2474,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 			Node node = getFirstChild();
 			while (node != null) {
 				if (node.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+					throw new DOMHierarchyRequestException(
 							"Document already has a doctype.");
 				}
 				node = node.getNextSibling();
@@ -2495,7 +2496,7 @@ abstract public class DOMDocument extends DOMParentNode implements CSSDocument {
 	@Deprecated
 	@Override
 	public Node renameNode(Node n, String namespaceURI, String qualifiedName) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This operation is not supported.");
+		throw new DOMNotSupportedException("This operation is not supported.");
 	}
 
 	/**

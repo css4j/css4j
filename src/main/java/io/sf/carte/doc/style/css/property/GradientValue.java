@@ -15,6 +15,7 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSGradientValue;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
@@ -110,7 +111,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			funcname = funcname.toLowerCase(Locale.ROOT);
 			LexicalUnit lu = lunit.getParameters();
 			if (lu == null) {
-				throw createDOMSyntaxException("Gradient without arguments");
+				throw new DOMSyntaxException("Gradient without arguments");
 			}
 			if (funcname.endsWith("linear-gradient")) {
 				if (funcname.equals("linear-gradient")) {
@@ -140,13 +141,9 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				}
 				setConicGradient(lu, new ValueFactory());
 			} else {
-				throw createDOMSyntaxException("Unknown gradient type");
+				throw new DOMSyntaxException("Unknown gradient type");
 			}
 			nextLexicalUnit = lunit.getNextLexicalUnit();
-		}
-
-		private DOMException createDOMSyntaxException(String message) {
-			return new DOMException(DOMException.SYNTAX_ERR, message);
 		}
 
 		private void setLinearGradient(LexicalUnit lu, ValueFactory factory) {
@@ -165,7 +162,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				colorStopLU = setAngleArguments(lu, factory);
 			}
 			if (colorStopLU == null) {
-				throw createDOMSyntaxException(
+				throw new DOMSyntaxException(
 					"Expected angle, side or color stop, found: " + lu.toString());
 			}
 			do {
@@ -175,7 +172,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					if (colorStopLU.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						colorStopLU = colorStopLU.getNextLexicalUnit();
 					} else {
-						throw createDOMSyntaxException(
+						throw new DOMSyntaxException(
 							"Expected color stops, found: " + lu.toString());
 					}
 				}
@@ -312,10 +309,10 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					getArguments().add(hint);
 					finalLU = lu2;
 				} else {
-					throw createDOMSyntaxException("Bad color stop");
+					throw new DOMSyntaxException("Invalid color stop");
 				}
 			} else {
-				throw createDOMSyntaxException("Bad color stop");
+				throw new DOMSyntaxException("Invalid color stop");
 			}
 			return finalLU;
 		}
@@ -343,7 +340,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			}
 			colorStopLU = lu;
 			if (colorStopLU == null) {
-				throw createDOMSyntaxException("Missing color stop");
+				throw new DOMSyntaxException("Missing color stop");
 			}
 			do {
 				colorStopLU = processLinearColorStop(colorStopLU, factory);
@@ -352,7 +349,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					if (colorStopLU.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						colorStopLU = colorStopLU.getNextLexicalUnit();
 					} else {
-						throw createDOMSyntaxException("Expected color stops, found: " + lu.toString());
+						throw new DOMSyntaxException("Expected color stops, found: " + lu.toString());
 					}
 				}
 			} while (colorStopLU != null);
@@ -367,7 +364,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				// 'lu' was checked to be non-null before calling.
 				if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 					if (list.isEmpty()) {
-						throw createDOMSyntaxException("Found empty argument: " + lu.toString());
+						throw new DOMSyntaxException("Found empty argument: " + lu.toString());
 					}
 					lu = lu.getNextLexicalUnit();
 					break;
@@ -400,7 +397,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					// 'lu' was checked to be non-null before calling.
 					if (lu.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						if (list.isEmpty()) {
-							throw createDOMSyntaxException("Found empty argument: " + lu.toString());
+							throw new DOMSyntaxException("Found empty argument: " + lu.toString());
 						}
 						lu = lu.getNextLexicalUnit();
 						break;
@@ -416,7 +413,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 			}
 			colorStopLU = lu;
 			if (colorStopLU == null) {
-				throw createDOMSyntaxException("Missing angle, position or color stop in gradient");
+				throw new DOMSyntaxException("Missing angle, position or color stop in gradient");
 			}
 			do {
 				colorStopLU = processAngularColorStop(colorStopLU, factory);
@@ -425,7 +422,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 					if (colorStopLU.getLexicalUnitType() == LexicalType.OPERATOR_COMMA) {
 						colorStopLU = colorStopLU.getNextLexicalUnit();
 					} else {
-						throw createDOMSyntaxException("Expected color stops, found: " + lu.toString());
+						throw new DOMSyntaxException("Expected color stops, found: " + lu.toString());
 					}
 				}
 			} while (colorStopLU != null);
@@ -506,7 +503,7 @@ public class GradientValue extends FunctionValue implements CSSGradientValue {
 				getArguments().add(factory.createCSSPrimitiveValue(lu, true));
 				finalLU = lu2;
 			} else {
-				throw createDOMSyntaxException("Bad angular color stop");
+				throw new DOMSyntaxException("Invalid angular color stop");
 			}
 			return finalLU;
 		}

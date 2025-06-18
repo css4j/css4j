@@ -751,7 +751,7 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 					if (idx != -1) {
 						deQname = qName.substring(0, idx) + ":html";
 					} else {
-						error("Bad qName: " + qName);
+						error("Invalid qName: " + qName);
 					}
 				}
 				document = createDocument(uri, deQname, documentType, systemId);

@@ -30,6 +30,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.css.CSSStyleSheet;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.DocumentException;
 import io.sf.carte.doc.agent.MockURLConnectionFactory;
 import io.sf.carte.doc.style.css.CSSComputedProperties;
@@ -1255,7 +1256,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals(1, errors.size());
 
 		CSSPropertyValueException ex = errors.values().iterator().next();
-		assertEquals(DOMException.class, ex.getCause().getClass());
+		assertEquals(DOMSyntaxException.class, ex.getCause().getClass());
 		DOMException dex = (DOMException) ex.getCause();
 		assertEquals(DOMException.SYNTAX_ERR, dex.code);
 

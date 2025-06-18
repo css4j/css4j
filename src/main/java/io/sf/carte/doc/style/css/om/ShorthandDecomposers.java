@@ -18,6 +18,7 @@ import java.util.HashMap;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
@@ -53,9 +54,7 @@ class ShorthandDecomposers {
 						try {
 							value = new CSSParser().parsePropertyValue(re);
 						} catch (CSSParseException e) {
-							DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-							ex.initCause(e);
-							throw ex;
+							throw new DOMSyntaxException(e);
 						} catch (IOException e) {
 							// this won't happen
 							throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());

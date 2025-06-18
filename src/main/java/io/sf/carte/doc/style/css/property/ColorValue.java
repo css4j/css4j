@@ -16,15 +16,23 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
+import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
+import io.sf.carte.doc.style.css.CSSExpressionValue;
+import io.sf.carte.doc.style.css.CSSMathFunctionValue;
+import io.sf.carte.doc.style.css.CSSNumberValue;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
+import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.RGBAColor;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.property.BaseColor.Space;
 import io.sf.carte.util.SimpleWriter;
 
@@ -231,119 +239,8 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 		}
 
 		@Override
-		public String toString() {
-			return toString(false);
-		}
-
-		@Override
-		public String toMinifiedString() {
-			return toString(true);
-		}
-
-		String toString(boolean minify) {
-			float fr = componentByte(getRed());
-			float fg = componentByte(getGreen());
-			float fb = componentByte(getBlue());
-			boolean nonOpaque = isNonOpaque();
-			if (nonOpaque || !isInteger(fr) || !isInteger(fg) || !isInteger(fb) || fr > 255f || fg > 255f
-					|| fb > 255f) {
-				if (minify) {
-					if (commaSyntax) {
-						return minifiedOldFunctionalString(nonOpaque);
-					} else {
-						return minifiedFunctionalString(nonOpaque);
-					}
-				} else {
-					if (commaSyntax) {
-						return oldFunctionalString(nonOpaque);
-					} else {
-						return functionalString(nonOpaque);
-					}
-				}
-			}
-			int r = Math.round(fr);
-			int g = Math.round(fg);
-			int b = Math.round(fb);
-			// Use hexadecimal notation
-			String hexr = Integer.toHexString(r);
-			String hexg = Integer.toHexString(g);
-			String hexb = Integer.toHexString(b);
-			StringBuilder buf;
-			if ((r != 0 && notSameChar(hexr)) || (g != 0 && notSameChar(hexg)) || (b != 0 && notSameChar(hexb))) {
-				buf = new StringBuilder(7);
-				buf.append('#');
-				if (hexr.length() == 1) {
-					buf.append('0');
-				}
-				buf.append(hexr);
-				if (hexg.length() == 1) {
-					buf.append('0');
-				}
-				buf.append(hexg);
-				if (hexb.length() == 1) {
-					buf.append('0');
-				}
-				buf.append(hexb);
-			} else {
-				buf = new StringBuilder(4);
-				buf.append('#');
-				buf.append(hexr.charAt(0));
-				buf.append(hexg.charAt(0));
-				buf.append(hexb.charAt(0));
-			}
-			return buf.toString();
-		}
-
-		private float componentByte(PrimitiveValue component) {
-			float byteComp;
-			Type type = component.getPrimitiveType();
-			if (type == Type.NUMERIC) {
-				TypedValue number = (TypedValue) component;
-				if (number.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
-					byteComp = number.getFloatValue(CSSUnit.CSS_PERCENTAGE) * 2.55f;
-				} else {
-					byteComp = number.getFloatValue(CSSUnit.CSS_NUMBER);
-				}
-			} else {
-				byteComp = 256f;
-			}
-			return byteComp;
-		}
-
-		private boolean isInteger(float r) {
-			return Math.abs(r - (float) Math.rint(r)) < 3e-4;
-		}
-
-		private String minifiedFunctionalString(boolean nonOpaque) {
-			StringBuilder buf = new StringBuilder(21);
-			buf.append("rgb(");
-			appendComponentMinifiedCssText(buf, getRed()).append(' ');
-			appendComponentMinifiedCssText(buf, getGreen()).append(' ');
-			appendComponentMinifiedCssText(buf, getBlue());
-			if (nonOpaque) {
-				buf.append('/');
-				appendAlphaChannelMinified(buf);
-			}
-			buf.append(')');
-			return buf.toString();
-		}
-
-		private String functionalString(boolean nonOpaque) {
-			StringBuilder buf = new StringBuilder(23);
-			buf.append("rgb(");
-			appendComponentCssText(buf, getRed()).append(' ');
-			appendComponentCssText(buf, getGreen()).append(' ');
-			appendComponentCssText(buf, getBlue());
-			if (nonOpaque) {
-				buf.append(" / ");
-				appendAlphaChannel(buf);
-			}
-			buf.append(')');
-			return buf.toString();
-		}
-
-		private boolean notSameChar(String hexr) {
-			return hexr.length() == 1 || hexr.charAt(0) != hexr.charAt(1);
+		boolean isCommaSyntax() {
+			return commaSyntax;
 		}
 
 		@Override
@@ -400,5 +297,173 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 	public LCHColorValue toLCHColorValue() throws DOMException {
 		return toLABColorValue().toLCHColorValue();
 	}
+
+	/*
+	 * Utility methods for lexical setting.
+	 */
+
+	TypedValue absoluteComponent(CSSColor from, CSSPrimitiveValue primi, boolean range) {
+		switch (primi.getPrimitiveType()) {
+		case IDENT:
+			String s = ((CSSTypedValue) primi).getStringValue();
+			s = s.toLowerCase(Locale.ROOT);
+			if (!"none".equals(s)) {
+				CSSNumberValue comp = from.component(s);
+				if (comp != null) {
+					if (range) {
+						comp = parameterRange(comp);
+					}
+					return (TypedValue) comp;
+				}
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+						"Invalid color component: " + primi.getCssText());
+			}
+			break;
+		case EXPRESSION:
+			Evaluator eval = createEvaluator(from, range);
+			CSSNumberValue number = eval.evaluateExpression((CSSExpressionValue) primi);
+			number.setMaximumFractionDigits(5);
+			primi = number;
+			break;
+		case MATH_FUNCTION:
+			eval = createEvaluator(from, range);
+			number = eval.evaluateFunction((CSSMathFunctionValue) primi);
+			number.setMaximumFractionDigits(5);
+			primi = number;
+			break;
+		default:
+			if (primi.getCssValueType() != CssType.TYPED) {
+				if (primi.getCssValueType() == CssType.PROXY
+						&& primi.getPrimitiveType() != Type.ENV) {
+					throw new CSSLexicalProcessingException();
+				}
+				throw invalidValueException(primi);
+			}
+			break;
+		}
+		return (TypedValue) primi;
+	}
+
+	/**
+	 * Convert the component from {@code [0-1]} to the value range expected in
+	 * parameters by functions and expressions.
+	 * 
+	 * @param comp the non-angular component.
+	 * @return the component in the expected range.
+	 */
+	CSSNumberValue parameterRange(CSSNumberValue comp) {
+		return comp;
+	}
+
+	private Evaluator createEvaluator(CSSColor from, boolean pcnt) {
+		return new PercentageEvaluator() {
+
+			@Override
+			protected CSSTypedValue replaceParameter(String identifier) throws DOMException {
+				identifier = identifier.toLowerCase(Locale.ROOT);
+				CSSNumberValue number = from.component(identifier);
+				if (number == null) {
+					return super.replaceParameter(identifier);
+				}
+				if (pcnt) {
+					number = parameterRange(number);
+				}
+				return number;
+			}
+
+		};
+	}
+
+	static PrimitiveValue absoluteHue(CSSColor from, CSSPrimitiveValue primi) {
+		switch (primi.getPrimitiveType()) {
+		case IDENT:
+			String s = ((CSSTypedValue) primi).getStringValue();
+			s = s.toLowerCase(Locale.ROOT);
+			if (!"none".equals(s)) {
+				CSSNumberValue comp = from.component(s);
+				if (comp != null) {
+					return (PrimitiveValue) comp;
+				}
+				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+						"Invalid color component: " + primi.getCssText());
+			}
+			break;
+		case EXPRESSION:
+			Evaluator eval = createHueEvaluator(from);
+			primi = eval.evaluateExpression((CSSExpressionValue) primi);
+			break;
+		case MATH_FUNCTION:
+			eval = createHueEvaluator(from);
+			primi = eval.evaluateFunction((CSSMathFunctionValue) primi);
+			break;
+		default:
+			break;
+		}
+		return (PrimitiveValue) primi;
+	}
+
+	private static Evaluator createHueEvaluator(CSSColor from) {
+		return new Evaluator(CSSUnit.CSS_DEG) {
+
+			@Override
+			protected CSSTypedValue replaceParameter(String identifier) throws DOMException {
+				identifier = identifier.toLowerCase(Locale.ROOT);
+				CSSNumberValue number = from.component(identifier);
+				if (number == null) {
+					return super.replaceParameter(identifier);
+				}
+				return number;
+			}
+
+		};
+	}
+
+	static CSSColor computeColor(PrimitiveValue rawcolor, ValueFactory factory)
+			throws DOMException {
+		if (rawcolor instanceof CSSColorValue) {
+			return ((CSSColorValue) rawcolor).getColor();
+		} else {
+			if (rawcolor.getCssValueType() == CSSValue.CssType.TYPED) {
+				TypedValue typed = (TypedValue) rawcolor;
+				if (rawcolor.getPrimitiveType() == Type.IDENT) {
+					String s = typed.getStringValue();
+					s = ColorIdentifiers.getInstance().getColor(s);
+					if (s != null) {
+						try {
+							typed = (TypedValue) factory.parseProperty(s);
+							return ((CSSColorValue) typed).getColor();
+						} catch (DOMException e) {
+							// This won't happen
+						}
+					}
+				}
+			}
+		}
+		throw invalidValueException(rawcolor);
+	}
+
+	static LexicalUnit nextLexicalUnit(LexicalUnit lu, LexicalUnit firstUnit) throws DOMException {
+		lu = lu.getNextLexicalUnit();
+		if (lu == null) {
+			throw invalidValueException(firstUnit);
+		}
+		return lu;
+	}
+
+	private static DOMException invalidValueException(CSSValue value) {
+		return invalidValueException(value.getCssText());
+	}
+
+	static DOMException invalidValueException(LexicalUnit lunit) {
+		return invalidValueException(lunit.toString());
+	}
+
+	private static DOMException invalidValueException(String value) {
+		return new DOMSyntaxException("Invalid value: " + value);
+	}
+
+	/*
+	 * End of utility methods for lexical setting.
+	 */
 
 }

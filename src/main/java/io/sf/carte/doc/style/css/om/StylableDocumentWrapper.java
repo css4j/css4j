@@ -48,7 +48,9 @@ import org.w3c.dom.Text;
 import org.w3c.dom.TypeInfo;
 import org.w3c.dom.css.CSSStyleSheet;
 
+import io.sf.carte.doc.DOMNotSupportedException;
 import io.sf.carte.doc.DOMPolicyException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.CSSDocument;
@@ -1151,14 +1153,14 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 			try {
 				list = parser.parseSelectors(new StringReader(selectorString));
 			} catch (Exception e) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Unable to parse selector in: " + selectorString);
+				throw new DOMSyntaxException("Unable to parse selector in: " + selectorString);
 			}
 			Condition peCond;
 			if (pseudoElement != null) {
 				try {
 					peCond = parser.parsePseudoElement(pseudoElement);
 				} catch (Exception e) {
-					throw new DOMException(DOMException.SYNTAX_ERR,
+					throw new DOMSyntaxException(
 							"Unable to parse pseudo-element in: " + pseudoElement);
 				}
 			} else {
@@ -1559,7 +1561,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	@Override
 	public DocumentFragment createDocumentFragment() {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMNotSupportedException("This is a readonly wrapper.");
 	}
 
 	@Override
@@ -1579,7 +1581,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	@Override
 	public ProcessingInstruction createProcessingInstruction(String target, String data) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMNotSupportedException("This is a readonly wrapper.");
 	}
 
 	@Override
@@ -1594,7 +1596,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	@Override
 	public Node importNode(Node importedNode, boolean deep) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMNotSupportedException("This is a readonly wrapper.");
 	}
 
 	@Override
@@ -1640,7 +1642,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	@Override
 	public void setXmlStandalone(boolean xmlStandalone) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMNotSupportedException("This is a readonly wrapper.");
 	}
 
 	@Override
@@ -1650,7 +1652,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	@Override
 	public void setXmlVersion(String xmlVersion) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMNotSupportedException("This is a readonly wrapper.");
 	}
 
 	@Override
@@ -1660,7 +1662,7 @@ abstract public class StylableDocumentWrapper extends DOMNode implements CSSDocu
 
 	@Override
 	public void setStrictErrorChecking(boolean strictErrorChecking) {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMNotSupportedException("This is a readonly wrapper.");
 	}
 
 	@Override

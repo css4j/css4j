@@ -36,6 +36,38 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 	}
 
 	@Override
+	void set(BaseColor color) {
+		super.set(color);
+
+		HWBColorImpl setfrom = (HWBColorImpl) color;
+		this.hue = setfrom.getHue();
+		this.whiteness = setfrom.getWhiteness();
+		this.blackness = setfrom.getBlackness();
+	}
+
+	@Override
+	public NumberValue component(String component) {
+		NumberValue ret;
+		switch (component) {
+		case "h":
+			ret = hueComponent((CSSTypedValue) getHue());
+			break;
+		case "w":
+			ret = numberComponent((CSSTypedValue) getWhiteness(), 1f);
+			break;
+		case "b":
+			ret = numberComponent((CSSTypedValue) getBlackness(), 1f);
+			break;
+		case "alpha":
+			ret = numberComponent((CSSTypedValue) alpha, 100f);
+			break;
+		default:
+			return null;
+		}
+		return ret;
+	}
+
+	@Override
 	public PrimitiveValue item(int index) {
 		switch (index) {
 		case 0:
@@ -92,6 +124,12 @@ class HWBColorImpl extends BaseColor implements HWBColor {
 
 	public void setBlackness(PrimitiveValue blackness) {
 		this.blackness = enforcePcntComponent(blackness);
+	}
+
+	@Override
+	boolean hasPercentageComponent() {
+		return (whiteness != null && whiteness.getUnitType() == CSSUnit.CSS_PERCENTAGE)
+				|| (blackness != null && blackness.getUnitType() == CSSUnit.CSS_PERCENTAGE);
 	}
 
 	@Override

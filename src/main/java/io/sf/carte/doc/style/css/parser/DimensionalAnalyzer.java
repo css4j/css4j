@@ -15,6 +15,7 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.UnitStringToId;
@@ -93,7 +94,7 @@ class DimensionalAnalyzer {
 			case IDENT:
 				String cons = lunit.getStringValue().toLowerCase(Locale.ROOT);
 				if (!"pi".equals(cons) && !"e".equals(cons)) {
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+					throw new DOMInvalidAccessException(
 							"Invalid identifier in expression: " + lunit.getCssText());
 				}
 				// pass-through
@@ -249,7 +250,7 @@ class DimensionalAnalyzer {
 
 		if (sum != null) {
 			if (!sum.sum(dim)) {
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+				throw new DOMInvalidAccessException(
 						"Invalid attempt to sum " + sum + " and " + dim);
 			}
 		} else {
@@ -260,7 +261,7 @@ class DimensionalAnalyzer {
 	}
 
 	private static DOMException createInvalidUnitException(LexicalUnitImpl lunit) {
-		return new DOMException(DOMException.INVALID_ACCESS_ERR,
+		return new DOMInvalidAccessException(
 				"Invalid unit in expression: " + lunit.getCssText());
 	}
 
@@ -303,7 +304,7 @@ class DimensionalAnalyzer {
 			return dim;
 		}
 
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+		throw new DOMInvalidAccessException(
 				"Invalid attr() in expression: " + param.getCssText());
 	}
 
@@ -335,7 +336,7 @@ class DimensionalAnalyzer {
 			break;
 		}
 
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+		throw new DOMInvalidAccessException(
 				"Invalid attr() in expression: " + param.getCssText());
 	}
 
@@ -371,7 +372,7 @@ class DimensionalAnalyzer {
 		} else if (unit == CSSUnit.CSS_FR) {
 			dim.category = Category.flex;
 		} else {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Invalid unit: " + unit);
+			throw new DOMInvalidAccessException("Invalid unit: " + unit);
 		}
 		return dim;
 	}

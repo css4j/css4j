@@ -16,6 +16,7 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSPathValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -97,12 +98,12 @@ class PathValue extends ShapeValue implements CSSPathValue {
 				lu = lu.getNextLexicalUnit();
 				if (lu == null || (!checkProxyValue(lu)
 						&& lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_COMMA)) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Expected comma in path().");
+					throw new DOMSyntaxException("Expected comma in path().");
 				}
 				lu = lu.getNextLexicalUnit();
 				checkProxyValue(lu);
 				if (lu.getLexicalUnitType() != LexicalType.STRING) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "No path in path().");
+					throw new DOMSyntaxException("No path in path().");
 				}
 			case STRING:
 				setPath(lu.getStringValue());

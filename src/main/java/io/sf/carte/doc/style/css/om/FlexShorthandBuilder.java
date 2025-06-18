@@ -186,7 +186,7 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 
 	private boolean invalidFlexGrowShrink(CSSTypedValue primi) {
 		if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
-			return primi.getFloatValue(CSSUnit.CSS_NUMBER) < 0f;
+			return primi.getFloatValue() < 0f;
 		}
 		return true;
 	}
@@ -196,7 +196,7 @@ class FlexShorthandBuilder extends ShorthandBuilder {
 			String ident = primi.getStringValue();
 			return !getShorthandDatabase().isIdentifierValue("flex-basis", ident);
 		} else if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
-			return primi.getFloatValue(CSSUnit.CSS_NUMBER) != 0f;
+			return primi.getFloatValue() != 0f;
 		}
 		return false;
 	}

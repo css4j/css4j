@@ -28,7 +28,10 @@ import java.util.Objects;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
+import io.sf.carte.doc.DOMNotSupportedException;
 import io.sf.carte.doc.DOMPolicyException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSDocument;
@@ -230,9 +233,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			ex.initCause(e);
 			throw ex;
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException(e);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
@@ -242,11 +243,10 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			if (handler.getOutOfRuleException().getClass() == CSSNamespaceParseException.class) {
 				ex = new DOMException(DOMException.NAMESPACE_ERR,
 						handler.getOutOfRuleException().getMessage());
+				ex.initCause(handler.getOutOfRuleException());
 			} else {
-				ex = new DOMException(DOMException.SYNTAX_ERR,
-						handler.getOutOfRuleException().getMessage());
+				ex = new DOMSyntaxException(handler.getOutOfRuleException());
 			}
-			ex.initCause(handler.getOutOfRuleException());
 			throw ex;
 		}
 		return currentInsertionIndex;
@@ -536,7 +536,7 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 	@Override
 	public NamespaceRule createNamespaceRule(String prefix, String namespaceUri) {
 		if (prefix == null || namespaceUri == null) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Null parameter");
+			throw new DOMInvalidAccessException("Null parameter");
 		}
 		return new NamespaceRule(this, getOrigin(), prefix, namespaceUri);
 	}
@@ -1306,18 +1306,14 @@ abstract public class BaseCSSStyleSheet extends AbstractCSSStyleSheet {
 			ex.initCause(e);
 			throw ex;
 		} catch (CSSBudgetException e) {
-			DOMException ex = new DOMException(DOMException.NOT_SUPPORTED_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMNotSupportedException(e.getMessage(), e);
 		} catch (CSSParseException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, "Parse error at ["
+			DOMException ex = new DOMSyntaxException("Parse error at ["
 					+ e.getLineNumber() + ',' + e.getColumnNumber() + "]: " + e.getMessage());
 			ex.initCause(e);
 			throw ex;
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMInvalidAccessException(e.getMessage(), e);
 		} catch (DOMException e) {
 			// Handler may produce DOM exceptions
 			throw e;

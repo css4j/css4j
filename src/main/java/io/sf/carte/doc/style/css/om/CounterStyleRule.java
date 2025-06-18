@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSCounterStyleRule;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -54,7 +55,7 @@ public class CounterStyleRule extends BaseCSSDeclarationRule implements CSSCount
 				|| sdb.isIdentifierValue("list-style-position", name)
 				|| "inherit".equalsIgnoreCase(name) || "unset".equalsIgnoreCase(name)
 				|| "initial".equalsIgnoreCase(name) || "revert".equalsIgnoreCase(name)) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Bad counter-style name: " + name);
+			throw new DOMSyntaxException("Bad counter-style name: " + name);
 		}
 		this.name = name;
 	}

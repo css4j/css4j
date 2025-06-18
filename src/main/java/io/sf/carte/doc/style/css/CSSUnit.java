@@ -13,6 +13,8 @@ package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
+
 /**
  * CSS numeric units.
  */
@@ -358,7 +360,7 @@ public interface CSSUnit {
 		case CSS_INVALID:
 			return "";
 		default:
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Unknown unit: " + unitType);
+			throw new DOMInvalidAccessException("Unknown unit: " + unitType);
 		}
 	}
 

@@ -21,6 +21,7 @@ import io.sf.carte.doc.DOMPolicyException;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSImportRule;
+import io.sf.carte.doc.style.css.CSSResourceLimitException;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -175,8 +176,7 @@ public class ImportRule extends BaseCSSRule implements CSSImportRule, CSSRule {
 	}
 
 	private void handleTooManyNested(AbstractCSSStyleSheet sheet) {
-		DOMException ex = new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
-				"Too many nested imports");
+		DOMException ex = new CSSResourceLimitException("Too many nested imports");
 		String cssText = getCssText();
 		if (sheet != null) {
 			sheet.getErrorHandler().badAtRule(ex, cssText);

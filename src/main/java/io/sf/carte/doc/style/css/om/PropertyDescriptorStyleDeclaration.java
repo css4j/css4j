@@ -15,6 +15,7 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -73,9 +74,7 @@ class PropertyDescriptorStyleDeclaration extends BaseCSSStyleDeclaration {
 			try {
 				syn = new SyntaxParser().parseSyntax(def);
 			} catch (CSSException e) {
-				DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-				ex.initCause(e);
-				throw ex;
+				throw new DOMSyntaxException(e);
 			}
 			isUniversalSyntax = syn.getName().equals("*");
 			hasSyntax = true;

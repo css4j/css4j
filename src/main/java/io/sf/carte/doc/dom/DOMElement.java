@@ -27,6 +27,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.TypeInfo;
 
+import io.sf.carte.doc.DOMHierarchyRequestException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.DOMTokenList;
 import io.sf.carte.doc.DOMTokenSetImpl;
 import io.sf.carte.doc.style.css.CSSDocument;
@@ -554,7 +556,7 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 	void checkInsertNodeHierarchy(Node newChild, Node refNode) {
 		super.checkInsertNodeHierarchy(newChild, refNode);
 		if (newChild.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Doctype must be added to document.");
+			throw new DOMHierarchyRequestException("Doctype must be added to document.");
 		}
 	}
 
@@ -977,14 +979,14 @@ abstract public class DOMElement extends NamespacedNode implements CSSElement, P
 		try {
 			list = parser.parseSelectors(new StringReader(selectorString));
 		} catch (Exception e) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Unable to parse selector in: " + selectorString);
+			throw new DOMSyntaxException("Unable to parse selector in: " + selectorString);
 		}
 		Condition peCond;
 		if (pseudoElement != null) {
 			try {
 				peCond = parser.parsePseudoElement(pseudoElement);
 			} catch (Exception e) {
-				throw new DOMException(DOMException.SYNTAX_ERR,
+				throw new DOMSyntaxException(
 						"Unable to parse pseudo-element in: " + pseudoElement);
 			}
 		} else {

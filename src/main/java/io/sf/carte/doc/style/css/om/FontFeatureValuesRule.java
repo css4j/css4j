@@ -23,6 +23,7 @@ import java.util.TreeSet;
 import org.w3c.dom.DOMException;
 
 import io.sf.carte.doc.ArrayStringList;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.StringList;
 import io.sf.carte.doc.style.css.CSSFontFeatureValuesMap;
@@ -666,11 +667,11 @@ public class FontFeatureValuesRule extends BaseCSSRule implements CSSFontFeature
 		@Override
 		public void set(String featureValueName, PrimitiveValue... values) {
 			if (values == null) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Must provide at least one value");
+				throw new DOMSyntaxException("Must provide at least one value");
 			}
 			for (PrimitiveValue pri : values) {
 				if (pri == null) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Null value supplied.");
+					throw new DOMSyntaxException("Null value supplied.");
 				}
 				pri.setExpectInteger();
 			}

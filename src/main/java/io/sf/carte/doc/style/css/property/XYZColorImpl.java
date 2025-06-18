@@ -81,6 +81,28 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 	}
 
 	@Override
+	public NumberValue component(String component) {
+		NumberValue ret;
+		switch (component) {
+		case "x":
+			ret = numberComponent((TypedValue) getX(), 1f);
+			break;
+		case "y":
+			ret = numberComponent((TypedValue) getY(), 1f);
+			break;
+		case "z":
+			ret = numberComponent((TypedValue) getZ(), 1f);
+			break;
+		case "alpha":
+			ret = numberComponent((TypedValue) alpha, 100f);
+			break;
+		default:
+			return null;
+		}
+		return ret;
+	}
+
+	@Override
 	public PrimitiveValue item(int index) {
 		switch (index) {
 		case 0:
@@ -144,9 +166,21 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 	}
 
 	@Override
+	boolean hasPercentageComponent() {
+		return (x != null && x.getUnitType() == CSSUnit.CSS_PERCENTAGE)
+				|| (y != null && y.getUnitType() == CSSUnit.CSS_PERCENTAGE)
+				|| (z != null && z.getUnitType() == CSSUnit.CSS_PERCENTAGE);
+	}
+
+	@Override
 	boolean hasConvertibleComponents() {
 		return isConvertibleComponent(getX()) && isConvertibleComponent(getY())
 				&& isConvertibleComponent(getZ());
+	}
+
+	@Override
+	int getMaximumFractionDigits() {
+		return 5;
 	}
 
 	@Override
@@ -154,19 +188,19 @@ class XYZColorImpl extends BaseColor implements XYZColor {
 		NumberValue x = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) xyz[0]);
 		x.setSubproperty(true);
 		x.setAbsolutizedUnit();
-		x.setMaximumFractionDigits(5);
+		x.setMaximumFractionDigits(getMaximumFractionDigits());
 		setX(x);
 
 		NumberValue y = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) xyz[1]);
 		y.setSubproperty(true);
 		y.setAbsolutizedUnit();
-		y.setMaximumFractionDigits(5);
+		y.setMaximumFractionDigits(getMaximumFractionDigits());
 		setY(y);
 
 		NumberValue z = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) xyz[2]);
 		z.setSubproperty(true);
 		z.setAbsolutizedUnit();
-		z.setMaximumFractionDigits(5);
+		z.setMaximumFractionDigits(getMaximumFractionDigits());
 		setZ(z);
 	}
 

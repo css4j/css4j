@@ -13,8 +13,9 @@ package io.sf.carte.doc.dom;
 
 import java.util.NoSuchElementException;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
+
+import io.sf.carte.doc.DOMHierarchyRequestException;
 
 class NodeIteratorImpl implements NodeIterator, org.w3c.dom.traversal.NodeIterator {
 
@@ -275,7 +276,7 @@ class NodeIteratorImpl implements NodeIterator, org.w3c.dom.traversal.NodeIterat
 				}
 			} else {
 				if (node.getNodeType() != Node.ATTRIBUTE_NODE) {
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Not an attribute.");
+					throw new DOMHierarchyRequestException("Not an attribute.");
 				}
 				DOMNamedNodeMap<DOMAttr> nnm = ((DOMElement) parent).nodeMap;
 				nnm.replaceItem((DOMAttr) node, (DOMAttr) last);
@@ -310,7 +311,7 @@ class NodeIteratorImpl implements NodeIterator, org.w3c.dom.traversal.NodeIterat
 					parent.insertAfter(newNode, currentNode);
 				} else {
 					if (node.getNodeType() != Node.ATTRIBUTE_NODE) {
-						throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Not an attribute.");
+						throw new DOMHierarchyRequestException("Not an attribute.");
 					}
 					((DOMElement) parent).nodeMap.insertAfter((DOMAttr) newNode, currentNode);
 				}

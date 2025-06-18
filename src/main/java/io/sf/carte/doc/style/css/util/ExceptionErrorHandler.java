@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.util;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSFontFaceRule;
 import io.sf.carte.doc.style.css.CSSRule;
@@ -60,7 +61,7 @@ public class ExceptionErrorHandler implements SheetErrorHandler {
 
 	@Override
 	public void badMediaList(MediaQueryList media) {
-		throw createException("Bad media list: " + media.getMedia());
+		throw createException("Invalid media list: " + media.getMedia());
 	}
 
 	@Override
@@ -119,8 +120,7 @@ public class ExceptionErrorHandler implements SheetErrorHandler {
 	}
 
 	private DOMException createException(String message) {
-		DOMException ex = new DOMException(DOMException.SYNTAX_ERR, message);
-		return ex;
+		return new DOMSyntaxException(message);
 	}
 
 }

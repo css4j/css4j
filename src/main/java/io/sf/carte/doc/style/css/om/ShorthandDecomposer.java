@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.om;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 
 class ShorthandDecomposer {
@@ -71,8 +72,7 @@ class ShorthandDecomposer {
 		setter.setAttrTainted(attrTainted);
 		short result = setter.assignSubproperties();
 		if (result == 2) {
-			throw new DOMException(DOMException.SYNTAX_ERR,
-					"Invalid property declaration: " + value.toString());
+			throw new DOMSyntaxException("Invalid property declaration: " + value.toString());
 		} else if (result == 0) {
 			return setter;
 		}

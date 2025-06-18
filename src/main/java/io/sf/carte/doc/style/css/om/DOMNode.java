@@ -17,6 +17,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.UserDataHandler;
 
+import io.sf.carte.doc.DOMNotSupportedException;
 import io.sf.carte.doc.style.css.CSSNode;
 
 /**
@@ -145,12 +146,12 @@ abstract class DOMNode implements CSSNode {
 
 	@Override
 	public Node cloneNode(boolean deep) {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMNotSupportedException("This is a readonly wrapper.");
 	}
 
 	@Override
 	public void normalize() {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMNotSupportedException("This is a readonly wrapper.");
 	}
 
 	@Override
@@ -170,7 +171,7 @@ abstract class DOMNode implements CSSNode {
 
 	@Override
 	public void setPrefix(String prefix) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMNotSupportedException("This is a readonly wrapper.");
 	}
 
 	@Override
@@ -200,7 +201,7 @@ abstract class DOMNode implements CSSNode {
 
 	@Override
 	public void setTextContent(String textContent) throws DOMException {
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "This is a readonly wrapper.");
+		throw new DOMNotSupportedException("This is a readonly wrapper.");
 	}
 
 	@Override

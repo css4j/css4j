@@ -11,8 +11,7 @@
 
 package io.sf.carte.doc.style.css.parser;
 
-import org.w3c.dom.DOMException;
-
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue.MathFunction;
 
 class SqrtFunctionUnitImpl extends MathFunctionUnitImpl {
@@ -30,8 +29,7 @@ class SqrtFunctionUnitImpl extends MathFunctionUnitImpl {
 			if (dim.exponent % 2 != 0) {
 				// Odd number
 				if (dim.exponentAccuracy == 0) {
-					throw new DOMException(DOMException.INVALID_ACCESS_ERR,
-							"Invalid CSS unit in sqrt() function");
+					throw new DOMInvalidAccessException("Invalid CSS unit in sqrt() function");
 				}
 			} else {
 				dim.exponent = dim.exponent / 2;

@@ -104,7 +104,7 @@ public class ColorMixFunctionTest {
 
 		CSSColor color2p3 = color2.toColorSpace(ColorSpace.display_p3);
 		assertNotNull(color2p3);
-		assertEquals("color(display-p3 0.9999 1 1)", color2p3.toString());
+		assertEquals("color(display-p3 0.999944 1 1)", color2p3.toString());
 
 		PrimitiveValue pcntValue1 = color.getPercentage1();
 		assertNotNull(pcntValue1);
@@ -132,7 +132,7 @@ public class ColorMixFunctionTest {
 		assertNotNull(mixed);
 		assertEquals(ColorSpace.display_p3, mixed.getColorSpace());
 		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
-		assertEquals("color(display-p3 0.9006 0.9 0.9941)", mixed.toString());
+		assertEquals("color(display-p3 0.900595 0.900026 0.994083)", mixed.toString());
 
 		// DeltaE2000
 		assertEquals(60.1f, color.deltaE2000(colorValue1), 0.1f);
@@ -740,7 +740,7 @@ public class ColorMixFunctionTest {
 		assertNotNull(mixed);
 		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
 		assertEquals(ColorSpace.a98_rgb, mixed.getColorSpace());
-		assertEquals("color(a98-rgb 0.5222 0.8552 0.7989)", mixed.toString());
+		assertEquals("color(a98-rgb 0.522163 0.855247 0.79893)", mixed.toString());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -776,7 +776,7 @@ public class ColorMixFunctionTest {
 		assertNotNull(mixed);
 		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
 		assertEquals(ColorSpace.prophoto_rgb, mixed.getColorSpace());
-		assertEquals("color(prophoto-rgb 0.557 0.7821 0.7612)", mixed.toString());
+		assertEquals("color(prophoto-rgb 0.557021 0.782109 0.761185)", mixed.toString());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -810,7 +810,7 @@ public class ColorMixFunctionTest {
 		assertNotNull(mixed);
 		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
 		assertEquals(ColorSpace.rec2020, mixed.getColorSpace());
-		assertEquals("color(rec2020 0.5337 0.8142 0.7789)", mixed.toString());
+		assertEquals("color(rec2020 0.533724 0.814218 0.778928)", mixed.toString());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -844,7 +844,7 @@ public class ColorMixFunctionTest {
 		assertNotNull(mixed);
 		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
 		assertEquals(ColorSpace.srgb_linear, mixed.getColorSpace());
-		assertEquals("color(srgb-linear 0.0517 0.7117 0.6153)", mixed.toString());
+		assertEquals("color(srgb-linear 0.051673 0.711718 0.615333)", mixed.toString());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -877,7 +877,7 @@ public class ColorMixFunctionTest {
 		assertNotNull(mixed);
 		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
 		assertEquals(ColorSpace.srgb_linear, mixed.getColorSpace());
-		assertEquals("color(srgb-linear 0.5601 0.0797 0.6747)", mixed.toString());
+		assertEquals("color(srgb-linear 0.560107 0.079721 0.674653)", mixed.toString());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -922,7 +922,7 @@ public class ColorMixFunctionTest {
 		assertNotNull(mixed);
 		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
 		assertEquals(ColorSpace.srgb_linear, mixed.getColorSpace());
-		assertEquals("color(srgb-linear 0.0006 0 0.9558)", mixed.toString());
+		assertEquals("color(srgb-linear 0.000607 0 0.955849)", mixed.toString());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -956,7 +956,7 @@ public class ColorMixFunctionTest {
 		assertNotNull(mixed);
 		assertEquals(CSSColorValue.ColorModel.RGB, mixed.getColorModel());
 		assertEquals(ColorSpace.srgb_linear, mixed.getColorSpace());
-		assertEquals("color(srgb-linear 0.0006 0 0.9558)", mixed.toString());
+		assertEquals("color(srgb-linear 0.000607 0 0.955849)", mixed.toString());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -1347,7 +1347,7 @@ public class ColorMixFunctionTest {
 		assertEquals(ColorSpace.srgb, mixed.getColorSpace());
 		assertEquals(CSSColorValue.ColorModel.HSL, mixed.getColorModel());
 		assertEquals("hsl(108, 100%, 49.95%)", mixed.toString());
-		assertEquals("color(display-p3 0.4893 0.9848 0.2991)",
+		assertEquals("color(display-p3 0.489303 0.984755 0.29913)",
 				mixed.toColorSpace(ColorSpace.display_p3).toString());
 	}
 
@@ -1377,7 +1377,7 @@ public class ColorMixFunctionTest {
 		assertEquals(ColorSpace.srgb, mixed.getColorSpace());
 		assertEquals(CSSColorValue.ColorModel.HWB, mixed.getColorModel());
 		assertEquals("hwb(108 0% 0.1%)", mixed.toString());
-		assertEquals("color(display-p3 0.4893 0.9848 0.2991)",
+		assertEquals("color(display-p3 0.489306 0.98476 0.299132)",
 				mixed.toColorSpace(ColorSpace.display_p3).toString());
 	}
 

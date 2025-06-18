@@ -16,6 +16,7 @@ import java.io.StringReader;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
@@ -64,13 +65,15 @@ class ElementReferenceValue extends TypedValue {
 		} catch (IOException e) {
 			lu = null;
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad element reference: " + cssText);
+			DOMException ex = new DOMException(DOMException.INVALID_CHARACTER_ERR,
+					"Invalid element reference: " + cssText);
 			ex.initCause(e);
 			throw ex;
 		}
 		if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.ELEMENT_REFERENCE
 				|| lu.getNextLexicalUnit() != null) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not an element reference: " + cssText);
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
+					"Not an element reference: " + cssText);
 		}
 		LexicalSetter setter = newLexicalSetter();
 		setter.setLexicalUnit(lu);
@@ -129,7 +132,7 @@ class ElementReferenceValue extends TypedValue {
 				if (param != null) {
 					checkProxyValue(param);
 				}
-				throw new DOMException(DOMException.SYNTAX_ERR,
+				throw new DOMSyntaxException(
 						"Invalid element reference: " + lunit.toString());
 			}
 			this.nextLexicalUnit = lunit.getNextLexicalUnit();

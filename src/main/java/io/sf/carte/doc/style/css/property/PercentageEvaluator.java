@@ -13,10 +13,10 @@ package io.sf.carte.doc.style.css.property;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSMathFunctionValue;
 import io.sf.carte.doc.style.css.CSSNumberValue;
-import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 
 /**
@@ -29,11 +29,11 @@ public class PercentageEvaluator extends Evaluator {
 	}
 
 	@Override
-	public CSSTypedValue evaluateExpression(CSSExpressionValue calc) throws DOMException {
-		CSSTypedValue ret = super.evaluateExpression(calc);
+	public CSSNumberValue evaluateExpression(CSSExpressionValue calc) throws DOMException {
+		CSSNumberValue ret = super.evaluateExpression(calc);
 		short unit = ret.getUnitType();
 		if (unit != CSSUnit.CSS_PERCENTAGE && unit != CSSUnit.CSS_NUMBER) {
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unexpected calc() result.");
+			throw new DOMInvalidAccessException("Unexpected calc() result.");
 		}
 		return ret;
 	}
@@ -43,7 +43,7 @@ public class PercentageEvaluator extends Evaluator {
 		CSSNumberValue ret = super.evaluateFunction(function);
 		short unit = ret.getUnitType();
 		if (unit != CSSUnit.CSS_PERCENTAGE && unit != CSSUnit.CSS_NUMBER) {
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Unexpected calc() result.");
+			throw new DOMInvalidAccessException("Unexpected calc() result.");
 		}
 		return ret;
 	}
@@ -59,7 +59,7 @@ public class PercentageEvaluator extends Evaluator {
 	 *                      requested unit.
 	 */
 	@Override
-	protected float percentage(CSSTypedValue value, short resultType) throws DOMException {
+	protected float percentage(CSSNumberValue value, short resultType) throws DOMException {
 		return value.getFloatValue(resultType);
 	}
 

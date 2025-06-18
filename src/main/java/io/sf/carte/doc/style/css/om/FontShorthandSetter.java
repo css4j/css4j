@@ -14,8 +14,7 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Iterator;
 import java.util.List;
 
-import org.w3c.dom.DOMException;
-
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
@@ -157,7 +156,7 @@ class FontShorthandSetter extends ShorthandSetter {
 					if (type == LexicalType.OPERATOR_COMMA) {
 						nextCurrentValue();
 						if (currentValue == null) {
-							throw new DOMException(DOMException.SYNTAX_ERR,
+							throw new DOMSyntaxException(
 									"Unexpected comma at the end of font-family list");
 						}
 						type = currentValue.getLexicalUnitType();
@@ -181,7 +180,7 @@ class FontShorthandSetter extends ShorthandSetter {
 					if (type == LexicalType.OPERATOR_COMMA) {
 						nextCurrentValue();
 						if (currentValue == null) {
-							throw new DOMException(DOMException.SYNTAX_ERR,
+							throw new DOMSyntaxException(
 									"Unexpected comma at the end of font-family list");
 						}
 						type = currentValue.getLexicalUnitType();

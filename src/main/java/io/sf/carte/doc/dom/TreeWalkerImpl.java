@@ -11,8 +11,9 @@
 
 package io.sf.carte.doc.dom;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
+
+import io.sf.carte.doc.DOMNotSupportedException;
 
 class TreeWalkerImpl implements TreeWalker {
 
@@ -54,7 +55,7 @@ class TreeWalkerImpl implements TreeWalker {
 	@Override
 	public void setCurrentNode(Node currentNode) {
 		if (currentNode == null) {
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "current node cannot be null");
+			throw new DOMNotSupportedException("current node cannot be null");
 		}
 		Node node = currentNode;
 		while (currentNode != null) {
@@ -67,7 +68,7 @@ class TreeWalkerImpl implements TreeWalker {
 			}
 			node = node.getParentNode();
 		}
-		throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+		throw new DOMNotSupportedException(
 				"This implementation does not support setting the current node outside of the root-based tree");
 	}
 

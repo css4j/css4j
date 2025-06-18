@@ -86,7 +86,7 @@ public class DOMTokenListImpl implements DOMTokenList, java.io.Serializable {
 	 */
 	public void setValue(String value) throws DOMException {
 		if (value == null) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Token cannot be null");
+			throw new DOMSyntaxException("Token cannot be null");
 		}
 		tokenset.clear();
 		StringTokenizer st = new StringTokenizer(value);
@@ -116,7 +116,7 @@ public class DOMTokenListImpl implements DOMTokenList, java.io.Serializable {
 	@Override
 	public boolean containsAll(DOMTokenList otherlist) throws DOMException {
 		if (otherlist == null) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Argument is null.");
+			throw new DOMSyntaxException("Argument is null.");
 		}
 		for (String element : otherlist) {
 			if (!contains(element)) {
@@ -134,7 +134,7 @@ public class DOMTokenListImpl implements DOMTokenList, java.io.Serializable {
 	@Override
 	public void add(String token) throws DOMException {
 		if (token == null || token.length() == 0) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Token cannot be empty.");
+			throw new DOMSyntaxException("Token cannot be empty.");
 		}
 		if (token.indexOf(' ') != -1) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Token cannot contain spaces");
@@ -147,7 +147,7 @@ public class DOMTokenListImpl implements DOMTokenList, java.io.Serializable {
 	@Override
 	public void remove(String token) throws DOMException {
 		if (token == null || token.length() == 0) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Token cannot be empty");
+			throw new DOMSyntaxException("Token cannot be empty");
 		}
 		if (token.indexOf(' ') != -1) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Token cannot contain spaces");
@@ -158,7 +158,7 @@ public class DOMTokenListImpl implements DOMTokenList, java.io.Serializable {
 	@Override
 	public boolean toggle(String token) throws DOMException {
 		if (token == null || token.length() == 0) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Token cannot be empty");
+			throw new DOMSyntaxException("Token cannot be empty");
 		}
 		if (token.indexOf(' ') != -1) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Token cannot contain spaces");
@@ -172,7 +172,7 @@ public class DOMTokenListImpl implements DOMTokenList, java.io.Serializable {
 	@Override
 	public void replace(String oldToken, String newToken) throws DOMException {
 		if (oldToken == null || newToken == null || oldToken.length() == 0 || newToken.length() == 0) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Tokens cannot be empty");
+			throw new DOMSyntaxException("Tokens cannot be empty");
 		}
 		if (oldToken.indexOf(' ') != -1 || newToken.indexOf(' ') != -1) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Tokens cannot contain spaces");

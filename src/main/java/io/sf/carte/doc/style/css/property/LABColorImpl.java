@@ -70,6 +70,34 @@ class LABColorImpl extends BaseColor implements LABColor {
 	}
 
 	@Override
+	public NumberValue component(String component) {
+		NumberValue ret;
+		switch (component) {
+		case "l":
+			float pcntDiv;
+			if (Space.OK_Lab.equals(colorSpace)) {
+				pcntDiv = 100f;
+			} else {
+				pcntDiv = 1f;
+			}
+			ret = numberComponent((CSSTypedValue) getLightness(), pcntDiv);
+			break;
+		case "a":
+			ret = numberComponent((CSSTypedValue) getA(), 1f);
+			break;
+		case "b":
+			ret = numberComponent((CSSTypedValue) getB(), 1f);
+			break;
+		case "alpha":
+			ret = numberComponent((CSSTypedValue) alpha, 100f);
+			break;
+		default:
+			return null;
+		}
+		return ret;
+	}
+
+	@Override
 	public PrimitiveValue item(int index) {
 		switch (index) {
 		case 0:
@@ -153,9 +181,19 @@ class LABColorImpl extends BaseColor implements LABColor {
 	}
 
 	@Override
+	boolean hasPercentageComponent() {
+		return lightness != null && lightness.getUnitType() == CSSUnit.CSS_PERCENTAGE;
+	}
+
+	@Override
 	boolean hasConvertibleComponents() {
 		return isConvertibleComponent(getA()) && isConvertibleComponent(getB())
 				&& isConvertibleComponent(getLightness());
+	}
+
+	@Override
+	int getMaximumFractionDigits() {
+		return 5;
 	}
 
 	@Override
@@ -173,13 +211,13 @@ class LABColorImpl extends BaseColor implements LABColor {
 		NumberValue a = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[1]);
 		a.setSubproperty(true);
 		a.setAbsolutizedUnit();
-		a.setMaximumFractionDigits(5);
+		a.setMaximumFractionDigits(getMaximumFractionDigits());
 		setA(a);
 
 		NumberValue b = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, (float) lab[2]);
 		b.setSubproperty(true);
 		b.setAbsolutizedUnit();
-		b.setMaximumFractionDigits(5);
+		b.setMaximumFractionDigits(getMaximumFractionDigits());
 		setB(b);
 	}
 

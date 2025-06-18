@@ -13,13 +13,17 @@ package io.sf.carte.doc.style.css.property;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
+import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
+import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.LABColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.BaseColor.Space;
 
 /**
@@ -179,7 +183,7 @@ public class RGBColorValue extends ColorValue {
 			} catch (DOMException e) {
 				throw e;
 			} catch (RuntimeException e) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+				throw new DOMSyntaxException("Invalid value: " + lunit.toString());
 			}
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
@@ -187,9 +191,30 @@ public class RGBColorValue extends ColorValue {
 		private void setLexicalRGB(LexicalUnit lunit) {
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
+			PrimitiveValue basiccolor;
+			CSSColor from = null;
+
+			// from?
+			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
+				if ("from".equalsIgnoreCase(lu.getStringValue())) {
+					lu = nextLexicalUnit(lu, lunit);
+					PrimitiveValue fromval = factory.createCSSPrimitiveValue(lu, true);
+					from = computeColor(fromval, factory);
+					if (from.getColorModel() != ColorModel.RGB
+							|| !ColorSpace.srgb.equals(from.getColorSpace())) {
+						from = from.toColorSpace(ColorSpace.srgb);
+					}
+					lu = nextLexicalUnit(lu, lunit);
+				}
+			}
+
 			// red
-			PrimitiveValue basiccolor = factory.createCSSPrimitiveValue(lu, true);
+			basiccolor = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				basiccolor = absoluteComponent(from, basiccolor, true);
+			}
 			color.setRed(basiccolor);
+
 			// comma ?
 			lu = lu.getNextLexicalUnit();
 			if (commaSyntax = lu.getLexicalUnitType() == LexicalUnit.LexicalType.OPERATOR_COMMA) {
@@ -197,21 +222,32 @@ public class RGBColorValue extends ColorValue {
 				lu = lu.getNextLexicalUnit();
 			}
 			basiccolor = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				basiccolor = absoluteComponent(from, basiccolor, true);
+			}
 			color.setGreen(basiccolor);
 			if (commaSyntax) {
 				// comma
 				lu = lu.getNextLexicalUnit();
 			}
+
 			// blue
 			lu = lu.getNextLexicalUnit();
 			basiccolor = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				basiccolor = absoluteComponent(from, basiccolor, true);
+			}
 			color.setBlue(basiccolor);
+
 			// comma, slash or null
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
 				// alpha
 				lu = lu.getNextLexicalUnit();
 				PrimitiveValue alpha = factory.createCSSPrimitiveValue(lu, true);
+				if (from != null) {
+					alpha = absoluteComponent(from, alpha, false);
+				}
 				if (!commaSyntax && alpha.getUnitType() == CSSUnit.CSS_NUMBER
 						&& basiccolor.getUnitType() == CSSUnit.CSS_NUMBER) {
 					// It may have been set by hex notation, and
@@ -221,12 +257,18 @@ public class RGBColorValue extends ColorValue {
 				color.setAlpha(alpha);
 				lu = lu.getNextLexicalUnit();
 				if (lu != null) {
-					throw new DOMException(DOMException.SYNTAX_ERR,
-							"Bad value: " + lunit.toString());
+					throw invalidValueException(lunit);
 				}
 			}
 		}
 
+	}
+
+	@Override
+	CSSNumberValue parameterRange(CSSNumberValue comp) {
+		float c = comp.getFloatValue();
+		comp.setFloatValue(CSSUnit.CSS_NUMBER, c * 255f);
+		return comp;
 	}
 
 	@Override

@@ -110,7 +110,7 @@ public class DOMTokenSetImpl implements DOMTokenList, java.io.Serializable {
 	public static boolean checkMultipleToken(String value) {
 		boolean foundChar = false, foundWS = false;
 		if (value == null) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Null value");
+			throw new DOMSyntaxException("Null value");
 		}
 		int len = value.length();
 		for (int i = 0; i < len; i++) {
@@ -175,7 +175,7 @@ public class DOMTokenSetImpl implements DOMTokenList, java.io.Serializable {
 	@Override
 	public boolean containsAll(DOMTokenList otherlist) {
 		if (otherlist == null) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Argument is null.");
+			throw new DOMSyntaxException("Argument is null.");
 		}
 		int otherlen = otherlist.getLength();
 		if (otherlen == 0) {
@@ -328,7 +328,7 @@ public class DOMTokenSetImpl implements DOMTokenList, java.io.Serializable {
 
 	protected void argumentCheckVoidSpaces(String token) throws DOMException {
 		if (token == null || token.length() == 0) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Token cannot be empty");
+			throw new DOMSyntaxException("Token cannot be empty");
 		}
 		if (token.indexOf(' ') != -1) {
 			throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Token cannot contain spaces");

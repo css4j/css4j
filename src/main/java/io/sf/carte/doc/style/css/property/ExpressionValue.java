@@ -15,6 +15,8 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpressionValue;
 import io.sf.carte.doc.style.css.CSSOperandExpression;
@@ -65,7 +67,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 			ExpressionFactory ef = createExpressionFactory(nextLexicalUnit);
 			expression = ef.createExpression(lunit);
 			if (expression == null) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Void expression");
+				throw new DOMSyntaxException("Void expression");
 			}
 			nextLexicalUnit = ef.getNextLexicalUnit();
 		}
@@ -87,7 +89,7 @@ public class ExpressionValue extends TypedValue implements CSSExpressionValue {
 
 	@Override
 	public float getFloatValue(short unitType) throws DOMException {
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+		throw new DOMInvalidAccessException(
 				"Please use an evaluator and compute result.");
 	}
 

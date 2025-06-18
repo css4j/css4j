@@ -90,7 +90,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
 		if (alpha.getUnitType() == CSSUnit.CSS_NUMBER) {
 			TypedValue typed = (TypedValue) alpha;
-			float fv = typed.getFloatValue(CSSUnit.CSS_NUMBER);
+			float fv = typed.getFloatValue();
 			if (fv < 0f) {
 				// Instantiate a percentage, to enable number-% conversions
 				typed = new PercentageValue();
@@ -105,7 +105,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			}
 		} else if (alpha.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
 			TypedValue typed = (TypedValue) alpha;
-			float fv = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+			float fv = typed.getFloatValue();
 			if (fv < 0f) {
 				typed = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, 0f);
 				typed.setSubproperty(true);
@@ -140,9 +140,19 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			primi = (PrimitiveValue) eval.evaluateFunction((CSSMathFunctionValue) primi);
 		}
 
-		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+		short unit = primi.getUnitType();
+		if (unit == CSSUnit.CSS_NUMBER) {
 			TypedValue typed = (TypedValue) primi;
-			float fv = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+			float fv = typed.getFloatValue();
+			NumberValue num = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, fv);
+			num.setSpecified(false);
+			num.setMaximumFractionDigits(4);
+			primi = num;
+			unit = CSSUnit.CSS_PERCENTAGE;
+		}
+		if (unit == CSSUnit.CSS_PERCENTAGE) {
+			TypedValue typed = (TypedValue) primi;
+			float fv = typed.getFloatValue();
 			if (fv < 0f) {
 				typed = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, 0f);
 				typed.setSubproperty(true);
@@ -169,6 +179,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 			case FUNCTION: // Possibly an unimplemented math function
 				return false;
 			case IDENT:
+				// Component names are supposed to have been replaced before this
 				return !"none".equalsIgnoreCase(((CSSTypedValue) primi).getStringValue());
 			default:
 			}
@@ -180,7 +191,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 		return true;
 	}
 
-	static PrimitiveValue enforcePcntOrNumberComponent(PrimitiveValue primi) throws DOMException {
+	PrimitiveValue enforcePcntOrNumberComponent(PrimitiveValue primi) throws DOMException {
 		if (primi == null) {
 			throw new NullPointerException();
 		}
@@ -195,7 +206,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
 		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
 			TypedValue typed = (TypedValue) primi;
-			float fv = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+			float fv = typed.getFloatValue();
 			if (fv < 0f) {
 				typed = NumberValue.createCSSNumberValue(CSSUnit.CSS_PERCENTAGE, 0f);
 				typed.setSubproperty(true);
@@ -206,23 +217,37 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 				primi = typed;
 			}
 		} else if (primi.getUnitType() == CSSUnit.CSS_NUMBER) {
-			TypedValue typed = (TypedValue) primi;
-			float fv = typed.getFloatValue(CSSUnit.CSS_NUMBER);
-			if (fv < 0f) {
-				typed = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 0f);
-				typed.setSubproperty(true);
-				primi = typed;
-			} else if (fv > 100f) {
-				typed = NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 100f);
-				typed.setSubproperty(true);
-				primi = typed;
+			NumberValue number = (NumberValue) primi;
+			float fv = number.getFloatValue();
+			number = number.clone();
+			if (hasPercentageComponent()) {
+				number.setUnitType(CSSUnit.CSS_PERCENTAGE);
 			}
+			if (fv < 0f) {
+				number.realvalue = 0f;
+			} else if (fv > 100f) {
+				number.realvalue = 100f;
+			}
+			number.setMaximumFractionDigits(4);
+			number.setSubproperty(true);
+			primi = number;
 		} else if (isInvalidComponentType(primi)) {
 			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
 					"Invalid color component: " + primi.getCssText());
 		}
 
 		return primi;
+	}
+
+	boolean hasPercentageComponent() {
+		int len = getLength();
+		for (int i = 1; i < len; i++) {
+			PrimitiveValue comp = item(i);
+			if (comp != null && comp.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	static PrimitiveValue enforceHueComponent(PrimitiveValue hue) {
@@ -291,7 +316,7 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 		if (primi.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
 			NumberValue number = (NumberValue) primi;
 			boolean spec = number.isSpecified() && specified;
-			float num = number.getFloatValue(CSSUnit.CSS_PERCENTAGE) * factor;
+			float num = number.getFloatValue() * factor;
 			// Instantiate a percentage, to enable number-% conversions
 			number = new PercentageValue();
 			number.setFloatValue(CSSUnit.CSS_NUMBER, num);
@@ -314,6 +339,53 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 				|| (comp.getPrimitiveType() == Type.IDENT
 						&& "none".equalsIgnoreCase(((CSSTypedValue) comp).getStringValue())));
 	}
+
+	/*
+	 * Utility methods for relative colors.
+	 */
+
+	NumberValue numberComponent(CSSTypedValue typed, float pcntDiv) throws DOMException {
+		float value;
+		boolean specified;
+		short unit = typed.getUnitType();
+		if (unit == CSSUnit.CSS_NUMBER) {
+			value = typed.getFloatValue();
+			specified = ((NumberValue) typed).isSpecified();
+		} else if (unit == CSSUnit.CSS_PERCENTAGE) {
+			value = typed.getFloatValue() / pcntDiv;
+			specified = ((NumberValue) typed).isSpecified();
+		} else if (typed.getPrimitiveType() == Type.IDENT) {
+			value = 0f;
+			specified = true;
+		} else {
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Wrong component: " + typed.getCssText());
+		}
+		NumberValue num = new NumberValue();
+		num.realvalue = value;
+		num.setSpecified(specified);
+		num.setMaximumFractionDigits(getMaximumFractionDigits());
+		return num;
+	}
+
+	static NumberValue hueComponent(CSSTypedValue typed) throws DOMException {
+		double h = ColorUtil.hueDegrees(typed);
+		boolean specified = typed.getPrimitiveType() != Type.NUMERIC
+				|| ((NumberValue) typed).isSpecified();
+		NumberValue num = new NumberValue();
+		num.setFloatValue(CSSUnit.CSS_DEG, (float) h);
+		num.setSpecified(specified);
+		num.setMaximumFractionDigits(4);
+		return num;
+	}
+
+	int getMaximumFractionDigits() {
+		return 4;
+	}
+
+	/*
+	 * End of utility methods for relative colors.
+	 */
 
 	@Override
 	public String toString() {
@@ -511,6 +583,9 @@ abstract class BaseColor implements CSSColor, Cloneable, java.io.Serializable {
 
 	@Override
 	abstract public CSSColorValue.ColorModel getColorModel();
+
+	@Override
+	abstract public NumberValue component(String component);
 
 	@Override
 	abstract public PrimitiveValue item(int index);

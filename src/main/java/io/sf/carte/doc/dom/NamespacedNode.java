@@ -14,6 +14,8 @@ package io.sf.carte.doc.dom;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.DOMHierarchyRequestException;
+
 abstract class NamespacedNode extends NDTNode {
 
 	private static final long serialVersionUID = 1L;
@@ -31,7 +33,7 @@ abstract class NamespacedNode extends NDTNode {
 	void checkInsertNodeHierarchy(Node newChild, Node refNode) {
 		super.checkInsertNodeHierarchy(newChild, refNode);
 		if (newChild.getNodeType() == Node.DOCUMENT_TYPE_NODE) {
-			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot append a document type here.");
+			throw new DOMHierarchyRequestException("Cannot append a document type here.");
 		}
 	}
 

@@ -65,7 +65,7 @@ class DimensionalEvaluator extends Evaluator {
 	}
 
 	@Override
-	CSSTypedValue evaluateExpression(CSSExpression expression, Unit resultUnit) throws DOMException {
+	CSSNumberValue evaluateExpression(CSSExpression expression, Unit resultUnit) throws DOMException {
 		this.latestExpression = expression;
 		return super.evaluateExpression(expression, resultUnit);
 	}
@@ -218,7 +218,7 @@ class DimensionalEvaluator extends Evaluator {
 	}
 
 	@Override
-	protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
+	protected CSSNumberValue absoluteTypedValue(CSSTypedValue partialValue) {
 		short unit = partialValue.getUnitType();
 		if (CSSUnit.isRelativeLengthUnitType(unit)) {
 			// Check if random is initialized
@@ -234,7 +234,7 @@ class DimensionalEvaluator extends Evaluator {
 		} else if (unit == CSSUnit.CSS_PERCENTAGE) {
 			hasPercentage = true;
 		}
-		return partialValue;
+		return super.absoluteTypedValue(partialValue);
 	}
 
 	private void checkRandom() {
@@ -244,19 +244,19 @@ class DimensionalEvaluator extends Evaluator {
 	}
 
 	@Override
-	protected float percentage(CSSTypedValue value, short resultType) throws DOMException {
+	protected float percentage(CSSNumberValue value, short resultType) throws DOMException {
 		hasPercentage = true;
 		if (resultType != CSSUnit.CSS_PERCENTAGE && resultType != CSSUnit.CSS_NUMBER
 				&& !CSSUnit.isLengthUnitType(resultType)) {
 			// Do not know how to interpret a %
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, "Do not know how to convert a % to "
-					+ CSSUnit.dimensionUnitString(resultType));
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
+					"Do not know how to convert a % to " + CSSUnit.dimensionUnitString(resultType));
 		}
 		return value.getFloatValue(CSSUnit.CSS_PERCENTAGE);
 	}
 
 	@Override
-	CSSTypedValue unknownFunction(CSSFunctionValue function, Unit resultUnit) {
+	CSSNumberValue unknownFunction(CSSFunctionValue function, Unit resultUnit) {
 		unknownFunction = true;
 		return super.unknownFunction(function, resultUnit);
 	}

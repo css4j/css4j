@@ -11,11 +11,12 @@
 
 package io.sf.carte.doc.dom;
 
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+
+import io.sf.carte.doc.DOMHierarchyRequestException;
 
 /**
  * Implementation of DOM's <code>DocumentType</code>.
@@ -37,7 +38,7 @@ class DocumentTypeImpl extends AbstractDOMNode implements DocumentType {
 
 	@Override
 	void checkInsertNode(Node newChild, Node refNode) {
-		throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot add children to this node");
+		throw new DOMHierarchyRequestException("Cannot add children to this node");
 	}
 
 	@Override

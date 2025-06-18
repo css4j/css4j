@@ -2877,7 +2877,7 @@ public class EvaluatorTest {
 		assertMatch(Match.TRUE, val, "*");
 
 		DOMException ex = assertThrows(DOMException.class, () -> evaluator.evaluateFunction(val));
-		assertEquals(DOMException.INVALID_ACCESS_ERR, ex.code);
+		assertEquals(DOMException.NOT_SUPPORTED_ERR, ex.code);
 	}
 
 	@Test

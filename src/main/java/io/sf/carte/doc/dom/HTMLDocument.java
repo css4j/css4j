@@ -27,6 +27,7 @@ import org.w3c.dom.DocumentType;
 import org.w3c.dom.Node;
 import org.w3c.dom.UserDataHandler;
 
+import io.sf.carte.doc.DOMHierarchyRequestException;
 import io.sf.carte.doc.style.css.CSSStyleDeclaration;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.BaseCSSStyleSheetFactory;
@@ -171,7 +172,7 @@ abstract public class HTMLDocument extends DOMDocument {
 			if (parentNode != null) {
 				short type = parentNode.getNodeType();
 				if (type != Node.DOCUMENT_NODE && type != Node.DOCUMENT_FRAGMENT_NODE) {
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "A <html> tag cannot be added here.");
+					throw new DOMHierarchyRequestException("A <html> tag cannot be added here.");
 				}
 			}
 			super.setParentNode(parentNode);
@@ -186,7 +187,7 @@ abstract public class HTMLDocument extends DOMDocument {
 					Node node = getFirstChild();
 					while (node != null) {
 						if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equals(nname)) {
-							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							throw new DOMHierarchyRequestException(
 									"<html> already has a " + nname + " child.");
 						}
 						node = node.getNextSibling();
@@ -205,7 +206,7 @@ abstract public class HTMLDocument extends DOMDocument {
 					Node node = getFirstChild();
 					while (node != null) {
 						if (node.getNodeType() == Node.ELEMENT_NODE && node.getNodeName().equals(nname)) {
-							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							throw new DOMHierarchyRequestException(
 									"<html> already has a " + nname + " child.");
 						}
 						node = node.getNextSibling();
@@ -235,7 +236,7 @@ abstract public class HTMLDocument extends DOMDocument {
 							+ "> tag can occur only in a head or noscript element, not in "
 							+ parentNode.toString()
 							+ ".\nDisable strict error checking to avoid this error.";
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, msg);
+					throw new DOMHierarchyRequestException(msg);
 				}
 			}
 			super.setParentNode(parentNode);
@@ -265,7 +266,7 @@ abstract public class HTMLDocument extends DOMDocument {
 					while (node != null) {
 						if (node.getNodeType() == Node.ELEMENT_NODE
 								&& "base".equals(node.getNodeName()) && node != this) {
-							throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR,
+							throw new DOMHierarchyRequestException(
 									"A document can have only one base element.\n"
 											+ "Disable strict error checking to avoid this error.");
 						}
@@ -472,7 +473,7 @@ abstract public class HTMLDocument extends DOMDocument {
 					String msg = "A <meta> tag without the proper attributes can occur only in the head or noscript element, not in "
 							+ parentNode.getNodeName()
 							+ ".\nDisable strict error checking to avoid this error.";
-					throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, msg);
+					throw new DOMHierarchyRequestException(msg);
 				}
 				super.setParentNode(parentNode);
 				String name = getAttribute("http-equiv");

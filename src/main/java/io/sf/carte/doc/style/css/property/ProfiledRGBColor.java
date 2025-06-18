@@ -16,6 +16,7 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMNotSupportedException;
 import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.color.Illuminants;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -70,9 +71,9 @@ class ProfiledRGBColor extends RGBColor {
 		double comp;
 		short unit = typed.getUnitType();
 		if (unit == CSSUnit.CSS_PERCENTAGE) {
-			comp = typed.getFloatValue(CSSUnit.CSS_PERCENTAGE) * 0.01d;
+			comp = typed.getFloatValue() / 100d;
 		} else if (unit == CSSUnit.CSS_NUMBER) {
-			comp = typed.getFloatValue(CSSUnit.CSS_NUMBER);
+			comp = typed.getFloatValue();
 		} else if (typed.getPrimitiveType() == Type.IDENT) {
 			comp = 0d;
 		} else {
@@ -83,26 +84,31 @@ class ProfiledRGBColor extends RGBColor {
 	}
 
 	@Override
+	int getMaximumFractionDigits() {
+		return 6;
+	}
+
+	@Override
 	void setColorComponents(double[] rgb) {
 		NumberValue red = new NumberValue();
 		red.setFloatValue(CSSUnit.CSS_NUMBER, (float) rgb[0]);
 		red.setSubproperty(true);
+		red.setMaximumFractionDigits(getMaximumFractionDigits());
 		red.setAbsolutizedUnit();
-		red.setMaximumFractionDigits(4);
 		setRed(red);
 
 		NumberValue green = new NumberValue();
 		green.setFloatValue(CSSUnit.CSS_NUMBER, (float) rgb[1]);
 		green.setSubproperty(true);
+		green.setMaximumFractionDigits(getMaximumFractionDigits());
 		green.setAbsolutizedUnit();
-		green.setMaximumFractionDigits(4);
 		setGreen(green);
 
 		NumberValue blue = new NumberValue();
 		blue.setFloatValue(CSSUnit.CSS_NUMBER, (float) rgb[2]);
 		blue.setSubproperty(true);
+		blue.setMaximumFractionDigits(getMaximumFractionDigits());
 		blue.setAbsolutizedUnit();
-		blue.setMaximumFractionDigits(4);
 		setBlue(blue);
 	}
 
@@ -170,7 +176,7 @@ class ProfiledRGBColor extends RGBColor {
 		case sRGB:
 			return super.toXYZ(white);
 		default:
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Color space is not supported.");
+			throw new DOMNotSupportedException("Color space is not supported.");
 		}
 	
 		return xyz;
@@ -236,7 +242,7 @@ class ProfiledRGBColor extends RGBColor {
 			profile = new LinearSRGBColorProfile();
 			break;
 		default:
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR, "Color space is not supported.");
+			throw new DOMNotSupportedException("Color space is not supported.");
 		}
 
 		return profile;

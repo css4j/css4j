@@ -245,6 +245,65 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
+	public void testParsePropertyValueRGBFromSlash() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("rgb(from peru r g 0 / 0)");
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("peru", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("r", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("g", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(0, param.getIntegerValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+
+		assertEquals(0, lu.getContextIndex());
+
+		assertEquals("rgb(from peru r g 0/0)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueRGBFromCalc() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("rgb(from peru calc(r - 120) calc(g - 100) calc(b*2))");
+		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("peru", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(r - 120)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(g - 100)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(b*2)", param.getCssText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("rgb", lu.getFunctionName());
+
+		assertEquals(0, lu.getContextIndex());
+
+		assertEquals("rgb(from peru calc(r - 120) calc(g - 100) calc(b*2))", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueRGBA() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgba(1,2,3,0.45)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
@@ -1443,6 +1502,11 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
+	public void testParsePropertyValueRGBInvalidLegacyRelative() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(from blue 0, 0, 0)"));
+	}
+
+	@Test
 	public void testParsePropertyValueRGBClampRValue() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("rgb(-6 0.2 2.8)");
 		assertEquals(LexicalType.RGBCOLOR, lu.getLexicalUnitType());
@@ -1546,7 +1610,7 @@ public class PropertyParserColorRGBTest {
 	}
 
 	@Test
-	public void testParsePropertyValueRGBBadChar() throws CSSException {
+	public void testParsePropertyValueRGBBadCompIdent() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("rgb(0 from 0/ 0)"));
 	}
 

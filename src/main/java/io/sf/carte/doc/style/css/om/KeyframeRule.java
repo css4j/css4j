@@ -18,6 +18,9 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
+import io.sf.carte.doc.DOMNotSupportedException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSKeyframeRule;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
@@ -151,17 +154,11 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 		try {
 			parser.parseRule(re);
 		} catch (CSSParseException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException(e);
 		} catch (CSSBudgetException e) {
-			DOMException ex = new DOMException(DOMException.NOT_SUPPORTED_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMNotSupportedException(e.getMessage(), e);
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMInvalidAccessException(e.getMessage(), e);
 		} catch (RuntimeException e) {
 			String message = e.getMessage();
 			AbstractCSSStyleSheet parentSS = getParentStyleSheet();

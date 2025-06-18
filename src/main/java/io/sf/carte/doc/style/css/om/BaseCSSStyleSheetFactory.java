@@ -27,6 +27,7 @@ import java.util.Locale;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.agent.DeviceFactory;
 import io.sf.carte.doc.agent.HeadlessDeviceFactory;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
@@ -171,10 +172,10 @@ abstract public class BaseCSSStyleSheetFactory extends AbstractCSSStyleSheetFact
 		}
 		if (initialValue == null) {
 			if (syntax.getCategory() != Category.universal) {
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Null initial value.");
+				throw new DOMInvalidAccessException("Null initial value.");
 			}
 		} else if (initialValue.matches(syntax) != Match.TRUE) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+			throw new DOMInvalidAccessException(
 					"Value " + initialValue.getCssText() + " does not match syntax " + syntax.toString() + '.');
 		}
 

@@ -15,6 +15,7 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
@@ -97,7 +98,7 @@ class CounterValue extends AbstractCounterValue {
 		}
 
 		private void badSyntax(LexicalUnit lunit) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Bad counter syntax: " + lunit.toString());
+			throw new DOMSyntaxException("Invalid counter syntax: " + lunit.toString());
 		}
 
 	}

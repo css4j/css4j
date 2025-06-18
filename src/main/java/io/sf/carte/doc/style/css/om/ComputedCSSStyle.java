@@ -22,6 +22,8 @@ import java.util.Set;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
+import io.sf.carte.doc.DOMNotSupportedException;
 import io.sf.carte.doc.style.css.AlgebraicExpression;
 import io.sf.carte.doc.style.css.BoxValues;
 import io.sf.carte.doc.style.css.CSSCanvas;
@@ -580,7 +582,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
 					typed = (TypedValue) ev.evaluateExpression(exprval);
-				} catch (DOMException e) {
+				} catch (DOMNotSupportedException e) {
 					computedStyleWarning(propertyName, typed,
 							"Could not evaluate expression value.", e);
 					// Evaluation failed, convert expressions to absolute anyway.
@@ -591,7 +593,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				Evaluator ev = new MyEvaluator(propertyName);
 				try {
 					typed = (TypedValue) ev.evaluateFunction(function);
-				} catch (DOMException e) {
+				} catch (DOMNotSupportedException e) {
 					computedStyleWarning(propertyName, typed, "Could not evaluate function value.",
 							e);
 					// Evaluation failed, convert arguments to absolute anyway.
@@ -705,7 +707,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 					if (useParentStyle) {
 						style = getParentComputedStyle();
 						if (style == null) {
-							throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
+							throw new DOMNotSupportedException(
 									"Cannot use parent style at root element.");
 						}
 					} else {
@@ -1132,7 +1134,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			if (value.getCssValueType() == CssType.TYPED) {
 				primi = absoluteTypedValue(propertyName, (TypedValue) value, useParentStyle);
 			} else {
-				throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+				throw new DOMInvalidAccessException(
 						"Unexpected value in expression: " + value.getCssText());
 			}
 			operand.setOperand(primi);
@@ -1473,7 +1475,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		String attrname = lu.getStringValue();
 
 		if (checkSet.contains(attrname)) {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+			throw new DOMInvalidAccessException(
 					"Circularity evaluating attr() '" + attrname + "': " + checkSet.toString());
 		}
 
@@ -1810,11 +1812,11 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		float sz;
 		switch (cssSize.getUnitType()) {
 		case CSSUnit.CSS_EM:
-			float factor = cssSize.getFloatValue(CSSUnit.CSS_EM);
+			float factor = cssSize.getFloatValue();
 			// Use parent element's size.
 			return getRelativeFontSize(cssSize, factor, force);
 		case CSSUnit.CSS_EX:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_EX);
+			factor = cssSize.getFloatValue();
 			// Use parent element's size.
 			CSSComputedProperties parentStyle = getParentComputedStyle();
 			if (parentStyle == null) {
@@ -1832,7 +1834,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			break;
 		case CSSUnit.CSS_REM:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_REM);
+			factor = cssSize.getFloatValue();
 			CSSElement root = getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				sz = root.getComputedStyle(null).getComputedFontSize();
@@ -1845,7 +1847,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			sz *= factor;
 			break;
 		case CSSUnit.CSS_REX:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_REX);
+			factor = cssSize.getFloatValue();
 			root = getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				sz = root.getComputedStyle(null).getComputedFontSize() * 0.5f;
@@ -1858,7 +1860,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			sz *= factor;
 			break;
 		case CSSUnit.CSS_LH:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_LH);
+			factor = cssSize.getFloatValue();
 			parentStyle = getParentComputedStyle();
 			if (parentStyle != null) {
 				sz = parentStyle.getComputedLineHeight();
@@ -1870,7 +1872,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			sz *= factor;
 			break;
 		case CSSUnit.CSS_RLH:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_RLH);
+			factor = cssSize.getFloatValue();
 			root = getOwnerNode().getOwnerDocument().getDocumentElement();
 			if (root != getOwnerNode()) {
 				sz = root.getComputedStyle(null).getComputedLineHeight();
@@ -1882,7 +1884,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			sz *= factor;
 			break;
 		case CSSUnit.CSS_CAP:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_CAP);
+			factor = cssSize.getFloatValue();
 			CSSCanvas canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			if (canvas != null) {
 				parentStyle = getParentComputedStyle();
@@ -1903,7 +1905,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			break;
 		case CSSUnit.CSS_CH:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_CH);
+			factor = cssSize.getFloatValue();
 			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			if (canvas != null) {
 				parentStyle = getParentComputedStyle();
@@ -1924,7 +1926,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			break;
 		case CSSUnit.CSS_RCH:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_RCH);
+			factor = cssSize.getFloatValue();
 			CSSDocument doc = getOwnerNode().getOwnerDocument();
 			canvas = doc.getCanvas();
 			root = doc.getDocumentElement();
@@ -1952,7 +1954,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			sz *= factor;
 			break;
 		case CSSUnit.CSS_IC:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_IC);
+			factor = cssSize.getFloatValue();
 			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			if (canvas != null) {
 				parentStyle = getParentComputedStyle();
@@ -1973,7 +1975,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			break;
 		case CSSUnit.CSS_RIC:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_RIC);
+			factor = cssSize.getFloatValue();
 			doc = getOwnerNode().getOwnerDocument();
 			canvas = doc.getCanvas();
 			root = doc.getDocumentElement();
@@ -2001,14 +2003,14 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			sz *= factor;
 			break;
 		case CSSUnit.CSS_PERCENTAGE:
-			float pcnt = cssSize.getFloatValue(CSSUnit.CSS_PERCENTAGE);
+			float pcnt = cssSize.getFloatValue();
 			// Use parent element's size.
-			return getRelativeFontSize(cssSize, pcnt * 0.01f, true);
+			return getRelativeFontSize(cssSize, pcnt / 100f, true);
 		case CSSUnit.CSS_VW:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_VW);
+			factor = cssSize.getFloatValue();
 			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
-				sz = getInitialContainingBlockWidthPt(canvas, force) * factor * 0.01f;
+				sz = getInitialContainingBlockWidthPt(canvas, force) * factor / 100f;
 			} catch (StyleDatabaseRequiredException e) {
 				if (force) {
 					throw e;
@@ -2017,10 +2019,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			break;
 		case CSSUnit.CSS_VH:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_VH);
+			factor = cssSize.getFloatValue();
 			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
-				sz = getInitialContainingBlockHeightPt(canvas, force) * factor * 0.01f;
+				sz = getInitialContainingBlockHeightPt(canvas, force) * factor / 100f;
 			} catch (StyleDatabaseRequiredException e) {
 				if (force) {
 					throw e;
@@ -2029,7 +2031,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			break;
 		case CSSUnit.CSS_VI:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_VI);
+			factor = cssSize.getFloatValue();
 			String writingMode = getCSSValue("writing-mode").getCssText();
 			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
@@ -2044,10 +2046,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 				return cssSize;
 			}
-			sz *= factor * 0.01f;
+			sz *= factor / 100f;
 			break;
 		case CSSUnit.CSS_VB:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_VB);
+			factor = cssSize.getFloatValue();
 			writingMode = getCSSValue("writing-mode").getCssText();
 			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
@@ -2062,10 +2064,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 				return cssSize;
 			}
-			sz *= factor * 0.01f;
+			sz *= factor / 100f;
 			break;
 		case CSSUnit.CSS_VMIN:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_VMIN);
+			factor = cssSize.getFloatValue();
 			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
 				sz = Math.min(getInitialContainingBlockWidthPt(canvas, force),
@@ -2076,10 +2078,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 				return cssSize;
 			}
-			sz *= factor * 0.01f;
+			sz *= factor / 100f;
 			break;
 		case CSSUnit.CSS_VMAX:
-			factor = cssSize.getFloatValue(CSSUnit.CSS_VMAX);
+			factor = cssSize.getFloatValue();
 			canvas = getOwnerNode().getOwnerDocument().getCanvas();
 			try {
 				sz = Math.max(getInitialContainingBlockWidthPt(canvas, force),
@@ -2090,7 +2092,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 				}
 				return cssSize;
 			}
-			sz *= factor * 0.01f;
+			sz *= factor / 100f;
 			break;
 		default:
 			try {
@@ -2103,7 +2105,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			}
 			return cssSize;
 		}
-		sz = Math.round(sz * 100f) * 0.01f;
+		sz = Math.round(sz * 100f) / 100f;
 		NumberValue number = new NumberValue();
 		number.setFloatValuePt(sz);
 		number.setSubproperty(cssSize.isSubproperty());
@@ -2377,8 +2379,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 
 		@Override
-		protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
-			return ComputedCSSStyle.this.absoluteTypedValue(propertyName, (TypedValue) partialValue, false);
+		protected CSSNumberValue absoluteTypedValue(CSSTypedValue partialValue) {
+			TypedValue typed = ComputedCSSStyle.this.absoluteTypedValue(propertyName,
+					(TypedValue) partialValue, false);
+			return super.absoluteTypedValue(typed);
 		}
 
 		@Override
@@ -2395,8 +2399,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 
 		@Override
-		protected CSSTypedValue absoluteTypedValue(CSSTypedValue partialValue) {
-			return ComputedCSSStyle.this.absoluteTypedValue(propertyName, (TypedValue) partialValue, true);
+		protected CSSNumberValue absoluteTypedValue(CSSTypedValue partialValue) {
+			TypedValue typed = ComputedCSSStyle.this.absoluteTypedValue(propertyName,
+					(TypedValue) partialValue, true);
+			return super.absoluteTypedValue(typed);
 		}
 
 		@Override
@@ -2405,10 +2411,10 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		}
 
 		@Override
-		protected float percentage(CSSTypedValue value, short resultType) throws DOMException {
+		protected float percentage(CSSNumberValue value, short resultType) throws DOMException {
 			float pcnt = value.getFloatValue(CSSUnit.CSS_PERCENTAGE);
 			// Use parent element's size.
-			return getParentElementFontSize() * pcnt * 0.01f;
+			return getParentElementFontSize() * pcnt / 100f;
 		}
 
 	}
@@ -2485,7 +2491,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (declType == Type.NUMERIC) {
 			short unit = cssval.getUnitType();
 			if (unit == CSSUnit.CSS_PERCENTAGE) {
-				height = getComputedFontSize() * cssval.getFloatValue(CSSUnit.CSS_PERCENTAGE) / 100f;
+				height = getComputedFontSize() * cssval.getFloatValue() / 100f;
 			} else {
 				height = cssval.getFloatValue(unit);
 				if (unit != CSSUnit.CSS_PT) {

@@ -13,10 +13,14 @@ package io.sf.carte.doc.style.css.property;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
+import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HWBColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 
 /**
  * HWB color value.
@@ -121,7 +125,7 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			} catch (DOMException e) {
 				throw e;
 			} catch (RuntimeException e) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+				throw new DOMSyntaxException("Invalid value: " + lunit.toString());
 			}
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
@@ -129,27 +133,57 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		private void setLexicalHWB(LexicalUnit lunit) {
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
+			CSSColor from = null;
+
+			// from?
+			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
+				if ("from".equalsIgnoreCase(lu.getStringValue())) {
+					lu = nextLexicalUnit(lu, lunit);
+					PrimitiveValue fromval = factory.createCSSPrimitiveValue(lu, true);
+					from = computeColor(fromval, factory);
+					if (from.getColorModel() != ColorModel.HWB) {
+						from = from.toColorSpace("hwb");
+					}
+					lu = nextLexicalUnit(lu, lunit);
+				}
+			}
+
 			// hue
 			PrimitiveValue primihue = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				primihue = absoluteHue(from, primihue);
+			}
+
 			// whiteness
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primiwhite = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				primiwhite = absoluteComponent(from, primiwhite, false);
+			}
+
 			// blackness
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primiblackness = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				primiblackness = absoluteComponent(from, primiblackness, false);
+			}
+
 			// slash or null
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue alpha = null;
 			if (lu != null) {
 				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Expected slash in: " + lunit.toString());
+					throw new DOMSyntaxException("Expected slash in: " + lunit.toString());
 				}
 				lu = lu.getNextLexicalUnit(); // Alpha
 				alpha = factory.createCSSPrimitiveValue(lu, true);
+				if (from != null) {
+					alpha = absoluteComponent(from, alpha, false);
+				}
 				hwbColor.setAlpha(alpha);
 				lu = lu.getNextLexicalUnit();
 				if (lu != null) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+					throw new DOMSyntaxException("Invalid value: " + lunit.toString());
 				}
 			}
 			hwbColor.setHue(primihue);

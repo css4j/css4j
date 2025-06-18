@@ -301,6 +301,48 @@ public class ColorFunctionTest {
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
 	}
 
+	@Test
+	public void testSRGB_Relative() {
+		ValueFactory vf = new ValueFactory();
+		ColorValue val = (ColorValue) vf.parseProperty("color(from peru srgb r .333 b)");
+		RGBAColor rgb = val.toRGBColor();
+
+		// peru is rgb(80.392% 52.157% 24.706%)
+		assertEquals("color(srgb 0.8039 0.333 0.2471)", rgb.toString());
+	}
+
+	@Test
+	public void testSRGB_Relative_Calc() {
+		ValueFactory vf = new ValueFactory();
+		ColorValue val = (ColorValue) vf
+				.parseProperty("color(from peru srgb r .333 calc(b + 0.1))");
+		RGBAColor rgb = val.toRGBColor();
+
+		// peru is rgb(80.392% 52.157% 24.706%)
+		assertEquals("color(srgb 0.8039 0.333 0.34706)", rgb.toString());
+	}
+
+	@Test
+	public void testSRGB_Relative_A98_Calc() {
+		ValueFactory vf = new ValueFactory();
+		ColorValue val = (ColorValue) vf.parseProperty(
+				"color(from color(a98-rgb 0.73191 0.51718 0.27251) srgb r .333 calc(b + 0.1))");
+		RGBAColor rgb = val.toRGBColor();
+
+		assertEquals("color(srgb 0.804 0.333 0.34703)", rgb.toString());
+	}
+
+	@Test
+	public void testSRGB_Relative_P3A98_Calc() {
+		ValueFactory vf = new ValueFactory();
+		ColorValue val = (ColorValue) vf.parseProperty(
+				"color(from color(a98-rgb 0.73191 0.51718 0.27251) display-p3 r .233 calc(b + 0.1))");
+		CSSColor color = val.getColor();
+
+		// ref color is color(display-p3 0.763466 0.534159 0.298858)
+		assertEquals("color(display-p3 0.763466 0.233 0.39886)", color.toString());
+	}
+
 	/*
 	 * This is detected at NSAC level, but check here just in case
 	 */
@@ -353,10 +395,14 @@ public class ColorFunctionTest {
 		RGBAColor rgb = (RGBAColor) val.getColor();
 		assertEquals(ColorSpace.srgb_linear, rgb.getColorSpace());
 		assertEquals(ColorModel.RGB, rgb.getColorModel());
-		assertEquals(0.0314f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
-		assertEquals(0.24706f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
-		assertEquals(0.99542f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
-		assertEquals(1f, (((CSSTypedValue) rgb.getAlpha())).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
+		assertEquals(0.0314f, ((CSSTypedValue) rgb.getRed()).getFloatValue(CSSUnit.CSS_NUMBER),
+				1e-6f);
+		assertEquals(0.24706f, ((CSSTypedValue) rgb.getGreen()).getFloatValue(CSSUnit.CSS_NUMBER),
+				1e-6f);
+		assertEquals(0.99542f, ((CSSTypedValue) rgb.getBlue()).getFloatValue(CSSUnit.CSS_NUMBER),
+				1e-6f);
+		assertEquals(1f, (((CSSTypedValue) rgb.getAlpha())).getFloatValue(CSSUnit.CSS_NUMBER),
+				1e-6f);
 
 		assertTrue(rgb.isInGamut(ColorSpace.srgb));
 		assertTrue(rgb.isInGamut(ColorSpace.srgb_linear));
@@ -381,7 +427,7 @@ public class ColorFunctionTest {
 		CSSColor prophoto = rgb.toColorSpace(ColorSpace.prophoto_rgb);
 		assertNotNull(prophoto);
 		assertEquals(CSSColorValue.ColorModel.RGB, prophoto.getColorModel());
-		assertEquals("color(prophoto-rgb 0.4506 0.4598 0.9381)", prophoto.toString());
+		assertEquals("color(prophoto-rgb 0.450606 0.459769 0.938065)", prophoto.toString());
 
 		double[] xyz = rgb.toXYZ(Illuminants.whiteD50);
 		double[] sxyz = srgb.toXYZ(Illuminants.whiteD50);
@@ -797,10 +843,10 @@ public class ColorFunctionTest {
 		assertEquals("color(display-p3 0.0314 0.24706 1)", identColor.toString());
 
 		CSSColor recColor = rgb.toColorSpace(ColorSpace.rec2020);
-		assertEquals("color(rec2020 0.2089 0.2092 0.9923)", recColor.toString());
+		assertEquals("color(rec2020 0.208917 0.209249 0.992288)", recColor.toString());
 
 		CSSColor roundTripColor = recColor.toColorSpace(ColorSpace.display_p3);
-		assertEquals("color(display-p3 0.0314 0.2471 1)", roundTripColor.toString());
+		assertEquals("color(display-p3 0.0314 0.24706 1)", roundTripColor.toString());
 
 		// to XYZ D50
 		CSSColor xyz = rgb.toColorSpace(ColorSpace.xyz_d50);
@@ -1729,7 +1775,7 @@ public class ColorFunctionTest {
 		assertEquals(0f, ((CSSTypedValue) pcolor.item(1)).getFloatValue(CSSUnit.CSS_NUMBER), 1e-6f);
 
 		CSSColor roundTripColor = pcolor.toColorSpace(ColorSpace.a98_rgb);
-		assertEquals("color(a98-rgb 0.0976 0.2464 0.5659)", roundTripColor.toString());
+		assertEquals("color(a98-rgb 0.097611 0.246408 0.565882)", roundTripColor.toString());
 
 		// Conversion to A98-linear
 		assertTrue(color.isInGamut("--a98-rgb-linear"));
@@ -1739,7 +1785,7 @@ public class ColorFunctionTest {
 		assertEquals("color(--a98-rgb-linear 0.000495 0.0462 0.286015)", pcolor.toString());
 
 		roundTripColor = pcolor.toColorSpace(ColorSpace.a98_rgb);
-		assertEquals("color(a98-rgb 0.0314 0.2471 0.566)", roundTripColor.toString());
+		assertEquals("color(a98-rgb 0.0314 0.24706 0.566)", roundTripColor.toString());
 
 		// Conversion to Rec2020-linear
 		assertTrue(color.isInGamut("--rec2020-linear"));
@@ -1749,7 +1795,7 @@ public class ColorFunctionTest {
 		assertEquals("color(--rec2020-linear 0.01693 0.044624 0.269146)", pcolor.toString());
 
 		roundTripColor = pcolor.toColorSpace(ColorSpace.a98_rgb);
-		assertEquals("color(a98-rgb 0.0314 0.2471 0.566)", roundTripColor.toString());
+		assertEquals("color(a98-rgb 0.0314 0.24706 0.566)", roundTripColor.toString());
 
 		// Conversion to Prophoto-linear
 		pcolor = color.toColorSpace("--prophoto-rgb-linear");
@@ -1758,7 +1804,7 @@ public class ColorFunctionTest {
 		assertEquals("color(--prophoto-rgb-linear 0.047532 0.046956 0.261579)", pcolor.toString());
 
 		roundTripColor = pcolor.toColorSpace(ColorSpace.a98_rgb);
-		assertEquals("color(a98-rgb 0.0314 0.2471 0.566)", roundTripColor.toString());
+		assertEquals("color(a98-rgb 0.0314 0.24706 0.566)", roundTripColor.toString());
 	}
 
 	@Test

@@ -11,18 +11,22 @@
 
 package io.sf.carte.doc.style.css.property;
 
-import org.w3c.dom.DOMException;
+import io.sf.carte.doc.DOMHierarchyRequestException;
 
 /**
  * This exception can be used to force a set of lexical units to be processed as
  * a lexical value.
  */
-public class CSSLexicalProcessingException extends DOMException {
+public class CSSLexicalProcessingException extends DOMHierarchyRequestException {
 
 	private static final long serialVersionUID = 1L;
 
+	public CSSLexicalProcessingException() {
+		super("PROXY value found.");
+	}
+
 	public CSSLexicalProcessingException(String message) {
-		super(DOMException.HIERARCHY_REQUEST_ERR, message);
+		super(message);
 	}
 
 }

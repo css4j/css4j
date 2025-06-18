@@ -17,6 +17,7 @@ import java.util.HashSet;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.style.css.CSSFontFaceRule;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue;
@@ -97,7 +98,7 @@ public class TestStyleDatabase extends AbstractStyleDatabase {
 		} else if (fontSizeIdentifier.equals("xx-large")) {
 			sz = 24f;
 		} else {
-			throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+			throw new DOMInvalidAccessException(
 					"Unknown size identifier: " + fontSizeIdentifier);
 		}
 		return sz;

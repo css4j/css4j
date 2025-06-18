@@ -35,6 +35,7 @@ import java.util.StringTokenizer;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.BooleanCondition.Type;
 import io.sf.carte.doc.style.css.BooleanConditionFactory;
@@ -458,7 +459,7 @@ public class CSSParser implements Parser, Cloneable {
 				if (psitem != null) {
 					list.add(psitem);
 				} else {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Bad page selector: " + s);
+					throw new DOMSyntaxException("Invalid page selector: " + s);
 				}
 			}
 		}
@@ -1428,7 +1429,8 @@ public class CSSParser implements Parser, Cloneable {
 
 			private void warnAndSetFalseCondition(int index, String propertyName, String svalue,
 					Exception e) {
-				handleWarning(index, ParseHelper.WARN_VALUE, "Bad @supports condition value.", e);
+				handleWarning(index, ParseHelper.WARN_VALUE, "Invalid @supports condition value.",
+						e);
 				// Replace the failed condition, maybe it's valid CSS
 				StringBuilder buf = new StringBuilder(32);
 				buf.append('(').append(propertyName).append(':').append(svalue).append(')');

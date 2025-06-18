@@ -19,6 +19,9 @@ import java.util.List;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
+import io.sf.carte.doc.DOMNotSupportedException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.LinkedStringList;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSGroupingRule;
@@ -112,8 +115,7 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 		return index;
 	}
 
-	void parseRule(Reader reader, Parser parser)
-			throws DOMException, IOException {
+	void parseRule(Reader reader, Parser parser) throws DOMException, IOException {
 		try {
 			parser.parseRule(reader);
 		} catch (CSSNamespaceParseException e) {
@@ -121,18 +123,12 @@ abstract public class GroupingRule extends BaseCSSRule implements CSSGroupingRul
 			ex.initCause(e);
 			throw ex;
 		} catch (CSSBudgetException e) {
-			DOMException ex = new DOMException(DOMException.NOT_SUPPORTED_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMNotSupportedException(e.getMessage(), e);
 		} catch (CSSParseException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, "Parse error at ["
-				+ e.getLineNumber() + ',' + e.getColumnNumber() + "]: " + e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException("Parse error at [" + e.getLineNumber() + ','
+					+ e.getColumnNumber() + "]: " + e.getMessage(), e);
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.INVALID_ACCESS_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMInvalidAccessException(e.getMessage(), e);
 		} catch (DOMException e) {
 			// Handler may produce DOM exceptions
 			throw e;

@@ -70,6 +70,34 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	}
 
 	@Override
+	public NumberValue component(String component) {
+		NumberValue ret;
+		switch (component) {
+		case "l":
+			float pcntDiv;
+			if (Space.OK_LCh.equals(colorSpace)) {
+				pcntDiv = 100f;
+			} else {
+				pcntDiv = 1f;
+			}
+			ret = numberComponent((CSSTypedValue) getLightness(), pcntDiv);
+			break;
+		case "c":
+			ret = numberComponent((CSSTypedValue) getChroma(), 100f);
+			break;
+		case "h":
+			ret = hueComponent((CSSTypedValue) getHue());
+			break;
+		case "alpha":
+			ret = numberComponent((CSSTypedValue) alpha, 100f);
+			break;
+		default:
+			return null;
+		}
+		return ret;
+	}
+
+	@Override
 	public PrimitiveValue item(int index) {
 		switch (index) {
 		case 0:
@@ -153,6 +181,23 @@ class LCHColorImpl extends BaseColor implements LCHColor {
 	boolean hasConvertibleComponents() {
 		return isConvertibleComponent(getChroma()) && isConvertibleComponent(getHue())
 				&& isConvertibleComponent(getLightness());
+	}
+
+	@Override
+	boolean hasPercentageComponent() {
+		return (lightness != null && lightness.getUnitType() == CSSUnit.CSS_PERCENTAGE)
+				|| (chroma != null && chroma.getUnitType() == CSSUnit.CSS_PERCENTAGE);
+	}
+
+	@Override
+	int getMaximumFractionDigits() {
+		int digits;
+		if (getSpace() == Space.OK_LCh) {
+			digits = 6;
+		} else {
+			digits = 4;
+		}
+		return digits;
 	}
 
 	@Override

@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSDeclarationRule;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.CSSStyleRule;
@@ -169,9 +170,7 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 		try {
 			selist = parser.parseSelectors(selectorText, getParentStyleSheet());
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException(e);
 		}
 		setSelectorList(selist);
 	}

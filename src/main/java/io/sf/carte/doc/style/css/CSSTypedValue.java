@@ -14,6 +14,8 @@ package io.sf.carte.doc.style.css;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
+
 /**
  * A typed value.
  * <p>
@@ -32,7 +34,9 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	 *                      NO_MODIFICATION_ALLOWED_ERR if this value is
 	 *                      unmodifiable.
 	 */
-	void setFloatValue(short unitType, float floatValue) throws DOMException;
+	default void setFloatValue(short unitType, float floatValue) throws DOMException {
+		throw new DOMInvalidAccessException("Not a float value.");
+	}
 
 	/**
 	 * If this is a number, get its float value in the requested unit.
@@ -56,7 +60,7 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	 *                      for which a context is needed).
 	 */
 	default float getFloatValue() {
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not a float value.");
+		throw new DOMInvalidAccessException("Not a float value.");
 	}
 
 	/**
@@ -75,7 +79,12 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	 *                      NO_MODIFICATION_ALLOWED_ERR if this value is
 	 *                      unmodifiable.
 	 */
-	void setStringValue(Type stringType, String stringValue) throws DOMException;
+	default void setStringValue(Type stringType, String stringValue) throws DOMException {
+		if (stringType != getPrimitiveType()) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Type not supported.");
+		}
+		throw new DOMInvalidAccessException("Cannot be modified as a string.");
+	}
 
 	/**
 	 * If this value represents a string value, get it.
@@ -87,7 +96,9 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	 * @return the string value.
 	 * @throws DOMException INVALID_ACCESS_ERR if this value is not a string.
 	 */
-	String getStringValue() throws DOMException;
+	default String getStringValue() throws DOMException {
+		throw new DOMInvalidAccessException("Not a string/ident/URI.");
+	}
 
 	/**
 	 * If this value represents a color, get it or transform to a RGB color.
@@ -127,7 +138,9 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	 *                         NOT_SUPPORTED_ERR: if the conversion needs device
 	 *                         color space information to be performed accurately.
 	 */
-	RGBAColor toRGBColor() throws DOMException;
+	default RGBAColor toRGBColor() throws DOMException {
+		throw new DOMInvalidAccessException("Not a color.");
+	}
 
 	/**
 	 * Test whether this is a numeric value that was the result of a
@@ -137,14 +150,18 @@ public interface CSSTypedValue extends CSSPrimitiveValue {
 	 *         the output of a calculation (instead of declared as a plain, constant
 	 *         numeric value).
 	 */
-	boolean isCalculatedNumber();
+	default boolean isCalculatedNumber() {
+		return false;
+	}
 
 	/**
 	 * Is this value a number set to a value of zero ?
 	 *
 	 * @return <code>true</code> if this is a number and is set to zero.
 	 */
-	boolean isNumberZero();
+	default boolean isNumberZero() {
+		return false;
+	}
 
 	@Override
 	CSSTypedValue clone();

@@ -17,6 +17,7 @@ import java.io.StringReader;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
@@ -546,9 +547,7 @@ public class ValueFactory implements CSSValueFactory {
 		try {
 			lunit = parser.parsePropertyValue(propertyName, re);
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException(e);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
@@ -577,9 +576,7 @@ public class ValueFactory implements CSSValueFactory {
 		try {
 			lunit = parser.parsePropertyValue(re);
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException(e);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
@@ -660,16 +657,14 @@ public class ValueFactory implements CSSValueFactory {
 		try {
 			lunit = parser.parsePropertyValue(re);
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException(e);
 		} catch (IOException e) {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
 		LexicalSetter item = createCSSPrimitiveValueItem(lunit, true, false);
 		if (item.getNextLexicalUnit() != null) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Bad feature: " + feature);
+			throw new DOMSyntaxException("Invalid feature: " + feature);
 		}
 		return item.getCSSValue();
 	}
@@ -753,7 +748,7 @@ public class ValueFactory implements CSSValueFactory {
 						nlu = nlu.getNextLexicalUnit();
 						// Better check for null now
 						if (nlu == null) {
-							throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
+							throw new DOMSyntaxException("Unmatched '['");
 						}
 						ListValueItem listitem = parseBracketList(nlu, style, subproperty);
 						if (listitem != null) {
@@ -857,11 +852,11 @@ public class ValueFactory implements CSSValueFactory {
 						// Ignoring
 						nlu = nlu.getNextLexicalUnit();
 						if (nlu == null) {
-							throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
+							throw new DOMSyntaxException("Unmatched '['");
 						}
 					}
 				} else {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Unmatched '['");
+					throw new DOMSyntaxException("Unmatched '['");
 				}
 			}
 			if (listitem.list.getLength() != 0) {
@@ -1275,8 +1270,7 @@ public class ValueFactory implements CSSValueFactory {
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
 				break;
 			case OPERATOR_COMMA:
-				throw new DOMException(DOMException.SYNTAX_ERR,
-					"A comma is not a valid primitive");
+				throw new DOMSyntaxException("A comma is not a valid primitive");
 			case INHERIT:
 			case UNSET:
 			case REVERT:
@@ -1295,7 +1289,7 @@ public class ValueFactory implements CSSValueFactory {
 			case OPERATOR_COLON:
 			case OPERATOR_SEMICOLON:
 				if (!lunit.isParameter()) {
-					throw new DOMException(DOMException.SYNTAX_ERR,
+					throw new DOMSyntaxException(
 							"A '" + lunit.toString() + "' is not a valid primitive");
 				}
 			default:
@@ -1306,9 +1300,7 @@ public class ValueFactory implements CSSValueFactory {
 		} catch (DOMException e) {
 			throw e;
 		} catch (RuntimeException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR, e.getMessage());
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException(e);
 		}
 
 		primi.setSubproperty(subp);
@@ -1343,7 +1335,7 @@ public class ValueFactory implements CSSValueFactory {
 					}
 				}
 			} else {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Invalid ratio.");
+				throw new DOMSyntaxException("Invalid ratio.");
 			}
 		}
 		return setter;

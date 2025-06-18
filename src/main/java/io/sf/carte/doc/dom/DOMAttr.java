@@ -18,6 +18,7 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.TypeInfo;
 
+import io.sf.carte.doc.DOMHierarchyRequestException;
 import io.sf.carte.util.SimpleWriter;
 
 /**
@@ -41,7 +42,7 @@ abstract class DOMAttr extends NamespacedNode implements Attr {
 
 	@Override
 	void checkInsertNodeHierarchy(Node newChild, Node refNode) {
-		throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot append to attribute node");
+		throw new DOMHierarchyRequestException("Cannot append to attribute node");
 	}
 
 	@Override
@@ -99,7 +100,7 @@ abstract class DOMAttr extends NamespacedNode implements Attr {
 	 */
 	@Override
 	void setParentNode(AbstractDOMNode parentNode) throws DOMException {
-		throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Attributes do no have a parent node");
+		throw new DOMHierarchyRequestException("Attributes do no have a parent node");
 	}
 
 	@Override

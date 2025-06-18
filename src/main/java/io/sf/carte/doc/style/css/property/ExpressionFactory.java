@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.property;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSExpression;
 import io.sf.carte.doc.style.css.CSSExpression.AlgebraicPart;
 import io.sf.carte.doc.style.css.CSSPrimitiveValue;
@@ -91,7 +92,7 @@ public class ExpressionFactory {
 						expression = new SumExpression();
 						expression.nextOperandInverse = true;
 					} else {
-						throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
+						throw new DOMSyntaxException("Missing operand");
 					}
 				} else if (expression.getPartType() == AlgebraicPart.OPERAND) {
 					operation = new SumExpression();
@@ -112,7 +113,7 @@ public class ExpressionFactory {
 						expression = operation;
 					} else {
 						expression = parent; // Parent can only be sum with
-											 // current calc() syntax
+												// current calc() syntax
 						expression.nextOperandInverse = inverse;
 					}
 				}
@@ -121,7 +122,7 @@ public class ExpressionFactory {
 				inverse = true;
 			case OPERATOR_MULTIPLY:
 				if (expression == null) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Missing factor");
+					throw new DOMSyntaxException("Missing factor");
 				} else if (expression.getPartType() == AlgebraicPart.OPERAND) {
 					operation = new ProductExpression();
 					operation.addExpression(expression);
@@ -149,7 +150,7 @@ public class ExpressionFactory {
 			case SUB_EXPRESSION:
 				LexicalUnit subval = lu.getSubValues();
 				if (subval == null) {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Empty sub-expression");
+					throw new DOMSyntaxException("Empty sub-expression");
 				}
 				StyleExpression subexpr = createExpression(subval, factory);
 				if (subexpr != null) {
@@ -162,20 +163,21 @@ public class ExpressionFactory {
 						expression = subexpr;
 					}
 				} else {
-					throw new DOMException(DOMException.SYNTAX_ERR, "Bad subexpression");
+					throw new DOMSyntaxException("Invalid subexpression");
 				}
 				break;
 			case OPERATOR_COMMA: // We are probably in function context
 				if (nextLexicalUnit != null || expression.getParentExpression() != null) {
-					throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operand: ','");
+					throw new DOMException(DOMException.INVALID_CHARACTER_ERR,
+							"Invalid operand: ','");
 				}
 				nextLexicalUnit = lu;
 				return expression;
 			case IDENT:
 				String constname = lu.getStringValue();
-				CSSTypedValue typed = createConstant(constname);
+				CSSTypedValue typed = createConstantOrVariable(constname);
 				if (isInvalidOperand(typed, lutype, lastlutype)) {
-					throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operands");
+					throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid operands");
 				}
 				OperandExpression operand = new OperandExpression();
 				operand.setOperand(typed);
@@ -183,13 +185,16 @@ public class ExpressionFactory {
 				lastlutype = LexicalType.DIMENSION; // Equivalent to "operand"
 				lu = lu.getNextLexicalUnit();
 				continue;
+			case VAR:
+			case ATTR:
+				throw new CSSLexicalProcessingException();
 			case CALC:
 				if (isCalcValue()) {
 					// Handle as a subexpression
 					lutype = LexicalType.SUB_EXPRESSION;
 					subval = lu.getParameters();
 					if (subval == null) {
-						throw new DOMException(DOMException.SYNTAX_ERR, "Empty sub-calc()");
+						throw new DOMSyntaxException("Empty sub-calc()");
 					}
 					subexpr = createExpression(subval, factory);
 					if (subexpr != null) {
@@ -200,14 +205,14 @@ public class ExpressionFactory {
 							expression = subexpr;
 						}
 					} else {
-						throw new DOMException(DOMException.SYNTAX_ERR, "Invalid sub-calc()");
+						throw new DOMSyntaxException("Invalid sub-calc()");
 					}
 					break;
 				}
 			default:
 				CSSPrimitiveValue primi = factory.createCSSPrimitiveValue(lu);
 				if (isInvalidOperand(primi, lutype, lastlutype)) {
-					throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad operands");
+					throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid operands");
 				}
 				operand = new OperandExpression();
 				operand.setOperand(primi);
@@ -222,7 +227,7 @@ public class ExpressionFactory {
 
 		// Sanity check
 		if (isOperatorType(lastlutype)) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
+			throw new DOMSyntaxException("Missing operand");
 		}
 
 		if (expression.getParentExpression() != null) {
@@ -236,7 +241,7 @@ public class ExpressionFactory {
 		if (lastlutype != LexicalType.DIMENSION && lastlutype != LexicalType.REAL
 				&& lastlutype != LexicalType.INTEGER && lastlutype != LexicalType.SUB_EXPRESSION
 				&& lastlutype != LexicalType.ENV) {
-			throw new DOMException(DOMException.SYNTAX_ERR, "Missing operand");
+			throw new DOMSyntaxException("Missing operand");
 		}
 	}
 
@@ -246,7 +251,7 @@ public class ExpressionFactory {
 			expression = operand;
 		} else {
 			if (expression.getPartType() == AlgebraicPart.OPERAND) {
-				throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad expression");
+				throw new DOMException(DOMException.INVALID_CHARACTER_ERR, "Invalid expression");
 			} else {
 				expression.addExpression(operand);
 			}
@@ -275,15 +280,12 @@ public class ExpressionFactory {
 		return false;
 	}
 
-	private TypedValue createConstant(String constname) {
+	private TypedValue createConstantOrVariable(String constname) {
 		NumberValue number = new NumberValue();
 		if ("pi".equalsIgnoreCase(constname)) {
 			number.setFloatValue(CSSUnit.CSS_NUMBER, (float) Math.PI);
 		} else if ("e".equalsIgnoreCase(constname)) {
 			number.setFloatValue(CSSUnit.CSS_NUMBER, (float) Math.E);
-		} else if (isCalcValue()) {
-			throw new DOMException(DOMException.INVALID_CHARACTER_ERR,
-					"Unknown constant: " + constname);
 		} else {
 			IdentifierValue ident = new IdentifierValue();
 			ident.setStringValue(Type.IDENT, constname);

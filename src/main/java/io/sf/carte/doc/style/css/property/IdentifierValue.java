@@ -17,6 +17,7 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.RGBAColor;
@@ -73,12 +74,15 @@ public class IdentifierValue extends AbstractTextValue {
 		} catch (IOException e) {
 			lu = null;
 		} catch (CSSException e) {
-			DOMException ex = new DOMException(DOMException.INVALID_CHARACTER_ERR, "Bad identifier: " + cssText);
+			DOMException ex = new DOMException(DOMException.INVALID_CHARACTER_ERR,
+					"Invalid identifier: " + cssText);
 			ex.initCause(e);
 			throw ex;
 		}
-		if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.IDENT || lu.getNextLexicalUnit() != null) {
-			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "Not an identifier: " + cssText);
+		if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.IDENT
+				|| lu.getNextLexicalUnit() != null) {
+			throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
+					"Not an identifier: " + cssText);
 		}
 		LexicalSetter setter = newLexicalSetter();
 		setter.setLexicalUnit(lu);
@@ -152,7 +156,7 @@ public class IdentifierValue extends AbstractTextValue {
 			} catch (DOMException e) {
 			}
 		}
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Not an RGB Color");
+		throw new DOMInvalidAccessException("Not an RGB Color");
 	}
 
 	@Override

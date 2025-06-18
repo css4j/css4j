@@ -25,6 +25,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import org.w3c.dom.UserDataHandler;
 
+import io.sf.carte.doc.DOMHierarchyRequestException;
 import io.sf.carte.doc.style.css.CSSDocument;
 
 /**
@@ -207,7 +208,7 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 
 	void checkInsertNode(Node newChild, Node refNode) {
 		if (newChild.getNodeType() == Node.DOCUMENT_NODE) {
-			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot append a document.");
+			throw new DOMHierarchyRequestException("Cannot append a document.");
 		}
 		checkInsertNodeHierarchy(newChild, refNode);
 		checkDocumentOwner(newChild);
@@ -215,12 +216,12 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 
 	void checkInsertNodeHierarchy(Node newChild, Node refNode) {
 		if (newChild.getNodeType() == Node.ATTRIBUTE_NODE) {
-			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Use setAttributeNode to add attribute nodes.");
+			throw new DOMHierarchyRequestException("Use setAttributeNode to add attribute nodes.");
 		}
 		Node node = this;
 		while (node != null) {
 			if (node.isSameNode(newChild)) {
-				throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot insert itself or an ancestor.");
+				throw new DOMHierarchyRequestException("Cannot insert itself or an ancestor.");
 			}
 			node = node.getParentNode();
 		}
@@ -241,7 +242,7 @@ abstract class AbstractDOMNode implements DOMNode, java.io.Serializable {
 
 	void checkReplaceNode(Node newChild, Node oldNode) {
 		if (newChild.getNodeType() == Node.DOCUMENT_NODE) {
-			throw new DOMException(DOMException.HIERARCHY_REQUEST_ERR, "Cannot append a document.");
+			throw new DOMHierarchyRequestException("Cannot append a document.");
 		}
 		checkReplaceNodeHierarchy(newChild, oldNode);
 		checkDocumentOwner(newChild);

@@ -17,6 +17,7 @@ import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMInvalidAccessException;
 import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
@@ -51,6 +52,9 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 
 	private int maxFractionDigits = -1; // -1 means auto
 
+	/**
+	 * Instantiates a number value which is set to {@code CSS_NUMBER} by default.
+	 */
 	public NumberValue() {
 		super(Type.NUMERIC);
 		this.unitType = CSSUnit.CSS_NUMBER;
@@ -76,6 +80,7 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 
 	void setUnitType(short unitType) {
 		this.unitType = unitType;
+		dimensionUnitText = CSSUnit.dimensionUnitString(unitType);
 	}
 
 	@Override
@@ -222,13 +227,12 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 		checkModifiableProperty();
 		setUnitType(unitType);
 		realvalue = floatValue;
-		dimensionUnitText = CSSUnit.dimensionUnitString(unitType);
 		asInteger = unitType == CSSUnit.CSS_NUMBER && ((float) Math.rint(floatValue)) == realvalue;
 		lengthUnitType = CSSUnit.isLengthUnitType(unitType);
 	}
 
 	public void setFloatValuePt(float floatValue) {
-		setUnitType(CSSUnit.CSS_PT);
+		unitType = CSSUnit.CSS_PT;
 		realvalue = floatValue;
 		dimensionUnitText = "pt";
 		asInteger = false;
@@ -237,7 +241,8 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 
 	public void setIntegerValue(int intValue) {
 		realvalue = intValue;
-		setUnitType(CSSUnit.CSS_NUMBER);
+		unitType = CSSUnit.CSS_NUMBER;
+		dimensionUnitText = "";
 		asInteger = true;
 		lengthUnitType = false;
 	}
@@ -307,6 +312,7 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 	 * 
 	 * @param maxFractionDigits the maximum fraction digits.
 	 */
+	@Override
 	public void setMaximumFractionDigits(int maxFractionDigits) {
 		this.maxFractionDigits = maxFractionDigits;
 	}
@@ -612,7 +618,7 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 			requestedUnitStr = '<' + Integer.toString(unitType) + '>';
 		}
 
-		throw new DOMException(DOMException.INVALID_ACCESS_ERR,
+		throw new DOMInvalidAccessException(
 				"Cannot transform unit " + unit + " to " + requestedUnitStr);
 	}
 
@@ -677,13 +683,13 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 			case INTEGER:
 				realvalue = lunit.getIntegerValue();
 				asInteger = true;
-				setUnitType(CSSUnit.CSS_NUMBER);
+				NumberValue.this.unitType = CSSUnit.CSS_NUMBER;
 				break;
 			default:
 				realvalue = lunit.getFloatValue();
 				asInteger = false;
 				dimensionUnitText = lunit.getDimensionUnitText();
-				setUnitType(lunit.getCssUnit());
+				NumberValue.this.unitType = lunit.getCssUnit();
 			}
 		}
 

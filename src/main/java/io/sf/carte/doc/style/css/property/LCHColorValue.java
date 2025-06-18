@@ -15,6 +15,8 @@ import java.io.IOException;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMSyntaxException;
+import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
@@ -22,6 +24,7 @@ import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.LCHColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
+import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.property.BaseColor.Space;
 import io.sf.carte.util.SimpleWriter;
 
@@ -111,7 +114,7 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		float h;
 		short unit = primihue.getUnitType();
 		if (unit == CSSUnit.CSS_NUMBER) {
-			h = primihue.getFloatValue(CSSUnit.CSS_NUMBER);
+			h = primihue.getFloatValue();
 			h = NumberValue.floatValueConversion(h, CSSUnit.CSS_DEG, CSSUnit.CSS_RAD);
 		} else {
 			h = primihue.getFloatValue(CSSUnit.CSS_RAD);
@@ -208,7 +211,7 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			} catch (DOMException e) {
 				throw e;
 			} catch (RuntimeException e) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+				throw new DOMSyntaxException("Invalid value: " + lunit.toString());
 			}
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
@@ -216,31 +219,57 @@ public class LCHColorValue extends ColorValue implements io.sf.carte.doc.style.c
 		private void setLexicalLCH(LexicalUnit lunit) {
 			LexicalUnit lu = lunit.getParameters();
 			ValueFactory factory = new ValueFactory();
+			CSSColor from = null;
+
+			// from?
+			if (lu.getLexicalUnitType() == LexicalType.IDENT) {
+				if ("from".equalsIgnoreCase(lu.getStringValue())) {
+					lu = nextLexicalUnit(lu, lunit);
+					PrimitiveValue fromval = factory.createCSSPrimitiveValue(lu, true);
+					from = computeColor(fromval, factory);
+					String cs = from.getColorSpace();
+					if (!cs.equals(ColorSpace.cie_lch)) {
+						from = from.toColorSpace(ColorSpace.cie_lch);
+					}
+					lu = nextLexicalUnit(lu, lunit);
+				}
+			}
+
 			// lightness
 			PrimitiveValue primilight = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				primilight = absoluteComponent(from, primilight, false);
+			}
 
 			// chroma
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primichroma = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				primichroma = absoluteComponent(from, primichroma, false);
+			}
 
 			// hue
 			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primihue = factory.createCSSPrimitiveValue(lu, true);
+			if (from != null) {
+				primihue = absoluteHue(from, primihue);
+			}
 
 			// slash or null
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
 				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
-					throw new DOMException(DOMException.SYNTAX_ERR,
-							"Expected slash in: " + lunit.toString());
+					throw new DOMSyntaxException("Expected slash in: " + lunit.toString());
 				}
 				lu = lu.getNextLexicalUnit(); // Alpha
 				PrimitiveValue alpha = factory.createCSSPrimitiveValue(lu, true);
+				if (from != null) {
+					alpha = absoluteComponent(from, alpha, false);
+				}
 				lchColor.setAlpha(alpha);
 				lu = lu.getNextLexicalUnit();
 				if (lu != null) {
-					throw new DOMException(DOMException.SYNTAX_ERR,
-							"Bad value: " + lunit.toString());
+					throw new DOMSyntaxException("Invalid value: " + lunit.toString());
 				}
 			}
 			lchColor.setLightness(primilight);

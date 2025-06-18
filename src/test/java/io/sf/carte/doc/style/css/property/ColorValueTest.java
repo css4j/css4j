@@ -137,25 +137,25 @@ public class ColorValueTest {
 		CSSColor a98rgb = rgb.toColorSpace(ColorSpace.a98_rgb);
 		assertNotNull(a98rgb);
 		assertEquals(CSSColorValue.ColorModel.RGB, a98rgb.getColorModel());
-		assertEquals("color(a98-rgb 0.1532 0.2561 0.9436)", a98rgb.toString());
+		assertEquals("color(a98-rgb 0.153224 0.256144 0.943633)", a98rgb.toString());
 
 		// To Display P3
 		CSSColor display_p3 = rgb.toColorSpace(ColorSpace.display_p3);
 		assertNotNull(display_p3);
 		assertEquals(CSSColorValue.ColorModel.RGB, display_p3.getColorModel());
-		assertEquals("color(display-p3 0.1066 0.2438 0.9249)", display_p3.toString());
+		assertEquals("color(display-p3 0.106585 0.243843 0.924885)", display_p3.toString());
 
 		// To Prophoto RGB
 		CSSColor prophoto = rgb.toColorSpace(ColorSpace.prophoto_rgb);
 		assertNotNull(prophoto);
 		assertEquals(CSSColorValue.ColorModel.RGB, prophoto.getColorModel());
-		assertEquals("color(prophoto-rgb 0.3442 0.2278 0.8825)", prophoto.toString());
+		assertEquals("color(prophoto-rgb 0.344246 0.227768 0.882521)", prophoto.toString());
 
 		// To REC 2020
 		CSSColor rec2020 = rgb.toColorSpace(ColorSpace.rec2020);
 		assertNotNull(rec2020);
 		assertEquals(CSSColorValue.ColorModel.RGB, rec2020.getColorModel());
-		assertEquals("color(rec2020 0.2055 0.2026 0.9087)", rec2020.toString());
+		assertEquals("color(rec2020 0.20548 0.202572 0.908655)", rec2020.toString());
 
 		// To XYZ
 		CSSColor xyz = rgb.toColorSpace(ColorSpace.xyz);
@@ -343,25 +343,25 @@ public class ColorValueTest {
 		CSSColor a98rgb = rgb.toColorSpace(ColorSpace.a98_rgb);
 		assertNotNull(a98rgb);
 		assertEquals(CSSColorValue.ColorModel.RGB, a98rgb.getColorModel());
-		assertEquals("color(a98-rgb 0.6475 0.5905 0.1952 / 0.2275)", a98rgb.toString());
+		assertEquals("color(a98-rgb 0.647458 0.590538 0.195186 / 0.2275)", a98rgb.toString());
 
 		// To Display P3
 		CSSColor display_p3 = rgb.toColorSpace(ColorSpace.display_p3);
 		assertNotNull(display_p3);
 		assertEquals(CSSColorValue.ColorModel.RGB, display_p3.getColorModel());
-		assertEquals("color(display-p3 0.6614 0.5989 0.2311 / 0.2275)", display_p3.toString());
+		assertEquals("color(display-p3 0.661417 0.598901 0.231103 / 0.2275)", display_p3.toString());
 
 		// To Prophoto RGB
 		CSSColor prophoto = rgb.toColorSpace(ColorSpace.prophoto_rgb);
 		assertNotNull(prophoto);
 		assertEquals(CSSColorValue.ColorModel.RGB, prophoto.getColorModel());
-		assertEquals("color(prophoto-rgb 0.5348 0.5266 0.2038 / 0.2275)", prophoto.toString());
+		assertEquals("color(prophoto-rgb 0.534775 0.526612 0.203774 / 0.2275)", prophoto.toString());
 
 		// To REC 2020
 		CSSColor rec2020 = rgb.toColorSpace(ColorSpace.rec2020);
 		assertNotNull(rec2020);
 		assertEquals(CSSColorValue.ColorModel.RGB, rec2020.getColorModel());
-		assertEquals("color(rec2020 0.5973 0.5566 0.1811 / 0.2275)", rec2020.toString());
+		assertEquals("color(rec2020 0.597318 0.556611 0.18111 / 0.2275)", rec2020.toString());
 
 		// To XYZ
 		CSSColor xyz = rgb.toColorSpace(ColorSpace.xyz);
@@ -726,10 +726,46 @@ public class ColorValueTest {
 	}
 
 	@Test
+	public void testRGBRelative() throws IOException {
+		style.setCssText("color: rgb(from darkblue 16 32 b / 0.5)");
+		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
+		assertNotNull(val);
+		assertEquals("rgb(16 32 139 / 0.5)", val.getCssText());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testRGBRelativeCalc() throws IOException {
+		style.setCssText("color: rgb(from darkblue 16 32 calc(b - 100) / 0.5)");
+		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
+		assertNotNull(val);
+		assertEquals("rgb(16 32 39 / 0.5)", val.getCssText());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testRGBRelativeHSL() throws IOException {
+		// hsl(40 78% 28%) = rgb(49.84% 35.28% 6.16%)
+		style.setCssText("color: rgb(from hsl(40 78% 28%) r 80 b)");
+		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
+		assertNotNull(val);
+		assertEquals("rgb(127.092 80 15.708)", val.getCssText());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
 	public void testHSLColorModel() throws IOException {
 		style.setCssText("color: hsl(120 100% 50%); ");
 		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
 		assertNotNull(val);
+
+		CSSColor hsl = val.getColor();
 
 		RGBAColor rgb = val.toRGBColor();
 		assertNotNull(rgb);
@@ -737,79 +773,79 @@ public class ColorValueTest {
 		assertEquals("color: hsl(120 100% 50%); ", style.getCssText());
 
 		// To sRGB
-		CSSColor srgb = rgb.toColorSpace(ColorSpace.srgb);
+		CSSColor srgb = hsl.toColorSpace(ColorSpace.srgb);
 		assertNotNull(srgb);
 		assertEquals(CSSColorValue.ColorModel.RGB, srgb.getColorModel());
 		assertEquals("#0f0", srgb.toString());
 
 		// HSL
-		CSSColor hsl = rgb.toColorSpace("hsl");
-		assertNotNull(hsl);
-		assertEquals(CSSColorValue.ColorModel.HSL, hsl.getColorModel());
-		assertEquals("hsl(120, 100%, 50%)", hsl.toString());
+		CSSColor hslback = rgb.toColorSpace("hsl");
+		assertNotNull(hslback);
+		assertEquals(CSSColorValue.ColorModel.HSL, hslback.getColorModel());
+		assertEquals("hsl(120, 100%, 50%)", hslback.toString());
 
 		// HWB
-		CSSColor hwb = rgb.toColorSpace("hwb");
+		CSSColor hwb = hsl.toColorSpace("hwb");
 		assertNotNull(hwb);
 		assertEquals(CSSColorValue.ColorModel.HWB, hwb.getColorModel());
 		assertEquals("hwb(120 0% 0%)", hwb.toString());
 
 		// To A98 RGB
-		CSSColor a98rgb = rgb.toColorSpace(ColorSpace.a98_rgb);
+		CSSColor a98rgb = hsl.toColorSpace(ColorSpace.a98_rgb);
 		assertNotNull(a98rgb);
 		assertEquals(CSSColorValue.ColorModel.RGB, a98rgb.getColorModel());
-		assertEquals("color(a98-rgb 0.5649 1 0.2344)", a98rgb.toString());
+		assertEquals("color(a98-rgb 0.564945 1 0.234448)", a98rgb.toString());
 
 		// To Display P3
-		CSSColor display_p3 = rgb.toColorSpace(ColorSpace.display_p3);
+		CSSColor display_p3 = hsl.toColorSpace(ColorSpace.display_p3);
 		assertNotNull(display_p3);
 		assertEquals(CSSColorValue.ColorModel.RGB, display_p3.getColorModel());
-		assertEquals("color(display-p3 0.4584 0.9853 0.2983)", display_p3.toString());
+		assertEquals("color(display-p3 0.458375 0.985272 0.298327)", display_p3.toString());
 
 		// To Prophoto RGB
-		CSSColor prophoto = rgb.toColorSpace(ColorSpace.prophoto_rgb);
+		CSSColor prophoto = hsl.toColorSpace(ColorSpace.prophoto_rgb);
 		assertNotNull(prophoto);
 		assertEquals(CSSColorValue.ColorModel.RGB, prophoto.getColorModel());
-		assertEquals("color(prophoto-rgb 0.5402 0.9276 0.3046)", prophoto.toString());
+		assertEquals("color(prophoto-rgb 0.540216 0.927609 0.304589)", prophoto.toString());
 
 		// To REC 2020
-		CSSColor rec2020 = rgb.toColorSpace(ColorSpace.rec2020);
+		CSSColor rec2020 = hsl.toColorSpace(ColorSpace.rec2020);
 		assertNotNull(rec2020);
 		assertEquals(CSSColorValue.ColorModel.RGB, rec2020.getColorModel());
-		assertEquals("color(rec2020 0.5675 0.9593 0.269)", rec2020.toString());
+		assertEquals("color(rec2020 0.567518 0.959285 0.269005)", rec2020.toString());
 
 		// To XYZ
-		CSSColor xyz = rgb.toColorSpace(ColorSpace.xyz);
+		CSSColor xyz = hsl.toColorSpace(ColorSpace.xyz);
 		assertNotNull(xyz);
 		assertEquals(CSSColorValue.ColorModel.XYZ, xyz.getColorModel());
 		assertEquals("color(xyz 0.35758 0.71517 0.11919)", xyz.toString());
 
 		// To XYZ D50
-		CSSColor xyzD50 = rgb.toColorSpace(ColorSpace.xyz_d50);
+		CSSColor xyzD50 = hsl.toColorSpace(ColorSpace.xyz_d50);
 		assertNotNull(xyzD50);
 		assertEquals(CSSColorValue.ColorModel.XYZ, xyzD50.getColorModel());
 		assertEquals("color(xyz-d50 0.38507 0.7169 0.09711)", xyzD50.toString());
 
 		// To OK Lab
-		CSSColor ok_lab = rgb.toColorSpace(ColorSpace.ok_lab);
+		CSSColor ok_lab = hsl.toColorSpace(ColorSpace.ok_lab);
 		assertNotNull(ok_lab);
 		assertEquals(CSSColorValue.ColorModel.LAB, ok_lab.getColorModel());
 		assertEquals("oklab(0.866439 -0.23392 0.17942)", ok_lab.toString());
 
 		// To OK LCh
-		CSSColor ok_lch = rgb.toColorSpace(ColorSpace.ok_lch);
+		CSSColor ok_lch = hsl.toColorSpace(ColorSpace.ok_lch);
 		assertNotNull(ok_lch);
 		assertEquals(CSSColorValue.ColorModel.LCH, ok_lch.getColorModel());
 		assertEquals("oklch(0.866439 0.2948 142.511)", ok_lch.toString());
 
 		// To CIE Lab
-		CSSColor cie_lab = rgb.toColorSpace(ColorSpace.cie_lab);
+		CSSColor cie_lab = hsl.toColorSpace(ColorSpace.cie_lab);
 		assertNotNull(cie_lab);
 		assertEquals(CSSColorValue.ColorModel.LAB, cie_lab.getColorModel());
 		assertEquals("lab(87.8189 -79.28789 80.99087)", cie_lab.toString());
 
 		// To CIE LCh
-		CSSColor cie_lch = rgb.toColorSpace(ColorSpace.cie_lch);
+		CSSColor cie_lch = hsl.toColorSpace(ColorSpace.cie_lch);
 		assertNotNull(cie_lch);
 		assertEquals(CSSColorValue.ColorModel.LCH, cie_lch.getColorModel());
 		assertEquals("lch(87.8189 113.3406 134.391)", cie_lch.toString());
@@ -1301,6 +1337,30 @@ public class ColorValueTest {
 	}
 
 	@Test
+	public void testHSLRelative() throws IOException {
+		// peru is hsl(29.577 58.678% 52.549%)
+		style.setCssText("color: hsl(from peru h 32% l / 0.5)");
+		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
+		assertNotNull(val);
+		assertEquals("hsl(29.577 32% 52.549% / 0.5)", val.getCssText());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testHSLRelativeCalc() throws IOException {
+		// peru is hsl(29.577 58.678% 52.549%)
+		style.setCssText("color: hsl(from peru calc(2*h) 32% calc(l - 25) / 0.5)");
+		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
+		assertNotNull(val);
+		assertEquals("hsl(59.154 32% 27.549% / 0.5)", val.getCssText());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
 	public void testHWBColorModel() throws IOException {
 		style.setCssText("color: hwb(205 19% 14%);");
 		CSSValue value = style.getPropertyCSSValue("color");
@@ -1354,13 +1414,13 @@ public class ColorValueTest {
 		assertEquals(Match.TRUE, value.matches(syn));
 
 		// To sRGB
-		CSSColor srgb = rgb.toColorSpace(ColorSpace.srgb);
+		CSSColor srgb = hwb.toColorSpace(ColorSpace.srgb);
 		assertNotNull(srgb);
 		assertEquals(CSSColorValue.ColorModel.RGB, srgb.getColorModel());
 		assertEquals("rgb(19%, 58.08%, 86%)", srgb.toString());
 
 		// HSL
-		CSSColor hsl = rgb.toColorSpace("hsl");
+		CSSColor hsl = hwb.toColorSpace("hsl");
 		assertNotNull(hsl);
 		assertEquals(CSSColorValue.ColorModel.HSL, hsl.getColorModel());
 		assertEquals("hsl(205, 70.53%, 52.5%)", hsl.toString());
@@ -1374,39 +1434,39 @@ public class ColorValueTest {
 		assertEquals("hwb(205 19% 14%)", hwbConv.toString());
 
 		// To A98 RGB
-		CSSColor a98rgb = rgb.toColorSpace(ColorSpace.a98_rgb);
+		CSSColor a98rgb = hwb.toColorSpace(ColorSpace.a98_rgb);
 		assertNotNull(a98rgb);
 		assertEquals(CSSColorValue.ColorModel.RGB, a98rgb.getColorModel());
-		assertEquals("color(a98-rgb 0.3604 0.5755 0.8468)", a98rgb.toString());
+		assertEquals("color(a98-rgb 0.36041 0.575464 0.846791)", a98rgb.toString());
 
 		assertEquals(0f, hwb.deltaEOK(a98rgb), 1e-6f);
 
 		// To Display P3
-		CSSColor display_p3 = rgb.toColorSpace(ColorSpace.display_p3);
+		CSSColor display_p3 = hwb.toColorSpace(ColorSpace.display_p3);
 		assertNotNull(display_p3);
 		assertEquals(CSSColorValue.ColorModel.RGB, display_p3.getColorModel());
-		assertEquals("color(display-p3 0.3082 0.5729 0.8374)", display_p3.toString());
+		assertEquals("color(display-p3 0.308246 0.572865 0.837371)", display_p3.toString());
 
 		assertEquals(0f, hwb.deltaEOK(display_p3), 1e-6f);
 
 		// To Prophoto RGB
-		CSSColor prophoto = rgb.toColorSpace(ColorSpace.prophoto_rgb);
+		CSSColor prophoto = hwb.toColorSpace(ColorSpace.prophoto_rgb);
 		assertNotNull(prophoto);
 		assertEquals(CSSColorValue.ColorModel.RGB, prophoto.getColorModel());
-		assertEquals("color(prophoto-rgb 0.4243 0.495 0.7875)", prophoto.toString());
+		assertEquals("color(prophoto-rgb 0.424349 0.495048 0.787508)", prophoto.toString());
 
 		assertEquals(0f, hwb.deltaEOK(prophoto), 1e-6f);
 
 		// To REC 2020
-		CSSColor rec2020 = rgb.toColorSpace(ColorSpace.rec2020);
+		CSSColor rec2020 = hwb.toColorSpace(ColorSpace.rec2020);
 		assertNotNull(rec2020);
 		assertEquals(CSSColorValue.ColorModel.RGB, rec2020.getColorModel());
-		assertEquals("color(rec2020 0.365 0.5235 0.8145)", rec2020.toString());
+		assertEquals("color(rec2020 0.365024 0.523525 0.814463)", rec2020.toString());
 
 		assertEquals(0f, hwb.deltaEOK(rec2020), 1e-6f);
 
 		// To XYZ
-		CSSColor xyz = rgb.toColorSpace(ColorSpace.xyz);
+		CSSColor xyz = hwb.toColorSpace(ColorSpace.xyz);
 		assertNotNull(xyz);
 		assertEquals(CSSColorValue.ColorModel.XYZ, xyz.getColorModel());
 		assertEquals("color(xyz 0.24672 0.26983 0.71135)", xyz.toString());
@@ -1414,7 +1474,7 @@ public class ColorValueTest {
 		assertEquals(0f, hwb.deltaEOK(xyz), 1e-6f);
 
 		// To XYZ D50
-		CSSColor xyzD50 = rgb.toColorSpace(ColorSpace.xyz_d50);
+		CSSColor xyzD50 = hwb.toColorSpace(ColorSpace.xyz_d50);
 		assertNotNull(xyzD50);
 		assertEquals(CSSColorValue.ColorModel.XYZ, xyzD50.getColorModel());
 		assertEquals("color(xyz-d50 0.22903 0.26243 0.53681)", xyzD50.toString());
@@ -1422,7 +1482,7 @@ public class ColorValueTest {
 		assertEquals(0f, hwb.deltaEOK(xyzD50), 1e-6f);
 
 		// To OK Lab
-		CSSColor ok_lab = rgb.toColorSpace(ColorSpace.ok_lab);
+		CSSColor ok_lab = hwb.toColorSpace(ColorSpace.ok_lab);
 		assertNotNull(ok_lab);
 		assertEquals(CSSColorValue.ColorModel.LAB, ok_lab.getColorModel());
 		assertEquals("oklab(0.643424 -0.05989 -0.12588)", ok_lab.toString());
@@ -1430,7 +1490,7 @@ public class ColorValueTest {
 		assertEquals(0f, hwb.deltaEOK(ok_lab), 1e-6f);
 
 		// To OK LCh
-		CSSColor ok_lch = rgb.toColorSpace(ColorSpace.ok_lch);
+		CSSColor ok_lch = hwb.toColorSpace(ColorSpace.ok_lch);
 		assertNotNull(ok_lch);
 		assertEquals(CSSColorValue.ColorModel.LCH, ok_lch.getColorModel());
 		assertEquals("oklch(0.643424 0.1394 244.557)", ok_lch.toString());
@@ -1438,7 +1498,7 @@ public class ColorValueTest {
 		assertEquals(0f, hwb.deltaEOK(ok_lch), 1e-6f);
 
 		// To CIE Lab
-		CSSColor cie_lab = rgb.toColorSpace(ColorSpace.cie_lab);
+		CSSColor cie_lab = hwb.toColorSpace(ColorSpace.cie_lab);
 		assertNotNull(cie_lab);
 		assertEquals(CSSColorValue.ColorModel.LAB, cie_lab.getColorModel());
 		assertEquals("lab(58.2667 -10.46205 -45.24767)", cie_lab.toString());
@@ -1446,7 +1506,7 @@ public class ColorValueTest {
 		assertEquals(0f, hwb.deltaEOK(cie_lab), 1e-6f);
 
 		// To CIE LCh
-		CSSColor cie_lch = rgb.toColorSpace(ColorSpace.cie_lch);
+		CSSColor cie_lch = hwb.toColorSpace(ColorSpace.cie_lch);
 		assertNotNull(cie_lch);
 		assertEquals(CSSColorValue.ColorModel.LCH, cie_lch.getColorModel());
 		assertEquals("lch(58.2667 46.4414 256.981)", cie_lch.toString());
@@ -1511,13 +1571,13 @@ public class ColorValueTest {
 		assertThrows(NullPointerException.class, () -> hwbColor.setComponent(2, null));
 
 		e = assertThrows(DOMException.class, () -> hwbColor.setComponent(2,
-				NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 12)));
+				NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, 12)));
 		assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
 
 		assertThrows(NullPointerException.class, () -> hwbColor.setComponent(3, null));
 
 		e = assertThrows(DOMException.class, () -> hwbColor.setComponent(3,
-				NumberValue.createCSSNumberValue(CSSUnit.CSS_NUMBER, 12)));
+				NumberValue.createCSSNumberValue(CSSUnit.CSS_DEG, 12)));
 		assertEquals(DOMException.TYPE_MISMATCH_ERR, e.code);
 	}
 
@@ -1690,6 +1750,30 @@ public class ColorValueTest {
 		assertEquals(0, style.getLength());
 
 		assertTrue(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testHWBRelative() throws IOException {
+		// peru is hwb(29.577 24.706% 19.608%)
+		style.setCssText("color: hwb(from peru h 32% b / 0.5)");
+		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
+		assertNotNull(val);
+		assertEquals("hwb(29.577 32% 19.6078% / 0.5)", val.getCssText());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
+		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
+	}
+
+	@Test
+	public void testHWBRelativeCalc() throws IOException {
+		// peru is hwb(29.577 24.706% 19.608%)
+		style.setCssText("color: hwb(from peru calc(2*h) 32% calc(b + 20.9922) / 0.5)");
+		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
+		assertNotNull(val);
+		assertEquals("hwb(59.155 32% 40.6% / 0.5)", val.getCssText());
+
+		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
 	}
 
@@ -2035,25 +2119,25 @@ public class ColorValueTest {
 		CSSColor a98rgb = rgb.toColorSpace(ColorSpace.a98_rgb);
 		assertNotNull(a98rgb);
 		assertEquals(CSSColorValue.ColorModel.RGB, a98rgb.getColorModel());
-		assertEquals("color(a98-rgb 0.173 0.2554 0.4871)", a98rgb.toString());
+		assertEquals("color(a98-rgb 0.173034 0.25542 0.487097)", a98rgb.toString());
 
 		// To Display P3
 		CSSColor display_p3 = rgb.toColorSpace(ColorSpace.display_p3);
 		assertNotNull(display_p3);
 		assertEquals(CSSColorValue.ColorModel.RGB, display_p3.getColorModel());
-		assertEquals("color(display-p3 0.1373 0.2437 0.4812)", display_p3.toString());
+		assertEquals("color(display-p3 0.137306 0.243674 0.481197)", display_p3.toString());
 
 		// To Prophoto RGB
 		CSSColor prophoto = rgb.toColorSpace(ColorSpace.prophoto_rgb);
 		assertNotNull(prophoto);
 		assertEquals(CSSColorValue.ColorModel.RGB, prophoto.getColorModel());
-		assertEquals("color(prophoto-rgb 0.1922 0.1901 0.3972)", prophoto.toString());
+		assertEquals("color(prophoto-rgb 0.192242 0.190063 0.397161)", prophoto.toString());
 
 		// To REC 2020
 		CSSColor rec2020 = rgb.toColorSpace(ColorSpace.rec2020);
 		assertNotNull(rec2020);
 		assertEquals(CSSColorValue.ColorModel.RGB, rec2020.getColorModel());
-		assertEquals("color(rec2020 0.1331 0.1831 0.4271)", rec2020.toString());
+		assertEquals("color(rec2020 0.13315 0.183105 0.427058)", rec2020.toString());
 
 		// To XYZ
 		CSSColor xyz = rgb.toColorSpace(ColorSpace.xyz);

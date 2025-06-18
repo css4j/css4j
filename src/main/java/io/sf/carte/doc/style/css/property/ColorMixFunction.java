@@ -17,6 +17,8 @@ import java.util.Objects;
 
 import org.w3c.dom.DOMException;
 
+import io.sf.carte.doc.DOMNotSupportedException;
+import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.color.Illuminant;
 import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorMixFunction;
@@ -314,10 +316,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 		try {
 			lunit = parser.parsePropertyValue(new StringReader(cssText));
 		} catch (CSSParseException e) {
-			DOMException ex = new DOMException(DOMException.SYNTAX_ERR,
-					"Wrong color-mix() value: " + cssText);
-			ex.initCause(e);
-			throw ex;
+			throw new DOMSyntaxException("Wrong color-mix() value: " + cssText, e);
 		} catch (IOException e) {
 			lunit = null;
 		}
@@ -477,7 +476,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 			} catch (DOMException e) {
 				throw e;
 			} catch (RuntimeException e) {
-				throw new DOMException(DOMException.SYNTAX_ERR, "Bad value: " + lunit.toString());
+				throw new DOMSyntaxException("Invalid value: " + lunit.toString());
 			}
 			nextLexicalUnit = lunit.getNextLexicalUnit();
 		}
@@ -498,7 +497,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 					break;
 				}
 			default:
-				throw new DOMException(DOMException.SYNTAX_ERR,
+				throw new DOMSyntaxException(
 						"Color-Mix begings with 'in', not with " + lunit.toString());
 			}
 
@@ -699,7 +698,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 		}
 
 		private void wrongValueSyntax(LexicalUnit lunit) {
-			throw new DOMException(DOMException.SYNTAX_ERR,
+			throw new DOMSyntaxException(
 					"Wrong color-mix() value: " + lunit.toString());
 		}
 
@@ -757,8 +756,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 			inColorSpace = colorSpace;
 			color = new BaseProfiledColor(colorSpace);
 		} else {
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
-					"Unsupported color space: " + colorSpace);
+			throw new DOMNotSupportedException("Unsupported color space: " + colorSpace);
 		}
 		inColorModel = color.getColorModel();
 	}
@@ -955,8 +953,7 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 			color.toLABColor(lab);
 			break;
 		default:
-			throw new DOMException(DOMException.NOT_SUPPORTED_ERR,
-					"Custom profiles are not suported.");
+			throw new DOMNotSupportedException("Custom profiles are not suported.");
 		}
 		return labColor;
 	}
