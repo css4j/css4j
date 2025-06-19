@@ -22,6 +22,7 @@ import java.io.StringReader;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
 import io.sf.carte.doc.style.css.nsac.CSSException;
@@ -357,6 +358,88 @@ public class PropertyParserColorHWBTest {
 	}
 
 	@Test
+	public void testParsePropertyValueHWBVarBeforeHueINT() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hwb(var(--from) 125 25% 30%/alpha)");
+		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("--from", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(125, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(30f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("hwb", lu.getFunctionName());
+		assertEquals("hwb(var(--from) 125 25% 30%/alpha)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHWBVarBeforeHueREAL() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hwb(var(--from) 125.2 25% 30%/alpha)");
+		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("--from", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(125.2f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(30f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("hwb", lu.getFunctionName());
+		assertEquals("hwb(var(--from) 125.2 25% 30%/alpha)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHWBVarBeforeHueDeg() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hwb(var(--from) 125deg 25% 30%/alpha)");
+		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("--from", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
+		assertEquals(125f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(30f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("hwb", lu.getFunctionName());
+		assertEquals("hwb(var(--from) 125deg 25% 30%/alpha)", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueHWBVarSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hwb(12 25% var(--foo)/0.6)");
 		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
@@ -656,6 +739,221 @@ public class PropertyParserColorHWBTest {
 	}
 
 	@Test
+	public void testParsePropertyValueHWBRelative() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hwb(from peru 12 25% b)");
+		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("peru", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(12, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("b", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hwb", lu.getFunctionName());
+		assertEquals("hwb(from peru 12 25% b)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<color>");
+		assertMatch(Match.TRUE, lu, "<color>+");
+		assertMatch(Match.TRUE, lu, "<color>#");
+		assertMatch(Match.FALSE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "*");
+	}
+
+	@Test
+	public void testParsePropertyValueHWBRelativeAllComps() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hwb(from peru h w b)");
+		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("peru", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("h", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("w", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("b", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hwb", lu.getFunctionName());
+		assertEquals("hwb(from peru h w b)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHWBRelativeAllCompsCalc() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"hwb(from peru calc(h/2) calc(w/2) min(b,20)/calc(alpha/2))");
+		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("peru", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(h/2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(w/2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.MATH_FUNCTION, param.getLexicalUnitType());
+		assertEquals("min(b, 20)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(alpha/2)", param.getCssText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hwb", lu.getFunctionName());
+		assertEquals("hwb(from peru calc(h/2) calc(w/2) min(b, 20)/calc(alpha/2))", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHWBRelativeVarHue() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hwb(from peru var(--hue) 25% b)");
+		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("peru", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--hue)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("b", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hwb", lu.getFunctionName());
+		assertEquals("hwb(from peru var(--hue) 25% b)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHWBVarRelative() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hwb(from var(--color) 740deg w b)");
+		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(20f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("w", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("b", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hwb", lu.getFunctionName());
+		assertEquals("hwb(from var(--color) 20 w b)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHWBVarRelativeAllComps() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hwb(from var(--color) h w b)");
+		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("h", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("w", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("b", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hwb", lu.getFunctionName());
+		assertEquals("hwb(from var(--color) h w b)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHWBVarRelativeAllCompsCalc() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"hwb(from var(--color) calc(h/2) calc(w/2) min(b,20)/calc(alpha/2))");
+		assertEquals(LexicalType.HWBCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(h/2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(w/2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.MATH_FUNCTION, param.getLexicalUnitType());
+		assertEquals("min(b, 20)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(alpha/2)", param.getCssText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hwb", lu.getFunctionName());
+		assertEquals("hwb(from var(--color) calc(h/2) calc(w/2) min(b, 20)/calc(alpha/2))",
+				lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueHWBBadWhiteness() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12 48deg 0.1)"));
 	}
@@ -704,6 +1002,12 @@ public class PropertyParserColorHWBTest {
 	@Test
 	public void testParsePropertyValueHWBBadSlashNoAlpha() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hwb(12deg 48% 31%/)"));
+	}
+
+	@Test
+	public void testParsePropertyValueHWBInvalidRelativeComponent() throws CSSException {
+		assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("hwb(from peru 12deg s 91%/0.1)"));
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {

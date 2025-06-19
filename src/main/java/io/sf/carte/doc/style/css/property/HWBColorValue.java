@@ -16,7 +16,6 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
-import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HWBColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -173,6 +172,7 @@ public class HWBColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			PrimitiveValue alpha = null;
 			if (lu != null) {
 				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
+					checkProxyValue(lu);
 					throw new DOMSyntaxException("Expected slash in: " + lunit.toString());
 				}
 				lu = lu.getNextLexicalUnit(); // Alpha

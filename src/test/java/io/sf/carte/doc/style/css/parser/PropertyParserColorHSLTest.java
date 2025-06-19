@@ -569,6 +569,88 @@ public class PropertyParserColorHSLTest {
 	}
 
 	@Test
+	public void testParsePropertyValueHSLVarBeforeHueINT() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hsl(var(--from) 125 25% 30%/alpha)");
+		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("--from", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.INTEGER, param.getLexicalUnitType());
+		assertEquals(125, param.getIntegerValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(30f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(var(--from) 125 25% 30%/alpha)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLVarBeforeHueREAL() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hsl(var(--from) 125.2 25% 30%/alpha)");
+		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("--from", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(125.2f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(30f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(var(--from) 125.2 25% 30%/alpha)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLVarBeforeHueDeg() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hsl(var(--from) 125deg 25% 30%/alpha)");
+		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("--from", param.getParameters().getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_DEG, param.getCssUnit());
+		assertEquals(125f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(30f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(var(--from) 125deg 25% 30%/alpha)", lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueHSLVarSlash() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("hsl(12 25% var(--foo)/0.6)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
@@ -856,8 +938,8 @@ public class PropertyParserColorHSLTest {
 	}
 
 	@Test
-	public void testParsePropertyValueHSLFrom() throws CSSException {
-		LexicalUnit lu = parsePropertyValue("hsl(from hsl(25 10% 8.2%) 12.81 25% none)");
+	public void testParsePropertyValueHSLRelative() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hsl(from hsl(25 10% 8.2%) 12.81 25% l)");
 		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
 		LexicalUnit param = lu.getParameters();
 		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
@@ -873,10 +955,127 @@ public class PropertyParserColorHSLTest {
 		assertEquals(25f, param.getFloatValue(), 1e-5f);
 		param = param.getNextLexicalUnit();
 		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
-		assertEquals("none", param.getStringValue());
+		assertEquals("l", param.getStringValue());
 		assertNull(param.getNextLexicalUnit());
 		assertEquals("hsl", lu.getFunctionName());
-		assertEquals("hsl(from hsl(25 10% 8.2%) 12.81 25% none)", lu.toString());
+		assertEquals("hsl(from hsl(25 10% 8.2%) 12.81 25% l)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLRelativeAllComps() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hsl(from hsl(25 10% 8.2%) h s l)");
+		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.HSLCOLOR, param.getLexicalUnitType());
+		assertEquals("hsl(25 10% 8.2%)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("h", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("s", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("l", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(from hsl(25 10% 8.2%) h s l)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLVarRelative() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hsl(from var(--color) 12.81 25% l)");
+		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(12.81f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("l", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(from var(--color) 12.81 25% l)", lu.toString());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLRelativeVarHue() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("hsl(from peru var(--hue) 25% l)");
+		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("peru", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--hue)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("l", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(from peru var(--hue) 25% l)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueHSLVarRelativeCalc() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"hsl(from var(--color) calc(h/2) 25% min(l,60)/max(alpha,0.8))");
+		assertEquals(LexicalType.HSLCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(h/2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(25f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.MATH_FUNCTION, param.getLexicalUnitType());
+		assertEquals("min(l, 60)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.MATH_FUNCTION, param.getLexicalUnitType());
+		assertEquals("max(alpha, 0.8)", param.getCssText());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("hsl", lu.getFunctionName());
+		assertEquals("hsl(from var(--color) calc(h/2) 25% min(l, 60)/max(alpha, 0.8))",
+				lu.toString());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
 	}
 
 	@Test
@@ -981,6 +1180,18 @@ public class PropertyParserColorHSLTest {
 	@Test
 	public void testParsePropertyValueHSLBadDoubleSlash2() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("hsl(12deg 48% 91%/0.1/)"));
+	}
+
+	@Test
+	public void testParsePropertyValueHSLInvalidRelativeCommas() throws CSSException {
+		assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("hsla(from peru 12deg,48%,91%,alpha)"));
+	}
+
+	@Test
+	public void testParsePropertyValueHSLInvalidRelativeComponent() throws CSSException {
+		assertThrows(CSSParseException.class,
+				() -> parsePropertyValue("hsla(from peru 12deg w 91%/0.1)"));
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {

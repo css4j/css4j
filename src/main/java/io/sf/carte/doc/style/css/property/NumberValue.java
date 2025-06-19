@@ -39,8 +39,6 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 
 	private String dimensionUnitText = "";
 
-	private boolean asInteger = false;
-
 	boolean lengthUnitType = false;
 
 	private boolean calculated = false;
@@ -64,7 +62,6 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 		super(copied);
 		this.unitType = copied.unitType;
 		this.realvalue = copied.realvalue;
-		this.asInteger = copied.asInteger;
 		this.calculated = copied.calculated;
 		this.specified = copied.specified;
 		this.maxFractionDigits = copied.maxFractionDigits;
@@ -93,10 +90,12 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 			return serializeInfinite();
 		}
 		double rintValue = Math.rint(realvalue);
-		if (asInteger) {
-			return Integer.toString((int) rintValue);
-		} else if (realvalue == rintValue && notaNumber) {
-			return (int) rintValue + dimensionUnitText;
+		if (realvalue == rintValue) {
+			String num = Integer.toString((int) rintValue);
+			if (notaNumber) {
+				num += dimensionUnitText;
+			}
+			return num;
 		}
 		String s = serializeNumber(realvalue);
 		StringBuilder buf = new StringBuilder(s.length() + dimensionUnitText.length());
@@ -138,12 +137,11 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 			return;
 		}
 		double rintValue = Math.rint(realvalue);
-		if (asInteger) {
+		if (realvalue == rintValue) {
 			wri.write(Integer.toString((int) rintValue));
-			return;
-		} else if (realvalue == rintValue && notaNumber) {
-			wri.write(Integer.toString((int) rintValue));
-			wri.write(dimensionUnitText);
+			if (notaNumber) {
+				wri.write(dimensionUnitText);
+			}
 			return;
 		}
 		String s = serializeNumber(realvalue);
@@ -179,16 +177,12 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 			return serializeInfinite();
 		}
 		double rintValue = Math.rint(realvalue);
-		if (asInteger) {
-			return Integer.toString((int) rintValue);
-		} else if (realvalue == rintValue) {
+		if (realvalue == rintValue) {
 			String s = Integer.toString((int) rintValue);
-			boolean notaNumber = getUnitType() != CSSUnit.CSS_NUMBER;
-			if (notaNumber) {
-				return s + dimensionUnitText;
-			} else {
-				return s;
+			if (getUnitType() != CSSUnit.CSS_NUMBER) {
+				s += dimensionUnitText;
 			}
+			return s;
 		}
 		String s = serializeNumber(realvalue);
 		int len = s.length();
@@ -227,7 +221,6 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 		checkModifiableProperty();
 		setUnitType(unitType);
 		realvalue = floatValue;
-		asInteger = unitType == CSSUnit.CSS_NUMBER && ((float) Math.rint(floatValue)) == realvalue;
 		lengthUnitType = CSSUnit.isLengthUnitType(unitType);
 	}
 
@@ -235,7 +228,6 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 		unitType = CSSUnit.CSS_PT;
 		realvalue = floatValue;
 		dimensionUnitText = "pt";
-		asInteger = false;
 		lengthUnitType = true;
 	}
 
@@ -243,27 +235,25 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 		realvalue = intValue;
 		unitType = CSSUnit.CSS_NUMBER;
 		dimensionUnitText = "";
-		asInteger = true;
 		lengthUnitType = false;
 	}
 
 	@Override
 	public void setExpectInteger() throws DOMException {
-		if (getUnitType() != CSSUnit.CSS_NUMBER) {
-			super.setExpectInteger();
-		} else if (calculated) {
-			asInteger = true;
-			realvalue = Math.round(realvalue);
-		} else if (!asInteger) {
-			super.setExpectInteger();
+		if (getUnitType() == CSSUnit.CSS_NUMBER) {
+			float rounded = (float) Math.rint(realvalue);
+			if (calculated || realvalue == rounded) {
+				realvalue = rounded;
+				return;
+			}
 		}
+		super.setExpectInteger();
 	}
 
 	@Override
 	public void roundToInteger() throws DOMException {
-		asInteger = true;
+		calculated = true;
 		setExpectInteger();
-		realvalue = Math.round(realvalue);
 	}
 
 	@Override
@@ -639,14 +629,17 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 		case length:
 			return isLengthCompatible() ? Match.TRUE : Match.FALSE;
 		case lengthPercentage:
-			return (isLengthCompatible() || getUnitType() == CSSUnit.CSS_PERCENTAGE) ? Match.TRUE : Match.FALSE;
+			return (isLengthCompatible() || getUnitType() == CSSUnit.CSS_PERCENTAGE) ? Match.TRUE
+					: Match.FALSE;
 		case percentage:
 			return getUnitType() == CSSUnit.CSS_PERCENTAGE ? Match.TRUE : Match.FALSE;
 		case number:
 			return getUnitType() == CSSUnit.CSS_NUMBER ? Match.TRUE : Match.FALSE;
 		case integer:
-			return (getUnitType() == CSSUnit.CSS_NUMBER && (asInteger || isCalculatedNumber())) ? Match.TRUE
-					: Match.FALSE;
+			return (getUnitType() == CSSUnit.CSS_NUMBER
+					&& (isCalculatedNumber() || realvalue == (float) Math.rint(realvalue)))
+							? Match.TRUE
+							: Match.FALSE;
 		case angle:
 			return CSSUnit.isAngleUnitType(getUnitType()) ? Match.TRUE : Match.FALSE;
 		case time:
@@ -654,7 +647,9 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 		case resolution:
 			return CSSUnit.isResolutionUnitType(getUnitType()) ? Match.TRUE : Match.FALSE;
 		case frequency:
-			return (getUnitType() == CSSUnit.CSS_HZ || getUnitType() == CSSUnit.CSS_KHZ) ? Match.TRUE : Match.FALSE;
+			return (getUnitType() == CSSUnit.CSS_HZ || getUnitType() == CSSUnit.CSS_KHZ)
+					? Match.TRUE
+					: Match.FALSE;
 		case flex:
 			return getUnitType() == CSSUnit.CSS_FR ? Match.TRUE : Match.FALSE;
 		case universal:
@@ -682,12 +677,10 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 			switch (lunit.getLexicalUnitType()) {
 			case INTEGER:
 				realvalue = lunit.getIntegerValue();
-				asInteger = true;
 				NumberValue.this.unitType = CSSUnit.CSS_NUMBER;
 				break;
 			default:
 				realvalue = lunit.getFloatValue();
-				asInteger = false;
 				dimensionUnitText = lunit.getDimensionUnitText();
 				NumberValue.this.unitType = lunit.getCssUnit();
 			}

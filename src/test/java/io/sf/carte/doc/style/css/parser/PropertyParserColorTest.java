@@ -231,6 +231,43 @@ public class PropertyParserColorTest {
 	}
 
 	@Test
+	public void testParsePropertyValueColorNoneAlphaNone() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("Color(rec2020 none 0.97978 0.00579/none)");
+		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("rec2020", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("none", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.97978f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.00579f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("none", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("color", lu.getFunctionName());
+		assertEquals("color(rec2020 none 0.97978 0.00579/none)", lu.toString());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+	}
+
+	@Test
 	public void testParsePropertyValueCustomProfileNone() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("Color(--my-profile none 0.97978 0.00579)");
 		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
@@ -298,6 +335,182 @@ public class PropertyParserColorTest {
 		assertMatch(Match.TRUE, lu, "<color>#");
 		assertMatch(Match.FALSE, lu, "<length>");
 		assertMatch(Match.TRUE, lu, "*");
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+	}
+
+	@Test
+	public void testParsePropertyValueColorRelativeVar() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("color(from var(--color) rec2020 r 0.97978 0.00579)");
+		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("rec2020", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("r", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.97978f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.00579f, param.getFloatValue(), 1e-5f);
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("color", lu.getFunctionName());
+		assertEquals("color(from var(--color) rec2020 r 0.97978 0.00579)", lu.toString());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+	}
+
+	@Test
+	public void testParsePropertyValueColorRelativeVarAlpha() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"color(from var(--color) rec2020 r 0.97978 0.00579/alpha)");
+		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("rec2020", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("r", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.97978f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.00579f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("color", lu.getFunctionName());
+		assertEquals("color(from var(--color) rec2020 r 0.97978 0.00579/alpha)", lu.toString());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+	}
+
+	@Test
+	public void testParsePropertyValueColorRelativeVarAllComp() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("color(from var(--color) rec2020 r g b/alpha)");
+		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("rec2020", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("r", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("g", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("b", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("color", lu.getFunctionName());
+		assertEquals("color(from var(--color) rec2020 r g b/alpha)", lu.toString());
+
+		LexicalUnit clone = lu.clone();
+		assertEquals(lu, clone);
+		assertEquals(lu.hashCode(), clone.hashCode());
+	}
+
+	@Test
+	public void testParsePropertyValueColorRelativeVarCalcMath() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"color(from var(--color) rec2020 calc(r/2) calc(g/2) min(b,.2)/max(alpha,.5))");
+		assertEquals(LexicalType.COLOR_FUNCTION, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("rec2020", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(r/2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(g/2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.MATH_FUNCTION, param.getLexicalUnitType());
+		assertEquals("min(b, 0.2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.MATH_FUNCTION, param.getLexicalUnitType());
+		assertEquals("max(alpha, 0.5)", param.getCssText());
+		assertNull(param.getNextLexicalUnit());
+
+		assertEquals("color", lu.getFunctionName());
+		assertEquals(
+				"color(from var(--color) rec2020 calc(r/2) calc(g/2) min(b, 0.2)/max(alpha, 0.5))",
+				lu.toString());
 
 		LexicalUnit clone = lu.clone();
 		assertEquals(lu, clone);

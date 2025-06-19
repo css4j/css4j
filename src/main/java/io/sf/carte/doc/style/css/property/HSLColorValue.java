@@ -16,7 +16,6 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.DOMSyntaxException;
 import io.sf.carte.doc.style.css.CSSColor;
 import io.sf.carte.doc.style.css.CSSColorValue;
-import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.HSLColor;
 import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
@@ -135,7 +134,8 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 				if (lunit.getLexicalUnitType() == LexicalUnit.LexicalType.HSLCOLOR) {
 					setLexicalHSL(lunit);
 				} else {
-					throw new DOMException(DOMException.INVALID_MODIFICATION_ERR, "No hsl() value: " + lunit.toString());
+					throw new DOMException(DOMException.INVALID_MODIFICATION_ERR,
+							"No hsl() value: " + lunit.toString());
 				}
 			} catch (DOMException e) {
 				throw e;
@@ -179,13 +179,17 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			if (from != null) {
 				primisat = absoluteComponent(from, primisat, false);
 			}
+			lu = lu.getNextLexicalUnit();
 			if (commaSyntax) {
 				// comma
+				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_COMMA) {
+					checkProxyValue(lu);
+					throw new DOMSyntaxException("Expected a second comma in: " + lunit.toString());
+				}
 				lu = lu.getNextLexicalUnit();
 			}
 
 			// lightness
-			lu = lu.getNextLexicalUnit();
 			PrimitiveValue primilight = factory.createCSSPrimitiveValue(lu, true);
 			if (from != null) {
 				primilight = absoluteComponent(from, primilight, false);
@@ -197,9 +201,11 @@ public class HSLColorValue extends ColorValue implements io.sf.carte.doc.style.c
 			if (lu != null) {
 				if (commaSyntax) {
 					if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_COMMA) {
+						checkProxyValue(lu);
 						throw invalidValueException(lunit);
 					}
 				} else if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
+					checkProxyValue(lu);
 					throw new DOMSyntaxException(
 							"Expected slash in: " + lunit.toString());
 				}

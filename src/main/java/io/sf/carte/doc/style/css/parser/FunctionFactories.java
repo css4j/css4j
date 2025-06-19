@@ -22,6 +22,7 @@ import io.sf.carte.doc.style.css.TransformFunctions;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
+import io.sf.carte.doc.style.css.property.NumberValue;
 import io.sf.carte.uparser.TokenProducer;
 
 class FunctionFactories {
@@ -1009,6 +1010,7 @@ class FunctionFactories {
 		if (type == LexicalType.IDENT) {
 			String s = lu.getStringValue();
 			if ("from".equalsIgnoreCase(s)) {
+				hasVar = false;
 				lu = lu.nextLexicalUnit;
 				if (lu == null) {
 					return false;
@@ -1016,8 +1018,10 @@ class FunctionFactories {
 					hasVar = true;
 				}
 				hasNoCommas = true;
-			} else {
+			} else if (isRGBComponentName(s)) {
 				valCount = 1;
+			} else {
+				return false;
 			}
 			lu = lu.nextLexicalUnit;
 			if (lu == null) {
@@ -1081,7 +1085,7 @@ class FunctionFactories {
 				return isValidAlpha(handler, index, lu);
 			case IDENT:
 				String s = lu.getStringValue();
-				if ("from".equalsIgnoreCase(s)) {
+				if (!isRGBComponentName(s)) {
 					return false;
 				} else { // none or component name
 					valCount++;
@@ -1104,6 +1108,11 @@ class FunctionFactories {
 		} while (lu != null);
 
 		return valCount == 3 || valCount == 4 || (hasVar && valCount < 3);
+	}
+
+	private static boolean isRGBComponentName(String s) {
+		return "r".equalsIgnoreCase(s) || "g".equalsIgnoreCase(s) || "b".equalsIgnoreCase(s)
+				|| "none".equalsIgnoreCase(s) || "alpha".equalsIgnoreCase(s);
 	}
 
 	private boolean isValidHSLColor(CSSContentHandler handler, int index,
@@ -1134,6 +1143,7 @@ class FunctionFactories {
 		if (type == LexicalType.IDENT) {
 			String s = lu.getStringValue();
 			if ("from".equalsIgnoreCase(s)) {
+				hasVar = false;
 				lu = lu.nextLexicalUnit;
 				if (lu == null) {
 					return false;
@@ -1141,46 +1151,38 @@ class FunctionFactories {
 					hasVar = true;
 				}
 				hasNoCommas = true;
-			} else {
+			} else if (isHSLComponentName(s)) {
 				valCount = 1;
+			} else {
+				return false;
 			}
 			lu = lu.nextLexicalUnit;
 			if (lu == null) {
 				return hasVar;
 			}
+			type = lu.getLexicalUnitType();
 		}
 
 		if (!hasVar && valCount == 0) {
 			// Hue
 			switch (type) {
 			case INTEGER:
-				int value = lu.getIntegerValue();
-				if (value < -360) {
-					warn(handler, index, "Color hue has value under -360.");
-				} else if (value > 360) {
-					warn(handler, index, "Color hue has value over 360.");
-				}
+				normalizeIntHue(handler, index, lu);
 				valCount++;
 				break;
 			case REAL:
-				float fvalue = lu.getFloatValue();
-				if (fvalue < -360f) {
-					warn(handler, index, "Color hue has value under -360.");
-				} else if (fvalue > 360f) {
-					warn(handler, index, "Color hue has value over 360.");
-				}
+				normalizeHue(handler, index, lu);
 				valCount++;
 				break;
 			case DIMENSION:
-				short unit = lu.getCssUnit();
-				if (CSSUnit.isAngleUnitType(unit)) {
+				if (isHueUnit(handler, index, lu)) {
 					valCount++;
 					break;
 				}
 				return false;
 			case IDENT:
 				String s = lu.getStringValue();
-				if ("from".equalsIgnoreCase(s)) {
+				if (!isHSLComponentName(s)) {
 					return false;
 				} else { // none or component name
 					valCount++;
@@ -1214,12 +1216,6 @@ class FunctionFactories {
 			type = lu.getLexicalUnitType();
 			// Check component type
 			switch (type) {
-			case OPERATOR_COMMA:
-				if (hasNoCommas) {
-					return false;
-				}
-				hasCommas = true;
-				break;
 			case INTEGER:
 				int value = lu.getIntegerValue();
 				if (value < 0) {
@@ -1256,6 +1252,12 @@ class FunctionFactories {
 				}
 				valCount++;
 				break;
+			case OPERATOR_COMMA:
+				if (hasNoCommas) {
+					return false;
+				}
+				hasCommas = true;
+				break;
 			case OPERATOR_SLASH:
 				lu = lu.nextLexicalUnit;
 				if (lu == null || (valCount < 3 && !hasVar) || hasCommas || valCount > 3) {
@@ -1264,7 +1266,7 @@ class FunctionFactories {
 				return isValidAlpha(handler, index, lu);
 			case IDENT:
 				String s = lu.getStringValue();
-				if ("from".equalsIgnoreCase(s)) {
+				if (!isHSLComponentName(s)) {
 					return false;
 				} else { // none or component name
 					valCount++;
@@ -1273,11 +1275,25 @@ class FunctionFactories {
 			case VAR:
 				hasVar = true;
 				break;
-			case DIMENSION:
-				return false;
-			default:
+			case CALC:
+			case MATH_FUNCTION:
+			case SUB_EXPRESSION:
+			case FUNCTION:
+			case ATTR:
 				valCount++;
 				break;
+			case DIMENSION:
+				// Could be hue if var()
+				if (!hasVar || valCount > 0) {
+					return false;
+				}
+				if (!isHueUnit(handler, index, lu)) {
+					return false;
+				}
+				valCount++;
+				break;
+			default:
+				return false;
 			}
 
 			if (!hasCommas && !hasVar && valCount > 1) {
@@ -1288,6 +1304,11 @@ class FunctionFactories {
 		} while (lu != null);
 
 		return valCount == 3 || valCount == 4 || (hasVar && valCount < 3);
+	}
+
+	private static boolean isHSLComponentName(String s) {
+		return "h".equalsIgnoreCase(s) || "l".equalsIgnoreCase(s) || "s".equalsIgnoreCase(s)
+				|| "none".equalsIgnoreCase(s) || "alpha".equalsIgnoreCase(s);
 	}
 
 	private boolean isValidHWBColor(CSSContentHandler handler, int index,
@@ -1316,67 +1337,60 @@ class FunctionFactories {
 		if (type == LexicalType.IDENT) {
 			String s = lu.getStringValue();
 			if ("from".equalsIgnoreCase(s)) {
+				hasVar = false;
 				lu = lu.nextLexicalUnit;
 				if (lu == null) {
 					return false;
 				} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
 					hasVar = true;
 				}
-			} else {
+			} else if (isHWBComponentName(s)) {
 				valCount = 1;
+			} else {
+				return false;
 			}
 			lu = lu.nextLexicalUnit;
 			if (lu == null) {
 				return hasVar;
 			}
+			type = lu.getLexicalUnitType();
 		}
 
 		if (!hasVar && valCount == 0) {
 			// Hue
 			switch (type) {
 			case INTEGER:
-				int value = lu.getIntegerValue();
-				if (value < -360) {
-					warn(handler, index, "Color hue has value under -360.");
-				} else if (value > 360) {
-					warn(handler, index, "Color hue has value over 360.");
-				}
+				normalizeIntHue(handler, index, lu);
 				valCount++;
 				break;
 			case REAL:
-				float fvalue = lu.getFloatValue();
-				if (fvalue < -360f) {
-					warn(handler, index, "Color hue has value under -360.");
-				} else if (fvalue > 360f) {
-					warn(handler, index, "Color hue has value over 360.");
-				}
+				normalizeHue(handler, index, lu);
 				valCount++;
 				break;
 			case DIMENSION:
-				short unit = lu.getCssUnit();
-				if (CSSUnit.isAngleUnitType(unit)) {
+				if (isHueUnit(handler, index, lu)) {
 					valCount++;
 					break;
 				}
 				return false;
-			case IDENT:
-				String s = lu.getStringValue();
-				if ("from".equalsIgnoreCase(s)) {
-					return false;
-				} else { // none or component name
-					valCount++;
-				}
-				break;
 			case VAR:
 				hasVar = true;
 				break;
-			case OPERATOR_COMMA:
-			case PERCENTAGE:
-			case OPERATOR_SLASH:
-				return false;
-			default:
+			case IDENT:
+				String s = lu.getStringValue();
+				if (!isHSLComponentName(s)) {
+					return false;
+				}
+				// pass-through
+			case CALC:
+			case MATH_FUNCTION:
+			case SUB_EXPRESSION:
+			case FUNCTION:
+			case ATTR:
 				valCount++;
 				break;
+			default:
+				return false;
 			}
 			lu = lu.nextLexicalUnit;
 			if (lu == null) {
@@ -1389,32 +1403,16 @@ class FunctionFactories {
 			// Check component type
 			switch (type) {
 			case INTEGER:
-				int value = lu.getIntegerValue();
-				if (value < 0) {
-					lu.intValue = 0;
-					warn(handler, index, "Color component has value under 0.");
-				} else if (valCount == 3 && value > 1) {
-					lu.intValue = 1;
-					warn(handler, index, "Color alpha has value over 1.");
-				} else if (valCount > 0 && value > 100) {
-					lu.intValue = 100;
-					warn(handler, index, "Peecentage component has value over 100.");
-				}
-				valCount++;
-				break;
 			case REAL:
-				float fvalue = lu.getFloatValue();
-				if (fvalue < 0f) {
-					lu.floatValue = 0f;
-					warn(handler, index, "Color component has value under 0.");
-				} else if (valCount > 0 && fvalue > 100f) {
-					lu.floatValue = 100f;
-					warn(handler, index, "Peecentage component has value over 100.");
-				}
+			case CALC:
+			case MATH_FUNCTION:
+			case SUB_EXPRESSION:
+			case FUNCTION:
+			case ATTR:
 				valCount++;
 				break;
 			case PERCENTAGE:
-				fvalue = lu.getFloatValue();
+				float fvalue = lu.getFloatValue();
 				if (fvalue < 0f) {
 					lu.floatValue = 0f;
 					warn(handler, index, "Color component has percentage under 0%.");
@@ -1430,18 +1428,14 @@ class FunctionFactories {
 					}
 					return isValidAlpha(handler, index, lu);
 				}
-				// If it has a var(), we don't know whether to clamp
-				// as a/b or as alpha
-				if (!hasVar) {
-					// Clamp
-					float fval = lu.getFloatValue();
-					if (fval < -100f) {
-						lu.floatValue = -100f;
-						warn(handler, index, "Color component has percentage under -100%.");
-					} else if (fval > 100f) {
-						lu.floatValue = 100f;
-						warn(handler, index, "Color component has percentage over 100%.");
-					}
+				// Clamp
+				float fval = lu.getFloatValue();
+				if (fval < 0f) {
+					lu.floatValue = 0f;
+					warn(handler, index, "Color component has percentage under 0%.");
+				} else if (fval > 100f) {
+					lu.floatValue = 100f;
+					warn(handler, index, "Color component has percentage over 100%.");
 				}
 				break;
 			case OPERATOR_SLASH:
@@ -1452,7 +1446,7 @@ class FunctionFactories {
 				return isValidAlpha(handler, index, lu);
 			case IDENT:
 				String s = lu.getStringValue();
-				if ("from".equalsIgnoreCase(s)) {
+				if (!isHWBComponentName(s)) {
 					return false;
 				} else { // none or component name
 					valCount++;
@@ -1462,17 +1456,28 @@ class FunctionFactories {
 				hasVar = true;
 				break;
 			case DIMENSION:
-			case OPERATOR_COMMA:
-				return false;
-			default:
+				// Could be hue if var()
+				if (!hasVar || valCount > 0) {
+					return false;
+				}
+				if (!isHueUnit(handler, index, lu)) {
+					return false;
+				}
 				valCount++;
 				break;
+			default:
+				return false;
 			}
 
 			lu = lu.nextLexicalUnit;
 		} while (lu != null);
 
 		return valCount == 3 || valCount == 4 || (hasVar && valCount < 3);
+	}
+
+	private static boolean isHWBComponentName(String s) {
+		return "h".equalsIgnoreCase(s) || "w".equalsIgnoreCase(s) || "b".equalsIgnoreCase(s)
+				|| "none".equalsIgnoreCase(s) || "alpha".equalsIgnoreCase(s);
 	}
 
 	private boolean isValidLabColor(CSSContentHandler handler, int index,
@@ -1499,19 +1504,23 @@ class FunctionFactories {
 		if (type == LexicalType.IDENT) {
 			String s = lu.getStringValue();
 			if ("from".equalsIgnoreCase(s)) {
+				hasVar = false;
 				lu = lu.nextLexicalUnit;
 				if (lu == null) {
 					return false;
 				} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
 					hasVar = true;
 				}
-			} else {
+			} else if (isLabComponentName(s)) {
 				valCount = 1;
+			} else {
+				return false;
 			}
 			lu = lu.nextLexicalUnit;
 			if (lu == null) {
 				return hasVar;
 			}
+			type = lu.getLexicalUnitType();
 		}
 
 		if (valCount == 0 && !hasVar) {
@@ -1550,8 +1559,7 @@ class FunctionFactories {
 				hasVar = true;
 			} else if (type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
 					&& type != LexicalType.FUNCTION && type != LexicalType.ATTR
-					&& (type != LexicalType.IDENT
-							|| "from".equalsIgnoreCase(lu.getStringValue()))) {
+					&& (type != LexicalType.IDENT || !isLabComponentName(lu.getStringValue()))) {
 				return false;
 			}
 			valCount++;
@@ -1604,8 +1612,7 @@ class FunctionFactories {
 				return isValidAlpha(handler, index, lu);
 			case IDENT:
 				String s = lu.getStringValue();
-				if ("from".equalsIgnoreCase(s)) {
-					// Too late
+				if (!isLabComponentName(s)) {
 					return false;
 				} else {
 					valCount++;
@@ -1635,6 +1642,11 @@ class FunctionFactories {
 		return valCount == 3 || valCount == 4 || (hasVar && valCount < 3);
 	}
 
+	private static boolean isLabComponentName(String s) {
+		return "l".equalsIgnoreCase(s) || "a".equalsIgnoreCase(s) || "b".equalsIgnoreCase(s)
+				|| "none".equalsIgnoreCase(s) || "alpha".equalsIgnoreCase(s);
+	}
+
 	private boolean isValidLCHColor(CSSContentHandler handler, int index, LexicalUnitImpl currentlu,
 			int iUpperLightness, float fUpperLightness) {
 		LexicalUnitImpl lu = currentlu.parameters;
@@ -1659,14 +1671,17 @@ class FunctionFactories {
 		if (type == LexicalType.IDENT) {
 			String s = lu.getStringValue();
 			if ("from".equalsIgnoreCase(s)) {
+				hasVar = false;
 				lu = lu.nextLexicalUnit;
 				if (lu == null) {
 					return false;
 				} else if (lu.getLexicalUnitType() == LexicalType.VAR) {
 					hasVar = true;
 				}
-			} else {
+			} else if (isLCHComponentName(s)) {
 				valCount = 1;
+			} else {
+				return false;
 			}
 			lu = lu.nextLexicalUnit;
 			if (lu == null) {
@@ -1675,184 +1690,59 @@ class FunctionFactories {
 		}
 
 		if (valCount == 0 && !hasVar) {
-			// First argument: percentage, real or integer
-			if (type == LexicalType.PERCENTAGE) {
-				// Clamp
-				float fL = lu.getFloatValue();
-				if (fL < 0f) {
-					lu.floatValue = 0f;
-					warn(handler, index, "Color lightness has percentage under 0%.");
-				} else if (fL > 100f) {
-					lu.floatValue = 100f;
-					warn(handler, index, "Color lightness has percentage over 100%.");
-				}
-			} else if (type == LexicalType.REAL) {
-				// Clamp
-				float fL = lu.getFloatValue();
-				if (fL < 0f) {
-					lu.floatValue = 0f;
-					warn(handler, index, "Color lightness has value under 0.");
-				} else if (fL > fUpperLightness) {
-					lu.floatValue = fUpperLightness;
-					warn(handler, index, "Color lightness has value over " + fUpperLightness);
-				}
-			} else if (type == LexicalType.INTEGER) {
-				// Clamp
-				int iL = lu.getIntegerValue();
-				if (iL < 0) {
-					lu.intValue = 0;
-					warn(handler, index, "Color lightness has value under 0.");
-				} else if (iL > iUpperLightness) {
-					lu.intValue = iUpperLightness;
-					warn(handler, index, "Color lightness has value over " + iUpperLightness);
-				}
-			} else if (type == LexicalType.VAR) {
-				hasVar = true;
-			} else if (type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
-					&& type != LexicalType.FUNCTION && type != LexicalType.ATTR
-					&& (type != LexicalType.IDENT
-							|| "from".equalsIgnoreCase(lu.getStringValue()))) {
-				return false;
-			}
-			valCount++;
-
-			lu = lu.nextLexicalUnit;
-			if (lu == null) {
-				// Only OK if we got a var().
-				return hasVar;
-			}
+			return isValidNonVarLCHColor(handler, index, lu, iUpperLightness, fUpperLightness);
 		}
 
-		// Now it should be the chroma (unless var() involved)
-		type = lu.getLexicalUnitType();
-		// Check component type
-		switch (type) {
-		case INTEGER:
-			if (!hasVar && lu.getIntegerValue() < 0) {
-				lu.intValue = 0;
-				warn(handler, index, "Color chroma has value under 0.");
-			}
-			valCount++;
-			break;
-		case REAL:
-			if (!hasVar && lu.getFloatValue() < 0f) {
-				lu.floatValue = 0f;
-				warn(handler, index, "Color chroma has value under 0.");
-			}
-			valCount++;
-			break;
-		case PERCENTAGE:
-			float fvalue = lu.getFloatValue();
-			if (fvalue < 0f) {
-				if (!hasVar && valCount == 1) {
+		// Now it could be any value due to var() involvement
+		do {
+			type = lu.getLexicalUnitType();
+			// Check component type
+			switch (type) {
+			case PERCENTAGE:
+				float fvalue = lu.getFloatValue();
+				if (fvalue < 0f) {
 					lu.floatValue = 0f;
-				} else if (fvalue < -100f) {
-					lu.floatValue = -100f;
+					warn(handler, index, "Color component has percentage under 0%.");
+				} else if (fvalue > 100f) {
+					lu.floatValue = 100f;
+					warn(handler, index, "Color component has percentage over 100%.");
 				}
-				warn(handler, index, "Color component has percentage under 0%.");
-			} else if (fvalue > 100f) {
-				lu.floatValue = 100f;
-				warn(handler, index, "Color component has percentage over 100%.");
-			}
-			valCount++;
-			break;
-		case OPERATOR_SLASH:
-			if (!hasVar || (lu = lu.nextLexicalUnit) == null) {
-				return false;
-			}
-			return isValidAlpha(handler, index, lu);
-		case IDENT:
-			String s = lu.getStringValue();
-			if ("from".equalsIgnoreCase(s)) {
-				// Too late
-				return false;
-			} else {
-				valCount++;
-			}
-			break;
-		case DIMENSION:
-			// Could be hue
-			if (hasVar && CSSUnit.isAngleUnitType(lu.getCssUnit())) {
 				valCount++;
 				break;
-			}
-		case OPERATOR_COMMA:
-			return false;
-		case VAR:
-			hasVar = true;
-			break;
-		default:
-			valCount++;
-			break;
-		}
-
-		lu = lu.nextLexicalUnit;
-		if (lu == null) {
-			return hasVar;
-		}
-
-		// Hue, or / alpha if var() involved
-		type = lu.getLexicalUnitType();
-		// Check component type
-		switch (type) {
-		case PERCENTAGE:
-			if (valCount == 2 && !hasVar) {
-				return false;
-			}
-			float fvalue = lu.getFloatValue();
-			if (fvalue < 0f) {
-				if (!hasVar && valCount == 1) {
-					lu.floatValue = 0f;
-				} else if (fvalue < -100f) {
-					lu.floatValue = -100f;
-				}
-				warn(handler, index, "Color component has percentage under 0%.");
-			} else if (fvalue > 100f) {
-				lu.floatValue = 100f;
-				warn(handler, index, "Color component has percentage over 100%.");
-			}
-			valCount++;
-			break;
-		case OPERATOR_SLASH:
-			lu = lu.nextLexicalUnit;
-			if (lu == null || (valCount < 3 && !hasVar) || valCount > 3) {
-				return false;
-			}
-			return isValidAlpha(handler, index, lu);
-		case IDENT:
-			String s = lu.getStringValue();
-			if ("from".equalsIgnoreCase(s)) {
-				// Too late
-				return false;
-			} else {
-				valCount++;
-			}
-			break;
-		case OPERATOR_COMMA:
-			return false;
-		case VAR:
-			hasVar = true;
-			break;
-		case DIMENSION:
-			short unit = lu.getCssUnit();
-			if (CSSUnit.isAngleUnitType(unit)) {
-				if (valCount == 2 || hasVar) {
+			case REAL:
+				if (!hasVar && valCount == 2) {
+					normalizeHue(handler, index, lu);
 					valCount++;
 					break;
 				}
-			}
-			return false;
-		default:
-			valCount++;
-			if (valCount == 4) {
-				return isValidAlpha(handler, index, lu);
-			}
-			break;
-		}
-
-		lu = lu.nextLexicalUnit;
-		while (lu != null) {
-			switch (lu.getLexicalUnitType()) {
+			case INTEGER:
+			case CALC:
+			case MATH_FUNCTION:
+			case SUB_EXPRESSION:
+			case FUNCTION:
+			case ATTR:
+				valCount++;
+				if (valCount == 4) {
+					return isValidAlpha(handler, index, lu);
+				}
+				break;
+			case IDENT:
+				String s = lu.getStringValue();
+				if (!isLCHComponentName(s)) {
+					return false;
+				} else {
+					valCount++;
+				}
+				break;
+			case DIMENSION:
+				// Could be hue
+				short unit = lu.getCssUnit();
+				if (!CSSUnit.isAngleUnitType(unit) || valCount > 2 || (valCount == 1 && !hasVar)) {
+					return false;
+				}
+				normalizeHue(handler, index, lu);
+				valCount++;
+				break;
 			case OPERATOR_SLASH:
 				lu = lu.nextLexicalUnit;
 				if (lu == null || (valCount < 3 && !hasVar) || valCount > 3) {
@@ -1863,12 +1753,251 @@ class FunctionFactories {
 				hasVar = true;
 				break;
 			default:
-				return hasVar && isValidAlpha(handler, index, lu);
+				return false;
 			}
-			lu = lu.nextLexicalUnit;
-		}
+		} while ((lu = lu.nextLexicalUnit) != null);
 
 		return valCount == 3 || valCount == 4 || (hasVar && valCount < 3);
+	}
+
+	private boolean isHueUnit(CSSContentHandler handler, final int index, LexicalUnitImpl lu) {
+		if (CSSUnit.isAngleUnitType(lu.getCssUnit())) {
+			normalizeHue(handler, index, lu);
+			return true;
+		}
+		return false;
+	}
+
+	private void normalizeHue(CSSContentHandler handler, final int index, LexicalUnitImpl lu) {
+		float h = lu.getFloatValue();
+		short unit = lu.getCssUnit();
+		float hdeg;
+		if (unit != CSSUnit.CSS_DEG && unit != CSSUnit.CSS_NUMBER) {
+			hdeg = NumberValue.floatValueConversion(h, unit, CSSUnit.CSS_DEG);
+		} else {
+			hdeg = h;
+		}
+		if (Math.abs(hdeg) > 360f) {
+			double dh = Math.IEEEremainder(hdeg, 360d);
+			if (dh < 0) {
+				dh += 360d;
+				warn(handler, index, "Color hue has value under 0.");
+			} else {
+				warn(handler, index, "Color hue has value over 360.");
+			}
+			dh = Math.rint(dh * 1e4) / 1e4;
+			dh += 0d; // Avoid -0
+			lu.floatValue = (float) dh;
+			lu.setUnitType(LexicalType.REAL);
+			lu.setCssUnit(CSSUnit.CSS_NUMBER);
+			lu.dimensionUnitText = "";
+		} else if (hdeg < 0) {
+			warn(handler, index, "Color hue has value under 0.");
+			hdeg += 360f;
+			lu.floatValue = hdeg;
+			lu.setUnitType(LexicalType.REAL);
+			lu.setCssUnit(CSSUnit.CSS_NUMBER);
+			lu.dimensionUnitText = "";
+		}
+	}
+
+	private void normalizeIntHue(CSSContentHandler handler, final int index, LexicalUnitImpl lu) {
+		int h = lu.getIntegerValue();
+		if (Math.abs(h) > 360) {
+			warn(handler, index, "Color hue has value outside the 0-360 range.");
+			h = Math.floorMod(h, 360);
+			lu.intValue = h;
+		} else if (h < 0) {
+			warn(handler, index, "Color hue has value under 0.");
+			h += 360;
+			lu.intValue = h;
+		}
+	}
+
+	private boolean isValidNonVarLCHColor(CSSContentHandler handler, final int index,
+			LexicalUnitImpl lu, int iUpperLightness, float fUpperLightness) {
+		boolean hasVar = false;
+		if (lu == null) {
+			return false;
+		}
+		// First argument: percentage, real or integer
+		LexicalType type = lu.getLexicalUnitType();
+		if (type == LexicalType.PERCENTAGE) {
+			// Clamp
+			float fL = lu.getFloatValue();
+			if (fL < 0f) {
+				lu.floatValue = 0f;
+				warn(handler, index, "Color lightness has percentage under 0%.");
+			} else if (fL > 100f) {
+				lu.floatValue = 100f;
+				warn(handler, index, "Color lightness has percentage over 100%.");
+			}
+		} else if (type == LexicalType.REAL) {
+			// Clamp
+			float fL = lu.getFloatValue();
+			if (fL < 0f) {
+				lu.floatValue = 0f;
+				warn(handler, index, "Color lightness has value under 0.");
+			} else if (fL > fUpperLightness) {
+				lu.floatValue = fUpperLightness;
+				warn(handler, index, "Color lightness has value over " + fUpperLightness);
+			}
+		} else if (type == LexicalType.INTEGER) {
+			// Clamp
+			int iL = lu.getIntegerValue();
+			if (iL < 0) {
+				lu.intValue = 0;
+				warn(handler, index, "Color lightness has value under 0.");
+			} else if (iL > iUpperLightness) {
+				lu.intValue = iUpperLightness;
+				warn(handler, index, "Color lightness has value over " + iUpperLightness);
+			}
+		} else if (type == LexicalType.VAR) {
+			hasVar = true;
+		} else if (type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
+				&& type != LexicalType.FUNCTION && type != LexicalType.ATTR
+				&& (type != LexicalType.IDENT || !isLCHComponentName(lu.getStringValue()))) {
+			return false;
+		}
+
+		lu = lu.nextLexicalUnit;
+		if (lu == null) {
+			// Just one value: only OK if it was a var().
+			return hasVar;
+		}
+
+		// Now it must be the chroma (unless var() involved)
+		type = lu.getLexicalUnitType();
+		if (type == LexicalType.PERCENTAGE) {
+			// Clamp
+			float fC = lu.getFloatValue();
+			if (fC < 0f) {
+				lu.floatValue = 0f;
+				warn(handler, index, "Color chroma has percentage under 0.");
+			} else if (fC > 100f) {
+				lu.floatValue = 100f;
+				warn(handler, index, "Color chroma has percentage over 100.");
+			}
+		} else if (type == LexicalType.REAL) {
+			if (!hasVar) {
+				// Clamp
+				float fC = lu.getFloatValue();
+				if (fC < 0f) {
+					lu.floatValue = 0f;
+					warn(handler, index, "Color chroma has value under 0.");
+				}
+			}
+		} else if (type == LexicalType.INTEGER) {
+			if (!hasVar) {
+				// Clamp
+				int iC = lu.getIntegerValue();
+				if (iC < 0) {
+					lu.intValue = 0;
+					warn(handler, index, "Color chroma has value under 0.");
+				}
+			}
+		} else if (type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
+				&& type != LexicalType.FUNCTION && type != LexicalType.ATTR
+				&& type != LexicalType.SUB_EXPRESSION
+				&& (type != LexicalType.IDENT || !isLCHComponentName(lu.getStringValue()))) {
+			if (type == LexicalType.VAR) {
+				hasVar = true;
+			} else if (hasVar) {
+				// Hue?
+				if (CSSUnit.isAngleUnitType(lu.getCssUnit())) {
+					normalizeHue(handler, index, lu);
+					// We are done unless there is an alpha channel
+					return checkNextSlashAplhaChannel(handler, index, lu, false);
+				} else {
+					// If not an angle, must be slash or alpha
+					if (type == LexicalType.OPERATOR_SLASH) {
+						lu = lu.nextLexicalUnit;
+						// This must be alpha channel value
+						if (lu == null) {
+							return false;
+						}
+					}
+					return isValidAlpha(handler, index, lu);
+				}
+			} else {
+				return false;
+			}
+		}
+
+		// Now the hue
+		lu = lu.nextLexicalUnit;
+		if (lu == null) {
+			// Just two values: only OK if a var() is involved.
+			return hasVar;
+		}
+
+		type = lu.getLexicalUnitType();
+		if (type != LexicalType.REAL && type != LexicalType.INTEGER
+				&& !isHueUnit(handler, index, lu) && type != LexicalType.CALC
+				&& type != LexicalType.MATH_FUNCTION && type != LexicalType.FUNCTION
+				&& type != LexicalType.ATTR
+				&& (type != LexicalType.IDENT || !isLCHComponentName(lu.getStringValue()))) {
+			if (type == LexicalType.VAR) {
+				hasVar = true;
+			} else if (hasVar) {
+				if (type == LexicalType.OPERATOR_SLASH) {
+					lu = lu.nextLexicalUnit;
+					// This must be alpha channel value
+					if (lu == null) {
+						return false;
+					}
+				}
+				return isValidAlpha(handler, index, lu);
+			} else {
+				return false;
+			}
+		}
+
+		// We are done unless there is an alpha channel
+		return checkNextSlashAplhaChannel(handler, index, lu, hasVar);
+	}
+
+	private static boolean isLCHComponentName(String s) {
+		return "l".equalsIgnoreCase(s) || "c".equalsIgnoreCase(s) || "h".equalsIgnoreCase(s)
+				|| "none".equalsIgnoreCase(s) || "alpha".equalsIgnoreCase(s);
+	}
+
+	/**
+	 * Check that the next unit is either null or slash-alpha.
+	 * 
+	 * @param handler
+	 * @param index
+	 * @param lu
+	 * @param hasVar
+	 * @return
+	 */
+	private boolean checkNextSlashAplhaChannel(CSSContentHandler handler, final int index,
+			LexicalUnitImpl lu, boolean hasVar) {
+		lu = lu.nextLexicalUnit;
+		if (lu != null) {
+			LexicalType type = lu.getLexicalUnitType();
+			if (type == LexicalType.OPERATOR_SLASH) {
+				lu = lu.nextLexicalUnit;
+				// This must be alpha channel value
+				if (lu == null) {
+					return false;
+				}
+			} else if (type == LexicalType.VAR) {
+				lu = lu.nextLexicalUnit;
+				while (lu != null) {
+					if (lu.getLexicalUnitType() != LexicalType.VAR) {
+						return isValidAlpha(handler, index, lu);
+					}
+					lu = lu.nextLexicalUnit;
+				}
+				return true;
+			} else if (!hasVar) {
+				return false;
+			}
+			return isValidAlpha(handler, index, lu);
+		}
+
+		return true;
 	}
 
 	private boolean isValidColorFunction(CSSContentHandler handler, int index,
@@ -1896,6 +2025,7 @@ class FunctionFactories {
 		if (type == LexicalType.IDENT) {
 			String s = lu.getStringValue();
 			if ("from".equalsIgnoreCase(s)) {
+				hasVar = false;
 				// The color is the next unit
 				lu = lu.nextLexicalUnit;
 				if (lu == null) {
@@ -1929,6 +2059,7 @@ class FunctionFactories {
 			switch (type) {
 			case IDENT:
 				if ("from".equalsIgnoreCase(lu.getStringValue())) {
+					// Too late
 					return false;
 				}
 			case REAL:
@@ -2181,13 +2312,15 @@ class FunctionFactories {
 			}
 			break;
 		case IDENT:
-			if (!"none".equalsIgnoreCase(lu.getStringValue())) {
+			String s = lu.getStringValue();
+			if (!"none".equalsIgnoreCase(s) && !"alpha".equalsIgnoreCase(s)) {
 				return false;
 			}
 			break;
 		case VAR:
 		case CALC:
 		case MATH_FUNCTION:
+		case SUB_EXPRESSION:
 		case FUNCTION:
 		case ATTR:
 			break;

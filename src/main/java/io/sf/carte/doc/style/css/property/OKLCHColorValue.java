@@ -322,6 +322,7 @@ class OKLCHColorValue extends ColorValue implements io.sf.carte.doc.style.css.LC
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
 				if (lu.getLexicalUnitType() != LexicalUnit.LexicalType.OPERATOR_SLASH) {
+					checkProxyValue(lu);
 					throw new DOMSyntaxException("Expected slash in: " + lunit.toString());
 				}
 				lu = lu.getNextLexicalUnit(); // Alpha

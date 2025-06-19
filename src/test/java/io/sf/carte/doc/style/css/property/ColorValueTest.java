@@ -1177,8 +1177,8 @@ public class ColorValueTest {
 		CSSValue value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
 		assertEquals(CssType.TYPED, value.getCssValueType());
-		assertEquals("hsl(759.28, 85%, 24%)", value.getCssText());
-		assertEquals("hsl(759.28,85%,24%)", value.getMinifiedCssText("color"));
+		assertEquals("hsl(39.28, 85%, 24%)", value.getCssText());
+		assertEquals("hsl(39.28,85%,24%)", value.getMinifiedCssText("color"));
 
 		RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
 		assertEquals("rgb(44.4%, 30.31%, 3.6%)", rgb.toString());
@@ -1191,8 +1191,8 @@ public class ColorValueTest {
 		CSSValue value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
 		assertEquals(CssType.TYPED, value.getCssValueType());
-		assertEquals("hsl(759.28 85% 24%)", value.getCssText());
-		assertEquals("hsl(759.28 85% 24%)", value.getMinifiedCssText("color"));
+		assertEquals("hsl(39.28 85% 24%)", value.getCssText());
+		assertEquals("hsl(39.28 85% 24%)", value.getMinifiedCssText("color"));
 
 		RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
 		assertEquals("rgb(44.4% 30.31% 3.6%)", rgb.toString());
@@ -1205,21 +1205,24 @@ public class ColorValueTest {
 		CSSValue value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
 		assertEquals(CssType.TYPED, value.getCssValueType());
-		assertEquals("hsl(-169.88, 95%, 35%)", value.getCssText());
-		assertEquals("hsl(-169.88,95%,35%)", value.getMinifiedCssText("color"));
+		assertEquals("hsl(190.12, 95%, 35%)", value.getCssText());
+		assertEquals("hsl(190.12,95%,35%)", value.getMinifiedCssText("color"));
 
 		RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
 		assertEquals("rgb(1.75%, 57.03%, 68.25%)", rgb.toString());
 		assertEquals("hsl(190.12, 95%, 35%)",
 				((ColorValue.CSSRGBColor) rgb).toHSLColor().toString());
+	}
 
+	@Test
+	public void testHSLColorModelNegativeHueDeg() {
 		style.setCssText("color: hsl(-170deg 95% 35%);");
-		value = style.getPropertyCSSValue("color");
+		StyleValue value = style.getPropertyCSSValue("color");
 		assertNotNull(value);
 		assertEquals(CssType.TYPED, value.getCssValueType());
-		assertEquals("hsl(-170 95% 35%)", value.getCssText());
-		assertEquals("hsl(-170 95% 35%)", value.getMinifiedCssText("color"));
-		rgb = ((CSSTypedValue) value).toRGBColor();
+		assertEquals("hsl(190 95% 35%)", value.getCssText());
+		assertEquals("hsl(190 95% 35%)", value.getMinifiedCssText("color"));
+		RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
 		assertEquals("rgb(1.75% 57.17% 68.25%)", rgb.toString());
 		assertEquals("hsl(190 95% 35%)", ((ColorValue.CSSRGBColor) rgb).toHSLColor().toString());
 	}

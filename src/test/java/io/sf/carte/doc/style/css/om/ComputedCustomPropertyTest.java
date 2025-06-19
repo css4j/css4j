@@ -198,6 +198,21 @@ public class ComputedCustomPropertyTest {
 	}
 
 	@Test
+	public void getComputedStyleCustomPropertiesRelativeColor() {
+		CSSElement elm = xhtmlDoc.getElementById("div1");
+		/*
+		 * Relative color substitution.
+		 */
+		elm.getOverrideStyle(null)
+				.setCssText("color: oklch(from var(--color) l c h / 0.5);--color:peru");
+		CSSComputedProperties style = elm.getComputedStyle(null);
+		CSSTypedValue color = (CSSTypedValue) style.getPropertyCSSValue("color");
+		assertEquals("oklch(0.678191 0.122678 62.179 / 0.5)", color.getCssText());
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
+		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
+	}
+
+	@Test
 	public void getComputedStyleRegisteredCustomProperties() {
 		// Prepare @property rule
 		xhtmlDoc.getStyleSheet().insertRule(

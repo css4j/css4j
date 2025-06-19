@@ -1168,7 +1168,150 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLabBad() throws CSSException {
+	public void testParsePropertyValueOKLABRelative() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("oklab(from peru l 0.424 0.5776/alpha)");
+		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("peru", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("l", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.424f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.5776f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("oklab", lu.getFunctionName());
+		assertEquals("oklab(from peru l 0.424 0.5776/alpha)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLABRelativeVar() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("oklab(from var(--color) l 0.424 0.5776/alpha)");
+		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("l", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.424f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(0.5776f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("oklab", lu.getFunctionName());
+		assertEquals("oklab(from var(--color) l 0.424 0.5776/alpha)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLABRelativeVarAllComps() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("oklab(from var(--color) l a b/alpha)");
+		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("l", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("a", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("b", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("oklab", lu.getFunctionName());
+		assertEquals("oklab(from var(--color) l a b/alpha)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLABVarRelativeAllCompsCalc() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"oklab(from var(--color) calc(l/2) calc(a/2) min(b,20)/calc(alpha/2))");
+		assertEquals(LexicalType.OKLABCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(l/2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(a/2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.MATH_FUNCTION, param.getLexicalUnitType());
+		assertEquals("min(b, 20)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(alpha/2)", param.getCssText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("oklab", lu.getFunctionName());
+		assertEquals("oklab(from var(--color) calc(l/2) calc(a/2) min(b, 20)/calc(alpha/2))",
+				lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLabInvalid() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(-12deg 48 0.1)"));
 
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(-12% 48.5)"));
@@ -1197,13 +1340,19 @@ public class PropertyParserColorOKTest {
 
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(74% 48 89.1//)"));
 
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(74% from 89.1)"));
-
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("oklab(var(--lightness) 48 89.1deg)"));
 
 		assertThrows(CSSParseException.class,
 				() -> parsePropertyValue("oklab(var(--lightness-a) 89.1deg)"));
+	}
+
+	@Test
+	public void testParsePropertyValueOKLabInvalidRelativeComponent() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklab(74% c 89.1)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue(
+				"oklab(from var(--color) 74% c 89.1)"));
 	}
 
 	@Test
@@ -2482,7 +2631,187 @@ public class PropertyParserColorOKTest {
 	}
 
 	@Test
-	public void testParsePropertyValueOKLchBad() throws CSSException {
+	public void testParsePropertyValueOKLCHRelative() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("oklch(from peru 53.2% 42.4 h/alpha)");
+		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("peru", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(53.2f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(42.4f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("h", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("oklch", lu.getFunctionName());
+		assertEquals("oklch(from peru 53.2% 42.4 h/alpha)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLCHRelativeVar() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("oklch(from var(--color) 53.2% 42.4 h/alpha)");
+		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.PERCENTAGE, param.getLexicalUnitType());
+		assertEquals(53.2f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(42.4f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("h", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("oklch", lu.getFunctionName());
+		assertEquals("oklch(from var(--color) 53.2% 42.4 h/alpha)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLCHRelativeVarAllComps() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("oklch(from var(--color) l c h/alpha)");
+		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("l", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("c", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("h", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("oklch", lu.getFunctionName());
+		assertEquals("oklch(from var(--color) l c h/alpha)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLCHRelativeVarAllCompsExceptHue() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("oklch(from var(--color) l c -720deg/alpha)");
+		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("l", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("c", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.REAL, param.getLexicalUnitType());
+		assertEquals(CSSUnit.CSS_NUMBER, param.getCssUnit());
+		assertEquals(0f, param.getFloatValue(), 1e-5f);
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("alpha", param.getStringValue());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("oklch", lu.getFunctionName());
+		assertEquals("oklch(from var(--color) l c 0/alpha)", lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLCHVarRelativeAllCompsCalc() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"oklch(from var(--color) calc(l/2) calc(c/2) min(h,20)/calc(alpha/2))");
+		assertEquals(LexicalType.OKLCHCOLOR, lu.getLexicalUnitType());
+		LexicalUnit param = lu.getParameters();
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("from", param.getStringValue());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.VAR, param.getLexicalUnitType());
+		assertEquals("var(--color)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(l/2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(c/2)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.MATH_FUNCTION, param.getLexicalUnitType());
+		assertEquals("min(h, 20)", param.getCssText());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.OPERATOR_SLASH, param.getLexicalUnitType());
+		param = param.getNextLexicalUnit();
+		assertEquals(LexicalType.CALC, param.getLexicalUnitType());
+		assertEquals("calc(alpha/2)", param.getCssText());
+		assertNull(param.getNextLexicalUnit());
+		assertEquals("oklch", lu.getFunctionName());
+		assertEquals("oklch(from var(--color) calc(l/2) calc(c/2) min(h, 20)/calc(alpha/2))",
+				lu.toString());
+	}
+
+	@Test
+	public void testParsePropertyValueOKLchInvalid() throws CSSException {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(-12deg 48 0.1)"));
 
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(-12% 48.6)"));
@@ -2511,8 +2840,14 @@ public class PropertyParserColorOKTest {
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(74%/48 21)"));
 
 		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(74% 48 89.1//)"));
+	}
 
-		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(74% from 89.1)"));
+	@Test
+	public void testParsePropertyValueOKLchInvalidRelativeComponent() throws CSSException {
+		assertThrows(CSSParseException.class, () -> parsePropertyValue("oklch(74% a 89.1)"));
+
+		assertThrows(CSSParseException.class, () -> parsePropertyValue(
+				"oklch(from var(--color) 74% a 89.1)"));
 	}
 
 	private LexicalUnit parsePropertyValue(String value) throws CSSParseException {

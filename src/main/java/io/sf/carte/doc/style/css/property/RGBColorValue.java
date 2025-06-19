@@ -242,6 +242,7 @@ public class RGBColorValue extends ColorValue {
 			// comma, slash or null
 			lu = lu.getNextLexicalUnit();
 			if (lu != null) {
+				checkProxyValue(lu);
 				// alpha
 				lu = lu.getNextLexicalUnit();
 				PrimitiveValue alpha = factory.createCSSPrimitiveValue(lu, true);

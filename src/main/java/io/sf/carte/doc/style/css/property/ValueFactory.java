@@ -1333,6 +1333,8 @@ public class ValueFactory implements CSSValueFactory {
 					if (e.code == DOMException.INVALID_ACCESS_ERR) {
 						throw e;
 					}
+				} catch (RuntimeException e) {
+					throw new DOMSyntaxException("Invalid ratio.");
 				}
 			} else {
 				throw new DOMSyntaxException("Invalid ratio.");

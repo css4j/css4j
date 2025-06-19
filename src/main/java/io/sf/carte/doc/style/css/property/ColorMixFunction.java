@@ -324,9 +324,9 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 		LexicalSetter setter = newLexicalSetter();
 		try {
 			setter.setLexicalUnit(lunit);
-		} catch (IllegalStateException e) {
+		} catch (RuntimeException e) {
 			DOMException ex = new DOMException(DOMException.INVALID_MODIFICATION_ERR,
-					"Not a color-mix() value: " + lunit.toString());
+					"Not a valid color-mix() value: " + lunit.toString());
 			ex.initCause(e);
 			throw ex;
 		}
