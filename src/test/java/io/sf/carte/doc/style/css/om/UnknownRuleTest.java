@@ -52,7 +52,7 @@ public class UnknownRuleTest {
 				"/* pre-rule */\n@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }\n",
 				rule.getCssText());
 		assertEquals(
-				"@-webkit-keyframes progress-bar-stripes { from { background-position: 40px 0; } to { background-position: 0 0; } }",
+				"@-webkit-keyframes progress-bar-stripes{from{background-position:40px 0}to{background-position:0 0}}",
 				rule.getMinifiedCssText());
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, rule.getPrecedingComments().size());
@@ -67,7 +67,7 @@ public class UnknownRuleTest {
 				"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }\n",
 				rule.getCssText());
 		assertEquals(
-				"@-webkit-keyframes spin { from { -webkit-transform: rotate(0); transform: rotate(0); } to { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }",
+				"@-webkit-keyframes spin{from{-webkit-transform:rotate(0);transform:rotate(0)}to{-webkit-transform:rotate(360deg);transform:rotate(360deg)}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -81,7 +81,7 @@ public class UnknownRuleTest {
 		assertEquals(" pre-comment ", rule.getPrecedingComments().item(0));
 		assertEquals(" post-comment ", rule.getTrailingComments().item(0));
 		assertEquals(
-				"@-webkit-keyframes foo{from{background-position:0 0;}to{background-position:-200% 0;}}",
+				"@-webkit-keyframes foo{from{background-position:0 0}to{background-position:-200% 0}}",
 				rule.getMinifiedCssText());
 	}
 

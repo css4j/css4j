@@ -296,7 +296,7 @@ public class GradientValueTest {
 				style.getPropertyValue("background-image"));
 		assertEquals("background-image: linear-gradient(var(--to-corner), red, white, blue); ",
 				style.getCssText());
-		assertEquals("background-image:linear-gradient(var(--to-corner),red,white,blue)",
+		assertEquals("background-image:linear-gradient(var(--to-corner),red,#fff,blue)",
 				style.getMinifiedCssText());
 
 		LexicalValue val = (LexicalValue) cssval;
@@ -315,7 +315,7 @@ public class GradientValueTest {
 				style.getPropertyValue("background-image"));
 		assertEquals("background-image: linear-gradient(to var(--corner), red, white, blue); ",
 				style.getCssText());
-		assertEquals("background-image:linear-gradient(to var(--corner),red,white,blue)",
+		assertEquals("background-image:linear-gradient(to var(--corner),red,#fff,blue)",
 				style.getMinifiedCssText());
 
 		LexicalValue val = (LexicalValue) cssval;
@@ -959,7 +959,7 @@ public class GradientValueTest {
 				"radial-gradient(attr(data-size type(<length>), 5em) attr(data-shape type(<custom-ident>), circle) at top left, attr(data-color1 type(<color>), yellow), attr(data-color2 type(<color>), blue))",
 				style.getPropertyValue("background-image"));
 		assertEquals(
-				"background-image:radial-gradient(attr(data-size type(<length>),5em) attr(data-shape type(<custom-ident>),circle) at top left,attr(data-color1 type(<color>),yellow),attr(data-color2 type(<color>),blue))",
+				"background-image:radial-gradient(attr(data-size type(<length>),5em) attr(data-shape type(<custom-ident>),circle) at top left,attr(data-color1 type(<color>),#ff0),attr(data-color2 type(<color>),blue))",
 				style.getMinifiedCssText());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -1555,7 +1555,7 @@ public class GradientValueTest {
 				"conic-gradient(from attr(data-from type(<angle>)) at attr(data-pos1 type(<length>)) attr(data-pos2 type(<length>)), attr(data-stopc1 type(<color>), black) attr(data-stop1 type(<percentage>)), attr(data-stop2 type(<angle>)) attr(data-stopc2 type(<color>), white))",
 				style.getPropertyValue("background-image"));
 		assertEquals(
-				"background-image:conic-gradient(from attr(data-from type(<angle>)) at attr(data-pos1 type(<length>)) attr(data-pos2 type(<length>)),attr(data-stopc1 type(<color>),black) attr(data-stop1 type(<percentage>)),attr(data-stop2 type(<angle>)) attr(data-stopc2 type(<color>),white))",
+				"background-image:conic-gradient(from attr(data-from type(<angle>)) at attr(data-pos1 type(<length>)) attr(data-pos2 type(<length>)),attr(data-stopc1 type(<color>),#000) attr(data-stop1 type(<percentage>)),attr(data-stop2 type(<angle>)) attr(data-stopc2 type(<color>),#fff))",
 				style.getMinifiedCssText());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());

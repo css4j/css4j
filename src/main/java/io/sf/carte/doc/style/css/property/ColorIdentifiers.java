@@ -33,14 +33,14 @@ public class ColorIdentifiers {
 		super();
 		colorKeywords.put("aliceblue", "#f0f8ff");
 		colorKeywords.put("antiquewhite", "#faebd7");
-		colorKeywords.put("aqua", "#00ffff");
+		colorKeywords.put("aqua", "#0ff");
 		colorKeywords.put("aquamarine", "#7fffd4");
 		colorKeywords.put("azure", "#f0ffff");
 		colorKeywords.put("beige", "#f5f5dc");
 		colorKeywords.put("bisque", "#ffe4c4");
-		colorKeywords.put("black", "#000000");
+		colorKeywords.put("black", "#000");
 		colorKeywords.put("blanchedalmond", "#ffebcd");
-		colorKeywords.put("blue", "#0000ff");
+		colorKeywords.put("blue", "#00f");
 		colorKeywords.put("blueviolet", "#8a2be2");
 		colorKeywords.put("brown", "#a52a2a");
 		colorKeywords.put("burlywood", "#deb887");
@@ -51,7 +51,7 @@ public class ColorIdentifiers {
 		colorKeywords.put("cornflowerblue", "#6495ed");
 		colorKeywords.put("cornsilk", "#fff8dc");
 		colorKeywords.put("crimson", "#dc143c");
-		colorKeywords.put("cyan", "#00ffff");
+		colorKeywords.put("cyan", "#0ff");
 		colorKeywords.put("darkblue", "#00008b");
 		colorKeywords.put("darkcyan", "#008b8b");
 		colorKeywords.put("darkgoldenrod", "#b8860b");
@@ -79,7 +79,7 @@ public class ColorIdentifiers {
 		colorKeywords.put("firebrick", "#b22222");
 		colorKeywords.put("floralwhite", "#fffaf0");
 		colorKeywords.put("forestgreen", "#228b22");
-		colorKeywords.put("fuchsia", "#ff00ff");
+		colorKeywords.put("fuchsia", "#f0f");
 		colorKeywords.put("gainsboro", "#dcdcdc");
 		colorKeywords.put("ghostwhite", "#f8f8ff");
 		colorKeywords.put("gold", "#ffd700");
@@ -113,10 +113,10 @@ public class ColorIdentifiers {
 		colorKeywords.put("lightslategrey", "#778899");
 		colorKeywords.put("lightsteelblue", "#b0c4de");
 		colorKeywords.put("lightyellow", "#ffffe0");
-		colorKeywords.put("lime", "#00ff00");
+		colorKeywords.put("lime", "#0f0");
 		colorKeywords.put("limegreen", "#32cd32");
 		colorKeywords.put("linen", "#faf0e6");
-		colorKeywords.put("magenta", "#ff00ff");
+		colorKeywords.put("magenta", "#f0f");
 		colorKeywords.put("maroon", "#800000");
 		colorKeywords.put("mediumaquamarine", "#66cdaa");
 		colorKeywords.put("mediumblue", "#0000cd");
@@ -151,7 +151,7 @@ public class ColorIdentifiers {
 		colorKeywords.put("powderblue", "#b0e0e6");
 		colorKeywords.put("purple", "#800080");
 		colorKeywords.put("rebeccapurple", "#663399");
-		colorKeywords.put("red", "#ff0000");
+		colorKeywords.put("red", "#f00");
 		colorKeywords.put("rosybrown", "#bc8f8f");
 		colorKeywords.put("royalblue", "#4169e1");
 		colorKeywords.put("saddlebrown", "#8b4513");
@@ -175,9 +175,9 @@ public class ColorIdentifiers {
 		colorKeywords.put("turquoise", "#40e0d0");
 		colorKeywords.put("violet", "#ee82ee");
 		colorKeywords.put("wheat", "#f5deb3");
-		colorKeywords.put("white", "#ffffff");
+		colorKeywords.put("white", "#fff");
 		colorKeywords.put("whitesmoke", "#f5f5f5");
-		colorKeywords.put("yellow", "#ffff00");
+		colorKeywords.put("yellow", "#ff0");
 		colorKeywords.put("yellowgreen", "#9acd32");
 		loadSystemColors();
 	}

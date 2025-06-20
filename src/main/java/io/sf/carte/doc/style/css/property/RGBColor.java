@@ -424,7 +424,11 @@ class RGBColor extends BaseColor implements RGBAColor {
 			buf.append(hexg.charAt(0));
 			buf.append(hexb.charAt(0));
 		}
-		return buf.toString();
+		String hex = buf.toString();
+		if (minify) {
+			hex = ColorMinifier.getInstance().minifyHex(hex);
+		}
+		return hex;
 	}
 
 	private float componentByte(PrimitiveValue component) {

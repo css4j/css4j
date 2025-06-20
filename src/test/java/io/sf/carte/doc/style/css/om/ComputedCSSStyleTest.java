@@ -265,7 +265,7 @@ public class ComputedCSSStyleTest {
 		assertEquals(
 				"display:block;font-family:'Does Not Exist',Neither;font-size:21.6pt;font-weight:bold;"
 						+ "unicode-bidi:embed;border-style:none;border-width:0;content:\"  foo  bar  \";"
-						+ "color:#000080;margin:28.8px 0;padding:0;width:900px;",
+						+ "color:navy;margin:28.8px 0;padding:0;width:900px;",
 				style.getMinifiedCssText());
 	}
 
@@ -1958,7 +1958,7 @@ public class ComputedCSSStyleTest {
 				"display: block; margin-top: 36pt; margin-right: 5%; margin-bottom: 48pt; margin-left: 5%; unicode-bidi: embed; background-color: #fff; background-image: url('http://www.example.com/css/background.png'); background-position: 0% 0%; background-size: auto auto; background-origin: padding-box; background-clip: border-box; background-repeat: repeat repeat; background-attachment: scroll; color: #808000; font-family: Arial, Helvetica; font-size: 12pt; width: 900px; ",
 				style.getCssText());
 		assertEquals(
-				"display:block;margin:36pt 5% 48pt;unicode-bidi:embed;background:url('css/background.png') #fff;color:#808000;font-family:Arial,Helvetica;font-size:12pt;width:900px;",
+				"display:block;margin:36pt 5% 48pt;unicode-bidi:embed;background:url('css/background.png') #fff;color:olive;font-family:Arial,Helvetica;font-size:12pt;width:900px;",
 				style.getMinifiedCssText());
 		try {
 			xhtmlDoc.setTargetMedium("print");

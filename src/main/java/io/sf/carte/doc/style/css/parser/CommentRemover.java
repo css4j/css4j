@@ -19,7 +19,10 @@ import io.sf.carte.uparser.TokenProducer;
 
 /**
  * Utility class that removes CSS comments from a string.
+ * 
+ * @deprecated see {@link io.sf.carte.doc.style.css.util.Minify Minify}.
  */
+@Deprecated
 public class CommentRemover {
 
 	/**

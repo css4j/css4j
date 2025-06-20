@@ -538,7 +538,7 @@ public class ComputedStyleAttrTest {
 		// Nonexistent color
 		elm.setAttribute("data-color", "not-a-color");
 		style = elm.getComputedStyle(null);
-		assertEquals("#f00", style.getPropertyValue("background"));
+		assertEquals("red", style.getPropertyValue("background"));
 		assertEquals("none", style.getPropertyValue("background-image"));
 		assertEquals("0% 0%", style.getPropertyValue("background-position"));
 		assertEquals("auto auto", style.getPropertyValue("background-size"));
@@ -556,7 +556,7 @@ public class ComputedStyleAttrTest {
 		// Wrong color
 		elm.setAttribute("data-color", "rgb(wrong)");
 		style = elm.getComputedStyle(null);
-		assertEquals("#f00", style.getPropertyValue("background"));
+		assertEquals("red", style.getPropertyValue("background"));
 		assertEquals("none", style.getPropertyValue("background-image"));
 		assertEquals("0% 0%", style.getPropertyValue("background-position"));
 		assertEquals("auto auto", style.getPropertyValue("background-size"));

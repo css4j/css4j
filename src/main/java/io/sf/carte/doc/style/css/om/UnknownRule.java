@@ -12,13 +12,14 @@
 package io.sf.carte.doc.style.css.om;
 
 import java.io.IOException;
+import java.io.StringReader;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.css.CSSUnknownRule;
 
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
-import io.sf.carte.doc.style.css.parser.CommentRemover;
+import io.sf.carte.doc.style.css.util.Minify;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
 
@@ -58,7 +59,13 @@ public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 
 	@Override
 	public String getMinifiedCssText() {
-		return CommentRemover.removeComments(cssText).toString().trim();
+		StringBuilder buffer = new StringBuilder(cssText.length());
+		try {
+			Minify.shallowMinify(new StringReader(cssText), buffer);
+		} catch (IOException e) {
+			// Cannot happen with StringReader
+		}
+		return buffer.toString();
 	}
 
 	@Override
@@ -103,7 +110,7 @@ public class UnknownRule extends BaseCSSRule implements CSSUnknownRule {
 			return false;
 		}
 		UnknownRule other = (UnknownRule) obj;
-		return cssText.equals(other.cssText);
+		return getMinifiedCssText().equals(other.getMinifiedCssText());
 	}
 
 	@Override

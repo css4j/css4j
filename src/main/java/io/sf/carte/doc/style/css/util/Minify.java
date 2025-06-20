@@ -37,13 +37,18 @@ import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.nsac.Parser.Flag;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
-import io.sf.carte.uparser.CommentRemovalHandler;
+import io.sf.carte.uparser.MinificationHandler;
 import io.sf.carte.uparser.TokenProducer;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.agent.AgentUtil;
 
 /**
  * Minify a CSS style sheet.
+ * <p>
+ * The regular minification methods first attempt a full minification by using
+ * the CSS parser, but in case that an unrecognized syntax is found, a safe,
+ * shallow minified serialization is used (with no CSS parsing involved).
+ * </p>
  */
 public class Minify {
 
@@ -68,9 +73,8 @@ public class Minify {
 	 * {@code 2}.
 	 * </p>
 	 * <p>
-	 * If the given sheet contains error(s) and therefore cannot be reliably
-	 * minified, the original source sheet is printed (with comments removed) and
-	 * the process exits with a status of {@code 1}.
+	 * If the given sheet contains error(s), a shallower minification is performed
+	 * and the process exits with a status of {@code 1}.
 	 * </p>
 	 * 
 	 * @param args the arguments, including at least the URI or path to a style
@@ -99,8 +103,8 @@ public class Minify {
 	 * as <code>--disable-shorthand all</code>).</li>
 	 * </ul>
 	 * <p>
-	 * If the sheet contains error(s) and therefore cannot be reliably minified, the
-	 * original source sheet is printed (with comments removed).
+	 * If the sheet contains error(s), a shallower minification is performed and the
+	 * method returns {@code 1}.
 	 * </p>
 	 * 
 	 * @param args the arguments, including at least the URI or path to a style
@@ -108,7 +112,7 @@ public class Minify {
 	 * @param out  the output stream.
 	 * @param err  the error reporting stream.
 	 * @return 0 if minification was successful, 2 if the arguments were incorrect,
-	 *         1 if the file was printed without minification.
+	 *         1 if the minification was only shallow due to unrecognized syntax.
 	 * @throws URISyntaxException       if the URI has wrong syntax.
 	 * @throws IllegalArgumentException if the URI is otherwise incorrect.
 	 * @throws IOException              if an I/O error happened.
@@ -269,8 +273,7 @@ public class Minify {
 	 * Minifies a CSS style sheet.
 	 * 
 	 * @param css the serialized style sheet.
-	 * @return the minified serialization, or the original one (with comments
-	 *         removed) if an error was detected.
+	 * @return the minified serialization.
 	 */
 	public static String minifyCSS(String css) {
 		return minifyCSS(css, null, null);
@@ -283,8 +286,7 @@ public class Minify {
 	 * @param config the minification configuration, or {@code null} if defaults
 	 *               should be used.
 	 * @param err    the error reporting stream, or {@code null} if no stream.
-	 * @return the minified serialization, or the original one (with comments
-	 *         removed) if an error was detected.
+	 * @return the minified serialization.
 	 */
 	public static String minifyCSS(String css, Config config, PrintStream err) {
 		if (config == null) {
@@ -295,8 +297,9 @@ public class Minify {
 		CSSParser parser = createCSSParser(config);
 		parser.setDocumentHandler(handler);
 
+		StringReader cssReader = new StringReader(css);
 		try {
-			parser.parseStyleSheet(new StringReader(css));
+			parser.parseStyleSheet(cssReader);
 		} catch (IOException e) {
 			// Cannot happen with StringReader
 		} catch (Exception e) {
@@ -304,7 +307,14 @@ public class Minify {
 			if (err != null) {
 				e.printStackTrace(err);
 			}
-			return css;
+			StringBuilder buffer = new StringBuilder(css.length());
+			try {
+				cssReader.reset();
+				shallowMinify(cssReader, buffer);
+			} catch (IOException e1) {
+				// Cannot happen with StringReader
+			}
+			return buffer.toString();
 		}
 
 		return wri.toString();
@@ -324,8 +334,7 @@ public class Minify {
 	 * Minifies a CSS style sheet.
 	 * 
 	 * @param cssPath the path to a {@code utf-8}-encoded style sheet.
-	 * @return the minified serialization, or the original file (with comments
-	 *         removed) if an error was found.
+	 * @return the minified serialization.
 	 */
 	public static String minifyCSS(Path cssPath) throws IOException {
 		StringBuilder builder = new StringBuilder(DEFAULT_BUFFER_SIZE);
@@ -341,9 +350,8 @@ public class Minify {
 	 *                should be used.
 	 * @param buffer  the buffer to write the minified serialization, or the
 	 *                original file if an error is found.
-	 * @return {@code true} if the style sheet was successfully minified,
-	 *         {@code false} if an error was found and the original file was
-	 *         returned, with comments removed.
+	 * @return {@code true} if the style sheet was fully minified, {@code false} if
+	 *         an error was found and the minification was shallow.
 	 */
 	public static boolean minifyCSS(Path cssPath, Config config, StringBuilder buffer)
 			throws IOException {
@@ -356,12 +364,10 @@ public class Minify {
 	 * @param cssPath the path to the style sheet.
 	 * @param config  the minification configuration, or {@code null} if defaults
 	 *                should be used.
-	 * @param buffer  the buffer to write the minified serialization, or the
-	 *                original file if an error is found.
+	 * @param buffer  the buffer to write the minified serialization.
 	 * @param err     the error reporting stream, or {@code null} if no stream.
-	 * @return {@code true} if the style sheet was successfully minified,
-	 *         {@code false} if an error was found and the original file was
-	 *         returned, with comments removed.
+	 * @return {@code true} if the style sheet was fully minified, {@code false} if
+	 *         a syntax error was found and the minification was shallow.
 	 */
 	public static boolean minifyCSS(Path cssPath, Config config, StringBuilder buffer,
 			PrintStream err) throws IOException {
@@ -390,18 +396,10 @@ public class Minify {
 		buffer.setLength(0);
 
 		try (Reader cssReader = Files.newBufferedReader(cssPath, encoding)) {
-			removeComments(cssReader, buffer);
+			shallowMinify(cssReader, buffer);
 		}
 
 		return false;
-	}
-
-	private static void removeComments(Reader cssReader, StringBuilder buffer) throws IOException {
-		String opening = "/*";
-		String closing = "*/";
-		CommentRemovalHandler h = new CommentRemovalHandler(buffer);
-		TokenProducer tp = new TokenProducer(h);
-		tp.parse(cssReader, opening, closing);
 	}
 
 	/**
@@ -410,12 +408,10 @@ public class Minify {
 	 * @param url    the url to the style sheet.
 	 * @param config the minification configuration, or {@code null} if defaults
 	 *               should be used.
-	 * @param buffer the buffer to write the minified serialization, or the original
-	 *               file if an error is found.
+	 * @param buffer the buffer to write the minified serialization.
 	 * @param err    the error reporting stream, or {@code null} if no stream.
-	 * @return {@code true} if the style sheet was successfully minified,
-	 *         {@code false} if an error was found and the original file was
-	 *         returned, with comments removed.
+	 * @return {@code true} if the style sheet was fully minified, {@code false} if
+	 *         a syntax error was found and the minification was shallow.
 	 */
 	public static boolean minifyCSS(URL url, Config config, StringBuilder buffer, PrintStream err)
 			throws IOException {
@@ -446,7 +442,7 @@ public class Minify {
 
 		ucon = url.openConnection();
 		try (Reader cssReader = inputStreamToReader(ucon, encoding)) {
-			removeComments(cssReader, buffer);
+			shallowMinify(cssReader, buffer);
 		}
 
 		return false;
@@ -458,6 +454,23 @@ public class Minify {
 		String contentEncoding = ucon.getContentEncoding();
 		String conType = ucon.getContentType();
 		return AgentUtil.inputStreamToReader(is, conType, contentEncoding, encoding);
+	}
+
+	/**
+	 * Perform a safe, shallow minification that does not attempt to minify values
+	 * nor media features.
+	 * 
+	 * @param cssReader the {@code Reader} with the style sheet.
+	 * @param buffer    the output buffer.
+	 * @throws IOException if an I/O error happened reading the style sheet.
+	 */
+	public static void shallowMinify(Reader cssReader, StringBuilder buffer) throws IOException {
+		String opening = "/*";
+		String closing = "*/";
+		MinificationHandler h = new ShallowMinificationHandler(buffer);
+		TokenProducer tp = new TokenProducer(h);
+		tp.setHandleAllSeparators(false);
+		tp.parse(cssReader, opening, closing);
 	}
 
 }

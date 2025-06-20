@@ -261,6 +261,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 				String cssText = lexicalUnit.getCssText();
 				if (cssText.length() < 10) {
 					// Hex notation
+					cssText = ColorMinifier.getInstance().minifyHex(cssText);
 					return cssText;
 				}
 			default:
@@ -328,6 +329,13 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 					return serializeInfinite(f, lexicalUnit.getDimensionUnitText());
 				}
 				return serializeNumber(f, lexicalUnit.getDimensionUnitText());
+			case IDENT:
+				s = lexicalUnit.getStringValue();
+				String color = ColorIdentifiers.getInstance().getColor(s);
+				if (color != null && color.length() < s.length()) {
+					s = color;
+				}
+				return s;
 			case INITIAL:
 				if (propertyName != null && !propertyName.isEmpty() && !lexicalUnit.isParameter()) {
 					StyleValue ini = PropertyDatabase.getInstance().getInitialValue(propertyName);
@@ -340,6 +348,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 						return text;
 					}
 				}
+				break;
 			default:
 				break;
 			}

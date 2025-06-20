@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.util;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -125,7 +126,13 @@ class MinifySheetHandler implements CSSHandler {
 		writeBuf();
 		setRuleContent();
 		// Ignorable @-rule
-		write(atRule);
+		try {
+			Minify.shallowMinify(new StringReader(atRule), ruleBuf);
+		} catch (IOException e) {
+			// Cannot happen with StringReader
+		}
+		write(ruleBuf);
+		ruleBuf.setLength(0);
 	}
 
 	@Override

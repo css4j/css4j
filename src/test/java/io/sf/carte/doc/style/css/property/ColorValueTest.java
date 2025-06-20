@@ -698,7 +698,7 @@ public class ColorValueTest {
 		assertEquals(CssType.TYPED, value.getCssValueType());
 		rgb = ((CSSTypedValue) value).toRGBColor();
 		assertEquals("#f00", rgb.toString());
-		assertEquals("#f00", ((ColorValue.CSSRGBColor) rgb).toMinifiedString());
+		assertEquals("red", ((ColorValue.CSSRGBColor) rgb).toMinifiedString());
 
 		style.setCssText("color: red; ");
 		value = style.getPropertyCSSValue("color");
@@ -706,7 +706,7 @@ public class ColorValueTest {
 		assertEquals(CssType.TYPED, value.getCssValueType());
 		rgb = ((CSSTypedValue) value).toRGBColor();
 		assertEquals("#f00", rgb.toString());
-		assertEquals("#f00", ((ColorValue.CSSRGBColor) rgb).toMinifiedString());
+		assertEquals("red", ((ColorValue.CSSRGBColor) rgb).toMinifiedString());
 
 		style.setCssText("color: #ea3; ");
 		value = style.getPropertyCSSValue("color");
@@ -1525,7 +1525,7 @@ public class ColorValueTest {
 		assertEquals(CssType.TYPED, value.getCssValueType());
 		assertEquals(Type.COLOR, value.getPrimitiveType());
 		assertEquals("hwb(0 0% 0%)", value.getCssText());
-		assertEquals("#f00", value.getMinifiedCssText("color"));
+		assertEquals("red", value.getMinifiedCssText("color"));
 		RGBAColor rgb = ((CSSTypedValue) value).toRGBColor();
 		assertEquals("#f00", rgb.toString());
 	}

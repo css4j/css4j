@@ -958,7 +958,7 @@ public class XMLDocumentTest {
 		assertEquals("#f00", style.getPropertyValue("color"));
 		assertEquals("margin-top: 16pt; margin-right: 16pt; margin-bottom: 16pt; margin-left: 16pt; color: #f00; ",
 				style.getCssText());
-		assertEquals("margin:16pt;color:#f00;", style.getMinifiedCssText());
+		assertEquals("margin:16pt;color:red;", style.getMinifiedCssText());
 	}
 
 	@Test
