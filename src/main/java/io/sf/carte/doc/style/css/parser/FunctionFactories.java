@@ -1558,7 +1558,8 @@ class FunctionFactories {
 			} else if (type == LexicalType.VAR) {
 				hasVar = true;
 			} else if (type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
-					&& type != LexicalType.FUNCTION && type != LexicalType.ATTR
+					&& type != LexicalType.SUB_EXPRESSION && type != LexicalType.ATTR
+					&& type != LexicalType.FUNCTION
 					&& (type != LexicalType.IDENT || !isLabComponentName(lu.getStringValue()))) {
 				return false;
 			}
@@ -1855,7 +1856,8 @@ class FunctionFactories {
 		} else if (type == LexicalType.VAR) {
 			hasVar = true;
 		} else if (type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
-				&& type != LexicalType.FUNCTION && type != LexicalType.ATTR
+				&& type != LexicalType.SUB_EXPRESSION && type != LexicalType.ATTR
+				&& type != LexicalType.FUNCTION
 				&& (type != LexicalType.IDENT || !isLCHComponentName(lu.getStringValue()))) {
 			return false;
 		}
@@ -1897,9 +1899,9 @@ class FunctionFactories {
 				}
 			}
 		} else if (type != LexicalType.CALC && type != LexicalType.MATH_FUNCTION
-				&& type != LexicalType.FUNCTION && type != LexicalType.ATTR
-				&& type != LexicalType.SUB_EXPRESSION
-				&& (type != LexicalType.IDENT || !isLCHComponentName(lu.getStringValue()))) {
+				&& type != LexicalType.SUB_EXPRESSION && type != LexicalType.ATTR
+				&& (type != LexicalType.IDENT || !isLCHComponentName(lu.getStringValue()))
+				&& type != LexicalType.FUNCTION) {
 			if (type == LexicalType.VAR) {
 				hasVar = true;
 			} else if (hasVar) {
@@ -1934,8 +1936,8 @@ class FunctionFactories {
 		type = lu.getLexicalUnitType();
 		if (type != LexicalType.REAL && type != LexicalType.INTEGER
 				&& !isHueUnit(handler, index, lu) && type != LexicalType.CALC
-				&& type != LexicalType.MATH_FUNCTION && type != LexicalType.FUNCTION
-				&& type != LexicalType.ATTR
+				&& type != LexicalType.MATH_FUNCTION && type != LexicalType.SUB_EXPRESSION
+				&& type != LexicalType.ATTR && type != LexicalType.FUNCTION
 				&& (type != LexicalType.IDENT || !isLCHComponentName(lu.getStringValue()))) {
 			if (type == LexicalType.VAR) {
 				hasVar = true;
@@ -2206,9 +2208,9 @@ class FunctionFactories {
 				case PERCENTAGE:
 				case CALC:
 				case MATH_FUNCTION:
-				case FUNCTION:
 				case ATTR:
 				case SUB_EXPRESSION:
+				case FUNCTION:
 					lu = lu.getNextLexicalUnit();
 					break;
 				default:
@@ -2227,8 +2229,8 @@ class FunctionFactories {
 			// Assume the rest is right if we got the right type
 			return hasVar && (!cannotBeColor(lu, synColor) || uType == LexicalType.PERCENTAGE
 					|| uType == LexicalType.CALC || uType == LexicalType.MATH_FUNCTION
-					|| uType == LexicalType.SUB_EXPRESSION || uType == LexicalType.FUNCTION
-					|| uType == LexicalType.VAR);
+					|| uType == LexicalType.SUB_EXPRESSION || uType == LexicalType.VAR
+					|| uType == LexicalType.ATTR || uType == LexicalType.FUNCTION);
 		} else {
 			lu = lu.getNextLexicalUnit();
 			uType = lu.getLexicalUnitType();

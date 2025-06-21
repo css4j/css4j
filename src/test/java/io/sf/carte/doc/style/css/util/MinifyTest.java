@@ -37,11 +37,16 @@ import org.w3c.dom.DOMException;
 import io.sf.carte.doc.dom.CSSDOMImplementation;
 import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheet;
 import io.sf.carte.doc.style.css.om.AbstractCSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.om.CSSOMBridge;
 import io.sf.carte.doc.style.css.util.Minify.Config;
+import io.sf.carte.doc.style.css.util.Minify.ShallowConfig;
 
 class MinifyTest {
+
+	private static final int USAGE_LENGTH = 182;
 
 	@Test
 	void testUA_Sheet() throws URISyntaxException, IOException {
@@ -138,6 +143,25 @@ class MinifyTest {
 		args[1] = "--disable-shorthand";
 		args[2] = "all";
 		final int MINIFIED_LENGTH = 257;
+		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
+		PrintStream ps = new PrintStream(out, false, "utf-8");
+		assertEquals(0, Minify.main(args, ps, System.err));
+
+		// Test for the expected length
+		if (MINIFIED_LENGTH != out.size()) {
+			// Check equivalence at OM level, to figure out the issue
+			failureCheck(path, out.toByteArray());
+		}
+	}
+
+	@Test
+	void testPreserveCommentChar() throws URISyntaxException, IOException {
+		String path = "/io/sf/carte/doc/style/css/util/minify.css";
+		String[] args = new String[3];
+		args[0] = MinifyTest.class.getResource(path).toExternalForm();
+		args[1] = "--preserve-comment-char";
+		args[2] = "*";
+		final int MINIFIED_LENGTH = 226;
 		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		assertEquals(0, Minify.main(args, ps, System.err));
@@ -251,23 +275,56 @@ class MinifyTest {
 	@Test
 	void testMain_Print_Usage_No_args() throws URISyntaxException, IOException {
 		String[] args = {};
-		ByteArrayOutputStream out = new ByteArrayOutputStream(64);
+		ByteArrayOutputStream out = new ByteArrayOutputStream(USAGE_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		assertEquals(2, Minify.main(args, System.out, ps));
 		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
 		result = result.replaceAll("\r", "");
-		assertEquals(147, result.length());
+		assertEquals(USAGE_LENGTH, result.length());
 	}
 
 	@Test
 	void testMain_Print_Usage_No_Path() throws URISyntaxException, IOException {
 		String[] args = { "--charset", "utf-8" };
+		ByteArrayOutputStream out = new ByteArrayOutputStream(USAGE_LENGTH);
+		PrintStream ps = new PrintStream(out, false, "utf-8");
+		assertEquals(2, Minify.main(args, System.out, ps));
+		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
+		result = result.replaceAll("\r", "");
+		assertEquals(USAGE_LENGTH, result.length());
+	}
+
+	@Test
+	void testMain_Print_Usage_No_Charset() throws URISyntaxException, IOException {
+		String[] args = { "--charset" };
+		ByteArrayOutputStream out = new ByteArrayOutputStream(USAGE_LENGTH);
+		PrintStream ps = new PrintStream(out, false, "utf-8");
+		assertEquals(2, Minify.main(args, System.out, ps));
+		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
+		result = result.replaceAll("\r", "");
+		assertEquals(USAGE_LENGTH, result.length());
+	}
+
+	@Test
+	void testMain_Print_Usage_No_CommentPreserveChar() throws URISyntaxException, IOException {
+		String[] args = { "--preserve-comment-char" };
 		ByteArrayOutputStream out = new ByteArrayOutputStream(64);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		assertEquals(2, Minify.main(args, System.out, ps));
 		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
 		result = result.replaceAll("\r", "");
-		assertEquals(147, result.length());
+		assertEquals(USAGE_LENGTH, result.length());
+	}
+
+	@Test
+	void testMain_Print_Usage_Invalid_CommentPreserveChar() throws URISyntaxException, IOException {
+		String[] args = { "--preserve-comment-char", "%%" };
+		ByteArrayOutputStream out = new ByteArrayOutputStream(64);
+		PrintStream ps = new PrintStream(out, false, "utf-8");
+		assertEquals(2, Minify.main(args, System.out, ps));
+		String result = new String(out.toByteArray(), StandardCharsets.UTF_8);
+		result = result.replaceAll("\r", "");
+		assertEquals(USAGE_LENGTH, result.length());
 	}
 
 	@Test
@@ -407,7 +464,7 @@ class MinifyTest {
 	void testMinifyCSS_Style() {
 		assertEquals("p,.cls{background:url('foo?a=b(c)')}div{background:url(imag/img.png) .9em}",
 				Minify.minifyCSS(
-						"p,*.cls {background:url('foo?a=b(c)');} div{background:url('imag/img.png') 0.9em;}"));
+						"p,*.cls,p {background:url('foo?a=b(c)');} div{background:url('imag/img.png') 0.9em;}"));
 	}
 
 	@Test
@@ -459,11 +516,69 @@ class MinifyTest {
 	}
 
 	@Test
+	void testMinifyCSS_SerializeValuesSelectors() {
+		String css = "div :first-child,* .cls,* #id,:lang(en) *, p [ attr ],[a] p,:lang(en) [a] [b] * {color: rgb( from lime r calc(g - 85 ) b ); color: rgb( from  var(--other) r g b); }";
+		String min = "div :first-child,* .cls,* #id,:lang(en) *,p [attr],[a] p,:lang(en) [a] [b] *{color:/* This is a color */#0a0;color:/* This is a color */rgb(from var(--other) r g b)}";
+		TestConfig config = new TestConfig() {
+
+			TestSheetContext sheetContext = new TestSheetContext();
+
+			@Override
+			public void serializeSelectors(SelectorList selectors, StringBuilder buffer) {
+				String s = CSSOMBridge.selectorListToString(selectors, sheetContext);
+				buffer.append(s);
+			}
+
+			@Override
+			public void serializeValue(String property, String value, StringBuilder buffer) {
+				if ("color".equals(property)) {
+					buffer.append("/* This is a color */");
+				}
+				buffer.append(value);
+			}
+
+		};
+		assertEquals(min, Minify.minifyCSS(css, config, null));
+	}
+
+	@Test
 	void testShallowMinify() throws IOException {
+		String path = "/io/sf/carte/doc/style/css/util/minify.css";
+		final int MINIFIED_LENGTH = 269;
+		StringBuilder buffer = new StringBuilder(MINIFIED_LENGTH);
+		try (Reader re = new InputStreamReader(MinifyTest.class.getResourceAsStream(path),
+				StandardCharsets.UTF_8)) {
+			Minify.shallowMinify(re, buffer);
+		}
+		assertEquals(MINIFIED_LENGTH, buffer.length());
+	}
+
+	@Test
+	void testShallowMinifyPreserveChar() throws IOException {
+		String path = "/io/sf/carte/doc/style/css/util/minify.css";
+		final int MINIFIED_LENGTH = 283;
+		ShallowConfig config = new ShallowConfig() {
+
+			@Override
+			public char getPreserveCommentChar() {
+				return '*';
+			}
+
+		};
+		StringBuilder buffer = new StringBuilder(MINIFIED_LENGTH);
+		try (Reader re = new InputStreamReader(MinifyTest.class.getResourceAsStream(path),
+				StandardCharsets.UTF_8)) {
+			Minify.shallowMinify(re, config, buffer);
+		}
+		assertEquals(MINIFIED_LENGTH, buffer.length());
+	}
+
+	@Test
+	void testShallowMinifySelectors() throws IOException {
 		// Check for potential pitfalls in case that the shallow minifier is modified,
 		// for example that "div :first-child" is not converted into "div:first-child"
-		String css = "div :first-child,* .cls,* #id,p *, p [ attr ],[attr] p {background-color: if( style( --color  : white): black ; else: white);color: rgb( from lime r calc(g - 127 ) b ); color: rgb( from  var(--other) r g b); }";
-		String min = "div :first-child,* .cls,* #id,p *,p [attr],[attr] p{background-color:if(style(--color :white):black;else:white);color:rgb(from lime r calc(g - 127) b);color:rgb(from var(--other) r g b)}";
+		String css = "div :first-child,* .cls,* #id,:lang(en) *, p [ attr ],[a] p,:lang(en) [a] [b] * {background-color: if( style( --color  : white): black ; else: white);color: rgb( from lime r calc(g - 127 ) b ); color: rgb( from  var(--other) r g b); }";
+		String min = "div :first-child,* .cls,* #id,:lang(en) *,p [attr],[a] p,:lang(en) [a] [b] *{background-color:if(style(--color :white):black;else:white);color:rgb(from lime r calc(g - 127) b);color:rgb(from var(--other) r g b)}";
 		StringBuilder buffer = new StringBuilder(css.length());
 		Minify.shallowMinify(new StringReader(css), buffer);
 		assertEquals(min, buffer.toString());

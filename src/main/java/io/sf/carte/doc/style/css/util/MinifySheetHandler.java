@@ -39,7 +39,7 @@ import io.sf.carte.doc.style.css.property.ShorthandDatabase;
 import io.sf.carte.doc.style.css.property.StyleValue;
 import io.sf.carte.doc.style.css.property.ValueFactory;
 import io.sf.carte.doc.style.css.util.Minify.Config;
-import io.sf.carte.util.SimpleWriter;
+import io.sf.carte.util.BufferSimpleWriter;
 
 class MinifySheetHandler implements CSSHandler {
 
@@ -56,16 +56,19 @@ class MinifySheetHandler implements CSSHandler {
 
 	private ValueFactory factory = new ValueFactory();
 
-	private SimpleWriter writer;
+	private BufferSimpleWriter writer;
 
 	private StringBuilder ruleBuf = new StringBuilder(128);
 
 	private final Config config;
 
-	MinifySheetHandler(SimpleWriter wri, Config config) {
+	private final char preserveCommentChar;
+
+	MinifySheetHandler(BufferSimpleWriter wri, Config config) {
 		super();
 		this.writer = wri;
 		this.config = config;
+		this.preserveCommentChar = config.getPreserveCommentChar();
 	}
 
 	@Override
@@ -80,19 +83,11 @@ class MinifySheetHandler implements CSSHandler {
 	}
 
 	private void write(char c) {
-		try {
-			writer.write(c);
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-		}
+		writer.write(c);
 	}
 
 	private void write(CharSequence string) {
-		try {
-			writer.write(string);
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-		}
+		writer.write(string);
 	}
 
 	private void writeBuf() {
@@ -112,7 +107,7 @@ class MinifySheetHandler implements CSSHandler {
 
 	@Override
 	public void comment(String text, boolean precededByLF) {
-		if (!text.isEmpty() && text.charAt(0) == '!') {
+		if (!text.isEmpty() && text.charAt(0) == preserveCommentChar) {
 			appendBuf("/*");
 			appendBuf(text);
 			appendBuf("*/");
@@ -437,7 +432,7 @@ class MinifySheetHandler implements CSSHandler {
 		writeBuf();
 		currentRule.add(CSSRule.STYLE_RULE);
 
-		appendBuf(selectors.toString());
+		config.serializeSelectors(selectors, ruleBuf);
 		appendBuf('{');
 	}
 
@@ -551,13 +546,14 @@ class MinifySheetHandler implements CSSHandler {
 			if (omvalue.getPrimitiveType() != Type.LEXICAL) {
 				String ommini = omvalue.getMinifiedCssText();
 				if (ommini.length() < mini.length()) {
-					buf.append(ommini);
+					config.serializeValue(propertyName, ommini, buf);
 					return;
 				}
 			}
 		} catch (Exception e) {
 		}
-		buf.append(mini);
+
+		config.serializeValue(propertyName, mini, buf);
 	}
 
 	@Override

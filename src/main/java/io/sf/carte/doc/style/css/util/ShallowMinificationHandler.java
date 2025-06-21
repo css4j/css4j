@@ -14,11 +14,15 @@ package io.sf.carte.doc.style.css.util;
 import java.util.Arrays;
 
 import io.sf.carte.uparser.MinificationHandler;
+import io.sf.carte.uparser.TokenControl;
 
 class ShallowMinificationHandler extends MinificationHandler {
 
-	ShallowMinificationHandler(StringBuilder buffer) {
+	private final char preserveCommentChar;
+
+	ShallowMinificationHandler(StringBuilder buffer, Minify.ShallowConfig config) {
 		super(buffer);
+		this.preserveCommentChar = config.getPreserveCommentChar();
 	}
 
 	private static final char[] noSepAfter;
@@ -40,6 +44,11 @@ class ShallowMinificationHandler extends MinificationHandler {
 
 	private boolean whitespaceRequired() {
 		return Arrays.binarySearch(noSepAfter, (char) getPreviousCodepoint()) < 0;
+	}
+
+	@Override
+	public void tokenStart(TokenControl control) {
+		setPreviousCodepoint(32);
 	}
 
 	@Override
@@ -85,12 +94,11 @@ class ShallowMinificationHandler extends MinificationHandler {
 
 	@Override
 	public void commented(int index, int commentType, String comment) {
-		StringBuilder buf = getBuffer();
-		if (!comment.isEmpty() && comment.charAt(0) == '!') {
+		if (!comment.isEmpty() && comment.charAt(0) == preserveCommentChar) {
 			removeTrailingWhitespace();
-			buf.append("/*").append(comment).append("*/");
+			getBuffer().append("/*").append(comment).append("*/");
 		} else if (whitespaceRequired()) {
-			buf.append(' ');
+			getBuffer().append(' ');
 		}
 		setPreviousCodepoint(32);
 	}

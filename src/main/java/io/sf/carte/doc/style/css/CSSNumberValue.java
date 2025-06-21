@@ -35,11 +35,16 @@ public interface CSSNumberValue extends CSSTypedValue {
 	void roundToInteger() throws DOMException;
 
 	/**
-	 * Set the maximum fraction digits to use in the serialization of this number
-	 * when it was not specified or is the result of a calculation.
+	 * If this object uses a fixed format for serialization, set the maximum
+	 * fraction digits to use when it was not specified or is the result of a
+	 * calculation.
+	 * <p>
+	 * If the implementation does not use a fixed format, does nothing.
+	 * </p>
 	 * 
 	 * @param maxFractionDigits the maximum fraction digits.
 	 */
-	void setMaximumFractionDigits(int maxFractionDigits);
+	default void setMaximumFractionDigits(int maxFractionDigits) {
+	}
 
 }

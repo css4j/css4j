@@ -17,6 +17,7 @@ import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.Selector;
 import io.sf.carte.doc.style.css.nsac.SelectorList;
+import io.sf.carte.doc.style.css.nsac.SheetContext;
 import io.sf.carte.doc.style.css.property.StyleValue;
 
 public class CSSOMBridge {
@@ -44,20 +45,24 @@ public class CSSOMBridge {
 	}
 
 	public static String selectorListToString(SelectorList selist, StyleRule rule) {
+		return selectorListToString(selist, rule.getParentStyleSheet());
+	}
+
+	public static String selectorListToString(SelectorList selist, SheetContext parentSheet) {
 		if (selist == null) {
 			return null;
 		}
 		StringBuilder buf = new StringBuilder();
-		buf.append(selectorText(rule, selist.item(0), false));
+		buf.append(selectorText(parentSheet, selist.item(0), false));
 		int sz = selist.getLength();
 		for (int i = 1; i < sz; i++) {
-			buf.append(' ').append(selectorText(rule, selist.item(i), false));
+			buf.append(',').append(selectorText(parentSheet, selist.item(i), false));
 		}
 		return buf.toString();
 	}
 
-	public static String selectorText(StyleRule rule, Selector sel, boolean omitUniversal) {
-		SelectorSerializer serializer = new SelectorSerializer(rule.getParentStyleSheet());
+	public static String selectorText(SheetContext parentSheet, Selector sel, boolean omitUniversal) {
+		SelectorSerializer serializer = new SelectorSerializer(parentSheet);
 		StringBuilder buf = new StringBuilder();
 		serializer.selectorText(buf, sel, omitUniversal);
 		return buf.toString();

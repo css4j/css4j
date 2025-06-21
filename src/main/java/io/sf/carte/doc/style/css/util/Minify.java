@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.nsac.SelectorList;
 import io.sf.carte.doc.style.css.nsac.Parser.Flag;
 import io.sf.carte.doc.style.css.om.CSSOMParser;
 import io.sf.carte.doc.style.css.parser.CSSParser;
@@ -155,7 +156,8 @@ public class Minify {
 	 */
 	private static void printUsage(PrintStream err) {
 		err.println("Usage: " + Minify.class.getName()
-				+ " [--charset <charset>] [--disable-shorthand [<shorthand-list>]] [--validate] <style-sheet-uri-or-path>");
+				+ " [--charset <charset>] [--disable-shorthand [<shorthand-list>]]"
+				+ " [--preserve-comment-char \"<char>\"] [--validate] <style-sheet-uri-or-path>");
 	}
 
 	private static ConfigImpl readConfig(String[] args) {
@@ -208,37 +210,106 @@ public class Minify {
 							i--;
 						}
 					}
+				} else if ("--preserve-comment-char".equalsIgnoreCase(arg)) {
+					// Preserve comments that begin with a character
+					i++;
+					if (i < args.length) {
+						arg = args[i];
+						if (arg.length() == 1) {
+							config.preserveCommentChar = arg.charAt(0);
+							continue;
+						}
+					}
+					return null;
 				} else if ("--validate".equalsIgnoreCase(arg)) {
 					// Validate values
 					config.validate = true;
 				}
 			}
 		}
+
 		if (config.path == null) {
 			config = null;
 		} else if (enableShorthands) {
 			config.disabledShorthands = Collections.emptySet();
 		}
+
 		return config;
 	}
 
-	public interface Config {
+	/**
+	 * Configuration common to shallow and normal minification.
+	 */
+	public interface ShallowConfig {
+
+		/**
+		 * Get the character that marks a comment as to be preserved, if found at the
+		 * beginning of it.
+		 * <p>
+		 * By default, it is {@code '!'}.
+		 * </p>
+		 * 
+		 * @return the important character.
+		 */
+		default char getPreserveCommentChar() {
+			return '!';
+		}
+
+	}
+
+	/**
+	 * Configuration of normal minification.
+	 */
+	public interface Config extends ShallowConfig {
 
 		/**
 		 * Get the encoding of the style sheet.
 		 *
 		 * @return the encoding, or {@code null} if {@code UTF-8}.
 		 */
-		Charset getEncoding();
+		default Charset getEncoding() {
+			return null;
+		}
 
-		boolean isDisabledShorthand(String name);
+		/**
+		 * Check whether the optimization of the given shorthand is disabled.
+		 * 
+		 * @param name the lower case shorthand name.
+		 * @return {@code true} if the shorthand should not be optimized.
+		 */
+		default boolean isDisabledShorthand(String name) {
+			return false;
+		}
+
+		/**
+		 * Serialize the given selector list to the buffer.
+		 * 
+		 * @param selectors the selector list.
+		 * @param buffer    the destination buffer.
+		 */
+		default void serializeSelectors(SelectorList selectors, StringBuilder buffer) {
+			buffer.append(selectors.toString());
+		}
+
+		/**
+		 * Customize the serialization of a property (or descriptor) value.
+		 * 
+		 * @param property the property/descriptor name.
+		 * @param value    the suggested minified serialization of the value.
+		 * @param buffer   the destination buffer.
+		 */
+		default void serializeValue(String property, String value, StringBuilder buffer) {
+			buffer.append(value);
+		}
 
 		/**
 		 * Validate function values.
 		 * 
 		 * @return {@code true} if the parser should validate function values.
 		 */
-		boolean validate();
+		default boolean validate() {
+			return false;
+		}
 
 	}
 
@@ -247,6 +318,8 @@ public class Minify {
 		private Set<String> disabledShorthands = null;
 
 		private Charset encoding;
+
+		private char preserveCommentChar = '!';
 
 		private boolean validate;
 
@@ -260,6 +333,11 @@ public class Minify {
 		@Override
 		public Charset getEncoding() {
 			return encoding;
+		}
+
+		@Override
+		public char getPreserveCommentChar() {
+			return preserveCommentChar;
 		}
 
 		@Override
@@ -303,10 +381,8 @@ public class Minify {
 		} catch (IOException e) {
 			// Cannot happen with StringReader
 		} catch (Exception e) {
-			// Error detected, return the source
-			if (err != null) {
-				e.printStackTrace(err);
-			}
+			// Error detected, do a shallow minification
+			printStackTraceIfNotNull(e, err);
 			StringBuilder buffer = new StringBuilder(css.length());
 			try {
 				cssReader.reset();
@@ -387,12 +463,10 @@ public class Minify {
 			parser.parseStyleSheet(cssReader);
 			return true;
 		} catch (Exception e) {
-			if (err != null) {
-				e.printStackTrace(err);
-			}
+			printStackTraceIfNotNull(e, err);
 		}
 
-		// Error detected, return the source without comments.
+		// Error detected, do a shallow minification
 		buffer.setLength(0);
 
 		try (Reader cssReader = Files.newBufferedReader(cssPath, encoding)) {
@@ -432,12 +506,10 @@ public class Minify {
 			parser.parseStyleSheet(cssReader);
 			return true;
 		} catch (Exception e) {
-			if (err != null) {
-				e.printStackTrace(err);
-			}
+			printStackTraceIfNotNull(e, err);
 		}
 
-		// Error detected, return the source without comments.
+		// Error detected, do a shallow minification
 		buffer.setLength(0);
 
 		ucon = url.openConnection();
@@ -446,6 +518,12 @@ public class Minify {
 		}
 
 		return false;
+	}
+
+	private static void printStackTraceIfNotNull(Exception e, PrintStream err) {
+		if (err != null) {
+			e.printStackTrace(err);
+		}
 	}
 
 	private static Reader inputStreamToReader(URLConnection ucon, Charset encoding)
@@ -465,9 +543,28 @@ public class Minify {
 	 * @throws IOException if an I/O error happened reading the style sheet.
 	 */
 	public static void shallowMinify(Reader cssReader, StringBuilder buffer) throws IOException {
+		shallowMinify(cssReader, null, buffer);
+	}
+
+	/**
+	 * Perform a safe, shallow minification that does not attempt to minify values
+	 * nor media features.
+	 * 
+	 * @param cssReader the {@code Reader} with the style sheet.
+	 * @param config    the minification configuration, or {@code null} if defaults
+	 *                  should be used.
+	 * @param buffer    the output buffer.
+	 * @throws IOException if an I/O error happened reading the style sheet.
+	 */
+	public static void shallowMinify(Reader cssReader, ShallowConfig config, StringBuilder buffer)
+			throws IOException {
+		if (config == null) {
+			config = new ShallowConfig() {
+			};
+		}
 		String opening = "/*";
 		String closing = "*/";
-		MinificationHandler h = new ShallowMinificationHandler(buffer);
+		MinificationHandler h = new ShallowMinificationHandler(buffer, config);
 		TokenProducer tp = new TokenProducer(h);
 		tp.setHandleAllSeparators(false);
 		tp.parse(cssReader, opening, closing);
