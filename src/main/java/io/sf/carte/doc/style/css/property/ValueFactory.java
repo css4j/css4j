@@ -1094,9 +1094,6 @@ public class ValueFactory implements CSSValueFactory {
 			case DIMENSION:
 				primi = new NumberValue();
 				(setter = primi.newLexicalSetter()).setLexicalUnit(lunit);
-				if (CSSUnit.isLengthUnitType(lunit.getCssUnit())) {
-					((NumberValue) primi).lengthUnitType = true;
-				}
 				break typeLoop;
 			case REAL:
 				primi = new NumberValue();

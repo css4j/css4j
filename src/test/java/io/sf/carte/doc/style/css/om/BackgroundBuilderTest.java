@@ -390,7 +390,7 @@ public class BackgroundBuilderTest {
 	@Test
 	public void testBackgroundImageGradient2() {
 		assertShorthandText(
-				"background:linear-gradient(to right,rgb(66 103 178/0),#577fbc,rgb(66 103 178/0)) 0% 0%/1016px auto;",
+				"background:linear-gradient(to right,#4267b200,#577fbc,#4267b200) 0% 0%/1016px auto;",
 				"background: linear-gradient(to right, rgb(66 103 178 / 0), #577fbc, rgb(66 103 178 / 0)) 0% 0% / 1016px auto;");
 	}
 

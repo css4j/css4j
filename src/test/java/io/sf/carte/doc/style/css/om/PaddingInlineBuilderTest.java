@@ -85,12 +85,12 @@ public class PaddingInlineBuilderTest {
 
 	@Test
 	public void testBuilderUnset() {
-		assertShorthandText("padding-inline:unset;", "padding-inline: unset;");
+		assertShorthandText("padding-inline:0;", "padding-inline: unset;");
 	}
 
 	@Test
 	public void testBuilderUnsetImportant() {
-		assertShorthandText("padding-inline:unset!important;", "padding-inline: unset!important;");
+		assertShorthandText("padding-inline:0!important;", "padding-inline: unset!important;");
 	}
 
 	private void assertShorthandText(String expected, String original) {

@@ -617,7 +617,7 @@ public class StylableDocumentWrapperTest {
 		// Clear the user sheet
 		xhtmlDoc.getStyleSheetFactory().setUserStyleSheet(null);
 		style = elm.getComputedStyle(null);
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#0000", style.getPropertyValue("background-color"));
 		assertEquals("#8b008b", style.getPropertyValue("color"));
 	}
 

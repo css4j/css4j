@@ -273,6 +273,20 @@ public class LexicalValueTest {
 	}
 
 	@Test
+	public void testEqualsHexColor() {
+		LexicalValue value = new LexicalValue();
+		value.setCssText("#FFFFFF");
+		assertTrue(value.equals(value));
+		LexicalValue value2 = new LexicalValue();
+		value2.setCssText("#fff");
+		assertTrue(value.equals(value2));
+		assertEquals(value.hashCode(), value2.hashCode());
+		value2.setCssText("#fff #000");
+		assertFalse(value.equals(value2));
+		assertFalse(value.hashCode() == value2.hashCode());
+	}
+
+	@Test
 	public void testGetCssText() {
 		LexicalValue value = new LexicalValue();
 		value.setCssText("1em 2em");

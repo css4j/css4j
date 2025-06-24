@@ -30,8 +30,7 @@ import io.sf.carte.doc.style.css.om.StyleRule;
 import io.sf.carte.doc.style.css.om.TestCSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 
-@Deprecated
-public class AttrTest {
+public class LexicalAttrTest {
 
 	@Test
 	public void testSetCssTextString() {

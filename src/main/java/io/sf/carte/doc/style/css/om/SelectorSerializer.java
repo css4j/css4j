@@ -12,6 +12,7 @@
 package io.sf.carte.doc.style.css.om;
 
 import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
+import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CombinatorCondition;
@@ -205,6 +206,9 @@ class SelectorSerializer {
 		case PSEUDO_ELEMENT:
 			pseudoElementText((PseudoCondition) condition, buf);
 			break;
+		case SELECTOR_ARGUMENT_PSEUDO_ELEMENT:
+			buf.append(':');
+			// pass-through
 		case SELECTOR_ARGUMENT:
 			selectorArgumentText((ArgumentCondition) condition, buf);
 			break;
@@ -247,8 +251,7 @@ class SelectorSerializer {
 			buf.append('[');
 			serializeAttributeQName(acond, buf);
 			buf.append('=');
-			quoteAttributeValue(acond.getValue(), buf);
-			attributeSelectorEnd(acond, buf);
+			appendAttributeValueAndClose(acond, buf);
 		} else {
 			buf.append('[');
 			serializeAttributeQName(acond, buf);
@@ -261,40 +264,35 @@ class SelectorSerializer {
 		buf.append('[');
 		serializeAttributeQName(acond, buf);
 		buf.append("^=");
-		quoteAttributeValue(acond.getValue(), buf);
-		attributeSelectorEnd(acond, buf);
+		appendAttributeValueAndClose(acond, buf);
 	}
 
 	private void attributeBeginHyphenText(AttributeCondition acond, StringBuilder buf) {
 		buf.append('[');
 		serializeAttributeQName(acond, buf);
 		buf.append("|=");
-		quoteAttributeValue(acond.getValue(), buf);
-		attributeSelectorEnd(acond, buf);
+		appendAttributeValueAndClose(acond, buf);
 	}
 
 	private void attributeEndsText(AttributeCondition acond, StringBuilder buf) {
 		buf.append('[');
 		serializeAttributeQName(acond, buf);
 		buf.append("$=");
-		quoteAttributeValue(acond.getValue(), buf);
-		attributeSelectorEnd(acond, buf);
+		appendAttributeValueAndClose(acond, buf);
 	}
 
 	private void attributeSubstringText(AttributeCondition acond, StringBuilder buf) {
 		buf.append('[');
 		serializeAttributeQName(acond, buf);
 		buf.append("*=");
-		quoteAttributeValue(acond.getValue(), buf);
-		attributeSelectorEnd(acond, buf);
+		appendAttributeValueAndClose(acond, buf);
 	}
 
 	private void attributeOneOfText(AttributeCondition acond, StringBuilder buf) {
 		buf.append('[');
 		serializeAttributeQName(acond, buf);
 		buf.append("~=");
-		quoteAttributeValue(acond.getValue(), buf);
-		attributeSelectorEnd(acond, buf);
+		appendAttributeValueAndClose(acond, buf);
 	}
 
 	private void serializeAttributeQName(AttributeCondition acond, StringBuilder buf) {
@@ -316,12 +314,14 @@ class SelectorSerializer {
 		buf.append(escLName);
 	}
 
-	private void quoteAttributeValue(String value, StringBuilder buf) {
-		char quote = quoteChar(true);
-		buf.append(ParseHelper.quote(value, quote));
-	}
-
-	private void attributeSelectorEnd(AttributeCondition acond, StringBuilder buf) {
+	private void appendAttributeValueAndClose(AttributeCondition acond, StringBuilder buf) {
+		String value = acond.getValue();
+		if (!acond.hasFlag() && !value.isEmpty() && CSSUtil.isValidIdentifier(value)) {
+			buf.append(value);
+		} else {
+			char quote = quoteChar(true);
+			buf.append(ParseHelper.quote(value, quote));
+		}
 		if (acond.hasFlag(AttributeCondition.Flag.CASE_I)) {
 			buf.append(" i");
 		} else if (acond.hasFlag(AttributeCondition.Flag.CASE_S)) {
@@ -333,14 +333,20 @@ class SelectorSerializer {
 	private void langText(LangCondition condition, StringBuilder buf) {
 		buf.append(":lang(");
 		String lang = condition.getLang();
-		TokenParser parser = new TokenParser(lang, ", ", "\"'");
-		String s = parser.next();
-		int commaIdx = lang.indexOf(',') + 1;
-		buf.append(escapeLang(s, lang, commaIdx));
-		while (parser.hasNext()) {
-			s = parser.next();
-			commaIdx = lang.indexOf(',', commaIdx) + 1;
-			buf.append(',').append(escapeLang(s, lang, commaIdx));
+		if (!lang.isEmpty()) {
+			if (CSSUtil.isValidIdentifier(lang)) {
+				buf.append(lang);
+			} else {
+				TokenParser parser = new TokenParser(lang, ", ", "\"'");
+				String s = parser.next();
+				int commaIdx = lang.indexOf(',') + 1;
+				buf.append(escapeLang(s, lang, commaIdx));
+				while (parser.hasNext()) {
+					s = parser.next();
+					commaIdx = lang.indexOf(',', commaIdx) + 1;
+					buf.append(',').append(escapeLang(s, lang, commaIdx));
+				}
+			}
 		}
 		buf.append(')');
 	}
@@ -385,6 +391,10 @@ class SelectorSerializer {
 
 	private void pseudoElementText(PseudoCondition acond, StringBuilder buf) {
 		buf.append(':').append(':').append(acond.getName());
+		String arg = acond.getArgument();
+		if (arg != null) {
+			buf.append('(').append(arg).append(')');
+		}
 	}
 
 	private void selectorArgumentText(ArgumentCondition condition, StringBuilder buf) {

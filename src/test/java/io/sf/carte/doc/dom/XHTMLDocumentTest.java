@@ -766,7 +766,7 @@ public class XHTMLDocumentTest {
 		parent.setAttribute("bgcolor", "#90fz77");
 		styledecl = sheet.getComputedStyle(parent, null);
 		assertEquals(11, styledecl.getLength());
-		assertEquals("rgb(0 0 0 / 0)", styledecl.getPropertyValue("background-color"));
+		assertEquals("#0000", styledecl.getPropertyValue("background-color"));
 		assertTrue(xmlDoc.getErrorHandler().hasErrors());
 		assertTrue(xmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xmlDoc.getErrorHandler().hasComputedStyleErrors(parent));

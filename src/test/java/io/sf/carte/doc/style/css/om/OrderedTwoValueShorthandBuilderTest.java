@@ -40,7 +40,7 @@ public class OrderedTwoValueShorthandBuilderTest {
 	}
 
 	@Test
-	public void testBuilder() {
+	public void testPlace() {
 		assertShorthandText("place-content:normal;", "place-content: normal");
 		assertShorthandText("place-content:center start;", "place-content: center start");
 		assertShorthandText("place-content:center;", "place-content: center");
@@ -63,8 +63,13 @@ public class OrderedTwoValueShorthandBuilderTest {
 		assertShorthandText("place-self:stretch unsafe end;", "place-self: stretch unsafe end");
 		assertShorthandText("place-self:first baseline safe start;",
 				"place-self: first baseline safe start");
+	}
+
+	@Test
+	public void testGap() {
 		assertShorthandText("gap:normal;", "gap: normal");
 		assertShorthandText("gap:50px normal;", "gap:50px normal");
+		assertShorthandText("gap:normal 50px;", "gap:normal 50px");
 		assertShorthandText("gap:50px;", "gap: 50px");
 		assertShorthandText("gap:50px 20px;", "gap: 50px 20px");
 		assertShorthandText("gap:50px 4%;", "gap: 50px 4%");

@@ -455,7 +455,7 @@ public class ComputedStyleAttrTest {
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#0000", style.getPropertyValue("background-color"));
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
@@ -487,7 +487,7 @@ public class ComputedStyleAttrTest {
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#0000", style.getPropertyValue("background-color"));
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
@@ -506,7 +506,7 @@ public class ComputedStyleAttrTest {
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#0000", style.getPropertyValue("background-color"));
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
@@ -587,7 +587,7 @@ public class ComputedStyleAttrTest {
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#0000", style.getPropertyValue("background-color"));
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
@@ -620,7 +620,7 @@ public class ComputedStyleAttrTest {
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#0000", style.getPropertyValue("background-color"));
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
@@ -639,7 +639,7 @@ public class ComputedStyleAttrTest {
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#0000", style.getPropertyValue("background-color"));
 
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(elm));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
@@ -674,7 +674,7 @@ public class ComputedStyleAttrTest {
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#0000", style.getPropertyValue("background-color"));
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());
@@ -696,7 +696,7 @@ public class ComputedStyleAttrTest {
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("repeat repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#0000", style.getPropertyValue("background-color"));
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());

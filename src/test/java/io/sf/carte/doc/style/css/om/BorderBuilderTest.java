@@ -73,25 +73,25 @@ public class BorderBuilderTest {
 		assertShorthandText("border-top-color:blue;", "border-top-color: blue; ");
 		assertShorthandText("border-top-color:blue;border-image-source:url(foo.png);",
 				"border-top-color: blue; border-image-source: url('foo.png')");
-		assertShorthandText("border:solid rgb(0 0 0/0);", "border: solid rgb(0 0 0 / 0); ");
+		assertShorthandText("border:solid #0000;", "border: solid rgb(0 0 0 / 0); ");
 	}
 
 	@Test
 	public void testBorder2() {
-		assertShorthandText("border:solid rgb(0 0 0/0);border-image:url(foo.png);",
+		assertShorthandText("border:solid #0000;border-image:url(foo.png);",
 				"border: solid rgb(0 0 0 / 0); border-image-source:url('foo.png');");
 	}
 
 	@Test
 	public void testBorderBorderImageImportant() {
-		assertShorthandText("border:solid rgb(0 0 0/0);border-image:url(foo.png)!important;",
+		assertShorthandText("border:solid #0000;border-image:url(foo.png)!important;",
 				"border: solid rgb(0 0 0 / 0); border-image:url('foo.png')!important;");
 	}
 
 	@Test
 	public void testBorderBorderImageImportantLonghand() {
 		assertShorthandText(
-				"border:solid rgb(0 0 0/0);border-image:none;border-image-source:url(foo.png)!important;",
+				"border:solid #0000;border-image:none;border-image-source:url(foo.png)!important;",
 				"border: solid rgb(0 0 0 / 0); border-image:none; border-image-source:url('foo.png')!important;");
 	}
 

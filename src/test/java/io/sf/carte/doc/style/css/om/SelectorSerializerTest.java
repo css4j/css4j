@@ -46,32 +46,37 @@ public class SelectorSerializerTest {
 	@Test
 	public void testSelectorTextSelector() {
 		StyleRule rule = parseStyleRule(
-				"html:root + p:empty,span[foo~='bar'],span[foo='bar'],p:only-child,p:lang(en),p.someclass,a:link,span[class='example'] {border-top-width: 1px; }");
+				"html:root + p:empty,span[foo~='bar'],span[foo='a b'],p:only-child,p:lang(en),p.someclass,a:link,span[class='example'] {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals(8, list.getLength());
 
 		assertEquals("html:root+p:empty", selectorText(list.item(0)));
-		assertEquals("span[foo~='bar']", selectorText(list.item(1)));
-		assertEquals("span[foo='bar']", selectorText(list.item(2)));
+		assertEquals("span[foo~=bar]", selectorText(list.item(1)));
+		assertEquals("span[foo='a b']", selectorText(list.item(2)));
 		assertEquals("p:only-child", selectorText(list.item(3)));
 		assertEquals("p:lang(en)", selectorText(list.item(4)));
 		assertEquals("p.someclass", selectorText(list.item(5)));
 		assertEquals("a:link", selectorText(list.item(6)));
-		assertEquals("span[class='example']", selectorText(list.item(7)));
+		assertEquals("span[class=example]", selectorText(list.item(7)));
 	}
 
 	@Test
 	public void testSelectorTextSelectorDQ() {
 		StyleRule rule = parseStyleRule(
-				"span[foo~='bar'],span[foo='bar'],span[class='example'] {border-top-width: 1px; }",
+				"span[foo~='a b'],span[foo='a b'],span[class='cl1 cl2'] {border-top-width: 1px; }",
 				CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 		SelectorList list = rule.getSelectorList();
 		assertEquals(3, list.getLength());
-		assertEquals("span[foo~=\"bar\"]", selectorText(list.item(0)));
-		assertEquals("span[foo=\"bar\"]", selectorText(list.item(1)));
-		assertEquals("span[class=\"example\"]", selectorText(list.item(2)));
-		rule = parseStyleRule("a[hreflang|='en'] {border-top-width: 1px; }");
-		assertEquals("a[hreflang|=\"en\"]", rule.getSelectorText());
+		assertEquals("span[foo~=\"a b\"]", selectorText(list.item(0)));
+		assertEquals("span[foo=\"a b\"]", selectorText(list.item(1)));
+		assertEquals("span[class=\"cl1 cl2\"]", selectorText(list.item(2)));
+	}
+
+	@Test
+	public void testSelectorTextSelectorAttrBegins() {
+		StyleRule rule = parseStyleRule("a[hreflang|='en,fr'] {border-top-width: 1px; }",
+				CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
+		assertEquals("a[hreflang|=\"en,fr\"]", rule.getSelectorText());
 	}
 
 	@Test
@@ -79,11 +84,11 @@ public class SelectorSerializerTest {
 		StyleRule rule = parseStyleRule(
 				"ul li,h4[foo],a[hreflang|='en'] {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
-		assertEquals("ul li,h4[foo],a[hreflang|='en']", rule.getSelectorText());
+		assertEquals("ul li,h4[foo],a[hreflang|=en]", rule.getSelectorText());
 		assertEquals(3, list.getLength());
 		assertEquals("ul li", selectorText(list.item(0)));
 		assertEquals("h4[foo]", selectorText(list.item(1)));
-		assertEquals("a[hreflang|='en']", selectorText(list.item(2)));
+		assertEquals("a[hreflang|=en]", selectorText(list.item(2)));
 	}
 
 	@Test
@@ -112,8 +117,8 @@ public class SelectorSerializerTest {
 	@Test
 	public void testSelectorTextSelector5() {
 		StyleRule rule = parseStyleRule(
-				"*, p *, * p, p > *, * > p, * + p, * .foo, *:only-child, *[foo='bar'] {border-top-width: 1px; }");
-		assertEquals("*,p *,* p,p>*,*>p,*+p,* .foo,:only-child,[foo='bar']",
+				"*, p *, * p, p > *, * > p, * + p, * .foo, *:only-child, *[foo=bar] {border-top-width: 1px; }");
+		assertEquals("*,p *,* p,p>*,*>p,*+p,* .foo,:only-child,[foo=bar]",
 				rule.getSelectorText());
 		SelectorList list = rule.getSelectorList();
 		assertEquals("*", selectorText(list.item(0)));
@@ -121,33 +126,46 @@ public class SelectorSerializerTest {
 		assertEquals("* p", selectorText(list.item(2)));
 		assertEquals("p>*", selectorText(list.item(3)));
 		assertEquals("*>p", selectorText(list.item(4)));
-		assertEquals("[foo='bar']", selectorText(list.item(8), true));
+		assertEquals("[foo=bar]", selectorText(list.item(8), true));
 		assertEquals(9, list.getLength());
+	}
+
+	@Test
+	public void testSelectorTextPseudoElementSelector() {
+		StyleRule rule = parseStyleRule(
+				"p::part(base),p::picker(select),::slotted([slot=icon]),::scroll-button(*),::view-transition-group(*) {border-top-width: 1px; }");
+		SelectorList list = rule.getSelectorList();
+		assertEquals(
+				"p::part(base),p::picker(select),::slotted([slot=icon]),::scroll-button(*),::view-transition-group(*)",
+				rule.getSelectorText());
+		assertEquals(5, list.getLength());
+		assertEquals("::slotted([slot=icon])", selectorText(list.item(2)));
 	}
 
 	@Test
 	public void testSelectorTextAttributeSelector() {
 		StyleRule rule = parseStyleRule(
-				"span[class=\"example\"][foo=\"'bar\"],:rtl * {border-top-width: 1px; }");
+				"span[class=\"example\"][foo=\"'bar\"],[data-uri=''],:rtl * {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
-		assertEquals("span[class='example'][foo=\"'bar\"],:rtl *", rule.getSelectorText());
-		assertEquals(2, list.getLength());
-		assertEquals("span[class='example'][foo=\"'bar\"]",
-				selectorText(list.item(0)));
-		assertEquals(":rtl *", selectorText(list.item(1)));
+		assertEquals("span[class=example][foo=\"'bar\"],[data-uri=''],:rtl *",
+				rule.getSelectorText());
+		assertEquals(3, list.getLength());
+		assertEquals("span[class=example][foo=\"'bar\"]", selectorText(list.item(0)));
+		assertEquals("[data-uri='']", selectorText(list.item(1)));
+		assertEquals(":rtl *", selectorText(list.item(2)));
 	}
 
 	@Test
 	public void testSelectorTextAttributeSelectorDQ() {
 		StyleRule rule = parseStyleRule(
-				"span[class=\"example\"][foo=\"bar\"],:rtl * {border-top-width: 1px; }",
+				"span[class=\"example\"][foo=\"a b\"],:lang(\"en,fr\"),:rtl * {border-top-width: 1px; }",
 				CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 		SelectorList list = rule.getSelectorList();
-		assertEquals("span[class=\"example\"][foo=\"bar\"],:rtl *", rule.getSelectorText());
-		assertEquals(2, list.getLength());
-		assertEquals("span[class=\"example\"][foo=\"bar\"]",
+		assertEquals("span[class=example][foo=\"a b\"],:lang(en\\,fr),:rtl *", rule.getSelectorText());
+		assertEquals(3, list.getLength());
+		assertEquals("span[class=example][foo=\"a b\"]",
 				selectorText(list.item(0)));
-		assertEquals(":rtl *", selectorText(list.item(1)));
+		assertEquals(":rtl *", selectorText(list.item(2)));
 	}
 
 	@Test

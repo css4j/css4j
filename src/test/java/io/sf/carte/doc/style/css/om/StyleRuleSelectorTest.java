@@ -145,25 +145,31 @@ public class StyleRuleSelectorTest {
 		StyleRule rule = parseStyleSheet(cssText);
 		SelectorList list = rule.getSelectorList();
 		assertEquals(1, list.getLength());
-		assertEquals("table[align='center']>caption[align='left']", rule.getSelectorText());
+		assertEquals("table[align=center]>caption[align=left]", rule.getSelectorText());
+	}
 
-		rule = parseStyleSheet("table[foo=\\*bar] > caption[foo=\"'\"] {border-top-width: 1px; }");
-		list = rule.getSelectorList();
+	@Test
+	public void testSelectorTextAttributeSelector3() {
+		StyleRule rule = parseStyleSheet("table[foo=\\*bar] > caption[foo=\"'\"] {border-top-width: 1px; }");
+		SelectorList list = rule.getSelectorList();
 		assertEquals(1, list.getLength());
 		assertEquals("table[foo='*bar']>caption[foo=\"'\"]", rule.getSelectorText());
 	}
 
 	@Test
 	public void testSelectorTextAttributeSelector2DQ() {
-		String cssText = "table[align=\"center\"] > caption[align=\"left\"] {border-top-width: 1px; }";
+		String cssText = "table[summary=\"The table\"] > caption[align=\"left\"] {border-top-width: 1px; }";
 		StyleRule rule = parseStyleSheet(cssText, CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
 		SelectorList list = rule.getSelectorList();
 		assertEquals(1, list.getLength());
-		assertEquals("table[align=\"center\"]>caption[align=\"left\"]", rule.getSelectorText());
+		assertEquals("table[summary=\"The table\"]>caption[align=left]", rule.getSelectorText());
+	}
 
-		rule = parseStyleSheet("table[foo=\\*bar] > caption[foo=\"'\"] {border-top-width: 1px; }",
+	@Test
+	public void testSelectorTextAttributeSelectorEscDQ() {
+		StyleRule rule = parseStyleSheet("table[foo=\\*bar] > caption[foo=\"'\"] {border-top-width: 1px; }",
 				CSSStyleSheetFactory.FLAG_STRING_DOUBLE_QUOTE);
-		list = rule.getSelectorList();
+		SelectorList list = rule.getSelectorList();
 		assertEquals(1, list.getLength());
 		assertEquals("table[foo=\"*bar\"]>caption[foo=\"'\"]", rule.getSelectorText());
 	}

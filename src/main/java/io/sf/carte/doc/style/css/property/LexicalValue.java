@@ -206,17 +206,18 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 
 	@Override
 	public String getMinifiedCssText(String propertyName) {
-		return serializeMinifiedSequence(lexicalUnit, propertyName);
+		return serializeMinifiedSequence(lexicalUnit, propertyName, true);
 	}
 
 	public static String serializeMinifiedSequence(LexicalUnit lexicalUnit) {
-		return serializeMinifiedSequence(lexicalUnit, null);
+		return serializeMinifiedSequence(lexicalUnit, null, true);
 	}
 
-	public static String serializeMinifiedSequence(LexicalUnit lexicalUnit, String propertyName) {
+	public static String serializeMinifiedSequence(LexicalUnit lexicalUnit, String propertyName,
+			boolean keepZeroUnit) {
 		if (lexicalUnit.getNextLexicalUnit() == null) {
 			// Save a buffer creation
-			return serializeMinified(lexicalUnit, propertyName).toString();
+			return serializeMinified(lexicalUnit, propertyName, keepZeroUnit).toString();
 		}
 		StringBuilder buf = new StringBuilder(32);
 		LexicalUnit lu = lexicalUnit;
@@ -247,13 +248,14 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 					needSpaces = true;
 				}
 			}
-			buf.append(serializeMinified(lu, propertyName));
+			buf.append(serializeMinified(lu, propertyName, keepZeroUnit));
 			lu = lu.getNextLexicalUnit();
 		}
 		return buf.toString();
 	}
 
-	private static CharSequence serializeMinified(LexicalUnit lexicalUnit, String propertyName) {
+	private static CharSequence serializeMinified(LexicalUnit lexicalUnit, String propertyName,
+			boolean keepZeroUnit) {
 		if (lexicalUnit.getParameters() != null) {
 			StringBuilder buf;
 			switch (lexicalUnit.getLexicalUnitType()) {
@@ -314,7 +316,7 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			case DIMENSION:
 				float f = lexicalUnit.getFloatValue();
 				if (f == 0f) {
-					if (!lexicalUnit.isParameter()
+					if (!keepZeroUnit && !lexicalUnit.isParameter()
 							&& CSSUnit.isLengthUnitType(lexicalUnit.getCssUnit())) {
 						return "0";
 					}
@@ -430,14 +432,27 @@ public class LexicalValue extends ProxyValue implements CSSLexicalValue {
 			return false;
 		}
 		LexicalValue other = (LexicalValue) obj;
-		return getCssText().equals(other.getCssText());
+		LexicalUnit lu = this.lexicalUnit;
+		LexicalUnit otherlu = other.lexicalUnit;
+		while (lu != null) {
+			if (!lu.equals(otherlu)) {
+				return false;
+			}
+			lu = lu.getNextLexicalUnit();
+			otherlu = otherlu.getNextLexicalUnit();
+		}
+		return otherlu == null;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + getCssText().hashCode();
+		LexicalUnit lu = this.lexicalUnit;
+		while (lu != null) {
+			result = prime * result + lu.hashCode();
+			lu = lu.getNextLexicalUnit();
+		}
 		return result;
 	}
 

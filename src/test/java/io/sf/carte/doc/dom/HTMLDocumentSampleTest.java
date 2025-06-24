@@ -1219,7 +1219,7 @@ public class HTMLDocumentSampleTest {
 		parent.setAttribute("bgcolor", "#90fz77");
 		styledecl = sheet.getComputedStyle(parent, null);
 		assertEquals(11, styledecl.getLength());
-		assertEquals("rgb(0 0 0 / 0)", styledecl.getPropertyValue("background-color"));
+		assertEquals("#0000", styledecl.getPropertyValue("background-color"));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors(parent));
 		assertTrue(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertTrue(xhtmlDoc.getErrorHandler().hasErrors());
@@ -2630,7 +2630,7 @@ public class HTMLDocumentSampleTest {
 		// Clear the user sheet
 		xhtmlDoc.getStyleSheetFactory().setUserStyleSheet(null);
 		style = elm.getComputedStyle(null);
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#0000", style.getPropertyValue("background-color"));
 		assertEquals("#8b008b", style.getPropertyValue("color"));
 	}
 

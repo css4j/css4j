@@ -340,6 +340,39 @@ public class MathFunctionValueTest {
 	}
 
 	@Test
+	public void testClampRemVw() {
+		style.setCssText(
+				"foo: clamp(1rem, 1rem + ((1vw - (0.2rem + 0.01px))*0.227), 1.125rem) sqrt(3.5pt*2.8px)");
+		StyleValue cssVal = style.getPropertyCSSValue("foo");
+		assertNotNull(cssVal);
+		assertEquals(CSSValue.CssType.LIST, cssVal.getCssValueType());
+		MathFunctionValue val = (MathFunctionValue) ((ValueList) cssVal).item(0);
+		assertEquals(CSSValue.Type.MATH_FUNCTION, val.getPrimitiveType());
+		assertEquals("clamp", val.getStringValue());
+		assertEquals("clamp", val.getFunctionName());
+
+		assertEquals(CSSUnit.CSS_PX, val.computeUnitType());
+
+		assertEquals("clamp(1rem, 1rem + (1vw - (0.2rem + 0.01px))*0.227, 1.125rem)", val.getCssText());
+		assertEquals("clamp(1rem,1rem + (1vw - (.2rem + .01px))*.227,1.125rem)",
+				val.getMinifiedCssText(""));
+
+		assertEquals(3, val.getArguments().size());
+		StyleValue arg = val.getArguments().get(0);
+		assertEquals(CssType.TYPED, arg.getCssValueType());
+		assertEquals(CSSValue.Type.NUMERIC, arg.getPrimitiveType());
+
+		assertMatch(Match.TRUE, val, "<length>");
+		assertMatch(Match.TRUE, val, "<length-percentage>");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>#");
+		assertMatch(Match.TRUE, val, "<percentage> | <length>#");
+		assertMatch(Match.FALSE, val, "<number>");
+		assertMatch(Match.FALSE, val, "<percentage>");
+		assertMatch(Match.FALSE, val, "<color>");
+		assertMatch(Match.TRUE, val, "*");
+	}
+
+	@Test
 	public void testClampInvalid() {
 		style.setCssText("foo: clamp(abs(1.2mm * -.5), 6.94deg, sqrt(3.8pt * 2.5px))");
 		MathFunctionValue val = (MathFunctionValue) style.getPropertyCSSValue("foo");

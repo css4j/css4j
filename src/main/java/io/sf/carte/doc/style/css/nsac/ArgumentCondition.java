@@ -6,7 +6,7 @@
  * The original version of this interface comes from SAX :
  * http://www.megginson.com/SAX/
  *
- * Copyright © 2017 Carlos Amengual.
+ * Copyright © 2017-2025 Carlos Amengual.
  *
  * SPDX-License-Identifier: W3C-19980720
  *
@@ -29,9 +29,9 @@ public interface ArgumentCondition extends Condition {
 	SelectorList getSelectors();
 
 	/**
-	 * The name of the pseudo-class.
+	 * The name of the pseudo-class or pseudo-element.
 	 *
-	 * @return the name of the pseudo-class.
+	 * @return the name of the pseudo-class/element.
 	 */
 	String getName();
 }

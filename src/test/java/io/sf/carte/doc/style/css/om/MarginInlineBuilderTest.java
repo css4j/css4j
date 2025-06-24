@@ -37,13 +37,25 @@ public class MarginInlineBuilderTest {
 	@Test
 	public void testBuilderNoShorthand() {
 		assertShorthandText("padding-inline-start:0;", "padding-inline-start:0;");
+		assertShorthandText("padding-inline-end:0;", "padding-inline-end:0;");
 	}
 
 	@Test
-	public void testBuilder() {
+	public void testMarginInline() {
+		assertShorthandText("margin-inline:1em 2em;", "margin-inline: 1em 2em;");
+		assertShorthandText("margin-inline:5% 3%;", "margin-inline: 5% 3%");
 		assertShorthandText("margin-inline:auto;", "margin-inline: auto");
 		assertShorthandText("margin-inline:1em;", "margin-inline: 1em;");
-		assertShorthandText("margin-inline:1em 2em;", "margin-inline: 1em 2em;");
+	}
+
+	@Test
+	public void testBuilderZero() {
+		assertShorthandText("margin-inline:0;", "margin-inline: 0");
+		assertShorthandText("margin-inline:1px 0;", "margin-inline: 1px 0");
+		assertShorthandText("margin-inline:1em 0;", "margin-inline: 1em 0");
+		assertShorthandText("margin-inline:0 1em;",
+				"margin-inline-start: 0;margin-inline-end: 1em");
+		assertShorthandText("margin-inline:1em 0;", "margin-inline-start:1em;margin-inline-end:0");
 	}
 
 	@Test
@@ -97,12 +109,22 @@ public class MarginInlineBuilderTest {
 
 	@Test
 	public void testBuilderUnset() {
-		assertShorthandText("margin-inline:unset;", "margin-inline: unset;");
+		assertShorthandText("margin-inline:0;", "margin-inline: unset;");
 	}
 
 	@Test
 	public void testBuilderUnsetImportant() {
-		assertShorthandText("margin-inline:unset!important;", "margin-inline: unset!important;");
+		assertShorthandText("margin-inline:0!important;", "margin-inline: unset!important;");
+	}
+
+	@Test
+	public void testBuilderInitial() {
+		assertShorthandText("margin-inline:0;", "margin-inline: initial");
+	}
+
+	@Test
+	public void testBuilderInitialImportant() {
+		assertShorthandText("margin-inline:0!important;", "margin-inline: initial!important");
 	}
 
 	private void assertShorthandText(String expected, String original) {

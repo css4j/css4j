@@ -91,7 +91,7 @@ abstract public class ColorValue extends TypedValue implements CSSColorValue {
 				if (colorspec != null) {
 					value = factory.parseProperty(colorspec);
 				} else if ("transparent".equals(ident)) {
-					value = factory.parseProperty("rgba(0,0,0,0)");
+					value = factory.parseProperty("#0000");
 				} else {
 					failSetCssText();
 				}

@@ -1394,14 +1394,14 @@ public class ColorMixFunctionTest {
 		assertEquals(ColorSpace.srgb, color.getCSSColorSpace());
 
 		// Serialization
-		assertEquals("color-mix(in srgb, rgb(100% 0% 0% / 0.7) 25%, rgb(0% 100% 0% / 0.2))",
+		assertEquals("color-mix(in srgb, rgb(100% 0% 0% / 0.7) 25%, #0f03)",
 				color.getCssText());
-		assertEquals("color-mix(in srgb,rgb(100% 0% 0%/.7) 25%,rgb(0% 100% 0%/.2))",
+		assertEquals("color-mix(in srgb,rgb(100% 0% 0%/.7) 25%,#0f03)",
 				color.getMinifiedCssText("color"));
 
 		BufferSimpleWriter wri = new BufferSimpleWriter(100);
 		color.writeCssText(wri);
-		assertEquals("color-mix(in srgb, rgb(100% 0% 0% / 0.7) 25%, rgb(0% 100% 0% / 0.2))",
+		assertEquals("color-mix(in srgb, rgb(100% 0% 0% / 0.7) 25%, #0f03)",
 				wri.toString());
 
 		// Mix the colors
@@ -1425,14 +1425,14 @@ public class ColorMixFunctionTest {
 		assertEquals(ColorSpace.srgb, color.getCSSColorSpace());
 
 		// Serialization
-		assertEquals("color-mix(in srgb, rgb(100% 0% 0% / 0.7) 20%, rgb(0% 100% 0% / 0.2) 60%)",
+		assertEquals("color-mix(in srgb, rgb(100% 0% 0% / 0.7) 20%, #0f03 60%)",
 				color.getCssText());
-		assertEquals("color-mix(in srgb,rgb(100% 0% 0%/.7) 20%,rgb(0% 100% 0%/.2) 60%)",
+		assertEquals("color-mix(in srgb,rgb(100% 0% 0%/.7) 20%,#0f03 60%)",
 				color.getMinifiedCssText("color"));
 
 		BufferSimpleWriter wri = new BufferSimpleWriter(100);
 		color.writeCssText(wri);
-		assertEquals("color-mix(in srgb, rgb(100% 0% 0% / 0.7) 20%, rgb(0% 100% 0% / 0.2) 60%)",
+		assertEquals("color-mix(in srgb, rgb(100% 0% 0% / 0.7) 20%, #0f03 60%)",
 				wri.toString());
 
 		// Mix the colors

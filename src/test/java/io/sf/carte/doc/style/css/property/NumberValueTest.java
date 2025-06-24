@@ -63,7 +63,7 @@ public class NumberValueTest {
 
 		val.setFloatValue(CSSUnit.CSS_PX, 0f);
 		assertEquals("0px", val.getCssText());
-		assertEquals("0", val.getMinifiedCssText(null));
+		assertEquals("0px", val.getMinifiedCssText(null));
 		assertEquals(CSSUnit.CSS_PX, val.getUnitType());
 		assertFalse(val.isCalculatedNumber());
 		assertTrue(val.isNumberZero());
@@ -170,7 +170,7 @@ public class NumberValueTest {
 
 		style.setCssText("height: 0px");
 		assertEquals("0px", style.getPropertyValue("height"));
-		assertEquals("0", style.getPropertyCSSValue("height").getMinifiedCssText(""));
+		assertEquals("0px", style.getPropertyCSSValue("height").getMinifiedCssText(""));
 
 		style.setCssText("height: 0%");
 		assertEquals("0%", style.getPropertyValue("height"));

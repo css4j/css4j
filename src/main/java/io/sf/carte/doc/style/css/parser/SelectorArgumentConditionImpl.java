@@ -52,7 +52,7 @@ class SelectorArgumentConditionImpl extends AbstractNamedCondition implements Ar
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = 1;
+		int result = getConditionType().ordinal();
 		result = prime * result + ((arguments == null) ? 0 : arguments.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		return result;

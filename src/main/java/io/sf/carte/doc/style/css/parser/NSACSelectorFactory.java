@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.parser;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CombinatorSelector;
@@ -604,6 +605,11 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 			return this.flag == flag;
 		}
 
+		@Override
+		public boolean hasFlag() {
+			return this.flag != null;
+		}
+
 		void setFlag(Flag flag) {
 			this.flag = flag;
 		}
@@ -670,48 +676,44 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 				buf.append('[');
 				appendEscapedQName(buf);
 				if (value != null) {
-					buf.append('=').append('"').append(getControlEscapedValue()).append('"');
-					if (flag == Flag.CASE_I) {
-						buf.append(' ').append('i');
-					} else if (flag == Flag.CASE_S) {
-						buf.append(' ').append('s');
-					}
+					buf.append('=');
+					appendAttributeValue(buf);
 				}
 				buf.append(']');
 				break;
 			case BEGIN_HYPHEN_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
-				buf.append('|').append('=').append('"').append(getControlEscapedValue())
-						.append('"');
+				buf.append('|').append('=');
+				appendAttributeValue(buf);
 				buf.append(']');
 				break;
 			case ONE_OF_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
-				buf.append('~').append('=').append('"').append(getControlEscapedValue())
-						.append('"');
+				buf.append('~').append('=');
+				appendAttributeValue(buf);
 				buf.append(']');
 				break;
 			case BEGINS_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
-				buf.append('^').append('=').append('"').append(getControlEscapedValue())
-						.append('"');
+				buf.append('^').append('=');
+				appendAttributeValue(buf);
 				buf.append(']');
 				break;
 			case ENDS_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
-				buf.append('$').append('=').append('"').append(getControlEscapedValue())
-						.append('"');
+				buf.append('$').append('=');
+				appendAttributeValue(buf);
 				buf.append(']');
 				break;
 			case SUBSTRING_ATTRIBUTE:
 				buf.append('[');
 				appendEscapedQName(buf);
-				buf.append('*').append('=').append('"').append(getControlEscapedValue())
-						.append('"');
+				buf.append('*').append('=');
+				appendAttributeValue(buf);
 				buf.append(']');
 				break;
 			case CLASS:
@@ -728,6 +730,19 @@ class NSACSelectorFactory implements NamespaceMap, java.io.Serializable {
 				break;
 			default:
 				throw new IllegalStateException("Unknown type: " + condtype);
+			}
+		}
+
+		private void appendAttributeValue(StringBuilder buf) {
+			if (flag == null && !value.isEmpty() && CSSUtil.isValidIdentifier(value)) {
+				buf.append(value);
+			} else {
+				buf.append('"').append(getControlEscapedValue()).append('"');
+				if (flag == Flag.CASE_I) {
+					buf.append(' ').append('i');
+				} else if (flag == Flag.CASE_S) {
+					buf.append(' ').append('s');
+				}
 			}
 		}
 

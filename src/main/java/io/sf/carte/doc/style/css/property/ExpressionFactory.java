@@ -79,7 +79,7 @@ public class ExpressionFactory {
 			throws DOMException {
 		StyleExpression expression = null;
 		LexicalType lastlutype = LexicalType.UNKNOWN;
-		while (lu != null) {
+		outer: while (lu != null) {
 			StyleExpression operation;
 			boolean inverse = false;
 			LexicalType lutype = lu.getLexicalUnitType();
@@ -167,12 +167,12 @@ public class ExpressionFactory {
 				}
 				break;
 			case OPERATOR_COMMA: // We are probably in function context
-				if (nextLexicalUnit != null || expression.getParentExpression() != null) {
+				if (nextLexicalUnit != null) {
 					throw new DOMException(DOMException.INVALID_CHARACTER_ERR,
 							"Invalid operand: ','");
 				}
 				nextLexicalUnit = lu;
-				return expression;
+				break outer;
 			case IDENT:
 				String constname = lu.getStringValue();
 				CSSTypedValue typed = createConstantOrVariable(constname);

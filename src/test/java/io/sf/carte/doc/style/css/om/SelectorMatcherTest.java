@@ -259,7 +259,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p[title=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p[title='hi']", selectorListToString(selist, rule));
+		assertEquals("p[title=hi]", selectorListToString(selist, rule));
 		CSSElement elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
@@ -304,7 +304,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p[title~=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p[title~='hi']", selectorListToString(selist, rule));
+		assertEquals("p[title~=hi]", selectorListToString(selist, rule));
 		CSSElement elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
@@ -353,7 +353,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p[lang|=\"en\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p[lang|='en']", selectorListToString(selist, rule));
+		assertEquals("p[lang|=en]", selectorListToString(selist, rule));
 		CSSElement elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
@@ -404,21 +404,26 @@ public class SelectorMatcherTest {
 
 	@Test
 	public void testMatchSelectorEndsAttribute() throws Exception {
-		BaseCSSStyleSheet css = parseStyle("p[title$=\"hi\"] {color: blue;}");
+		BaseCSSStyleSheet css = parseStyle("p[title$=\"hi ho\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p[title$='hi']", selectorListToString(selist, rule));
+		assertEquals("p[title$='hi ho']", selectorListToString(selist, rule));
 		CSSElement elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
-		elm.setAttribute("title", "ho hi");
+		elm.setAttribute("title", "hi hi ho");
 		int selidx = matcher.matches(selist);
 		assertTrue(selidx >= 0);
 		// Specificity
 		CSSOMBridge.assertSpecificity(0, 1, 1, selist.item(selidx), matcher);
 
 		elm = createTopLevelElement("div");
-		elm.setAttribute("title", "hi");
+		elm.setAttribute("title", "ho ho");
+		matcher = selectorMatcher(elm);
+		assertEquals(-1, matcher.matches(selist));
+
+		elm = createTopLevelElement("div");
+		elm.setAttribute("title", "hi ho ho");
 		matcher = selectorMatcher(elm);
 		assertEquals(-1, matcher.matches(selist));
 	}
@@ -428,7 +433,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p[title^=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p[title^='hi']", selectorListToString(selist, rule));
+		assertEquals("p[title^=hi]", selectorListToString(selist, rule));
 		CSSElement elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
@@ -511,7 +516,7 @@ public class SelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p[title*=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p[title*='hi']", selectorListToString(selist, rule));
+		assertEquals("p[title*=hi]", selectorListToString(selist, rule));
 		CSSElement elm = createTopLevelElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);

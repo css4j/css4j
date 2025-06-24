@@ -14,13 +14,20 @@ package io.sf.carte.doc.style.css.om;
 import java.util.Locale;
 import java.util.Set;
 
+import org.w3c.dom.DOMException;
+
+import io.sf.carte.doc.style.css.CSSColor;
+import io.sf.carte.doc.style.css.CSSColorValue;
+import io.sf.carte.doc.style.css.CSSPrimitiveValue;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSValue;
 import io.sf.carte.doc.style.css.CSSValue.CssType;
 import io.sf.carte.doc.style.css.CSSValue.Type;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.ColorSpace;
 import io.sf.carte.doc.style.css.DeclarationFormattingContext;
+import io.sf.carte.doc.style.css.RGBAColor;
 import io.sf.carte.doc.style.css.parser.SyntaxParser;
 import io.sf.carte.doc.style.css.property.ColorIdentifiers;
 import io.sf.carte.doc.style.css.property.StyleValue;
@@ -657,20 +664,18 @@ class BackgroundBuilder extends ShorthandBuilder {
 
 	private boolean appendBackgroundColor(StringBuilder buf, StyleValue value) {
 		if (!isRevertValue(value) && isValidColor(value)) {
-			// Serialize value as per the formatting context
-			StringBuilder sb = new StringBuilder();
-			BufferSimpleWriter wri = new BufferSimpleWriter(sb);
-			DeclarationFormattingContext context = getParentStyle().getFormattingContext();
-			String text;
-			try {
-				context.writeMinifiedValue(wri, "background-color", value);
-				text = sb.toString().toLowerCase(Locale.ROOT);
-			} catch (Exception e) {
-				text = value.getMinifiedCssText().toLowerCase(Locale.ROOT);
-			}
-			if (!"transparent".equals(text) && !"rgba(0,0,0,0)".equals(text)
-				&& !"rgb(0 0 0/0)".equals(text) && !"initial".equals(text)
-				&& !"unset".equals(text)) {
+			if (!isTransparentColor(value)) {
+				// Serialize value as per the formatting context
+				StringBuilder sb = new StringBuilder();
+				BufferSimpleWriter wri = new BufferSimpleWriter(sb);
+				DeclarationFormattingContext context = getParentStyle().getFormattingContext();
+				String text;
+				try {
+					context.writeMinifiedValue(wri, "background-color", value);
+					text = sb.toString().toLowerCase(Locale.ROOT);
+				} catch (Exception e) {
+					text = value.getMinifiedCssText().toLowerCase(Locale.ROOT);
+				}
 				appendText(buf, text);
 			}
 		} else {
@@ -695,6 +700,45 @@ class BackgroundBuilder extends ShorthandBuilder {
 			return value.getCssValueType() == CssType.KEYWORD;
 		}
 		return false;
+	}
+
+	private static boolean isTransparentColor(CSSValue value) {
+		switch (value.getPrimitiveType()) {
+		case COLOR:
+			CSSColorValue cssColor = (CSSColorValue) value;
+			CSSColor color = cssColor.getColor();
+			if (color != null && ColorSpace.srgb.equals(color.getColorSpace())) {
+				// Maybe it is hsl(), hwb()
+				RGBAColor rgb;
+				try {
+					rgb = cssColor.toRGBColor(false);
+				} catch (DOMException e) {
+					return false;
+				}
+				if (isZeroValue(rgb.getAlpha()) && isZeroValue(rgb.getRed())
+						&& isZeroValue(rgb.getGreen()) && isZeroValue(rgb.getBlue())) {
+					return true;
+				}
+			}
+			break;
+		case IDENT:
+			return "transparent".equalsIgnoreCase(((CSSTypedValue) value).getStringValue());
+		case INITIAL:
+		case UNSET:
+			return true;
+		default:
+			break;
+		}
+		return false;
+	}
+
+	private static boolean isZeroValue(CSSPrimitiveValue comp) {
+		// If comp was null, toRGBColor() would have failed
+		if (comp.getPrimitiveType() != Type.NUMERIC) {
+			return false;
+		}
+		float f = ((CSSTypedValue) comp).getFloatValue();
+		return Math.abs(f) < 1e-6;
 	}
 
 }

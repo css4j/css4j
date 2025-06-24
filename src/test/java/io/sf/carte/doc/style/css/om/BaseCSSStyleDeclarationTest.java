@@ -912,6 +912,21 @@ public class BaseCSSStyleDeclarationTest {
 	}
 
 	@Test
+	public void getMinifiedPropertyValueString() {
+		emptyStyleDecl.setProperty("margin-inline-start", "1px", "important");
+		emptyStyleDecl.setProperty("margin-inline-end", "0", "important");
+		assertEquals("1px 0", emptyStyleDecl.getMinifiedPropertyValue("margin-inline"));
+	}
+
+	@Test
+	public void getMinifiedPropertyValueStringShorthand() {
+		emptyStyleDecl.setProperty("margin-inline", "1px 0", "important");
+		assertEquals("1px 0", emptyStyleDecl.getMinifiedPropertyValue("margin-inline"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("margin-inline-start"));
+		assertEquals("important", emptyStyleDecl.getPropertyPriority("margin-inline-end"));
+	}
+
+	@Test
 	public void testPrefixedProperty() {
 		emptyStyleDecl.setCssText(
 				"-webkit-mask: url(https://www.example.com/foo.svg) no-repeat center/1.44ex .8ex");

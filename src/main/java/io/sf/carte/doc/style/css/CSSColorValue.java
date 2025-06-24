@@ -97,7 +97,8 @@ public interface CSSColorValue extends CSSTypedValue {
 	/**
 	 * Get the color represented by this value.
 	 *
-	 * @return the color.
+	 * @return the color, or {@code null} if this is an interpolated color that
+	 *         could not be mixed.
 	 */
 	CSSColor getColor();
 

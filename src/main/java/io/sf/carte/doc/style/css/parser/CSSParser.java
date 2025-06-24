@@ -476,7 +476,7 @@ public class CSSParser implements Parser, Cloneable {
 			return new PageTypeSelector(s);
 		} else if (colonidx != 0) {
 			String pts = s.substring(0, colonidx);
-			if (!isValidIdentifier(pts)) {
+			if (!CSSUtil.isValidIdentifier(pts)) {
 				return null;
 			}
 			ps = new PageTypeSelector(pts);
@@ -2478,85 +2478,6 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	/**
-	 * Is the given string a valid CSS identifier?
-	 * 
-	 * @param s the identifier to test; cannot contain hex escapes.
-	 * @return true if is a valid identifier.
-	 */
-	private static boolean isValidIdentifier(CharSequence s) {
-		int len = s.length();
-		int idx;
-		char c = s.charAt(0);
-		if (c != '-') {
-			if (!isNameStartChar(c) && c != '\\') {
-				return false;
-			}
-			idx = 1;
-		} else if (len > 1) {
-			c = s.charAt(1);
-			if (!isNameStartChar(c) && c != '-' && c != '\\') {
-				return false;
-			}
-			idx = 2;
-		} else {
-			return false;
-		}
-		while (idx < len) {
-			c = s.charAt(idx);
-			if (!isNameChar(c)) {
-				return false;
-			}
-			idx++;
-		}
-		return true;
-	}
-
-	static boolean isValidPseudoName(CharSequence s) {
-		int len = s.length();
-		int idx;
-		char c = s.charAt(0);
-		if (c != '-') {
-			if (!isNameStartChar(c)) {
-				return false;
-			}
-			idx = 1;
-		} else if (len > 1) {
-			c = s.charAt(1);
-			if (!isNameStartChar(c)) {
-				return false;
-			}
-			idx = 2;
-		} else {
-			return false;
-		}
-		while (idx < len) {
-			c = s.charAt(idx);
-			if (!isNameChar(c)) {
-				return false;
-			}
-			idx++;
-		}
-		return true;
-	}
-
-	private static boolean isNameChar(char cp) {
-		return (cp >= 0x61 && cp <= 0x7A) // a-z
-				|| (cp >= 0x41 && cp <= 0x5A) // A-Z
-				|| (cp >= 0x30 && cp <= 0x39) // 0-9
-				|| cp == 0x2d // -
-				|| cp == 0x5f // _
-				|| cp > 0x80 // non-ASCII code point
-				|| cp == 0x5c; // '\'
-	}
-
-	private static boolean isNameStartChar(char cp) {
-		return (cp >= 0x61 && cp <= 0x7A) // a-z
-				|| (cp >= 0x41 && cp <= 0x5A) // A-Z
-				|| cp == 0x5f // _
-				|| cp > 0x80; // non-ASCII code point
-	}
-
-	/**
 	 * Check if two {@code CharSequence} objects contain the same characters.
 	 * 
 	 * @param seq1 the first sequence.
@@ -3021,7 +2942,7 @@ public class CSSParser implements Parser, Cloneable {
 			@Override
 			protected void handleStarHack(int index, CharSequence word) {
 				int idx = index - 1;
-				if (!isValidIdentifier(word)) {
+				if (!CSSUtil.isValidIdentifier(word)) {
 					handleWarning(idx, ParseHelper.WARN_PROPERTY_NAME,
 							"Suspicious property name in STARHACK IE Hack: *" + word);
 				} else {
@@ -5402,7 +5323,7 @@ public class CSSParser implements Parser, Cloneable {
 					int len = buffer.length();
 					if (len != 0) {
 						String raw = buffer.toString();
-						if (isValidIdentifier(raw)) {
+						if (CSSUtil.isValidIdentifier(raw)) {
 							String s = unescapeBuffer(index);
 							if (checkValidCustomIdent(index, s)) {
 								LexicalUnitImpl sel = new LexicalUnitImpl(LexicalType.IDENT);
@@ -7678,7 +7599,7 @@ public class CSSParser implements Parser, Cloneable {
 					}
 				} else if (isNotForbiddenIdentStart(raw)) {
 					propertyName = unescapeBuffer(index);
-					if (!parseError && !isValidIdentifier(propertyName)) {
+					if (!parseError && !CSSUtil.isValidIdentifier(propertyName)) {
 						handleWarning(index - buffer.length(), ParseHelper.WARN_PROPERTY_NAME,
 								"Suspicious property name: " + raw);
 					}

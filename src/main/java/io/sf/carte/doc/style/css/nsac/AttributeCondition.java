@@ -88,4 +88,11 @@ public interface AttributeCondition extends Condition {
 	 */
 	boolean hasFlag(Flag flag);
 
+	/**
+	 * Check for the presence of a flag.
+	 * 
+	 * @return <code>true</code> if this condition has any flag set.
+	 */
+	boolean hasFlag();
+
 }

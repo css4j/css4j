@@ -809,13 +809,13 @@ public class GradientValueTest {
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
 		assertEquals(
-				"radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%)",
+				"radial-gradient(center, ellipse cover, #0006 0, rgb(0 0 0 / 0.9) 100%)",
 				style.getPropertyValue("background-image"));
 		assertEquals(
-				"background-image: radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%); ",
+				"background-image: radial-gradient(center, ellipse cover, #0006 0, rgb(0 0 0 / 0.9) 100%); ",
 				style.getCssText());
 		assertEquals(
-				"background-image:radial-gradient(center,ellipse cover,rgb(0 0 0/.4) 0,rgb(0 0 0/.9) 100%)",
+				"background-image:radial-gradient(center,ellipse cover,#0006 0,rgb(0 0 0/.9) 100%)",
 				style.getMinifiedCssText());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -831,13 +831,13 @@ public class GradientValueTest {
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(4, val.getArguments().size());
 		assertEquals(
-				"radial-gradient(circle at 40% 40%, rgb(255 255 255 / 0.8), rgb(255 200 200 / 0.6), #111 60%)",
+				"radial-gradient(circle at 40% 40%, #fffc, #ffc8c899, #111 60%)",
 				style.getPropertyValue("background-image"));
 		assertEquals(
-				"background-image: radial-gradient(circle at 40% 40%, rgb(255 255 255 / 0.8), rgb(255 200 200 / 0.6), #111 60%); ",
+				"background-image: radial-gradient(circle at 40% 40%, #fffc, #ffc8c899, #111 60%); ",
 				style.getCssText());
 		assertEquals(
-				"background-image:radial-gradient(circle at 40% 40%,rgb(255 255 255/.8),rgb(255 200 200/.6),#111 60%)",
+				"background-image:radial-gradient(circle at 40% 40%,#fffc,#ffc8c899,#111 60%)",
 				style.getMinifiedCssText());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -852,12 +852,12 @@ public class GradientValueTest {
 		assertEquals(CSSValue.Type.GRADIENT, val.getPrimitiveType());
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
-		assertEquals("radial-gradient(circle, #e6e7e0 40%, rgb(43 42 161 / 0.6) 110%)",
+		assertEquals("radial-gradient(circle, #e6e7e0 40%, #2b2aa199 110%)",
 				style.getPropertyValue("background-image"));
 		assertEquals(
-				"background-image: radial-gradient(circle, #e6e7e0 40%, rgb(43 42 161 / 0.6) 110%); ",
+				"background-image: radial-gradient(circle, #e6e7e0 40%, #2b2aa199 110%); ",
 				style.getCssText());
-		assertEquals("background-image:radial-gradient(circle,#e6e7e0 40%,rgb(43 42 161/.6) 110%)",
+		assertEquals("background-image:radial-gradient(circle,#e6e7e0 40%,#2b2aa199 110%)",
 				style.getMinifiedCssText());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -974,12 +974,12 @@ public class GradientValueTest {
 		assertEquals(CSSValue.Type.GRADIENT, val.getPrimitiveType());
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(3, val.getArguments().size());
-		assertEquals("radial-gradient(circle, #e6e7e0 40%, rgb(43 42 161 / 0.6) 110%)",
+		assertEquals("radial-gradient(circle, #e6e7e0 40%, #2b2aa199 110%)",
 				style.getPropertyValue("background-image"));
 		assertEquals(
-				"background-image: radial-gradient(circle, #e6e7e0 40%, rgb(43 42 161 / 0.6) 110%); ",
+				"background-image: radial-gradient(circle, #e6e7e0 40%, #2b2aa199 110%); ",
 				style.getCssText());
-		assertEquals("background-image:radial-gradient(circle,#e6e7e0 40%,rgb(43 42 161/.6) 110%)",
+		assertEquals("background-image:radial-gradient(circle,#e6e7e0 40%,#2b2aa199 110%)",
 				style.getMinifiedCssText());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -994,11 +994,11 @@ public class GradientValueTest {
 		assertEquals(CSSValue.Type.GRADIENT, val.getPrimitiveType());
 		assertEquals(CSSGradientValue.GradientType.RADIAL_GRADIENT, val.getGradientType());
 		assertEquals(2, val.getArguments().size());
-		assertEquals("radial-gradient(#e6e7e0 40%, rgb(43 42 161 / 0.6) 110%)",
+		assertEquals("radial-gradient(#e6e7e0 40%, #2b2aa199 110%)",
 				style.getPropertyValue("background-image"));
-		assertEquals("background-image: radial-gradient(#e6e7e0 40%, rgb(43 42 161 / 0.6) 110%); ",
+		assertEquals("background-image: radial-gradient(#e6e7e0 40%, #2b2aa199 110%); ",
 				style.getCssText());
-		assertEquals("background-image:radial-gradient(#e6e7e0 40%,rgb(43 42 161/.6) 110%)",
+		assertEquals("background-image:radial-gradient(#e6e7e0 40%,#2b2aa199 110%)",
 				style.getMinifiedCssText());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());
@@ -1092,13 +1092,13 @@ public class GradientValueTest {
 				val.getGradientType());
 		assertEquals(4, val.getArguments().size());
 		assertEquals(
-				"repeating-radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%)",
+				"repeating-radial-gradient(center, ellipse cover, #0006 0, rgb(0 0 0 / 0.9) 100%)",
 				style.getPropertyValue("background-image"));
 		assertEquals(
-				"background-image: repeating-radial-gradient(center, ellipse cover, rgb(0 0 0 / 0.4) 0, rgb(0 0 0 / 0.9) 100%); ",
+				"background-image: repeating-radial-gradient(center, ellipse cover, #0006 0, rgb(0 0 0 / 0.9) 100%); ",
 				style.getCssText());
 		assertEquals(
-				"background-image:repeating-radial-gradient(center,ellipse cover,rgb(0 0 0/.4) 0,rgb(0 0 0/.9) 100%)",
+				"background-image:repeating-radial-gradient(center,ellipse cover,#0006 0,rgb(0 0 0/.9) 100%)",
 				style.getMinifiedCssText());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(style.getStyleDeclarationErrorHandler().hasWarnings());

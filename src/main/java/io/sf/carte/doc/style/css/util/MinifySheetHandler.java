@@ -485,7 +485,7 @@ class MinifySheetHandler implements CSSHandler {
 		if (ShorthandDatabase.getInstance().isShorthand(name)
 				&& !config.isDisabledShorthand(name)) {
 			StringBuilder buf = new StringBuilder(32);
-			serializeValue(name, value, buf);
+			serializeValue(name, value, buf, false);
 
 			DefaultStyleDeclarationErrorHandler eh = new DefaultStyleDeclarationErrorHandler();
 			BaseCSSStyleDeclaration style = new BaseCSSStyleDeclaration() {
@@ -512,7 +512,7 @@ class MinifySheetHandler implements CSSHandler {
 			}
 			appendBuf(seq);
 		} else {
-			serializeValue(name, value, ruleBuf);
+			serializeValue(name, value, ruleBuf, false);
 		}
 
 		if (important) {
@@ -538,8 +538,9 @@ class MinifySheetHandler implements CSSHandler {
 		}
 	}
 
-	private void serializeValue(String propertyName, LexicalUnit value, StringBuilder buf) {
-		String mini = LexicalValue.serializeMinifiedSequence(value, propertyName);
+	private void serializeValue(String propertyName, LexicalUnit value, StringBuilder buf,
+			boolean keepZeroUnit) {
+		String mini = LexicalValue.serializeMinifiedSequence(value, propertyName, keepZeroUnit);
 		try {
 			StyleValue omvalue = factory.createCSSValue(value);
 			// If it is LEXICAL it will repeat the serializeMinifiedSequence()
@@ -563,7 +564,7 @@ class MinifySheetHandler implements CSSHandler {
 		appendBuf(name);
 		appendBuf(':');
 
-		serializeValue("", lunit, ruleBuf);
+		serializeValue("", lunit, ruleBuf, true);
 
 		if (important) {
 			appendBuf("!important");

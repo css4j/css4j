@@ -426,6 +426,11 @@ class ColorMixFunction extends ColorValue implements CSSColorMixFunction {
 		return (RGBAColor) color.toColorSpace(ColorSpace.srgb);
 	}
 
+	/**
+	 * Get the color represented by this value.
+	 *
+	 * @return the color, or {@code null} if the color could not be mixed.
+	 */
 	@Override
 	public BaseColor getColor() {
 		if (mixColors()) {

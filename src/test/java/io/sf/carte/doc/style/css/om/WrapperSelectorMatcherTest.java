@@ -314,7 +314,7 @@ public class WrapperSelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p[title=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p[title='hi']", selectorListToString(selist, rule));
+		assertEquals("p[title=hi]", selectorListToString(selist, rule));
 		Element elm = createElement("p");
 		Element elm2 = createElement("p");
 		elm2.setAttribute("title", "hi");
@@ -381,7 +381,7 @@ public class WrapperSelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p[title~=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p[title~='hi']", selectorListToString(selist, rule));
+		assertEquals("p[title~=hi]", selectorListToString(selist, rule));
 		Element elm = createElement("p");
 		Element elm1 = createElement("p");
 		elm1.setAttribute("title", "ho hi");
@@ -446,7 +446,7 @@ public class WrapperSelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p[lang|=\"en\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p[lang|='en']", selectorListToString(selist, rule));
+		assertEquals("p[lang|=en]", selectorListToString(selist, rule));
 		Element elm = createElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);
@@ -484,7 +484,7 @@ public class WrapperSelectorMatcherTest {
 		BaseCSSStyleSheet css = parseStyle("p[title^=\"hi\"] {color: blue;}");
 		StyleRule rule = (StyleRule) css.getCssRules().item(0);
 		SelectorList selist = rule.getSelectorList();
-		assertEquals("p[title^='hi']", selectorListToString(selist, rule));
+		assertEquals("p[title^=hi]", selectorListToString(selist, rule));
 		Element elm = createElement("p");
 		SelectorMatcher matcher = selectorMatcher(elm);
 		assertTrue(matcher.matches(selist) < 0);

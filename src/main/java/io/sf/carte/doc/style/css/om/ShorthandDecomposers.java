@@ -35,7 +35,7 @@ class ShorthandDecomposers {
 	}
 
 	private static HashMap<String, ShorthandDecomposer> createShorthandDecomposerMap() {
-		HashMap<String, ShorthandDecomposer> decompMap = new HashMap<>(37);
+		HashMap<String, ShorthandDecomposer> decompMap = new HashMap<>(38);
 
 		decompMap.put("font", new ShorthandDecomposer() {
 
@@ -243,6 +243,16 @@ class ShorthandDecomposers {
 			SubpropertySetter createSetter(BaseCSSStyleDeclaration style, String propertyName,
 					LexicalUnit value, boolean important) {
 				return new MaskShorthandSetter(style);
+			}
+
+		});
+
+		decompMap.put("outline", new ShorthandDecomposer() {
+
+			@Override
+			SubpropertySetter createSetter(BaseCSSStyleDeclaration style, String propertyName,
+					LexicalUnit value, boolean important) {
+				return new OutlineShorthandSetter(style);
 			}
 
 		});

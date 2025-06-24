@@ -83,7 +83,7 @@ public class GenericShorthandBuilderTest {
 	}
 
 	@Test
-	public void testBuilder() {
+	public void testTextDecoration() {
 		assertShorthandText("text-decoration:none;", "text-decoration: initial");
 		assertShorthandText("text-decoration:double;", "text-decoration: double");
 		assertShorthandText("text-decoration:blink dashed #ffb;",
@@ -91,23 +91,27 @@ public class GenericShorthandBuilderTest {
 		assertShorthandText("text-decoration:blink dashed;", "text-decoration: blink dashed");
 		assertShorthandText("text-decoration:blink #ffb;", "text-decoration: blink #ffb");
 		assertShorthandText("text-decoration:#ffb;", "text-decoration: #ffb");
-		assertShorthandText("outline:solid 1rem;", "outline: 1rem solid auto; ");
-		assertShorthandText("outline:solid 1rem;", "outline: 1rem solid; ");
+	}
+
+	@Test
+	public void testColumns() {
 		assertShorthandText("columns:10em;", "columns: 10em auto; ");
 		assertShorthandText("columns:2;", "columns: 2 auto; ");
 		assertShorthandText("columns:auto;", "columns: auto; ");
 		assertShorthandText("columns:10em 2;", "columns: 10em 2; ");
-		assertShorthandText("flex-flow:row;", "flex-flow: row; ");
-		assertShorthandText("flex-flow:column wrap;", "flex-flow: column wrap; ");
-		assertShorthandText("flex-flow:column;", "flex-flow: column; ");
+	}
+
+	@Test
+	public void testColumnRule() {
 		assertShorthandText("column-rule:1em solid black;", "column-rule: 1em solid black; ");
 		assertShorthandText("column-rule:1em solid;", "column-rule: 1em solid; ");
 	}
 
 	@Test
-	public void testOutline() {
-		assertShorthandText("outline:invert dotted thin;", "outline: thin dotted invert; ");
-		assertShorthandText("outline:#0ff solid 1rem;", "outline: 1rem solid #0ff; ");
+	public void testFlexFlow() {
+		assertShorthandText("flex-flow:row;", "flex-flow: row;");
+		assertShorthandText("flex-flow:column wrap;", "flex-flow: column wrap;");
+		assertShorthandText("flex-flow:column;", "flex-flow: column;");
 	}
 
 	@Test

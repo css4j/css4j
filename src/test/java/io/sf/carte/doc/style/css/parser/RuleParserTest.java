@@ -70,7 +70,7 @@ public class RuleParserTest {
 	public void testParseRule2() throws CSSException, IOException {
 		parseRule("hr[align=\"left\"]    {margin-left : 0 ;margin-right : auto;}");
 		assertEquals(1, handler.selectors.size());
-		assertEquals("hr[align=\"left\"]", handler.selectors.get(0).toString());
+		assertEquals("hr[align=left]", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.get(0));
 		assertEquals("margin-right", handler.propertyNames.get(1));
@@ -89,7 +89,7 @@ public class RuleParserTest {
 	public void testParseRule3() throws CSSException, IOException {
 		parseRule("input:not(){}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body:not(.foo)[id*=\"substring\"] .header", handler.selectors.get(0).toString());
+		assertEquals("body:not(.foo)[id*=substring] .header", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.get(0));
 		assertEquals("margin-right", handler.propertyNames.get(1));

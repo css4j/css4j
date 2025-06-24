@@ -342,7 +342,7 @@ public class SelectorParserNSTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((ElementSelector) simple).getNamespaceURI());
-		assertEquals("svg|p[title=\"hi\"]", sel.toString());
+		assertEquals("svg|p[title=hi]", sel.toString());
 	}
 
 	@Test
@@ -360,7 +360,7 @@ public class SelectorParserNSTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((ElementSelector) simple).getNamespaceURI());
-		assertEquals("svg|p[title=\"hi\"]", sel.toString());
+		assertEquals("svg|p[title=hi]", sel.toString());
 	}
 
 	@Test
@@ -427,7 +427,7 @@ public class SelectorParserNSTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((ElementSelector) simple).getNamespaceURI());
-		assertEquals("svg|input[svg|type=\"text\" i][dir=\"auto\"]", sel.toString());
+		assertEquals("svg|input[svg|type=\"text\" i][dir=auto]", sel.toString());
 	}
 
 	@Test
@@ -437,24 +437,28 @@ public class SelectorParserNSTest {
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(ConditionType.AND, cond.getConditionType());
+
 		Condition firstcond = ((CombinatorCondition) cond).getFirstCondition();
 		assertEquals(ConditionType.ATTRIBUTE, firstcond.getConditionType());
 		assertEquals("type", ((AttributeCondition) firstcond).getLocalName());
 		assertEquals("text", ((AttributeCondition) firstcond).getValue());
 		assertFalse(((AttributeCondition) firstcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
 		assertEquals(ConditionType.ATTRIBUTE, secondcond.getConditionType());
 		assertEquals("dir", ((AttributeCondition) secondcond).getLocalName());
 		assertEquals("auto", ((AttributeCondition) secondcond).getValue());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((AttributeCondition) secondcond).getNamespaceURI());
 		assertTrue(((AttributeCondition) secondcond).hasFlag(AttributeCondition.Flag.CASE_I));
+
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("input", ((ElementSelector) simple).getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((ElementSelector) simple).getNamespaceURI());
-		assertEquals("svg|input[type=\"text\"][svg|dir=\"auto\" i]", sel.toString());
+		assertEquals("svg|input[type=text][svg|dir=\"auto\" i]", sel.toString());
 	}
 
 	@Test
@@ -464,6 +468,7 @@ public class SelectorParserNSTest {
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(ConditionType.AND, cond.getConditionType());
 		Condition secondcond = ((CombinatorCondition) cond).getSecondCondition();
@@ -502,15 +507,17 @@ public class SelectorParserNSTest {
 		assertEquals(1, selist.getLength());
 		Selector sel = selist.item(0);
 		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+
 		Condition cond = ((ConditionalSelector) sel).getCondition();
 		assertEquals(ConditionType.ATTRIBUTE, cond.getConditionType());
 		assertEquals("title", ((AttributeCondition) cond).getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((AttributeCondition) cond).getNamespaceURI());
 		assertEquals("hi", ((AttributeCondition) cond).getValue());
+
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
-		assertEquals("p[svg|title=\"hi\"]", sel.toString());
+		assertEquals("p[svg|title=hi]", sel.toString());
 	}
 
 	@Test
@@ -528,7 +535,7 @@ public class SelectorParserNSTest {
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
-		assertEquals("p[title=\"hi\"]", sel.toString());
+		assertEquals("p[title=hi]", sel.toString());
 	}
 
 	@Test
@@ -546,7 +553,7 @@ public class SelectorParserNSTest {
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
-		assertEquals("p[|title=\"hi\"]", sel.toString());
+		assertEquals("p[|title=hi]", sel.toString());
 	}
 
 	@Test
@@ -565,7 +572,7 @@ public class SelectorParserNSTest {
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
-		assertEquals("p[|title=\"hi\"]", sel.toString());
+		assertEquals("p[|title=hi]", sel.toString());
 	}
 
 	@Test
@@ -583,7 +590,7 @@ public class SelectorParserNSTest {
 		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
-		assertEquals("p[title=\"hi\"]", sel.toString());
+		assertEquals("p[title=hi]", sel.toString());
 	}
 
 	@Test
@@ -601,7 +608,7 @@ public class SelectorParserNSTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((ElementSelector) simple).getNamespaceURI());
-		assertEquals("svg|p[title~=\"hi\"]", sel.toString());
+		assertEquals("svg|p[title~=hi]", sel.toString());
 	}
 
 	@Test
@@ -619,7 +626,7 @@ public class SelectorParserNSTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((ElementSelector) simple).getNamespaceURI());
-		assertEquals("svg|p[title~=\"hi\"]", sel.toString());
+		assertEquals("svg|p[title~=hi]", sel.toString());
 	}
 
 	@Test
@@ -637,7 +644,7 @@ public class SelectorParserNSTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((ElementSelector) simple).getNamespaceURI());
-		assertEquals("svg|p[lang|=\"en\"]", sel.toString());
+		assertEquals("svg|p[lang|=en]", sel.toString());
 	}
 
 	@Test
@@ -655,7 +662,7 @@ public class SelectorParserNSTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((ElementSelector) simple).getNamespaceURI());
-		assertEquals("svg|p[lang|=\"en\"]", sel.toString());
+		assertEquals("svg|p[lang|=en]", sel.toString());
 	}
 
 	@Test
@@ -673,7 +680,7 @@ public class SelectorParserNSTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((ElementSelector) simple).getNamespaceURI());
-		assertEquals("svg|p[lang*=\"CH\"]", sel.toString());
+		assertEquals("svg|p[lang*=CH]", sel.toString());
 	}
 
 	@Test
@@ -691,7 +698,7 @@ public class SelectorParserNSTest {
 		assertEquals(SelectorType.ELEMENT, simple.getSelectorType());
 		assertEquals("p", ((ElementSelector) simple).getLocalName());
 		assertEquals(TestConfig.SVG_NAMESPACE_URI, ((ElementSelector) simple).getNamespaceURI());
-		assertEquals("svg|p[lang*=\"CH\"]", sel.toString());
+		assertEquals("svg|p[lang*=CH]", sel.toString());
 	}
 
 	@Test

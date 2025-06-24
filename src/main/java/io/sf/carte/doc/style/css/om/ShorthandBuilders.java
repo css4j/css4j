@@ -91,11 +91,18 @@ class ShorthandBuilders {
 
 		factoryMap.put("column-rule", generic);
 
-		factoryMap.put("outline", generic);
-
 		factoryMap.put("text-decoration", generic);
 
 		factoryMap.put("text-emphasis", generic);
+
+		factoryMap.put("outline", new ShorthandBuilderFactory() {
+
+			@Override
+			public ShorthandBuilder createBuilder(BaseCSSStyleDeclaration style, String shorthand) {
+				return new OutlineShorthandBuilder(style);
+			}
+
+		});
 
 		factoryMap.put("flex", new ShorthandBuilderFactory() {
 

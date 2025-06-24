@@ -89,13 +89,24 @@ class PseudoConditionImpl extends AbstractNamedCondition implements PseudoCondit
 		buf.append(NSACSelectorFactory.escapeName(name));
 		if (argument != null) {
 			buf.append('(');
-			buf.append(getEscapedArgument());
+			if (isSelectorArgument()) {
+				buf.append(argument);
+			} else {
+				buf.append(ParseHelper.escape(argument));
+			}
 			buf.append(')');
 		}
 	}
 
-	private String getEscapedArgument() {
-		return argument != null ? ParseHelper.escape(argument) : "";
+	private boolean isSelectorArgument() {
+		int len = argument.length();
+		for (int i = 0; i < len; i++) {
+			char c = argument.charAt(i);
+			if (c == '*' || c == '.') {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

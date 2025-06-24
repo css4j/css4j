@@ -142,7 +142,7 @@ public class IdentifierValue extends AbstractTextValue {
 		String ident = getStringValue().toLowerCase(Locale.ROOT);
 		String spec;
 		if ("transparent".equals(ident)) {
-			spec = "rgba(0,0,0,0)";
+			spec = "#0000";
 		} else {
 			spec = ColorIdentifiers.getInstance().getColor(ident);
 		}

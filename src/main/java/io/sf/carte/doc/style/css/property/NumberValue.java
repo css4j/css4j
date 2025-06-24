@@ -31,15 +31,13 @@ import io.sf.carte.util.SimpleWriter;
  */
 public class NumberValue extends TypedValue implements CSSNumberValue {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
 	private short unitType;
 
 	protected float realvalue = 0;
 
 	private String dimensionUnitText = "";
-
-	boolean lengthUnitType = false;
 
 	private boolean calculated = false;
 
@@ -65,7 +63,6 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 		this.calculated = copied.calculated;
 		this.specified = copied.specified;
 		this.maxFractionDigits = copied.maxFractionDigits;
-		this.lengthUnitType = copied.lengthUnitType;
 		this.dimensionUnitText = copied.dimensionUnitText;
 		this.maxFractionDigits = copied.maxFractionDigits;
 	}
@@ -83,9 +80,6 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 	@Override
 	public String getCssText() {
 		boolean notaNumber = unitType != CSSUnit.CSS_NUMBER;
-		if (realvalue == 0f && !notaNumber) {
-			return "0";
-		}
 		if (Float.isInfinite(realvalue)) {
 			return serializeInfinite();
 		}
@@ -128,10 +122,6 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 
 	void writeCssText(SimpleWriter wri, float realvalue) throws IOException {
 		boolean notaNumber = getUnitType() != CSSUnit.CSS_NUMBER;
-		if (realvalue == 0f && !notaNumber) {
-			wri.write('0');
-			return;
-		}
 		if (Float.isInfinite(realvalue)) {
 			writeInfinite(wri);
 			return;
@@ -169,10 +159,6 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 	}
 
 	private String getMinifiedCssText(String propertyName, float realvalue) {
-		if (realvalue == 0f && getUnitType() != CSSUnit.CSS_PERCENTAGE && isLengthUnitType()
-			&& !isSubproperty() && isSpecified()) {
-			return "0";
-		}
 		if (Float.isInfinite(realvalue)) {
 			return serializeInfinite();
 		}
@@ -212,30 +198,23 @@ public class NumberValue extends TypedValue implements CSSNumberValue {
 		return getMinifiedCssText(propertyName, Math.abs(realvalue));
 	}
 
-	private boolean isLengthUnitType() {
-		return lengthUnitType;
-	}
-
 	@Override
 	public void setFloatValue(short unitType, float floatValue) throws DOMException {
 		checkModifiableProperty();
 		setUnitType(unitType);
 		realvalue = floatValue;
-		lengthUnitType = CSSUnit.isLengthUnitType(unitType);
 	}
 
 	public void setFloatValuePt(float floatValue) {
 		unitType = CSSUnit.CSS_PT;
 		realvalue = floatValue;
 		dimensionUnitText = "pt";
-		lengthUnitType = true;
 	}
 
 	public void setIntegerValue(int intValue) {
 		realvalue = intValue;
 		unitType = CSSUnit.CSS_NUMBER;
 		dimensionUnitText = "";
-		lengthUnitType = false;
 	}
 
 	@Override

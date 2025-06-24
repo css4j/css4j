@@ -69,7 +69,11 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 		check = checkValuesForType(CSSValue.Type.UNSET, declaredSet);
 		if (check == 1) {
 			// All values are unset
-			buf.append("unset");
+			if (isInheritedProperty() || initialvalue.length() > 5) {
+				buf.append("unset");
+			} else {
+				buf.append(initialvalue);
+			}
 			appendPriority(buf, important);
 			return 0;
 		} else if (check == 2 && isInheritedProperty()) {
@@ -93,14 +97,18 @@ class OrderedTwoValueShorthandBuilder extends ShorthandBuilder {
 			return 1;
 		}
 
+		StyleValue cssVal2 = getCSSValue(subp[1]);
+		boolean eqValues = valueEquals(cssVal, cssVal2);
+		boolean ni1 = isNotInitialValue(cssVal, property);
+		boolean ni2 = isNotInitialValue(cssVal2, property);
+
 		boolean appended = false;
-		if (isNotInitialValue(cssVal, property)) {
+		if (ni1 || (!eqValues && ni2)) {
 			appendValueText(buf, cssVal, false);
 			appended = true;
 		}
 
-		StyleValue cssVal2 = getCSSValue(subp[1]);
-		if (!valueEquals(cssVal, cssVal2) && (appended || isNotInitialValue(cssVal2, property))) {
+		if (!eqValues && appended) {
 			appendValueText(buf, cssVal2, appended);
 			appended = true;
 		}

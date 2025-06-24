@@ -629,17 +629,14 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 					return ((CSSTypedValue) value).getStringValue();
 				}
 			} else if (type == CssType.SHORTHAND) {
-				if (((ShorthandValue) value).getLonghands()
-						.size() < getLonghandPropertyCount(propertyName)) {
-					return "";
-				} else {
-					return serializeShorthand(propertyName);
-				}
+				return serializeShorthand(propertyName);
 			}
 			result = value.getMinifiedCssText(propertyName);
 		} else if (prefValues != null && prefValues.contains(propertyName)) {
 			int idx = prefValues.lastIndexOf(propertyName);
 			result = prefValues.get(idx + 1).toString();
+		} else if (ShorthandDatabase.getInstance().isShorthand(propertyName)) {
+			return serializeShorthand(propertyName);
 		} else {
 			result = "";
 		}

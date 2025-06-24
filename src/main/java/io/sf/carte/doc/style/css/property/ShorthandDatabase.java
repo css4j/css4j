@@ -278,12 +278,9 @@ public final class ShorthandDatabase {
 		String csl = identifiers.getProperty(propertyName);
 		if (csl == null) {
 			// Could not find identifiers for propertyName
-			if (propertyName.endsWith("-color")) {
-				value = value.toLowerCase(Locale.ROOT);
-				return ColorIdentifiers.getInstance().isColorIdentifier(value);
-			}
-			return false;
+			return propertyName.endsWith("-color") && checkColorIdentifier(value);
 		}
+
 		StringTokenizer tokp = new StringTokenizer(csl, ",");
 		while (tokp.hasMoreTokens()) {
 			String s = tokp.nextToken();
@@ -291,7 +288,13 @@ public final class ShorthandDatabase {
 				return true;
 			}
 		}
-		return false;
+
+		return propertyName.endsWith("-color") && checkColorIdentifier(value);
+	}
+
+	private static boolean checkColorIdentifier(String value) {
+		value = value.toLowerCase(Locale.ROOT);
+		return ColorIdentifiers.getInstance().isColorIdentifier(value);
 	}
 
 	/**

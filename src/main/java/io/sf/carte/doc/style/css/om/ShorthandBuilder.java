@@ -115,7 +115,7 @@ abstract class ShorthandBuilder {
 					defval = new IdentifierValue("left");
 				}
 			} else if (propertyName.equals("background-color")) {
-				defval = new IdentifierValue("transparent");
+				defval = parentStyle.getValueFactory().parseProperty("#0000");
 			} else if (propertyName.endsWith("-color")) {
 				// Do not put getCSSColor() here, to avoid races with 'color'
 				defval = new IdentifierValue("currentcolor");
@@ -610,7 +610,7 @@ abstract class ShorthandBuilder {
 	private boolean testColorIdentifier(TypedValue color, String ident) {
 		String spec;
 		if ("transparent".equals(ident)) {
-			spec = "rgba(0,0,0,0)";
+			spec = "#0000";
 		} else {
 			spec = ColorIdentifiers.getInstance().getColor(ident);
 		}

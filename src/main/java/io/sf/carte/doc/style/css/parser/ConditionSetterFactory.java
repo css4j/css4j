@@ -14,6 +14,7 @@ package io.sf.carte.doc.style.css.parser;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Condition;
@@ -68,6 +69,9 @@ class ConditionSetterFactory {
 
 	private static HashMap<String, ConditionSetter> createPseudoElementSetterMap() {
 		HashMap<String, ConditionSetter> setters = new HashMap<>(8);
+		setters.put("slotted", new SelectorArgumentPEConditionSetter());
+		setters.put("highlight", new ArgumentPseudoElementConditionSetter());
+		setters.put("picker", new ArgumentPseudoElementConditionSetter());
 		setLegacyPseudoElementSetters(setters);
 		return setters;
 	}
@@ -174,7 +178,7 @@ class ConditionSetterFactory {
 			// Check the validity of the argument.
 			// We allow quoted arguments and anything inside prefixed selectors.
 			char c;
-			if (!CSSParser.isValidPseudoName(s) && (c = s.charAt(0)) != '"' && c != '\''
+			if (!CSSUtil.isValidPseudoName(s) && (c = s.charAt(0)) != '"' && c != '\''
 					&& cond.name.charAt(0) != '-') {
 				handler.handleWarning(index - s.length() - 1, ParseHelper.ERR_UNEXPECTED_TOKEN,
 						"Unexpected functional argument: " + s);
@@ -190,7 +194,7 @@ class ConditionSetterFactory {
 		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			PseudoConditionImpl cond;
-			if (CSSParser.isValidPseudoName(name)) {
+			if (CSSUtil.isValidPseudoName(name)) {
 				cond = new PseudoConditionImpl(ConditionType.PSEUDO_CLASS);
 				cond.setName(name);
 			} else {
@@ -209,7 +213,7 @@ class ConditionSetterFactory {
 		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			PseudoConditionImpl cond;
-			if (CSSParser.isValidPseudoName(name)) {
+			if (CSSUtil.isValidPseudoName(name)) {
 				cond = new PseudoConditionImpl(ConditionType.PSEUDO_CLASS);
 				cond.setName(name);
 			} else {
@@ -238,7 +242,7 @@ class ConditionSetterFactory {
 		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			PseudoConditionImpl cond = null;
-			if (!CSSParser.isValidPseudoName(name)) {
+			if (!CSSUtil.isValidPseudoName(name)) {
 				handler.handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
 						"Invalid pseudo-element: " + name);
 			} else if (handler.isInsideHas()) {
@@ -250,6 +254,38 @@ class ConditionSetterFactory {
 				cond.setName(name);
 			}
 			return cond;
+		}
+
+	}
+
+	private static class ArgumentPseudoElementConditionSetter extends PseudoConditionSetter {
+
+		@Override
+		public AbstractCondition create(int index, int triggerCp, String name,
+				SelectorTokenHandler handler) {
+			PseudoConditionImpl cond = null;
+			if (!CSSUtil.isValidPseudoName(name)) {
+				handler.handleError(index - name.length(), ParseHelper.ERR_INVALID_IDENTIFIER,
+						"Invalid pseudo-element: " + name);
+			} else if (handler.isInsideHas()) {
+				// See CSSWG issue 7463
+				handler.handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+						"For security reasons, pseudo-elements aren't allowed inside a has().");
+			} else {
+				cond = new PseudoConditionImpl(ConditionType.PSEUDO_ELEMENT);
+				cond.setName(name);
+			}
+			return cond;
+		}
+
+		@Override
+		public void setArgument(int index, Condition cond, SelectorTokenHandler handler) {
+			if (handler.buffer.length() != 0) {
+				setNameArgument(index, (PseudoConditionImpl) cond, handler);
+			} else {
+				handler.handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR, "Pseudo-element "
+						+ ((PseudoConditionImpl) cond).getName() + " requires an argument.");
+			}
 		}
 
 	}
@@ -475,7 +511,7 @@ class ConditionSetterFactory {
 		public AbstractCondition create(int index, int triggerCp, String name,
 				SelectorTokenHandler handler) {
 			if (triggerCp != TokenProducer.CHAR_LEFT_PAREN) {
-				pseudoClassMustHaveArgumentError(index, name, triggerCp, handler);
+				pseudoMustHaveArgumentError(index, name, triggerCp, handler);
 				return null;
 			}
 			SelectorArgumentConditionImpl condition = new SelectorArgumentConditionImpl();
@@ -512,7 +548,27 @@ class ConditionSetterFactory {
 
 	}
 
-	private static void pseudoClassMustHaveArgumentError(int index, String name, int triggerCp,
+	private static class SelectorArgumentPEConditionSetter extends SelectorArgumentConditionSetter {
+
+		@Override
+		public AbstractCondition create(int index, int triggerCp, String name,
+				SelectorTokenHandler handler) {
+			if (triggerCp != TokenProducer.CHAR_LEFT_PAREN) {
+				pseudoMustHaveArgumentError(index, ':' + name, triggerCp, handler);
+				return null;
+			} else if (handler.isInsideHas()) {
+				// See CSSWG issue 7463
+				handler.handleError(index, ParseHelper.ERR_UNEXPECTED_CHAR,
+						"For security reasons, pseudo-elements aren't allowed inside a has().");
+			}
+			SelectorArgumentPEConditionImpl condition = new SelectorArgumentPEConditionImpl();
+			condition.setName(name);
+			return condition;
+		}
+
+	}
+
+	private static void pseudoMustHaveArgumentError(int index, String name, int triggerCp,
 			SelectorTokenHandler handler) {
 		StringBuilder buf = new StringBuilder(name.length() * 2 + 26);
 		buf.append("Expected ':").append(name).append("(', found ':").append(name)

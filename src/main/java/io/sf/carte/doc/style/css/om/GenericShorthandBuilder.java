@@ -85,6 +85,25 @@ class GenericShorthandBuilder extends ShorthandBuilder {
 			return 1;
 		}
 
+		return appendPostKeywordShorthandValues(buf, declaredSet, important);
+	}
+
+	/**
+	 * Use the given set of properties to append a shorthand serialization to the
+	 * given buffer. Values had an initial keyword check for inherit-like values.
+	 * 
+	 * @param buf         the buffer.
+	 * @param declaredSet the set of declared properties relevant to build the
+	 *                    shorthand. Other properties could be ignored.
+	 * @param important   true if the shorthand to build is of important priority.
+	 * @return <code>0</code> if the shorthand was appended successfully,
+	 *         <code>1</code> if could not serialize, <code>2</code> if execution
+	 *         should proceed like the serialization did not succeed, but the buffer
+	 *         must not be reset and normal-priority properties should not be
+	 *         appended.
+	 */
+	int appendPostKeywordShorthandValues(StringBuilder buf, Set<String> declaredSet,
+			boolean important) {
 		BufferSimpleWriter wri = new BufferSimpleWriter(buf);
 		DeclarationFormattingContext context = getParentStyle().getFormattingContext();
 		boolean appended = false;

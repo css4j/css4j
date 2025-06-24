@@ -1374,7 +1374,8 @@ public class PropertyParserTest {
 		assertMatch(Match.TRUE, lu, "<integer>#");
 		assertMatch(Match.TRUE, lu, "<number>#");
 		assertMatch(Match.TRUE, lu, "<integer>+");
-		assertMatch(Match.FALSE, lu, "<frequency>");
+		assertMatch(Match.TRUE, lu, "<length>");
+		assertMatch(Match.TRUE, lu, "<angle>");
 		assertMatch(Match.FALSE, lu, "<color>");
 		assertMatch(Match.TRUE, lu, "<string> | <integer>");
 		assertMatch(Match.TRUE, lu, "<string> | <integer>+");
@@ -1405,6 +1406,12 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("0.0");
 		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
 		assertEquals(0, lu.getIntegerValue());
+
+		assertMatch(Match.TRUE, lu, "<integer>");
+		assertMatch(Match.TRUE, lu, "<integer>#");
+		assertMatch(Match.TRUE, lu, "<number>#");
+		assertMatch(Match.TRUE, lu, "<integer>+");
+		assertMatch(Match.TRUE, lu, "<length>");
 	}
 
 	@Test
@@ -1426,6 +1433,7 @@ public class PropertyParserTest {
 		assertMatch(Match.TRUE, lu, "<number>#");
 		assertMatch(Match.TRUE, lu, "<number>+");
 		assertMatch(Match.FALSE, lu, "<integer>");
+		assertMatch(Match.FALSE, lu, "<length>");
 		assertMatch(Match.FALSE, lu, "<color>");
 		assertMatch(Match.TRUE, lu, "<string> | <number>");
 		assertMatch(Match.TRUE, lu, "<string> | <number>+");
@@ -1437,6 +1445,13 @@ public class PropertyParserTest {
 		LexicalUnit lu = parsePropertyValue("+1.0");
 		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
 		assertEquals(1f, lu.getFloatValue(), 1e-5f);
+	}
+
+	@Test
+	public void testParsePropertyPlusDotFloat() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("+.3");
+		assertEquals(LexicalType.REAL, lu.getLexicalUnitType());
+		assertEquals(0.3f, lu.getFloatValue(), 1e-6f);
 	}
 
 	@Test

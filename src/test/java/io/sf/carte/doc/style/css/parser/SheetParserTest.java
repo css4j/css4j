@@ -93,7 +93,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals("hr[align=\"left\"]", handler.selectors.get(0).toString());
+		assertEquals("hr[align=left]", handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.get(0));
 		assertEquals("margin-right", handler.propertyNames.get(1));
@@ -288,7 +288,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body:not(.foo)[id*=\"substring\"] .header",
+		assertEquals("body:not(.foo)[id*=substring] .header",
 			handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.get(0));
@@ -314,11 +314,11 @@ public class SheetParserTest {
 	@Test
 	public void testMalformedStyleRule2() throws CSSException, IOException {
 		Reader re = new StringReader(
-			"p.myclass width:300px}{}body:not(.foo)[id*=substring] .header {margin-left : 0 ;margin-right : auto;}");
+			"p.myclass width:300px}{}body:not(.foo)[id*='a b'] .header {margin-left : 0 ;margin-right : auto;}");
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body:not(.foo)[id*=\"substring\"] .header",
+		assertEquals("body:not(.foo)[id*=\"a b\"] .header",
 			handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.get(0));
@@ -333,8 +333,8 @@ public class SheetParserTest {
 
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
-		assertEquals(80, loc.getColumnNumber());
-		assertEquals(100, handler.ptyLocators.get(1).getColumnNumber());
+		assertEquals(76, loc.getColumnNumber());
+		assertEquals(96, handler.ptyLocators.get(1).getColumnNumber());
 
 		assertTrue(errorHandler.hasError());
 		assertEquals(1, errorHandler.getLastException().getLineNumber());
@@ -348,7 +348,7 @@ public class SheetParserTest {
 		parser.parseStyleSheet(re);
 
 		assertEquals(1, handler.selectors.size());
-		assertEquals("body:not(.foo)[id*=\"substring\"] .header",
+		assertEquals("body:not(.foo)[id*=substring] .header",
 			handler.selectors.get(0).toString());
 		assertEquals(2, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.get(0));
@@ -1470,7 +1470,7 @@ public class SheetParserTest {
 		assertEquals(14, handler.comments.size());
 		assertEquals(115, handler.selectors.size());
 		assertEquals("textarea", handler.selectors.get(73).toString());
-		assertEquals("hr[align=\"left\"]", handler.selectors.get(76).toString());
+		assertEquals("hr[align=left]", handler.selectors.get(76).toString());
 		assertEquals(154, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.get(0));
 		assertEquals("page-break-before", handler.propertyNames.get(153));
@@ -1491,7 +1491,7 @@ public class SheetParserTest {
 		re.close();
 		assertEquals(16, handler.comments.size());
 		assertEquals("textarea", handler.selectors.get(74).toString());
-		assertEquals("hr[align=\"left\"]", handler.selectors.get(78).toString());
+		assertEquals("hr[align=left]", handler.selectors.get(78).toString());
 		assertEquals(127, handler.selectors.size());
 		assertEquals(172, handler.propertyNames.size());
 		assertEquals("display", handler.propertyNames.get(0));

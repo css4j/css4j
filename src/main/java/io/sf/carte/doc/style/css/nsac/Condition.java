@@ -234,6 +234,21 @@ public interface Condition {
 		SELECTOR_ARGUMENT,
 
 		/**
+		 * This condition checks the selector list argument to which a pseudo-element
+		 * applies.
+		 * <p>
+		 * Example:
+		 * </p>
+		 *
+		 * <pre class="example">
+		 *   :slotted([a=b])
+		 * </pre>
+		 *
+		 * @see ArgumentCondition
+		 */
+		SELECTOR_ARGUMENT_PSEUDO_ELEMENT,
+
+		/**
 		 * Nesting selector ({@code &}).
 		 */
 		NESTING

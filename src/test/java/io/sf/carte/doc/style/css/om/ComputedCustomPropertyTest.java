@@ -1749,7 +1749,7 @@ public class ComputedCustomPropertyTest {
 		assertEquals("border-box", style.getPropertyValue("background-clip"));
 		assertEquals("scroll", style.getPropertyValue("background-attachment"));
 		assertEquals("no-repeat no-repeat", style.getPropertyValue("background-repeat"));
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("background-color"));
+		assertEquals("#0000", style.getPropertyValue("background-color"));
 
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleErrors());
 		assertFalse(xhtmlDoc.getErrorHandler().hasComputedStyleWarnings());

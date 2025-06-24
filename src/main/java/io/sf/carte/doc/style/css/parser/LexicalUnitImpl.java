@@ -625,6 +625,10 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 			}
 			break;
 		case percentage:
+			if (type == LexicalType.PERCENTAGE) {
+				return Match.TRUE;
+			}
+			break;
 		case lengthPercentage:
 			if (type == LexicalType.PERCENTAGE) {
 				return Match.TRUE;
@@ -637,7 +641,11 @@ class LexicalUnitImpl implements LexicalUnit, Cloneable, java.io.Serializable {
 		case resolution:
 		case flex:
 			// Dimension
-			if (type == LexicalType.DIMENSION && unitMatchesCategory(getCssUnit(), cat)) {
+			if (type == LexicalType.DIMENSION) {
+				if (unitMatchesCategory(getCssUnit(), cat)) {
+					return Match.TRUE;
+				}
+			} else if (type == LexicalType.INTEGER && intValue == 0 && !isParameter()) {
 				return Match.TRUE;
 			}
 			break;

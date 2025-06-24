@@ -377,9 +377,10 @@ class RGBColor extends BaseColor implements RGBAColor {
 		float fr = componentByte(getRed());
 		float fg = componentByte(getGreen());
 		float fb = componentByte(getBlue());
-		boolean nonOpaque = isNonOpaque();
-		if (nonOpaque || !isInteger(fr) || !isInteger(fg) || !isInteger(fb) || fr > 255f || fg > 255f
-				|| fb > 255f) {
+		float fa = alphaByte();
+		boolean nonOpaque = Math.abs(fa - 255f) > 1e-4f;
+		if (!isInteger(fa) || !isInteger(fr) || !isInteger(fg) || !isInteger(fb) || fr > 255f
+				|| fg > 255f || fb > 255f) {
 			if (minify) {
 				if (isCommaSyntax()) {
 					return minifiedOldFunctionalString(nonOpaque);
@@ -397,13 +398,19 @@ class RGBColor extends BaseColor implements RGBAColor {
 		int r = Math.round(fr);
 		int g = Math.round(fg);
 		int b = Math.round(fb);
+		int a = Math.round(fa);
 		// Use hexadecimal notation
 		String hexr = Integer.toHexString(r);
 		String hexg = Integer.toHexString(g);
 		String hexb = Integer.toHexString(b);
+		String hexa = "";
+		if (nonOpaque) {
+			hexa = Integer.toHexString(a);
+		}
 		StringBuilder buf;
-		if ((r != 0 && notSameChar(hexr)) || (g != 0 && notSameChar(hexg)) || (b != 0 && notSameChar(hexb))) {
-			buf = new StringBuilder(7);
+		if ((r != 0 && notSameChar(hexr)) || (g != 0 && notSameChar(hexg))
+				|| (b != 0 && notSameChar(hexb)) || (a != 255 && a != 0 && notSameChar(hexa))) {
+			buf = new StringBuilder(9);
 			buf.append('#');
 			if (hexr.length() == 1) {
 				buf.append('0');
@@ -417,12 +424,21 @@ class RGBColor extends BaseColor implements RGBAColor {
 				buf.append('0');
 			}
 			buf.append(hexb);
+			if (nonOpaque) {
+				if (hexa.length() == 1) {
+					buf.append('0');
+				}
+				buf.append(hexa);
+			}
 		} else {
-			buf = new StringBuilder(4);
+			buf = new StringBuilder(6);
 			buf.append('#');
 			buf.append(hexr.charAt(0));
 			buf.append(hexg.charAt(0));
 			buf.append(hexb.charAt(0));
+			if (nonOpaque) {
+				buf.append(hexa.charAt(0));
+			}
 		}
 		String hex = buf.toString();
 		if (minify) {
@@ -447,8 +463,28 @@ class RGBColor extends BaseColor implements RGBAColor {
 		return byteComp;
 	}
 
+	private float alphaByte() {
+		float byteComp;
+		Type type = alpha.getPrimitiveType();
+		if (type == Type.NUMERIC) {
+			TypedValue number = (TypedValue) alpha;
+			if (number.getUnitType() == CSSUnit.CSS_PERCENTAGE) {
+				byteComp = number.getFloatValue() * 2.55f;
+			} else {
+				byteComp = number.getFloatValue(CSSUnit.CSS_NUMBER) * 255f;
+			}
+		} else {
+			byteComp = 256f;
+		}
+		return byteComp;
+	}
+
 	private boolean isInteger(float r) {
 		return Math.abs(r - (float) Math.rint(r)) < 3e-4;
+	}
+
+	private static boolean notSameChar(String hexr) {
+		return hexr.length() <= 1 || hexr.charAt(0) != hexr.charAt(1);
 	}
 
 	String oldFunctionalString(boolean nonOpaque) {
@@ -513,10 +549,6 @@ class RGBColor extends BaseColor implements RGBAColor {
 		}
 		buf.append(')');
 		return buf.toString();
-	}
-
-	private boolean notSameChar(String hexr) {
-		return hexr.length() == 1 || hexr.charAt(0) != hexr.charAt(1);
 	}
 
 	@Override

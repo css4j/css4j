@@ -253,8 +253,8 @@ public class ColorValueTest {
 	@Test
 	public void testRGBAColor2() throws IOException {
 		style.setCssText("color: rgba(8, 63, 255, 0); ");
-		assertEquals("rgba(8, 63, 255, 0)", style.getPropertyValue("color"));
-		assertEquals("color: rgba(8, 63, 255, 0); ", style.getCssText());
+		assertEquals("#083fff00", style.getPropertyValue("color"));
+		assertEquals("color: #083fff00; ", style.getCssText());
 
 		style.setCssText("color: hsl(120, 100%, 50%); ");
 		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
@@ -270,8 +270,8 @@ public class ColorValueTest {
 	@Test
 	public void testRGBColorTransparentAlpha() throws IOException {
 		style.setCssText("color: rgb(8 63 255/0); ");
-		assertEquals("rgb(8 63 255 / 0)", style.getPropertyValue("color"));
-		assertEquals("color: rgb(8 63 255 / 0); ", style.getCssText());
+		assertEquals("#083fff00", style.getPropertyValue("color"));
+		assertEquals("color: #083fff00; ", style.getCssText());
 	}
 
 	@Test
@@ -317,15 +317,15 @@ public class ColorValueTest {
 		RGBAColor rgb = val.toRGBColor();
 		assertEquals(0.22745f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER),
 				0.0001);
-		assertEquals("rgb(172 152 33 / 0.2275)", val.getCssText());
-		assertEquals("rgb(172 152 33/.2275)", val.getMinifiedCssText("color"));
+		assertEquals("#ac98213a", val.getCssText());
+		assertEquals("#ac98213a", val.getMinifiedCssText("color"));
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 
 		// To sRGB
 		CSSColor srgb = rgb.toColorSpace(ColorSpace.srgb);
 		assertNotNull(srgb);
 		assertEquals(CSSColorValue.ColorModel.RGB, srgb.getColorModel());
-		assertEquals("rgb(172 152 33 / 0.2275)", srgb.toString());
+		assertEquals("#ac98213a", srgb.toString());
 
 		// HSL
 		CSSColor hsl = rgb.toColorSpace("hsl");
@@ -406,8 +406,8 @@ public class ColorValueTest {
 		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
 		RGBAColor rgb = val.toRGBColor();
 		assertEquals(0f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		assertEquals("rgb(172 152 33 / 0)", style.getPropertyValue("color"));
-		assertEquals("rgb(172 152 33/0)", val.getMinifiedCssText("color"));
+		assertEquals("#ac982100", style.getPropertyValue("color"));
+		assertEquals("#ac982100", val.getMinifiedCssText("color"));
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -429,8 +429,8 @@ public class ColorValueTest {
 		RGBAColor rgb = val.toRGBColor();
 		assertEquals(0.66666f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER),
 				1e-5f);
-		assertEquals("rgb(170 204 153 / 0.6667)", style.getPropertyValue("color"));
-		assertEquals("rgb(170 204 153/.6667)", val.getMinifiedCssText("color"));
+		assertEquals("#ac9a", style.getPropertyValue("color"));
+		assertEquals("#ac9a", val.getMinifiedCssText("color"));
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -440,8 +440,8 @@ public class ColorValueTest {
 		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
 		RGBAColor rgb = val.toRGBColor();
 		assertEquals(0f, ((CSSTypedValue) rgb.getAlpha()).getFloatValue(CSSUnit.CSS_NUMBER), 1e-5f);
-		assertEquals("rgb(170 204 153 / 0)", style.getPropertyValue("color"));
-		assertEquals("rgb(170 204 153/0)", val.getMinifiedCssText("color"));
+		assertEquals("#ac90", style.getPropertyValue("color"));
+		assertEquals("#ac90", val.getMinifiedCssText("color"));
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 	}
 
@@ -1354,10 +1354,10 @@ public class ColorValueTest {
 	@Test
 	public void testHSLRelativeCalc() throws IOException {
 		// peru is hsl(29.577 58.678% 52.549%)
-		style.setCssText("color: hsl(from peru calc(2*h) 32% calc(l - 25) / 0.5)");
+		style.setCssText("color: hsl(from peru calc(h - 9.577) 32% calc(l - 25) / 0.5)");
 		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
 		assertNotNull(val);
-		assertEquals("hsl(59.154 32% 27.549% / 0.5)", val.getCssText());
+		assertEquals("hsl(20 32% 27.549% / 0.5)", val.getCssText());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -1771,10 +1771,10 @@ public class ColorValueTest {
 	@Test
 	public void testHWBRelativeCalc() throws IOException {
 		// peru is hwb(29.577 24.706% 19.608%)
-		style.setCssText("color: hwb(from peru calc(2*h) 32% calc(b + 20.9922) / 0.5)");
+		style.setCssText("color: hwb(from peru calc(h - 20) 32% calc(b + 20.9922) / 0.5)");
 		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
 		assertNotNull(val);
-		assertEquals("hwb(59.155 32% 40.6% / 0.5)", val.getCssText());
+		assertEquals("hwb(9.577 32% 40.6% / 0.5)", val.getCssText());
 
 		assertFalse(getStyleDeclarationErrorHandler().hasErrors());
 		assertFalse(getStyleDeclarationErrorHandler().hasWarnings());
@@ -2467,25 +2467,25 @@ public class ColorValueTest {
 	@Test
 	public void testRGBATransparentColor() {
 		style.setCssText("color: rgba(0,0,0,0); ");
-		assertEquals("rgba(0, 0, 0, 0)", style.getPropertyValue("color"));
-		assertEquals("color: rgba(0, 0, 0, 0); ", style.getCssText());
+		assertEquals("#0000", style.getPropertyValue("color"));
+		assertEquals("color: #0000; ", style.getCssText());
 		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
 		assertNotNull(val);
 		RGBAColor rgb = val.toRGBColor();
 		assertNotNull(rgb);
-		assertEquals("rgba(0, 0, 0, 0)", rgb.toString());
+		assertEquals("#0000", rgb.toString());
 	}
 
 	@Test
 	public void testRGBTransparentColor() {
 		style.setCssText("color: rgb(0 0 0/0); ");
-		assertEquals("rgb(0 0 0 / 0)", style.getPropertyValue("color"));
-		assertEquals("color: rgb(0 0 0 / 0); ", style.getCssText());
+		assertEquals("#0000", style.getPropertyValue("color"));
+		assertEquals("color: #0000; ", style.getCssText());
 		ColorValue val = (ColorValue) style.getPropertyCSSValue("color");
 		assertNotNull(val);
 		RGBAColor rgb = val.toRGBColor();
 		assertNotNull(rgb);
-		assertEquals("rgb(0 0 0 / 0)", rgb.toString());
+		assertEquals("#0000", rgb.toString());
 	}
 
 	private void assertMatch(Match match, CSSValue value, String syntax) {
