@@ -60,15 +60,10 @@ abstract class MediaQueryImpl extends AbstractMediaQuery {
 	}
 
 	@Override
-	protected boolean matches(AbstractMediaQuery other) {
-		return super.matches(other);
-	}
-
-	@Override
-	protected boolean matchesPredicate(BooleanCondition condition, CSSCanvas canvas) {
-		if (((BooleanConditionImpl.Predicate) condition)
-			.getPredicateType() == MediaQueryPredicate.MEDIA_FEATURE) {
-			return matchesFeaturePredicate((MediaFeature) condition, canvas);
+	protected boolean matchesPredicate(MediaQueryPredicate condition, CSSCanvas canvas) {
+		if (condition.getPredicateType() == MediaQueryPredicate.MEDIA_FEATURE) {
+			return condition instanceof MediaFeature
+					&& matchesFeaturePredicate((MediaFeature) condition, canvas);
 		}
 		return true;
 	}
@@ -308,6 +303,10 @@ abstract class MediaQueryImpl extends AbstractMediaQuery {
 			}
 			break;
 		case PREDICATE:
+			if (!(condition instanceof MediaPredicate)) {
+				// var()
+				return 0;
+			}
 			MediaPredicate predicate = (MediaPredicate) condition;
 			if (predicate.getPredicateType() == MediaQueryPredicate.MEDIA_TYPE) {
 				// Ignore. We already checked this with the mediaType field.
@@ -315,6 +314,10 @@ abstract class MediaQueryImpl extends AbstractMediaQuery {
 			}
 			switch (otherCondition.getType()) {
 			case PREDICATE:
+				if (!(otherCondition instanceof MediaPredicate)) {
+					// var()
+					return 0;
+				}
 				MediaPredicate otherPredicate = (MediaPredicate) otherCondition;
 				if (otherPredicate.getPredicateType() == MediaQueryPredicate.MEDIA_TYPE) {
 					// Ignore. We already checked this with the mediaType field.

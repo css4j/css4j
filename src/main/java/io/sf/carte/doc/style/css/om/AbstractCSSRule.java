@@ -105,7 +105,8 @@ abstract public class AbstractCSSRule implements CSSRule, java.io.Serializable {
 		normalStore.addRule(clone(normalSheet));
 	}
 
-	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+	void cascade(Cascade cascade, SelectorMatcher matcher, ComputedCSSStyle style,
+			String targetMedium) {
 	}
 
 	/**

@@ -38,6 +38,7 @@ import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSTypedValue;
 import io.sf.carte.doc.style.css.CSSUnit;
 import io.sf.carte.doc.style.css.CSSValue.Type;
+import io.sf.carte.doc.style.css.impl.MediaListAccess;
 import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.MediaQuery;
 import io.sf.carte.doc.style.css.MediaQueryList;

@@ -26,6 +26,7 @@ import io.sf.carte.doc.style.css.MediaFeaturePredicate;
 import io.sf.carte.doc.style.css.MediaQueryPredicate;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
+import io.sf.carte.doc.style.css.property.CSSLexicalProcessingException;
 
 /**
  * Media feature predicate implementation.
@@ -67,10 +68,7 @@ abstract class AbstractMediaFeaturePredicate extends MediaPredicate implements M
 	public void setValue(LexicalUnit value) {
 		if (value != null) {
 			CSSValue cssval = getValueFactory().createCSSValue(value);
-			if (cssval.getCssValueType() != CssType.TYPED) {
-				throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
-						"Expected typed value, got: " + cssval.getCssValueType());
-			}
+			checkPredicateType(cssval);
 			this.value1 = (CSSTypedValue) cssval;
 		} else {
 			this.value1 = null;
@@ -93,18 +91,23 @@ abstract class AbstractMediaFeaturePredicate extends MediaPredicate implements M
 	public void setValueRange(LexicalUnit value1, LexicalUnit value2) {
 		CSSValueFactory factory = getValueFactory();
 		CSSValue cssval = factory.createCSSValue(value1);
-		if (cssval.getCssValueType() != CssType.TYPED) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
-					"Expected typed value, got: " + cssval.getCssValueType());
-		}
+		checkPredicateType(cssval);
 		this.value1 = (CSSTypedValue) cssval;
 
 		cssval = factory.createCSSValue(value2);
-		if (cssval.getCssValueType() != CssType.TYPED) {
-			throw new DOMException(DOMException.TYPE_MISMATCH_ERR,
-					"Expected typed value, got: " + cssval.getCssValueType());
-		}
+		checkPredicateType(cssval);
 		this.value2 = (CSSTypedValue) cssval;
+	}
+
+	private static void checkPredicateType(CSSValue cssval) {
+		CssType vt = cssval.getCssValueType();
+		if (vt != CssType.TYPED) {
+			String msg = "Expected typed value, got: " + vt;
+			if (vt == CssType.PROXY) {
+				throw new CSSLexicalProcessingException(msg);
+			}
+			throw new DOMException(DOMException.TYPE_MISMATCH_ERR, msg);
+		}
 	}
 
 	@Override

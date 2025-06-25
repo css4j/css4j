@@ -80,6 +80,11 @@ public interface MediaQueryHandler {
 	void compatQuery(CSSParseException exception);
 
 	/**
+	 * Mark this query as containing a proxy.
+	 */
+	void setContainsProxy();
+
+	/**
 	 * The query list ends.
 	 */
 	void endQueryList();

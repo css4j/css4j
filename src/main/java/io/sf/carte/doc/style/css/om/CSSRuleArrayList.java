@@ -69,9 +69,10 @@ public class CSSRuleArrayList extends AbstractRuleList<AbstractCSSRule> {
 		return index;
 	}
 
-	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+	void cascade(Cascade cascade, SelectorMatcher matcher, ComputedCSSStyle style,
+			String targetMedium) {
 		for (AbstractCSSRule rule : this) {
-			rule.cascade(cascade, matcher, targetMedium);
+			rule.cascade(cascade, matcher, style, targetMedium);
 		}
 	}
 

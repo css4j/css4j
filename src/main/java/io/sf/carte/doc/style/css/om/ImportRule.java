@@ -25,6 +25,7 @@ import io.sf.carte.doc.style.css.CSSResourceLimitException;
 import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.impl.MediaListAccess;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;

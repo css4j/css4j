@@ -38,6 +38,7 @@ import io.sf.carte.doc.style.css.CSSStyleSheet;
 import io.sf.carte.doc.style.css.CSSValueSyntax;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Category;
 import io.sf.carte.doc.style.css.CSSValueSyntax.Match;
+import io.sf.carte.doc.style.css.impl.MediaListAccess;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleDeclarationErrorHandler;

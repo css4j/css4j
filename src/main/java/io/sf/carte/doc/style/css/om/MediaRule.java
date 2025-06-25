@@ -24,6 +24,7 @@ import io.sf.carte.doc.style.css.CSSRule;
 import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SelectorMatcher;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
+import io.sf.carte.doc.style.css.impl.MediaListAccess;
 import io.sf.carte.doc.style.css.om.BaseDocumentCSSStyleSheet.Cascade;
 import io.sf.carte.util.BufferSimpleWriter;
 import io.sf.carte.util.SimpleWriter;
@@ -82,13 +83,22 @@ public class MediaRule extends GroupingRule implements CSSMediaRule {
 	}
 
 	@Override
-	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+	void cascade(Cascade cascade, SelectorMatcher matcher, ComputedCSSStyle style,
+			String targetMedium) {
 		MediaQueryList mediaList = getMedia();
+		if (((MediaListAccess) mediaList).hasProxy()) {
+			mediaList = replaceProxyFeatures(mediaList, style);
+		}
 		// If we target a specific media, account for matching @media rules
 		if (mediaList.matches(targetMedium, getCanvas())) {
 			CSSRuleArrayList ruleList = getCssRules();
-			ruleList.cascade(cascade, matcher, targetMedium);
+			ruleList.cascade(cascade, matcher, style, targetMedium);
 		}
+	}
+
+	private MediaQueryList replaceProxyFeatures(MediaQueryList mql, ComputedCSSStyle style) {
+		// TODO
+		return mql;
 	}
 
 	private CSSCanvas getCanvas() {

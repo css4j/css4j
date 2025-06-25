@@ -40,6 +40,7 @@ import io.sf.carte.doc.style.css.CSSStyleSheetFactory;
 import io.sf.carte.doc.style.css.LinkStyle;
 import io.sf.carte.doc.style.css.MediaQueryFactory;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.impl.MediaListAccess;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 
@@ -168,13 +169,18 @@ public class MediaRuleTest {
 		assertTrue(mql.isAllMedia());
 		assertFalse(mql.hasErrors());
 		assertEquals("all", rule.getMedia().getMedia());
+
+		assertFalse(((MediaListAccess) mql).hasProxy());
+
 		assertTrue(sheet == rule.getParentStyleSheet());
+
 		assertEquals(
 				"@media {\n    nav.foo {\n        display: none;\n    }\n    footer .footer .foo {\n        padding-left: 0;\n        padding-right: 0;\n    }\n    h4 {\n        font-size: 20px;\n    }\n}\n",
 				rule.getCssText());
 		assertEquals(
 				"@media{nav.foo{display:none}footer .footer .foo{padding-left:0;padding-right:0}h4{font-size:20px}}",
 				rule.getMinifiedCssText());
+
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
@@ -202,6 +208,8 @@ public class MediaRuleTest {
 		assertTrue(mql.isNotAllMedia());
 		assertFalse(mql.isAllMedia());
 
+		assertFalse(((MediaListAccess) mql).hasProxy());
+
 		DefaultSheetErrorHandler errHandler = (DefaultSheetErrorHandler) compatsheet
 				.getErrorHandler();
 		assertFalse(errHandler.hasSacErrors());
@@ -219,6 +227,32 @@ public class MediaRuleTest {
 		CSSDocument cssdoc = cssStyle.getOwnerDocument();
 		assertFalse(cssdoc.getErrorHandler().hasMediaErrors());
 		assertFalse(cssdoc.getErrorHandler().hasMediaWarnings());
+	}
+
+	@Test
+	public void testParseVar() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@media ((max-width: var(--width-max)) and (var(--height-min) <= height < var(--height-max))){nav.foo{display:none}}");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.MEDIA_RULE, sheet.getCssRules().item(0).getType());
+		MediaRule rule = (MediaRule) sheet.getCssRules().item(0);
+
+		MediaQueryList mql = rule.getMedia();
+		assertFalse(mql.isNotAllMedia());
+		assertFalse(mql.isAllMedia());
+		assertFalse(mql.hasErrors());
+
+		assertTrue(((MediaListAccess) mql).hasProxy());
+
+		assertEquals(
+				"(max-width: var(--width-max)) and (var(--height-min) <= height < var(--height-max))",
+				mql.getMedia());
+		assertEquals(
+				"(max-width:var(--width-max)) and (var(--height-min)<=height<var(--height-max))",
+				mql.getMinifiedMedia());
+
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
 	}
 
 	@Test

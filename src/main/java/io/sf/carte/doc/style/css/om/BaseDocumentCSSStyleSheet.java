@@ -259,7 +259,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		 * We build a sorted set of styles that apply to the given element.
 		 */
 		Cascade matchingStyles = new Cascade();
-		matchingStyles.cascade(matcher, getTargetMedium(), cssRules);
+		matchingStyles.cascade(matcher, style, getTargetMedium(), cssRules);
 		/*
 		 * The styles are sorted according to its specificity, per the
 		 * SpecificityComparator.
@@ -292,7 +292,8 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		if (userImportantStyleSheet != null) {
 			// Build a new cascade
 			Cascade usercascade = new Cascade();
-			usercascade.cascade(matcher, getTargetMedium(), userImportantStyleSheet.getCssRules());
+			usercascade.cascade(matcher, style, getTargetMedium(),
+					userImportantStyleSheet.getCssRules());
 			styleit = usercascade.iterator();
 			while (styleit.hasNext()) {
 				StyleRule rule = styleit.next();
@@ -321,7 +322,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 		 * We build a sorted set of styles that apply to the given element.
 		 */
 		Cascade matchingStyles = new Cascade();
-		matchingStyles.cascade(matcher, getTargetMedium(), cssRules, origin);
+		matchingStyles.cascade(matcher, style, getTargetMedium(), cssRules, origin);
 		/*
 		 * The styles are sorted according to its specificity, per the
 		 * SpecificityComparator.
@@ -355,7 +356,7 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 			if (userImportantStyleSheet != null) {
 				// Build a new cascade
 				Cascade usercascade = new Cascade();
-				usercascade.cascade(matcher, getTargetMedium(),
+				usercascade.cascade(matcher, style, getTargetMedium(),
 						userImportantStyleSheet.getCssRules());
 				styleit = usercascade.iterator();
 				while (styleit.hasNext()) {
@@ -386,9 +387,10 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 			super();
 		}
 
-		void cascade(SelectorMatcher matcher, String targetMedium, CSSRuleArrayList list) {
+		void cascade(SelectorMatcher matcher, ComputedCSSStyle style, String targetMedium,
+				CSSRuleArrayList list) {
 			for (AbstractCSSRule rule : list) {
-				rule.cascade(this, matcher, targetMedium);
+				rule.cascade(this, matcher, style, targetMedium);
 			}
 		}
 
@@ -402,11 +404,11 @@ abstract public class BaseDocumentCSSStyleSheet extends BaseCSSStyleSheet
 			}
 		}
 
-		public void cascade(SelectorMatcher matcher, String targetMedium, CSSRuleArrayList list,
-				int origin) {
+		public void cascade(SelectorMatcher matcher, ComputedCSSStyle style, String targetMedium,
+				CSSRuleArrayList list, int origin) {
 			for (AbstractCSSRule rule : list) {
 				if (rule.getOrigin() >= origin) {
-					rule.cascade(this, matcher, targetMedium);
+					rule.cascade(this, matcher, style, targetMedium);
 				}
 			}
 		}

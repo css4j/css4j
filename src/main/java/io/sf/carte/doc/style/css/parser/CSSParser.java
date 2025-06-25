@@ -77,6 +77,7 @@ import io.sf.carte.doc.style.css.parser.ConditionSetterFactory.ConditionSetter;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.AttributeConditionImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.CombinatorSelectorImpl;
 import io.sf.carte.doc.style.css.parser.NSACSelectorFactory.ElementSelectorImpl;
+import io.sf.carte.doc.style.css.property.CSSLexicalProcessingException;
 import io.sf.carte.uparser.ContentHandler;
 import io.sf.carte.uparser.TokenControl;
 import io.sf.carte.uparser.TokenProducer;
@@ -1938,7 +1939,7 @@ public class CSSParser implements Parser, Cloneable {
 
 			private void handlePredicate(int index, String featureName, byte rangeType,
 					LexicalUnit value, String valueSerialization) {
-				BooleanCondition condition;
+				MediaFeaturePredicate predicate;
 				if (value == null) {
 					reportError(index, ParseHelper.ERR_WRONG_VALUE, valueSerialization);
 					clearPredicate();
@@ -1949,29 +1950,34 @@ public class CSSParser implements Parser, Cloneable {
 								"Probable hack in media feature.");
 					}
 
-					MediaFeaturePredicate predicate = conditionFactory.createPredicate(featureName);
+					predicate = conditionFactory.createPredicate(featureName);
 					predicate.setRangeType(rangeType);
 					try {
 						predicate.setValue(value);
+					} catch (CSSLexicalProcessingException e) {
+						// var()
+						predicate = new MediaFeaturePredicateUnit(featureName);
+						predicate.setRangeType(rangeType);
+						predicate.setValue(value);
+						handler.setContainsProxy();
 					} catch (DOMException e) {
 						handleError(index, ParseHelper.ERR_WRONG_VALUE,
 								e.getMessage() + ": " + valueSerialization, e);
 						clearPredicate();
 						return;
 					}
-					condition = predicate;
 				}
 				if (currentCond == null) {
-					currentCond = condition;
+					currentCond = predicate;
 				} else {
-					currentCond.addCondition(condition);
+					currentCond.addCondition(predicate);
 				}
 				clearPredicate();
 			}
 
 			private void handlePredicate(int index, String featureName, byte rangeType,
 					LexicalUnit value1, LexicalUnit value2) {
-				BooleanCondition condition;
+				MediaFeaturePredicate predicate;
 				if (value1 == null) {
 					reportError(index, ParseHelper.ERR_WRONG_VALUE, firstValue);
 					clearPredicate();
@@ -1988,22 +1994,27 @@ public class CSSParser implements Parser, Cloneable {
 								"Probable hack in media feature.");
 					}
 
-					MediaFeaturePredicate predicate = conditionFactory.createPredicate(featureName);
+					predicate = conditionFactory.createPredicate(featureName);
 					predicate.setRangeType(rangeType);
 					try {
 						predicate.setValueRange(value1, value2);
+					} catch (CSSLexicalProcessingException e) {
+						// var()
+						predicate = new MediaFeaturePredicateUnit(featureName);
+						predicate.setRangeType(rangeType);
+						predicate.setValueRange(value1, value2);
+						handler.setContainsProxy();
 					} catch (DOMException e) {
 						handleError(index, ParseHelper.ERR_WRONG_VALUE,
 								"Invalid value(s) in range media feature.", e);
 						clearPredicate();
 						return;
 					}
-					condition = predicate;
 				}
 				if (currentCond == null) {
-					currentCond = condition;
+					currentCond = predicate;
 				} else {
-					currentCond.addCondition(condition);
+					currentCond.addCondition(predicate);
 				}
 				clearPredicate();
 			}

@@ -45,6 +45,7 @@ import io.sf.carte.doc.style.css.MediaQueryList;
 import io.sf.carte.doc.style.css.SheetErrorHandler;
 import io.sf.carte.doc.style.css.StyleFormattingContext;
 import io.sf.carte.doc.style.css.impl.CSSUtil;
+import io.sf.carte.doc.style.css.impl.MediaListAccess;
 import io.sf.carte.doc.style.css.nsac.ArgumentCondition;
 import io.sf.carte.doc.style.css.nsac.AttributeCondition;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;

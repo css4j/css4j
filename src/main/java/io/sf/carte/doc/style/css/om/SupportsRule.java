@@ -176,13 +176,13 @@ public class SupportsRule extends GroupingRule implements CSSSupportsRule {
 	}
 
 	@Override
-	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+	void cascade(Cascade cascade, SelectorMatcher matcher, ComputedCSSStyle style,
+			String targetMedium) {
 		DeviceFactory df = getParentStyleSheet().getStyleSheetFactory().getDeviceFactory();
 		StyleDatabase sdb;
-		if (df != null && (sdb = df.getStyleDatabase(targetMedium)) != null
-				&& supports(sdb)) {
+		if (df != null && (sdb = df.getStyleDatabase(targetMedium)) != null && supports(sdb)) {
 			CSSRuleArrayList rules = getCssRules();
-			rules.cascade(cascade, matcher, targetMedium);
+			rules.cascade(cascade, matcher, style, targetMedium);
 		}
 	}
 

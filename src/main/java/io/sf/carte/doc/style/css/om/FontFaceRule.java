@@ -37,7 +37,8 @@ public class FontFaceRule extends BaseCSSDeclarationRule implements CSSFontFaceR
 	}
 
 	@Override
-	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+	void cascade(Cascade cascade, SelectorMatcher matcher, ComputedCSSStyle style,
+			String targetMedium) {
 		DeviceFactory df = getParentStyleSheet().getStyleSheetFactory().getDeviceFactory();
 		if (df != null) {
 			StyleDatabase sdb = df.getStyleDatabase(targetMedium);

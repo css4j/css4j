@@ -18,6 +18,7 @@ import java.util.Iterator;
 import io.sf.carte.doc.style.css.BooleanCondition;
 import io.sf.carte.doc.style.css.CSSCanvas;
 import io.sf.carte.doc.style.css.MediaQuery;
+import io.sf.carte.doc.style.css.MediaQueryPredicate;
 
 abstract public class AbstractMediaQuery implements MediaQuery, java.io.Serializable {
 
@@ -117,7 +118,7 @@ abstract public class AbstractMediaQuery implements MediaQuery, java.io.Serializ
 	 * @return <code>true</code> if the other query is partially or totally
 	 *         contained by this one.
 	 */
-	protected boolean matches(AbstractMediaQuery other) {
+	public boolean matches(MediaQuery other) {
 		if (other.isNotAllMedia()) {
 			return false;
 		}
@@ -127,34 +128,34 @@ abstract public class AbstractMediaQuery implements MediaQuery, java.io.Serializ
 				if (predicate == null) {
 					return false;
 				}
-			} else if (mediaType.equals(other.mediaType)) {
-				if (!other.negativeQuery) {
+			} else if (mediaType.equals(other.getMediaType())) {
+				if (!other.isNegated()) {
 					return false;
 				}
-			} else if (other.negativeQuery) {
+			} else if (other.isNegated()) {
 				return false;
 			}
-		} else if (!isAllMedium && (other.negativeQuery || !mediaType.equals(other.mediaType))) {
+		} else if (!isAllMedium && (other.isNegated() || !mediaType.equals(other.getMediaType()))) {
 			return false;
 		}
 		if (predicate == null) {
 			return true;
-		} else if (other.predicate == null) {
+		} else if (other.getCondition() == null) {
 			return false;
 		}
 		byte negatedQuery;
 		if (negativeQuery) {
-			if (!other.negativeQuery) {
+			if (!other.isNegated()) {
 				negatedQuery = 1;
 			} else {
 				negatedQuery = 0;
 			}
-		} else if (other.negativeQuery) {
+		} else if (other.isNegated()) {
 			negatedQuery = 2;
 		} else {
 			negatedQuery = 0;
 		}
-		return matches(predicate, other.predicate, negatedQuery) != 0;
+		return matches(predicate, other.getCondition(), negatedQuery) != 0;
 	}
 
 	/**
@@ -214,13 +215,14 @@ abstract public class AbstractMediaQuery implements MediaQuery, java.io.Serializ
 				}
 			}
 			break;
+		case PREDICATE:
+			return matchesPredicate((MediaQueryPredicate) condition, canvas);
 		default:
-			return matchesPredicate(condition, canvas);
 		}
 		return false;
 	}
 
-	protected abstract boolean matchesPredicate(BooleanCondition condition, CSSCanvas canvas);
+	protected abstract boolean matchesPredicate(MediaQueryPredicate condition, CSSCanvas canvas);
 
 	protected void setFeaturePredicate(BooleanCondition predicate) {
 		this.predicate = predicate;

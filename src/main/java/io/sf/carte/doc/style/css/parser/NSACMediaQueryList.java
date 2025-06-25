@@ -26,20 +26,36 @@ import io.sf.carte.doc.style.css.CSSDocument;
 import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.MediaQuery;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.MediaQueryPredicate;
+import io.sf.carte.doc.style.css.impl.MediaListAccess;
 import io.sf.carte.doc.style.css.nsac.CSSBudgetException;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
 
-class NSACMediaQueryList implements MediaQueryList {
+class NSACMediaQueryList implements MediaQueryList, MediaListAccess {
 
-	private final LinkedList<NSACMediaQuery> queryList = new LinkedList<>();
+	private final LinkedList<AbstractMediaQuery> queryList;
 
 	private LinkedList<CSSParseException> queryErrorList = null;
 
 	boolean invalidQueryList = false;
 
+	private boolean hasProxy = false;
+
 	NSACMediaQueryList() {
 		super();
+		this.queryList = new LinkedList<>();
+	}
+
+	@SuppressWarnings("unchecked")
+	NSACMediaQueryList(NSACMediaQueryList copyMe) {
+		super();
+		this.queryList = (LinkedList<AbstractMediaQuery>) copyMe.queryList.clone();
+		this.invalidQueryList = copyMe.invalidQueryList;
+		this.hasProxy = copyMe.hasProxy;
+		if (copyMe.queryErrorList != null) {
+			this.queryErrorList = (LinkedList<CSSParseException>) copyMe.queryErrorList.clone();
+		}
 	}
 
 	@Override
@@ -51,7 +67,7 @@ class NSACMediaQueryList implements MediaQueryList {
 			return "all";
 		}
 		StringBuilder buf = new StringBuilder();
-		Iterator<NSACMediaQuery> it = queryList.iterator();
+		Iterator<AbstractMediaQuery> it = queryList.iterator();
 		buf.append(it.next().getMedia());
 		while (it.hasNext()) {
 			buf.append(',').append(it.next().getMedia());
@@ -68,7 +84,7 @@ class NSACMediaQueryList implements MediaQueryList {
 			return "all";
 		}
 		StringBuilder buf = new StringBuilder();
-		Iterator<NSACMediaQuery> it = queryList.iterator();
+		Iterator<AbstractMediaQuery> it = queryList.iterator();
 		buf.append(it.next().getMinifiedMedia());
 		while (it.hasNext()) {
 			buf.append(',').append(it.next().getMinifiedMedia());
@@ -118,14 +134,22 @@ class NSACMediaQueryList implements MediaQueryList {
 	}
 
 	@Override
+	public void setMediaQuery(int index, AbstractMediaQuery query) {
+		queryList.set(index, query);
+	}
+
+	@Override
 	public void appendMedium(String newMedium) throws DOMException {
-		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-				"Cannot modify target media: you must re-create the style sheet with a different media list.");
+		throw createNoModificationAllowedException();
 	}
 
 	@Override
 	public void deleteMedium(String oldMedium) throws DOMException {
-		throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
+		throw createNoModificationAllowedException();
+	}
+
+	private DOMException createNoModificationAllowedException() {
+		return new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
 				"Cannot modify target media: you must re-create the style sheet with a different media list.");
 	}
 
@@ -140,7 +164,7 @@ class NSACMediaQueryList implements MediaQueryList {
 	 */
 	@Override
 	public boolean matches(String medium, CSSCanvas canvas) {
-		for (NSACMediaQuery query : queryList) {
+		for (AbstractMediaQuery query : queryList) {
 			if (query.matches(medium, canvas)) {
 				return true;
 			}
@@ -181,12 +205,12 @@ class NSACMediaQueryList implements MediaQueryList {
 			return oldMatch(otherMedia);
 		}
 		// Prepare a set of other media
-		HashSet<NSACMediaQuery> otherList = new HashSet<>(otherqlist.queryList.size());
+		HashSet<AbstractMediaQuery> otherList = new HashSet<>(otherqlist.queryList.size());
 		otherList.addAll(otherqlist.queryList);
-		for (NSACMediaQuery query : queryList) {
-			Iterator<NSACMediaQuery> otherIt = otherList.iterator();
+		for (AbstractMediaQuery query : queryList) {
+			Iterator<AbstractMediaQuery> otherIt = otherList.iterator();
 			while (otherIt.hasNext()) {
-				NSACMediaQuery othermq = otherIt.next();
+				AbstractMediaQuery othermq = otherIt.next();
 				if (query.matches(othermq)) {
 					otherIt.remove();
 				}
@@ -254,6 +278,23 @@ class NSACMediaQueryList implements MediaQueryList {
 	}
 
 	@Override
+	public boolean hasProxy() {
+		return hasProxy;
+	}
+
+	@Override
+	public MediaQueryList unmodifiable() {
+		return new NSACMediaQueryList(this) {
+
+			@Override
+			public void setMediaText(String mediaText) throws DOMException {
+				throw createNoModificationAllowedException();
+			}
+
+		};
+	}
+
+	@Override
 	public int hashCode() {
 		int result = 1;
 		if (queryList != null) {
@@ -288,6 +329,11 @@ class NSACMediaQueryList implements MediaQueryList {
 	@Override
 	public String toString() {
 		return getMedia();
+	}
+
+	@Override
+	public MediaQueryList clone() {
+		return new NSACMediaQueryList(this);
 	}
 
 	/**
@@ -330,12 +376,13 @@ class NSACMediaQueryList implements MediaQueryList {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		protected boolean matchesPredicate(BooleanCondition condition, CSSCanvas canvas) {
-			return true;
+		protected boolean matchesPredicate(MediaQueryPredicate condition, CSSCanvas canvas) {
+			return false;
 		}
 
 		@Override
-		protected byte matches(BooleanCondition condition, BooleanCondition otherCondition, byte negatedQuery) {
+		protected byte matches(BooleanCondition condition, BooleanCondition otherCondition,
+				byte negatedQuery) {
 			return 2;
 		}
 
@@ -417,7 +464,7 @@ class NSACMediaQueryList implements MediaQueryList {
 		}
 
 		private boolean containsNotAll() {
-			for (NSACMediaQuery query : queryList) {
+			for (AbstractMediaQuery query : queryList) {
 				if (query.isNotAllMedia()) {
 					return true;
 				}
@@ -430,6 +477,11 @@ class NSACMediaQueryList implements MediaQueryList {
 			if (allMedia) {
 				queryList.clear();
 			}
+		}
+
+		@Override
+		public void setContainsProxy() {
+			hasProxy = true;
 		}
 
 		@Override

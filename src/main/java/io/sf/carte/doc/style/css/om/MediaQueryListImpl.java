@@ -29,23 +29,28 @@ import io.sf.carte.doc.style.css.CSSMediaException;
 import io.sf.carte.doc.style.css.CSSNumberValue;
 import io.sf.carte.doc.style.css.MediaQuery;
 import io.sf.carte.doc.style.css.MediaQueryList;
+import io.sf.carte.doc.style.css.impl.MediaListAccess;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.Parser;
+import io.sf.carte.doc.style.css.parser.AbstractMediaQuery;
 import io.sf.carte.doc.style.css.parser.ParseHelper;
 import io.sf.carte.doc.style.css.property.NumberValue;
 
 class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2L;
 
-	private final LinkedList<MediaQueryImpl> queryList = new LinkedList<>();
+	private final LinkedList<AbstractMediaQuery> queryList;
 
 	private LinkedList<CSSParseException> queryErrorList = null;
 
 	boolean invalidQueryList = false;
 
+	private boolean hasProxy = false;
+
 	MediaQueryListImpl() {
 		super();
+		queryList = new LinkedList<>();
 	}
 
 	/**
@@ -55,10 +60,22 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 	 */
 	MediaQueryListImpl(String medium) {
 		super();
+		queryList = new LinkedList<>();
 		if (medium != null && !"all".equalsIgnoreCase(medium)) {
 			MediaQueryImpl query = createMediaQuery();
 			query.setMediaType(medium);
 			queryList.add(query);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	MediaQueryListImpl(MediaQueryListImpl copyMe) {
+		super();
+		this.queryList = (LinkedList<AbstractMediaQuery>) copyMe.queryList.clone();
+		this.invalidQueryList = copyMe.invalidQueryList;
+		this.hasProxy = copyMe.hasProxy;
+		if (copyMe.queryErrorList != null) {
+			this.queryErrorList = copyMe.queryErrorList;
 		}
 	}
 
@@ -87,7 +104,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 			return "all";
 		}
 		StringBuilder buf = new StringBuilder();
-		Iterator<MediaQueryImpl> it = queryList.iterator();
+		Iterator<AbstractMediaQuery> it = queryList.iterator();
 		buf.append(it.next().getMedia());
 		while (it.hasNext()) {
 			buf.append(',').append(it.next().getMedia());
@@ -104,7 +121,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 			return "all";
 		}
 		StringBuilder buf = new StringBuilder();
-		Iterator<MediaQueryImpl> it = queryList.iterator();
+		Iterator<AbstractMediaQuery> it = queryList.iterator();
 		buf.append(it.next().getMinifiedMedia());
 		while (it.hasNext()) {
 			buf.append(',').append(it.next().getMinifiedMedia());
@@ -163,6 +180,11 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 		return queryList.get(index);
 	}
 
+	@Override
+	public void setMediaQuery(int index, AbstractMediaQuery query) {
+		queryList.set(index, query);
+	}
+
 	/**
 	 * Gives an unmodifiable view of this media query list.
 	 * 
@@ -170,7 +192,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 	 */
 	@Override
 	public MediaQueryList unmodifiable() {
-		return new UnmodifiableMediaQueryList();
+		return hasProxy ? clone() : new UnmodifiableMediaQueryList();
 	}
 
 	@Override
@@ -201,7 +223,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 			return true;
 		}
 
-		for (MediaQueryImpl query : queryList) {
+		for (AbstractMediaQuery query : queryList) {
 			if (query.matches(medium, canvas)) {
 				return true;
 			}
@@ -245,12 +267,12 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 			return oldMatch(otherMedia);
 		}
 		// Prepare a set of other media
-		HashSet<MediaQueryImpl> otherList = new HashSet<>(otherqlist.queryList.size());
+		HashSet<AbstractMediaQuery> otherList = new HashSet<>(otherqlist.queryList.size());
 		otherList.addAll(otherqlist.queryList);
-		for (MediaQueryImpl query : queryList) {
-			Iterator<MediaQueryImpl> otherIt = otherList.iterator();
+		for (AbstractMediaQuery query : queryList) {
+			Iterator<AbstractMediaQuery> otherIt = otherList.iterator();
 			while (otherIt.hasNext()) {
-				MediaQueryImpl othermq = otherIt.next();
+				AbstractMediaQuery othermq = otherIt.next();
 				if (query.matches(othermq)) {
 					otherIt.remove();
 				}
@@ -293,6 +315,11 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 	@Override
 	public boolean isNotAllMedia() {
 		return invalidQueryList || (queryList.size() == 1 && queryList.get(0).isNotAllMedia());
+	}
+
+	@Override
+	public boolean hasProxy() {
+		return hasProxy;
 	}
 
 	/**
@@ -354,6 +381,11 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 	@Override
 	public String toString() {
 		return getMedia();
+	}
+
+	@Override
+	public MediaQueryList clone() {
+		return new MediaQueryListImpl(this);
 	}
 
 	private class UnmodifiableMediaQueryList implements MediaQueryList, MediaListAccess {
@@ -418,6 +450,16 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 		}
 
 		@Override
+		public MediaQueryList clone() {
+			return this;
+		}
+
+		@Override
+		public boolean hasProxy() {
+			return false;
+		}
+
+		@Override
 		public boolean hasErrors() {
 			return MediaQueryListImpl.this.hasErrors();
 		}
@@ -455,20 +497,27 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 		}
 
 		@Override
+		public void setMediaQuery(int index, AbstractMediaQuery query) {
+			throw createNoModificationAllowedException();
+		}
+
+		@Override
 		public void setMediaText(String mediaText) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"Cannot modify target media: you must re-create the style sheet with a different media list.");
+			throw createNoModificationAllowedException();
 		}
 
 		@Override
 		public void appendMedium(String newMedium) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
-					"Cannot modify target media: you must re-create the style sheet with a different media list.");
+			throw createNoModificationAllowedException();
 		}
 
 		@Override
 		public void deleteMedium(String oldMedium) throws DOMException {
-			throw new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
+			throw createNoModificationAllowedException();
+		}
+
+		private DOMException createNoModificationAllowedException() {
+			return new DOMException(DOMException.NO_MODIFICATION_ALLOWED_ERR,
 					"Cannot modify target media: you must re-create the style sheet with a different media list.");
 		}
 
@@ -564,7 +613,7 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 		}
 
 		private boolean containsNotAll() {
-			for (MediaQueryImpl query : queryList) {
+			for (AbstractMediaQuery query : queryList) {
 				if (query.isNotAllMedia()) {
 					return true;
 				}
@@ -582,6 +631,11 @@ class MediaQueryListImpl implements MediaQueryList, MediaListAccess, java.io.Ser
 		@Override
 		public MediaQueryList getMediaQueryList() {
 			return MediaQueryListImpl.this;
+		}
+
+		@Override
+		public void setContainsProxy() {
+			hasProxy = true;
 		}
 
 		@Override

@@ -312,13 +312,14 @@ public class StyleRule extends GroupingRule implements CSSStyleRule, ExtendedCSS
 	}
 
 	@Override
-	void cascade(Cascade cascade, SelectorMatcher matcher, String targetMedium) {
+	void cascade(Cascade cascade, SelectorMatcher matcher, ComputedCSSStyle style,
+			String targetMedium) {
 		int selIdx = matcher.matches(getAbsoluteSelectorList());
 		if (selIdx != -1) {
 			cascade.add(getSpecificity(selIdx, matcher));
 		}
 		if (cssRules != null) {
-			cssRules.cascade(cascade, matcher, targetMedium);
+			cssRules.cascade(cascade, matcher, style, targetMedium);
 		}
 	}
 
