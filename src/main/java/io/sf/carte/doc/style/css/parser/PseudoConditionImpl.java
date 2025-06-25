@@ -11,6 +11,8 @@
 
 package io.sf.carte.doc.style.css.parser;
 
+import java.util.StringTokenizer;
+
 import io.sf.carte.doc.style.css.nsac.Condition;
 import io.sf.carte.doc.style.css.nsac.PseudoCondition;
 
@@ -91,6 +93,17 @@ class PseudoConditionImpl extends AbstractNamedCondition implements PseudoCondit
 			buf.append('(');
 			if (isSelectorArgument()) {
 				buf.append(argument);
+			} else if (argument.isEmpty()) {
+				buf.append("''");
+			} else if (argument.indexOf(' ') != -1) {
+				StringTokenizer st = new StringTokenizer(argument, " ");
+				String ident = st.nextToken();
+				buf.append(ParseHelper.escape(ident));
+				while (st.hasMoreElements()) {
+					ident = st.nextToken();
+					buf.append(' ');
+					buf.append(ParseHelper.escape(ident));
+				}
 			} else {
 				buf.append(ParseHelper.escape(argument));
 			}

@@ -13,6 +13,7 @@ package io.sf.carte.doc.style.css.parser;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import io.sf.carte.doc.style.css.impl.CSSUtil;
 import io.sf.carte.doc.style.css.nsac.CSSNamespaceParseException;
@@ -177,13 +178,30 @@ class ConditionSetterFactory {
 			String s = handler.unescapeBuffer(index);
 			// Check the validity of the argument.
 			// We allow quoted arguments and anything inside prefixed selectors.
-			char c;
-			if (!CSSUtil.isValidPseudoName(s) && (c = s.charAt(0)) != '"' && c != '\''
-					&& cond.name.charAt(0) != '-') {
+			if (!isValidPseudoArg(s, cond)) {
 				handler.handleWarning(index - s.length() - 1, ParseHelper.ERR_UNEXPECTED_TOKEN,
 						"Unexpected functional argument: " + s);
 			}
 			cond.argument = s;
+		}
+
+		private boolean isValidPseudoArg(String s, PseudoConditionImpl cond) {
+			char c;
+			if (!CSSUtil.isValidPseudoName(s) && (c = s.charAt(0)) != '"' && c != '\''
+					&& cond.name.charAt(0) != '-') {
+				if (s.indexOf(' ') >= 0) {
+					StringTokenizer st = new StringTokenizer(s, " ");
+					while (st.hasMoreElements()) {
+						String ident = st.nextToken();
+						if (!CSSUtil.isValidPseudoName(ident)) {
+							return false;
+						}
+					}
+				} else {
+					return false;
+				}
+			}
+			return true;
 		}
 
 	}

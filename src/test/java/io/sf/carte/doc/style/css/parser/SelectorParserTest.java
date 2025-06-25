@@ -4006,6 +4006,26 @@ public class SelectorParserTest {
 	}
 
 	@Test
+	public void testParseSelectorPseudoElementPartWS() throws CSSException {
+		SelectorList selist = parseSelectors("::part(li list)");
+		assertNotNull(selist);
+		assertEquals(1, selist.getLength());
+
+		Selector sel = selist.item(0);
+		assertEquals(SelectorType.CONDITIONAL, sel.getSelectorType());
+		Condition cond = ((ConditionalSelector) sel).getCondition();
+		assertEquals(ConditionType.PSEUDO_ELEMENT, cond.getConditionType());
+		assertEquals("part", ((PseudoCondition) cond).getName());
+		assertEquals("li list", ((PseudoCondition) cond).getArgument());
+		SimpleSelector simple = ((ConditionalSelector) sel).getSimpleSelector();
+		assertNotNull(simple);
+		assertEquals(SelectorType.UNIVERSAL, simple.getSelectorType());
+		assertEquals("*", ((ElementSelector) simple).getLocalName());
+
+		assertEquals("::part(li list)", sel.toString());
+	}
+
+	@Test
 	public void testParseSelectorPseudoElementPicker() throws CSSException {
 		SelectorList selist = parseSelectors("p::picker(select)");
 		assertNotNull(selist);

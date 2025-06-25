@@ -133,10 +133,10 @@ public class SelectorSerializerTest {
 	@Test
 	public void testSelectorTextPseudoElementSelector() {
 		StyleRule rule = parseStyleRule(
-				"p::part(base),p::picker(select),::slotted([slot=icon]),::scroll-button(*),::view-transition-group(*) {border-top-width: 1px; }");
+				"p::part(li list),p::picker(select),::slotted([slot=icon]),::scroll-button(*),::view-transition-group(*) {border-top-width: 1px; }");
 		SelectorList list = rule.getSelectorList();
 		assertEquals(
-				"p::part(base),p::picker(select),::slotted([slot=icon]),::scroll-button(*),::view-transition-group(*)",
+				"p::part(li list),p::picker(select),::slotted([slot=icon]),::scroll-button(*),::view-transition-group(*)",
 				rule.getSelectorText());
 		assertEquals(5, list.getLength());
 		assertEquals("::slotted([slot=icon])", selectorText(list.item(2)));
