@@ -316,6 +316,26 @@ public class NestingTest {
 	}
 
 	@Test
+	public void testNestedAttribute() throws CSSException, IOException {
+		parseStyleSheet("div{[data-p]{margin-left:1vw");
+
+		assertEquals(1, handler.selectors.size());
+		assertEquals(1, handler.nestedSelectors.size());
+
+		assertEquals("div", handler.selectors.get(0).toString());
+
+		assertEquals(1, handler.propertyNames.size());
+		assertEquals(1, handler.lexicalValues.size());
+		assertEquals(1, handler.priorities.size());
+
+		assertEquals("margin-left", handler.propertyNames.get(0));
+		assertEquals("1vw", handler.lexicalValues.get(0).toString());
+		assertEquals("& [data-p]", handler.propertySelectors.get(0).toString());
+
+		assertEquals("endSelector", handler.endSelectorPrevEvents.get(0));
+	}
+
+	@Test
 	public void testNestedTypeAttribute() throws CSSException, IOException {
 		parseStyleSheet("div{p[data-p]{margin-left:1vw");
 
