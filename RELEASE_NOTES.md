@@ -1,63 +1,94 @@
-# css4j version 6.0 Release Notes
+# css4j version 6.1 Release Notes
 
-### May 16, 2025
+### June 26, 2025
 
 <br/>
 
 ## Highlights
 
-### CSS nesting
+### Upgraded generic CSS minifier
 
-CSS nesting is widely used in today's web sites, see MDN's [Using CSS nesting](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_nesting/Using_CSS_nesting) for information on how to use it. The new lexical parser is intended to be compatible with the latest specification, which was implemented by the major web browsers in late 2024 (Chrome 130, Firefox 132 and Safari 18.2).
+The [`Minify`](https://css4j.github.io/api/latest/io.sf.carte.css4j/io/sf/carte/doc/style/css/util/Minify.html)
+class was upgraded to be more appropriate for generic minification tasks, and
+the serialization is now shorter. For example, the following style rule:
+```css
+div {
+ /* Verbose longhand properties */
+  color: rgba(255,255,0,255);
+  background-color: rgb(from lime r calc(g - 127) b);
 
-The draft of the Syntax 3 specification explicitly requires the use of 'marks' (like the the `mark()` and `reset()` methods of Java's `InputStream`) to parse nested rules but this library so far manages to do without that (which should benefit performance). If you find any issue, please report.
+ /* Shorthands with inefficient values */
+  border-radius: initial; /* Some compressors would remove this but that's wrong */
+  margin: 2px 2px 2px 2px;
+  background: url('bkg.png') left top round space padding-box border-box local;
+}
+```
+is minified as
+```css
+div{color:#ff0;background-color:green;border-radius:0;margin:2px;background:url(bkg.png) round space local}
+```
 
-Relevant specifications:
+`Minify` can be used like a normal class, or via the command line with the `alldeps` _jar_:
+```shell
+java -jar path/to/css4j-6.1-alldeps.jar verbose.css --charset ISO-8859-1 > minified.css
+```
+Note that `UTF-8` is the default character set. The `alldeps` fat _jar_ is now
+part of the standard css4j distribution.
 
-- https://drafts.csswg.org/css-nesting-1/
-- https://drafts.csswg.org/css-syntax-3/
+The command-line minifier exits with a status code of `0` if it ran successfully,
+`2` if the arguments were incorrect, and `1` if a parsing error was found in the
+style sheet and a simpler minifier was used.
+
+More information is available at the [minification section of the usage guide](https://css4j.github.io/usage.html#minification).
+Css4j is now used to minify the CSS in the css4j website.
 
 <br/>
 
-### Comments in values
+### Relative color syntax
 
-Both `LexicalUnit` and `CSSValue` now have `getPrecedingComments()` and `getTrailingComments()` methods. Please note that in some cases it is difficult to determine whether a comment is intended for a value or for another.
+Relative color syntax from Color Level 5 is supported.
+```css
+background: oklch(from var(--base) l c calc(h + 180));
+```
+Relevant specification: https://www.w3.org/TR/css-color-5/#relative-colors
 
-If your use case does not care about comments, you may want to use the `VALUE_COMMENTS_IGNORE` NSAC parser flag to avoid the small performance hit. The new `setFlag(Flag)` and `unsetFlag(Flag)` factory methods may help, in addition to the `EnumSet<Parser.Flag>` constructors that all the factories already had.
+<br/>
+
+### Parse and serialize the `if` function
+
+The `if` function was shipped by Chrome 137. The argument contains both colons
+and semicolons, which prevented the parsing with previous versions of the
+library:
+```css
+background-color: if (style(--color: white): black; else: white);
+```
+The library can now do a basic parsing of the function but cannot provide the
+intended final value at the computed style level.
+
+Relevant specification: https://drafts.csswg.org/css-values-5/#if-notation
+
+<br/>
+
+### Selectors: allow multiple conditions in Combinator (AND) conditions
+
+This only affects you in the unlikely case that you work with selectors at low
+level. The old API was a bottleneck in the processing of conditional selectors.
 
 <br/>
 
 ## Detail of changes
 
-- CSS nesting.
-- agent: remove the archaic cookie management code which was deprecated for removal.
-- agent: remove the deprecated `LogUserAgentErrorHandler`.
-- agent: deprecate for removal the legacy `CSSCanvas` and `Viewport` in the `agent` package.
-- NSAC: support `url()` modifiers.
-- NSAC: support the `:state` pseudo-class.
-- NSAC: parse and serialize the `:host` and `:host-context` pseudo-classes (no shadow DOM so never match).
-- NSAC: parse and serialize the `::part` pseudo-element (no shadow DOM so never matches).
-- NSAC: support the `anchor-size()` function (not yet in the box model).
-- NSAC: be lenient to unknown pseudo-classes with non-identifier arguments.
-- NSAC: deprecate `CSSHandler`'s `startViewport()` and `endViewport()` for removal.
-- NSAC/CSSOM: include `env()` in the dimensional analysis of expressions.
-- NSAC/CSSOM: add `getPrecedingComments()` and `getTrailingComments()` for values.
-- CSSOM: `AbstractCSSRule.getOrigin()` now returns an `int`, to accommodate new layers.
-- CSSOM: deprecate `CSSStyleSheet.createViewportRule()` for removal.
-- CSSOM: remove primitive value types `ATTR` and `VAR`, which were deprecated for removal (do not confuse them with the lexical types which are still valid).
-- CSSOM: remove the long-deprecated `STRING_SINGLE_QUOTE` and `STRING_DOUBLE_QUOTE` constants from `AbstractCSSStyleSheetFactory`.
-- CSSOM: add `setFlag(Flag)` and `unsetFlag(Flag)` to `AbstractCSSStyleSheetFactory`.
-- CSSOM: add `setErrorHandler(SheetErrorHandler)` to `AbstractCSSStyleSheet`.
-- CSSOM: add two protected methods for default parser instantiation in `ValueFactory`.
-- CSSOM: accept `calc()` in the minified serialization of `getPropertyValue("margin")`
-- CSSOM: add the `margin-inline` and `padding-inline` shorthands.
-- CSSOM: make the `transition` shorthand lenient to zero values.
-- CSSOM: support recent `flex-basis` identifiers in shorthand decompositions.
-- CSSOM: switch to `raw-string` as an `attr()` attribute type instead of `string`.
-- CSSOM: use minified longhand serialization in `getPropertyValue("background")` in cases where it wasn't used.
-- CSSOM: ignore shorthand unassigned values with IE hacks in `DefaultStyleDeclarationErrorHandler`.
-- DOM: be more lenient in accepting URIs.
-- DOM wrapper: allow `element.setTextContent(String)`.
-- Upgrade to JUnit 5.12.2.
-- Upgrade Gradle wrapper to 8.14.
-- Upgrade to checkstyle 10.23.0.
+- NSAC: allow multiple conditions in Combinator (AND) conditions.
+- NSAC/CSSOM: relative colors.
+- NSAC/CSSOM: parse the `if` function.
+- Add a parser flags constructor to `CSSOMParser`.
+- CSSOM: matching of `of-type` pseudo-classes was case sensitive.
+- CSSOM: allow `var()` values in media query features.
+- CSSOM: add `equals()` and `hashCode()` to `AbstractStyleSheet`.
+- CSSOM: make the deprecated `CSSStyleSheet.createSupportsRule()` a default method.
+- util: improve the generic CSS minifier.
+- Remove unnecessary argument in grouping rule check.
+- Upgrade to TokenProducer 3.3.
+- Upgrade to checkstyle 10.26.0.
+- Upgrade JUnit to 5.13.2.
+- Upgrade Gradle wrapper to 8.14.2.
