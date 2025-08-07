@@ -68,6 +68,10 @@ public class Minify {
 	 * of shorthand names, it disables the advanced minification for those
 	 * shorthands. If alone, all advanced shorthand minification is disabled (same
 	 * as <code>--disable-shorthand all</code>).</li>
+	 * <li><code>--preserve-comment-char</code>, followed by the character that
+	 * marks the beginning of a comment that should be kept. Default is
+	 * {@code "!"}.</li>
+	 * <li><code>--validate</code> enables value validation.</li>
 	 * </ul>
 	 * <p>
 	 * If the configuration options are invalid, exits with a status code of
@@ -102,6 +106,10 @@ public class Minify {
 	 * of shorthand names, it disables the advanced minification for those
 	 * shorthands. If alone, all advanced shorthand minification is disabled (same
 	 * as <code>--disable-shorthand all</code>).</li>
+	 * <li><code>--preserve-comment-char</code>, followed by the character that
+	 * marks the beginning of a comment that should be kept. Default is
+	 * {@code "!"}.</li>
+	 * <li><code>--validate</code> enables value validation.</li>
 	 * </ul>
 	 * <p>
 	 * If the sheet contains error(s), a shallower minification is performed and the
