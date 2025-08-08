@@ -159,6 +159,7 @@ abstract class ShorthandBuilder {
 		switch (appendShorthandText(buf)) {
 		case 1:
 			buf.setLength(len);
+			// pass-through
 		case 2:
 			appendMinifiedIndividualProperties(buf);
 		}
@@ -219,6 +220,15 @@ abstract class ShorthandBuilder {
 		return true;
 	}
 
+	/**
+	 * Serialize the shorthand into the given buffer.
+	 * 
+	 * @param buf the buffer.
+	 * @return <code>0</code> if the shorthand was appended successfully,
+	 *         <code>1</code> if could not serialize, <code>2</code> if execution
+	 *         should proceed like the serialization did not succeed (longhand
+	 *         properties should be appended), but the buffer must not be reset.
+	 */
 	int appendShorthandText(StringBuilder buf) {
 		preprocessSet();
 		int sz = getMinimumSetSize();

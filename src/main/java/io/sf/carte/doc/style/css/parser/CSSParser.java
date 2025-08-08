@@ -8227,7 +8227,7 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	/**
-	 * The abstract default class for CSS token handlers that use a buffer.
+	 * The default abstract class for CSS token handlers that use a buffer.
 	 */
 	abstract private class DefaultTokenHandler extends BufferTokenHandler {
 
@@ -8283,7 +8283,7 @@ public class CSSParser implements Parser, Cloneable {
 	}
 
 	/**
-	 * The ControlHandler for CSS.
+	 * A ControlHandler to parse a fragment, starting with an offset.
 	 */
 	private class ChildControlTokenHandler extends CSSControlTokenHandler {
 
