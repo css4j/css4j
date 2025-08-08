@@ -608,32 +608,25 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 	}
 
 	/**
-	 * Gets a minified text value of a CSS property if it has been explicitly set within this
-	 * declaration block.
+	 * Gets a minified text value of a CSS property if it has been explicitly set
+	 * within this declaration block.
 	 *
-	 * @param propertyName
-	 *            The name of the CSS property.
-	 * @return the value of the property if it has been explicitly set for this declaration
-	 *         block, or the empty string if the property has not been set or is a shorthand
-	 *         that could not be serialized.
+	 * @param propertyName The name of the CSS property.
+	 * @return the value of the property if it has been explicitly set for this
+	 *         declaration block, or the empty string if the property has not been
+	 *         set or is a shorthand that could not be serialized.
 	 */
 	public String getMinifiedPropertyValue(String propertyName) {
 		String result;
+		int idx;
 		propertyName = getCanonicalPropertyName(propertyName);
 		StyleValue value = getCSSValue(propertyName);
 		if (value != null) {
-			CssType type = value.getCssValueType();
-			if (type == CssType.TYPED) {
-				Type ptype = value.getPrimitiveType();
-				if (ptype == Type.STRING || ptype == Type.IDENT) {
-					return ((CSSTypedValue) value).getStringValue();
-				}
-			} else if (type == CssType.SHORTHAND) {
+			if (value.getCssValueType() == CssType.SHORTHAND) {
 				return serializeShorthand(propertyName);
 			}
 			result = value.getMinifiedCssText(propertyName);
-		} else if (prefValues != null && prefValues.contains(propertyName)) {
-			int idx = prefValues.lastIndexOf(propertyName);
+		} else if (prefValues != null && (idx = prefValues.lastIndexOf(propertyName)) != -1) {
 			result = prefValues.get(idx + 1).toString();
 		} else if (ShorthandDatabase.getInstance().isShorthand(propertyName)) {
 			return serializeShorthand(propertyName);
@@ -668,9 +661,14 @@ public class BaseCSSStyleDeclaration extends AbstractCSSStyleDeclaration impleme
 				assignPropertyIfSet(builder, "font-variant-alternates");
 				assignPropertyIfSet(builder, "font-variant-east-asian");
 			}
+
+			/*
+			 * Obtain the minified serialization
+			 */
 			StringBuilder buf = new StringBuilder(64);
 			builder.appendMinifiedCssText(buf);
 			String declaration = buf.toString();
+
 			/* 
 			 * Reparse and check for errors and number of properties serialized.
 			 * Shorthand builders often use multiple declarations for more

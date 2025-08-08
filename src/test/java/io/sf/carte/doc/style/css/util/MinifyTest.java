@@ -461,6 +461,16 @@ class MinifyTest {
 	}
 
 	@Test
+	void testMinifyCSS_Prefixed_Value() {
+		TestConfig config = new TestConfig();
+		assertEquals(
+				"p{background:-moz-linear-gradient(45deg,orange,red);-moz-margin-end:-moz-calc(2*10px);transition:-moz-margin-end;-moz-transition-property:-moz-margin-end;border-style:-moz-bg-inset}",
+				Minify.minifyCSS(
+						"p {background: -moz-linear-gradient(45deg, orange, red); -moz-margin-end: -moz-calc(2*10px); transition: -moz-margin-end; -moz-transition-property: -moz-margin-end; border-style: -moz-bg-inset; }",
+						config, null));
+	}
+
+	@Test
 	void testMinifyCSS_Style() {
 		assertEquals("p,.cls{background:url('foo?a=b(c)')}div{background:url(imag/img.png) .9em}",
 				Minify.minifyCSS(

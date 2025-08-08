@@ -944,6 +944,17 @@ public class BaseCSSStyleDeclarationTest {
 	}
 
 	@Test
+	public void testMinifyPrefixedProperty() {
+		emptyStyleDecl.setCssText(
+				"-moz-margin-end:-moz-calc(2*10px);transition:-moz-margin-end;-moz-transition-property:-moz-margin-end");
+		assertEquals("-moz-calc(2*10px)",
+				emptyStyleDecl.getMinifiedPropertyValue("-moz-margin-end"));
+		assertEquals("-moz-margin-end", emptyStyleDecl.getMinifiedPropertyValue("transition"));
+		assertEquals("-moz-margin-end",
+				emptyStyleDecl.getMinifiedPropertyValue("-moz-transition-property"));
+	}
+
+	@Test
 	public void testGetPropertyPriority() {
 		emptyStyleDecl.setCssText("pause-before:20ms;pause-after:23ms");
 		assertEquals(0, emptyStyleDecl.getPropertyPriority("pause-before").length());
