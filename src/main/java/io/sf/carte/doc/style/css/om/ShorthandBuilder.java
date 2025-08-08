@@ -197,7 +197,7 @@ abstract class ShorthandBuilder {
 		for (String property : declaredSet) {
 			StyleValue value = getCSSValue(property);
 			if (value.getPrimitiveType() == Type.INTERNAL) {
-				String shname = ((PendingValue) value).getShorthandName();
+				String shname = ((PendingSubstitutionValue) value).getShorthandName();
 				if (pendingSet.add(shname)
 						&& (shname.equals(getShorthandName()) || isResponsibleShorthand(shname))) {
 					ShorthandValue shval = (ShorthandValue) getCSSValue(shname);

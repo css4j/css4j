@@ -20,20 +20,20 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * A value that is pending a {@code PROXY} substitution in a shorthand.
  */
-class PendingValue extends PrimitiveValue {
+class PendingSubstitutionValue extends PrimitiveValue {
 
 	private static final long serialVersionUID = 1L;
 
 	private final String shorthandName;
 	private final LexicalUnit lexicalValue;
 
-	PendingValue(String shorthandName, LexicalUnit lexicalValue) {
+	PendingSubstitutionValue(String shorthandName, LexicalUnit lexicalValue) {
 		super(Type.INTERNAL);
 		this.shorthandName = shorthandName;
 		this.lexicalValue = lexicalValue;
 	}
 
-	PendingValue(PendingValue copied) {
+	PendingSubstitutionValue(PendingSubstitutionValue copied) {
 		super(copied);
 		shorthandName = copied.shorthandName;
 		lexicalValue = copied.lexicalValue;
@@ -85,7 +85,7 @@ class PendingValue extends PrimitiveValue {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		PendingValue other = (PendingValue) obj;
+		PendingSubstitutionValue other = (PendingSubstitutionValue) obj;
 		if (lexicalValue == null) {
 			if (other.lexicalValue != null) {
 				return false;
@@ -97,8 +97,8 @@ class PendingValue extends PrimitiveValue {
 	}
 
 	@Override
-	public PendingValue clone() {
-		return new PendingValue(this);
+	public PendingSubstitutionValue clone() {
+		return new PendingSubstitutionValue(this);
 	}
 
 }

@@ -35,7 +35,8 @@ class PendingSubstitutionSetter extends BaseShorthandSetter {
 
 	@Override
 	public short assignSubproperties() {
-		PendingValue pending = new PendingValue(getShorthandName(), lexicalValue);
+		PendingSubstitutionValue pending = new PendingSubstitutionValue(getShorthandName(),
+				lexicalValue);
 		String[] longhands = getLonghands();
 		for (String longhand : longhands) {
 			if (priorityImportant || !styleDeclaration.isPropertyImportant(longhand)) {

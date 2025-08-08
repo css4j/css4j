@@ -206,7 +206,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 					StyleValue value = getCSSValue(property);
 					if (value.getPrimitiveType() == Type.INTERNAL) {
 						hasInternal = true;
-						String shname = ((PendingValue) value).getShorthandName();
+						String shname = ((PendingSubstitutionValue) value).getShorthandName();
 						pendingSet.add(shname);
 						if (shname.equals(getShorthandName())) {
 							needsBorder = true;
@@ -223,7 +223,7 @@ class BorderBuilder extends BaseBoxShorthandBuilder {
 			StyleValue value = getCSSValue(property);
 			if (value.getPrimitiveType() == Type.INTERNAL) {
 				hasInternal = true;
-				String shname = ((PendingValue) value).getShorthandName();
+				String shname = ((PendingSubstitutionValue) value).getShorthandName();
 				if (shname.equals(getShorthandName())) {
 					it.remove();
 					needsBorder = true;

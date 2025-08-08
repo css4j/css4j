@@ -450,7 +450,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 			value = computeEnv(propertyName, (EnvVariableValue) pri);
 		} else if (pritype == Type.INTERNAL) {
 			// Pending substitution values.
-			PendingValue pending = (PendingValue) pri;
+			PendingSubstitutionValue pending = (PendingSubstitutionValue) pri;
 			value = getSubstitutedValue(propertyName, pending.getShorthandName(),
 					pending.getLexicalUnit().clone(), isPropertyImportant(propertyName));
 		} else {
@@ -2173,7 +2173,7 @@ abstract public class ComputedCSSStyle extends BaseCSSStyleDeclaration implement
 		if (value != null) {
 			if (value.getPrimitiveType() == Type.INTERNAL) {
 				// Pending substitution values.
-				PendingValue pending = (PendingValue) value;
+				PendingSubstitutionValue pending = (PendingSubstitutionValue) value;
 				value = getSubstitutedValue("font-size", "font", pending.getLexicalUnit().clone(),
 						isPropertyImportant("font-size"));
 				// Check for unset
