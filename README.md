@@ -45,12 +45,12 @@ In separate modules you can find:
 All the classes in the binary package have been compiled with a [Java compiler](https://adoptium.net/)
 set to 1.8 compiler compliance level, except the `module-info.java` file.
 
-Building the library requires JDK 11 or higher.
+Building the library requires a JDK from version 11 to 21.
 
 <br/>
 
 ## Build from source
-To build css4j from the code that is currently at the Git repository, JDK 11 or later is needed.
+To build css4j from the code that is currently at the Git repository, JDK from version 11 to 21 is needed.
 You can run a variety of Gradle tasks with the Gradle wrapper (on Windows shells you can omit the `./`):
 
 - `./gradlew build` (normal build)

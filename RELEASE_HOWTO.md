@@ -8,7 +8,7 @@ Please follow these steps to produce a new release of css4j.
 - The [Git version control system](https://git-scm.com/downloads) is required to
 obtain the sources. Any recent version should suffice.
 
-- Java 11 or later. You can install it from your favourite package manager or by
+- Java version 11-21. You can install it from your favourite package manager or by
 downloading from [Adoptium](https://adoptium.net/).
 
 - The [`generate_directory_index_caddystyle.py`](https://gist.github.com/carlosame/bd5b68c4eb8e0817d9beb1dcfb4de43d)
