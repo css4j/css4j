@@ -57,7 +57,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v5
         with:
-          java-version: '11'
+          java-version: '21'
           distribution: 'temurin'
       # Run tests with Java 8
       - name: Test with Java 8
