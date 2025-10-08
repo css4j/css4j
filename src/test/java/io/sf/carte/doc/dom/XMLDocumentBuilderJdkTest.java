@@ -36,6 +36,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Comment;
 import org.w3c.dom.DOMImplementation;
@@ -334,6 +336,7 @@ public class XMLDocumentBuilderJdkTest {
 	}
 
 	@Test
+	@EnabledForJreRange(min = JRE.JAVA_8, max = JRE.JAVA_21)
 	@Timeout(value = 900, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceNoEntityResolverFullDTDFail() throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);
@@ -345,6 +348,7 @@ public class XMLDocumentBuilderJdkTest {
 	}
 
 	@Test
+	@EnabledForJreRange(min = JRE.JAVA_8, max = JRE.JAVA_21)
 	@Timeout(value = 900, unit = TimeUnit.MILLISECONDS)
 	public void testParseInputSourceNoEntityResolverSystemDTDFail() throws SAXException, ParserConfigurationException, IOException {
 		builder.setEntityResolver(null);

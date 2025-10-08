@@ -123,18 +123,41 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		} catch (ParserConfigurationException e) {
 			throw new SAXException(e);
 		}
+
 		XMLReader xmlReader = saxParser.getXMLReader();
 		if (resolver != null) {
 			xmlReader.setEntityResolver(resolver);
 		} else {
-			// It is unsafe to operate without an EntityResolver
+			// It is unsafe to operate without a safe EntityResolver
 			try {
-				xmlReader.setFeature("http://xml.org/sax/features/external-general-entities", false);
-				xmlReader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+				xmlReader.setFeature("http://xml.org/sax/features/external-general-entities",
+						false);
+				xmlReader.setFeature("http://xml.org/sax/features/external-parameter-entities",
+						false);
 			} catch (SAXNotRecognizedException | SAXNotSupportedException e) {
 			}
 		}
+
+		// The Java 24+ defaults are too small
+		setPropertyIfLower(xmlReader, "jdk.xml.maxParameterEntitySizeLimit", 0x20000);
+		setPropertyIfLower(xmlReader, "jdk.xml.totalEntitySizeLimit", 0x100000);
+		setPropertyIfLower(xmlReader, "jdk.xml.maxGeneralEntitySizeLimit", 0x100000);
+		setPropertyIfLower(xmlReader, "jdk.xml.maxElementDepth", 0x200);
+		setPropertyIfLower(xmlReader, "jdk.xml.elementAttributeLimit", 0x300);
+
 		return xmlReader;
+	}
+
+	private static void setPropertyIfLower(XMLReader xmlReader, String property, int value) {
+		try {
+			String oldval = (String) xmlReader.getProperty(property);
+			int iold;
+			if (oldval == null || ((iold = Integer.parseInt(oldval)) != 0 && iold < value)) {
+				xmlReader.setProperty(property, value);
+			}
+		} catch (SAXNotRecognizedException | SAXNotSupportedException | RuntimeException e) {
+			// Ignore SAX and class cast exceptions
+		}
 	}
 
 	private Document parse(InputSource is, XMLReader xmlReader) throws SAXException, IOException {
@@ -228,9 +251,9 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	}
 
 	private Document createDocument(String namespaceURI, String qualifiedName, DocumentType doctype,
-		String systemId) throws DOMException {
-		if (doctype != null && "html".equals(doctype.getName()) && namespaceURI != null
-			&& namespaceURI.length() == 0) {
+			String systemId) throws DOMException {
+		if (doctype != null && namespaceURI != null && namespaceURI.isEmpty()
+				&& "html".equals(doctype.getName())) {
 			// This is HTML and we do not want to obtain a plain DOMDocument
 			namespaceURI = null;
 		}
@@ -309,6 +332,13 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	}
 
 	/**
+	 * @return the value of the <code>strictErrorChecking</code> flag.
+	 */
+	public boolean isStrictErrorChecking() {
+		return strictErrorChecking;
+	}
+
+	/**
 	 * Set the <code>strictErrorChecking</code> flag on the documents created by the
 	 * DOM implementation.
 	 * <p>
@@ -334,6 +364,16 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 	 */
 	public void setXMLReader(XMLReader xmlReader) {
 		this.xmlReader = xmlReader;
+	}
+
+	/**
+	 * Get the {@code XMLReader} to be used when parsing.
+	 * 
+	 * @return the XML reader, or {@code null} if none was set and a default reader
+	 *         shall be created.
+	 */
+	public XMLReader getXMLReader() {
+		return xmlReader;
 	}
 
 	/**
