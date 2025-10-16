@@ -139,11 +139,10 @@ public class XMLDocumentBuilder extends DocumentBuilder {
 		}
 
 		// The Java 24+ defaults are too small
-		setPropertyIfLower(xmlReader, "jdk.xml.maxParameterEntitySizeLimit", 0x20000);
+		// See https://bugs.openjdk.org/browse/JDK-8368902
+		setPropertyIfLower(xmlReader, "jdk.xml.maxParameterEntitySizeLimit", 0x40000);
 		setPropertyIfLower(xmlReader, "jdk.xml.totalEntitySizeLimit", 0x100000);
 		setPropertyIfLower(xmlReader, "jdk.xml.maxGeneralEntitySizeLimit", 0x100000);
-		setPropertyIfLower(xmlReader, "jdk.xml.maxElementDepth", 0x200);
-		setPropertyIfLower(xmlReader, "jdk.xml.elementAttributeLimit", 0x300);
 
 		return xmlReader;
 	}
