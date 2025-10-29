@@ -47,6 +47,17 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
+      # Upload test artifact
+      - name: Upload test output
+        uses: actions/upload-artifact@v5
+        if: ${{ failure() }}
+        with:
+          name: test-output-${{ matrix.java }}
+          path: |
+            build/reports/
+          retention-days: 15
+          overwrite: true
+
   testOn8:
     runs-on: ubuntu-latest
 
