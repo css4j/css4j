@@ -472,9 +472,9 @@ class MinifyTest {
 
 	@Test
 	void testMinifyCSS_Style() {
-		assertEquals("p,.cls{background:url('foo?a=b(c)')}div{background:url(imag/img.png) .9em}",
+		assertEquals("p,.cls{background:url('foo?a=b(c)');font-weight:attr(data-weight type(<number>|<custom-ident>))}div{background:url(imag/img.png) .9em}",
 				Minify.minifyCSS(
-						"p,*.cls,p {background:url('foo?a=b(c)');} div{background:url('imag/img.png') 0.9em;}"));
+						"p,*.cls,p {background: url('foo?a=b(c)') ;font-weight: attr( data-weight  type( <number> | <custom-ident> )) ; } div{background:url('imag/img.png') 0.9em;}"));
 	}
 
 	@Test
@@ -516,7 +516,17 @@ class MinifyTest {
 	}
 
 	@Test
-	void testMinifyCSS_If_RelativeColor() {
+	void testMinifyCSS_If_Media() {
+		TestConfig config = new TestConfig();
+		assertEquals(
+				"div{border-width:if(media(screen and (width<=700px)):0 2px;else:4px 16px)}",
+				Minify.minifyCSS(
+						"div{ border-width: if( media( screen  and  ( width <= 700px ) ) : 0  2px ; else : 4px  16px ); }",
+						config, null));
+	}
+
+	@Test
+	void testMinifyCSS_If_Style_RelativeColor() {
 		TestConfig config = new TestConfig();
 		assertEquals(
 				"div{background-color:if(style(--color:#fff):#000;else:#fff);color:green;color:rgb(from var(--other) r g b)}",

@@ -83,16 +83,25 @@ class SyntaxComponent implements CSSValueSyntax {
 
 	@Override
 	public String toString() {
+		return toString(false);
+	}
+
+	@Override
+	public String toMinifiedString() {
+		return toString(true);
+	}
+
+	private String toString(boolean mini) {
 		if (cat == Category.IDENT && next == null && multiplier == Multiplier.NONE) {
 			return ParseHelper.escape(name, true, true);
 		}
 
 		StringBuilder buf = new StringBuilder(32);
-		appendToBuffer(this, buf);
+		appendToBuffer(this, buf, mini);
 		return buf.toString();
 	}
 
-	private static void appendToBuffer(SyntaxComponent syntax, StringBuilder buf) {
+	private static void appendToBuffer(SyntaxComponent syntax, StringBuilder buf, boolean mini) {
 		if (syntax.cat == Category.universal) {
 			buf.append('*');
 		} else if (syntax.cat == Category.IDENT) {
@@ -111,8 +120,12 @@ class SyntaxComponent implements CSSValueSyntax {
 		}
 
 		if (syntax.next != null) {
-			buf.append(" | ");
-			appendToBuffer(syntax.next, buf);
+			if (mini) {
+				buf.append('|');
+			} else {
+				buf.append(" | ");
+			}
+			appendToBuffer(syntax.next, buf, mini);
 		}
 	}
 

@@ -316,4 +316,20 @@ public interface CSSValueSyntax {
 	 */
 	CSSValueSyntax shallowClone();
 
+	/**
+	 * Returns a string representation of the syntax, including subsequent
+	 * syntax components.
+	 * 
+	 * @return a string representation of the syntax.
+	 */
+	String toString();
+
+	/**
+	 * Returns a minimal string representation of the syntax, including subsequent
+	 * syntax components.
+	 * 
+	 * @return a minimal string representation of the syntax.
+	 */
+	String toMinifiedString();
+
 }

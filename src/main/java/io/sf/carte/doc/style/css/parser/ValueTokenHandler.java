@@ -399,13 +399,15 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 		if (codepoint == TokenProducer.CHAR_SEMICOLON) {
 			handleSemicolon(index);
 		} else if (!isInError()) {
-			if (codepoint == 44) { // ,
+			switch (codepoint) {
+			case TokenProducer.CHAR_COMMA: // ,
 				if (!functionToken || currentlu.parameters == null || !addToIdentCompat()) {
 					processBuffer(index, codepoint);
 					// Spare a isInError() call
 				}
 				newOperator(LexicalType.OPERATOR_COMMA);
-			} else if (codepoint == TokenProducer.CHAR_EXCLAMATION) { // !
+				break;
+			case TokenProducer.CHAR_EXCLAMATION: // !
 				if (!functionToken) {
 					processBuffer(index, codepoint);
 					if (!isInError()) {
@@ -414,25 +416,30 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 				} else {
 					unexpectedCharError(index, codepoint);
 				}
-			} else if (codepoint == 45) { // -
+				break;
+			case TokenProducer.CHAR_HYPHEN_MINUS: // -
 				if (prevcp != 65) {
 					processBuffer(index, codepoint);
 				}
 				buffer.append('-');
 				codepoint = 65;
-			} else if (codepoint == 95) { // _
+				break;
+			case TokenProducer.CHAR_LOW_LINE: // _
 				buffer.append('_');
 				codepoint = 65;
-			} else if (codepoint == 46) { // .
+				break;
+			case TokenProducer.CHAR_FULL_STOP: // .
 				handleFullStop(index);
-			} else if (codepoint == 37) { // %
+				break;
+			case TokenProducer.CHAR_PERCENT_SIGN: // %
 				if (prevcp == 65 && CSSParser.isDigit(buffer.charAt(buffer.length() - 1))) {
 					buffer.append('%');
 				} else {
 					processBuffer(index, codepoint);
 					newOperator(LexicalType.OPERATOR_MOD);
 				}
-			} else if (codepoint == 35) { // #
+				break;
+			case TokenProducer.CHAR_NUMBER_SIGN: // #
 				if (buffer.length() == 0) {
 					// Handle hex color
 					yieldHandling(new HexColorTH(this));
@@ -441,18 +448,19 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 				} else {
 					unexpectedCharError(index, codepoint);
 				}
-			} else if (codepoint == 58) { // :
+				break;
+			case TokenProducer.CHAR_COLON: // :
 				// Nested pseudo-class/element or Progid hack ?
 				handleColon(index);
-			} else if (codepoint == 43) { // +
+				break;
+			case TokenProducer.CHAR_PLUS: // +
 				// Are we in a unicode range ?
 				char c;
 				if (buffer.length() == 1 && ((c = buffer.charAt(0)) == 'U' || c == 'u')) {
 					assert prevcp == 65;
 					buffer.setLength(0);
 					handleUnicodeRange();
-					prevcp = 32;
-					return;
+					codepoint = 32;
 				} else if (buffer.length() == 0
 						|| (c = buffer.charAt(buffer.length() - 1)) != 'E' && c != 'e') {
 					// No scientific notation
@@ -486,7 +494,8 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 					buffer.append('+');
 					codepoint = 65;
 				}
-			} else if (codepoint == 47) { // '/'
+				break;
+			case TokenProducer.CHAR_SLASH: // '/'
 				processBuffer(index, codepoint);
 				if (!functionToken || (currentlu.parameters != null && (isVarOrLastParamIsOperand()
 						|| currentlu.getLexicalUnitType() == LexicalType.ATTR))) {
@@ -494,32 +503,19 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 				} else {
 					unexpectedCharError(index, codepoint);
 				}
-			} else if (functionToken) {
-				if (codepoint == TokenProducer.CHAR_ASTERISK) { // '*'
-					processBuffer(index, codepoint);
-					if (currentlu.parameters != null && isVarOrLastParamIsOperand()) {
-						newOperator(LexicalType.OPERATOR_MULTIPLY);
-					} else {
-						unexpectedCharError(index, codepoint);
-					}
-				} else if (codepoint == 61 && handleEqualsSignInsideFunction(index)) {
-					codepoint = 65;
+				break;
+			default:
+				if (functionToken) {
+					codepoint = functionTokenOperator(index, codepoint);
+				} else if (isCustomProperty()) {
+					customPropertyOperator(index, codepoint);
+				} else if (codepoint != TokenProducer.CHAR_COMMERCIAL_AT
+						&& codepoint != TokenProducer.CHAR_QUESTION_MARK
+						&& codepoint != TokenProducer.CHAR_ASTERISK) {
+					bufferAppend(codepoint);
 				} else {
 					unexpectedCharError(index, codepoint);
 				}
-			} else if (isCustomProperty()) {
-				if (codepoint == TokenProducer.CHAR_ASTERISK) { // '*'
-					processBuffer(index, codepoint);
-					newCustomPropertyOperator(index, codepoint, LexicalType.OPERATOR_MULTIPLY);
-				} else {
-					unexpectedCharError(index, codepoint);
-				}
-			} else if (codepoint != TokenProducer.CHAR_COMMERCIAL_AT
-					&& codepoint != TokenProducer.CHAR_QUESTION_MARK
-					&& codepoint != TokenProducer.CHAR_ASTERISK) {
-				bufferAppend(codepoint);
-			} else {
-				unexpectedCharError(index, codepoint);
 			}
 		}
 		prevcp = codepoint;
@@ -551,6 +547,104 @@ abstract class ValueTokenHandler extends BufferTokenHandler implements LexicalPr
 		} else {
 			unexpectedCharError(index, ';');
 		}
+	}
+
+	private int functionTokenOperator(int index, int codepoint) {
+		processBuffer(index, codepoint);
+		if (isInError()) {
+			return codepoint;
+		}
+		if (currentlu.parameters == null || !isVarOrLastParamIsOperand()) {
+			unexpectedCharError(index, codepoint);
+			return codepoint;
+		}
+
+		LexicalType opType;
+		switch (codepoint) {
+		case TokenProducer.CHAR_ASTERISK: // '*'
+			opType = LexicalType.OPERATOR_MULTIPLY;
+			break;
+		case TokenProducer.CHAR_LESS_THAN:
+			opType = LexicalType.OPERATOR_LT;
+			break;
+		case TokenProducer.CHAR_GREATER_THAN:
+			opType = LexicalType.OPERATOR_GT;
+			break;
+		case TokenProducer.CHAR_EQUALS: // '='
+			LexicalUnitImpl currentParam = currentlu.parameters;
+			if (currentParam != null) {
+				LexicalUnitImpl lastParam = CSSParser.findLastValue(currentParam);
+				LexicalType lastType = lastParam.getLexicalUnitType();
+				if (lastType == LexicalType.OPERATOR_LT) {
+					if (prevcp == TokenProducer.CHAR_LESS_THAN) {
+						LexicalUnitImpl lu = new OperatorUnitImpl(LexicalType.OPERATOR_LE);
+						lastParam.replaceBy(lu);
+						return codepoint;
+					}
+				} else if (lastType == LexicalType.OPERATOR_GT) {
+					if (prevcp == TokenProducer.CHAR_GREATER_THAN) {
+						LexicalUnitImpl lu = new OperatorUnitImpl(LexicalType.OPERATOR_GE);
+						lastParam.replaceBy(lu);
+						return codepoint;
+					}
+				} else if (handleEqualsSignInsideFunction(index)) {
+					return 65;
+				}
+			}
+			// pass-through
+		default:
+			unexpectedCharError(index, codepoint);
+			return codepoint;
+		}
+
+		newOperator(opType);
+
+		return codepoint;
+	}
+
+	private void customPropertyOperator(int index, int codepoint) {
+		processBuffer(index, codepoint);
+		if (isInError()) {
+			return;
+		}
+
+		LexicalType opType;
+		switch (codepoint) {
+		case TokenProducer.CHAR_ASTERISK: // '*'
+			opType = LexicalType.OPERATOR_MULTIPLY;
+			break;
+		case TokenProducer.CHAR_LESS_THAN:
+			opType = LexicalType.OPERATOR_LT;
+			break;
+		case TokenProducer.CHAR_GREATER_THAN:
+			opType = LexicalType.OPERATOR_GT;
+			break;
+		case TokenProducer.CHAR_EQUALS: // '='
+			LexicalUnitImpl currentParam = currentlu.parameters;
+			if (currentParam != null) {
+				LexicalUnitImpl lastParam = CSSParser.findLastValue(currentParam);
+				LexicalType lastType = lastParam.getLexicalUnitType();
+				if (lastType == LexicalType.OPERATOR_LT) {
+					if (prevcp == TokenProducer.CHAR_LESS_THAN) {
+						LexicalUnitImpl lu = new OperatorUnitImpl(LexicalType.OPERATOR_LE);
+						lastParam.replaceBy(lu);
+						return;
+					}
+				} else if (lastType == LexicalType.OPERATOR_GT) {
+					if (prevcp == TokenProducer.CHAR_GREATER_THAN) {
+						LexicalUnitImpl lu = new OperatorUnitImpl(LexicalType.OPERATOR_GE);
+						lastParam.replaceBy(lu);
+						return;
+					}
+				}
+			}
+			// pass-through
+		default:
+			unexpectedCharError(index, codepoint);
+			return;
+		}
+
+		newCustomPropertyOperator(index, codepoint, opType);
 	}
 
 	protected void setPriorityHandler(int index) {

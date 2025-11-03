@@ -3263,6 +3263,83 @@ public class PropertyParserTest {
 	}
 
 	@Test
+	public void testParsePropertyValueFunctionIfRange() throws CSSException {
+		LexicalUnit lu = parsePropertyValue(
+				"If(style(attr(data-columns, type(<number>)) >= 2): 2em; else: 1px)");
+		assertEquals("if", lu.getFunctionName());
+		assertEquals(LexicalType.FUNCTION, lu.getLexicalUnitType());
+		assertNull(lu.getNextLexicalUnit());
+		LexicalUnit param = lu.getParameters();
+		assertNotNull(param);
+		assertEquals(LexicalType.FUNCTION, param.getLexicalUnitType());
+		assertEquals("style", param.getFunctionName());
+
+		LexicalUnit styleparam = param.getParameters();
+		assertNotNull(styleparam);
+		assertEquals(LexicalType.ATTR, styleparam.getLexicalUnitType());
+
+		LexicalUnit attparam = styleparam.getParameters();
+		assertEquals(LexicalType.IDENT, attparam.getLexicalUnitType());
+		assertEquals("data-columns", attparam.getStringValue());
+		attparam = attparam.getNextLexicalUnit();
+		assertNotNull(attparam);
+		assertEquals(LexicalType.OPERATOR_COMMA, attparam.getLexicalUnitType());
+		attparam = attparam.getNextLexicalUnit();
+		assertNotNull(attparam);
+		assertEquals(LexicalType.TYPE_FUNCTION, attparam.getLexicalUnitType());
+
+		LexicalUnit typeparam = attparam.getParameters();
+		assertEquals(LexicalType.SYNTAX, typeparam.getLexicalUnitType());
+		assertEquals("<number>", typeparam.getSyntax().toString());
+		assertNull(typeparam.getNextLexicalUnit());
+
+		assertNull(attparam.getNextLexicalUnit());
+
+		styleparam = styleparam.getNextLexicalUnit();
+		assertNotNull(styleparam);
+		assertEquals(LexicalType.OPERATOR_GE, styleparam.getLexicalUnitType());
+		styleparam = styleparam.getNextLexicalUnit();
+		assertNotNull(styleparam);
+		assertEquals(LexicalType.INTEGER, styleparam.getLexicalUnitType());
+		assertEquals(2, styleparam.getIntegerValue());
+		assertNull(styleparam.getNextLexicalUnit());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COLON, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(2f, param.getFloatValue());
+		assertEquals(CSSUnit.CSS_EM, param.getCssUnit());
+		assertEquals("em", param.getDimensionUnitText());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_SEMICOLON, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.IDENT, param.getLexicalUnitType());
+		assertEquals("else", param.getStringValue());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.OPERATOR_COLON, param.getLexicalUnitType());
+
+		param = param.getNextLexicalUnit();
+		assertNotNull(param);
+		assertEquals(LexicalType.DIMENSION, param.getLexicalUnitType());
+		assertEquals(1f, param.getFloatValue());
+		assertEquals(CSSUnit.CSS_PX, param.getCssUnit());
+		assertEquals("px", param.getDimensionUnitText());
+
+		assertEquals("if(style(attr(data-columns, type(<number>))>=2): 2em; else: 1px)",
+				lu.toString());
+	}
+
+	@Test
 	public void testParsePropertyValueFunctionSwitch() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("switch(var(--foo); transparent; #fff)");
 		assertEquals("switch", lu.getFunctionName());

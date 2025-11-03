@@ -26,7 +26,7 @@ class SyntaxUnitImpl extends LexicalUnitImpl {
 	}
 
 	@Override
-	public CSSValueSyntax getSyntax() throws IllegalStateException {
+	public CSSValueSyntax getSyntax() {
 		return syntax;
 	}
 

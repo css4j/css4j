@@ -702,7 +702,7 @@ public class PropertyParserAttrTest {
 	}
 
 	@Test
-	public void testParsePropertyValueAttrLengthPercentage() throws CSSException {
+	public void testParsePropertyValueAttrLengthPercentageFallback() throws CSSException {
 		LexicalUnit lu = parsePropertyValue("attr(data-width type(<length>), 8%)");
 		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
 		assertEquals("attr", lu.getFunctionName());
@@ -713,6 +713,24 @@ public class PropertyParserAttrTest {
 		assertMatch(Match.PENDING, lu, "<length>");
 		assertMatch(Match.PENDING, lu, "<percentage>");
 		assertMatch(Match.TRUE, lu, "<string> | <length-percentage>");
+		assertMatch(Match.PENDING, lu, "<custom-ident> | <length>");
+		assertEquals(Match.TRUE, lu.matches(universalSyntax));
+	}
+
+	@Test
+	public void testParsePropertyValueAttrLengthInteger() throws CSSException {
+		LexicalUnit lu = parsePropertyValue("attr(data-weight type(<length> | <integer>), 800)");
+		assertEquals(LexicalType.ATTR, lu.getLexicalUnitType());
+		assertEquals("attr", lu.getFunctionName());
+		assertEquals("attr(data-weight type(<length> | <integer>), 800)", lu.toString());
+
+		assertMatch(Match.TRUE, lu, "<integer> | <length>");
+		assertMatch(Match.TRUE, lu, "<integer>");
+		assertMatch(Match.PENDING, lu, "<percentage> | <length>");
+		assertMatch(Match.PENDING, lu, "<length>#");
+		assertMatch(Match.PENDING, lu, "<length>");
+		assertMatch(Match.FALSE, lu, "<percentage>");
+		assertMatch(Match.PENDING, lu, "<string> | <length-percentage>");
 		assertMatch(Match.PENDING, lu, "<custom-ident> | <length>");
 		assertEquals(Match.TRUE, lu.matches(universalSyntax));
 	}
