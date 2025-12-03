@@ -32,7 +32,7 @@ import io.sf.carte.util.SimpleWriter;
 /**
  * A value that must be kept as lexical until style computation.
  */
-abstract class AbstractLexicalValue extends ProxyValue implements CSSLexicalValue {
+public abstract class AbstractLexicalValue extends ProxyValue implements CSSLexicalValue {
 
 	private static final long serialVersionUID = 1L;
 
