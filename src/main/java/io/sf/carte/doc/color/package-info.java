@@ -7,7 +7,7 @@
 
  */
 
-// SPDX-License-Identifier: BSD-3-Clause
+// SPDX-License-Identifier: BSD-2-Clause OR BSD-3-Clause
 
 /**
  * Color classes for use in CSS, HTML, SVG, etc.
