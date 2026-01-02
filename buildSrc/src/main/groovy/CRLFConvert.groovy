@@ -1,6 +1,6 @@
 /*
 
- Copyright (c) 2021-2025, C. Amengual.
+ Copyright (c) 2021-2026, C. Amengual.
 
  Licensed under a BSD-style License. You can find the license here:
  https://css4j.github.io/LICENSE.txt
