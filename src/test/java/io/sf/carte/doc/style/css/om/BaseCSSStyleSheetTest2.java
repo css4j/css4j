@@ -61,10 +61,10 @@ public class BaseCSSStyleSheetTest2 {
 		String result = stylerule.getCssText();
 		result = result.replace("\r", ""); // Windows compatibility hack
 		assertEquals(
-				"/*\n * HTML/XHTML CSS, derived from the one in the W3C CSS 2.1 specification,\n * combined with the styles from HTML5 specification.\n */html,address,blockquote,body,dd,div,dl,dt,fieldset,form,frame,frameset,h1,h2,h3,h4,h5,h6,iframe,dir,article,aside,hgroup,nav,section,object,ol,p,ul,applet,center,hr,menu,pre,figure,figcaption,footer,header,legend,listing,plaintext,xmp {display: block; }",
+				"/*\n * HTML/XHTML CSS, derived from the one in the W3C CSS 2.1 specification,\n * combined with the styles from HTML5 specification.\n */html,address,blockquote,body,dd,div,dl,dt,fieldset,form,frame,frameset,h1,h2,h3,h4,h5,h6,iframe,dir,article,aside,hgroup,main,nav,section,object,ol,p,ul,applet,center,hr,menu,pre,figure,figcaption,footer,header,legend,listing,plaintext,xmp {display: block; }",
 				result);
 		assertEquals(
-				"html,address,blockquote,body,dd,div,dl,dt,fieldset,form,frame,frameset,h1,h2,h3,h4,h5,h6,iframe,dir,article,aside,hgroup,nav,section,object,ol,p,ul,applet,center,hr,menu,pre,figure,figcaption,footer,header,legend,listing,plaintext,xmp{display:block}",
+				"html,address,blockquote,body,dd,div,dl,dt,fieldset,form,frame,frameset,h1,h2,h3,h4,h5,h6,iframe,dir,article,aside,hgroup,main,nav,section,object,ol,p,ul,applet,center,hr,menu,pre,figure,figcaption,footer,header,legend,listing,plaintext,xmp{display:block}",
 				stylerule.getMinifiedCssText());
 		assertNotNull(stylerule.getPrecedingComments());
 		result = stylerule.getPrecedingComments().get(0);

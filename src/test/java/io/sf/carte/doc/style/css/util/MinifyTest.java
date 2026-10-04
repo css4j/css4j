@@ -53,7 +53,7 @@ class MinifyTest {
 		final String HTML_UA_STYLE_SHEET = "/io/sf/carte/doc/style/css/html.css";
 		String[] args = new String[1];
 		args[0] = MinifyTest.class.getResource(HTML_UA_STYLE_SHEET).toExternalForm();
-		final int MINIFIED_LENGTH = 6109;
+		final int MINIFIED_LENGTH = 6119;
 		ByteArrayOutputStream out = new ByteArrayOutputStream(MINIFIED_LENGTH);
 		PrintStream ps = new PrintStream(out, false, "utf-8");
 		assertEquals(0, Minify.main(args, ps, System.err));
