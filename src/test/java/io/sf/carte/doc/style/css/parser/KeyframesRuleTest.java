@@ -98,7 +98,7 @@ public class KeyframesRuleTest {
 	}
 
 	@Test
-	public void testParseKeyframesRuleNoWS() throws CSSException, IOException {
+	public void testParseKeyframesRuleNoWSSelectorError() throws CSSException, IOException {
 		Reader re = new StringReader(
 			"@keyframes slide-right{0{margin-left:0px}.9%,26%{margin-left:110px;opacity:1}"
 				+ "+40.2%,{opacity:.6}7e1%{margin-left:150px}to{margin-left:200px}}");
@@ -106,12 +106,8 @@ public class KeyframesRuleTest {
 
 		assertEquals(1, handler.keyframesNames.size());
 		assertEquals("slide-right", handler.keyframesNames.get(0));
-		assertEquals(5, handler.keyframeSelectors.size());
+		assertEquals(4, handler.keyframeSelectors.size());
 		LexicalUnit lu = handler.keyframeSelectors.get(0);
-		assertEquals(LexicalType.INTEGER, lu.getLexicalUnitType());
-		assertEquals(0, lu.getIntegerValue());
-		assertNull(lu.getNextLexicalUnit());
-		lu = handler.keyframeSelectors.get(1);
 		assertEquals("0.9%", lu.getCssText());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
@@ -120,50 +116,50 @@ public class KeyframesRuleTest {
 		assertNotNull(lu);
 		assertEquals(LexicalType.PERCENTAGE, lu.getLexicalUnitType());
 		assertEquals("26%", lu.getCssText());
-		lu = handler.keyframeSelectors.get(2);
+		lu = handler.keyframeSelectors.get(1);
 		assertEquals("40.2%", lu.getCssText());
 		lu = lu.getNextLexicalUnit();
 		assertNotNull(lu);
 		assertEquals(LexicalType.OPERATOR_COMMA, lu.getLexicalUnitType());
-		assertEquals("70%", handler.keyframeSelectors.get(3).toString());
-		assertEquals("to", handler.keyframeSelectors.get(4).toString());
+		assertNull(lu.getNextLexicalUnit());
+		assertEquals("70%", handler.keyframeSelectors.get(2).toString());
+		assertEquals("to", handler.keyframeSelectors.get(3).toString());
 
-		assertEquals(6, handler.propertyNames.size());
+		assertEquals(5, handler.propertyNames.size());
 		assertEquals("margin-left", handler.propertyNames.get(0));
-		assertEquals("margin-left", handler.propertyNames.get(1));
+		assertEquals("opacity", handler.propertyNames.get(1));
 		assertEquals("opacity", handler.propertyNames.get(2));
-		assertEquals("opacity", handler.propertyNames.get(3));
+		assertEquals("margin-left", handler.propertyNames.get(3));
 		assertEquals("margin-left", handler.propertyNames.get(4));
-		assertEquals("margin-left", handler.propertyNames.get(5));
-		assertEquals(6, handler.lexicalValues.size());
-		assertEquals("0px", handler.lexicalValues.get(0).toString());
-		assertEquals("110px", handler.lexicalValues.get(1).toString());
-		assertEquals("1", handler.lexicalValues.get(2).toString());
-		assertEquals("0.6", handler.lexicalValues.get(3).toString());
-		assertEquals("150px", handler.lexicalValues.get(4).toString());
-		assertEquals("200px", handler.lexicalValues.get(5).toString());
+
+		assertEquals(5, handler.lexicalValues.size());
+		assertEquals("110px", handler.lexicalValues.get(0).toString());
+		assertEquals("1", handler.lexicalValues.get(1).toString());
+		assertEquals("0.6", handler.lexicalValues.get(2).toString());
+		assertEquals("150px", handler.lexicalValues.get(3).toString());
+		assertEquals("200px", handler.lexicalValues.get(4).toString());
 		assertEquals(0, handler.atRules.size());
 
 		Locator loc = handler.ptyLocators.get(0);
 		assertEquals(1, loc.getLineNumber());
-		assertEquals(41, loc.getColumnNumber());
+		assertEquals(67, loc.getColumnNumber());
 		loc = handler.ptyLocators.get(1);
 		assertEquals(1, loc.getLineNumber());
-		assertEquals(67, loc.getColumnNumber());
+		assertEquals(77, loc.getColumnNumber());
 		loc = handler.ptyLocators.get(2);
 		assertEquals(1, loc.getLineNumber());
-		assertEquals(77, loc.getColumnNumber());
+		assertEquals(96, loc.getColumnNumber());
 		loc = handler.ptyLocators.get(3);
 		assertEquals(1, loc.getLineNumber());
-		assertEquals(96, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(4);
-		assertEquals(1, loc.getLineNumber());
 		assertEquals(119, loc.getColumnNumber());
-		loc = handler.ptyLocators.get(5);
+		loc = handler.ptyLocators.get(4);
 		assertEquals(1, loc.getLineNumber());
 		assertEquals(140, loc.getColumnNumber());
 
-		assertFalse(errorHandler.hasError());
+		assertTrue(errorHandler.hasError());
+		CSSParseException ex = errorHandler.getLastException();
+		assertEquals(1, ex.getLineNumber());
+		assertEquals(25, ex.getColumnNumber());
 	}
 
 	@Test

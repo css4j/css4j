@@ -5342,11 +5342,6 @@ public class CSSParser implements Parser, Cloneable {
 								sel.identCssText = raw;
 								setCurrentLexicalUnit(sel);
 							}
-						} else if ("0".equals(raw)) {
-							LexicalUnitImpl sel = new LexicalUnitImpl(LexicalType.INTEGER);
-							sel.intValue = 0;
-							sel.setCssUnit(CSSUnit.CSS_NUMBER);
-							setCurrentLexicalUnit(sel);
 						} else {
 							unexpectedTokenError(index, "Invalid identifier: " + raw);
 						}
