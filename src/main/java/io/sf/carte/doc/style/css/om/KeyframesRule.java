@@ -129,11 +129,12 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 			// This should never happen!
 			throw new DOMException(DOMException.INVALID_STATE_ERR, e.getMessage());
 		}
-		return keyframeSelector(selunit);
+		StringBuilder buffer = new StringBuilder();
+		keyframeSelector(buffer, selunit);
+		return buffer.toString();
 	}
 
-	static String keyframeSelector(LexicalUnit selunit) throws DOMException {
-		StringBuilder buffer = new StringBuilder();
+	static void keyframeSelector(StringBuilder buffer, LexicalUnit selunit) throws DOMException {
 		appendSelector(buffer, selunit);
 		LexicalUnit lu = selunit.getNextLexicalUnit();
 		while (lu != null) {
@@ -148,7 +149,6 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 			appendSelector(buffer, nextlu);
 			lu = nextlu.getNextLexicalUnit();
 		}
-		return buffer.toString();
 	}
 
 	private static void appendSelector(StringBuilder buffer, LexicalUnit selunit)
@@ -164,8 +164,6 @@ public class KeyframesRule extends BaseCSSRule implements CSSKeyframesRule {
 				buffer.append(String.format(Locale.ROOT, "%.0f", floatValue));
 			}
 			buffer.append('%');
-		} else if (type == LexicalType.INTEGER && selunit.getIntegerValue() == 0) {
-			buffer.append('0');
 		} else {
 			throw new DOMSyntaxException(
 					"Wrong keyframe selector: " + selunit.toString());

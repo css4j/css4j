@@ -111,7 +111,7 @@ public class KeyframesRuleTest {
 	@Test
 	public void testParseRule2() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@keyframes foo {  /* pre-0,50% */0,50% { margin-left: 100%;  width: 300%;}/* post-0,50% */\n to {margin-left: 0%;    width: 100%; }}");
+				"@keyframes foo {  /* pre-0%,50% */0%,50% { margin-left: 100%;  width: 300%;}/* post-0%,50% */\n to {margin-left: 0%;    width: 100%; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
@@ -119,20 +119,20 @@ public class KeyframesRuleTest {
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		assertEquals("foo", rule.getName());
 		assertEquals(
-				"@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
+				"@keyframes foo{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
 				rule.getMinifiedCssText());
 		assertEquals(
-				"@keyframes foo {\n    /* pre-0,50% */\n    0,50% {\n        margin-left: 100%;\n        width: 300%;\n    } /* post-0,50% */\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
+				"@keyframes foo {\n    /* pre-0%,50% */\n    0%,50% {\n        margin-left: 100%;\n        width: 300%;\n    } /* post-0%,50% */\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
 				rule.getCssText());
 
 		// findRule
-		CSSKeyframeRule kfrule = rule.findRule("0, 50%");
+		CSSKeyframeRule kfrule = rule.findRule("0%, 50%");
 		assertNotNull(kfrule);
-		assertEquals("0,50%", kfrule.getKeyText());
+		assertEquals("0%,50%", kfrule.getKeyText());
 		assertEquals("margin-left:100%;width:300%", kfrule.getStyle().getMinifiedCssText());
-		assertEquals("0,50%{margin-left:100%;width:300%}", kfrule.getMinifiedCssText());
-		assertEquals(" pre-0,50% ", kfrule.getPrecedingComments().item(0));
-		assertEquals(" post-0,50% ", kfrule.getTrailingComments().item(0));
+		assertEquals("0%,50%{margin-left:100%;width:300%}", kfrule.getMinifiedCssText());
+		assertEquals(" pre-0%,50% ", kfrule.getPrecedingComments().item(0));
+		assertEquals(" post-0%,50% ", kfrule.getTrailingComments().item(0));
 
 		// appendRule
 		rule.appendRule("75%{width:75%}");
@@ -168,7 +168,7 @@ public class KeyframesRuleTest {
 	@Test
 	public void testParseRule3() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@keyframes \"My Animation\" {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");
+				"@keyframes \"My Animation\" {  0%,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
@@ -176,17 +176,17 @@ public class KeyframesRuleTest {
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		assertEquals("My Animation", rule.getName());
 		assertEquals(
-				"@keyframes 'My Animation'{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
+				"@keyframes 'My Animation'{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
 				rule.getMinifiedCssText());
 		assertEquals(
-				"@keyframes 'My Animation' {\n    0,50% {\n        margin-left: 100%;\n        width: 300%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
+				"@keyframes 'My Animation' {\n    0%,50% {\n        margin-left: 100%;\n        width: 300%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
 				rule.getCssText());
 	}
 
 	@Test
 	public void testParseRuleErrorRecovery() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@;@keyframes \"My Animation\" {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%");
+				"@;@keyframes \"My Animation\" {  0%,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
@@ -194,17 +194,17 @@ public class KeyframesRuleTest {
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		assertEquals("My Animation", rule.getName());
 		assertEquals(
-				"@keyframes 'My Animation'{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
+				"@keyframes 'My Animation'{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
 				rule.getMinifiedCssText());
 		assertEquals(
-				"@keyframes 'My Animation' {\n    0,50% {\n        margin-left: 100%;\n        width: 300%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
+				"@keyframes 'My Animation' {\n    0%,50% {\n        margin-left: 100%;\n        width: 300%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
 				rule.getCssText());
 	}
 
 	@Test
 	public void testParseRuleEscapedFF() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@keyframes \\66 00 {  0,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");
+				"@keyframes \\66 00 {  0%,50% { margin-left: 100%;  width: 300%;} to {margin-left: 0%;    width: 100%; }}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
@@ -212,10 +212,10 @@ public class KeyframesRuleTest {
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		assertEquals("f00", rule.getName());
 		assertEquals(
-				"@keyframes f00{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
+				"@keyframes f00{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
 				rule.getMinifiedCssText());
 		assertEquals(
-				"@keyframes f00 {\n    0,50% {\n        margin-left: 100%;\n        width: 300%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
+				"@keyframes f00 {\n    0%,50% {\n        margin-left: 100%;\n        width: 300%;\n    }\n    to {\n        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
 				rule.getCssText());
 	}
 
@@ -234,7 +234,7 @@ public class KeyframesRuleTest {
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		assertEquals("animate-opacity", rule.getName());
 		assertEquals(
-				"@keyframes animate-opacity{0{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)\";filter:alpha(opacity=100);-moz-opacity:1;-khtml-opacity:1;opacity:1}100%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity:0;opacity:0}}",
+				"@keyframes animate-opacity{0%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)\";filter:alpha(opacity=100);-moz-opacity:1;-khtml-opacity:1;opacity:1}100%{-ms-filter:\"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)\";filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity:0;opacity:0}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -254,7 +254,7 @@ public class KeyframesRuleTest {
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
 		assertEquals("animate-opacity", rule.getName());
 		assertEquals(
-				"@keyframes animate-opacity{0{-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=100)';filter:alpha(opacity=100);-moz-opacity:1;-khtml-opacity:1;opacity:1}100%{-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)';filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity:0;opacity:0}}",
+				"@keyframes animate-opacity{0%{-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=100)';filter:alpha(opacity=100);-moz-opacity:1;-khtml-opacity:1;opacity:1}100%{-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=0)';filter:alpha(opacity=0);-moz-opacity:0;-khtml-opacity:0;opacity:0}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -345,7 +345,7 @@ public class KeyframesRuleTest {
 	@Test
 	public void testParseRuleError10() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; {} width: 100%;}}");
+				"@keyframes \"My Animation\" {0%,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; {} width: 100%;}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
@@ -366,7 +366,7 @@ public class KeyframesRuleTest {
 	@Test
 	public void testParseRuleError11() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;{}}}");
+				"@keyframes \"My Animation\" {0%,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;{}}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
@@ -384,7 +384,7 @@ public class KeyframesRuleTest {
 	@Test
 	public void testParseRuleError12() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@keyframes \"My Animation\" {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}{}}");
+				"@keyframes \"My Animation\" {0%,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}{}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(1, sheet.getCssRules().getLength());
 		KeyframesRule rule = (KeyframesRule) sheet.getCssRules().item(0);
@@ -413,7 +413,7 @@ public class KeyframesRuleTest {
 	@Test
 	public void testParseRuleErrorKeyword1() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@keyframes initial {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
+				"@keyframes initial {0%,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
@@ -422,7 +422,7 @@ public class KeyframesRuleTest {
 	@Test
 	public void testParseRuleErrorKeyword2() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@keyframes None {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
+				"@keyframes None {0%,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
@@ -431,7 +431,7 @@ public class KeyframesRuleTest {
 	@Test
 	public void testParseRuleErrorKeyword3() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@keyframes Inherit {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
+				"@keyframes Inherit {0%,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
@@ -440,7 +440,7 @@ public class KeyframesRuleTest {
 	@Test
 	public void testParseRuleErrorKeyword4() throws DOMException, IOException {
 		StringReader re = new StringReader(
-				"@keyframes unset {0,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
+				"@keyframes unset {0%,50%{margin-left: 100%;width: 300%;}to{margin-left: 0%; width: 100%;}}");
 		sheet.parseStyleSheet(re);
 		assertEquals(0, sheet.getCssRules().getLength());
 		assertTrue(sheet.getErrorHandler().hasSacErrors());
@@ -449,15 +449,15 @@ public class KeyframesRuleTest {
 	@Test
 	public void testParse() {
 		KeyframesRule rule = parseStyleSheet(
-				"@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
+				"@keyframes foo{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
 		assertEquals("foo", rule.getName());
 		assertEquals(
-				"@keyframes foo {\n    0,50% {\n"
+				"@keyframes foo {\n    0%,50% {\n"
 						+ "        margin-left: 100%;\n        width: 300%;\n    }\n    to {\n"
 						+ "        margin-left: 0%;\n        width: 100%;\n    }\n}\n",
 				rule.getCssText());
 		assertEquals(
-				"@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
+				"@keyframes foo{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -476,7 +476,7 @@ public class KeyframesRuleTest {
 		KeyframesRule rule = parseStyleSheet(
 				"@keyframes opacity-closing {0% {opacity: 1;} 100% {opacity: 0;}} /*!rtl:end:ignore*/");
 		assertEquals("opacity-closing", rule.getName());
-		assertEquals("@keyframes opacity-closing{0{opacity:1}100%{opacity:0}}",
+		assertEquals("@keyframes opacity-closing{0%{opacity:1}100%{opacity:0}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -485,7 +485,7 @@ public class KeyframesRuleTest {
 		KeyframesRule rule = parseStyleSheet(
 				"@keyframes\nopacity-closing {0% {opacity: 1;} 100% {opacity: 0;}} /*!rtl:end:ignore*/");
 		assertEquals("opacity-closing", rule.getName());
-		assertEquals("@keyframes opacity-closing{0{opacity:1}100%{opacity:0}}",
+		assertEquals("@keyframes opacity-closing{0%{opacity:1}100%{opacity:0}}",
 				rule.getMinifiedCssText());
 	}
 
@@ -506,37 +506,37 @@ public class KeyframesRuleTest {
 	@Test
 	public void testCreate() {
 		KeyframesRule rule = parseStyleSheet(
-				"@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
+				"@keyframes foo{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
 		assertEquals("foo", rule.getName());
 		assertEquals(
-				"@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
+				"@keyframes foo{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
 				rule.getMinifiedCssText());
 		CSSKeyframeRule kfrule = rule.findRule("to");
 		kfrule.setCssText("100%{margin-left:10%;width:90%}");
 		assertEquals("100%{margin-left:10%;width:90%}", kfrule.getMinifiedCssText());
 		assertEquals(
-				"@keyframes foo{0,50%{margin-left:100%;width:300%}100%{margin-left:10%;width:90%}}",
+				"@keyframes foo{0%,50%{margin-left:100%;width:300%}100%{margin-left:10%;width:90%}}",
 				rule.getMinifiedCssText());
 	}
 
 	@Test
 	public void testEquals() {
 		KeyframesRule rule = parseStyleSheet(
-				"@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
+				"@keyframes foo{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
 		KeyframesRule rule2 = parseStyleSheet(
-				"@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
+				"@keyframes foo{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
 		assertTrue(rule.equals(rule2));
 		assertTrue(rule.hashCode() == rule2.hashCode());
 		rule2 = parseStyleSheet(
-				"@keyframes bar{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
+				"@keyframes bar{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
 		assertFalse(rule.equals(rule2));
 		rule2 = parseStyleSheet(
-				"@keyframes foo{0,50%{margin-left:100%}to{margin-left:0%;width:100%}}");
+				"@keyframes foo{0%,50%{margin-left:100%}to{margin-left:0%;width:100%}}");
 		assertFalse(rule.equals(rule2));
 		rule2 = parseStyleSheet(
 				"@keyframes foo{50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}");
 		assertFalse(rule.equals(rule2));
-		rule2 = parseStyleSheet("@keyframes foo{0,50%{margin-left:100%;width:300%}}");
+		rule2 = parseStyleSheet("@keyframes foo{0%,50%{margin-left:100%;width:300%}}");
 		assertFalse(rule.equals(rule2));
 	}
 

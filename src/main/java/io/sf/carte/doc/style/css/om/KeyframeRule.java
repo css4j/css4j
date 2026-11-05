@@ -14,7 +14,6 @@ package io.sf.carte.doc.style.css.om;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Locale;
 
 import org.w3c.dom.DOMException;
 
@@ -29,7 +28,6 @@ import io.sf.carte.doc.style.css.nsac.CSSException;
 import io.sf.carte.doc.style.css.nsac.CSSHandler;
 import io.sf.carte.doc.style.css.nsac.CSSParseException;
 import io.sf.carte.doc.style.css.nsac.LexicalUnit;
-import io.sf.carte.doc.style.css.nsac.LexicalUnit.LexicalType;
 import io.sf.carte.doc.style.css.nsac.Parser;
 import io.sf.carte.doc.style.css.property.CSSPropertyValueException;
 import io.sf.carte.util.BufferSimpleWriter;
@@ -64,7 +62,9 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 
 	void setKeyframeSelector(LexicalUnit keyframeSelector) throws DOMException {
 		this.keyframeSelector = keyframeSelector;
-		this.keyText = KeyframesRule.keyframeSelector(keyframeSelector);
+		StringBuilder buffer = new StringBuilder();
+		KeyframesRule.keyframeSelector(buffer, keyframeSelector);
+		this.keyText = buffer.toString();
 	}
 
 	@Override
@@ -83,46 +83,11 @@ public class KeyframeRule extends BaseCSSDeclarationRule implements CSSKeyframeR
 	@Override
 	public String getMinifiedCssText() {
 		StringBuilder buffer = new StringBuilder(64);
-		miniKeyframeSelector(buffer, keyframeSelector);
+		KeyframesRule.keyframeSelector(buffer, keyframeSelector);
 		buffer.append('{');
 		buffer.append(getStyle().getMinifiedCssText());
 		buffer.append('}');
 		return buffer.toString();
-	}
-
-	private static String miniKeyframeSelector(StringBuilder buffer, LexicalUnit selunit) {
-		appendMiniSelector(buffer, selunit);
-		LexicalUnit lu = selunit.getNextLexicalUnit();
-		while (lu != null) {
-			LexicalUnit nextlu = lu.getNextLexicalUnit();
-			buffer.append(',');
-			appendMiniSelector(buffer, nextlu);
-			lu = nextlu.getNextLexicalUnit();
-		}
-		return buffer.toString();
-	}
-
-	private static void appendMiniSelector(StringBuilder buffer, LexicalUnit selunit) {
-		LexicalType type = selunit.getLexicalUnitType();
-		if (type == LexicalType.IDENT || type == LexicalType.STRING) {
-			buffer.append(selunit.getStringValue());
-		} else if (type == LexicalType.PERCENTAGE) {
-			float floatValue = selunit.getFloatValue();
-			if (floatValue == 0f) {
-				buffer.append('0');
-				return;
-			}
-			if (floatValue % 1 != 0) {
-				buffer.append(String.format(Locale.ROOT, "%s", floatValue));
-			} else {
-				buffer.append(String.format(Locale.ROOT, "%.0f", floatValue));
-			}
-			buffer.append('%');
-		} else if (type == LexicalType.INTEGER && selunit.getIntegerValue() == 0) {
-			buffer.append('0');
-		} else {
-			buffer.append('?');
-		}
 	}
 
 	@Override
