@@ -463,6 +463,23 @@ abstract class BooleanConditionUnit extends LexicalUnitImpl implements BooleanCo
 			buf.append(condition);
 		}
 
+		/**
+		 * Append a minified serialization of the condition to the given buffer.
+		 * 
+		 * @param buf the buffer to append to.
+		 */
+		@Override
+		public void appendMinifiedText(StringBuilder buf) {
+			// A whitespace may have to be appended
+			int len;
+			char c;
+			if (!condition.isEmpty() && condition.charAt(0) != '(' && (len = buf.length()) > 0
+					&& (c = buf.charAt(len - 1)) != ' ' && c != '(') {
+				buf.append(' ');
+			}
+			appendText(buf);
+		}
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;

@@ -76,6 +76,19 @@ class SelectorFunctionImpl extends BooleanConditionImpl implements SelectorFunct
 		buf.append(')');
 	}
 
+	/**
+	 * Append a minified serialization of the condition to the given buffer.
+	 * 
+	 * @param buf the buffer to append to.
+	 */
+	@Override
+	public void appendMinifiedText(StringBuilder buf) {
+		if (getParentCondition() == null && buf.length() > 0) {
+			buf.append(' '); // This condition starts with text
+		}
+		appendText(buf);
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(selectors);

@@ -109,6 +109,9 @@ public class SupportsRuleTest {
 		assertEquals(
 				"/* pre-rule */\n@supports (display: table-cell) and (display: list-item) {\n    /* pre-td */\n    td {\n        display: table-cell;\n    } /* post-td */\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(
+				"@supports(display:table-cell) and (display:list-item){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
 		assertNotNull(rule.getPrecedingComments());
 		assertEquals(1, rule.getPrecedingComments().size());
 		assertEquals(" pre-rule ", rule.getPrecedingComments().get(0));
@@ -148,6 +151,9 @@ public class SupportsRuleTest {
 		assertEquals(
 				"@supports (display: flexbox) and (not (display: inline-grid)) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(
+				"@supports(display:flexbox) and (not (display:inline-grid)){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
 
 		assertFalse(rule.supports(styleDb));
 	}
@@ -165,6 +171,9 @@ public class SupportsRuleTest {
 		assertEquals(
 				"@supports (display: table-cell) and (display: list-item) and (display: run-in) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(
+				"@supports(display:table-cell) and (display:list-item) and (display:run-in){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
 
 		assertFalse(rule.supports(styleDb));
 	}
@@ -183,6 +192,9 @@ public class SupportsRuleTest {
 		assertEquals(
 				"@supports ((display: table-cell) and (display: list-item) and (display: run-in)) or ((display: table-cell) and (not (display: inline-grid))) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(
+				"@supports((display:table-cell) and (display:list-item) and (display:run-in)) or ((display:table-cell) and (not (display:inline-grid))){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
 
 		assertFalse(rule.supports(styleDb));
 	}
@@ -201,6 +213,9 @@ public class SupportsRuleTest {
 		assertEquals(
 				"@supports (display: table-cell) and (display: list-item) and (not ((display: run-in) or (display: table-cell))) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(
+				"@supports(display:table-cell) and (display:list-item) and (not ((display:run-in) or (display:table-cell))){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
 
 		assertFalse(rule.supports(styleDb));
 	}
@@ -219,6 +234,9 @@ public class SupportsRuleTest {
 		assertEquals(
 				"@supports (display: table-cell) and (display: list-item) and ((not (display: run-in)) or (display: table-cell)) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(
+				"@supports(display:table-cell) and (display:list-item) and ((not (display:run-in)) or (display:table-cell)){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
 
 		assertFalse(rule.supports(styleDb));
 	}
@@ -318,6 +336,9 @@ public class SupportsRuleTest {
 		assertEquals(
 				"@supports (-webkit-backdrop-filter: saturate(180%) blur(20px)) or (backdrop-filter: saturate(180%) blur(20px)) {\n    .foo {\n        backdrop-filter: saturate(180%) blur(20px);\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(
+				"@supports(-webkit-backdrop-filter:saturate(180%) blur(20px)) or (backdrop-filter:saturate(180%) blur(20px)){.foo{backdrop-filter:saturate(180%) blur(20px)}}",
+				rule.getMinifiedCssText());
 
 		assertFalse(rule.supports(styleDb));
 	}
@@ -372,11 +393,11 @@ public class SupportsRuleTest {
 		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
 		assertEquals("(display: table-cell) or (display: list-item)", rule.getConditionText());
 		assertEquals(
-				"@supports(display:table-cell) or (display:list-item){td{display:table-cell}li{display:list-item}}",
-				rule.getMinifiedCssText());
-		assertEquals(
 				"@supports (display: table-cell) or (display: list-item) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(
+				"@supports(display:table-cell) or (display:list-item){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
 
 		assertFalse(rule.supports(styleDb));
 	}
@@ -392,11 +413,11 @@ public class SupportsRuleTest {
 		assertEquals("not ((display: table-cell) or (display: list-item))",
 				rule.getConditionText());
 		assertEquals(
-				"@supports not ((display:table-cell) or (display:list-item)){td{display:table-cell}li{display:list-item}}",
-				rule.getMinifiedCssText());
-		assertEquals(
 				"@supports not ((display: table-cell) or (display: list-item)) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(
+				"@supports not ((display:table-cell) or (display:list-item)){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
 
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 
@@ -414,15 +435,60 @@ public class SupportsRuleTest {
 		assertEquals("(not ((display: table-cell) or (display: list-item))) and selector(:has(*))",
 				rule.getConditionText());
 		assertEquals(
-				"@supports(not ((display:table-cell) or (display:list-item))) and selector(:has(*)){td{display:table-cell}li{display:list-item}}",
-				rule.getMinifiedCssText());
-		assertEquals(
 				"@supports (not ((display: table-cell) or (display: list-item))) and selector(:has(*)) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(
+				"@supports(not ((display:table-cell) or (display:list-item))) and selector(:has(*)){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
 
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 
 		assertTrue(rule.supports(styleDb));
+	}
+
+	@Test
+	public void testParseSupportsRuleSelectorFirst() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@supports selector(:has(*)) {td{display:table-cell}li{display:list-item}}");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
+		assertEquals("selector(:has(*))", rule.getConditionText());
+		BooleanCondition cond = rule.getCondition();
+		assertEquals(BooleanCondition.Type.SELECTOR_FUNCTION, cond.getType());
+		assertEquals(
+				"@supports selector(:has(*)) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
+				rule.getCssText());
+		assertEquals("@supports selector(:has(*)){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
+
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
+		assertTrue(rule.supports(styleDb));
+	}
+
+	@Test
+	public void testParseSupportsRuleNotSelectorFirst() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@supports not selector(::part(base)) {td{display:table-cell}li{display:list-item}}");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
+		assertEquals("not selector(::part(base))", rule.getConditionText());
+		BooleanCondition cond = rule.getCondition();
+		assertEquals(BooleanCondition.Type.NOT, cond.getType());
+		assertEquals(
+				"@supports not selector(::part(base)) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
+				rule.getCssText());
+		assertEquals(
+				"@supports not selector(::part(base)){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
+
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
+		assertFalse(rule.supports(styleDb));
 	}
 
 	@Test
@@ -437,11 +503,55 @@ public class SupportsRuleTest {
 				"(not ((display: table-cell) or (display: list-item))) and (not selector([p++]))",
 				rule.getConditionText());
 		assertEquals(
-				"@supports(not ((display:table-cell) or (display:list-item))) and (not selector([p++])){td{display:table-cell}li{display:list-item}}",
-				rule.getMinifiedCssText());
-		assertEquals(
 				"@supports (not ((display: table-cell) or (display: list-item))) and (not selector([p++])) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
 				rule.getCssText());
+		assertEquals(
+				"@supports(not ((display:table-cell) or (display:list-item))) and (not selector([p++])){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
+
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
+		assertTrue(rule.supports(styleDb));
+	}
+
+	@Test
+	public void testParseSupportsRuleSelectorUnknownFirst() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@supports selector([p++]) {td{display:table-cell}li{display:list-item}}");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
+		assertEquals("selector([p++])", rule.getConditionText());
+		BooleanCondition cond = rule.getCondition();
+		assertEquals(BooleanCondition.Type.OTHER, cond.getType());
+		assertEquals(
+				"@supports selector([p++]) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
+				rule.getCssText());
+		assertEquals("@supports selector([p++]){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
+
+		assertFalse(sheet.getErrorHandler().hasSacErrors());
+
+		assertFalse(rule.supports(styleDb));
+	}
+
+	@Test
+	public void testParseSupportsRuleNotSelectorUnknownFirst() throws DOMException, IOException {
+		StringReader re = new StringReader(
+				"@supports not(selector([p++])) {td{display:table-cell}li{display:list-item}}");
+		sheet.parseStyleSheet(re);
+		assertEquals(1, sheet.getCssRules().getLength());
+		assertEquals(CSSRule.SUPPORTS_RULE, sheet.getCssRules().item(0).getType());
+		SupportsRule rule = (SupportsRule) sheet.getCssRules().item(0);
+		assertEquals("not selector([p++])", rule.getConditionText());
+		BooleanCondition cond = rule.getCondition();
+		assertEquals(BooleanCondition.Type.NOT, cond.getType());
+		assertEquals(
+				"@supports not selector([p++]) {\n    td {\n        display: table-cell;\n    }\n    li {\n        display: list-item;\n    }\n}\n",
+				rule.getCssText());
+		assertEquals("@supports not selector([p++]){td{display:table-cell}li{display:list-item}}",
+				rule.getMinifiedCssText());
 
 		assertFalse(sheet.getErrorHandler().hasSacErrors());
 
