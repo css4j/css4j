@@ -12,6 +12,7 @@
 plugins {
 	id 'java-library'
 	id 'maven-publish'
+	id 'signing'
 	id 'checkstyle'
 	id 'jacoco'
 }
@@ -19,6 +20,8 @@ plugins {
 group = 'io.sf.carte'
 version = '6.2.1'
 description = 'css4j'
+
+ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
 
 java {
 	sourceCompatibility = JavaVersion.VERSION_1_8
@@ -323,7 +326,7 @@ publishing {
 				url = "https://css4j.github.io/"
 				licenses {
 					license {
-						name = "BSD 3-clause license"
+						name = "BSD 2-clause license"
 						url = "https://css4j.github.io/LICENSE.txt"
 					}
 				}
@@ -371,4 +374,19 @@ publishing {
 			}
 		}
 	}
+}
+
+signing {
+	required = { isReleaseVersion && gradle.taskGraph.hasTask("publish") }
+	def signingKeyId = findProperty("SIGNINGKEYID")
+	def signingPassword = findProperty("SIGNINGPASSWORD")
+	def signingKey
+	if (System.env['ORG_GRADLE_PROJECT_SIGNINGKEY'] != null) {
+		signingKey = findProperty("SIGNINGKEY")
+	} else {
+		def signingKeyFile = findProperty("signingSecretKeyFile")
+		signingKey = file(signingKeyFile).getText()
+	}
+	useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+	sign publishing.publications.maven
 }
