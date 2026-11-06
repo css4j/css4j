@@ -1,4 +1,4 @@
-# css4j version 6.2 Release Notes
+# css4j version 6.2.1 Release Notes
 
 ### November 6, 2026
 
