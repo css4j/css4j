@@ -26,6 +26,8 @@ The functionality of this library can be divided in the following areas:
 
 - A device profile API to encapsulate target device-specific information.
 
+- A CSS minifier.
+
 In separate modules you can find:
 
 - A DOM4J backend (module [css4j-dom4j](https://github.com/css4j/css4j-dom4j))
