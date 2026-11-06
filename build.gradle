@@ -18,7 +18,7 @@ plugins {
 }
 
 group = 'io.sf.carte'
-version = '6.2.1'
+version = '6.3-SNAPSHOT'
 description = 'css4j'
 
 ext.isReleaseVersion = !version.endsWith("SNAPSHOT")
