@@ -385,7 +385,9 @@ signing {
 		signingKey = findProperty("SIGNINGKEY")
 	} else {
 		def signingKeyFile = findProperty("signingSecretKeyFile")
-		signingKey = file(signingKeyFile).getText()
+		if (signingKeyFile != null) {
+			signingKey = file(signingKeyFile).getText()
+		}
 	}
 	useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
 	sign publishing.publications.maven
