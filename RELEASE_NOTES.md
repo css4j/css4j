@@ -1,6 +1,6 @@
 # css4j version 6.2 Release Notes
 
-### December 3, 2025
+### November 6, 2026
 
 This is mainly a bugfix release, with 6.2.1 being a drop-in replacement for 6.2.
 All users are encouraged to upgrade.
