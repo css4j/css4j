@@ -22,6 +22,28 @@ utilities in the `/usr/bin` directory. Can be installed on Windows as well,
 either via [MSYS2](https://www.msys2.org/) or by [manually installing over the
 Git Bash](https://gist.github.com/carlosame/5c4070c3941707c0f2c2a5bf1b175cc4).
 
+- If you plan to sign the artifacts, a PGP key in the `ORG_GRADLE_PROJECT_SIGNINGKEY`
+environment variable, or a `signingSecretKeyFile` property (in your local
+`gradle.properties` file) with the path to the armor-exported key (if you use
+the Windows operating system, remember to escape the backslashes `\\`). There is
+also a `SIGNINGKEYID` property (or a `ORG_GRADLE_PROJECT_SIGNINGKEYID`
+environment variable) for the ID of the key (signing with a subkey is recommended).
+It is also possible to put the `signingPassword` parameter in the properties file
+unless you prefer to specify it on the command line.
+
+Example:
+
+```properties
+signingSecretKeyFile=C:\\the\\key\\location\\ABCDEFGH.key
+SIGNINGKEYID=ABCDEFGH
+signingPassword=my-password
+```
+If you use a subkey it is recommended to export only that key to the file, adding
+a `!` to the subkey ID:
+```shell
+gpg --armor --export-secret-subkeys ABCDEFGH! > ABCDEFGH.key
+```
+
 - The [`cosign`](https://docs.sigstore.dev/cosign/) utility. It is generally
 installed from a package manager (for example [Scoop](https://scoop.sh/) on
 Windows).
@@ -78,8 +100,9 @@ local copy of the bare-bones Maven repository with:
 
 ```shell
 cd /path/to/css4j
-./gradlew publish -PmavenReleaseRepoUrl="file:///path/to/css4j.github.io/maven"
+./gradlew publish -PmavenReleaseRepoUrl="file:///path/to/css4j.github.io/maven" -PsigningPassword=<password>
 ```
+If you are not signing the artifacts you can omit the `-PsigningPassword`.
 
 9) Produce the necessary directory indexes in the local copy of the bare-bones
 Maven repository using [`genindex.py`](https://raw.githubusercontent.com/carlosame/index-html-generator/refs/heads/main/genindex.py):
