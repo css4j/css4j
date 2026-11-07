@@ -378,13 +378,13 @@ publishing {
 
 signing {
 	required = { isReleaseVersion && gradle.taskGraph.hasTask("publish") }
-	def signingKeyId = findProperty("SIGNINGKEYID")
-	def signingPassword = findProperty("signingPassword")
+	def signingKeyId = findProperty('SIGNINGKEYID')
+	def signingPassword = findProperty('signingPassword')
 	def signingKey
 	if (System.env['ORG_GRADLE_PROJECT_SIGNINGKEY'] != null) {
-		signingKey = findProperty("SIGNINGKEY")
+		signingKey = findProperty('SIGNINGKEY')
 	} else {
-		def signingKeyFile = findProperty("signingSecretKeyFile")
+		def signingKeyFile = findProperty('signingSecretKeyFile')
 		if (signingKeyFile != null) {
 			signingKey = file(signingKeyFile).getText()
 		}

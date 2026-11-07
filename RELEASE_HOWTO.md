@@ -27,9 +27,9 @@ environment variable, or a `signingSecretKeyFile` property (in your local
 `gradle.properties` file) with the path to the armor-exported key (if you use
 the Windows operating system, remember to escape the backslashes `\\`). There is
 also a `SIGNINGKEYID` property (or a `ORG_GRADLE_PROJECT_SIGNINGKEYID`
-environment variable) for the ID of the key (signing with a subkey is recommended).
-It is also possible to put the `signingPassword` parameter in the properties file
-unless you prefer to specify it on the command line.
+environment variable) for the ID of the key (signing with a [subkey](https://gist.github.com/rdnt/962e90b5a07c32ff2778de71b2e1cef2)
+is recommended). It is also possible to put the `signingPassword` parameter in
+the properties file unless you prefer to specify it on the command line.
 
 Example:
 
