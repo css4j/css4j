@@ -399,9 +399,17 @@ class MinifyTest {
 	@Test
 	void testMinifyCSS_Keyframes() {
 		assertEquals(
-				"@keyframes foo{0,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
+				"@keyframes foo{0%,50%{margin-left:100%;width:300%}to{margin-left:0%;width:100%}}",
 				Minify.minifyCSS(
-						"@keyframes foo {  /* pre-0,50% */0,50% { margin-left: 100%;  width: 300%;}/* post-0,50% */\n to {margin-left: 0%;    width: 100%; }}"));
+						"@keyframes foo {  /* pre-0%,50% */0%,50% { margin-left: 100%;  width: 300%;}/* post-0%,50% */\n to {margin-left: 0%;    width: 100%; }}"));
+	}
+
+	@Test
+	void testMinifyCSS_PlainMedia() {
+		assertEquals(
+				"@media screen{nav.foo{display:none}footer .footer .foo{color:#ff0;padding-right:var(--pad,)}h4{font-size:20px}}",
+				Minify.minifyCSS(
+						"@media  screen  { nav.foo { display:none;}footer .footer .foo { color: rgba(255,255,0,255);padding-right: var(--pad , /*empty*/); } h4 {font-size:20px; }}"));
 	}
 
 	@Test
@@ -450,6 +458,22 @@ class MinifyTest {
 				"@supports (display:flex) and (flex:2 2 .5%){td{display:table-cell}li{display:list-item}}",
 				Minify.minifyCSS(
 						"@supports /* skip 1 */ (((display: flex)) and ((flex: 2 2 0.5%))) /* skip 2 */ {/* pre-td */td {display: table-cell; }/* post-td */ li {display: list-item; }}"));
+	}
+
+	@Test
+	void testMinifyCSS_SupportsSelector() {
+		assertEquals(
+				"@supports selector(:has(*)){td{display:table-cell}li{display:list-item}}",
+				Minify.minifyCSS(
+						"@supports /* skip 1 */ selector(:has(*)) /* skip 2 */ {/* pre-td */td {display: table-cell; }/* post-td */ li {display: list-item; }}"));
+	}
+
+	@Test
+	void testMinifyCSS_SupportsUnsupportedSelector() {
+		assertEquals(
+				"@supports selector(foo#){td{display:table-cell}li{display:list-item}}",
+				Minify.minifyCSS(
+						"@supports /* skip 1 */ selector(foo#) /* skip 2 */ {/* pre-td */td {display: table-cell; }/* post-td */ li {display: list-item; }}"));
 	}
 
 	@Test

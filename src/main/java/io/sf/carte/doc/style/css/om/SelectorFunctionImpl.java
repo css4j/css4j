@@ -83,7 +83,10 @@ class SelectorFunctionImpl extends BooleanConditionImpl implements SelectorFunct
 	 */
 	@Override
 	public void appendMinifiedText(StringBuilder buf) {
-		if (getParentCondition() == null && buf.length() > 0) {
+		// A whitespace may have to be appended
+		int len;
+		if (getParentCondition() == null && (len = buf.length()) > 0
+				&& buf.charAt(len - 1) != ' ') {
 			buf.append(' '); // This condition starts with text
 		}
 		appendText(buf);

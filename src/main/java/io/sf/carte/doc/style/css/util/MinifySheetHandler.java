@@ -352,18 +352,12 @@ class MinifySheetHandler implements CSSHandler {
 			ruleBuf.append(selunit.getStringValue());
 		} else if (type == LexicalType.PERCENTAGE) {
 			float floatValue = selunit.getFloatValue();
-			if (floatValue == 0f) {
-				ruleBuf.append('0');
-				return;
-			}
 			if (floatValue % 1 != 0) {
 				ruleBuf.append(String.format(Locale.ROOT, "%s", floatValue));
 			} else {
 				ruleBuf.append(String.format(Locale.ROOT, "%.0f", floatValue));
 			}
 			ruleBuf.append('%');
-		} else if (type == LexicalType.INTEGER && selunit.getIntegerValue() == 0) {
-			ruleBuf.append('0');
 		} else {
 			ruleBuf.append(selunit.getCssText());
 		}
