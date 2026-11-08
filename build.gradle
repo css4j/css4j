@@ -146,9 +146,12 @@ tasks.register('copyJars', Copy) {
 
 tasks.register('lineEndingConversion', CRLFConvert) {
 	description = 'Convert top-level files to Windows line endings'
+	file "$rootDir/CONTRIBUTING.md"
+	file "$rootDir/README.md"
+	file "$rootDir/RELEASE_HOWTO.md"
 	file "$rootDir/RELEASE_NOTES.md"
+	file "$rootDir/SECURITY.md"
 	file "$rootDir/UPGRADING.txt"
-	file "$rootDir/CHANGES.txt"
 }
 
 tasks.register('lineEndingConvCopy', CRLFConvertCopy) {
